@@ -2,15 +2,42 @@
 
 This implementation complies with draft-murray-auth-ftp-ssl-07.txt.
 
+Example:
+
+>>> from M2Crypto import ftpslib
+>>> f = ftpslib.FTP_TLS()
+>>> f.connect('', 9021)
+'220 spinnaker.dyndns.org M2Crypto (Medusa) FTP/TLS server v0.07 ready.'
+>>> f.auth_tls()
+>>> f.set_pasv(0)
+>>> f.login('ftp', 'ngps@')
+'230 Ok.'
+>>> f.retrlines('LIST')
+-rw-rw-r--   1 0        198          2326 Jul  3  1996 apache_pb.gif
+drwxrwxr-x   7 0        198          1536 Oct 10  2000 manual
+drwxrwxr-x   2 0        198           512 Oct 31  2000 modpy
+drwxrwxr-x   2 0        198           512 Oct 31  2000 bobo
+drwxr-xr-x   2 0        198         14336 May 28 15:54 postgresql
+drwxr-xr-x   4 100      198           512 May 16 17:19 home
+drwxr-xr-x   7 100      100          3584 Sep 23  2000 openacs
+drwxr-xr-x  10 0        0             512 Aug  5  2000 python1.5
+-rw-r--r--   1 100      198           326 Jul 29 03:29 index.html
+drwxr-xr-x  12 0        0             512 May 31 17:08 python2.1
+'226 Transfer complete'
+>>> f.quit()
+'221 Goodbye.'
+>>>
+
+
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: ftpslib.py,v 1.1 2001/09/17 14:40:53 ngps Exp $'
+RCS_id='$Id: ftpslib.py,v 1.2 2001/09/19 14:52:28 ngps Exp $'
 
 # Python
 from ftplib import *
 from ftplib import parse150, parse227
 from ftplib import error_reply, error_temp, error_perm, error_proto
-import socket
+import socket, time
 
 # M2Crypto
 import SSL
@@ -32,47 +59,39 @@ class FTP_TLS(FTP):
         self.prot = 0
 
     def auth_tls(self):
-        """Initiate a secure connection per AUTH TLS, aka AUTH TLS-C."""
+        """Secure the control connection per AUTH TLS, aka AUTH TLS-C."""
         self.voidcmd('AUTH TLS')
         s = SSL.Connection(self.ssl_ctx, self.sock)
         s.setup_ssl()
         s.set_connect_state()
-        # We're in blocking mode, meaning the following connect_ssl() 
-        # either succeeds or throws an SSL.SSLError.
         s.connect_ssl()
         self.sock = s
         self.file = self.sock.makefile()
 
     def auth_ssl(self):
-        """Initiate a secure connection per AUTH SSL, aka AUTH TLS-P."""
+        """Secure the control connection per AUTH SSL, aka AUTH TLS-P."""
         raise NotImplementedError
 
-    def pbsz(self):
-        """Send PBSZ for secure data connection."""
-        self.voidcmd('PBSZ 0')
-
     def prot_p(self):
-        """Send PROT P for secure data connection."""
+        """Set up secure data connection."""
+        self.voidcmd('PBSZ 0')
         self.voidcmd('PROT P')
         self.prot = 1
             
     def prot_c(self):
-        """Send PROT C for data connection in the clear."""
+        """Set up data connection in the clear."""
         self.voidcmd('PROT C')
         self.prot = 0
             
     def ntransfercmd(self, cmd, rest=None):
-        """Initiate a transfer over a clear or secure connection."""
+        """Initiate a data transfer."""
         conn, size = FTP.ntransfercmd(self, cmd, rest)
         if self.prot:
             conn = SSL.Connection(self.ssl_ctx, conn)
             conn.setup_ssl()
-            if self.passiveserver:
-                conn.set_connect_state()
-                conn.connect_ssl()
-            else:
-                conn.set_accept_state()
-                conn.accept_ssl()
+            conn.set_connect_state()
+            conn.set_session(self.sock.get_session())
+            conn.connect_ssl()
         return conn, size
-        
+ 
 
