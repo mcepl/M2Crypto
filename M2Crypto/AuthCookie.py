@@ -1,8 +1,8 @@
-"""AuthCookie - Secure Authenticator Cookies
+"""Secure Authenticator Cookies
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: AuthCookie.py,v 1.1 2002/01/11 13:23:29 ngps Exp $'
+RCS_id='$Id: AuthCookie.py,v 1.2 2002/12/23 03:41:24 ngps Exp $'
 
 # M2Crypto
 import Rand, m2
@@ -80,25 +80,38 @@ class AuthCookie:
         self._mac = mac
         self._cookie = Cookie.SmartCookie()
         self._cookie[_TOKEN] = '%s%s' % (dough, mac)
-        self._cookie[_TOKEN]['secure'] = 1
+        self._name = '%s%s' % (dough, mac)  # XXX WebKit only.
 
     def expiry(self):
+        """Return the cookie's expiry time."""
         return self._expiry
 
     def data(self):
+        """Return the data portion of the cookie."""
         return self._data
 
     def mac(self):
+        """Return the cookie's MAC."""
         return self._mac
 
     def output(self):
+        """Return the cookie's output in "Set-Cookie" format."""
         return self._cookie.output()
 
     def value(self):
+        """Return the cookie's output minus the "Set-Cookie: " portion.
+        """
         return self._cookie[_TOKEN].value
 
     def isExpired(self):
+        """Return 1 if the cookie has expired, 0 otherwise."""
         return (time.time() > self._expiry)
 
+    # XXX Following methods are for WebKit only. These should be pushed 
+    # to WKAuthCookie.
+    def name(self):
+        return self._name
 
+    def headerValue(self):
+        return self.value()
 
