@@ -3,9 +3,9 @@
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: m2urllib.py,v 1.3 2001/06/03 04:36:30 ngps Exp $'
+RCS_id='$Id: m2urllib.py,v 1.4 2001/09/19 04:38:17 ngps Exp $'
 
-import sys, urllib
+import string, sys, urllib
 from urllib import *
 
 import SSL
@@ -84,5 +84,6 @@ def open_https(self, url, data=None):
 
 # Minor brain surgery. 
 URLopener.open_https = open_https
+FancyURLopener.open_https = open_https
  
 
