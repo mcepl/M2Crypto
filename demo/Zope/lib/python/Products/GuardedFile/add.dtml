@@ -1,58 +1,78 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
-<HTML lang="en">
-<HEAD>
-<TITLE>Add <dtml-var Kind></TITLE>
-</HEAD>
-<BODY BGCOLOR="#FFFFFF" LINK="#000099" VLINK="#555555">
-<H2>Add <dtml-var Kind></H2>
+<dtml-var manage_page_header>
 
-<P>
- You can create a new <dtml-var kind> in Zope using the form below. 
+<dtml-var "manage_form_title(this(), _, form_title='Add GuardedFile')">
+
+<p class="form-help">
+ A GuardedFile is a Zope File that is accessible <em>by proxy</em> only.
+</p>
+
+<p class="form-help">
+ When a GuardedFile is created, all acquired permissions are unset.
+ A proxy role is created in its container with the sole permission 
+ "View".
+</p>
+
+<p class="form-help">
+ When the GuardedFile is deleted, its associated proxy role is also
+ removed.
+</p>
+
+<p class="form-help">
+ In all other aspects a GuardedFile behaves exactly like a File.
+</p>
+
+<p class="form-help">
+ You can create a new <dtml-var kind> using the form below. 
  Select a file from your local computer by clicking the
  <em>Browse</em> button. The file you select will be uploaded
  to Zope as a <dtml-var kind>.
 </P>
 
-<P>
- <EM>Note</EM>, if you do not provide an <CODE>id</CODE> then the file name
- will be used.
-</P>
-
 <FORM ACTION="manage_add<dtml-var Kind>" METHOD="POST"
       ENCTYPE="multipart/form-data">
-<TABLE CELLSPACING="2">
-<TR>
-  <TD ALIGN="LEFT" VALIGN="TOP">
-  <STRONG>Id</STONG>
-  </TD>
-  <TD ALIGN="LEFT" VALIGN="TOP">
-  <INPUT TYPE="TEXT" NAME="id" SIZE="40">
-  </TD>
-</TR>
-<TR>
-  <TD ALIGN="LEFT" VALIGN="TOP">
-  <EM><STRONG>Title</STRONG></EM>
-  </TD>
-  <TD ALIGN="LEFT" VALIGN="TOP">
-  <INPUT TYPE="TEXT" NAME="title" SIZE="40">
-  </TD>
-</TR>
-<TR>
-  <TD ALIGN="LEFT" VALIGN="TOP">
-  <STRONG>File</STRONG>
-  </TD>
-  <TD ALIGN="LEFT" VALIGN="TOP">
-  <INPUT TYPE="file" NAME="file" SIZE="25" VALUE="">
-  </TD>
-</TR>
-<TR>
-<TD></TD>
-<TD>
-<BR><INPUT TYPE="SUBMIT" VALUE=" Add ">
-</TD>
-</TR>
+<table cellspacing="0" cellpadding="2" border="0">
+  <tr>
+    <td align="left" valign="top">
+    <div class="form-label">
+    Id
+    </div>
+    </td>
+    <td align="left" valign="top">
+    <input type="text" name="id" size="40" />
+    </td>
+  </tr>
+  <tr>
+    <td align="left" valign="top">
+    <div class="form-optional">
+    Title
+    </div>
+    </td>
+    <td align="left" valign="top">
+    <input type="text" name="title" size="40" />
+    </td>
+  </tr>
+  <tr>
+    <td align="left" valign="top">
+    <div class="form-label">
+    File
+    </div>
+    </td>
+    <td align="left" valign="top">
+    <input type="file" name="file:string" size="25" value="" />
+    </td>
+  </tr>
+  <tr>
+    <td align="left" valign="top">
+    </td>
+    <td align="left" valign="top">
+    <div class="form-element">
+    <input class="form-element" type="submit" name="submit" 
+     value=" Add " /> 
+    </div>
+    </td>
+  </tr>
 </TABLE>
 </FORM>
-</BODY>
-</HTML>
+
+<dtml-var manage_page_footer>
 
