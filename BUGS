@@ -1,5 +1,5 @@
 -------------
- 01 Jun 2001
+ 29 Dec 2002
 -------------
 
 1.  SSL.Connection.makefile() returns an instance of BIO.IOBuffer, 
@@ -11,5 +11,8 @@ results.
 has been fixed for RSA, DSA, DH callbacks, but not for SSL callbacks, 
 yet.
 
+3. m2xmlrpclib.py is not compatible with Python 2.2's bundled xmlrpclib.py.
+
+
 ---------------------------------------------------------------------------
-$Id: BUGS,v 1.1 2001/06/01 13:39:30 ngps Exp $
+$Id: BUGS,v 1.2 2002/12/29 15:29:52 ngps Exp $
