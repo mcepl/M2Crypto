@@ -1,10 +1,10 @@
-#!/usr/bin/env python2.0
+#!/usr/bin/env python
 
 """Unit tests for M2Crypto.BIO.MemoryBuffer.
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: test_bio_membuf.py,v 1.1 2000/11/08 14:41:57 ngps Exp $'
+RCS_id='$Id: test_bio_membuf.py,v 1.2 2002/12/23 04:57:57 ngps Exp $'
 
 import unittest
 import M2Crypto
@@ -54,7 +54,7 @@ class MemoryBufferTestCase(unittest.TestCase):
         mb = MemoryBuffer(self.data)
         mb.close()
         self.assertRaises(IOError, mb.write, self.data)
-        assert not mb.readable() and not mb.writeable()
+        assert mb.readable() and not mb.writeable()
 
 
 def suite():
