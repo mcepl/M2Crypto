@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: c_bio.py,v 1.1 2002/12/23 06:09:27 ngps Exp $'
+RCS_id='$Id: c_bio.py,v 1.2 2003/06/22 17:14:46 ngps Exp $'
 
 from socket import *
 import sys
@@ -53,7 +53,7 @@ def c_style(HOST, PORT, req):
 
     # Receive the response.
     while 1:
-        data = m2.bio_gets(topbio, 128)
+        data = m2.bio_gets(topbio, 4096)
         if not data: break
         sys.stdout.write(data)
 

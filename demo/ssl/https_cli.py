@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: https_cli.py,v 1.5 2002/12/23 04:40:03 ngps Exp $'
+RCS_id='$Id: https_cli.py,v 1.6 2003/06/22 17:18:25 ngps Exp $'
 
 import sys
 from M2Crypto import Rand, SSL, httpslib, threading
@@ -48,8 +48,8 @@ elif sys.version[0] == '2':
         c = 0
         while 1:
             # Either of following two works.
-            #data = f.readline()   
-            data = resp.read()
+            #data = f.readline(4096)   
+            data = resp.read(4096)
             if not data: break
             c = c + len(data)
             #print data

@@ -5,7 +5,7 @@ using the saved SSL session id.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: sess.py,v 1.3 2002/12/23 04:42:52 ngps Exp $'
+RCS_id='$Id: sess.py,v 1.4 2003/06/22 17:20:52 ngps Exp $'
 
 from M2Crypto import Err, Rand, SSL, X509, threading
 m2_threading = threading; del threading
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     Rand.load_file('../randpool.dat', -1) 
 
     host = '127.0.0.1'
-    port = 443
+    port = 9443
     req = '/'
 
     optlist, optarg = getopt.getopt(sys.argv[1:], 'h:p:r:')

@@ -4,12 +4,12 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: https_server.py,v 1.4 2003/01/07 16:49:54 ngps Exp $'
+RCS_id='$Id: https_server.py,v 1.5 2003/06/22 17:09:43 ngps Exp $'
 
 import asynchat, asyncore, http_server, socket, sys
 from M2Crypto import SSL
 
-VERSION_STRING='0.09'
+VERSION_STRING='0.11'
 
 class https_channel(http_server.http_channel):
 
@@ -54,8 +54,6 @@ class https_server(http_server.http_server):
 
     def __init__(self, ip, port, ssl_ctx, resolver=None, logger_object=None):
         http_server.http_server.__init__(self, ip, port, resolver, logger_object)
-        sys.stdout.write(self.SERVER_IDENT + '\n\n')
-        sys.stdout.flush()
         self.ssl_ctx=ssl_ctx
         
     def handle_accept(self):
