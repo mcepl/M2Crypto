@@ -1,86 +1,14 @@
 ##############################################################################
-# 
-# Zope Public License (ZPL) Version 1.0
-# -------------------------------------
-# 
-# Copyright (c) Digital Creations.  All rights reserved.
-# 
-# This license has been certified as Open Source(tm).
-# 
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are
-# met:
-# 
-# 1. Redistributions in source code must retain the above copyright
-#    notice, this list of conditions, and the following disclaimer.
-# 
-# 2. Redistributions in binary form must reproduce the above copyright
-#    notice, this list of conditions, and the following disclaimer in
-#    the documentation and/or other materials provided with the
-#    distribution.
-# 
-# 3. Digital Creations requests that attribution be given to Zope
-#    in any manner possible. Zope includes a "Powered by Zope"
-#    button that is installed by default. While it is not a license
-#    violation to remove this button, it is requested that the
-#    attribution remain. A significant investment has been put
-#    into Zope, and this effort will continue if the Zope community
-#    continues to grow. This is one way to assure that growth.
-# 
-# 4. All advertising materials and documentation mentioning
-#    features derived from or use of this software must display
-#    the following acknowledgement:
-# 
-#      "This product includes software developed by Digital Creations
-#      for use in the Z Object Publishing Environment
-#      (http://www.zope.org/)."
-# 
-#    In the event that the product being advertised includes an
-#    intact Zope distribution (with copyright and license included)
-#    then this clause is waived.
-# 
-# 5. Names associated with Zope or Digital Creations must not be used to
-#    endorse or promote products derived from this software without
-#    prior written permission from Digital Creations.
-# 
-# 6. Modified redistributions of any form whatsoever must retain
-#    the following acknowledgment:
-# 
-#      "This product includes software developed by Digital Creations
-#      for use in the Z Object Publishing Environment
-#      (http://www.zope.org/)."
-# 
-#    Intact (re-)distributions of any official Zope release do not
-#    require an external acknowledgement.
-# 
-# 7. Modifications are encouraged but must be packaged separately as
-#    patches to official Zope releases.  Distributions that do not
-#    clearly separate the patches from the original work must be clearly
-#    labeled as unofficial distributions.  Modifications which do not
-#    carry the name Zope may be packaged in any form, as long as they
-#    conform to all of the clauses above.
-# 
-# 
-# Disclaimer
-# 
-#   THIS SOFTWARE IS PROVIDED BY DIGITAL CREATIONS ``AS IS'' AND ANY
-#   EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-#   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-#   PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL DIGITAL CREATIONS OR ITS
-#   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-#   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-#   LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-#   USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-#   ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-#   OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-#   OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-#   SUCH DAMAGE.
-# 
-# 
-# This software consists of contributions made by Digital Creations and
-# many individuals on behalf of Digital Creations.  Specific
-# attributions are listed in the accompanying credits file.
-# 
+#
+# Copyright (c) 2001 Zope Corporation and Contributors. All Rights Reserved.
+#
+# This software is subject to the provisions of the Zope Public License,
+# Version 2.0 (ZPL).  A copy of the ZPL should accompany this distribution.
+# THIS SOFTWARE IS PROVIDED "AS IS" AND ANY AND ALL EXPRESS OR IMPLIED
+# WARRANTIES ARE DISCLAIMED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF TITLE, MERCHANTABILITY, AGAINST INFRINGEMENT, AND FITNESS
+# FOR A PARTICULAR PURPOSE
+#
 ##############################################################################
 """Zope 2 ZServer start-up file
 
@@ -97,18 +25,22 @@ Options:
     The location of the Zope installation.
     The default is the location of this script, %(here)s.
 
-  -Z path
+  -Z 0 or 1
 
-    Unix only! This option is ignored on windows.
+    UNIX only! This option is ignored on Windows.
 
-    If this option is specified, a separate managemnt process will
-    be created that restarts Zope after a shutdown (or crash).
-    The path must point to a pid file that the process will record its
-    process id in. The path may be relative, in which case it will be
-    relative to the Zope location.
+    This option controls whether a management process will be created
+    that restarts Zope after a shutdown or crash.
+    
+    If the argument to -Z is non-null (e.g. "-Z1" or "-Zyes"), a
+    management process will be used.  If the argument to -Z is "-", or
+    "0", (e.g. "-Z-" or "-Z0"), a management process will not be used.
+    On UNIX, the default behavior is to create a separate management
+    process (e.g. -Z1) if the -Z option is not specified.
 
-    To prevent use of a separate management process, provide an
-    empty string: -Z ''
+    (Note: the -Z option in Zopes before Zope 2.6 used to be used to specify
+    a pidfile name for the management process.  This pidfile no longer
+    exists).
 
   -t n
 
@@ -120,7 +52,7 @@ Options:
     Set the interpreter check interval. This integer value
     determines how often the interpreter checks for periodic things
     such as thread switches and signal handlers. The Zope default
-    is 120, but you may want to experiment with other values that
+    is 500, but you may want to experiment with other values that
     may increase performance in your particular environment.
 
   -D
@@ -141,12 +73,12 @@ Options:
     (e.g. -d ''), then IP addresses will not be logged. If you have
     DNS service on your local machine then you can set this to
     127.0.0.1.  The default is: %(DNS_IP)s.
-    
+
   -u username or uid number
-  
-    The username to run ZServer as. You may want to run ZServer as 'nobody'
-    or some other user with limited resouces. The only works under Unix, and
-    if ZServer is started by root. The default is: %(UID)s
+
+    The username to run ZServer as.  You may want to run ZServer as
+    a dedicated user.  This only works under Unix, and if ZServer
+    is started as root, and is required in that case.
 
   -P [ipaddress:]number
 
@@ -160,9 +92,9 @@ Options:
     to listen on different addresses.
 
     Multiple -P options can be provided to run multiple sets of servers.
-    
+
   -w port
-  
+
     The Web server (HTTP) port.  This defaults to %(HTTP_PORT)s. The
     standard port for HTTP services is 80.  If this is a dash
     (e.g. -w -), then HTTP is disabled.
@@ -174,7 +106,7 @@ Options:
     Multiple -w options can be provided to run multiple servers.
 
   -y port
-  
+
     The SSL Web server (HTTPS) port.  This defaults to %(HTTPS_PORT)s. The
     standard port for HTTPS services is 443.  If this is a dash
     (e.g. -y -), then HTTPS is disabled.
@@ -186,7 +118,7 @@ Options:
     Multiple -y options can be provided to run multiple servers.
 
   -W port
-  
+
     The "WebDAV source" port.  If this is a dash (e.g. -w -), then
     "WebDAV source" is disabled.  The default is disabled.  Note that
     this feature is a workaround for the lack of "source-link" support
@@ -199,7 +131,7 @@ Options:
     Multiple -W options can be provided to run multiple servers.
 
   -Y port
-  
+
     The "WebDAV source over SSL" port.  If this is a dash (e.g. -Y -), then
     "WebDAV source over SSL" is disabled.  The default is disabled.  Note that
     this feature is a workaround for the lack of "source-link" support
@@ -211,8 +143,15 @@ Options:
 
     Multiple -Y options can be provided to run multiple servers.
 
+  -C
+  --force-http-connection-close
+
+    If present, this option causes Zope to close all HTTP connections,
+    regardless of the 'Connection:' header (or lack of one) sent by
+    the client.
+
   -f port
-  
+
     The FTP port.  If this is a dash (e.g. -f -), then FTP
     is disabled.  The standard port for FTP services is 21.  The
     default is %(FTP_PORT)s.
@@ -236,7 +175,7 @@ Options:
     not specified then the FastCGI Server is disabled.
 
   -m port
-  
+
     The secure monitor server port. If this is a dash
     (-m -), then the monitor server is disabled. The monitor server
     allows interactive Python style access to a running ZServer. To
@@ -251,21 +190,33 @@ Options:
 
     Multiple -m options can be provided to run multiple servers.
 
+  --icp port
+
+    The ICP port. ICP can be used to distribute load between back-end
+    zope servers, if you are using an ICP-aware front-end proxy such
+    as Squid.
+
+    The port can be preeceeded by an ip address follwed by a colon
+    to specify an address to listen on. This allows different servers
+    to listen on different addresses.
+
+    Multiple --icp options can be provided to run multiple servers.
+
   -l path
 
     Path to the ZServer log file. If this is a relative path then the
     log file will be written to the 'var' directory. The default is
-    %(LOG_FILE)s. 
+    %(LOG_FILE)s.
 
   -r
-    
+
     Run ZServer is read-only mode. ZServer won't write anything to disk.
     No log files, no pid files, nothing. This means that you can't do a
     lot of stuff like use PCGI, and zdaemon. ZServer will log hits to
     STDOUT and zLOG will log to STDERR.
 
   -L
-  
+
     Enable locale (internationalization) support. The value passed for
     this option should be the name of the locale to be used (see your
     operating system documentation for locale information specific to
@@ -285,7 +236,7 @@ Options:
     web server:
 
       %(program)s -X -w80
-      
+
   -M file
 
     Save detailed logging information to the given file.
@@ -298,7 +249,7 @@ Options:
 
 Environment settings are of the form: NAME=VALUE.
 
-Note: you *must* use Python 1.5.2 or later!
+Note: you *must* use Python 2.1 or later!
 """
 
 
@@ -318,24 +269,23 @@ if swhome != 'INSERT_SOFTWARE_HOME':
     sys.path.insert(5, '%s' % swhome)
 
 
-import os, sys, getopt, string
+import os, sys, getopt, codecs, string
+import socket
 
-sys.setcheckinterval(120)
+from types import StringType, IntType
+# workaround to allow unicode encoding conversions in DTML
+dummy = codecs.lookup('iso-8859-1')
 
+sys.setcheckinterval(500)
 
 program=sys.argv[0]
 here=os.path.join(os.getcwd(), os.path.split(program)[0])
-Zpid=''
 
 ########################################################################
 # Configuration section
 
 ## General configuration options
 ##
-
-# If you want run as a daemon, then uncomment the line below:
-if sys.platform=='win32': Zpid=''
-else: Zpid='zProcessManager.pid'
 
 # This is the IP address of the network interface you want your servers to
 # be visible from.  This can be changed to '' to listen on all interfaces.
@@ -347,8 +297,9 @@ IP_ADDRESS=''
 DNS_IP=''
 
 # User id to run ZServer as. Note that this only works under Unix, and if
-# ZServer is started by root.
-UID='nobody'
+# ZServer is started by root. This no longer defaults to 'nobody' since
+# that can lead to a Zope file compromise.
+UID=None
 
 # Log file location. If this is a relative path, then it is joined the
 # the 'var' directory.
@@ -360,7 +311,7 @@ LOG_FILE='Z2.log'
 # Port for HTTP Server. The standard port for HTTP services is 80.
 HTTP_PORT=8080
 
-# Port for HTTPS Server. The standard port for HTTP services is 443.
+# Port for HTTPS Server. The standard port for HTTPS services is 443.
 HTTPS_PORT=8443
 
 # HTTP enivornment settings.
@@ -368,6 +319,10 @@ HTTP_ENV={}
 
 # HTTPS enivornment settings.
 HTTPS_ENV={}
+
+# Should we close all HTTP connections, ignoring the (usually absent)
+# 'Connection:' header?
+FORCE_HTTP_CONNECTION_CLOSE=0
 
 # Port for the special "WebDAV source view" HTTP handler.  There is no
 # standard port for this handler, which is disabled by default.
@@ -391,23 +346,26 @@ PCGI_FILE='Zope.cgi'
 ## Monitor configuration
 MONITOR_PORT=0
 
+## ICP configuration
+ICP_PORT=0
+
 # Module to be published, which must be Main or Zope
 MODULE='Zope'
 
 # The size of the thread pool, if ZODB3 is used.
 NUMBER_OF_THREADS=4
 
-
 # Localization support
 LOCALE_ID=None
-
-
 
 # Socket path or port for the FastCGI Server
 FCGI_PORT=None
 
 # Detailed log file
 DETAILED_LOG_FILE=''
+
+# Use a daemon process
+USE_DAEMON = 1
 
 #
 ########################################################################
@@ -418,7 +376,7 @@ DETAILED_LOG_FILE=''
 def server_info(old, v, offset=0):
     # interpret v as a port or address/port and get new value
     if v == '-': v=''
-    l=string.find(v, ':')
+    l=v.find(':')
     if l >= 0:
         a=v[:l]
         v=v[l+1:]
@@ -426,54 +384,80 @@ def server_info(old, v, offset=0):
         a=IP_ADDRESS
 
     if not v: return v
-        
-    try: 
-        v=string.atoi(v)
+
+    try:
+        v=int(v)
         if v < 0: raise 'Invalid port', v
         v=v+offset
     except: raise 'Invalid port', v
 
-    if type(old) is type(0): old=[(a,v)]
+    if isinstance(old, IntType): old=[(a,v)]
     else: old.append((a,v))
 
-    return old    
-    
+    return old
+
 
 try:
-    if string.split(sys.version)[0] < '1.5.2':
-        raise 'Invalid python version', string.split(sys.version)[0]
+    python_version = sys.version.split()[0]
+    if python_version < '2.1':
+        raise 'Invalid python version', python_version
+    if python_version[:3] == '2.1':
+        if python_version[4:5] < '3':
+            import warnings
+            err = ('You are running Python version %s.  This Python version '
+                   'has known bugs that may cause Zope to run improperly. '
+                   'Consider upgrading to a Python in the 2.1 series '
+                   'with at least version number 2.1.3.  (Note that Zope does '
+                   'not yet run under any Python 2.2 version).' %
+                   python_version)
+            warnings.warn(err)
+    if python_version[:3] == '2.2':
+        import warnings
+        err = ('You are running Python version %s.  This Python version '
+               'has not yet been tested with Zope and you may experience '
+               'operational problems as a result.  Consider using '
+               'Python 2.1.3 instead.' % python_version)
+        warnings.warn(err)
+
 
     opts, args = getopt.getopt(sys.argv[1:],
-                               'hz:Z:t:i:a:d:u:w:W:y:Y:f:p:m:Sl:2DP:rF:L:XM:')
+                               'hz:Z:t:i:a:d:u:w:W:y:Y:f:p:m:Sl:2DP:rF:L:XM:C',
+                               ['icp=', 'force-http-connection-close'
+                               ])
 
     DEBUG=0
     READ_ONLY=0
-    
+    if sys.platform == 'win32':
+        USE_DAEMON = 0
+        
+
     # Get environment variables
     for a in args:
-        if string.find(a,'='):
-            a=string.split(a,'=')
+        if a.find('='):
+            a=a.split('=')
             o=a[0]
-            v=string.join(a[1:],'=')
-            if o: 
-              os.environ[o]=v
-              HTTP_ENV[o]=v
+            v='='.join(a[1:])
+            if o:
+                os.environ[o]=v
+                HTTP_ENV[o]=v
         else:
             raise 'Invalid argument', a
 
     for o, v in opts:
         if o=='-z': here=v
         elif o=='-Z':
-            if v=='-': v=''
-            Zpid=v
+            if v in ('-', '0', ''):
+                USE_DAEMON=0
+            elif sys.platform != 'win32':
+                USE_DAEMON = 1
         elif o=='-r': READ_ONLY=1
         elif o=='-t':
-            try: v=string.atoi(v)
+            try: v=int(v)
             except: raise 'Invalid number of threads', v
             NUMBER_OF_THREADS=v
 
         elif o=='-i':
-            try: v=string.atoi(v)
+            try: v=int(v)
             except: raise 'Invalid value for -i option', v
             sys.setcheckinterval(v)
 
@@ -487,7 +471,8 @@ try:
             DEBUG=1
         elif o=='-S': sys.ZMANAGED=1
         elif o=='-X':
-            MONITOR_PORT=HTTP_PORT=FTP_PORT=FCGI_PORT=0
+            MONITOR_PORT=HTTP_PORT=FTP_PORT=FCGI_PORT=ICP_PORT=0
+            WEBDAV_SOURCE_PORT=0
             PCGI_FILE=''
         elif o=='-m':
             MONITOR_PORT=server_info(MONITOR_PORT, v)
@@ -495,6 +480,8 @@ try:
             HTTP_PORT=server_info(HTTP_PORT, v)
         elif o=='-y':
             HTTPS_PORT=server_info(HTTPS_PORT, v)
+        elif o=='-C' or o=='--force-http-connection-close':
+            FORCE_HTTP_CONNECTION_CLOSE=1
         elif o=='-W':
             WEBDAV_SOURCE_PORT=server_info(WEBDAV_SOURCE_PORT, v)
         elif o=='-Y':
@@ -504,6 +491,8 @@ try:
         elif o=='-P':
             HTTP_PORT=server_info(HTTP_PORT, v, 80)
             FTP_PORT=server_info(FTP_PORT, v, 21)
+        elif o=='--icp':
+            ICP_PORT=server_info(ICP_PORT, v)
 
         elif o=='-p':
             if v=='-': v=''
@@ -521,8 +510,6 @@ try:
             FCGI_PORT=v
         elif o=='-M': DETAILED_LOG_FILE=v
 
-    __builtins__.__debug__=DEBUG
-
 except SystemExit: sys.exit(0)
 except:
     print __doc__ % vars()
@@ -530,8 +517,6 @@ except:
     print 'Error:'
     print "%s: %s" % (sys.exc_type, sys.exc_value)
     sys.exit(1)
-
-if sys.platform=='win32': Zpid=''
 
 #
 ########################################################################
@@ -572,19 +557,40 @@ def set_locale(val):
 if LOCALE_ID is not None:
     set_locale(LOCALE_ID)
 
-
+import zdaemon
 # from this point forward we can use the zope logger
+# importing ZDaemon before importing ZServer causes ZServer logging
+# not to work.
 
 # Import ZServer before we open the database or get at interesting
 # application code so that ZServer's asyncore gets to be the
 # official one. Also gets SOFTWARE_HOME, INSTANCE_HOME, and CLIENT_HOME
 import ZServer
 
-if Zpid and not READ_ONLY:
-    import zdaemon, App.FindHomes, posix
+# install signal handlers if on posix
+if os.name == 'posix':
+    from Signals import Signals
+    Signals.registerZopeSignals()
+
+# Location of the ZServer pid file. When Zope starts up it will write
+# its PID to this file.  If Zope is run under zdaemon control, zdaemon
+# will write to this pidfile instead of Zope.
+PID_FILE=os.path.join(CLIENT_HOME, 'Z2.pid')
+
+if USE_DAEMON and not READ_ONLY:
+    import App.FindHomes
     sys.ZMANAGED=1
-    
-    zdaemon.run(sys.argv, os.path.join(CLIENT_HOME, Zpid))
+    # zdaemon.run creates a process which "manages" the actual Zope
+    # process (restarts it if it dies).  The management process passes along
+    # signals that it receives to its child.
+    zdaemon.run(sys.argv, os.path.join(CLIENT_HOME, PID_FILE))
+
+os.chdir(CLIENT_HOME)
+
+def _warn_nobody():
+    zLOG.LOG("z2", zLOG.INFO, ("Running Zope as 'nobody' can compromise "
+                               "your Zope files; consider using a "
+                               "dedicated user account for Zope") )
 
 try:
     # Import logging support
@@ -592,14 +598,22 @@ try:
     import ZLogger
 
     if READ_ONLY:
-        zLOG._stupid_dest=sys.stderr
+        if hasattr(zLOG, '_set_stupid_dest'):
+            zLOG._set_stupid_dest(sys.stderr)
+        else:
+            zLOG._stupid_dest = sys.stderr
     else:
         zLOG.log_write = ZLogger.ZLogger.log_write
 
     if DETAILED_LOG_FILE:
         from ZServer import DebugLogger
         logfile=os.path.join(CLIENT_HOME, DETAILED_LOG_FILE)
-        DebugLogger.log=DebugLogger.DebugLogger(logfile).log
+        zLOG.LOG('z2', zLOG.BLATHER,
+                 'Using detailed request log file %s' % logfile)
+        DL=DebugLogger.DebugLogger(logfile)
+        DebugLogger.log=DL.log
+        DebugLogger.reopen=DL.reopen
+        sys.__detailedlog=DL
 
     # Import Zope (or Main)
     exec "import "+MODULE in {}
@@ -612,11 +626,6 @@ try:
     else:
         LOG_PATH=LOG_FILE
 
-    # Location of the ZServer pid file. When ZServer starts up it will write
-    # its PID to this file.
-    PID_FILE=os.path.join(CLIENT_HOME, 'Z2.pid')
-
-
     # import ZServer stuff
 
     # First, we need to increase the number of threads
@@ -627,7 +636,7 @@ try:
     from ZServer import resolver, logger, asyncore
 
     from ZServer import zhttp_server, zhttp_handler
-    from ZServer import zhttps_server, zhttps_handler
+    from ZServer import zhttps_server, zhttps_handler    
     from ZServer.WebDAVSrcHandler import WebDAVSrcHandler
     from ZServer import PCGIServer,FTPServer,FCGIServer
 
@@ -646,24 +655,47 @@ try:
 
     if READ_ONLY:
         lg = logger.file_logger('-') # log to stdout
-    elif os.environ.has_key('ZSYSLOG'):
-        lg = logger.syslog_logger(os.environ['ZSYSLOG'])
-    elif os.environ.has_key('ZSYSLOG_SERVER'):
-        (addr, port) = string.split(os.environ['ZSYSLOG_SERVER'], ':')
+        zLOG.LOG('z2', zLOG.BLATHER, 'Logging access log to stdout')
+    elif os.environ.has_key('ZSYSLOG_ACCESS'):
+        if os.environ.has_key("ZSYSLOG_ACCESS_FACILITY"):
+            lg = logger.syslog_logger(
+                os.environ['ZSYSLOG_ACCESS'],
+                facility=os.environ['ZSYSLOG_ACCESS_FACILITY'])
+        else:
+            lg = logger.syslog_logger(os.environ['ZSYSLOG_ACCESS'])
+        zLOG.LOG('z2', zLOG.BLATHER, 'Using local syslog access log')
+    elif os.environ.has_key('ZSYSLOG_ACCESS_SERVER'):
+        (addr, port) = os.environ['ZSYSLOG_ACCESS_SERVER'].split( ':')
         lg = logger.syslog_logger((addr, int(port)))
+        zLOG.LOG('z2', zLOG.BLATHER, 'Using remote syslog access log')
     else:
         lg = logger.file_logger(LOG_PATH)
+        zLOG.LOG('z2', zLOG.BLATHER, 'Using access log file %s' % LOG_PATH)
+    sys.__lg = lg
+
+    port_err=('\n\nZope wants to use %(socktype)s port %(port)s for its '
+              '%(protocol)s service, but it is already in use by another '
+              'application on this machine.  Either shut the application down '
+              'which is using this port, or start Zope with a different '
+              '%(protocol)s port via the "%(switch)s" command-line switch.\n')
 
     # HTTP Server
     if HTTP_PORT:
-        if type(HTTP_PORT) is type(0): HTTP_PORT=((IP_ADDRESS, HTTP_PORT),)
+        if isinstance(HTTP_PORT, IntType): HTTP_PORT=((IP_ADDRESS, HTTP_PORT),)
         for address, port in HTTP_PORT:
-            hs = zhttp_server(
-                ip=address,
-                port=port,
-                resolver=rs,
-                logger_object=lg)
-
+            try:
+                hs = zhttp_server(
+                    ip=address,
+                    port=port,
+                    resolver=rs,
+                    logger_object=lg)
+            except socket.error, why:
+                if why[0] == 98: # address in use
+                    raise port_err % {'port':port,
+                                      'socktype':'TCP',
+                                      'protocol':'HTTP',
+                                      'switch':'-w'}
+                raise
             # Handler for a published module. zhttp_handler takes 3 arguments:
             # The name of the module to publish, and optionally the URI base
             # which is basically the SCRIPT_NAME, and optionally a dictionary
@@ -673,12 +705,14 @@ try:
             # environment setting is useful when you want to proxy requests
             # from another web server to ZServer, and would like the CGI
             # environment to reflect the CGI environment of the other web
-            # server.    
+            # server.
             try:
                 del HTTP_ENV['HTTPS']
             except KeyError:
                 pass
             zh = zhttp_handler(MODULE, '', HTTP_ENV)
+            if FORCE_HTTP_CONNECTION_CLOSE:
+                zh._force_connection_close = 1
             hs.install_handler(zh)
 
     # HTTPS Server
@@ -712,14 +746,22 @@ try:
     # WebDAV source Server (runs HTTP, but munges request to return
     #  'manage_FTPget').
     if WEBDAV_SOURCE_PORT:
-        if type(WEBDAV_SOURCE_PORT) is type(0):
+        if isinstance(WEBDAV_SOURCE_PORT, IntType):
             WEBDAV_SOURCE_PORT=((IP_ADDRESS, WEBDAV_SOURCE_PORT),)
         for address, port in WEBDAV_SOURCE_PORT:
-            hs = zhttp_server(
-                ip=address,
-                port=port,
-                resolver=rs,
-                logger_object=lg)
+            try:
+                hs = zhttp_server(
+                    ip=address,
+                    port=port,
+                    resolver=rs,
+                    logger_object=lg)
+            except socket.error, why:
+                if why[0] == 98: # address in use
+                    raise port_err % {'port':port,
+                                      'socktype':'TCP',
+                                      'protocol':'WebDAV source',
+                                      'switch':'-W'}
+                raise
 
             # Handler for a published module. zhttp_handler takes 3 arguments:
             # The name of the module to publish, and optionally the URI base
@@ -730,9 +772,19 @@ try:
             # environment setting is useful when you want to proxy requests
             # from another web server to ZServer, and would like the CGI
             # environment to reflect the CGI environment of the other web
-            # server.    
+            # server.
             zh = WebDAVSrcHandler(MODULE, '', HTTP_ENV)
             hs.install_handler(zh)
+
+            # enable document retrieval of the document source on the
+            # standard HTTP port
+
+            clients = os.environ.get('WEBDAV_SOURCE_PORT_CLIENTS')
+            if clients:
+                import re
+                sys.WEBDAV_SOURCE_PORT_CLIENTS = re.compile(clients).search
+            else:
+                sys.WEBDAV_SOURCE_PORT_CLIENTS = None
 
     # WebDAV-over-SSL source Server (runs HTTPS, but munges request to return
     #  'manage_FTPget').
@@ -765,14 +817,22 @@ try:
 
     # FTP Server
     if FTP_PORT:
-        if type(FTP_PORT) is type(0): FTP_PORT=((IP_ADDRESS, FTP_PORT),)
+        if isinstance(FTP_PORT, IntType): FTP_PORT=((IP_ADDRESS, FTP_PORT),)
         for address, port in FTP_PORT:
-            FTPServer(
-               module=MODULE,
-               ip=address,
-               port=port,
-               resolver=rs,
-               logger_object=lg)
+            try:
+                FTPServer(
+                   module=MODULE,
+                   ip=address,
+                   port=port,
+                   resolver=rs,
+                   logger_object=lg)
+            except socket.error, why:
+                if why[0] == 98: # address in use
+                    raise port_err % {'port':port,
+                                      'socktype':'TCP',
+                                      'protocol':'FTP',
+                                      'switch':'-f'}
+                raise
 
     # PCGI Server
     if PCGI_FILE and not READ_ONLY:
@@ -791,15 +851,23 @@ try:
         fcgiPort = None
         fcgiPath = None
         try:
-            fcgiPort = string.atoi(FCGI_PORT)
+            fcgiPort = int(FCGI_PORT)
         except ValueError:
             fcgiPath = FCGI_PORT
-        zfcgi = FCGIServer(module=MODULE,
-                           ip=IP_ADDRESS,
-                           port=fcgiPort,
-                           socket_file=fcgiPath,
-                           resolver=rs,
-                           logger_object=lg)
+        try:
+            zfcgi = FCGIServer(module=MODULE,
+                               ip=IP_ADDRESS,
+                               port=fcgiPort,
+                               socket_file=fcgiPath,
+                               resolver=rs,
+                               logger_object=lg)
+        except socket.error, why:
+            if why[0] == 98: # address in use
+                raise port_err % {'port':fcgiPort,
+                                  'socktype':'TCP',
+                                  'protocol':'FastCGI',
+                                  'switch':'-F'}
+            raise
 
 
     # Monitor Server
@@ -812,55 +880,120 @@ try:
             zLOG.LOG("z2", zLOG.WARNING, 'Monitor server not started'
                      ' because no emergency user exists.')
         if pw:
-            if type(MONITOR_PORT) is type(0): 
+            if isinstance(MONITOR_PORT, IntType):
                 MONITOR_PORT=((IP_ADDRESS, MONITOR_PORT),)
             for address, port in MONITOR_PORT:
-                monitor=secure_monitor_server(
-                    password=pw,
-                    hostname=address,
-                    port=port)
+                try:
+                    monitor=secure_monitor_server(
+                        password=pw,
+                        hostname=address,
+                        port=port)
+                except socket.error, why:
+                    if why[0] == 98: # address in use
+                        raise port_err % {'port':port,
+                                          'socktype':'TCP',
+                                          'protocol':'monitor server',
+                                          'switch':'-m'}
+                    raise
 
-    # Try to set uid to "-u" -provided uid.
-    # Try to set gid to  "-u" user's primary group. 
-    # This will only work if this script is run by root.
+    if ICP_PORT:
+        if isinstance(ICP_PORT, IntType): ICP_PORT=((IP_ADDRESS, ICP_PORT),)
+        from ZServer.ICPServer import ICPServer
+        for address, port in ICP_PORT:
+            try:
+                ICPServer(address,port)
+            except socket.error, why:
+                if why[0] == 98: # address in use
+                    raise port_err % {'port':port,
+                                      'socktype':'UDP',
+                                      'protocol':'ICP',
+                                      'switch':'--icp'}
+                raise
+
+    if not USE_DAEMON and not READ_ONLY:
+        if os.path.exists(PID_FILE): os.unlink(PID_FILE)
+        pf = open(PID_FILE, 'w')
+        pid='%s\n' % os.getpid()
+        pf.write(pid)
+        pf.close()
+
+    # Warn if we were started as nobody.
     try:
         import pwd
-        try:
-            try:    UID = string.atoi(UID)
-            except: pass
-            gid = None
-            if type(UID) == type(""):
-                uid = pwd.getpwnam(UID)[2]
-                gid = pwd.getpwnam(UID)[3]
-            elif type(UID) == type(1):
-                uid = pwd.getpwuid(UID)[2]
-                gid = pwd.getpwuid(UID)[3]
-            else:
-                raise KeyError 
-            try:
-                if gid is not None:
-                    try:
-                        os.setgid(gid)
-                    except OSError:
-                        pass
-                os.setuid(uid)
-            except OSError:
-                pass
-        except KeyError:
-            zLOG.LOG("z2", zLOG.ERROR, ("can't find UID %s" % UID))
+        if os.getuid():
+            if pwd.getpwuid(os.getuid())[0] == 'nobody':
+                _warn_nobody()
     except:
         pass
 
+    # Drop root privileges if we have them, and do some sanity checking
+    # to make sure we're not starting with an obviously insecure setup.
+    try:
+        if os.getuid() == 0:
+            try:
+                import initgroups
+            except:
+                raise SystemExit, 'initgroups is required to safely setuid'
+            if UID == None:
+                raise SystemExit, ('A user was not specified to setuid '
+                                   'to; fix this to start as root (see '
+                                   'doc/SETUID.txt)')
+            import stat
+            client_home_stat = os.stat(CLIENT_HOME)
+            client_home_faults = []
+            if not (client_home_stat[stat.ST_MODE]&01000):
+                client_home_faults.append('does not have the sticky bit set')
+            if client_home_stat[stat.ST_UID] != 0:
+                client_home_faults.append('is not owned by root')
+            if client_home_faults:
+                client_home_faults.append('fix this to start as root (see '
+                                          'doc/SETUID.txt)')
+                err = '%s %s' % (CLIENT_HOME, ', '.join(client_home_faults))
+                raise SystemExit, err
 
+            try:
+                try:    UID = string.atoi(UID)
+                except: pass
+                gid = None
+                if isinstance(UID, StringType):
+                    uid = pwd.getpwnam(UID)[2]
+                    gid = pwd.getpwnam(UID)[3]
+                elif isinstance(UID, IntType):
+                    uid = pwd.getpwuid(UID)[2]
+                    gid = pwd.getpwuid(UID)[3]
+                    UID = pwd.getpwuid(UID)[0]
+                else:
+                    raise KeyError
+                if UID == 'nobody':
+                    _warn_nobody()
+                try:
+                    initgroups.initgroups(UID, gid)
+                    if gid is not None:
+                        try:
+                            os.setgid(gid)
+                        except OSError:
+                            pass
+                    os.setuid(uid)
+                except OSError:
+                    pass
+            except KeyError:
+                zLOG.LOG("z2", zLOG.ERROR, ("Can't find UID %s" % UID))
+    except AttributeError:
+        pass
+    except:
+        raise
 
-    # if it hasn't failed at this point, create a .pid file.
-    if not READ_ONLY:
-        pf = open(PID_FILE, 'w')
-        pid=str(os.getpid())
-        try: pid=str(os.getppid())+' '+pid
-        except: pass
-        pf.write(pid)
-        pf.close()
+    # Check umask sanity if we're on posix.
+    if os.name == 'posix':
+        # umask is silly, blame POSIX.  We have to set it to get its value.
+        current_umask = os.umask(0)
+        os.umask(current_umask)
+        if current_umask != 077:
+            current_umask = '%03o' % current_umask
+            zLOG.LOG("z2", zLOG.INFO, (
+                'Your umask of %s may be too permissive; for the security of '
+                'your Zope data, it is recommended you use 077' % current_umask
+                ))
 
 except:
     # Log startup exception and tell zdaemon not to restart us.

@@ -1,11 +1,11 @@
---- z2.py	Fri Mar  9 05:41:09 2001
-+++ z2s.py	Thu May 17 21:35:10 2001
-@@ -173,6 +173,18 @@
+--- z2.py	Wed Oct  9 05:18:20 2002
++++ z2s.py	Tue Dec 24 01:08:41 2002
+@@ -105,6 +105,18 @@
  
      Multiple -w options can be provided to run multiple servers.
  
 +  -y port
-+  
++
 +    The SSL Web server (HTTPS) port.  This defaults to %(HTTPS_PORT)s. The
 +    standard port for HTTPS services is 443.  If this is a dash
 +    (e.g. -y -), then HTTPS is disabled.
@@ -17,14 +17,14 @@
 +    Multiple -y options can be provided to run multiple servers.
 +
    -W port
-   
+ 
      The "WebDAV source" port.  If this is a dash (e.g. -w -), then
-@@ -186,6 +198,19 @@
+@@ -118,6 +130,19 @@
  
      Multiple -W options can be provided to run multiple servers.
  
 +  -Y port
-+  
++
 +    The "WebDAV source over SSL" port.  If this is a dash (e.g. -Y -), then
 +    "WebDAV source over SSL" is disabled.  The default is disabled.  Note that
 +    this feature is a workaround for the lack of "source-link" support
@@ -36,14 +36,14 @@
 +
 +    Multiple -Y options can be provided to run multiple servers.
 +
-   -f port
-   
-     The FTP port.  If this is a dash (e.g. -f -), then FTP
-@@ -335,13 +360,23 @@
+   -C
+   --force-http-connection-close
+ 
+@@ -286,9 +311,15 @@
  # Port for HTTP Server. The standard port for HTTP services is 80.
  HTTP_PORT=8080
  
-+# Port for HTTPS Server. The standard port for HTTP services is 443.
++# Port for HTTPS Server. The standard port for HTTPS services is 443.
 +HTTPS_PORT=8443
 +
  # HTTP enivornment settings.
@@ -52,7 +52,10 @@
 +# HTTPS enivornment settings.
 +HTTPS_ENV={}
 +
- # Port for the special "WebDAV source view" HTTP handler.  There is no
+ # Should we close all HTTP connections, ignoring the (usually absent)
+ # 'Connection:' header?
+ FORCE_HTTP_CONNECTION_CLOSE=0
+@@ -297,6 +328,10 @@
  # standard port for this handler, which is disabled by default.
  WEBDAV_SOURCE_PORT=[]
  
@@ -63,21 +66,23 @@
  ## FTP configuration
  
  # Port for the FTP Server. The standard port for FTP services is 21.
-@@ -409,7 +444,7 @@
-         raise 'Invalid python version', string.split(sys.version)[0]
+@@ -386,7 +421,7 @@
+ 
  
      opts, args = getopt.getopt(sys.argv[1:],
--                               'hz:Z:t:i:a:d:u:w:W:f:p:m:Sl:2DP:rF:L:XM:')
-+                               'hz:Z:t:i:a:d:u:w:W:y:Y:f:p:m:Sl:2DP:rF:L:XM:')
+-                               'hz:Z:t:i:a:d:u:w:W:f:p:m:Sl:2DP:rF:L:XM:C',
++                               'hz:Z:t:i:a:d:u:w:W:y:Y:f:p:m:Sl:2DP:rF:L:XM:C',
+                                ['icp=', 'force-http-connection-close'
+                                ])
  
-     DEBUG=0
-     READ_ONLY=0
-@@ -458,8 +493,12 @@
+@@ -443,10 +478,14 @@
              MONITOR_PORT=server_info(MONITOR_PORT, v)
          elif o=='-w':
              HTTP_PORT=server_info(HTTP_PORT, v)
 +        elif o=='-y':
 +            HTTPS_PORT=server_info(HTTPS_PORT, v)
+         elif o=='-C' or o=='--force-http-connection-close':
+             FORCE_HTTP_CONNECTION_CLOSE=1
          elif o=='-W':
              WEBDAV_SOURCE_PORT=server_info(WEBDAV_SOURCE_PORT, v)
 +        elif o=='-Y':
@@ -85,11 +90,11 @@
          elif o=='-f':
              FTP_PORT=server_info(FTP_PORT, v)
          elif o=='-P':
-@@ -588,11 +627,14 @@
+@@ -597,11 +636,14 @@
      from ZServer import resolver, logger, asyncore
  
      from ZServer import zhttp_server, zhttp_handler
-+    from ZServer import zhttps_server, zhttps_handler
++    from ZServer import zhttps_server, zhttps_handler    
      from ZServer.WebDAVSrcHandler import WebDAVSrcHandler
      from ZServer import PCGIServer,FTPServer,FCGIServer
  
@@ -100,15 +105,17 @@
      ## ZServer startup
      ##
  
-@@ -632,9 +674,41 @@
+@@ -664,11 +706,43 @@
              # from another web server to ZServer, and would like the CGI
              # environment to reflect the CGI environment of the other web
-             # server.    
+             # server.
 +            try:
 +                del HTTP_ENV['HTTPS']
 +            except KeyError:
 +                pass
              zh = zhttp_handler(MODULE, '', HTTP_ENV)
+             if FORCE_HTTP_CONNECTION_CLOSE:
+                 zh._force_connection_close = 1
              hs.install_handler(zh)
  
 +    # HTTPS Server
@@ -142,9 +149,9 @@
      # WebDAV source Server (runs HTTP, but munges request to return
      #  'manage_FTPget').
      if WEBDAV_SOURCE_PORT:
-@@ -660,6 +734,35 @@
-             zh = WebDAVSrcHandler(MODULE, '', HTTP_ENV)
-             hs.install_handler(zh)
+@@ -712,6 +786,34 @@
+             else:
+                 sys.WEBDAV_SOURCE_PORT_CLIENTS = None
  
 +    # WebDAV-over-SSL source Server (runs HTTPS, but munges request to return
 +    #  'manage_FTPget').
@@ -174,11 +181,10 @@
 +
 +            zsh = WebDAVSrcHandler(MODULE, '', HTTPS_ENV)
 +            hss.install_handler(zsh)
-+
+ 
      # FTP Server
      if FTP_PORT:
-         if type(FTP_PORT) is type(0): FTP_PORT=((IP_ADDRESS, FTP_PORT),)
-@@ -768,6 +871,8 @@
+@@ -902,6 +1004,8 @@
      sys.exit(0)
  
  # Start Medusa, Ye Hass!
