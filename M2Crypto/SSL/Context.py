@@ -1,6 +1,6 @@
 """Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Context.py,v 1.1 2000/02/23 15:36:06 ngps Exp $'
+RCS_id='$Id: Context.py,v 1.2 2000/04/01 14:59:09 ngps Exp $'
 
 # M2Crypto
 import cb
@@ -58,6 +58,11 @@ class Context:
         return m2.ssl_ctx_load_verify_locations(self.ctx, cafile)
 
     load_verify_location = load_verify_info
+
+    def set_session_id_ctx(self, id):
+        ret = m2.ssl_ctx_set_session_id_context(self.ctx, id)
+        if not ret:
+            raise Err.SSLError(Err.get_error_code(), '')
 
     def set_allow_unknown_ca(self, ok):
         self.allow_unknown_ca = ok
