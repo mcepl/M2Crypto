@@ -1,8 +1,8 @@
-""" M2Crypto wrapper for OpenSSL EVP API.
+"""M2Crypto wrapper for OpenSSL EVP API.
 
 Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: EVP.py,v 1.3 2000/02/01 15:02:57 ngps Exp $'
+RCS_id='$Id: EVP.py,v 1.4 2000/02/25 15:29:03 ngps Exp $'
 
 import M2Crypto
 m2 = M2Crypto
@@ -11,7 +11,7 @@ class MessageDigest:
     def __init__(self, algo):
         md = getattr(m2, algo)
         if not md:
-            raise ValueError, 'unknown algorithm'
+            raise ValueError, ('unknown algorithm', algo)
         self.md=md()
         self.ctx=m2.md_ctx_new()
         m2.digest_init(self.ctx, self.md)
@@ -28,11 +28,12 @@ class MessageDigest:
     
     digest=final
 
+
 class HMAC:
     def __init__(self, algo, key):
         md = getattr(m2, algo)
         if not md:
-            raise ValueError, 'unknown algorithm'
+            raise ValueError, ('unknown algorithm', algo)
         self.md=md()
         self.ctx=m2.hmac_ctx_new()
         m2.hmac_init(self.ctx, key, self.md)
@@ -49,16 +50,17 @@ class HMAC:
     
     digest=final
 
+
 class Cipher:
     def __init__(self, alg, key, iv, op, key_as_bytes=0, d='md5', salt='', i=1):
         cipher = getattr(m2, alg)
         if not cipher:
-            raise ValueError, 'unknown cipher'
+            raise ValueError, ('unknown cipher', alg)
         self.cipher=cipher()
         if key_as_bytes:
             kmd = getattr(m2, d)
             if not kmd:
-                raise ValueError, 'unknown message digest'
+                raise ValueError, ('unknown message digest', d)
             key = m2.bytes_to_key(self.cipher, kmd(), key, salt, iv, i)
         self.ctx=m2.cipher_ctx_new()
         m2.cipher_init(self.ctx, self.cipher, key, iv, op)
@@ -74,17 +76,20 @@ class Cipher:
     def final(self):
         return m2.cipher_final(self.ctx)
 
+
 class PKey:
-    def __init__(self, md, pkey=m2.pkey_new()):
-        self.pkey=pkey
-        md = getattr(m2, md)
-        if not md:
-            raise ValueError, 'unknown message digest'
-        self.md = md()
+    def __init__(self, md, pkey=None):
+        if pkey is None:
+            self.pkey = m2.pkey_new()
+        else:
+            self.pkey = pkey
+        mda = getattr(m2, md)
+        if not mda:
+            raise ValueError, ('unknown message digest', md)
+        self.md = mda()
 
     def __del__(self):
-        if self.pkey:
-            m2.pkey_free(self.pkey)
+        m2.pkey_free(self.pkey)
 
     def update(self, data):
         m2.sign_update(self.ctx, data)
