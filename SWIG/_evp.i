@@ -1,4 +1,10 @@
-/* Copyright (c) 1999 Ng Pheng Siong. All rights reserved. */
+/* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+/* 
+Copyright (c) 1999 Ng Pheng Siong. All rights reserved.
+
+Portions Copyright (c) 2004 Open Source Applications Foundation.
+Author: Heikki Toivonen
+*/
 /* $Id: _evp.i,v 1.6 2004/06/30 07:49:41 ngps Exp $ */
 
 %{
@@ -70,6 +76,7 @@
 %name(pkey_new) extern EVP_PKEY *EVP_PKEY_new(void);
 %name(pkey_free) extern void EVP_PKEY_free(EVP_PKEY *);
 %name(pkey_assign) extern int EVP_PKEY_assign(EVP_PKEY *pkey, int type, char *key);
+%name(pkey_set1_rsa) extern int EVP_PKEY_set1_RSA(EVP_PKEY *pkey, RSA *key);
 %name(sign_init) extern int EVP_SignInit(EVP_MD_CTX *, const EVP_MD *);
 %name(verify_init) extern int EVP_VerifyInit(EVP_MD_CTX *, const EVP_MD *);
 

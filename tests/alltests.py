@@ -12,8 +12,9 @@ def suite():
         'test_authcookie',
         'test_dh',
         'test_dsa',
+        'test_evp',
         'test_rsa',
-        'test_x509'] 
+        'test_x509']
     if os.name == 'posix':
         modules_to_test.append('test_ssl')
     elif os.name == 'nt':
