@@ -7,6 +7,8 @@
   all-caps disclaimer paragraph.
 - Allow to save RSA key pair in the clear.
 - ZServerSSL for Zope 2.7.
+- Excluded RC5. IDEA was taken out several releases ago. This should 
+  allow M2Crypto to build with stock OpenSSL on various Linuxen.
 - Added ssl_set_tmp_dh_callback.
 - Added ssl_set_tmp_rsa and ssl_set_tmp_rsa_callback to support weak-cipher
   browsers. (Do these still exist?)
