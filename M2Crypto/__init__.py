@@ -1,20 +1,22 @@
-#!/usr/bin/env python
+""" M2Crypto
+Copyright (c) 1999 Ng Pheng Siong. All rights reserved. """
 
-""" Copyright (c) 1999 Ng Pheng Siong. All rights reserved. """
+RCS_id='$Id: __init__.py,v 1.2 1999/09/12 14:32:21 ngps Exp $'
 
-RCS_id='$Id: __init__.py,v 1.1 1999/08/19 15:44:30 ngps Exp $'
+import sys
 
 import _m2crypto
+import BIO
 import Rand
 import DH
 import DSA
 import RSA
-import MD5
-import RIPEMD160
-import SHA1
 import RC4
+import SSL
+import X509
 
 encrypt=1
-decrypt=1
+decrypt=0
 
 _m2crypto.lib_init()
+
