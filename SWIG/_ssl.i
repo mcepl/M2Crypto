@@ -1,5 +1,5 @@
 /* Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved. */
-/* $Id: _ssl.i,v 1.1 2003/06/22 17:30:52 ngps Exp $ */
+/* $Id: _ssl.i,v 1.2 2003/06/22 18:26:44 ngps Exp $ */
 
 %{
 #include <pythread.h>
@@ -565,7 +565,7 @@ int ssl_ctx_get_session_cache_mode(SSL_CTX *ctx)
 
 static long ssl_ctx_set_cache_size(SSL_CTX *ctx, long arg)
 {
-  return SSL_CTX_set_cache_size(ctx, arg);
+  return SSL_CTX_sess_set_cache_size(ctx, arg);
 }
 %}
 
