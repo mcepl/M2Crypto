@@ -42,6 +42,9 @@
 %name(x509_get_verify_error) extern const char *X509_verify_cert_error_string(long);
 
 %name(x509_add_ext) extern int X509_add_ext(X509 *, X509_EXTENSION *, int);
+%name(x509_get_ext_count) extern int X509_get_ext_count(X509 *);
+%name(x509_get_ext) extern X509_EXTENSION *X509_get_ext(X509 *, int);
+%name(x509_ext_print) extern int X509V3_EXT_print(BIO *, X509_EXTENSION *, unsigned long, int);
 
 %name(x509_name_new) extern X509_NAME *X509_NAME_new( void );
 %name(x509_name_free) extern void X509_NAME_free(X509_NAME *);
@@ -290,6 +293,10 @@ void x509_extension_free(X509_EXTENSION *ext) {
     X509_EXTENSION_free(ext);
 }
 
+char *x509_extension_get_name(X509_EXTENSION *ext) {
+    return strdup(OBJ_nid2sn(OBJ_obj2nid(X509_EXTENSION_get_object(ext))));
+}
+
 /* sk_X509_EXTENSION_new_null is a macro. */
 STACK *sk_x509_extension_new_null(void) {
     return (STACK *)sk_X509_EXTENSION_new_null();
@@ -316,7 +323,7 @@ int sk_x509_extension_num(STACK *stack) {
 }
 
 /* sk_X509_EXTENSION_value() is a macro. */
-char *sk_x509_extension_value(STACK *stack, int i) {
+X509_EXTENSION *sk_x509_extension_value(STACK *stack, int i) {
     return sk_X509_EXTENSION_value((STACK_OF(X509_EXTENSION) *)stack, i);
 }
 %}
