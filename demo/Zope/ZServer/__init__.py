@@ -84,7 +84,7 @@ except (ImportError, AttributeError):
 import asyncore
 from medusa import resolver, logger
 from HTTPServer import zhttp_server, zhttp_handler
-from HTTPS_Server import zhttps_server, zhttps_handler
+from HTTPS_Server import zhttps_server, zhttps0_handler, zhttps_handler
 from PCGIServer import PCGIServer
 from FCGIServer import FCGIServer
 from FTPServer import FTPServer
