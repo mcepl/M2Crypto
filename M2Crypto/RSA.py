@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: RSA.py,v 1.6 2002/12/23 03:49:03 ngps Exp $'
+RCS_id='$Id: RSA.py,v 1.7 2003/09/27 16:02:53 ngps Exp $'
 
 import sys
 import util, BIO, Err, m2
@@ -74,20 +74,21 @@ class RSA:
 
         _cipher_ is a symmetric cipher to protect the key. The 
         default cipher is 'des_ede3_cbc', i.e., three-key triple-DES
-        in cipher block chaining mode.
+        in cipher block chaining mode. If _cipher_ is None, then the key
+        is saved in the clear.
 
         _callback_ is a Python callable object that is invoked
         to acquire a passphrase with which to protect the key.
         """
         if cipher is None:
-            ciph = None
+            return m2.rsa_write_key_no_cipher(self.rsa, bio._ptr(), callback)
         else:
             ciph = getattr(m2, cipher, None)
             if ciph is None:
                 raise RSAError, 'not such cipher %s' % cipher 
             else:
                 ciph = ciph()
-        return m2.rsa_write_key(self.rsa, bio._ptr(), ciph, callback)
+            return m2.rsa_write_key(self.rsa, bio._ptr(), ciph, callback)
 
     def save_key(self, file, cipher='des_ede3_cbc', callback=util.passphrase_callback):
         """
