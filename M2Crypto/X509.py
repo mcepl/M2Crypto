@@ -19,19 +19,26 @@ m2.x509_init(X509Error)
 
 V_OK = m2.X509_V_OK
 
+def new_extension(name, value, critical=0, _pyfree=1):
+    """
+    Create new X509_Extension instance.
+    """
+    x509_ext_ptr = m2.x509v3_ext_conf(None, None, name, value)
+    x509_ext = X509_Extension(x509_ext_ptr, _pyfree)
+    x509_ext.set_critical(critical)
+    return x509_ext
+
+
 class X509_Extension:
     """
     X509 Extension
     """
-    # XXX Does not allow copying from existing extension.
-
-    def __init__(self, name, value, critical=0, _pyfree=1):
-        self.x509_ext = m2.x509v3_ext_conf(None, None, name, value)
-        self.set_critical(critical)
+    def __init__(self, x509_ext_ptr=None, _pyfree=1):
+        self.x509_ext = x509_ext_ptr
         self._pyfree = _pyfree
 
     def __del__(self):
-        if self._pyfree:
+        if self._pyfree and self.x509_ext:
             m2.x509_extension_free(self.x509_ext)
 
     def _ptr(self):
@@ -97,11 +104,8 @@ class X509_Extension_Stack:
         if idx < 0 or idx >= m2.sk_x509_extension_num(self.stack):
             raise IndexError
 
-        ret = X509_Extension('foo', 'bar') # XXX Need 'copy constructor'
-        m2.x509_extension_free(ret.x509_ext)
-        ret.x509_ext = m2.sk_x509_extension_value(self.stack, idx)
-        ret._pyfree = 0
-        return ret
+        return X509_Extension(m2.sk_x509_extension_value(self.stack, idx),
+                              _pyfree=0)
  
     def _ptr(self):
         return self.stack
@@ -417,11 +421,8 @@ class X509:
         if index < 0 or index >= self.get_ext_count():
             raise IndexError
         
-        ret = X509_Extension('foo', 'bar') # XXX We need 'copy constructor'
-        m2.x509_extension_free(ret.x509_ext)
-        ret.x509_ext = m2.x509_get_ext(self.x509, index)
-        ret._pyfree = 0
-        return ret
+        return X509_Extension(m2.x509_get_ext(self.x509, index),
+                              _pyfree=0)
 
     def get_ext_count(self):
         """
