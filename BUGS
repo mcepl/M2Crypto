@@ -1,6 +1,9 @@
 -------------
- 21 Mar 2004
+ 25 Mar 2004
 -------------
+
+- Reported memory leak due to cyclical definitions of
+_write_bio/_write_nbio and _read_bio/_read_nbio in SSL.Connection.
 
 - evp_ciph_demo.py, which uses the EVP.Cipher API, dumps core when
 the AES ciphers are tested. bio_ciph_test.py, which uses BIO.CipherStream,
@@ -15,8 +18,8 @@ results.
 has been fixed for RSA, DSA, DH callbacks, but not for SSL callbacks, 
 yet.
 
-- Python 2.[23]: FTP/TLS passive mode client doesn't work against the Medusa-based
-ftps_server. (Works using Python 2.1.)
+- Python 2.[23]: FTP/TLS passive mode client doesn't work against the 
+Medusa-based ftps_server. (Works using Python 2.1.)
 
 - Possible concurrency bugs in the SSL functionality as reported by Brent
 Chun.
@@ -26,4 +29,4 @@ I won't bother try fixing this, since forking servers are passe.
 
 
 ---------------------------------------------------------------------------
-$Id: BUGS,v 1.7 2004/03/21 13:16:46 ngps Exp $
+$Id: BUGS,v 1.8 2004/03/25 08:55:04 ngps Exp $
