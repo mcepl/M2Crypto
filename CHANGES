@@ -2,8 +2,12 @@
  Changes since 0.13
 --------------------
 - Fixed memory leak due to circular reference in SSL.Connection.
-  Thanks to Michael Dunstan.
+  Thanks to Michael Dunstan. Oops, patch is ZServerSSL-specific.
+  Andre Reitz provided a generalised fix. Thanks Andre.
 - Fixed __getattr__ error in DSA. Thanks to Igor Belyi.
+- Added rand_poll, rand_screen and rand_win32_event functions to
+  M2Crypto.Rand.
+- Updated ZServerSSL files to match Zope 2.7.0 versions.
 
 
  Changes since 0.12/0.11
