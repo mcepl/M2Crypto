@@ -7,7 +7,7 @@ on your PATH.
 
 Copyright (c) 2000-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: test_ssl_win.py,v 1.1 2002/12/26 04:11:01 ngps Exp $'
+RCS_id='$Id: test_ssl_win.py,v 1.2 2002/12/29 12:46:00 ngps Exp $'
 
 import os, os.path, string, time, unittest
 import win32process
@@ -18,9 +18,12 @@ import test_ssl
 def find_openssl():
     plist = os.environ['PATH'].split(';')
     for p in plist:
-        dir = os.listdir(p)
-        if 'openssl.exe' in dir:
-            return os.path.join(p, 'openssl.exe')
+        try:
+            dir = os.listdir(p)
+            if 'openssl.exe' in dir:
+                return os.path.join(p, 'openssl.exe')
+        except WindowsError:
+            pass
     return None
 
 
