@@ -1,12 +1,15 @@
-"""ZSmime.SmimeTag"""
+"""ZSmime.SmimeTag
 
-RCS_id = '$Id: SmimeTag.py,v 1.1 2000/05/07 15:57:32 ngps Exp $'
-__version__ = '$Revision: 1.1 $'[11:-2]
+Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved.
+This software is released under the ZPL. Usual disclaimers apply."""
+
+RCS_id = '$Id: SmimeTag.py,v 1.2 2001/03/18 15:31:59 ngps Exp $'
+__version__ = '$Revision: 1.2 $'[11:-2]
 
 # Zope tag stuff.
 from DocumentTemplate.DT_String import String
 from DocumentTemplate.DT_Util import *
-from DocumentTemplate.DT_Var import Var
+from DocumentTemplate.DT_Var import Var, Call
 
 # M2Crypto.
 from M2Crypto import BIO, SMIME, X509
@@ -28,11 +31,19 @@ class SmimeTag:
 
         if has_key('signer'):
             self.signer = args['signer']
+            try:
+                Call(self.signer)
+            except ParseError:
+                raise SmimeError, ('Invalid parameter "signer".')
         else:
             raise SmimeError, ('The parameter "signer" was not specified in tag.')
 
         if has_key('recipients'):
             self.recipients = args['recipients']
+            try:
+                Call(self.recipients)
+            except ParseError:
+                raise SmimeError, ('Invalid parameter "recipients".')
         else:
             raise SmimeError, ('The parameter "recipients" was not specified in tag.')
 
@@ -46,7 +57,10 @@ class SmimeTag:
         s = SMIME.SMIME()
 
         # Render the signer key, load into BIO. 
-        signer = Var(self.signer).render(md)
+        try:
+            signer = Var(self.signer).render(md)
+        except ParseError:
+            raise SmimeError, ('Invalid parameter "signer".')
         signer_key_bio = BIO.MemoryBuffer(signer)
         signer_cert_bio = BIO.MemoryBuffer(signer) # XXX Kludge.
         
@@ -59,7 +73,10 @@ class SmimeTag:
         data_bio = BIO.MemoryBuffer(data)
 
         # Render recipients, load into BIO.
-        recip = Var(self.recipients).render(md)
+        try:
+            recip = Var(self.recipients).render(md)
+        except ParseError:
+            raise SmimeError, ('Invalid parameter "recipients".')
         recip_bio = BIO.MemoryBuffer(recip)
 
         # Load recipient certificates.
