@@ -1,8 +1,8 @@
 """M2Crypto.SSL.Context
 
-Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Context.py,v 1.8 2003/10/26 16:58:22 ngps Exp $'
+RCS_id='$Id: Context.py,v 1.9 2004/03/21 12:31:25 ngps Exp $'
 
 # M2Crypto
 import cb
@@ -101,14 +101,17 @@ class Context:
     # Deprecated.
     load_client_CA = load_client_ca = set_client_CA_list_from_file
 
-    def load_verify_locations(self, cafile):
+    def load_verify_locations(self, cafile=None, capath=None):
         """Load CA certs into the context. These CA certs are used during
         verification of the peer's certificate.
 
         'cafile'    - File containing one or more PEM-encoded CA
         certificates concatenated together.
+        'capath'    - Directory containing PEM-encoded CA certificates
+        (one certificate per file).
         """
-        return m2.ssl_ctx_load_verify_locations(self.ctx, cafile)
+        assert not (cafile is None and capath is None), "cafile and capath are None."
+        return m2.ssl_ctx_load_verify_locations(self.ctx, cafile, capath)
 
     # Deprecated.
     load_verify_info = load_verify_locations

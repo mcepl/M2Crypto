@@ -1,5 +1,5 @@
-/* Copyright (c) 1999 Ng Pheng Siong. All rights reserved.  */
-/* $Id: _x509.i,v 1.1 2003/06/22 17:30:52 ngps Exp $   */
+/* Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.  */
+/* $Id: _x509.i,v 1.2 2004/03/21 12:37:46 ngps Exp $   */
 
 %{
 #include <openssl/x509.h>
@@ -8,27 +8,51 @@
 %apply Pointer NONNULL { BIO * };
 %apply Pointer NONNULL { X509 * };
 %apply Pointer NONNULL { X509_CRL * };
-%apply Pointer NONNULL { X509_NAME * };
 %apply Pointer NONNULL { X509_REQ * };
+%apply Pointer NONNULL { X509_NAME * };
+%apply Pointer NONNULL { X509_NAME_ENTRY * };
 
+%name(x509_new) extern X509 *X509_new( void );
 %name(x509_free) extern void X509_free(X509 *);
-%name(x509_req_new) extern X509_REQ * X509_REQ_new();
-%name(x509_req_free) extern void X509_REQ_free(X509_REQ *);
 %name(x509_crl_free) extern void X509_CRL_free(X509_CRL *);
-%name(x509_name_free) extern void X509_NAME_free(X509_NAME *);
 
 %name(x509_print) extern int X509_print(BIO *, X509 *);
-%name(x509_req_print) extern int X509_REQ_print(BIO *, X509_REQ *);
 %name(x509_crl_print) extern int X509_CRL_print(BIO *, X509_CRL *);
 
 %name(x509_get_serial_number) extern ASN1_INTEGER *X509_get_serialNumber(X509 *);
 %name(x509_get_pubkey) extern EVP_PKEY *X509_get_pubkey(X509 *);
 %name(x509_get_issuer_name) extern X509_NAME *X509_get_issuer_name(X509 *);
 %name(x509_get_subject_name) extern X509_NAME *X509_get_subject_name(X509 *);
+%name(x509_set_pubkey) extern int X509_set_pubkey(X509 *, EVP_PKEY *);
+%name(x509_set_issuer_name) extern int X509_set_issuer_name(X509 *, X509_NAME *);
+%name(x509_set_subject_name) extern int X509_set_subject_name(X509 *, X509_NAME *);
 
 %name(x509_get_verify_error) extern const char *X509_verify_cert_error_string(long);
 
+%name(x509_name_new) extern X509_NAME *X509_NAME_new( void );
+%name(x509_name_free) extern void X509_NAME_free(X509_NAME *);
+%name(x509_name_print) extern int X509_NAME_print(BIO *, X509_NAME *, int);
+%name(x509_name_get_entry) extern X509_NAME_ENTRY *X509_NAME_get_entry(X509_NAME *, int);
+%name(x509_name_entry_count) extern int X509_NAME_entry_count(X509_NAME *);
+%name(x509_name_delete_entry) extern X509_NAME_ENTRY *X509_NAME_delete_entry(X509_NAME *, int);
+%name(x509_name_add_entry) extern int X509_NAME_add_entry(X509_NAME *, X509_NAME_ENTRY *, int, int);
+%name(x509_name_add_entry_by_obj) extern int X509_NAME_add_entry_by_OBJ(X509_NAME *, ASN1_OBJECT *, int, unsigned char *, int, int, int );
+%name(x509_name_add_entry_by_nid) extern int X509_NAME_add_entry_by_NID(X509_NAME *, int, int, unsigned char *, int, int, int );
+
+%name(x509_name_entry_new) extern X509_NAME_ENTRY *X509_NAME_ENTRY_new( void );
+%name(x509_name_entry_free) extern void X509_NAME_ENTRY_free( X509_NAME_ENTRY *);
+%name(x509_name_entry_create_by_nid) extern X509_NAME_ENTRY *X509_NAME_ENTRY_create_by_NID( X509_NAME_ENTRY **, int, int, unsigned char *, int);
+%name(x509_name_entry_set_object) extern int X509_NAME_ENTRY_set_object( X509_NAME_ENTRY *, ASN1_OBJECT *);
+%name(x509_name_entry_set_data) extern int X509_NAME_ENTRY_set_data( X509_NAME_ENTRY *, int, unsigned char *, int);
+%name(x509_name_entry_get_object) extern ASN1_OBJECT *X509_NAME_ENTRY_get_object(X509_NAME_ENTRY *);
+%name(x509_name_entry_get_data) extern ASN1_STRING *X509_NAME_ENTRY_get_data(X509_NAME_ENTRY *);
+
+
+%name(x509_req_new) extern X509_REQ * X509_REQ_new();
+%name(x509_req_free) extern void X509_REQ_free(X509_REQ *);
+%name(x509_req_print) extern int X509_REQ_print(BIO *, X509_REQ *);
 %name(x509_req_set_pubkey) extern int X509_REQ_set_pubkey(X509_REQ *, EVP_PKEY *);
+%name(x509_req_set_subject_name) extern int X509_REQ_set_subject_name(X509_REQ *, X509_NAME *);
 
 %name(i2d_x509) extern int i2d_X509_bio(BIO *, X509 *);
 
@@ -99,9 +123,19 @@ X509_CRL *x509_crl_read_pem(BIO *bio) {
     return PEM_read_bio_X509_CRL(bio, NULL, NULL, NULL);
 }
 
+/* X509_set_version() is a macro. */
+int x509_set_version(X509 *x, long version) {
+    return X509_set_version(x, version);
+}
+
 /* X509_get_version() is a macro. */
 long x509_get_version(X509 *x) {
     return X509_get_version(x);
+}
+
+/* X509_set_notBefore() is a macro. */
+int x509_set_not_before(X509 *x, ASN1_UTCTIME *tm) {
+    return X509_set_notBefore(x, tm);
 }
 
 /* X509_get_notBefore() is a macro. */
@@ -109,9 +143,18 @@ ASN1_UTCTIME *x509_get_not_before(X509 *x) {
     return X509_get_notBefore(x);
 }
 
+/* X509_set_notAfter() is a macro. */
+int x509_set_not_after(X509 *x, ASN1_UTCTIME *tm) {
+    return X509_set_notAfter(x, tm);
+}
+
 /* X509_get_notAfter() is a macro. */
 ASN1_UTCTIME *x509_get_not_after(X509 *x) {
     return X509_get_notAfter(x);
+}
+
+int x509_sign(X509 *x, EVP_PKEY *pkey, EVP_MD *md) {
+    return X509_sign(x, pkey, md);
 }
 
 /*
@@ -157,6 +200,12 @@ int x509_name_set_by_nid(X509_NAME *name, int nid, PyObject *obj) {
     return X509_NAME_add_entry_by_NID(name, nid, MBSTRING_ASC, PyString_AsString(obj), -1, -1, 0);
 }
 
+/* x509_name_add_entry_by_txt */
+int x509_name_add_entry_by_txt(X509_NAME *name, char *field, int type, char *bytes, int len, int loc, int set) {
+	return X509_NAME_add_entry_by_txt( name, (unsigned char *)field, type, (char *)bytes, len, loc, set);
+}
+
+
 /* sk_X509_new_null() is a macro returning "STACK_OF(X509) *". */
 STACK *sk_x509_new_null(void) {
     return (STACK *)sk_X509_new_null();
@@ -196,6 +245,11 @@ X509_NAME *x509_req_get_subject_name(X509_REQ *x) {
 int x509_req_sign(X509_REQ *x, EVP_PKEY *pkey, EVP_MD *md) {
     return X509_REQ_sign(x, pkey, md);
 }
+
+X509_NAME_ENTRY *x509_name_entry_create_by_txt( X509_NAME_ENTRY **ne, char *field, int type, unsigned char *bytes, int len) {
+	return X509_NAME_ENTRY_create_by_txt( ne, field, type, bytes, len);
+}
+
 %}
 
 /* Free malloc'ed return value for x509_name_oneline */

@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: httpslib.py,v 1.7 2003/09/15 16:47:02 ngps Exp $'
+RCS_id='$Id: httpslib.py,v 1.8 2004/03/21 12:29:17 ngps Exp $'
 
 import string, sys
 from httplib import *
@@ -22,7 +22,8 @@ if sys.version[0] == '2':
     
         default_port = HTTPS_PORT
     
-        if sys.version[:3] == '2.2' and sys.version_info[2] > 1:
+        if (sys.version[:3] == '2.2' and sys.version_info[2] > 1) or (sys.version[:3] == '2.3'):
+        
             # 2.2.2 and above have the 'strict' param.
             def __init__(self, host, port=None, strict=None, **ssl):
                 keys = ssl.keys()
@@ -97,7 +98,7 @@ if sys.version[0] == '2':
         
         _connection_class = HTTPSConnection
     
-        if sys.version[:3] == '2.2' and sys.version_info[2] > 1:
+        if (sys.version[:3] == '2.2' and sys.version_info[2] > 1) or (sys.version[:3] == '2.3'):
             # 2.2.2 and above have the 'strict' param.            
             def __init__(self, host='', port=None, strict=None, **ssl):
                 HTTP.__init__(self, host, port, strict)

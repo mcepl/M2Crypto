@@ -1,8 +1,8 @@
-# $Id: Makefile.py22,v 1.1 2003/09/15 16:34:31 ngps Exp $
+# $Id: Makefile.py22,v 1.2 2004/03/21 12:32:59 ngps Exp $
 
 CFLAGS	   = -DTHREADING -g
 INCLUDE	   = -I/usr/local/include -I.
-LIBS       = -L/usr/local/lib -lssl -lcrypto
+LIBS       = -lssl -lcrypto
 #if PYTHON_VERSION
 PYVER = $(PYTHON_VERSION)
 #else
