@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: EVP.py,v 1.7 2002/12/23 03:51:50 ngps Exp $'
+RCS_id='$Id: EVP.py,v 1.8 2003/05/11 16:12:42 ngps Exp $'
 
 import Err, util
 import m2
@@ -111,6 +111,12 @@ class PKey:
 
     def final(self):
         return m2.sign_final(self.ctx, self.pkey)
+
+    def assign_rsa(self, rsa):
+        ret = m2.pkey_assign_rsa(self.pkey, rsa.rsa)
+        if ret:
+            rsa._pyfree = 0
+        return ret
 
 def load_key(file, callback=util.passphrase_callback):
     bio = m2.bio_new_file(file, 'r')

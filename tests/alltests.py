@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-RCS_id = '$Id: alltests.py,v 1.3 2002/12/23 04:56:19 ngps Exp $'
+RCS_id = '$Id: alltests.py,v 1.4 2003/05/11 16:17:25 ngps Exp $'
 
 import os, unittest
 from M2Crypto import Rand
@@ -12,7 +12,8 @@ def suite():
         'test_authcookie',
         'test_dh',
         'test_dsa',
-        'test_rsa'] 
+        'test_rsa',
+        'test_x509'] 
     if os.name == 'posix':
         modules_to_test.append('test_ssl')
     elif os.name == 'nt':

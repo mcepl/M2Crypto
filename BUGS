@@ -1,5 +1,5 @@
 -------------
- 29 Dec 2002
+ 12 May 2003
 -------------
 
 1.  SSL.Connection.makefile() returns an instance of BIO.IOBuffer, 
@@ -14,8 +14,10 @@ yet.
 3. m2xmlrpclib.py is not compatible with Python 2.2's bundled xmlrpclib.py.
 
 4. Python 2.2: FTP/TLS passive mode client doesn't work against the Medusa-based
-   ftps_server. (Works using Python 2.1.)
+ftps_server. (Works using Python 2.1.)
 
+5. Possible concurrency bugs in the SSL functionality as reported by Brent
+Chun.
 
 ---------------------------------------------------------------------------
-$Id: BUGS,v 1.3 2002/12/29 16:08:13 ngps Exp $
+$Id: BUGS,v 1.4 2003/05/11 16:20:36 ngps Exp $

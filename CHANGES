@@ -1,4 +1,13 @@
 
+ Changes since 0.09
+--------------------
+- Updated to OpenSSL 0.9.7. Thanks to Toby Allsopp <toby@MI6.GEN.NZ> for
+  patches. 
+- Added functionality to create a basic certificate request. Also 
+  contributed by Toby Allsopp. 
+- Finally, AES!
+
+
  Changes since 0.08
 --------------------
 - Replaced demo/Zope/ZServer/__init__.py with the correct version 
