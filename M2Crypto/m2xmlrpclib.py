@@ -2,18 +2,18 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: m2xmlrpclib.py,v 1.6 2003/01/07 16:47:03 ngps Exp $'
+RCS_id='$Id: m2xmlrpclib.py,v 1.7 2003/09/15 16:47:53 ngps Exp $'
 
 import base64, string, sys
 
 from xmlrpclib import *
 import SSL, httpslib, m2urllib
 
-__version__='0.09'
+__version__='0.12'
 
 class SSL_Transport(Transport):
 
-    user_agent = "xmlrpc_ssl.py/%s - %s" % (__version__, Transport.user_agent)
+    user_agent = "M2Crypto_XMLRPC/%s - %s" % (__version__, Transport.user_agent)
 
     def __init__(self, ssl_context=None):
         if ssl_context is None:
