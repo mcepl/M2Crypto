@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Connection.py,v 1.12 2004/03/25 06:36:04 ngps Exp $'
+RCS_id='$Id: Connection.py,v 1.13 2004/03/31 01:20:24 ngps Exp $'
 
 # Python
 import socket, sys
@@ -143,11 +143,11 @@ class Connection:
         """Set this connection's underlying socket to _mode_."""
         self.socket.setblocking(mode)
         if mode:
-            self.send = self.write = self._write_bio
-            self.recv = self.read = self._read_bio
+            self.send = self.write = Connection._write_bio
+            self.recv = self.read = Connection._read_bio
         else:
-            self.send = self.write = self._write_nbio
-            self.recv = self.read = self._read_nbio
+            self.send = self.write = Connection._write_nbio
+            self.recv = self.read = Connection._read_nbio
 
     def fileno(self):
         return self.socket.fileno()

@@ -1,4 +1,11 @@
 
+ Changes since 0.13
+--------------------
+- Fixed memory leak due to circular reference in SSL.Connection.
+  Thanks to Michael Dunstan.
+- Fixed __getattr__ error in DSA. Thanks to Igor Belyi.
+
+
  Changes since 0.12/0.11
 -------------------------
 - Patches from Artur Frysiak <wiget@pld-linux.org>. Thanks Artur.
