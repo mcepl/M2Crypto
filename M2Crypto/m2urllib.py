@@ -3,7 +3,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: m2urllib.py,v 1.5 2002/12/23 03:46:38 ngps Exp $'
+RCS_id='$Id: m2urllib.py,v 1.6 2003/01/07 16:46:07 ngps Exp $'
 
 import string, sys, urllib
 from urllib import *
@@ -13,8 +13,11 @@ import httpslib
 
 DEFAULT_PROTOCOL='sslv23'
 
-def open_https(self, url, data=None):
-        self.ctx = SSL.Context(DEFAULT_PROTOCOL)
+def open_https(self, url, data=None, ssl_context=None):
+        if ssl_context is not None and isinstance(ssl_context, SSL.Context):
+            self.ctx = ssl_context
+        else:
+            self.ctx = SSL.Context(DEFAULT_PROTOCOL)
         user_passwd = None
         if type(url) is type(""):
             host, selector = splithost(url)
@@ -43,7 +46,7 @@ def open_https(self, url, data=None):
         else:
             auth = None
         # Start here!
-        if sys.version[:3] in ('2.0', '2.1'):
+        if sys.version[:2] == '2.':
             #h = httpslib.HTTPS(host, ssl_context=self.ctx)
             h = httpslib.HTTPSConnection(host=host, ssl_context=self.ctx)
         elif sys.version[:3] == '1.5':
@@ -66,7 +69,7 @@ def open_https(self, url, data=None):
         if data is not None:
             h.send(data + '\r\n')
         # Here again!
-        if sys.version[:3] in ('2.0', '2.1'):
+        if sys.version[:2]  == '2.':
             resp = h.getresponse()
             fp = resp.fp
             return urllib.addinfourl(fp, {}, "https:" + url)

@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Connection.py,v 1.8 2002/12/23 03:56:14 ngps Exp $'
+RCS_id='$Id: Connection.py,v 1.9 2003/01/07 16:47:43 ngps Exp $'
 
 # Python
 import socket, sys
@@ -130,7 +130,7 @@ class Connection:
             raise ValueError, 'size <= 0'
         return m2.ssl_read_nbio(self.ssl, size)
 
-    send = write = _write_bio
+    sendall = send = write = _write_bio
     recv = read  = _read_bio
 
     def setblocking(self, mode):

@@ -1,17 +1,16 @@
--------------
- 17 May 2001
--------------
+---------------
+ 2 January 2003
+---------------
 
 This directory contains Win32 binaries for M2Crypto.
 
-Each of the directories py1/, py20/ and py21/ contains the following:
-- _m2cryptoc.dll
-- _m2crypto.py
+Each of the directories py15/, py21/ and py22/ contains the following:
+- __m2crypto.pyd
 
-Copy the two files into ../M2Crypto. 
+Copy the appropriate files into ../M2Crypto. 
 
-If you use Python 2.1, copy the files in py21; if Python 2.0, py20; if 
-Python 1.5.2, py1.
+If you use Python 2.1, copy the files in py21; if Python 2.2, py22; if 
+Python 1.5.2, py15.
 
 
 The following OpenSSL DLLs are also required on your PATH:

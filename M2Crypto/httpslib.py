@@ -1,8 +1,8 @@
 """M2Crypto support for Python 1.5.2 and Python 2.x's httplib. 
 
-Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: httpslib.py,v 1.5 2002/12/23 03:38:21 ngps Exp $'
+RCS_id='$Id: httpslib.py,v 1.6 2003/01/07 16:44:35 ngps Exp $'
 
 import string, sys
 from httplib import *
@@ -10,7 +10,7 @@ import SSL
 
 if sys.version[0] == '2':
     
-    if sys.version[:3] in ['2.1', '2.2']:
+    if sys.version[:3] != '2.0':
         # In 2.1 and above, httplib exports "HTTP" only.
         from httplib import HTTPConnection, HTTPS_PORT
 
@@ -22,28 +22,53 @@ if sys.version[0] == '2':
     
         default_port = HTTPS_PORT
     
-        def __init__(self, host, port=None, **ssl):
-            keys = ssl.keys()
-            try: 
-                keys.remove('key_file')
-            except ValueError:
-                pass
-            try:
-                keys.remove('cert_file')
-            except ValueError:
-                pass
-            try:
-                keys.remove('ssl_context')
-            except ValueError:
-                pass
-            if keys:
-                raise IllegalKeywordArgument()
-            try:
-                self.ssl_ctx = ssl['ssl_context']
-                assert isinstance(self.ssl_ctx, SSL.Context)
-            except KeyError:
-                self.ssl_ctx = SSL.Context('sslv23')
-            HTTPConnection.__init__(self, host, port)
+        if sys.version[:5] == '2.2.2':
+            def __init__(self, host, port=None, strict=None, **ssl):
+                keys = ssl.keys()
+                try: 
+                    keys.remove('key_file')
+                except ValueError:
+                    pass
+                try:
+                    keys.remove('cert_file')
+                except ValueError:
+                    pass
+                try:
+                    keys.remove('ssl_context')
+                except ValueError:
+                    pass
+                if keys:
+                    raise IllegalKeywordArgument()
+                try:
+                    self.ssl_ctx = ssl['ssl_context']
+                    assert isinstance(self.ssl_ctx, SSL.Context)
+                except KeyError:
+                    self.ssl_ctx = SSL.Context('sslv23')
+                HTTPConnection.__init__(self, host, port, strict)
+
+        else:
+            def __init__(self, host, port=None, **ssl):
+                keys = ssl.keys()
+                try: 
+                    keys.remove('key_file')
+                except ValueError:
+                    pass
+                try:
+                    keys.remove('cert_file')
+                except ValueError:
+                    pass
+                try:
+                    keys.remove('ssl_context')
+                except ValueError:
+                    pass
+                if keys:
+                    raise IllegalKeywordArgument()
+                try:
+                    self.ssl_ctx = ssl['ssl_context']
+                    assert isinstance(self.ssl_ctx, SSL.Context)
+                except KeyError:
+                    self.ssl_ctx = SSL.Context('sslv23')
+                HTTPConnection.__init__(self, host, port)
     
         def connect(self):
             self.sock = SSL.Connection(self.ssl_ctx)
@@ -71,12 +96,25 @@ if sys.version[0] == '2':
         
         _connection_class = HTTPSConnection
     
-        def __init__(self, host='', port=None, **ssl):
-            HTTP.__init__(self, host, port)
-            try:
-                self.ssl_ctx = ssl['ssl_context']
-            except KeyError:
-                self.ssl_ctx = SSL.Context('sslv23')
+        if sys.version[:5] == '2.2.2':
+            def __init__(self, host='', port=None, strict=None, **ssl):
+                HTTP.__init__(self, host, port, strict)
+                try:
+                    self.ssl_ctx = ssl['ssl_context']
+                except KeyError:
+                    self.ssl_ctx = SSL.Context('sslv23')
+                assert isinstance(self._conn, HTTPSConnection)
+                self._conn.ssl_ctx = self.ssl_ctx
+
+        else:
+            def __init__(self, host='', port=None, **ssl):
+                HTTP.__init__(self, host, port)
+                try:
+                    self.ssl_ctx = ssl['ssl_context']
+                except KeyError:
+                    self.ssl_ctx = SSL.Context('sslv23')
+                assert isinstance(self._conn, HTTPSConnection)
+                self._conn.ssl_ctx = self.ssl_ctx
 
 
 elif sys.version[:3] == '1.5':

@@ -6,13 +6,13 @@ Distutils installer for M2Crypto.
 Copyright (c) 1999-2003, Ng Pheng Siong. All rights reserved.
 """
 
-_RCS_id = '$Id: setup.py,v 1.4 2002/12/29 12:53:57 ngps Exp $'
+_RCS_id = '$Id: setup.py,v 1.5 2003/01/07 16:43:17 ngps Exp $'
 
 import os, shutil
 from distutils.core import setup, Extension
 
 # Set up paths.
-my_inc = 'swig'
+my_inc = os.path.join(os.getcwd(), 'swig')
 
 if os.name == 'nt':
     openssl_dir = 'c:\\pkg\\openssl'

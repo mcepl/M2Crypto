@@ -1,4 +1,17 @@
 
+ Changes since 0.08
+--------------------
+- Replaced demo/Zope/ZServer/__init__.py with the correct version 
+  for Zope 2.6.0.
+- Added a sample starts.bat for ZServerSSL.
+- Incoporated a patch by prashanth@jibe.biz that handled the
+  new-in-Python-2.2.2 "strict" parameter for the various HTTP[S] connection 
+  classes in httplib.py. Thanks prashanth. This fixes M2Crypto's XMLRPC
+  support for Python 2.2.2. (Apparently it was working for Python 2.2.1.)
+- Incorporated some cosmetic patches from Adam Karpierz <karpierz@zope.pl>.
+  Thanks Adam.
+
+
  Changes since 0.07 snapshot #3
 --------------------------------
 - Updated to SWIG 1.3.17.
