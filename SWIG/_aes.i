@@ -88,7 +88,7 @@ PyObject *AES_crypt(const AES_KEY *key, PyObject *in, int outlen, int op) {
         AES_encrypt((const unsigned char *)in, out, key);
     else
         AES_decrypt((const unsigned char *)in, out, key);
-    return PyString_FromStringAndSize(out, len);
+    return PyString_FromStringAndSize(out, outlen);
 }
 
 int AES_type_check(AES_KEY *key) {
