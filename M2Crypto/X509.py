@@ -10,9 +10,9 @@ tools such as OpenSSL's CA.[sh|pl], Oscar, IBM's XXX, it is
 unlikely that this module will ever evolve to the aforementioned
 sufficiency.
 
-Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: X509.py,v 1.8 2002/12/23 03:44:03 ngps Exp $'
+RCS_id='$Id: X509.py,v 1.9 2003/05/11 16:12:42 ngps Exp $'
 
 # M2Crypto
 import ASN1, BIO, Err
@@ -66,6 +66,13 @@ class X509_Name:
             return m2.x509_name_by_nid(self.x509_name, self.nid[attr])
         else:
             raise AttributeError, (self, attr)
+
+    def __setattr__(self, attr, value):
+        if attr in self.nid.keys():
+            assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error"
+            return m2.x509_name_set_by_nid(self.x509_name, self.nid[attr], value)
+        else:
+            self.__dict__[attr] = value
 
 
 class X509:
@@ -220,6 +227,27 @@ class Request:
         buf=BIO.MemoryBuffer()
         m2.x509_req_print(buf.bio_ptr(), self.req)
         return buf.read_all()
+
+    def as_pem(self):
+        buf=BIO.MemoryBuffer()
+        m2.x509_req_write_pem(buf.bio_ptr(), self.req)
+        return buf.read_all()
+
+    def save_pem(self, filename):
+        bio=BIO.openfile(filename, 'wb')
+        return m2.x509_req_write_pem(bio.bio_ptr(), self.req)
+
+    def set_pubkey(self, pkey):
+        return m2.x509_req_set_pubkey(self.req, pkey.pkey)
+
+    def get_subject(self):
+        return X509_Name(m2.x509_req_get_subject_name(self.req))
+
+    def sign(self, pkey, md):
+        mda = getattr(m2, md)
+        if not mda:
+            raise ValueError, ('unknown message digest', md)
+        return m2.x509_req_sign(self.req, pkey.pkey, mda())
 
 def load_request(pemfile):
     f=BIO.openfile(pemfile)

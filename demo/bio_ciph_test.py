@@ -1,7 +1,7 @@
 """BIO cipher filtering demonstration.
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: bio_ciph_test.py,v 1.2 2002/12/23 04:05:11 ngps Exp $'
+RCS_id='$Id: bio_ciph_test.py,v 1.3 2003/05/11 16:13:23 ngps Exp $'
 
 from M2Crypto import BIO, Rand, m2
 
@@ -39,6 +39,9 @@ if __name__=='__main__':
         'des_ecb', 'des_cbc', 'des_cfb', 'des_ofb',\
         'des_ede_ecb', 'des_ede_cbc', 'des_ede_cfb', 'des_ede_ofb',\
         'des_ede3_ecb', 'des_ede3_cbc', 'des_ede3_cfb', 'des_ede3_ofb',\
+        'aes_128_ecb', 'aes_128_cbc', 'aes_128_cfb', 'aes_128_ofb',\
+        'aes_192_ecb', 'aes_192_cbc', 'aes_192_cfb', 'aes_192_ofb',\
+        'aes_256_ecb', 'aes_256_cbc', 'aes_256_cfb', 'aes_256_ofb',\
         'rc4', 'rc2_40_cbc']
     Rand.load_file('randpool.dat', -1) 
     for i in ciphers:
