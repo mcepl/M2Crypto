@@ -1,5 +1,5 @@
 
- M2Crypto 0.05 (27 Nov 2000)
+ M2Crypto 0.06 (20 Jul 2001)
 -----------------------------
 
 M2Crypto = Python + OpenSSL + SWIG.
@@ -12,25 +12,25 @@ M2Crypto makes accessible to the Python programmer the following:
     - SSL functionality to implement clients and servers.
     - S/MIME v2.
 
-M2Crypto is released under a very liberal BSD-style license. See 
+M2Crypto is released under a very liberal BSD-style licence. See 
 LICENCE for details.
 
 
-This release supports both Python 1.5.2 and Python 2.0. It has been 
-tested with OpenSSL 0.9.6. It requires a post-1.1p5 build of SWIG.
-(I use build-786.) Current alpha versions of SWIG 1.3 may or may not
-work.
+This release supports Python 1.5.2, Python 2.0 and Python 2.1. It requires 
+at least OpenSSL 0.9.6, and has been tested with OpenSSL 0.9.6a. It needs 
+SWIG 1.3.6.
 
 
-For now, M2Crypto works fine as a prototyping tool. Note the following 
-caveats:
+Note these caveats:
 
-1. Possible memory leaks, because of pointer ownership contention
-between Python and SWIG. (These would be due to my misprogramming.)
+1. Possible memory leaks, because some objects need to be freed on the 
+Python side and other objects on the C side, and these may change between 
+OpenSSL versions. (Multiple free's lead to crashes very quickly, so 
+these should have been rooted out.)
 
 2. No memory locking/clearing for keys, passphrases, etc.
 
-3. PRNG is not CS**; it is unlikely to be CS***.
+3. PRNG may not be CS**; it may not be CS***.
 
 4. AFAIK, Python and OpenSSL have not been subjected to the full attention 
 of the Bugtraq crowd. M2Crypto's handling of active hostile input is 
@@ -46,11 +46,12 @@ ngps@post1.com * http://www.post1.com/home/ngps
 
 
 * Similar software are Marc-Andre Lemburg's mxCrypto, and two earlier
-Python interfaces to the SSL portion of SSLeay/OpenSSL.
+Python interfaces to the SSL portion of SSLeay/OpenSSL. Since M2Crypto 
+came into being, yet more Python OpenSSL wrappers have appeared.
 
 ** Continuous seeding.
 
 *** Cryptographically strong.
 
 ---------------------------------------------------------------------------
-$Id: README,v 1.1 2001/07/20 13:21:26 ngps Exp $
+$Id: README,v 1.2 2001/07/20 13:35:08 ngps Exp $
