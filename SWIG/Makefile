@@ -1,0 +1,21 @@
+# $Id: Makefile,v 1.1 2003/06/22 17:30:52 ngps Exp $
+
+CFLAGS	   = -DTHREADING -g
+INCLUDE	   = -I/usr/local/include -I.
+LIBS       = -L/usr/local/lib -lssl -lcrypto
+PYVER      = 2.2
+PYINCLUDE  = -DHAVE_CONFIG_H -I/usr/local/include/python$(PYVER) \
+	-I/usr/local/lib/python$(PYVER)/config
+PYLIB      = /usr/local/lib/python$(PYVER)/config
+
+all:	_m2crypto
+
+_m2crypto: 	_m2crypto.i
+	swig -python -shadow _m2crypto.i
+	cc -c -fpic $(CFLAGS) $(INCLUDE) $(PYINCLUDE) _m2crypto_wrap.c
+	ld -Bshareable -o __m2crypto.so _m2crypto_wrap.o $(LIBS) 
+	cp _m2crypto.py __m2crypto.so ../M2Crypto
+
+clean:
+	rm -f *_wrap* *.o *.so _*.py *.pyc
+
