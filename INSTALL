@@ -1,46 +1,121 @@
 -------------
- 25 Dec 2002
+ 29 Dec 2002
 -------------
 
 You need Python 2.1, 2.2, OpenSSL 0.9.6 or later, and SWIG 1.3.17.  Earlier
-versions of Python may or may not work. This distribution is tested with
-OpenSSL 0.9.6h.
+versions of Python may or may not work. You are recommended to use the current
+version of OpenSSL. Earlier versions of SWIG may not work.
+
+This distribution is tested with OpenSSL 0.9.6h.
 
 
-Standard installation procedure
--------------------------------
-This works on Unix and Windows/MSVC++. 
+Getting Started
+----------------
+Read Sebastien Sauvage's webpage:
 
+    http://sebsauvage.net/python/mingw.html
+
+Tweak Distutils. The following differs slightly from Sebastien's instructions:
+
+- Locate build_ext.py in your Python directory. On my computers it is 
+  c:\pkg\py22\lib\distutils\command\build_ext.py.
+
+- Change the 2 following lines:
+
+        #new_sources.append(base + target_ext) # old
+        new_sources.append(base + '_wrap' + target_ext) # new
+
+        #swig_cmd = [swig, "-python", "-dnone", "-ISWIG"] # old
+        swig_cmd = [swig, "-python", "-Iswig"] # new
+
+The second change differs from Sebastien's in that I've added "-Iswig" in; this
+allows SWIG to locate additional .i files in swig/ needed to build M2Crypto.
+
+
+Installing on Unix
+-------------------
 $ unzip m2crypto-0.08.zip
 $ cd m2crypto-0.08
 $ python setup.py build
-$ python setup.py test
-$ python setup.py install
+# python setup.py install
+$ cd tests
+$ python alltests.py
 
 
-Building on Windows with mingw32
----------------------------------
-My platform is Bloodshed Dev-C++ version 4; Mingw compiler 2.95.2-1.
+Installing on Windows 
+----------------------
+I have built and tested this distribution with the following:
+- MSVC++ 6.0 
+- BC++ 5.5 free compiler suite
+- Bloodshed Dev-C++ version 4; Mingw compiler 2.95.2-1
 
-First, build OpenSSL 0.9.6h using mingw32. This produces openssl.exe, libssl32.a
-and libeay32.a. To keep setup.py simple, rename libssl32.a and libeay32.a to
-libssleay32.a and liblibeay32.a, respectively. Install the .a files somewhere; I
-use c:/pkg/openssl/lib. (.h files go into c:/pkg/openssl/include.) Now follow
-the standard installation procedure above.
+Before building from source, you need to install OpenSSL's include files,
+import libraries and DLLs.
 
+Here is the relevant section from setup.py:
 
-Building on Windows with BC++ free compiler suite
---------------------------------------------------
-This is currently broken, probably due to interaction between this version of
-SWIG and BC++. Since I have mingw32 working, I'm unlikely to attempt to fix
-this.
+if os.name == 'nt':
+    openssl_dir = 'c:\\pkg\\openssl'
+    include_dirs = [my_inc, openssl_dir + '/include']
+    library_dirs = [openssl_dir + '\\lib']
+    libraries = ['ssleay32', 'libeay32']
+    #libraries = ['ssleay32_bc', 'libeay32_bc']
+
+By convention, I place OpenSSL include files in c:\pkg\openssl\include, and 
+the import libraries in c:\pkg\openssl\lib.
+
+ MSVC++
+--------
+For MSVC++, the import libraries, as built by OpenSSL, are named libeay32.lib
+and ssleay32.lib.
+
+ BC++
+------
+For BC++ these files are created from the MSVC++-built ones using the tool
+coff2omf.exe. I call them libeay32_bc.lib and ssleay32_bc.lib, respectively.
+
+You'll also need Python's import library, e.g., python22.lib, to be the
+BC++-compatible version; i.e., create python22_bc.lib from python22.lib, save a
+copy of python22.lib (as python22_vc.lib, say), then rename python22_bc.lib to
+python22.lib.
+
+ mingw32
+---------
+For mingw32, the import libraries are named libeay32.a and libssl32.a. To keep
+setup.py simple, rename these to liblibeay32.a and libssleay32.a, respectively,
+when you install them into c:\pkg\openssl\lib.  If you do not wish to do this,
+then modify setup.py directly to change the "libraries" line in the section
+quoted above. 
+
+You'll also need to create libpython22.a.
+
+ OpenSSL DLLs
+--------------
+With MSVC++, the OpenSSL DLLs, as built, are named libeay32.dll and
+ssleay32.dll. With mingw32, the DLLs are named libeay32.dll and libssl32.dll.
+Install these somewhere on your PATH; by convention, I place them in c:\bin,
+together with openssl.exe. It is best to make ssleay32.dll and libssl32.dll
+copies of each other. 
+
+ Installing
+------------
+Now you are ready to build M2Crypto. Do either:
+
+    python setup.py build
+    python setup.py build -cbcpp
+    python setup.py build -cmingw32
+
+Then,
+
+    python setup.py install
+    cd tests
+    python alltests.py
 
 
 Building on Mac OS X
 ---------------------
-Richard Jones <richard@bizarsoftware.com.au> has kindly contributed a
-makefile for Mac OS X. It is included here as Makefile.osx. I have not
-tested it myself.
+Richard Jones has kindly contributed a makefile for Mac OS X. It is included
+here as Makefile.osx. I have not tested it myself.
 
 1. cd swig
 2. Fix paths in Makefile.osx.
@@ -68,5 +143,5 @@ Here are Richard's instructions on building OpenSSL 0.9.6 on OS X:
 > and you're there.
 
 ---------------------------------------------------------------------------
-$Id: INSTALL,v 1.3 2002/12/24 17:47:57 ngps Exp $
+$Id: INSTALL,v 1.4 2002/12/29 12:43:07 ngps Exp $
 
