@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: echo.py,v 1.3 2002/12/23 04:37:05 ngps Exp $'
+RCS_id='$Id: echo.py,v 1.4 2003/06/30 06:25:19 ngps Exp $'
 
 import getopt, sys
 from socket import gethostname
@@ -23,10 +23,11 @@ for opt in optlist:
 Rand.load_file('../randpool.dat', -1) 
 
 ctx = SSL.Context('sslv3')
-ctx.load_cert('client.pem')
-ctx.load_verify_info('ca.pem')
-ctx.load_client_ca('ca.pem')
-ctx.set_verify(SSL.verify_none, 10)
+ctx.load_cert_chain('client.pem')
+#ctx.set_verify(SSL.verify_none, 10)
+ctx.set_verify(SSL.verify_peer, 10, SSL.cb.ssl_verify_callback)
+ctx.load_verify_locations('ca.pem')
+#ctx.set_allow_unknown_ca(1)
 ctx.set_info_callback()
 
 s = SSL.Connection(ctx)
@@ -34,17 +35,17 @@ s.connect((host, port))
 print 'Host =', gethostname()
 print 'Cipher =', s.get_cipher().name()
 
-v = s.get_verify_result()
-if v != X509.V_OK:
-    s.close()
-    raise SystemExit, 'Server verification failed'
+## 2003-06-28, ngps: Depends on ctx.set_verify() above, RTFM for details.
+## v = s.get_verify_result()
+## if v != X509.V_OK:
+##     s.close()
+##     raise SystemExit, 'Server verification failed'
 
 peer = s.get_peer_cert()
-print 'Server =', peer.get_subject().CN
+print 'Server =', str(peer.get_subject())
 
 while 1:
     data = s.recv()
-    print 'XXX:', `data`
     if not data:
         break
     sys.stdout.write(data)

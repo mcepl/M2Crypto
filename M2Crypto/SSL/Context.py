@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Context.py,v 1.5 2003/06/22 16:52:50 ngps Exp $'
+RCS_id='$Id: Context.py,v 1.6 2003/06/30 06:14:34 ngps Exp $'
 
 # M2Crypto
 import cb
@@ -89,27 +89,29 @@ class Context:
         if not m2.ssl_ctx_check_privkey(self.ctx):
             raise ValueError, 'public/private key mismatch'
 
-    def load_client_ca(self, cafile):
+    def set_client_CA_list_from_file(self, cafile):
         """Load CA certs into the context. These CA certs are sent to the
         peer during *SSLv3 certificate request*.
         
         'cafile'    - File object containing one or more PEM-encoded CA
         certificates concatenated together.
         """
-        m2.ssl_ctx_load_client_CA(self.ctx, cafile)
+        m2.ssl_ctx_set_client_CA_list_from_file(self.ctx, cafile)
 
-    load_client_CA = load_client_ca
+    # Deprecated.
+    load_client_CA = load_client_ca = set_client_CA_list_from_file
 
-    def load_verify_info(self, cafile):
+    def load_verify_locations(self, cafile):
         """Load CA certs into the context. These CA certs are used during
         verification of the peer's certificate.
 
-        'cafile'    - File object containing one or more PEM-encoded CA
+        'cafile'    - File containing one or more PEM-encoded CA
         certificates concatenated together.
         """
         return m2.ssl_ctx_load_verify_locations(self.ctx, cafile)
 
-    load_verify_location = load_verify_info
+    # Deprecated.
+    load_verify_info = load_verify_locations
 
     def set_session_id_ctx(self, id):
         ret = m2.ssl_ctx_set_session_id_context(self.ctx, id)
@@ -130,8 +132,12 @@ class Context:
         """
         return self.allow_unknown_ca
 
-    def set_verify(self, mode, depth, callback=cb.ssl_verify_callback):
-        m2.ssl_ctx_set_verify(self.ctx, mode, callback)
+    #def set_verify(self, mode, depth, callback=cb.ssl_verify_callback):
+    def set_verify(self, mode, depth, callback=None):
+        if callback is None:
+            m2.ssl_ctx_set_verify_default(self.ctx, mode)
+        else:
+            m2.ssl_ctx_set_verify(self.ctx, mode, callback)
         m2.ssl_ctx_set_verify_depth(self.ctx, depth)
 
     def get_verify_mode(self):

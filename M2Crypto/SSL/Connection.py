@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Connection.py,v 1.10 2003/06/22 16:49:01 ngps Exp $'
+RCS_id='$Id: Connection.py,v 1.11 2003/06/30 06:14:34 ngps Exp $'
 
 # Python
 import socket, sys
@@ -52,6 +52,12 @@ class Connection:
 
     def ssl_get_error(self, ret):
         return m2.ssl_get_error(self.ssl, ret)
+
+    def set_client_CA_list_from_file(self, cafile):
+        m2.ssl_set_client_CA_list(self.ssl, cafile)
+
+    def set_client_CA_list_from_context(self):
+        m2.ssl_set_client_CA_list_from_context(self.ssl, self.ctx.ctx)
 
     def setup_addr(self, addr):
         self.addr = addr

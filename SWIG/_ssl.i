@@ -1,5 +1,5 @@
 /* Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved. */
-/* $Id: _ssl.i,v 1.2 2003/06/22 18:26:44 ngps Exp $ */
+/* $Id: _ssl.i,v 1.3 2003/06/30 06:17:42 ngps Exp $ */
 
 %{
 #include <pythread.h>
@@ -171,8 +171,12 @@ int ssl_ctx_check_privkey(SSL_CTX *ctx) {
     return ret;
 }
 
-void ssl_ctx_load_client_CA(SSL_CTX *ctx, const char *ca_file) {
+void ssl_ctx_set_client_CA_list_from_file(SSL_CTX *ctx, const char *ca_file) {
     SSL_CTX_set_client_CA_list(ctx, SSL_load_client_CA_file(ca_file));
+}
+
+void ssl_ctx_set_verify_default(SSL_CTX *ctx, int mode) {
+    SSL_CTX_set_verify(ctx, mode, NULL);
 }
 
 void ssl_ctx_set_verify(SSL_CTX *ctx, int mode, PyObject *pyfunc) {
@@ -220,6 +224,14 @@ int bio_set_ssl(BIO *bio, SSL *ssl, int flag) {
     return BIO_ctrl(bio, BIO_C_SET_SSL, flag, (char *)ssl);
 }
     
+void ssl_set_client_CA_list_from_file(SSL *ssl, const char *ca_file) {
+    SSL_set_client_CA_list(ssl, SSL_load_client_CA_file(ca_file));
+}
+
+void ssl_set_client_CA_list_from_context(SSL *ssl, SSL_CTX *ctx) {
+    SSL_set_client_CA_list(ssl, SSL_CTX_get_client_CA_list(ctx));
+}
+
 int ssl_set_session_id_context(SSL *ssl, PyObject *sid_ctx) {
     const void *buf;
     int len;

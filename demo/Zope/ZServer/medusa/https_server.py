@@ -4,12 +4,12 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: https_server.py,v 1.5 2003/06/22 17:09:43 ngps Exp $'
+RCS_id='$Id: https_server.py,v 1.6 2003/06/30 06:22:00 ngps Exp $'
 
 import asynchat, asyncore, http_server, socket, sys
 from M2Crypto import SSL
 
-VERSION_STRING='0.11'
+VERSION_STRING='0.12'
 
 class https_channel(http_server.http_channel):
 

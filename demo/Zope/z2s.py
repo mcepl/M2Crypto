@@ -143,6 +143,11 @@ Options:
 
     Multiple -Y options can be provided to run multiple servers.
 
+  -x
+
+    If present, this option causes Zope to run in X.509 certificate-based
+    authentication mode.
+
   -C
   --force-http-connection-close
 
@@ -332,6 +337,9 @@ WEBDAV_SOURCE_PORT=[]
 # standard port for this handler, which is disabled by default.
 WEBDAV_SSL_SOURCE_PORT=[]
 
+# Should we use client X.509 certificate-based authentication?
+X509_REMOTE_USER=None
+
 ## FTP configuration
 
 # Port for the FTP Server. The standard port for FTP services is 21.
@@ -421,7 +429,7 @@ try:
 
 
     opts, args = getopt.getopt(sys.argv[1:],
-                               'hz:Z:t:i:a:d:u:w:W:y:Y:f:p:m:Sl:2DP:rF:L:XM:C',
+                               'hz:Z:t:i:a:d:u:w:W:y:Y:x:f:p:m:Sl:2DP:rF:L:XM:C',
                                ['icp=', 'force-http-connection-close'
                                ])
 
@@ -486,6 +494,11 @@ try:
             WEBDAV_SOURCE_PORT=server_info(WEBDAV_SOURCE_PORT, v)
         elif o=='-Y':
             WEBDAV_SSL_SOURCE_PORT=server_info(WEBDAV_SSL_SOURCE_PORT, v)
+        elif o=='-x':
+            if v in ('-', '0', ''):
+                X509_REMOTE_USER=None
+            else:
+                X509_REMOTE_USER=1
         elif o=='-f':
             FTP_PORT=server_info(FTP_PORT, v)
         elif o=='-P':
@@ -651,6 +664,49 @@ try:
     ## ZServer startup
     ##
 
+    ## In X509_REMOTE_USER mode, we log the client cert's subject DN.
+    if X509_REMOTE_USER:
+        
+        import base64, string, time
+
+        def log (self, bytes):
+            user_agent=self.get_header('user-agent')
+            if not user_agent: user_agent=''
+            referer=self.get_header('referer')
+            if not referer: referer=''  
+
+            get_peer_cert = getattr(self.channel, 'get_peer_cert', None)
+            if get_peer_cert is not None:
+                name = str(get_peer_cert().get_subject())
+            else:
+                name = 'Anonymous'
+            auth=self.get_header('Authorization')                
+            if auth is not None:
+                if string.lower(auth[:6]) == 'basic ':
+                    try: decoded=base64.decodestring(auth[6:])
+                    except base64.binascii.Error: decoded=''
+                    t = string.split(decoded, ':', 1)
+                    if len(t) < 2:
+                        name = 'Unknown (bad auth string)'
+                    else:
+                        name = t[0]
+
+            self.channel.server.logger.log (
+                self.channel.addr[0],
+                ' - %s [%s] "%s" %d %d "%s" "%s"\n' % (
+                    name,
+                    self.log_date_string (time.time()),
+                    self.request,
+                    self.reply_code,
+                    bytes,
+                    referer,
+                    user_agent
+                    )
+                )
+
+        from ZServer.medusa import http_server
+        http_server.http_request.log = log
+
     # Resolver and Logger, used by other servers
     if DNS_IP:
         rs = resolver.caching_resolver(DNS_IP)
@@ -722,12 +778,17 @@ try:
     # HTTPS Server
     if HTTPS_PORT:
         ssl_ctx = SSL.Context('sslv23')
-        ssl_ctx.load_cert('%s/server.pem' % INSTANCE_HOME)
-        ssl_ctx.load_verify_location('%s/ca.pem' % INSTANCE_HOME)
+        ssl_ctx.load_cert_chain('%s/server.pem' % INSTANCE_HOME)
+        ssl_ctx.load_verify_locations('%s/ca.pem' % INSTANCE_HOME)
         ssl_ctx.load_client_CA('%s/ca.pem' % INSTANCE_HOME)
-        ssl_ctx.set_verify(SSL.verify_none, 10)
+        #ssl_ctx.set_allow_unknown_ca(1)
         ssl_ctx.set_session_id_ctx(MODULE)
         ssl_ctx.set_tmp_dh('%s/dh1024.pem' % INSTANCE_HOME)
+        if X509_REMOTE_USER:
+            ssl_ctx.set_verify(SSL.verify_peer|SSL.verify_fail_if_no_peer_cert, 10)
+            #ssl_ctx.set_verify(SSL.verify_peer, 10)
+        else:
+            ssl_ctx.set_verify(SSL.verify_none, 10)
         if type(HTTPS_PORT) is type(0): HTTPS_PORT=((IP_ADDRESS, HTTPS_PORT),)
     
         for address, port in HTTPS_PORT:
@@ -743,8 +804,11 @@ try:
             except KeyError:
                 pass
             HTTPS_ENV['HTTPS']='ON'
-    
-            zsh = zhttp_handler(MODULE, '', HTTPS_ENV)
+
+            if X509_REMOTE_USER:
+                zsh = zhttps_handler(MODULE, '', HTTPS_ENV)
+            else:
+                zsh = zhttp_handler(MODULE, '', HTTPS_ENV)
             hss.install_handler(zsh)
 
     # WebDAV source Server (runs HTTP, but munges request to return
@@ -794,8 +858,8 @@ try:
     #  'manage_FTPget').
     if WEBDAV_SSL_SOURCE_PORT:
         ssl_ctx = SSL.Context('sslv23')
-        ssl_ctx.load_cert('%s/server.pem' % INSTANCE_HOME)
-        ssl_ctx.load_verify_location('%s/ca.pem' % INSTANCE_HOME)
+        ssl_ctx.load_cert_chain('%s/server.pem' % INSTANCE_HOME)
+        ssl_ctx.load_verify_locations('%s/ca.pem' % INSTANCE_HOME)
         ssl_ctx.load_client_CA('%s/ca.pem' % INSTANCE_HOME)
         ssl_ctx.set_verify(SSL.verify_none, 10)
         ssl_ctx.set_session_id_ctx(MODULE)

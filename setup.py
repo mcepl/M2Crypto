@@ -6,7 +6,7 @@ Distutils installer for M2Crypto.
 Copyright (c) 1999-2003, Ng Pheng Siong. All rights reserved.
 """
 
-_RCS_id = '$Id: setup.py,v 1.7 2003/06/22 16:45:33 ngps Exp $'
+_RCS_id = '$Id: setup.py,v 1.8 2003/06/30 06:13:11 ngps Exp $'
 
 import os, shutil
 from distutils.core import setup, Extension
@@ -38,8 +38,8 @@ m2crypto = Extension(name = '__m2crypto',
                      )
 
 setup(name = 'M2Crypto',
-    version = '0.11',
-    description = 'M2Crypto: A Python interface to OpenSSL',
+    version = '0.12',
+    description = 'M2Crypto: A Python crypto and SSL toolkit',
     author = 'Ng Pheng Siong',
     author_email = 'ngps@netmemetic.com',
     url = 'http://www.post1.com/home/ngps/m2/',

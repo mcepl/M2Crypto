@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: https_cli.py,v 1.6 2003/06/22 17:18:25 ngps Exp $'
+RCS_id='$Id: https_cli.py,v 1.7 2003/06/30 06:25:44 ngps Exp $'
 
 import sys
 from M2Crypto import Rand, SSL, httpslib, threading
@@ -33,8 +33,10 @@ if sys.version[:3] == '1.5':
 elif sys.version[0] == '2':
 
     def test_httpslib():
-        ctx = SSL.Context('sslv2')
-        #ctx.load_cert('client.pem')
+        ctx = SSL.Context('sslv23')
+        ctx.load_cert_chain('client.pem')
+        ctx.load_verify_locations('ca.pem')
+        ctx.set_verify(SSL.verify_peer, 10)        
         ctx.set_info_callback()
         h = httpslib.HTTPSConnection('127.0.0.1', 9443, ssl_context=ctx)
         h.set_debuglevel(1)
