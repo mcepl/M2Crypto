@@ -1,16 +1,8 @@
 -------------
- 01 Jun 2001
+ 20 Jul 2001
 -------------
 
-You need Python 1.5.2, 2.0 or 2.1, OpenSSL 0.9.6 and a post-1.1p5 build of
-SWIG. (I use build-786.) Alpha versions of SWIG 1.3 may or may not work;
-they are not supported.
-
-Apparently SWIG 1.1-786 is now hard to find on the net. I've put up a
-source tarball here:
-
-    http://www.post1.com/home/ngps/swig-1.1-786.tgz
-
+You need Python 1.5.2, 2.0 or 2.1, OpenSSL 0.9.6 or later, and SWIG 1.3.6.
 
 A Distutils setup.py is being worked on; it is held up by limitations 
 in Distutils 1.0 wherein the SWIG call interface cannot be customised 
@@ -31,10 +23,10 @@ uses 'Makefile', Python 2.0 'Makefile.py20' and Python 1.5.2
 
 Building on Win32 requires MS VC++ 6.0 or the freely-available Borland C++
 command line tools. It should be fairly obvious which makefile to use for
-your compiler suite.
+your compiler suite and Python version.
 
-Richard XXX has kindly contributed a Mac OS X makefile. I have not tested
-this myself.
+Richard Jones <richard@bizarsoftware.com.au> has kindly contributed a
+makefile for Mac OS X. See instructions below.
 
 
 Building on Unix
@@ -72,11 +64,16 @@ Building on Windows
 
 Building on Mac OS X
 ---------------------
+
+Richard Jones <richard@bizarsoftware.com.au> has kindly contributed a
+makefile for Mac OS X. It is included here as Makefile.osx. I have not
+tested it myself.
+
 1. cd swig
-2. Fix paths in Makefile.osx if necessary.
+2. Fix paths in Makefile.osx.
 3. Python 2.1: make -f Makefile.osx
-   Python 2.0: dunno
-   Python 1.5.2: dunno
+   Python 2.0: dunno, give it a go...
+   Python 1.5.2: dunno, give it a go...
 4. cd ..
 5. Install the directory M2Crypto into a directory on the PYTHONPATH.
 6. If you have PyUnit installed: 
@@ -85,6 +82,18 @@ Building on Mac OS X
 8. cd demo
 9. Try out the various test programs.
 
+Here are Richard's instructions on building OpenSSL 0.9.6 on OS X:
+
+> That and one needs to install openssl-0.9.6. But that's a whole other
+> story. In short:
+> 1. ./Configure OpenBSD
+> 2. edit root Makefile to change "gcc" to "cc"
+> 3. edit Makefile in apps and test to change the libraries to:
+>   LIBCRYPTO=../libcrypto.a
+>   LIBSSL=../libssl.a
+> 
+> and you're there.
+
 ---------------------------------------------------------------------------
-$Id: INSTALL,v 1.1 2001/06/01 13:53:50 ngps Exp $
+$Id: INSTALL,v 1.2 2001/07/20 13:17:09 ngps Exp $
 
