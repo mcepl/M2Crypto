@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: X509.py,v 1.5 2000/04/01 14:51:11 ngps Exp $'
+RCS_id='$Id: X509.py,v 1.6 2000/04/17 16:18:05 ngps Exp $'
 
 # M2Crypto
 import ASN1, BIO
@@ -144,6 +144,7 @@ class X509_Stack:
         else:
             self.stack = m2.sk_x509_new_null()
             self._pyfree = 1
+        self._refkeeper = {}
 
     def __del__(self):
         if self._pyfree:
@@ -163,10 +164,12 @@ class X509_Stack:
 
     def push(self, x509):
         assert isinstance(x509, X509)
+        self._refkeeper[x509._ptr()] = x509
         return m2.sk_x509_push(self.stack, x509._ptr())
 
     def pop(self):
-        return m2.sk_x509_pop(self.stack)
+        x509_ptr = m2.sk_x509_pop(self.stack)
+        del self._refkeeper[x509_ptr]
 
 
 class Request:
