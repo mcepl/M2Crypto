@@ -1,5 +1,5 @@
 /* Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved. */
-/* $Id: _rsa.i,v 1.1 2003/06/22 17:30:52 ngps Exp $ */
+/* $Id: _rsa.i,v 1.2 2003/09/27 16:02:53 ngps Exp $ */
 
 %{
 #include <openssl/bn.h>
@@ -44,6 +44,16 @@ int rsa_write_key(RSA *rsa, BIO *f, EVP_CIPHER *cipher, PyObject *pyfunc) {
     Py_INCREF(pyfunc);
     ret = PEM_write_bio_RSAPrivateKey(f, rsa, cipher, NULL, 0,
         passphrase_callback, (void *)pyfunc);
+    Py_DECREF(pyfunc);
+    return ret;
+}
+
+int rsa_write_key_no_cipher(RSA *rsa, BIO *f, PyObject *pyfunc) {
+    int ret;
+
+    Py_INCREF(pyfunc);
+    ret = PEM_write_bio_RSAPrivateKey(f, rsa, NULL, NULL, 0, 
+				      passphrase_callback, (void *)pyfunc);
     Py_DECREF(pyfunc);
     return ret;
 }
