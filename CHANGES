@@ -3,9 +3,10 @@
 --------------------------------
 - Updated to SWIG 1.3.17.
 - Excluded IDEA.
-- Tested with OpenSSL 0.9.6g.
+- Tested with OpenSSL 0.9.6h.
 - ZServerSSL rides again for Zope 2.6.0.
-- Removed Makefiles for Pythons 2.0 and 1.5.
+- setup.py works for both MSVC and MingW32 on Windows.
+- Removed Makefiles for Windows and Unix. (Makefile.osx remains.)
 - Included Isaac Salzberg's application of XXX's patch that allows
   IIS interoperability thru an authenticating proxy.
 - Included in contrib/ patch by XXX that has smarter non-blocking
