@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: X509.py,v 1.4 2000/02/25 15:21:36 ngps Exp $'
+RCS_id='$Id: X509.py,v 1.5 2000/04/01 14:51:11 ngps Exp $'
 
 # M2Crypto
 import ASN1, BIO
@@ -64,6 +64,9 @@ class X509:
         if self._pyfree:
             m2.x509_free(self.x509)
 
+    def _ptr(self):
+        return self.x509
+
     def as_text(self):
         buf=BIO.MemoryBuffer()
         m2.x509_print(buf.bio_ptr(), self.x509)
@@ -97,17 +100,54 @@ class X509:
         return X509_Name(m2.x509_get_subject_name(self.x509))
 
 def load_cert(pemfile):
-    f=BIO.openfile(pemfile)
-    cptr=m2.x509_read_pem(f.bio_ptr())
-    f.close()
+    bio = m2.bio_new_file(pemfile, 'r')
+    if bio is None:
+        raise Err.get_error()
+    cptr = m2.x509_read_pem(bio)
+    m2.bio_free(bio)
     if cptr is None:
         raise Err.get_error()
     return X509(cptr, 1)
 
 
+class X509_Store:
+    def __init__(self, store=None, _pyfree=0):
+        if store is not None:
+            self.store = store
+            self._pyfree = _pyfree
+        else:
+            self.store = m2.x509_store_new()
+            self._pyfree = 1
+
+    def __del__(self):
+        if self._pyfree:
+            m2.x509_store_free(self.store)
+
+    def _ptr(self):
+        return self.store
+
+    def load_info(self, file):
+        m2.x509_store_load_locations(self.store, file)
+
+    load_locations = load_info
+         
+    def add_x509(self, x509):
+        assert isinstance(x509, X509)
+        return m2.x509_store_add_cert(self.store, x509._ptr())
+
+
 class X509_Stack:
-    def __init__(self, stack):
-        self.stack=stack
+    def __init__(self, stack=None, _pyfree=0):
+        if stack is not None:
+            self.stack = stack
+            self._pyfree = _pyfree
+        else:
+            self.stack = m2.sk_x509_new_null()
+            self._pyfree = 1
+
+    def __del__(self):
+        if self._pyfree:
+            m2.sk_x509_free(self.stack)
 
     def __len__(self):
         return m2.sk_x509_num(self.stack)
@@ -117,6 +157,16 @@ class X509_Stack:
             raise IndexError, 'index out of range'
         v=m2.sk_x509_value(self.stack, idx)
         return X509(v)
+
+    def _ptr(self):
+        return self.stack
+
+    def push(self, x509):
+        assert isinstance(x509, X509)
+        return m2.sk_x509_push(self.stack, x509._ptr())
+
+    def pop(self):
+        return m2.sk_x509_pop(self.stack)
 
 
 class Request:
