@@ -1,7 +1,8 @@
-""" M2Crypto wrapper for OpenSSL DSA API.
-Copyright (c) 1999 Ng Pheng Siong. All rights reserved. """
+"""M2Crypto wrapper for OpenSSL DSA API.
 
-RCS_id='$Id: DSA.py,v 1.2 1999/09/12 14:27:40 ngps Exp $'
+Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
+
+RCS_id='$Id: DSA.py,v 1.3 2000/02/01 15:05:38 ngps Exp $'
 
 import util
 import BIO
@@ -11,7 +12,7 @@ m2=M2Crypto
 m2.dsa_init()
 
 class DSA:
-	def __init__(self, this=m2.dsa_new()):
+	def __init__(self, this):
 		self.this=this
 
 	def __del__(self):
@@ -22,7 +23,7 @@ class DSA:
 
 	def __getattr__(self, name):
 		if name in ['p', 'q', 'g', 'pub', 'priv']:
-			method=eval('m2.dsa_get_%s' % (name,))
+			method=getattr(m2, 'm2.dsa_get_%s' % (name,))
 			return method(self.this)
 		else:
 			raise AttributeError
