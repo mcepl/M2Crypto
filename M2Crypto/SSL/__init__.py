@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: __init__.py,v 1.3 2004/03/25 06:36:50 ngps Exp $'
+RCS_id='$Id: __init__.py,v 1.4 2004/04/09 16:26:22 ngps Exp $'
 
 # M2Crypto
 from M2Crypto import m2
@@ -26,3 +26,5 @@ verify_client_once = m2.SSL_VERIFY_CLIENT_ONCE
 SSL_SENT_SHUTDOWN = m2.SSL_SENT_SHUTDOWN
 SSL_RECEIVED_SHUTDOWN = m2.SSL_RECEIVED_SHUTDOWN
 
+op_all = m2.SSL_OP_ALL
+op_no_sslv2 = m2.SSL_OP_NO_SSLv2

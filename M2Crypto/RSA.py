@@ -1,8 +1,8 @@
 """M2Crypto wrapper for OpenSSL RSA API.
 
-Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: RSA.py,v 1.7 2003/09/27 16:02:53 ngps Exp $'
+RCS_id='$Id: RSA.py,v 1.8 2004/04/09 16:17:19 ngps Exp $'
 
 import sys
 import util, BIO, Err, m2
@@ -66,18 +66,20 @@ class RSA:
         assert self.check_key(), 'key is not initialised'
         return m2.rsa_private_decrypt(self.rsa, data, padding)
 
-    def save_key_bio(self, bio, cipher='des_ede3_cbc', callback=util.passphrase_callback):
+    def save_key_bio(self, bio, cipher='aes_128_cbc', callback=util.passphrase_callback):
         """
         Save the key pair to an M2Crypto.BIO object in PEM format.
 
-        _bio_ is the target M2Crypto.BIO object.
+        @type bio: M2Crypto.BIO
+        @param bio: M2Crypto.BIO object to save key to.
 
-        _cipher_ is a symmetric cipher to protect the key. The 
-        default cipher is 'des_ede3_cbc', i.e., three-key triple-DES
-        in cipher block chaining mode. If _cipher_ is None, then the key
-        is saved in the clear.
+        @type cipher: string
+        @param cipher: Symmetric cipher to protect the key. The default
+        cipher is 'aes_128_cbc'. If cipher is None, then the key is saved
+        in the clear.
 
-        _callback_ is a Python callable object that is invoked
+        @type callback: Python callable
+        @param callback: A Python callable object that is invoked
         to acquire a passphrase with which to protect the key.
         """
         if cipher is None:
@@ -90,35 +92,59 @@ class RSA:
                 ciph = ciph()
             return m2.rsa_write_key(self.rsa, bio._ptr(), ciph, callback)
 
-    def save_key(self, file, cipher='des_ede3_cbc', callback=util.passphrase_callback):
+    def save_key(self, file, cipher='aes_128_cbc', callback=util.passphrase_callback):
         """
-        Save the key pair to filename _file_ in PEM format.
+        Save the key pair to a file in PEM format.
+
+        @type file: string
+        @param file: Name of file to save key to.
+
+        @type cipher: string
+        @param cipher: Symmetric cipher to protect the key. The default
+        cipher is 'aes_128_cbc'. If cipher is None, then the key is saved
+        in the clear.
+
+        @type callback: Python callable
+        @param callback: A Python callable object that is invoked
+        to acquire a passphrase with which to protect the key.
         """
         bio = BIO.openfile(file, 'wb')
         return self.save_key_bio(bio, cipher, callback)
 
     def save_key_der_bio(self, bio):
         """
-        Save the key pair to the M2Crypto.BIO object 'bio' in DER format.
+        Save the key pair to an M2Crypto.BIO object in DER format.
+
+        @type bio: M2Crypto.BIO
+        @param bio: M2Crypto.BIO object to save key to.
         """
         return m2.rsa_write_key_der(self.rsa, bio._ptr())
 
     def save_key_der(self, file):
         """
-        Save the key pair to 'file' in DER format.
+        Save the key pair to a file in DER format.
+
+        @type bio: M2Crypto.BIO
+        @param bio: M2Crypto.BIO object to save key to.
         """
         bio = BIO.openfile(file, 'wb')
         return self.save_key_der_bio(bio)
 
     def save_pub_key_bio(self, bio):
         """
-        Save the public key to the M2Crypto.BIO object 'bio' in PEM format.
+        Save the public key to an M2Crypto.BIO object in PEM format.
+
+        @type bio: M2Crypto.BIO
+        @param bio: M2Crypto.BIO object to save key to.
         """ 
         return m2.rsa_write_pub_key(self.rsa, bio._ptr())
 
     def save_pub_key(self, file):
         """
-        Save the public key to filename 'file' in PEM format.
+        Save the public key to a file in PEM format.
+
+        @type file: string
+        @param file: Name of file to save key to.
         """
         bio = BIO.openfile(file, 'wb')
         return m2.rsa_write_pub_key(self.rsa, bio._ptr())

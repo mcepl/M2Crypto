@@ -1,5 +1,5 @@
 /* Copyright (c) 1999 Ng Pheng Siong. All rights reserved. */
-/* $Id: _evp.i,v 1.3 2003/10/26 13:17:56 ngps Exp $ */
+/* $Id: _evp.i,v 1.4 2004/04/09 16:28:42 ngps Exp $ */
 
 %{
 #include <assert.h>
@@ -95,12 +95,6 @@ void md_ctx_free(EVP_MD_CTX *ctx) {
     PyMem_Free((void *)ctx);
 }
 
-/*
-void digest_update(EVP_MD_CTX *ctx, Blob *blob) {
-    EVP_DigestUpdate(ctx, (const void *)blob->data, (unsigned int)blob->len);
-}
-*/
-
 PyObject *digest_update(EVP_MD_CTX *ctx, PyObject *blob) {
     const void *buf;
     int len;
@@ -120,16 +114,6 @@ PyObject *digest_update(EVP_MD_CTX *ctx, PyObject *blob) {
     Py_INCREF(Py_None);
     return Py_None;
 }
-
-/*
-Blob *digest_final(EVP_MD_CTX *ctx) {
-    Blob *blob=blob_new(ctx->digest->md_size, "digest_final");
-    if (blob==NULL)
-        return NULL;
-    EVP_DigestFinal(ctx, blob->data, (unsigned int *)&blob->len);
-    return blob;
-}
-*/
 
 PyObject *digest_final(EVP_MD_CTX *ctx) {
     void *blob;
@@ -160,12 +144,6 @@ void hmac_ctx_free(HMAC_CTX *ctx) {
     PyMem_Free((void *)ctx);
 }
 
-/*
-void hmac_init(HMAC_CTX *ctx, const Blob *key, const EVP_MD *md) {
-    HMAC_Init(ctx, (const void *)key->data, key->len, md);
-}
-*/
-
 PyObject *hmac_init(HMAC_CTX *ctx, PyObject *key, const EVP_MD *md) {
     const void *kbuf;
     int klen;
@@ -185,12 +163,6 @@ PyObject *hmac_init(HMAC_CTX *ctx, PyObject *key, const EVP_MD *md) {
     Py_INCREF(Py_None);
     return Py_None;
 }
-
-/*
-void hmac_update(HMAC_CTX *ctx, Blob *blob) {
-    HMAC_Update(ctx, blob->data, (unsigned int)blob->len);
-}
-*/
 
 PyObject *hmac_update(HMAC_CTX *ctx, PyObject *blob) {
     const void *buf;
@@ -212,16 +184,6 @@ PyObject *hmac_update(HMAC_CTX *ctx, PyObject *blob) {
     return Py_None;
 }
 
-/*
-Blob *hmac_final(HMAC_CTX *ctx) {
-    Blob *blob=blob_new(ctx->md->md_size, "hmac_final");
-    if (blob==NULL)
-        return NULL;
-    HMAC_Final(ctx, blob->data, (unsigned int *)&blob->len);
-    return blob;
-}
-*/
-
 PyObject *hmac_final(HMAC_CTX *ctx) {
     void *blob;
     int blen;
@@ -236,15 +198,6 @@ PyObject *hmac_final(HMAC_CTX *ctx) {
     PyMem_Free(blob);
     return ret;
 }
-
-/*
-Blob *hmac(Blob *key, Blob *data, const EVP_MD *md) {
-    Blob *blob=blob_new(EVP_MAX_MD_SIZE, "hmac_final");
-    HMAC(md, key->data, key->len, data->data, data->len, blob->data, &blob->len);
-    blob->data = (unsigned char *)realloc(blob->data, blob->len);
-    return blob;
-}
-*/
 
 PyObject *hmac(PyObject *key, PyObject *data, const EVP_MD *md) {
     const void *kbuf, *dbuf;
@@ -293,18 +246,6 @@ void cipher_ctx_free(EVP_CIPHER_CTX *ctx) {
     PyMem_Free((void *)ctx);
 }
 
-/*
-Blob *bytes_to_key(const EVP_CIPHER *cipher, EVP_MD *md, Blob *data, Blob *salt, Blob *iv, int iter) {
-    int klen;
-    Blob *key=blob_new(cipher->key_len, "bytes_to_key");
-    if (key==NULL)
-        return NULL;
-    klen=EVP_BytesToKey(cipher, md, salt->data, data->data, data->len, iter, key->data, iv->data);
-    assert(klen==key->len);
-    return key;
-}
-*/
-
 PyObject *bytes_to_key(const EVP_CIPHER *cipher, EVP_MD *md, 
                         PyObject *data, PyObject *salt, PyObject *iv, int iter) {
     const void *dbuf, *sbuf, *ibuf;
@@ -345,12 +286,6 @@ PyObject *bytes_to_key(const EVP_CIPHER *cipher, EVP_MD *md,
     return ret;
 }
 
-/*
-void cipher_init(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher, Blob *key, Blob *iv, int mode) {
-    EVP_CipherInit(ctx, cipher, key->data, iv->data, mode);
-}
-*/
-
 PyObject *cipher_init(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher, 
                         PyObject *key, PyObject *iv, int mode) {
     const void *kbuf, *ibuf;
@@ -375,18 +310,6 @@ PyObject *cipher_init(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
     Py_INCREF(Py_None);
     return Py_None;
 }
-
-/*
-Blob *cipher_update(EVP_CIPHER_CTX *ctx, Blob *in) {
-    int olen;
-    Blob *out=blob_new(in->len, "cipher_update");
-    if (out==NULL)
-        return NULL;
-    EVP_CipherUpdate(ctx, out->data, &olen, in->data, in->len);
-    out->len=olen;
-    return out;
-}
-*/
 
 PyObject *cipher_update(EVP_CIPHER_CTX *ctx, PyObject *blob) {
     const void *buf;
@@ -415,18 +338,6 @@ PyObject *cipher_update(EVP_CIPHER_CTX *ctx, PyObject *blob) {
     return ret;
 }
 
-/*
-Blob *cipher_final(EVP_CIPHER_CTX *ctx) {
-    int olen;
-    Blob *out=blob_new(ctx->cipher->block_size, "cipher_final");
-    if (out==NULL)
-        return NULL;
-    EVP_CipherFinal(ctx, out->data, &olen);
-    out->len=olen;
-    return out;
-}
-*/
-
 PyObject *cipher_final(EVP_CIPHER_CTX *ctx) {
     void *obuf;
     int olen;
@@ -441,12 +352,6 @@ PyObject *cipher_final(EVP_CIPHER_CTX *ctx) {
     PyMem_Free(obuf);
     return ret;
 }
-
-/*
-void sign_update(EVP_MD_CTX *ctx, Blob *blob) {
-    EVP_SignUpdate(ctx, (const void *)blob->data, (unsigned int)blob->len);
-}
-*/
 
 PyObject *sign_update(EVP_MD_CTX *ctx, PyObject *blob) {
     const void *buf;
@@ -468,25 +373,6 @@ PyObject *sign_update(EVP_MD_CTX *ctx, PyObject *blob) {
     return Py_None;
 }
 
-/*
-Blob *sign_final(EVP_MD_CTX *ctx, EVP_PKEY *pkey) {
-    Blob *out;
-    unsigned char sigbuf[256];
-    unsigned int siglen;
-    char err[256];
-
-    if (!EVP_SignFinal(ctx, sigbuf, &siglen, pkey)) {
-        ERR_error_string(ERR_get_error(), err);
-        PyErr_SetString(PyExc_RuntimeError, err);
-        return NULL;
-    }
-    out=blob_new(siglen, "sign_final");
-    if (out==NULL)
-        return NULL;
-    return out;
-}
-*/
-
 PyObject *sign_final(EVP_MD_CTX *ctx, EVP_PKEY *pkey) {
     unsigned char sigbuf[256]; /* XXX fixed length buffer */
     unsigned int siglen;
@@ -497,6 +383,16 @@ PyObject *sign_final(EVP_MD_CTX *ctx, EVP_PKEY *pkey) {
         return NULL;
     }
     return PyString_FromStringAndSize(sigbuf, siglen);
+}
+
+int pkey_write_pem_no_cipher(EVP_PKEY *pkey, BIO *f, PyObject *pyfunc) {
+    int ret;
+
+    Py_INCREF(pyfunc);
+    ret = PEM_write_bio_PrivateKey(f, pkey, NULL, NULL, 0,
+            passphrase_callback, (void *)pyfunc);
+    Py_DECREF(pyfunc);
+    return ret;
 }
 
 EVP_PKEY *pkey_read_pem(BIO *f, PyObject *pyfunc) {
