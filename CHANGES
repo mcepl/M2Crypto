@@ -5,12 +5,13 @@
 - Excluded IDEA.
 - Tested with OpenSSL 0.9.6h.
 - ZServerSSL rides again for Zope 2.6.0.
-- setup.py works for both MSVC and MingW32 on Windows.
+- setup.py does!
 - Removed Makefiles for Windows and Unix. (Makefile.osx remains.)
-- Included Isaac Salzberg's application of XXX's patch that allows
-  IIS interoperability thru an authenticating proxy.
-- Included in contrib/ patch by XXX that has smarter non-blocking
-  behaviour.
+- Included in contrib/ Isaac Salzberg's application of Mihai Ibanescu's
+  patch that allows IIS interoperability thru an authenticating proxy.
+  Thanks Isaac.
+- Included in contrib/ patch by Dave Brueck <dave@pythonaprocrypha.com> 
+  that has smarter non-blocking behaviour. Thanks Dave.
 
 
  Changes since 0.06
