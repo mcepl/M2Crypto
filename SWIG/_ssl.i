@@ -1,5 +1,5 @@
-/* Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved. */
-/* $Id: _ssl.i,v 1.4 2003/10/26 13:20:05 ngps Exp $ */
+/* Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved. */
+/* $Id: _ssl.i,v 1.5 2004/03/21 12:36:20 ngps Exp $ */
 
 %{
 #include <pythread.h>
@@ -235,8 +235,8 @@ void ssl_ctx_set_tmp_rsa_callback(SSL_CTX *ctx,  PyObject *pyfunc) {
     SSL_CTX_set_tmp_rsa_callback(ctx, ssl_set_tmp_rsa_callback);
 }
 
-int ssl_ctx_load_verify_locations(SSL_CTX *ctx, const char *cafile) {
-    return SSL_CTX_load_verify_locations(ctx, cafile, NULL);
+int ssl_ctx_load_verify_locations(SSL_CTX *ctx, const char *cafile, const char *capath) {
+    return SSL_CTX_load_verify_locations(ctx, cafile, capath);
 }
 
 int bio_set_ssl(BIO *bio, SSL *ssl, int flag) {

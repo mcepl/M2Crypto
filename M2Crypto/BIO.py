@@ -2,10 +2,12 @@
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: BIO.py,v 1.9 2003/06/22 16:47:36 ngps Exp $'
+RCS_id='$Id: BIO.py,v 1.10 2004/03/21 12:23:26 ngps Exp $'
 
 import m2
 from m2 import bio_do_handshake as bio_do_ssl_handshake
+
+from cStringIO import StringIO
 
 class BIOError(Exception): pass
 
@@ -38,14 +40,22 @@ class BIO:
     def readable(self):
         return not self.closed
 
-    def read(self, size=4096):
+    def read(self, size=None):
         if not self.readable():
             raise IOError, 'cannot read'
         if size == 0:
             return ''
         elif size < 0:
             raise ValueError, 'read count is negative'
-        return m2.bio_read(self.bio, size)
+        elif size is None:
+            buf = StringIO()
+            while 1:
+                data = m2.bio_read(self.bio, 4096)
+                if not data: break
+                buf.write(data)
+            return buf.getvalue()
+        else:
+            return m2.bio_read(self.bio, size)
 
     def readline(self, size=4096):
         if not self.readable():

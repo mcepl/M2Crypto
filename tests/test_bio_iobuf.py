@@ -4,7 +4,7 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: test_bio_iobuf.py,v 1.2 2002/12/23 04:57:32 ngps Exp $'
+RCS_id='$Id: test_bio_iobuf.py,v 1.3 2004/03/21 12:39:44 ngps Exp $'
 
 from cStringIO import StringIO
 
@@ -25,7 +25,7 @@ class IOBufferTestCase(unittest.TestCase):
         mb = MemoryBuffer()
         io = IOBuffer(mb)
         out = io.read()
-        assert out is None
+        assert out == ''
 
     def check_init_something(self):
         mb = MemoryBuffer(self.data)

@@ -1,5 +1,5 @@
-/* Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved. */
-/* $Id: _lib.i,v 1.2 2003/10/26 13:19:14 ngps Exp $ */
+/* Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved. */
+/* $Id: _lib.i,v 1.3 2004/03/21 12:35:24 ngps Exp $ */
 
 %{
 #include <openssl/dh.h>
@@ -293,6 +293,10 @@ void lib_init() {
     $result=$1;
 }
 
+%typemap(python, out) int {
+    $result=PyInt_FromLong($1);
+    if (PyErr_Occurred()) SWIG_fail;
+}
 
 /* Pointer checks. */
 
