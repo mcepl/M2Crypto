@@ -4,7 +4,7 @@
 
 Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: echod-async.py,v 1.2 2000/04/17 15:55:17 ngps Exp $'
+RCS_id='$Id: echod-async.py,v 1.3 2000/08/23 15:41:10 ngps Exp $'
 
 import asyncore
 import errno
@@ -20,9 +20,7 @@ class ssl_echo_channel(SSL.ssl_dispatcher):
 
     def __init__(self, conn):
         SSL.ssl_dispatcher.__init__(self, conn)
-        self.rc = 1
-        self.wc = 1
-        self.peer = None
+        self.peer = self.get_peer_cert()
 
     def handle_connect(self):
         #print 'bogus: handle_connect'
@@ -32,16 +30,9 @@ class ssl_echo_channel(SSL.ssl_dispatcher):
         self.close()
 
     def writeable(self):
-        time.sleep(1)
         return len(self.buffer) > 0
  
     def handle_write(self):
-        self.wc = self.wc + 1
-        if self.peer is None:
-            self.peer = self.get_peer_cert()
-            if self.peer is not None:
-                print 'wc =', self.wc
-                print self.peer.get_subject()
         try:
             n=self.send(self.buffer)
             if n == -1:
@@ -54,16 +45,9 @@ class ssl_echo_channel(SSL.ssl_dispatcher):
             self.close()
 
     def readable(self):
-        #time.sleep(1)
         return 1
 
     def handle_read(self):
-        self.rc = self.rc + 1
-        if self.peer is None:
-            self.peer = self.get_peer_cert()
-            if self.peer is not None:
-                print 'rc =', self.rc
-                print self.peer.get_subject()
         try:
             blob=self.recv()
             if blob is None:
@@ -99,12 +83,6 @@ class ssl_echo_server(SSL.ssl_dispatcher):
             traceback.print_exc()
             print '-'*40
             return
-#        if sock.verify_ok():
-#            self.channel_class(sock)
-#        else:
-#            v = sock.get_verify_result()
-#            print 'peer verification failed:', Err.get_x509_verify_error(v)
-#            sock.close()
 
     def writeable(self):
         return 0
@@ -113,8 +91,8 @@ class ssl_echo_server(SSL.ssl_dispatcher):
 if __name__=='__main__':
     Rand.load_file('../randpool.dat', -1) 
     ctx=echod_lib.init_context('sslv23', 'server.pem', 'ca.pem', \
-        #SSL.verify_none)
-        SSL.verify_peer | SSL.verify_fail_if_no_peer_cert)
+        SSL.verify_none)
+        #SSL.verify_peer | SSL.verify_fail_if_no_peer_cert)
     ctx.set_tmp_dh('dh1024.pem')
     ssl_echo_server('', 9999, ctx)
     asyncore.loop()
