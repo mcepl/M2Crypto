@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<base href="https://localhost:9443/home/m2/INSTALL/" />
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.2.8: http://docutils.sourceforge.net/" />
+<title>Installing M2Crypto 0.11</title>
+<meta name="author" content="Ng Pheng Siong" />
+<meta name="date" content="2003-06-22" />
+<link rel="stylesheet" href="default.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="installing-m2crypto-0-11">
+<h1 class="title">Installing M2Crypto 0.11</h1>
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr><th class="docinfo-name">Author:</th>
+<td>Ng Pheng Siong</td></tr>
+<tr class="field"><th class="docinfo-name">Id:</th><td class="field-body">INSTALL,v 1.6 2003/06/22 16:28:47 ngps Exp</td>
+</tr>
+<tr><th class="docinfo-name">Date:</th>
+<td>2003-06-22</td></tr>
+<tr class="field"><th class="docinfo-name">Web-Site:</th><td class="field-body"><a class="reference" href="http://www.post1.com/home/ngps/m2">http://www.post1.com/home/ngps/m2</a></td>
+</tr>
+</tbody>
+</table>
+<div class="contents topic" id="contents">
+<p class="topic-title"><a name="contents">Contents</a></p>
+<ul class="simple">
+<li><a class="reference" href="#pre-requisites" id="id1" name="id1">Pre-requisites</a></li>
+<li><a class="reference" href="#preparation" id="id2" name="id2">Preparation</a></li>
+<li><a class="reference" href="#installing-on-un-x" id="id3" name="id3">Installing on Un*x</a></li>
+<li><a class="reference" href="#installing-on-windows" id="id4" name="id4">Installing on Windows</a><ul>
+<li><a class="reference" href="#msvc" id="id5" name="id5">MSVC++</a></li>
+<li><a class="reference" href="#bc" id="id6" name="id6">BC++</a></li>
+<li><a class="reference" href="#mingw32" id="id7" name="id7">mingw32</a></li>
+<li><a class="reference" href="#openssl-dlls" id="id8" name="id8">OpenSSL DLLs</a></li>
+<li><a class="reference" href="#installing" id="id9" name="id9">Installing</a></li>
+</ul>
+</li>
+<li><a class="reference" href="#building-on-mac-os-x" id="id10" name="id10">Building on Mac OS X</a></li>
+</ul>
+</div>
+<div class="section" id="pre-requisites">
+<h1><a class="toc-backref" href="#id1" name="pre-requisites">Pre-requisites</a></h1>
+<p>The following software packages are pre-requisites:</p>
+<ul class="simple">
+<li><strong>Python 2.1 or 2.2</strong></li>
+<li><strong>OpenSSL 0.9.7 or later</strong></li>
+<li><strong>SWIG 1.3.17</strong></li>
+</ul>
+<div class="note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li>Earlier versions of Python may or may not work.</li>
+<li>This release is incompatible with OpenSSL versions prior to 0.9.7.</li>
+<li>Earlier versions of SWIG may not work.</li>
+</ul>
+</div>
+<p>This distribution is tested with OpenSSL 0.9.7a.</p>
+</div>
+<div class="section" id="preparation">
+<h1><a class="toc-backref" href="#id2" name="preparation">Preparation</a></h1>
+<ol class="arabic">
+<li><p class="first">Read Sebastien Sauvage's webpage:</p>
+<blockquote>
+<p><a class="reference" href="http://sebsauvage.net/python/mingw.html">http://sebsauvage.net/python/mingw.html</a></p>
+</blockquote>
+</li>
+<li><p class="first">(<strong>This step applies to both Windows and Un*x platforms</strong>). Tweak
+Distutils per the above webpage. The following differs slightly from
+Sebastien's instructions:</p>
+<blockquote>
+<ul>
+<li><p class="first">Locate build_ext.py in your Python directory. On my Win98
+Python 2.2 installation it is <tt class="literal"><span class="pre">c:\pkg\py22\lib\distutils\command\build_ext.py</span></tt>.</p>
+</li>
+<li><p class="first">Change the 2 following lines:</p>
+<pre class="literal-block">
+#new_sources.append(base + target_ext) # old
+new_sources.append(base + '_wrap' + target_ext) # new
+
+#swig_cmd = [swig, &quot;-python&quot;, &quot;-dnone&quot;, &quot;-ISWIG&quot;] # old
+swig_cmd = [swig, &quot;-python&quot;, &quot;-ISWIG&quot;] # new
+</pre>
+</li>
+</ul>
+</blockquote>
+</li>
+</ol>
+</div>
+<div class="section" id="installing-on-un-x">
+<h1><a class="toc-backref" href="#id3" name="installing-on-un-x">Installing on Un*x</a></h1>
+<pre class="literal-block">
+$ unzip m2crypto-0.11.zip
+$ cd m2crypto-0.11
+$ python setup.py build
+# python setup.py install
+$ cd tests
+$ python alltests.py
+</pre>
+<p>Also see the examples in <tt class="literal"><span class="pre">m2crypto-0.11/demo</span></tt>.</p>
+</div>
+<div class="section" id="installing-on-windows">
+<h1><a class="toc-backref" href="#id4" name="installing-on-windows">Installing on Windows</a></h1>
+<div class="note">
+<p class="admonition-title">Note</p>
+This section is from M2Crypto 0.10. These instructions
+should continue to work for this release.</div>
+<p>I have built and tested this distribution with the following:</p>
+<ul class="simple">
+<li>MSVC++ 6.0</li>
+<li>BC++ 5.5 free compiler suite</li>
+<li>Bloodshed Dev-C++ version 4; Mingw compiler 2.95.2-1</li>
+</ul>
+<p>Before building from source, you need to install OpenSSL's include files,
+import libraries and DLLs.</p>
+<p>Here is the relevant section from setup.py:</p>
+<pre class="literal-block">
+if os.name == 'nt':
+    openssl_dir = 'c:\\pkg\\openssl'
+    include_dirs = [my_inc, openssl_dir + '/include']
+    library_dirs = [openssl_dir + '\\lib']
+    libraries = ['ssleay32', 'libeay32']
+    #libraries = ['ssleay32_bc', 'libeay32_bc']
+</pre>
+<p>By convention, I place OpenSSL include files in <tt class="literal"><span class="pre">c:\pkg\openssl\include</span></tt>, and 
+the import libraries in <tt class="literal"><span class="pre">c:\pkg\openssl\lib</span></tt>.</p>
+<div class="section" id="msvc">
+<h2><a class="toc-backref" href="#id5" name="msvc">MSVC++</a></h2>
+<p>For MSVC++, the import libraries, as built by OpenSSL, are named <tt class="literal"><span class="pre">libeay32.lib</span></tt>
+and <tt class="literal"><span class="pre">ssleay32.lib</span></tt>.</p>
+</div>
+<div class="section" id="bc">
+<h2><a class="toc-backref" href="#id6" name="bc">BC++</a></h2>
+<p>For BC++ these files are created from the MSVC++-built ones using the
+tool <tt class="literal"><span class="pre">coff2omf.exe</span></tt>. I call them <tt class="literal"><span class="pre">libeay32_bc.lib</span></tt> and
+<tt class="literal"><span class="pre">ssleay32_bc.lib</span></tt>, respectively.</p>
+<p>You'll also need Python's import library, e.g., <tt class="literal"><span class="pre">python22.lib</span></tt>, to
+be the BC++-compatible version; i.e., create <tt class="literal"><span class="pre">python22_bc.lib</span></tt> from
+<tt class="literal"><span class="pre">python22.lib</span></tt>, save a copy of <tt class="literal"><span class="pre">python22.lib</span></tt> (as <tt class="literal"><span class="pre">python22_vc.lib</span></tt>,
+say), then rename <tt class="literal"><span class="pre">python22_bc.lib</span></tt> to <tt class="literal"><span class="pre">python22.lib</span></tt>.</p>
+</div>
+<div class="section" id="mingw32">
+<h2><a class="toc-backref" href="#id7" name="mingw32">mingw32</a></h2>
+<p>For mingw32, the import libraries are named <tt class="literal"><span class="pre">libeay32.a</span></tt> and
+<tt class="literal"><span class="pre">libssl32.a</span></tt>. To keep <tt class="literal"><span class="pre">setup.py</span></tt> simple, rename these to
+<tt class="literal"><span class="pre">liblibeay32.a</span></tt> and <tt class="literal"><span class="pre">libssleay32.a</span></tt>, respectively, when you
+install them into <tt class="literal"><span class="pre">c:\pkg\openssl\lib</span></tt>.  If you do not wish to do
+this, then modify <tt class="literal"><span class="pre">setup.py</span></tt> directly to change the <em>libraries</em> line in
+the section quoted above.</p>
+<p>You'll also need to create <tt class="literal"><span class="pre">libpython22.a</span></tt>.</p>
+</div>
+<div class="section" id="openssl-dlls">
+<h2><a class="toc-backref" href="#id8" name="openssl-dlls">OpenSSL DLLs</a></h2>
+<p>With MSVC++, the OpenSSL DLLs, as built, are named <tt class="literal"><span class="pre">libeay32.dll</span></tt>
+and <tt class="literal"><span class="pre">ssleay32.dll</span></tt>. With mingw32, the DLLs are named
+<tt class="literal"><span class="pre">libeay32.dll</span></tt> and <tt class="literal"><span class="pre">libssl32.dll</span></tt>.  Install these somewhere on
+your PATH; by convention, I place them in <tt class="literal"><span class="pre">c:\bin</span></tt>, together with
+<tt class="literal"><span class="pre">openssl.exe</span></tt>. It is best to make <tt class="literal"><span class="pre">ssleay32.dll</span></tt> and
+<tt class="literal"><span class="pre">libssl32.dll</span></tt> copies of each other.</p>
+</div>
+<div class="section" id="installing">
+<h2><a class="toc-backref" href="#id9" name="installing">Installing</a></h2>
+<p>Now you are ready to build M2Crypto. Do one of the following:</p>
+<pre class="literal-block">
+python setup.py build
+python setup.py build -cbcpp
+python setup.py build -cmingw32
+</pre>
+<p>Then,</p>
+<pre class="literal-block">
+python setup.py install
+cd tests
+python alltests.py
+</pre>
+</div>
+</div>
+<div class="section" id="building-on-mac-os-x">
+<h1><a class="toc-backref" href="#id10" name="building-on-mac-os-x">Building on Mac OS X</a></h1>
+<div class="note">
+<p class="admonition-title">Note</p>
+This section has been left as is since it was originally
+created. It is possibly outdated now. Updates are welcome.</div>
+<p>Richard Jones has kindly contributed a makefile for Mac OS X. It is included
+here as Makefile.osx. I have not tested it myself.</p>
+<p>Follow these steps:</p>
+<ol class="arabic">
+<li><p class="first"><tt class="literal"><span class="pre">cd</span> <span class="pre">swig</span></tt></p>
+</li>
+<li><p class="first">Fix paths in <tt class="literal"><span class="pre">Makefile.osx</span></tt>.</p>
+</li>
+<li><p class="first">One of:</p>
+<blockquote>
+<ul class="simple">
+<li>Python 2.1: make -f Makefile.osx</li>
+<li>Python 2.0: dunno, give it a go...</li>
+<li>Python 1.5.2: dunno, give it a go...</li>
+</ul>
+</blockquote>
+</li>
+<li><p class="first"><tt class="literal"><span class="pre">cd</span> <span class="pre">..</span></tt></p>
+</li>
+<li><p class="first">Install the directory <tt class="literal"><span class="pre">M2Crypto</span></tt> into a directory on the PYTHONPATH.</p>
+</li>
+<li><p class="first">If you have PyUnit installed:</p>
+<pre class="literal-block">
+cd tests, python alltests.py
+</pre>
+</li>
+<li><p class="first"><tt class="literal"><span class="pre">cd</span> <span class="pre">..</span></tt></p>
+</li>
+<li><p class="first"><tt class="literal"><span class="pre">cd</span> <span class="pre">demo</span></tt></p>
+</li>
+<li><p class="first">Try out the various test programs.</p>
+</li>
+</ol>
+<p>Here are Richard's instructions on building OpenSSL 0.9.6 on OS X:</p>
+<pre class="literal-block">
+&gt; That and one needs to install openssl-0.9.6. But that's a whole other
+&gt; story. In short:
+&gt; 1. ./Configure OpenBSD
+&gt; 2. edit root Makefile to change &quot;gcc&quot; to &quot;cc&quot;
+&gt; 3. edit Makefile in apps and test to change the libraries to:
+&gt;   LIBCRYPTO=../libcrypto.a
+&gt;   LIBSSL=../libssl.a
+&gt; 
+&gt; and you're there.
+</pre>
+</div>
+</div>
+</body>
+</html>

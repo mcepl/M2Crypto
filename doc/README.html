@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<base href="https://localhost:9443/home/m2/README/" />
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.2.8: http://docutils.sourceforge.net/" />
+<title>M2Crypto 0.11</title>
+<meta name="author" content="Ng Pheng Siong" />
+<meta name="date" content="2003-06-22" />
+<link rel="stylesheet" href="default.css" type="text/css" />
+</head>
+<body>
+<div class="document" id="m2crypto-0-11">
+<h1 class="title">M2Crypto 0.11</h1>
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr><th class="docinfo-name">Author:</th>
+<td>Ng Pheng Siong</td></tr>
+<tr class="field"><th class="docinfo-name">Id:</th><td class="field-body">README,v 1.4 2003/06/22 16:28:47 ngps Exp</td>
+</tr>
+<tr><th class="docinfo-name">Date:</th>
+<td>2003-06-22</td></tr>
+<tr class="field"><th class="docinfo-name">Web-Site:</th><td class="field-body"><a class="reference" href="http://www.post1.com/home/ngps/m2">http://www.post1.com/home/ngps/m2</a></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="m2crypto-python-openssl-swig">
+<h1><a name="m2crypto-python-openssl-swig">M2Crypto = Python + OpenSSL + SWIG</a></h1>
+<p>M2 stands for &quot;me, too!&quot; <a class="footnote-reference" href="#id5" id="id1" name="id1"><sup>1</sup></a></p>
+<p>M2Crypto comes with the following:</p>
+<ul class="simple">
+<li><strong>DH</strong>, <strong>RSA</strong>, <strong>DSA</strong>, <strong>symmetric ciphers</strong> including <strong>AES</strong>,
+<strong>message digests</strong>, <strong>HMACs</strong>.</li>
+<li><strong>SSL functionality</strong> to implement clients and servers.</li>
+<li><strong>Example SSL client and server programs</strong>, which are variously
+<strong>threading</strong>, <strong>forking</strong> or based on <strong>non-blocking socket IO</strong>.</li>
+<li><strong>HTTPS</strong> extensions to Python's HTTP functionality.</li>
+<li>Unforgeable HMAC'ing <strong>AuthCookies</strong> for <strong>web session management</strong>.</li>
+<li><strong>XML-RPC over SSL</strong>.</li>
+<li><strong>S/MIME v2</strong>.</li>
+<li><strong>FTP/TLS</strong> client and server.</li>
+<li><strong>ZServerSSL</strong>: A <strong>HTTPS server for Zope</strong>.</li>
+<li><strong>ZSmime</strong>: A <strong>Zope</strong> server plug-in to generate <strong>S/MIME</strong> messages.</li>
+</ul>
+<p>M2Crypto is released under a very liberal BSD-style licence. See 
+LICENCE for details.</p>
+<p>This release requires Python 2.1, 2.2, OpenSSL 0.9.6 or later, and
+SWIG 1.3.17.  Earlier versions of Python may or may not work. You are
+recommended to use the current version of OpenSSL. Earlier versions of
+SWIG may not work.</p>
+<p>To install, see the file INSTALL.</p>
+<p>Note these caveats:</p>
+<ul class="simple">
+<li>Possible memory leaks, because some objects need to be freed on the
+Python side and other objects on the C side, and these may change
+between OpenSSL versions. (Multiple free's lead to crashes very
+quickly, so these should be relatively rare.)</li>
+<li>No memory locking/clearing for keys, passphrases, etc.</li>
+<li>PRNG may not be CS <a class="footnote-reference" href="#id6" id="id2" name="id2"><sup>2</sup></a> nor CS <a class="footnote-reference" href="#id7" id="id3" name="id3"><sup>3</sup></a>.</li>
+<li>AFAIK, Python and OpenSSL have not been subjected to the full
+attention of the Bugtraq crowd. M2Crypto's handling of active hostile
+input is probably suspect. <a class="footnote-reference" href="#id8" id="id4" name="id4"><sup>4</sup></a></li>
+</ul>
+<p>Have fun! Your feedback is welcome.</p>
+<table class="footnote" frame="void" id="id5" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1" name="id5">[1]</a></td><td>Similar software are Marc-Andre Lemburg's mxCrypto, and two earlier
+Python interfaces to the SSL portion of SSLeay/OpenSSL. Since M2Crypto,
+yet more OpenSSL wrappers and non-OpenSSL crypto toolkits for
+Python have appeared.</td></tr>
+</tbody>
+</table>
+<table class="footnote" frame="void" id="id6" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2" name="id6">[2]</a></td><td>Continuous seeding.</td></tr>
+</tbody>
+</table>
+<table class="footnote" frame="void" id="id7" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3" name="id7">[3]</a></td><td>Cryptographically strong.</td></tr>
+</tbody>
+</table>
+<table class="footnote" frame="void" id="id8" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4" name="id8">[4]</a></td><td>In recent years, there have been reported vulnerabilities
+in some versions of OpenSSL and attacks against the SSL protocol
+itself.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</body>
+</html>
