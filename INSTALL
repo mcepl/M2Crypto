@@ -3,8 +3,8 @@
 ==========================
 
 :Author: Ng Pheng Siong
-:Id: $Id: INSTALL,v 1.9 2003/10/26 17:23:27 ngps Exp $
-:Date: $Date: 2003/10/26 17:23:27 $
+:Id: $Id: INSTALL,v 1.10 2003/10/26 17:58:59 ngps Exp $
+:Date: $Date: 2003/10/26 17:58:59 $
 :Web-Site: http://sandbox.rulemaker.net/ngps/m2
 
 .. contents::
@@ -65,7 +65,8 @@ Here is the relevant section from setup.py::
         openssl_dir = 'c:\\pkg\\openssl'
         include_dirs = [my_inc, openssl_dir + '/include']
         library_dirs = [openssl_dir + '\\lib']
-        libraries = ['ssleay32', 'libeay32']
+        libraries = ['ssl32', 'eay32']
+        extra_compile_args = [ "-DTHREADING" ]
     
 By convention, I place OpenSSL include files in ``c:\pkg\openssl\include``, and 
 the import libraries in ``c:\pkg\openssl\lib``.
@@ -75,22 +76,18 @@ Import Libraries
 ~~~~~~~~~~~~~~~~~~
 
 For mingw32, the OpenSSL import libraries are named ``libeay32.a`` and
-``libssl32.a``. To keep ``setup.py`` simple, rename these to
-``liblibeay32.a`` and ``libssleay32.a``, respectively, when you
-install them into ``c:\pkg\openssl\lib``.  If you do not wish to do
-this, then modify ``setup.py`` directly to change the *libraries* line in
-the section quoted above.
+``libssl32.a``. 
 
-You'll also need to create ``libpython2[123].a``, depending on your version of
-Python.
+You'll also need to create ``libpython2[123].a``, depending on your version
+of Python.
 
 
 OpenSSL DLLs
 ~~~~~~~~~~~~~~
 
-OpenSSL DLLs for mingw32 are named ``libeay32.dll`` and ``libssl32.dll``.  
-Install these somewhere on your PATH; by convention, I place them in ``c:\bin``, 
-together with ``openssl.exe``.
+OpenSSL DLLs for mingw32 are named ``libeay32.dll`` and ``libssl32.dll``.
+Install these somewhere on your PATH; by convention, I place them in
+``c:\bin``, together with ``openssl.exe``.
 
 
 Installing
@@ -110,9 +107,10 @@ Then,
 
 
 .. NOTE:: 
-   The following instructions for building M2Crypto with MSVC++ 6.0 and BC++ 5.5
-   free compiler suite are from M2Crypto 0.10. These instructions should continue
-   to work for this release, although I have not tested them.
+   The following instructions for building M2Crypto with MSVC++ 6.0 and
+   BC++ 5.5 free compiler suite are from M2Crypto 0.10. These instructions
+   should continue to work for this release, although I have not tested
+   them.
 
 
 OpenSSL DLLs
@@ -126,8 +124,8 @@ I place them in ``c:\bin``, together with ``openssl.exe``.
 MSVC++
 ~~~~~~~~
 
-For MSVC++, the import libraries, as built by OpenSSL, are named ``libeay32.lib``
-and ``ssleay32.lib``.
+For MSVC++, the import libraries, as built by OpenSSL, are named
+``libeay32.lib`` and ``ssleay32.lib``.
 
 
 BC++
