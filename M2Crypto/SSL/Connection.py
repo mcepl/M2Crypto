@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Connection.py,v 1.6 2001/09/19 14:55:45 ngps Exp $'
+RCS_id='$Id: Connection.py,v 1.7 2001/09/19 14:59:40 ngps Exp $'
 
 # Python
 import socket, sys
@@ -50,19 +50,6 @@ class Connection:
     def ssl_get_error(self, ret):
         return m2.ssl_get_error(self.ssl, ret)
 
-    def _check_ssl_return(self, ret):
-        res = m2.ssl_get_error(self.ssl, ret)
-        if res == m2.ssl_error_none:
-            return 1
-        elif res == m2.ssl_error_zero_return:
-            return 0
-        elif res in [m2.ssl_error_want_read, m2.ssl_error_want_write]:
-            return -1
-        elif res in [m2.ssl_error_syscall, m2.ssl_error_ssl]:
-            #raise Err.SSLError(Err.get_error_code(), self.socket.getpeername())
-            raise SSLError(m2.err_reason_error_string(m2.err_get_error()), 
-                self.socket.getpeername())
-
     def setup_addr(self, addr):
         self.addr = addr
 
@@ -86,14 +73,11 @@ class Connection:
 
     def accept_ssl(self):
         return m2.ssl_accept(self.ssl)
-        #return self._check_ssl_return(m2.ssl_accept(self.ssl))
 
     def accept(self):
-        """
-        Accept an SSL connection. The return value is a pair (ssl, addr) where
+        """Accept an SSL connection. The return value is a pair (ssl, addr) where
         ssl is a new SSL connection object and addr is the address bound to the
-        the other end of the SSL connection.
-        """
+        the other end of the SSL connection."""
         sock, addr = self.socket.accept()
         ssl = Connection(self.ctx, sock)
         ssl.addr = addr
@@ -107,7 +91,6 @@ class Connection:
 
     def connect_ssl(self):
         return m2.ssl_connect(self.ssl)
-        #return self._check_ssl_return(m2.ssl_connect(self.ssl))
 
     def connect(self, addr):
         self.socket.connect(addr)
@@ -120,16 +103,12 @@ class Connection:
         m2.ssl_set_shutdown(self.ssl, how)
 
     def renegotiate(self):
-        """
-        Renegotiate this connection's SSL parameters.
-        """
+        """Renegotiate this connection's SSL parameters."""
         return m2.ssl_renegotiate(self.ssl)
 
     def pending(self):
-        """
-        Return the numbers of octets that can be read from the 
-        connection.
-        """
+        """Return the numbers of octets that can be read from the 
+        connection."""
         return m2.ssl_pending(self.ssl)
 
     def _write_bio(self, data):
@@ -152,9 +131,7 @@ class Connection:
     recv = read  = _read_bio
 
     def setblocking(self, mode):
-        """
-        Set this connection's underlying socket to _mode_.
-        """
+        """Set this connection's underlying socket to _mode_."""
         self.socket.setblocking(mode)
         if mode:
             self.send = self.write = self._write_bio
@@ -167,43 +144,32 @@ class Connection:
         return self.socket.fileno()
 
     def get_context(self):
-        """
-        Return the SSL.Context object associated with this connection.
-        """
+        """Return the SSL.Context object associated with this 
+        connection."""
         return m2.ssl_get_ssl_ctx(self.ssl)
 
     def get_state(self):
-        """
-        Return the SSL state of this connection.
-        """
+        """Return the SSL state of this connection."""
         return m2.ssl_get_state(self.ssl)
 
     def verify_ok(self):
         return (m2.ssl_get_verify_result(self.ssl) == m2.X509_V_OK)
 
     def get_verify_mode(self):
-        """
-        Return the peer certificate verification mode.
-        """
+        """Return the peer certificate verification mode."""
         return m2.ssl_get_verify_mode(self.ssl)
 
     def get_verify_depth(self):
-        """
-        Return the peer certificate verification depth.
-        """
+        """Return the peer certificate verification depth."""
         return m2.ssl_get_verify_depth(self.ssl)
 
     def get_verify_result(self):
-        """
-        Return the peer certificate verification result.
-        """
+        """Return the peer certificate verification result."""
         return m2.ssl_get_verify_result(self.ssl)
 
     def get_peer_cert(self):
-        """
-        Return the peer certificate; if the peer did not provide 
-        a certificate, return None.
-        """
+        """Return the peer certificate; if the peer did not provide 
+        a certificate, return None."""
         c=m2.ssl_get_peer_cert(self.ssl)
         if c is None:
             return None
@@ -211,10 +177,8 @@ class Connection:
         return X509.X509(c, 1)
     
     def get_peer_cert_chain(self):
-        """
-        Return the peer certificate chain; if the peer did not provide 
-        a certificate chain, return None.
-        """
+        """Return the peer certificate chain; if the peer did not provide 
+        a certificate chain, return None."""
         c=m2.ssl_get_peer_cert_chain(self.ssl)
         if c is None:
             return None
@@ -222,10 +186,8 @@ class Connection:
         return X509.X509_Stack(c)
     
     def get_cipher(self):
-        """
-        Return an M2Crypto.SSL.Cipher object for this connection; if the 
-        connection has not been initialised with a cipher suite, return None.
-        """
+        """Return an M2Crypto.SSL.Cipher object for this connection; if the 
+        connection has not been initialised with a cipher suite, return None."""
         c=m2.ssl_get_current_cipher(self.ssl)
         if c is None:
             return None
@@ -233,10 +195,8 @@ class Connection:
         return Cipher(c)
     
     def get_ciphers(self):
-        """
-        Return an M2Crypto.SSL.Cipher_Stack object for this connection; if the
-        connection has not been initialised with cipher suites, return None.
-        """
+        """Return an M2Crypto.SSL.Cipher_Stack object for this connection; if the
+        connection has not been initialised with cipher suites, return None."""
         c=m2.ssl_get_ciphers(self.ssl)
         if c is None:
             return None
@@ -244,15 +204,11 @@ class Connection:
         return Cipher_Stack(c)
 
     def get_cipher_list(self, idx=0):
-        """
-        Return the cipher suites for this connection as a string object.
-        """
+        """Return the cipher suites for this connection as a string object."""
         return m2.ssl_get_cipher_list(self.ssl, idx)
 
     def set_cipher_list(self, cipher_list):
-        """
-        Set the cipher suites for this connection.
-        """
+        """Set the cipher suites for this connection."""
         return m2.ssl_set_cipher_list(self.ssl, cipher_list)
 
     def makefile(self, mode='rb', bufsize='ignored'):
@@ -269,7 +225,6 @@ class Connection:
     def set_session_id_ctx(self, id):
         ret = m2.ssl_set_session_id_context(self.ssl, id)
         if not ret:
-            #raise Err.SSLError(Err.get_error_code(), '')
             raise SSLError(m2.err_reason_error_string(m2.err_get_error()))
 
     def get_session(self):
