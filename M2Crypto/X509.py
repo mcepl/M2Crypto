@@ -2,7 +2,8 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.
 
-Portions Copyright (c) 2004 Open Source Applications Foundation.
+Portions created by Open Source Applications Foundation (OSAF) are
+Copyright (C) 2004 OSAF. All Rights Reserved.
 Author: Heikki Toivonen
 """
 
@@ -248,6 +249,11 @@ class X509:
         assert m2.x509_type_check(self.x509), "'x509' type error"
         buf=BIO.MemoryBuffer()
         m2.i2d_x509(buf.bio_ptr(), self.x509)
+        return buf.read_all()
+
+    def as_pem(self):
+        buf=BIO.MemoryBuffer()
+        m2.x509_write_pem(buf.bio_ptr(), self.x509)
         return buf.read_all()
 
     def set_version(self, version):
