@@ -1,0 +1,90 @@
+-------------
+ 01 Jun 2001
+-------------
+
+You need Python 1.5.2, 2.0 or 2.1, OpenSSL 0.9.6 and a post-1.1p5 build of
+SWIG. (I use build-786.) Alpha versions of SWIG 1.3 may or may not work;
+they are not supported.
+
+Apparently SWIG 1.1-786 is now hard to find on the net. I've put up a
+source tarball here:
+
+    http://www.post1.com/home/ngps/swig-1.1-786.tgz
+
+
+A Distutils setup.py is being worked on; it is held up by limitations 
+in Distutils 1.0 wherein the SWIG call interface cannot be customised 
+by the module developer.
+
+I expect to have a working Distutils setup.py eventually. In the meantime,
+please use the makefiles.
+
+I have received mail regarding the hassle of having to fix the paths to
+OpenSSL libraries in the Makefiles. Several people opined that I should fix
+the paths to the 'standard', which for OpenSSL 0.9.6 is /usr/local/ssl on
+Un*x.
+
+My personal preference (and the default for OpenSSL 0.9.5) is /usr/local.
+Please bear with me and continue to do the fixing. Note that Python 2.1
+uses 'Makefile', Python 2.0 'Makefile.py20' and Python 1.5.2
+'Makefile.py1'.
+
+Building on Win32 requires MS VC++ 6.0 or the freely-available Borland C++
+command line tools. It should be fairly obvious which makefile to use for
+your compiler suite.
+
+Richard XXX has kindly contributed a Mac OS X makefile. I have not tested
+this myself.
+
+
+Building on Unix
+-----------------
+1. cd swig
+2. Fix paths in Makefile (Makefile.py20, Makefile.py1) if necessary.
+3. Python 2.1: make
+   Python 2.0: make -f Makefile.py20
+   Python 1.5.2: make -f Makefile.py1
+4. cd ..
+5. Install the directory M2Crypto into a directory on the PYTHONPATH.
+6. If you have PyUnit installed: 
+   cd tests, python alltests.py
+7. cd ..
+8. cd demo
+9. Try out the various test programs.
+
+
+Building on Windows
+--------------------
+1. cd swig
+2. Fix paths in Makefile.vc (Makefile.vc.py20, Makefile.vc.py1, etc.) if 
+   necessary.
+3. Python 2.1: "nmake -f Makefile.vc" or "make -f Makefile.bc"
+   Python 2.0: "nmake -f Makefile.vc.py20" or "make -f Makefile.bc.py20"
+   Python 1.5.2: "nmake -f Makefile.vc.py1" or "make -f Makefile.bc.py1"
+4. cd ..
+5. Install the directory M2Crypto into a directory on the PYTHONPATH.
+6. If you have PyUnit installed: 
+   cd tests, python alltests.py
+7. cd ..
+8. cd demo
+9. Try out the various test programs.
+
+
+Building on Mac OS X
+---------------------
+1. cd swig
+2. Fix paths in Makefile.osx if necessary.
+3. Python 2.1: make -f Makefile.osx
+   Python 2.0: dunno
+   Python 1.5.2: dunno
+4. cd ..
+5. Install the directory M2Crypto into a directory on the PYTHONPATH.
+6. If you have PyUnit installed: 
+   cd tests, python alltests.py
+7. cd ..
+8. cd demo
+9. Try out the various test programs.
+
+---------------------------------------------------------------------------
+$Id: INSTALL,v 1.1 2001/06/01 13:53:50 ngps Exp $
+
