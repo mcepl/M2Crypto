@@ -653,7 +653,7 @@ try:
     from ZServer import resolver, logger, asyncore
 
     from ZServer import zhttp_server, zhttp_handler
-    from ZServer import zhttps_server, zhttps_handler    
+    from ZServer import zhttps_server, zhttps0_handler, zhttps_handler    
     from ZServer.WebDAVSrcHandler import WebDAVSrcHandler
     from ZServer import PCGIServer,FTPServer,FCGIServer
 
@@ -808,7 +808,7 @@ try:
             if X509_REMOTE_USER:
                 zsh = zhttps_handler(MODULE, '', HTTPS_ENV)
             else:
-                zsh = zhttp_handler(MODULE, '', HTTPS_ENV)
+                zsh = zhttps0_handler(MODULE, '', HTTPS_ENV)
             hss.install_handler(zsh)
 
     # WebDAV source Server (runs HTTP, but munges request to return
