@@ -1,25 +1,29 @@
 """M2Crypto wrapper for OpenSSL BIO API.
 
-Copyright (c) 1999, 2000 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: BIO.py,v 1.6 2000/11/08 14:36:16 ngps Exp $'
-
-# 5 Nov 00: Unit testing and refactoring in progress...
+RCS_id='$Id: BIO.py,v 1.7 2001/06/03 04:38:29 ngps Exp $'
 
 import m2
 
-m2.bio_init()
+class BIOError(Exception): pass
+
+m2.bio_init(BIOError)
 
 class BIO:
 
-    """Generic class wrapper for the BIO API."""
+    """Abstract object interface to the BIO API."""
 
-    def __init__(self):
+    def __init__(self, bio=None, _pyfree=0, _close_cb=None):
+        self.bio = bio
+        self._pyfree = _pyfree
+        self._close_cb = _close_cb
         self.closed = 0
         self.write_closed = 0
 
     def __del__(self):
-        m2.bio_free(self.bio)
+        if self._pyfree:
+            m2.bio_free(self.bio)
 
     def _ptr(self):
         return self.bio
@@ -42,12 +46,10 @@ class BIO:
             raise ValueError, 'read count is negative'
         return m2.bio_read(self.bio, size)
 
-    def readline(self, size=1024):
+    def readline(self, size=128):
         if not self.readable():
             raise IOError, 'cannot read'
         buf = m2.bio_gets(self.bio, size)
-        if buf is None:
-            return ''
         return buf
 
     def readlines(self, sizehint='ignored'):
@@ -80,16 +82,20 @@ class BIO:
 
     def close(self):
         self.closed = 1
+        if self._close_cb:
+            self._close_cb()
 
 
 class MemoryBuffer(BIO):
 
-    """Class wrapper for BIO_s_mem. 
+    """
+    Object interface to BIO_s_mem. 
     
     Empirical testing suggests that this class performs less well than cStringIO, 
     because cStringIO is implemented in C, whereas this class is implemented in 
     Python. Thus, the recommended practice is to use cStringIO for regular work and 
-    convert said cStringIO object to a MemoryBuffer object only when necessary."""
+    convert said cStringIO object to a MemoryBuffer object only when necessary.
+    """
 
     def __init__(self, data=None):
         BIO.__init__(self)
@@ -116,13 +122,17 @@ class MemoryBuffer(BIO):
         self.write_closed = 1
         m2.bio_set_mem_eof_return(self.bio, 0)
 
+    close = write_close
+
 
 class File(BIO):
 
-    """Class wrapper for BIO_s_fp. 
+    """
+    Object interface to BIO_s_fp. 
     
     This class interfaces Python to OpenSSL functions that expect BIO *. For
-    general file manipulation in Python, use Python's builtin file object."""
+    general file manipulation in Python, use Python's builtin file object.
+    """
 
     def __init__(self, pyfile, close_pyfile=1):
         BIO.__init__(self)
@@ -141,15 +151,19 @@ def openfile(filename, mode='rb'):
 
 class IOBuffer(BIO):
 
-    """Class wrapper for BIO_f_buffer. 
+    """
+    Object interface to BIO_f_buffer. 
     
     Its principal function is to be BIO_push()'ed on top of a BIO_f_ssl, so
-    that makefile() of said underlying SSL socket works."""
+    that makefile() of said underlying SSL socket works.
+    """
 
-    def __init__(self, bio_ptr, mode='rw', _pyfree=1):
+    def __init__(self, under_bio, mode='rwb', _pyfree=1):
         BIO.__init__(self)
         self.io = m2.bio_new(m2.bio_f_buffer())
-        self.bio = m2.bio_push(self.io, bio_ptr)
+        self.bio = m2.bio_push(self.io, under_bio._ptr())
+        # This reference keeps the underlying BIO alive while we're not closed.
+        self._under_bio = under_bio 
         if 'w' in mode:
             self.write_closed = 0
         else:
@@ -161,10 +175,17 @@ class IOBuffer(BIO):
             m2.bio_pop(self.bio)
             m2.bio_free(self.io)
 
+    def close(self):
+        BIO.close(self)
 
-class CipherFilter(BIO):
 
-    """Class wrapper for BIO_f_cipher."""
+class CipherStream(BIO):
+
+    """
+    Object interface to BIO_f_cipher.
+    """
+
+    SALT_LEN = m2.PKCS5_SALT_LEN
 
     def __init__(self, obio):
         BIO.__init__(self)
