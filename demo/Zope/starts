@@ -1,0 +1,7 @@
+#! /bin/sh
+reldir=`dirname $0`
+INST_HOME=`cd $reldir; pwd`
+export INST_HOME
+exec /usr/local/bin/python1 \
+     $INST_HOME/z2s.py \
+     -D "$@"
