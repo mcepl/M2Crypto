@@ -282,4 +282,7 @@ class Connection:
         assert isinstance(timeo, timeout.timeout)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDTIMEO, timeo.pack())
 
+    def get_version(self):
+        "Return the TLS/SSL protocol version for this connection."
+        return m2.ssl_get_version(self.ssl)
 
