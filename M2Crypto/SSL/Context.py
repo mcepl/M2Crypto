@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Context.py,v 1.10 2004/03/31 01:21:01 ngps Exp $'
+RCS_id='$Id: Context.py,v 1.11 2004/04/09 16:25:24 ngps Exp $'
 
 # M2Crypto
 import cb
@@ -202,3 +202,6 @@ class Context:
 
     def get_session_cache_mode(self):
         return m2.ssl_ctx_get_session_cache_mode(self.ctx)
+
+    def set_options(self, op):
+        return m2.ssl_ctx_set_options(self.ctx, op)

@@ -1,8 +1,13 @@
 /* Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.  */
-/* $Id: _x509.i,v 1.2 2004/03/21 12:37:46 ngps Exp $   */
+/*
+** Portions created by Open Source Applications Foundation (OSAF) are
+** Copyright (C) 2004 OSAF. All Rights Reserved.
+*/
+/* $Id: _x509.i,v 1.3 2004/04/09 16:30:48 ngps Exp $   */
 
 %{
 #include <openssl/x509.h>
+#include <openssl/x509v3.h>
 %}
 
 %apply Pointer NONNULL { BIO * };
@@ -11,8 +16,10 @@
 %apply Pointer NONNULL { X509_REQ * };
 %apply Pointer NONNULL { X509_NAME * };
 %apply Pointer NONNULL { X509_NAME_ENTRY * };
+%apply Pointer NONNULL { EVP_PKEY * };
 
 %name(x509_new) extern X509 *X509_new( void );
+%name(x509_dup) extern X509 *X509_dup(X509 *);
 %name(x509_free) extern void X509_free(X509 *);
 %name(x509_crl_free) extern void X509_CRL_free(X509_CRL *);
 
@@ -20,14 +27,21 @@
 %name(x509_crl_print) extern int X509_CRL_print(BIO *, X509_CRL *);
 
 %name(x509_get_serial_number) extern ASN1_INTEGER *X509_get_serialNumber(X509 *);
+%name(x509_set_serial_number) extern int X509_set_serialNumber(X509 *, ASN1_INTEGER *);
 %name(x509_get_pubkey) extern EVP_PKEY *X509_get_pubkey(X509 *);
-%name(x509_get_issuer_name) extern X509_NAME *X509_get_issuer_name(X509 *);
-%name(x509_get_subject_name) extern X509_NAME *X509_get_subject_name(X509 *);
 %name(x509_set_pubkey) extern int X509_set_pubkey(X509 *, EVP_PKEY *);
+%name(x509_get_issuer_name) extern X509_NAME *X509_get_issuer_name(X509 *);
 %name(x509_set_issuer_name) extern int X509_set_issuer_name(X509 *, X509_NAME *);
+%name(x509_get_subject_name) extern X509_NAME *X509_get_subject_name(X509 *);
 %name(x509_set_subject_name) extern int X509_set_subject_name(X509 *, X509_NAME *);
 
+%name(x509_write_pem) extern int PEM_write_bio_X509(BIO *, X509 *);
+%name(x509_write_pem_file) extern int PEM_write_X509(FILE *, X509 *);
+
+%name(x509_verify) extern int X509_verify(X509 *a, EVP_PKEY *r);
 %name(x509_get_verify_error) extern const char *X509_verify_cert_error_string(long);
+
+%name(x509_add_ext) extern int X509_add_ext(X509 *, X509_EXTENSION *, int);
 
 %name(x509_name_new) extern X509_NAME *X509_NAME_new( void );
 %name(x509_name_free) extern void X509_NAME_free(X509_NAME *);
@@ -38,6 +52,8 @@
 %name(x509_name_add_entry) extern int X509_NAME_add_entry(X509_NAME *, X509_NAME_ENTRY *, int, int);
 %name(x509_name_add_entry_by_obj) extern int X509_NAME_add_entry_by_OBJ(X509_NAME *, ASN1_OBJECT *, int, unsigned char *, int, int, int );
 %name(x509_name_add_entry_by_nid) extern int X509_NAME_add_entry_by_NID(X509_NAME *, int, int, unsigned char *, int, int, int );
+%name(x509_name_print_ex) extern int X509_NAME_print_ex(BIO *, X509_NAME *, int, unsigned long);
+%name(x509_name_print_ex_fp) extern int X509_NAME_print_ex_fp(FILE *, X509_NAME *, int, unsigned long);
 
 %name(x509_name_entry_new) extern X509_NAME_ENTRY *X509_NAME_ENTRY_new( void );
 %name(x509_name_entry_free) extern void X509_NAME_ENTRY_free( X509_NAME_ENTRY *);
@@ -47,18 +63,25 @@
 %name(x509_name_entry_get_object) extern ASN1_OBJECT *X509_NAME_ENTRY_get_object(X509_NAME_ENTRY *);
 %name(x509_name_entry_get_data) extern ASN1_STRING *X509_NAME_ENTRY_get_data(X509_NAME_ENTRY *);
 
-
 %name(x509_req_new) extern X509_REQ * X509_REQ_new();
 %name(x509_req_free) extern void X509_REQ_free(X509_REQ *);
 %name(x509_req_print) extern int X509_REQ_print(BIO *, X509_REQ *);
+
+%name(x509_req_get_pubkey) extern EVP_PKEY *X509_REQ_get_pubkey(X509_REQ *);
 %name(x509_req_set_pubkey) extern int X509_REQ_set_pubkey(X509_REQ *, EVP_PKEY *);
 %name(x509_req_set_subject_name) extern int X509_REQ_set_subject_name(X509_REQ *, X509_NAME *);
+
+%name(x509_req_verify) extern int X509_REQ_verify(X509_REQ *, EVP_PKEY *);
+%name(x509_req_sign) extern int X509_REQ_sign(X509_REQ *, EVP_PKEY *, const EVP_MD *);
 
 %name(i2d_x509) extern int i2d_X509_bio(BIO *, X509 *);
 
 %name(x509_store_new) extern X509_STORE *X509_STORE_new(void);
 %name(x509_store_free) extern void X509_STORE_free(X509_STORE *);
 %name(x509_store_add_cert) extern int X509_STORE_add_cert(X509_STORE *, X509 *);
+
+%name(x509_extension_get_critical) extern int X509_EXTENSION_get_critical(X509_EXTENSION *);
+%name(x509_extension_set_critical) extern int X509_EXTENSION_set_critical(X509_EXTENSION *, int);
 
 %constant int NID_commonName                  = 13;
 %constant int NID_countryName                 = 14;
@@ -98,6 +121,10 @@
 %constant int		X509_V_ERR_CERT_UNTRUSTED			= 27;
 %constant int		X509_V_ERR_CERT_REJECTED			= 28;
 %constant int		X509_V_ERR_APPLICATION_VERIFICATION		= 50;
+
+/* Cribbed from rsa.h. */
+%constant int RSA_3                           = 0x3L;
+%constant int RSA_F4                          = 0x10001L;
 
 %inline %{
 static PyObject *_x509_err;
@@ -157,24 +184,10 @@ int x509_sign(X509 *x, EVP_PKEY *pkey, EVP_MD *md) {
     return X509_sign(x, pkey, md);
 }
 
-/*
-Blob *x509_name_by_nid(X509_NAME *name, int nid) {
-    Blob *blob;
-    int buflen;
-
-    buflen = X509_NAME_get_text_by_NID(name, nid, NULL, 0);
-    if (buflen == -1) {
-        return NULL;
-    }
-    blob = blob_new(buflen+1, "x509_name_by_nid");
-    buflen = X509_NAME_get_text_by_NID(name, nid, blob->data, blob->len);
-    if (buflen != blob->len) { 
-        blob->data = (unsigned char *)realloc(blob->data, buflen);
-        blob->len = buflen;
-        }
-    return blob;
+/* XXX The first parameter is really ASN1_TIME, does it matter? */
+ASN1_TIME *x509_gmtime_adj(ASN1_UTCTIME *s, long adj) {
+    return X509_gmtime_adj(s, adj);
 }
-*/
 
 PyObject *x509_name_by_nid(X509_NAME *name, int nid) {
     void *buf;
@@ -242,14 +255,70 @@ X509_NAME *x509_req_get_subject_name(X509_REQ *x) {
     return X509_REQ_get_subject_name(x);
 }
 
+long x509_req_get_version(X509_REQ *x) {
+    return X509_REQ_get_version(x);
+}
+
+int x509_req_set_version(X509_REQ *x, long version) {
+    return X509_REQ_set_version(x, version);
+}
+
+int x509_req_add_extensions(X509_REQ *req, STACK *exts) {
+    return X509_REQ_add_extensions(req, (STACK_OF(X509_EXTENSION) *)exts);
+}
+
+/* These two are %name'd above.
 int x509_req_sign(X509_REQ *x, EVP_PKEY *pkey, EVP_MD *md) {
     return X509_REQ_sign(x, pkey, md);
 }
+
+int x509_req_verify(X509_REQ *x, EVP_PKEY *pkey) {
+    return X509_REQ_verify(x, pkey);
+}
+*/
 
 X509_NAME_ENTRY *x509_name_entry_create_by_txt( X509_NAME_ENTRY **ne, char *field, int type, unsigned char *bytes, int len) {
 	return X509_NAME_ENTRY_create_by_txt( ne, field, type, bytes, len);
 }
 
+X509_EXTENSION *x509v3_ext_conf(LHASH *conf, X509V3_CTX *ctx, char *name, char *value) {
+    return X509V3_EXT_conf(conf, ctx, name, value);
+}
+
+/* X509_EXTENSION_free() might be a macro, didn't find definition. */
+void x509_extension_free(X509_EXTENSION *ext) {
+    X509_EXTENSION_free(ext);
+}
+
+/* sk_X509_EXTENSION_new_null is a macro. */
+STACK *sk_x509_extension_new_null(void) {
+    return (STACK *)sk_X509_EXTENSION_new_null();
+}
+
+/* sk_X509_EXTENSION_free() is a macro. */
+void sk_x509_extension_free(STACK *stack) {
+    sk_X509_EXTENSION_free((STACK_OF(X509_EXTENSION) *)stack);
+}
+
+/* sk_X509_EXTENSION_push() is a macro. */
+int sk_x509_extension_push(STACK *stack, X509_EXTENSION *x509_ext) {
+    return sk_X509_EXTENSION_push((STACK_OF(X509_EXTENSION) *)stack, x509_ext);
+}
+
+/* sk_X509_EXTENSION_pop() is a macro. */
+X509_EXTENSION *sk_x509_extension_pop(STACK *stack) {
+    return sk_X509_EXTENSION_pop((STACK_OF(X509_EXTENSION) *)stack);
+}
+
+/* sk_X509_EXTENSION_num() is a macro. */
+int sk_x509_extension_num(STACK *stack) {
+    return sk_X509_EXTENSION_num((STACK_OF(X509_EXTENSION) *)stack);
+}
+
+/* sk_X509_EXTENSION_value() is a macro. */
+char *sk_x509_extension_value(STACK *stack, int i) {
+    return sk_X509_EXTENSION_value((STACK_OF(X509_EXTENSION) *)stack, i);
+}
 %}
 
 /* Free malloc'ed return value for x509_name_oneline */
