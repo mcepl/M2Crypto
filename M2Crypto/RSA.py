@@ -1,9 +1,16 @@
 #!/usr/bin/env python
 
-RCS_id='$Id: RSA.py,v 1.1 1999/08/16 15:32:38 ngps Exp $'
+""" Copyright (c) 1999 Ng Pheng Siong. All rights reserved. """
 
-from _rsa import *
-lib_init()
+RCS_id='$Id: RSA.py,v 1.2 1999/08/18 15:28:50 ngps Exp $'
+
+from M2Crypto import rsa_init, rsa_new, rsa_free, rsa_size, \
+	rsa_get_e, rsa_get_n, rsa_set_e, rsa_set_n, \
+	rsa_public_encrypt, rsa_public_decrypt, \
+	rsa_private_encrypt, rsa_private_decrypt, \
+	rsa_read_pub_key, rsa_write_pub_key, rsa_read_key, \
+	no_padding, pkcs1_padding, sslv23_padding, pkcs1_oaep_padding
+
 rsa_init()
 
 class RSA:
@@ -89,9 +96,4 @@ def load_key(file, callback=passphrase_callback):
 	r=rsa_read_key(f, callback)
 	f.close()
 	return RSA(r)
-
-if __name__=='__main__':
-	r=load_pem('fred.pem')
-	print r.e
-	print r.n
 
