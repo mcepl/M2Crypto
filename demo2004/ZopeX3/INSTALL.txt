@@ -45,9 +45,10 @@ in your <instance-home>:
 These are example files. For more information on them, consult the
 ZServerSSL HOWTO for Zope 2.6.
 
-The following patch file is to be applied to the corresponding
-directory in your <instance-home>:
+The following patch files are to be applied to the corresponding
+directories:
 
+- install_dir/lib/python/zope/app/server/configure.zcml.patch
 - instance_home/etc/zope.conf.patch
 
 
