@@ -7,6 +7,11 @@
   all-caps disclaimer paragraph.
 - Allow to save RSA key pair in the clear.
 - ZServerSSL for Zope 2.7.
+- Added ssl_set_tmp_dh_callback.
+- Added ssl_set_tmp_rsa and ssl_set_tmp_rsa_callback to support weak-cipher
+  browsers. (Do these still exist?)
+- ZServerSSL now exports SSL_* request headers (a la mod_ssl) to Zope applications.
+- Perform distutils's SWIG .i search path tweaking within setup.py.
 
 
  Changes since 0.10

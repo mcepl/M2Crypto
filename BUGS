@@ -1,27 +1,31 @@
 -------------
- 29 Jun 2003
+ 26 Oct 2003
 -------------
 
-1.  SSL.Connection.makefile() returns an instance of BIO.IOBuffer, 
+- evp_ciph_demo.py, which uses the EVP.Cipher API, dumps core when
+the AES ciphers are tested. bio_ciph_test.py, which uses BIO.CipherStream,
+do not.
+
+- SSL.Connection.makefile() returns an instance of BIO.IOBuffer, 
 which is a file-like object. If you close the SSL.Connection, then 
 try to read()/write() the BIO.IOBuffer, you'll get unpredictable 
 results.
 
-2.  If you pass in bogus callbacks, the interpreter might crash. This 
+- If you pass in bogus callbacks, the interpreter might crash. This 
 has been fixed for RSA, DSA, DH callbacks, but not for SSL callbacks, 
 yet.
 
-3. m2xmlrpclib.py is not compatible with Python 2.2's bundled xmlrpclib.py.
+- m2xmlrpclib.py is not compatible with Python 2.2's bundled xmlrpclib.py.
 
-4. Python 2.2: FTP/TLS passive mode client doesn't work against the Medusa-based
+- Python 2.2: FTP/TLS passive mode client doesn't work against the Medusa-based
 ftps_server. (Works using Python 2.1.)
 
-5. Possible concurrency bugs in the SSL functionality as reported by Brent
+- Possible concurrency bugs in the SSL functionality as reported by Brent
 Chun.
 
-6. demo/ssl/echod-forking.py no longer works. (Tested with Python 2.2.2.)
+- demo/ssl/echod-forking.py no longer works. (Tested with Python 2.2.2.)
 I won't bother try fixing this, since forking servers are passe.
 
 
 ---------------------------------------------------------------------------
-$Id: BUGS,v 1.5 2003/06/30 06:12:41 ngps Exp $
+$Id: BUGS,v 1.6 2003/10/26 13:15:31 ngps Exp $
