@@ -4,7 +4,7 @@
 
 Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: demo1.py,v 1.1 1999/12/22 15:45:53 ngps Exp $'
+RCS_id='$Id: demo1.py,v 1.2 2000/04/01 15:09:11 ngps Exp $'
 
 import os
 
@@ -13,13 +13,13 @@ from M2Crypto.EVP import MessageDigest
 
 def demo1():
     print 'Test 1: As DER...'
-    cert1 = X509.load_cert('ca.pem')
+    cert1 = X509.load_cert('server.pem')
     der1 = cert1.as_der()
     dgst1 = MessageDigest('sha1')
     dgst1.update(der1)
     print 'Using M2Crypto:\n', `dgst1.final()`, '\n'
 
-    cert2 = os.popen('openssl x509 -inform pem -outform der -in ca.pem')
+    cert2 = os.popen('openssl x509 -inform pem -outform der -in server.pem')
     der2 = cert2.read()
     dgst2 = MessageDigest('sha1')
     dgst2.update(der2)
@@ -28,10 +28,29 @@ def demo1():
 
 def demo2():
     print 'Test 2: As text...'
-    cert = X509.load_cert('ca.pem')
-    print cert.as_text(), '\n'
+    cert = X509.load_cert('server.pem')
+    print 'version     ', cert.get_version()
+    print 'serial#     ', cert.get_serial_number()
+    print 'not before  ', cert.get_not_before()
+    print 'not after   ', cert.get_not_after()
+    issuer = cert.get_issuer()
+    #print 'issuer      ', issuer
+    print 'issuer.C    ', `issuer.C`
+    print 'issuer.SP   ', `issuer.SP`
+    print 'issuer.L    ', `issuer.L`
+    print 'issuer.O    ', `issuer.O`
+    print 'issuer.OU   ', `issuer.OU`
+    print 'issuer.CN   ', `issuer.CN`
+    print 'issuer.Email', `issuer.Email`
+    print 'subject     ', cert.get_subject()
+    #print cert.as_text(), '\n'
 
+def demo3():
+    cert = X509.load_cert('server.pem')
+    while 1:
+        x = cert.get_subject()
 
 if __name__ == "__main__":
-    demo1()
+    #demo1()
     demo2()
+    #demo3()
