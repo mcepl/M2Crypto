@@ -3,9 +3,9 @@
 ===============
 
 :Author: Ng Pheng Siong
-:Id: $Id: README,v 1.6 2003/10/26 13:15:31 ngps Exp $
-:Date: $Date: 2003/10/26 13:15:31 $
-:Web-Site: http://www.post1.com/home/ngps/m2
+:Id: $Id: README,v 1.7 2003/10/27 02:06:36 ngps Exp $
+:Date: $Date: 2003/10/27 02:06:36 $
+:Web-Site: http://sandbox.rulemaker.net/ngps/m2
 
 
 M2Crypto = Python + OpenSSL + SWIG
