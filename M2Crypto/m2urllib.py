@@ -1,12 +1,11 @@
-"""M2Crypto enhancement to Python's urllib for handling 'https' url's.
+"""M2Crypto enhancement to Python's urllib for handling 
+'https' url's.
 
-Copyright (c) 1999 Ng Pheng Siong. All rights reserved.
+Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
 
-Copyright 1991-1995 by Stichting Mathematisch Centrum, Amsterdam, 
-The Netherlands. """
+RCS_id='$Id: m2urllib.py,v 1.2 2000/11/29 15:22:29 ngps Exp $'
 
-RCS_id='$Id: m2urllib.py,v 1.1 1999/09/12 14:34:41 ngps Exp $'
-
+import sys
 from urllib import *
 
 import SSL
@@ -14,10 +13,8 @@ import httpslib
 
 DEFAULT_PROTOCOL='sslv3'
 
-# Cut-&-pasted almost verbatim from urllib's open_http().
-# Achtung: following code indents by space, _not_ by tabs.
 def open_https(self, url, data=None):
-        self.ctx=SSL.Context(DEFAULT_PROTOCOL)
+        self.ctx = SSL.Context(DEFAULT_PROTOCOL)
         user_passwd = None
         if type(url) is type(""):
             host, selector = splithost(url)
@@ -46,8 +43,12 @@ def open_https(self, url, data=None):
         else:
             auth = None
         # Here!
-        h = httpslib.HTTPS(self.ctx, host)
-        #h.debuglevel=1
+        if sys.version[:3] == '2.0':
+            h = httpslib.HTTPS(host, ssl_context=self.ctx)
+        elif sys.version[:3] == '1.5':
+            h = httpslib.HTTPS(self.ctx, host)
+        else:
+            raise RuntimeError, 'unsupported Python version'
         # Here!
         if data is not None:
             h.putrequest('POST', selector)
@@ -64,7 +65,7 @@ def open_https(self, url, data=None):
         errcode, errmsg, headers = h.getreply()
         fp = h.getfile()
         if errcode == 200:
-            return addinfourl(fp, headers, "http:" + url)
+            return addinfourl(fp, headers, "https:" + url)
         else:
             if data is None:
                 return self.http_error(url, fp, errcode, errmsg, headers)
@@ -72,5 +73,6 @@ def open_https(self, url, data=None):
                 return self.http_error(url, fp, errcode, errmsg, headers, data)
 
 # Minor brain surgery. 
-URLopener.open_https=open_https
+URLopener.open_https = open_https
+ 
 
