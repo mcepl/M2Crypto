@@ -1,19 +1,41 @@
+===============
+ M2Crypto 0.11
+===============
 
- M2Crypto 0.08 (29 Dec 2002)
------------------------------
+:Author: Ng Pheng Siong
+:Id: $Id: README,v 1.4 2003/06/22 16:28:47 ngps Exp $
+:Date: $Date: 2003/06/22 16:28:47 $
+:Web-Site: http://www.post1.com/home/ngps/m2
 
-M2Crypto = Python + OpenSSL + SWIG.
 
-M2 stands for "me, too!"*
+M2Crypto = Python + OpenSSL + SWIG
+------------------------------------
 
-M2Crypto makes accessible to the Python programmer the following:
+M2 stands for "me, too!" [1]_
 
-    - DH, RSA, DSA, symmetric ciphers, message digests, HMACs.
-    - SSL functionality to implement clients and servers.
-    - HTTPS extensions to Python's HTTP functionality.
-    - S/MIME v2.
-    - FTP/TLS client and server.
-    - ZServerSSL: A HTTPS server for Zope.
+M2Crypto comes with the following:
+
+- **DH**, **RSA**, **DSA**, **symmetric ciphers** including **AES**,
+  **message digests**, **HMACs**.
+
+- **SSL functionality** to implement clients and servers.
+
+- **Example SSL client and server programs**, which are variously
+  **threading**, **forking** or based on **non-blocking socket IO**.
+
+- **HTTPS** extensions to Python's HTTP functionality.
+
+- Unforgeable HMAC'ing **AuthCookies** for **web session management**.
+
+- **XML-RPC over SSL**.
+
+- **S/MIME v2**.
+
+- **FTP/TLS** client and server.
+
+- **ZServerSSL**: A **HTTPS server for Zope**.
+
+- **ZSmime**: A **Zope** server plug-in to generate **S/MIME** messages.
 
 M2Crypto is released under a very liberal BSD-style licence. See 
 LICENCE for details.
@@ -25,41 +47,34 @@ SWIG may not work.
 
 To install, see the file INSTALL.
 
-
 Note these caveats:
 
-1. Possible memory leaks, because some objects need to be freed on the 
-Python side and other objects on the C side, and these may change between 
-OpenSSL versions. (Multiple free's lead to crashes very quickly, so 
-these should have been rooted out.)
+- Possible memory leaks, because some objects need to be freed on the
+  Python side and other objects on the C side, and these may change
+  between OpenSSL versions. (Multiple free's lead to crashes very
+  quickly, so these should be relatively rare.)
+    
+- No memory locking/clearing for keys, passphrases, etc.
+    
+- PRNG may not be CS [2]_ nor CS [3]_.
+    
+- AFAIK, Python and OpenSSL have not been subjected to the full
+  attention of the Bugtraq crowd. M2Crypto's handling of active hostile
+  input is probably suspect. [4]_
+    
 
-2. No memory locking/clearing for keys, passphrases, etc.
-
-3. PRNG may not be CS**; it may not be CS***.
-
-4. AFAIK, Python and OpenSSL have not been subjected to the full attention 
-of the Bugtraq crowd. M2Crypto's handling of active hostile input is 
-probably suspect. (Dec 2002: Well, there have been reported vulnerabilities 
-in some versions of OpenSSL.)
-
-Of course, I hope to address these in future.
-
-Meanwhile, have fun! Your feedback is welcome.
+Have fun! Your feedback is welcome.
 
 
-Ng Pheng Siong
-ngps@netmemetic.com 
-http://www.netmemetic.com/
-http://www.post1.com/home/ngps/
+.. [1] Similar software are Marc-Andre Lemburg's mxCrypto, and two earlier
+   Python interfaces to the SSL portion of SSLeay/OpenSSL. Since M2Crypto,
+   yet more OpenSSL wrappers and non-OpenSSL crypto toolkits for
+   Python have appeared.
 
+.. [2] Continuous seeding.
 
-* Similar software are Marc-Andre Lemburg's mxCrypto, and two earlier
-Python interfaces to the SSL portion of SSLeay/OpenSSL. Since M2Crypto 
-came into being, yet more Python OpenSSL wrappers have appeared.
+.. [3] Cryptographically strong.
 
-** Continuous seeding.
-
-*** Cryptographically strong.
-
----------------------------------------------------------------------------
-$Id: README,v 1.3 2002/12/29 16:15:45 ngps Exp $
+.. [4] In recent years, there have been reported vulnerabilities
+   in some versions of OpenSSL and attacks against the SSL protocol
+   itself.
