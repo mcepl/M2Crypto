@@ -1,0 +1,160 @@
+% $Id: install.tex,v 1.1 2004/03/21 17:21:06 ngps Exp $
+
+\documentclass{howto}
+
+\title{Installing M2Crypto}
+
+\release{0.13}
+
+\author{Ng Pheng Siong}
+\authoraddress{Email: \email{ngps@netmemetic.com}}
+
+\begin{document}
+\maketitle
+
+\section{Software Pre-requisites}
+
+The following software packages are pre-requisites:    
+
+\begin{itemize}
+  \item  Python 2.1, 2.2 or 2.3
+  \item  OpenSSL 0.9.7 or later
+  \item  SWIG 1.3.21
+\end{itemize}
+
+\begin{notice}
+Note:
+\begin{itemize}
+  \item  Earlier versions of Python may or may not work.
+  \item  This release is incompatible with OpenSSL versions prior to 0.9.7.
+  \item  Earlier versions of SWIG may or may not work.
+\end{itemize}
+\end{notice}
+
+\section{Installing on \UNIX}
+
+\begin{verbatim}
+$ unzip m2crypto-0.13.zip
+$ cd m2crypto-0.13
+$ python setup.py build
+# python setup.py install
+$ cd tests
+$ python alltests.py
+\end{verbatim}
+
+Also see the examples in \file{m2crypto-0.13/demo}.
+
+\section{Installing on Windows}
+
+This distribution has been built and test with mingw XXX and MS VC++
+6.0.
+
+Before building from source, you need to install OpenSSL's include files,
+import libraries and DLLs.
+
+Here is the relevant section from \file{setup.py}.
+
+\begin{verbatim}
+if os.name == 'nt':
+    openssl_dir = 'c:\\pkg\\openssl'
+    include_dirs = [my_inc, openssl_dir + '/include']
+    library_dirs = [openssl_dir + '\\lib']
+    libraries = ['ssl32', 'eay32']
+    extra_compile_args = [ "-DTHREADING" ]
+\end{verbatim}
+
+By convention, I place OpenSSL include files in
+\file{c:/pkg/openssl/include} and the import libraries in
+\file{c:/pkg/openssl/lib}.
+
+\subsection{Preparation}
+
+Read Sebastien Sauvage's webpage at
+\texttt{http://sebsauvage.net/python/mingw.html}.
+
+\subsection{Import Libraries}
+
+For mingw32, the OpenSSL import libraries are named \file{libeay32.a} and
+\file{libssl32.a}. For VC++, the import libraries, as built by OpenSSL, are
+named \file{libeay32.lib} and \file{ssleay32.lib}.
+
+For mingw32, you'll need to create \file{libpython2[123].a}, depending
+on your version of Python.
+
+\subsection{OpenSSL DLLs}
+
+OpenSSL DLLs for mingw32 are named \file{libeay32.dll} and
+\file{libssl32.dll}. With VC++, the OpenSSL DLLs, as built, are named
+\file{libeay32.dll} and \file{ssleay32.dll}.
+
+Install these DLLs somewhere on your PATH; by convention, I place them in
+\file{c:/bin}, together with \file{openssl.exe}.
+
+\subsection{Installing}
+
+Build M2Crypto. Do one of the following:
+
+\begin{verbatim}
+python setup.py build
+python setup.py build -cmingw32
+\end{verbatim}
+
+Then,
+
+\begin{verbatim}
+python setup.py install
+cd tests
+python alltests.py
+\end{verbatim}
+
+\section{Installing on Mac OS X}
+
+Larry Bugbee has kindly contributed these instructions for Mac OS X 10.2.
+I've edited his report lightly to fit the flow of a Python LaTeX document.
+Below, Larry writes in the first person.
+
+0. MacOSX 10.2 comes with OpenSSL 0.9.6x and installing a current version
+can lead to incompatabilities between Apache and other apps depending on
+0.9.6. I am not ready for the hassle to rebuild Apache and all the other
+dependencies, so I built OpenSSL 0.9.7c in \file{/usr/local} with:
+
+\begin{verbatim}
+./config --prefix=/usr/local --openssldir=/usr/local/openssl
+make
+...etc.
+\end{verbatim}
+
+1. Goto \file{m2crypto-0.13/SWIG}.
+
+\begin{verbatim}
+cd m2crypto-0.13
+cd SWIG
+\end{verbatim}
+
+2. Check the path to the version of OpenSSL you want for M2Crypto. If you
+decided to install a newer OpenSSL in \file{/usr/local} and not use Apple's
+pre-installed version, the path in \file{Makefile.osx} is ready to go.
+
+\begin{verbatim}
+make -f Makefile.osx
+cd ..
+\end{verbatim}
+
+3. Move the directory \file{M2Crypto} into Python's \file{site-packages}
+directory.
+
+6. If you have PyUnit installed:
+
+\begin{verbatim}
+cd tests
+python alltests.py
+\end{verbatim}
+
+7. Try out the various test programs:
+
+\begin{verbatim}
+cd ..
+cd demo
+\end{verbatim}
+
+\end{document}
