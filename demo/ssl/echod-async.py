@@ -1,63 +1,77 @@
 #!/usr/bin/env python
 
-"""An SSL 'echo' server, using asynchronous socket I/O.
+"""An asyncore-based SSL 'echo' server.
 
-Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: echod-async.py,v 1.3 2000/08/23 15:41:10 ngps Exp $'
+RCS_id='$Id: echod-async.py,v 1.4 2002/01/05 08:27:31 ngps Exp $'
 
-import asyncore
-import errno
-import socket
-import time
-
-from M2Crypto import Err, DH, Rand, SSL
+import asyncore, errno, socket, time
+from M2Crypto import Rand, SSL
 import echod_lib
 
-class ssl_echo_channel(SSL.ssl_dispatcher):
+class ssl_echo_channel(asyncore.dispatcher):
 
-    buffer='Ye Olde Echo Servre\r\n'
+    buffer = 'Ye Olde Echo Servre\r\n'
 
     def __init__(self, conn):
-        SSL.ssl_dispatcher.__init__(self, conn)
+        asyncore.dispatcher.__init__(self, conn)
+        self._ssl_accepting = 1
         self.peer = self.get_peer_cert()
 
     def handle_connect(self):
-        #print 'bogus: handle_connect'
         pass
 
     def handle_close(self):
         self.close()
 
-    def writeable(self):
-        return len(self.buffer) > 0
+    def writable(self):
+        return self._ssl_accepting or (len(self.buffer) > 0)
  
     def handle_write(self):
-        try:
-            n=self.send(self.buffer)
-            if n == -1:
-                pass
-            elif n == 0:
-                self.handle_close()
-            else:
-                self.buffer=self.buffer[n:]
-        except:
-            self.close()
+        if self._ssl_accepting: 
+            s = self.socket.accept_ssl()
+            if s:
+                self._ssl_accepting = 0
+        else:
+            try:
+                n = self.send(self.buffer)
+                if n == -1:
+                    pass
+                elif n == 0:
+                    self.handle_close()
+                else:
+                    self.buffer = self.buffer[n:]
+            except SSL.SSLError, what:
+                if str(what) == 'unexpected eof':
+                    self.handle_close()
+                    return
+                else:
+                    raise
 
     def readable(self):
         return 1
 
     def handle_read(self):
-        try:
-            blob=self.recv()
-            if blob is None:
-                pass
-            elif blob == '':
-                self.handle_close() 
-            else: 
-                self.buffer = self.buffer + blob        
-        except:
-            self.close()
+        if self._ssl_accepting:
+            s = self.socket.accept_ssl()
+            if s:
+                self._ssl_accepting = 0
+        else:
+            try:
+                blob = self.recv(4096)
+                if blob is None:
+                    pass
+                elif blob == '':
+                    self.handle_close()
+                else: 
+                    self.buffer = self.buffer + blob        
+            except SSL.SSLError, what:
+                if str(what) == 'unexpected eof':
+                    self.handle_close()
+                    return
+                else:
+                    raise
 
 
 class ssl_echo_server(SSL.ssl_dispatcher):
@@ -84,15 +98,14 @@ class ssl_echo_server(SSL.ssl_dispatcher):
             print '-'*40
             return
 
-    def writeable(self):
+    def writable(self):
         return 0
 
 
 if __name__=='__main__':
     Rand.load_file('../randpool.dat', -1) 
-    ctx=echod_lib.init_context('sslv23', 'server.pem', 'ca.pem', \
-        SSL.verify_none)
-        #SSL.verify_peer | SSL.verify_fail_if_no_peer_cert)
+    ctx = echod_lib.init_context('sslv23', 'server.pem', 'ca.pem', \
+            SSL.verify_peer | SSL.verify_fail_if_no_peer_cert)
     ctx.set_tmp_dh('dh1024.pem')
     ssl_echo_server('', 9999, ctx)
     asyncore.loop()
