@@ -121,12 +121,14 @@ int smime_write_pkcs7(BIO *bio, PKCS7 *pkcs7, int flags) {
 }
 
 PyObject *smime_read_pkcs7(BIO *bio) {
-    BIO *bcont;
+    BIO *bcont = NULL;
     PKCS7 *p7;
     PyObject *tuple, *_p7, *_BIO;
 
-    if (!(p7=SMIME_read_PKCS7(bio, &bcont)))
+    if (!(p7=SMIME_read_PKCS7(bio, &bcont))) {
+        PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
+    }
     if (!(tuple=PyTuple_New(2))) {
         PyErr_SetString(PyExc_RuntimeError, "smime_read_pkcs7: PyTuple_New()");
         return NULL;
