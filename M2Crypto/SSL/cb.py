@@ -1,6 +1,6 @@
-"""Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
+"""Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: cb.py,v 1.3 2000/08/23 15:36:29 ngps Exp $'
+RCS_id='$Id: cb.py,v 1.4 2002/12/23 03:59:20 ngps Exp $'
 
 # Python
 import sys
@@ -35,12 +35,6 @@ def ssl_verify_callback(ssl_ctx_ptr, x509_ptr, errnum, errdepth, ok):
 
 
 # Cribbed from OpenSSL's apps/s_cb.c.
-def ssl_info_callback0(where, ret, ssl_ptr):
-    ssl_conn = Connection.map()[ssl_ptr]
-    sys.stdout.write(ssl_ptr + ':' + str(sys.getrefcount(ssl_conn)) + '\n')
-    sys.stdout.flush()
-
-
 def ssl_info_callback(where, ret, ssl_ptr):
 
     #ssl_conn = Connection.map()[ssl_ptr]
@@ -70,22 +64,13 @@ def ssl_info_callback(where, ret, ssl_ptr):
         return
 
     if (where & m2.SSL_CB_ALERT):
-        #ssl_conn = Connection.map()[ssl_ptr]
         if (where & m2.SSL_CB_READ):
             w = 'read'
-        #   ssl_attr = ssl_conn._read_closed
         else:
             w = 'write'
-        #   ssl_attr = ssl_conn._write_closed
         sys.stderr.write("ALERT: %s: %s: %s\n" % \
             (w, m2.ssl_get_alert_type_v(ret), m2.ssl_get_alert_desc_v(ret)))
         sys.stderr.flush()
-        #if m2.ssl_get_alert_desc(ret) == SSL_AD_CLOSE_NOTIFY:
-        #    ssl_attr = 1
-        #if ssl_conn._read_closed and ssl_conn._write_closed:
-        #    sys.stderr.write("Deleting " + ssl_ptr + '\n')
-        #    sys.stderr.flush()
-        #    del Connection.map()[ssl_ptr]
         return
 
 

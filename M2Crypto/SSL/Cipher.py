@@ -1,9 +1,8 @@
-"""Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
+"""Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Cipher.py,v 1.1 2000/02/23 15:33:22 ngps Exp $'
+RCS_id='$Id: Cipher.py,v 1.2 2002/12/23 03:59:37 ngps Exp $'
 
-from M2Crypto import M2Crypto 
-m2 = M2Crypto
+from M2Crypto import m2
 
 class Cipher:
     def __init__(self, cipher):

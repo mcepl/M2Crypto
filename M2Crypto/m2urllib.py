@@ -1,9 +1,9 @@
 """M2Crypto enhancement to Python's urllib for handling 
 'https' url's.
 
-Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: m2urllib.py,v 1.4 2001/09/19 04:38:17 ngps Exp $'
+RCS_id='$Id: m2urllib.py,v 1.5 2002/12/23 03:46:38 ngps Exp $'
 
 import string, sys, urllib
 from urllib import *
@@ -11,7 +11,7 @@ from urllib import *
 import SSL
 import httpslib
 
-DEFAULT_PROTOCOL='sslv3'
+DEFAULT_PROTOCOL='sslv23'
 
 def open_https(self, url, data=None):
         self.ctx = SSL.Context(DEFAULT_PROTOCOL)
@@ -50,6 +50,7 @@ def open_https(self, url, data=None):
             h = httpslib.HTTPS(self.ctx, host)
         else:
             raise RuntimeError, 'unsupported Python version'
+        h.set_debuglevel(1)
         # Stop here!
         if data is not None:
             h.putrequest('POST', selector)
@@ -58,7 +59,8 @@ def open_https(self, url, data=None):
         else:
             h.putrequest('GET', selector)
         if auth: h.putheader('Authorization', 'Basic %s' % auth)
-        if realhost: h.putheader('Host', realhost)
+        if sys.version[:3] == '1.5':
+            if realhost: h.putheader('Host', realhost)
         for args in self.addheaders: apply(h.putheader, args)
         h.endheaders()
         if data is not None:
@@ -84,6 +86,5 @@ def open_https(self, url, data=None):
 
 # Minor brain surgery. 
 URLopener.open_https = open_https
-FancyURLopener.open_https = open_https
  
 

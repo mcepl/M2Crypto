@@ -2,11 +2,11 @@
 
 """RSA demonstration.
 
-Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: rsatest.py,v 1.1 1999/09/12 14:45:04 ngps Exp $'
+RCS_id='$Id: rsatest.py,v 1.2 2002/12/23 04:08:06 ngps Exp $'
 
-from M2Crypto import RSA, EVP
+from M2Crypto import RSA, EVP, Rand
 
 msg="The magic words are squeamish ossifrage."
 sha1=EVP.MessageDigest('sha1')
@@ -17,29 +17,31 @@ priv=RSA.load_key('rsa.priv.pem')
 pub=RSA.load_pub_key('rsa.pub.pem')
 
 def test_encrypt(padding):
-	print 'testing public-key encryption:', padding
-	padding=eval('RSA.'+padding)
-	ctxt=pub.public_encrypt(dgst, padding)
-	ptxt=priv.private_decrypt(ctxt, padding)
-	if ptxt!=dgst:
-		print 'public_encrypt -> private_decrypt: not ok'
+    print 'testing public-key encryption:', padding
+    padding=eval('RSA.'+padding)
+    ctxt=pub.public_encrypt(dgst, padding)
+    ptxt=priv.private_decrypt(ctxt, padding)
+    if ptxt!=dgst:
+        print 'public_encrypt -> private_decrypt: not ok'
 
 def test_sign(padding):
-	print 'testing private-key signing:', padding
-	padding=eval('RSA.'+padding)
-	ctxt=priv.private_encrypt(dgst, padding)	
-	ptxt=pub.public_decrypt(ctxt, padding)
-	if ptxt!=dgst:
-		print 'private_decrypt -> public_encrypt: not ok'
+    print 'testing private-key signing:', padding
+    padding=eval('RSA.'+padding)
+    ctxt=priv.private_encrypt(dgst, padding)    
+    ptxt=pub.public_decrypt(ctxt, padding)
+    if ptxt!=dgst:
+        print 'private_decrypt -> public_encrypt: not ok'
 
 def test0():
-	print 'testing misc.'
-	print `pub.e`, `pub.n`
-	print `priv.e`, `priv.n`
+    print 'testing misc.'
+    print `pub.e`, `pub.n`
+    print `priv.e`, `priv.n`
 
 if __name__=='__main__':
-	test_encrypt('pkcs1_padding')
-	test_encrypt('pkcs1_oaep_padding')
-	test_encrypt('sslv23_padding')
-	test_sign('pkcs1_padding')
+    Rand.load_file('randpool.dat', -1) 
+    test_encrypt('pkcs1_padding')
+    test_encrypt('pkcs1_oaep_padding')
+    #test_encrypt('sslv23_padding')
+    test_sign('pkcs1_padding')
+    Rand.save_file('randpool.dat')
 

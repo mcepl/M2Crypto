@@ -1,12 +1,11 @@
 """M2Crypto wrapper for OpenSSL EVP API.
 
-Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: EVP.py,v 1.6 2000/05/07 16:02:19 ngps Exp $'
+RCS_id='$Id: EVP.py,v 1.7 2002/12/23 03:51:50 ngps Exp $'
 
 import Err, util
-import M2Crypto
-m2 = M2Crypto
+import m2
 
 class MessageDigest:
     def __init__(self, algo):

@@ -1,7 +1,9 @@
-"""Demonstrates the use of m2.bio_set_mem_eof_return().
-Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
+#!/usr/bin/env python2.0
 
-RCS_id='$Id: bio_mem_rw.py,v 1.1 2000/08/23 15:38:17 ngps Exp $'
+"""Demonstrates the use of m2.bio_set_mem_eof_return().
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
+
+RCS_id='$Id: bio_mem_rw.py,v 1.2 2002/12/23 04:05:41 ngps Exp $'
 
 from M2Crypto import m2
 m2.lib_init()

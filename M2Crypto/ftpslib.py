@@ -29,9 +29,9 @@ drwxr-xr-x  12 0        0             512 May 31 17:08 python2.1
 >>>
 
 
-Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: ftpslib.py,v 1.2 2001/09/19 14:52:28 ngps Exp $'
+RCS_id='$Id: ftpslib.py,v 1.3 2002/12/23 03:44:51 ngps Exp $'
 
 # Python
 from ftplib import *
@@ -46,7 +46,7 @@ DEFAULT_PROTOCOL='sslv23'
 
 class FTP_TLS(FTP):
 
-    """An FTP/TLS client."""
+    """Python OO interface to client-side FTP/TLS."""
 
     def __init__(self, host=None, ssl_ctx=None):
         """Initialise the client. If 'host' is supplied, connect to it."""

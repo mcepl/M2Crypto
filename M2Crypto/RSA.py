@@ -1,8 +1,8 @@
 """M2Crypto wrapper for OpenSSL RSA API.
 
-Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: RSA.py,v 1.5 2000/11/19 07:37:48 ngps Exp $'
+RCS_id='$Id: RSA.py,v 1.6 2002/12/23 03:49:03 ngps Exp $'
 
 import sys
 import util, BIO, Err, m2
@@ -24,6 +24,7 @@ class RSA:
     """
 
     def __init__(self, rsa, _pyfree=0):
+        assert m2.rsa_type_check(rsa), "'rsa' type error"
         self.rsa = rsa
         self._pyfree = _pyfree
 
@@ -35,7 +36,7 @@ class RSA:
             pass
 
     def __len__(self):
-        return m2.rsa_size(self.rsa)
+        return m2.rsa_size(self.rsa) << 3
 
     def __getattr__(self, name):
         if name == 'e':
@@ -46,23 +47,37 @@ class RSA:
             raise AttributeError
 
     def pub(self):
+        assert self.check_key(), 'key is not initialised'
         return m2.rsa_get_e(self.rsa), m2.rsa_get_n(self.rsa)
 
     def public_encrypt(self, data, padding):
+        assert self.check_key(), 'key is not initialised'
         return m2.rsa_public_encrypt(self.rsa, data, padding)
 
     def public_decrypt(self, data, padding):
+        assert self.check_key(), 'key is not initialised'
         return m2.rsa_public_decrypt(self.rsa, data, padding)
 
     def private_encrypt(self, data, padding):
+        assert self.check_key(), 'key is not initialised'
         return m2.rsa_private_encrypt(self.rsa, data, padding)
 
     def private_decrypt(self, data, padding):
+        assert self.check_key(), 'key is not initialised'
         return m2.rsa_private_decrypt(self.rsa, data, padding)
 
     def save_key_bio(self, bio, cipher='des_ede3_cbc', callback=util.passphrase_callback):
         """
-        Save the key pair to the M2Crypto.BIO object 'bio' in PEM format.
+        Save the key pair to an M2Crypto.BIO object in PEM format.
+
+        _bio_ is the target M2Crypto.BIO object.
+
+        _cipher_ is a symmetric cipher to protect the key. The 
+        default cipher is 'des_ede3_cbc', i.e., three-key triple-DES
+        in cipher block chaining mode.
+
+        _callback_ is a Python callable object that is invoked
+        to acquire a passphrase with which to protect the key.
         """
         if cipher is None:
             ciph = None
@@ -76,7 +91,7 @@ class RSA:
 
     def save_key(self, file, cipher='des_ede3_cbc', callback=util.passphrase_callback):
         """
-        Save the key pair to filename 'file' in PEM format.
+        Save the key pair to filename _file_ in PEM format.
         """
         bio = BIO.openfile(file, 'wb')
         return self.save_key_bio(bio, cipher, callback)
@@ -97,7 +112,7 @@ class RSA:
     def save_pub_key_bio(self, bio):
         """
         Save the public key to the M2Crypto.BIO object 'bio' in PEM format.
-        """
+        """ 
         return m2.rsa_write_pub_key(self.rsa, bio._ptr())
 
     def save_pub_key(self, file):
@@ -120,7 +135,7 @@ class RSA_pub(RSA):
     def __setattr__(self, name, value):
         if name in ['e', 'n']:
             raise RSAError, \
-                'use the factory function \'new_pub_key()\' to set (e, n)'
+                'use factory function new_pub_key() to set (e, n)'
         else:
             self.__dict__[name] = value
         
@@ -142,18 +157,15 @@ class RSA_pub(RSA):
         return m2.rsa_check_pub_key(self.rsa)
 
 
+def rsa_error():
+    raise RSAError, m2.err_reason_error_string(m2.err_get_error())
+
 def keygen_callback(p, n, out=sys.stdout):
     """
     Default callback for gen_key().
     """
-    if p == 0:
-        out.write('.')
-    elif p == 1:
-        out.write('+')
-    elif p == 2:
-        out.write('*')
-    elif p == 3:
-        out.write('\n')
+    ch = ['.','+','*','\n']
+    out.write(ch[p])
     out.flush()
 
 
@@ -162,11 +174,11 @@ def gen_key(bits, e, callback=keygen_callback):
     Factory function that generates an RSA key pair and instantiates 
     an RSA object from it.
     
-    The argument 'bits' is the key length.
+    _bits_ is the key length in bits.
 
-    The argument 'e' is the value for e, the RSA public exponent.
+    _e_ is the value for e, the RSA public exponent.
 
-    The optional argument 'callback' is a Python callback object that will be
+    (Optional) _callback_ is a Python callback object that will be
     invoked during key generation; its usual purpose is to provide visual
     feedback.
     """ 
@@ -177,14 +189,13 @@ def load_key(file, callback=util.passphrase_callback):
     """
     Factory function that instantiates an RSA object.
 
-    The argument 'file' contains the PEM representation of the 
-    RSA key pair. 
+    _file_ contains the PEM representation of the RSA key pair. 
 
-    The argument 'callback' is a Python callback object
-    that will be invoked if the RSA key pair is passphrase-protected.
+    (Optional) _callback_ is a Python callback object that will be 
+    invoked if the RSA key pair is passphrase-protected.
     """
     bio = BIO.openfile(file)
-    return RSA(m2.rsa_read_key(bio._ptr(), callback), 1)
+    return load_key_bio(bio, callback)
 
 
 def load_key_bio(bio, callback=util.passphrase_callback):
@@ -197,7 +208,10 @@ def load_key_bio(bio, callback=util.passphrase_callback):
     The argument 'callback' is a Python callback object that will be invoked if
     the RSA key pair is passphrase-protected.
     """
-    return RSA(m2.rsa_read_key(bio._ptr(), callback), 1)
+    rsa = m2.rsa_read_key(bio._ptr(), callback)
+    if rsa is None:
+        rsa_error()
+    return RSA(rsa, 1)
 
 
 def load_pub_key(file):
@@ -207,7 +221,7 @@ def load_pub_key(file):
     The argument 'file' contains the PEM representation of the RSA public key.
     """
     bio = BIO.openfile(file) 
-    return RSA_pub(m2.rsa_read_pub_key(bio._ptr()), 1)
+    return load_pub_key_bio(bio)
 
 
 def load_pub_key_bio(bio):
@@ -217,12 +231,23 @@ def load_pub_key_bio(bio):
     The argument 'bio' is an M2Crypto.BIO object that contains the PEM
     representation of the RSA public key.
     """ 
-    return RSA_pub(m2.rsa_read_pub_key(bio._ptr()), 1)
+    rsa = m2.rsa_read_pub_key(bio._ptr())
+    if rsa is None:
+        rsa_error()
+    return RSA_pub(rsa, 1)
 
 
-def new_pub_key(e, n):
+def new_pub_key((e, n)):
     """
     Factory function that instantiates an RSA_pub object from a (e, n) tuple.
+
+    'e' is the RSA public exponent; it is a string in OpenSSL's MPINT format,
+    i.e., 4-byte big-endian bit-count followed by the appropriate number of
+    bits.
+
+    'n' is the RSA composite of primes; it is a string in OpenSSL's MPINT format,
+    i.e., 4-byte big-endian bit-count followed by the appropriate number of
+    bits.
     """ 
     rsa = m2.rsa_new()
     m2.rsa_set_e(rsa, e)

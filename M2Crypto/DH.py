@@ -1,78 +1,96 @@
 """M2Crypto wrapper for OpenSSL DH API.
 
-Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: DH.py,v 1.3 2000/02/25 15:28:00 ngps Exp $'
+RCS_id='$Id: DH.py,v 1.4 2002/12/23 03:50:38 ngps Exp $'
 
 from util import genparam_callback
-import BIO
-import Err
-import M2Crypto
-m2=M2Crypto
+import BIO, Err, m2
 
-m2.dh_init()
+class DHError(Exception): pass
+
+m2.dh_init(DHError)
 
 class DH:
-    def __init__(self, this=None, _pyfree=0):
-        if this is not None:
-            self.this = this
-            self._pyfree = _pyfree
-        else:
-            self.this = m2.dh_new()
-            self._pyfree = 1
+
+    """
+    Object interface to the Diffie-Hellman key exchange
+    protocol.
+    """
+
+    def __init__(self, dh, _pyfree=0):
+        assert m2.dh_type_check(dh)
+        self.dh = dh
+        self._pyfree = _pyfree
 
     def __del__(self):
-        if self._pyfree:
-            m2.dh_free(self.this)
+        try:
+            if self._pyfree:
+                m2.dh_free(self.dh)
+        except AttributeError:
+            pass
 
     def __len__(self):
-        return m2.dh_size(self.this)
+        assert m2.dh_type_check(self.dh), "'dh' type error"
+        return m2.dh_size(self.dh)
 
     def __getattr__(self, name):
-        if name=='p':
-            return m2.dh_get_p(self.this)
-        elif name=='g':
-            return m2.dh_get_g(self.this)
-        elif name=='pub':
-            return m2.dh_get_pub(self.this)
-        elif name=='priv':
-            return m2.dh_get_priv(self.this)
+        if name in ('p', 'g', 'pub', 'priv'):
+            method = getattr(m2, 'dh_get_%s' % (name,))
+            assert m2.dh_type_check(self.dh), "'dh' type error"
+            return method(self.dh)
         else:
             raise AttributeError
 
     def __setattr__(self, name, value):
-        if name in ['p', 'g']:
-            raise AttributeError, 'set (p, g) via set_params()'
-        elif name in ['pub','priv']:
-            raise AttributeError, 'generate (pub, priv) via gen_key()'
+        if name in ('p', 'g'):
+            raise DHError, 'set (p, g) via set_params()'
+        elif name in ('pub','priv'):
+            raise DHError, 'generate (pub, priv) via gen_key()'
         else:
-            self.__dict__[name]=value
-
-    def set_params(self, p, g):
-        m2.dh_set_p(self.this, p)
-        m2.dh_set_g(self.this, g)
+            self.__dict__[name] = value
 
     def check_params(self):
-        return m2.dh_check(self.this)
+        assert m2.dh_type_check(self.dh), "'dh' type error"
+        return m2.dh_check(self.dh)
         
     def gen_key(self):
-        m2.dh_generate_key(self.this)   
+        assert m2.dh_type_check(self.dh), "'dh' type error"
+        m2.dh_generate_key(self.dh)   
 
     def compute_key(self, pubkey):
-        return m2.dh_compute_key(self.this, pubkey)
+        assert m2.dh_type_check(self.dh), "'dh' type error"
+        return m2.dh_compute_key(self.dh, pubkey)
+
+    def print_params(self, bio):
+        assert m2.dh_type_check(self.dh), "'dh' type error"
+        return m2.dhparams_print(bio._ptr(), self.dh)
+
 
 def gen_params(plen, g, callback=genparam_callback):
     return DH(m2.dh_generate_parameters(plen, g, callback), 1)
 
+
 def load_params(file):
-    f=BIO.openfile(file)
-    cptr=m2.dh_read_parameters(f.bio_ptr())
-    f.close()
-    if cptr is None:
-        raise Err.get_error()
-    return DH(cptr, 1)
+    bio = BIO.openfile(file)
+    return load_params_bio(bio)
 
-def free_params(cptr):
-    m2.dh_free(cptr)
 
+def load_params_bio(bio):
+    return DH(m2.dh_read_parameters(bio._ptr()), 1)
+
+
+def set_params(p, g):
+    dh = m2.dh_new()
+    m2.dh_set_p(dh, p)
+    m2.dh_set_g(dh, g)
+    return DH(dh, 1)
+
+
+#def free_params(cptr):
+#    m2.dh_free(cptr)
+
+
+DH_GENERATOR_2 = m2.DH_GENERATOR_2
+DH_GENERATOR_5 = m2.DH_GENERATOR_5
 

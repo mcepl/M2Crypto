@@ -1,14 +1,13 @@
 """M2Crypto wrapper for OpenSSL S/MIME API.
 
-Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: SMIME.py,v 1.3 2000/05/07 16:01:40 ngps Exp $'
+RCS_id='$Id: SMIME.py,v 1.4 2002/12/23 03:48:35 ngps Exp $'
 
 import BIO, EVP, X509, Err
-import M2Crypto
-m2=M2Crypto
+import m2
 
-PKCS7_TEXT	    = m2.PKCS7_TEXT
+PKCS7_TEXT	= m2.PKCS7_TEXT
 PKCS7_NOCERTS	= m2.PKCS7_NOCERTS
 PKCS7_NOSIGS	= m2.PKCS7_NOSIGS
 PKCS7_NOCHAIN	= m2.PKCS7_NOCHAIN
@@ -21,8 +20,11 @@ PKCS7_NOATTR	= m2.PKCS7_NOATTR
 PKCS7_SIGNED	        = m2.PKCS7_SIGNED
 PKCS7_ENVELOPED	        = m2.PKCS7_ENVELOPED
 PKCS7_SIGNED_ENVELOPED	= m2.PKCS7_SIGNED_ENVELOPED
-PKCS7_DATA	            = m2.PKCS7_DATA 
+PKCS7_DATA	        = m2.PKCS7_DATA 
 
+class PKCS7_Error(Exception): pass
+
+m2.pkcs7_init(PKCS7_Error)
 
 class PKCS7:
     def __init__(self, pkcs7=None, _pyfree=0):
@@ -52,7 +54,25 @@ class PKCS7:
     def write_der(self, bio):
         return m2.pkcs7_write_bio_der(self.pkcs7, bio._ptr())
 
+
 def load_pkcs7(p7file):
+    bio = m2.bio_new_file(p7file, 'r')
+    if bio is None:
+        raise Err.get_error()
+    p7_ptr = m2.pkcs7_read_bio(p7_bio._ptr())
+    if p7_ptr is None:
+        raise Err.get_error()
+    return PKCS7(p7_ptr, 1)
+    
+
+def load_pkcs7_bio(p7_bio):
+    p7_ptr = m2.pkcs7_read_bio(p7_bio._ptr())
+    if p7_ptr is None:
+        raise Err.get_error()
+    return PKCS7(p7_ptr, 1)
+    
+
+def smime_load_pkcs7(p7file):
     bio = m2.bio_new_file(p7file, 'r')
     if bio is None:
         raise Err.get_error()
@@ -65,7 +85,8 @@ def load_pkcs7(p7file):
     else:
         return PKCS7(p7_ptr, 1), BIO.BIO(bio_ptr, 1)
     
-def load_pkcs7_bio(p7_bio):
+
+def smime_load_pkcs7_bio(p7_bio):
     p7_ptr, bio_ptr = m2.smime_read_pkcs7(p7_bio._ptr())
     if p7_ptr is None:
         raise Err.get_error()
@@ -76,7 +97,11 @@ def load_pkcs7_bio(p7_bio):
     
             
 class Cipher:
-    """This is an EVP_CIPHER wrapper minus all the frills of M2Crypto.EVP.Cipher."""
+
+    """
+    Object interface to EVP_CIPHER without all the frills of M2Crypto.EVP.Cipher.
+    """
+
     def __init__(self, algo):
         cipher = getattr(m2, algo)
         if not cipher:
@@ -87,9 +112,9 @@ class Cipher:
         return self.cipher
 
 
-class SMIME_Error(Exception):
-    pass
+class SMIME_Error(Exception): pass
 
+m2.smime_init(SMIME_Error)
 
 class SMIME:
     def load_key(self, keyfile, certfile=None):

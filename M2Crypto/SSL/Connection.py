@@ -1,8 +1,8 @@
 """M2Crypto.SSL.Connection
 
-Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Connection.py,v 1.7 2001/09/19 14:59:40 ngps Exp $'
+RCS_id='$Id: Connection.py,v 1.8 2002/12/23 03:56:14 ngps Exp $'
 
 # Python
 import socket, sys
@@ -13,30 +13,33 @@ from Session import Session
 from M2Crypto import util, BIO, Err, X509, m2
 import timeout
 
-SSLError = getattr(__import__('M2Crypto.SSL', globals(), locals(), 'SSLError'), 'SSLError')
+#SSLError = getattr(__import__('M2Crypto.SSL', globals(), locals(), 'SSLError'), 'SSLError')
+from M2Crypto.SSL import SSLError
 
 class Connection:
 
     """An SSL connection."""
 
     def __init__(self, ctx, sock=None):
-        self.ctx=ctx
-        self.ssl=m2.ssl_new(self.ctx.ctx)
+        self.ctx = ctx
+        self.ssl = m2.ssl_new(self.ctx.ctx)
         if sock is not None:    
-            self.socket=sock
+            self.socket = sock
         else:
-            self.socket=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._fileno = self.socket.fileno()
 
-    def close(self):
-        m2.ssl_shutdown(self.ssl)
+    def __del__(self):
         try:
             m2.bio_free(self.sslbio)
             m2.bio_free(self.sockbio)
         except AttributeError:
             pass
         self.socket.close()
+
+    def close(self):
+        m2.ssl_shutdown(self.ssl)
 
     def set_shutdown(self, mode):
         m2.ssl_set_shutdown1(self.ssl, mode)
@@ -142,6 +145,12 @@ class Connection:
 
     def fileno(self):
         return self.socket.fileno()
+
+    def getsockopt(self, *args):
+        return apply(self.socket.getsockopt, args)
+
+    def setsockopt(self, *args):
+        return apply(self.socket.setsockopt, args)
 
     def get_context(self):
         """Return the SSL.Context object associated with this 

@@ -1,11 +1,11 @@
 """M2Crypto threading support. 
 
-Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: threading.py,v 1.1 1999/10/01 15:57:20 ngps Exp $'
+RCS_id='$Id: threading.py,v 1.2 2002/12/23 03:47:55 ngps Exp $'
 
-import M2Crypto
-m2=M2Crypto
+# M2Crypto
+import m2
 
 def init():
     m2.threading_init()

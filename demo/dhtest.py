@@ -2,9 +2,9 @@
 
 """DH demonstration.
 
-Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: dhtest.py,v 1.2 2000/11/26 08:27:24 ngps Exp $'
+RCS_id='$Id: dhtest.py,v 1.3 2002/12/23 04:06:35 ngps Exp $'
 
 from M2Crypto import DH, Rand
 

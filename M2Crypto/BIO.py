@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: BIO.py,v 1.7 2001/06/03 04:38:29 ngps Exp $'
+RCS_id='$Id: BIO.py,v 1.8 2002/12/23 03:47:21 ngps Exp $'
 
 import m2
 
@@ -46,7 +46,7 @@ class BIO:
             raise ValueError, 'read count is negative'
         return m2.bio_read(self.bio, size)
 
-    def readline(self, size=128):
+    def readline(self, size=256):
         if not self.readable():
             raise IOError, 'cannot read'
         buf = m2.bio_gets(self.bio, size)

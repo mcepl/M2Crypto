@@ -2,9 +2,11 @@
 
 """CipherSaber, http://ciphersaber.gurus.com.
 
-Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: CipherSaber.py,v 1.2 2000/11/26 09:25:40 ngps Exp $'
+RCS_id='$Id: CipherSaber.py,v 1.3 2002/12/23 04:10:49 ngps Exp $'
+
+# XXX getopt handling has bugs.
 
 from M2Crypto import RC4, Rand
 import getopt, getpass, sys
