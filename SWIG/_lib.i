@@ -1,16 +1,15 @@
 /* Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved. */
-/* $Id: _lib.i,v 1.1 2003/06/22 17:30:52 ngps Exp $ */
+/* $Id: _lib.i,v 1.2 2003/10/26 13:19:14 ngps Exp $ */
 
 %{
+#include <openssl/dh.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
+#include <openssl/rsa.h>
 #include <openssl/ssl.h>
 #include <ceval.h>
 
-/* Blob interface. This interface is presently deprecated in 
-favour of direct PyObject usage, but may be resurrected for
-CryptoMeme, the forthcoming (if ever!) multilingual (Python, 
-Ruby, MzScheme, etc.) crypto toolkit based on M2Crypto. */
+/* Blob interface. Deprecated. */
 
 Blob *blob_new(int len, const char *errmsg) {
     Blob *blob=(Blob *)malloc(sizeof(Blob));
@@ -124,18 +123,72 @@ void ssl_info_callback(const SSL *s, int where, int ret) {
     argv = Py_BuildValue("(iiO)", where, ret, _SSL);
     
     if (thread_mode) {
-        _save = (PyThreadState *)SSL_get_app_data(s);
+        _save = (PyThreadState *)SSL_get_app_data((SSL *)s);
         PyEval_RestoreThread(_save);
     }
     retval = PyEval_CallObject(ssl_info_cb_func, argv);
     if (thread_mode) {
         _save = PyEval_SaveThread();
-        SSL_set_app_data(s, _save);
+        SSL_set_app_data((SSL *)s, _save);
     }
 
     Py_XDECREF(retval);
     Py_XDECREF(argv);
     Py_XDECREF(_SSL);
+}
+
+DH *ssl_set_tmp_dh_callback(SSL *ssl, int is_export, int keylength) {
+    PyObject *argv, *ret, *_ssl;
+    DH *dh;
+    PyThreadState *_save;
+
+    _ssl = SWIG_NewPointerObj((void *)ssl, SWIGTYPE_p_SSL, 0);
+    argv = Py_BuildValue("(Oii)", _ssl, is_export, keylength);
+
+    if (thread_mode) {
+        _save = (PyThreadState *)SSL_get_app_data(ssl);
+        PyEval_RestoreThread(_save);
+    }
+    ret = PyEval_CallObject(ssl_set_tmp_dh_cb_func, argv);
+    if (thread_mode) {
+        _save = PyEval_SaveThread();
+        SSL_set_app_data(ssl, _save);
+    }
+
+    if ((SWIG_ConvertPtr(ret, (void **)&dh, SWIGTYPE_p_DH, SWIG_POINTER_EXCEPTION | 0)) == -1)
+      dh = NULL;
+    Py_XDECREF(ret);
+    Py_XDECREF(argv);
+    Py_XDECREF(_ssl);
+
+    return dh;
+}
+
+RSA *ssl_set_tmp_rsa_callback(SSL *ssl, int is_export, int keylength) {
+    PyObject *argv, *ret, *_ssl;
+    RSA *rsa;
+    PyThreadState *_save;
+
+    _ssl = SWIG_NewPointerObj((void *)ssl, SWIGTYPE_p_SSL, 0);
+    argv = Py_BuildValue("(Oii)", _ssl, is_export, keylength);
+
+    if (thread_mode) {
+        _save = (PyThreadState *)SSL_get_app_data(ssl);
+        PyEval_RestoreThread(_save);
+    }
+    ret = PyEval_CallObject(ssl_set_tmp_rsa_cb_func, argv);
+    if (thread_mode) {
+        _save = PyEval_SaveThread();
+        SSL_set_app_data(ssl, _save);
+    }
+
+    if ((SWIG_ConvertPtr(ret, (void **)&rsa, SWIGTYPE_p_RSA, SWIG_POINTER_EXCEPTION | 0)) == -1)
+      rsa = NULL;
+    Py_XDECREF(ret);
+    Py_XDECREF(argv);
+    Py_XDECREF(_ssl);
+
+    return rsa;
 }
 
 void gen_callback(int p, int n, void *arg) {
