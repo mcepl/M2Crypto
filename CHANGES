@@ -2,6 +2,9 @@
  Changes since 0.11
 --------------------
 - ZServerSSL with client certificate-based authentication rides again.
+- Created Makefile for Python 2.3.
+- Modified LICENCE: changed my name to the generic "the author" in the 
+  all-caps disclaimer paragraph.
 
 
  Changes since 0.10
