@@ -1,8 +1,8 @@
 """M2Crypto.SSL.Connection
 
-Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Connection.py,v 1.11 2003/06/30 06:14:34 ngps Exp $'
+RCS_id='$Id: Connection.py,v 1.12 2004/03/25 06:36:04 ngps Exp $'
 
 # Python
 import socket, sys
@@ -227,10 +227,14 @@ class Connection:
         return m2.ssl_set_cipher_list(self.ssl, cipher_list)
 
     def makefile(self, mode='rb', bufsize='ignored'):
+        r = 'r' in mode or '+' in mode
+        w = 'w' in mode or 'a' in mode or '+' in mode
+        b = 'b' in mode
+        m2mode = ['', 'r'][r] + ['', 'w'][w] + ['', 'b'][b]      
         # XXX Need to dup().
         bio = BIO.BIO(self.sslbio, _close_cb=self.close)
         BIO.bio_do_ssl_handshake(bio._ptr())
-        return BIO.IOBuffer(bio, mode)
+        return BIO.IOBuffer(bio, m2mode)
 
     def getsockname(self):
         return self.socket.getsockname()

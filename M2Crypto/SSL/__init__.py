@@ -1,8 +1,8 @@
 """M2Crypto SSL services.
 
-Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: __init__.py,v 1.2 2002/12/23 03:58:22 ngps Exp $'
+RCS_id='$Id: __init__.py,v 1.3 2004/03/25 06:36:50 ngps Exp $'
 
 # M2Crypto
 from M2Crypto import m2
