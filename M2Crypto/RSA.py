@@ -2,59 +2,62 @@
 
 """ Copyright (c) 1999 Ng Pheng Siong. All rights reserved. """
 
-RCS_id='$Id: RSA.py,v 1.2 1999/08/18 15:28:50 ngps Exp $'
+RCS_id='$Id: RSA.py,v 1.3 1999/09/12 14:29:53 ngps Exp $'
 
-from M2Crypto import rsa_init, rsa_new, rsa_free, rsa_size, \
-	rsa_get_e, rsa_get_n, rsa_set_e, rsa_set_n, \
-	rsa_public_encrypt, rsa_public_decrypt, \
-	rsa_private_encrypt, rsa_private_decrypt, \
-	rsa_read_pub_key, rsa_write_pub_key, rsa_read_key, \
-	no_padding, pkcs1_padding, sslv23_padding, pkcs1_oaep_padding
+import util
+import BIO
+import M2Crypto
+m2=M2Crypto
 
-rsa_init()
+m2.rsa_init()
+
+no_padding=m2.no_padding
+pkcs1_padding=m2.pkcs1_padding
+sslv23_padding=m2.sslv23_padding
+pkcs1_oaep_padding=m2.pkcs1_oaep_padding
 
 class RSA:
-	def __init__(self, this=rsa_new()):
+	def __init__(self, this=m2.rsa_new()):
 		self.this=this
 
 	def __del__(self):
-		rsa_free(self.this)
+		m2.rsa_free(self.this)
 
 	def __len__(self):
-		return rsa_size(self.this)
+		return m2.rsa_size(self.this)
 
 	def __getattr__(self, name):
 		if name=='e':
-			return int(rsa_get_e(self.this))
+			return m2.rsa_get_e(self.this)
 		elif name=='n':
-			return long(rsa_get_n(self.this))
+			return m2.rsa_get_n(self.this)
 		else:
 			raise AttributeError
 
 	def pub(self):
-		return rsa_get_e(self.this), rsa_get_n(self.this)
+		return m2.rsa_get_e(self.this), m2.rsa_get_n(self.this)
 
 	def public_encrypt(self, data, padding):
-		return rsa_public_encrypt(self.this, data, padding)
+		return m2.rsa_public_encrypt(self.this, data, padding)
 
 	def public_decrypt(self, data, padding):
-		return rsa_public_decrypt(self.this, data, padding)
+		return m2.rsa_public_decrypt(self.this, data, padding)
 
 	def private_encrypt(self, data, padding):
-		return rsa_private_encrypt(self.this, data, padding)
+		return m2.rsa_private_encrypt(self.this, data, padding)
 
 	def private_decrypt(self, data, padding):
-		return rsa_private_decrypt(self.this, data, padding)
+		return m2.rsa_private_decrypt(self.this, data, padding)
 
 	def save_pub_key(self, file):
-		return rsa_write_pub_key(self.this, file)
+		return m2.rsa_write_pub_key(self.this, file)
 
 class RSA_pub(RSA):
 	def __setattr__(self, name, value):
 		if name=='e':
-			return rsa_set_e(self.this, value)
+			return m2.rsa_set_e(self.this, value)
 		elif name=='n':
-			return rsa_set_n(self.this, value)
+			return m2.rsa_set_n(self.this, value)
 		else:
 			self.__dict__[name]=value
 		
@@ -65,35 +68,35 @@ class RSA_pub(RSA):
 		raise 'private key not available'
 
 	def save_key(self, file):
-		rsa_write_pub_key(self.this, file)
+		m2.rsa_write_pub_key(self.this, file)
 
 def new_pub_key(e, n):
 	r=RSA_pub()
-	r.e=str(e)
-	r.n=str(n)[:-1]
+	r.e=e
+	r.n=n
 	return r
 
 def load_pub_key(file):
-	f=open(file)
-	r=rsa_read_pub_key(f)
+	f=BIO.openfile(file)
+	r=m2.rsa_read_pub_key(f.bio)
 	f.close()
 	return RSA_pub(r)
 
-def passphrase_callback(v):
-	from getpass import getpass
-	while 1:
-		p1=getpass('Enter passphrase: ')
-		if v:
-			p2=getpass('Verify passphrase: ')
-			if p1==p2:
-				break
-		else:
-			break
-	return p1
-			
-def load_key(file, callback=passphrase_callback):
+def load_pub_key0(file):
 	f=open(file)
-	r=rsa_read_key(f, callback)
+	r=m2.rsa_read_pub_key(f)
+	f.close()
+	return RSA_pub(r)
+
+def load_key(file, callback=util.passphrase_callback):
+	f=BIO.openfile(file)
+	r=m2.rsa_read_key(f.bio_ptr(), callback)
+	f.close()
+	return RSA(r)
+
+def load_key0(file, callback=util.passphrase_callback):
+	f=open(file)
+	r=m2.rsa_read_key(f, callback)
 	f.close()
 	return RSA(r)
 
