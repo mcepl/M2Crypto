@@ -4,7 +4,7 @@
 
 Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: pgpstep.py,v 1.1 1999/12/22 15:43:32 ngps Exp $'
+RCS_id='$Id: pgpstep.py,v 1.2 2000/04/17 15:31:53 ngps Exp $'
 
 from M2Crypto import PGP, util
 import time
@@ -27,7 +27,7 @@ def desc_trust(pkt):
 
 def desc_userid(pkt):
     print 'packet = user_id'
-    print 'user_id =', pkt.userid
+    print 'user_id =', pkt.userid()
     print
 
 def desc_signature(pkt):
