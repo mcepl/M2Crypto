@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: EVP.py,v 1.8 2003/05/11 16:12:42 ngps Exp $'
+RCS_id='$Id: EVP.py,v 1.9 2003/10/26 13:16:52 ngps Exp $'
 
 import Err, util
 import m2
@@ -61,7 +61,7 @@ def hmac(key, data, algo='sha1'):
 
 
 class Cipher:
-    def __init__(self, alg, key, iv, op, key_as_bytes=0, d='md5', salt='', i=1):
+    def __init__(self, alg, key, iv, op, key_as_bytes=0, d='md5', salt='12345678', i=1):
         cipher = getattr(m2, alg)
         if not cipher:
             raise ValueError, ('unknown cipher', alg)
