@@ -5,7 +5,7 @@ using the saved SSL session id.
 
 Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: sess.py,v 1.1 2000/08/23 15:39:37 ngps Exp $'
+RCS_id='$Id: sess.py,v 1.2 2000/09/11 14:52:29 ngps Exp $'
 
 from M2Crypto import Err, Rand, SSL, X509, threading
 m2_threading = threading; del threading
@@ -24,13 +24,17 @@ def handler(sslctx, host, port, href, recurs=0, sslsess=None):
     else:
         s.connect((host, port))
         sslsess = s.get_session()
+    #print sslsess.as_text()
 
     if recurs:
         p = htmllib.HTMLParser(formatter.NullFormatter())
 
-    s.send(href)
+    f = s.makefile("rw")
+    f.write(href)
+    f.flush()
+
     while 1:
-        data = s.recv()
+        data = f.read()
         if not data:
             break
         if recurs:
@@ -39,13 +43,14 @@ def handler(sslctx, host, port, href, recurs=0, sslsess=None):
     if recurs:
         p.close()
 
-    s.close()
+    f.close()
 
     if recurs:
         for a in p.anchorlist:
             req = 'GET %s HTTP/1.0\r\n\r\n' % a
             thr = Thread(target=handler, 
                         args=(sslctx, host, port, req, recurs-1, sslsess))
+            print "Thread =", thr.getName()
             thr.start()
     
 
@@ -76,6 +81,7 @@ if __name__ == '__main__':
     req = 'GET %s HTTP/1.0\r\n\r\n' % req
 
     start = Thread(target=handler, args=(ctx, host, port, req, 1))
+    print "Thread =", start.getName()
     start.start()
     start.join()
     
