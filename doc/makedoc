@@ -1,0 +1,2 @@
+#!/bin/sh
+./mkhowto --split 4 --html install.tex
