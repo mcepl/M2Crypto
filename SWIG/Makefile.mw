@@ -1,4 +1,4 @@
-# $Id: Makefile.mw,v 1.3 2003/09/16 02:53:28 ngps Exp $
+# $Id: Makefile.mw,v 1.4 2004/03/27 09:44:52 ngps Exp $
 
 # Python
 PYFLAGS=-D__WIN32__ -DHAVE_CONFIG_H -Ic:/pkg/py23/include
@@ -16,7 +16,7 @@ LIBS=$(PYLIB) $(SSLLIB)
 SWIG=c:/pkg/swig/swig.exe
 SWIGFLAGS=-shadow -python #-verbose
 
-CP=copy
+CP=cp
 
 all:	swig
 
@@ -26,8 +26,8 @@ swig: _m2crypto.i
 	dllwrap --dllname __m2crypto.pyd --driver-name gcc \
             --def _m2crypto.def -o __m2crypto.pyd _m2crypto_wrap.o \
             -s --entry _DllMain@12 --target=i386-mingw32 $(LIBS)
-	copy _m2crypto.py ..\M2Crypto
-	copy __m2crypto.pyd ..\M2Crypto
+	$(CP) _m2crypto.py ..\M2Crypto
+	$(CP) __m2crypto.pyd ..\M2Crypto
 
 clean:
 	del *wrap* *.o *.dll *.exp *.ilk *.pdb *.lib _*.py *.pyc
