@@ -1,66 +1,82 @@
 """M2Crypto wrapper for OpenSSL BIO API.
 
-This is all a bit ad hoc and incoherent at the moment. Should
-class BIO be a mixin or a superclass?
-
 Copyright (c) 1999, 2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: BIO.py,v 1.5 2000/08/23 15:25:35 ngps Exp $'
+RCS_id='$Id: BIO.py,v 1.6 2000/11/08 14:36:16 ngps Exp $'
+
+# 5 Nov 00: Unit testing and refactoring in progress...
 
 import m2
 
 m2.bio_init()
 
 class BIO:
-    def __init__(self, bio, _pyfree=0):
-        self.bio = bio
-        self._pyfree = _pyfree
+
+    """Generic class wrapper for the BIO API."""
+
+    def __init__(self):
         self.closed = 0
+        self.write_closed = 0
 
     def __del__(self):
-        self.close()
-        if self._pyfree:
-            m2.bio_free(self.bio)
+        m2.bio_free(self.bio)
 
     def _ptr(self):
-        # Friends only, please.
         return self.bio
 
     # Deprecated.
     bio_ptr = _ptr
 
+    def fileno(self):
+        return m2.bio_get_fd(self.bio)
+
     def readable(self):
-        return 1
+        return not self.closed
 
     def read(self, size=4096):
         if not self.readable():
-            raise m2.Error("write-only") 
-        if self.closed or size <= 0:
+            raise IOError, 'cannot read'
+        if size == 0:
             return ''
-        try:
-            return m2.bio_read(self.bio, size)
-        except RuntimeError:
-            # XXX better error handling
+        elif size < 0:
+            raise ValueError, 'read count is negative'
+        return m2.bio_read(self.bio, size)
+
+    def readline(self, size=1024):
+        if not self.readable():
+            raise IOError, 'cannot read'
+        buf = m2.bio_gets(self.bio, size)
+        if buf is None:
             return ''
+        return buf
+
+    def readlines(self, sizehint='ignored'):
+        if not self.readable():
+            raise IOError, 'cannot read'
+        lines=[]
+        while 1:
+            buf=m2.bio_gets(self.bio, 1024)
+            if buf is None:
+                break
+            lines.append(buf)
+        return lines
 
     def writeable(self):
-        return 1
-
+        return (not self.closed) and (not self.write_closed)
+       
     def write(self, data):
         if not self.writeable():
-            raise m2.Error("read-only") 
-        if self.closed:
-            return 0
+            raise IOError, 'cannot write'
         return m2.bio_write(self.bio, data)
 
     def write_close(self):
-        pass
-
-    def reset(self):
-        m2.bio_reset(self.bio)
+        self.write_closed = 1
 
     def flush(self):
         m2.bio_flush(self.bio)
+
+    def reset(self):
+        raise NotImplementedError
 
     def close(self):
         self.closed = 1
@@ -68,9 +84,15 @@ class BIO:
 
 class MemoryBuffer(BIO):
 
-    """Object wrapper for BIO_s_mem."""
+    """Class wrapper for BIO_s_mem. 
+    
+    Empirical testing suggests that this class performs less well than cStringIO, 
+    because cStringIO is implemented in C, whereas this class is implemented in 
+    Python. Thus, the recommended practice is to use cStringIO for regular work and 
+    convert said cStringIO object to a MemoryBuffer object only when necessary."""
 
     def __init__(self, data=None):
+        BIO.__init__(self)
         self.bio = m2.bio_new(m2.bio_s_mem())
         self._pyfree = 1
         if data is not None:
@@ -80,6 +102,8 @@ class MemoryBuffer(BIO):
         return m2.bio_ctrl_pending(self.bio)
 
     def read(self, size=0):
+        if not self.readable():
+            raise IOError, 'cannot read'
         if size:
             return m2.bio_read(self.bio, size)
         else:
@@ -89,43 +113,47 @@ class MemoryBuffer(BIO):
     getvalue = read_all = read
 
     def write_close(self):
-        return m2.bio_set_mem_eof_return(self.bio, 0)
+        self.write_closed = 1
+        m2.bio_set_mem_eof_return(self.bio, 0)
 
 
 class File(BIO):
 
-    """Object wrapper for BIO_s_fp. This class is intended to interface Python
-    and OpenSSL functions that expect BIO *. For general file manipulation in
-    Python, use Python's file object."""
+    """Class wrapper for BIO_s_fp. 
+    
+    This class interfaces Python to OpenSSL functions that expect BIO *. For
+    general file manipulation in Python, use Python's builtin file object."""
 
-    def __init__(self, pyfile, close_flag=0):
+    def __init__(self, pyfile, close_pyfile=1):
+        BIO.__init__(self)
         self.pyfile = pyfile
-        self.close_flag = close_flag
-        self.bio=m2.bio_new_fp(pyfile, 0)
-        self._pyfree = 1
+        self.close_pyfile = close_pyfile
+        self.bio = m2.bio_new_fp(pyfile, 0)
 
-    def __del__(self):
-        m2.bio_free(self.bio)
-        self.pyfile.close()
+    def close(self):
+        self.closed = 1
+        if self.close_pyfile:
+            self.pyfile.close()
 
 def openfile(filename, mode='rb'):
-    return File(open(filename, mode), 1)
+    return File(open(filename, mode))
 
 
 class IOBuffer(BIO):
 
-    """Object wrapper for BIO_f_buffer. Its principal function is to
-    be BIO_push()'ed on top of a BIO_f_ssl, so that makefile() of
-    said underlying SSL socket works."""
+    """Class wrapper for BIO_f_buffer. 
+    
+    Its principal function is to be BIO_push()'ed on top of a BIO_f_ssl, so
+    that makefile() of said underlying SSL socket works."""
 
-    def __init__(self, bio_ptr, mode, _pyfree=1):
+    def __init__(self, bio_ptr, mode='rw', _pyfree=1):
+        BIO.__init__(self)
         self.io = m2.bio_new(m2.bio_f_buffer())
         self.bio = m2.bio_push(self.io, bio_ptr)
-        self.closed = 0
         if 'w' in mode:
-            self.can_write=1
+            self.write_closed = 0
         else:
-            self.can_write=0
+            self.write_closed = 1
         self._pyfree = _pyfree
 
     def __del__(self):
@@ -133,36 +161,13 @@ class IOBuffer(BIO):
             m2.bio_pop(self.bio)
             m2.bio_free(self.io)
 
-    def fileno(self):
-        # XXX Caller is not expected to expect to do anything useful with this.
-        return id(self)
-
-    def readline(self, size=80):
-        if self.closed:
-            return None
-        buf = m2.bio_gets(self.bio, size)
-        if buf is None:
-            return ''
-        return buf
-
-    def readlines(self, sizehint='ignored'):
-        if self.closed:
-            return []
-        lines=[]
-        while 1:
-            buf=m2.bio_gets(self.bio, 80)
-            if buf is None:
-                break
-            lines.append(buf)
-        return lines
-
-    def writeable(self):
-        return self.can_write
-
 
 class CipherFilter(BIO):
 
+    """Class wrapper for BIO_f_cipher."""
+
     def __init__(self, obio):
+        BIO.__init__(self)
         self.obio = obio
         self.bio = m2.bio_new(m2.bio_f_cipher())
         self.closed = 0
