@@ -1,0 +1,27 @@
+# $Id: Makefile.osx,v 1.1 2003/06/22 17:30:52 ngps Exp $
+
+CFLAGS	   = -DTHREADING -g -O2 -Xlinker -bind_at_load
+INCLUDE	   = -I/Users/richard/include -I.
+LIBS       = /Users/richard/lib/libssl.a /Users/richard/lib/libcrypto.a
+PYVER      = 2.1
+PYINCLUDE  = -DHAVE_CONFIG_H -I/Users/richard/include/python$(PYVER) \
+	-I/Users/richard/lib/python$(PYVER)/config
+PYLIB      = /Users/richard/lib/python$(PYVER)/config
+
+all:	__m2crypto.so
+
+_m2crypto_wrap.c: _m2crypto.i
+	/Users/richard/bin/swig -shadow -python _m2crypto.i
+
+_m2crypto_wrap.o: _m2crypto_wrap.c
+	cc -c -fPIC $(CFLAGS) $(INCLUDE) $(PYINCLUDE) _m2crypto_wrap.c
+
+__m2crypto.so: _m2crypto_wrap.o
+	cc -bundle -undefined suppress _m2crypto_wrap.o \
+		/Users/richard/lib/libssl.a /Users/richard/lib/libcrypto.a \
+		-lcc_dynamic -o __m2crypto.so 
+	cp __m2crypto.so ../M2Crypto
+
+clean:
+	rm -f *_wrap* *.o *.so _*.py *.pyc
+
