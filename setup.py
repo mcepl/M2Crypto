@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-"""A cheesy setup.py that bypasses SWIG and uses bundled versions of
-_m2crypto_wrap.c and _m2crypto.py.
+"""
+Distutils installer for M2Crypto.
 
 Copyright (c) 1999-2003, Ng Pheng Siong. All rights reserved.
 """
 
-_RCS_id = '$Id: setup.py,v 1.3 2002/12/26 04:11:01 ngps Exp $'
+_RCS_id = '$Id: setup.py,v 1.4 2002/12/29 12:53:57 ngps Exp $'
 
 import os, shutil
 from distutils.core import setup, Extension
@@ -19,33 +19,20 @@ if os.name == 'nt':
     include_dirs = [my_inc, openssl_dir + '/include']
     library_dirs = [openssl_dir + '\\lib']
     libraries = ['ssleay32', 'libeay32']
+    #libraries = ['ssleay32_bc', 'libeay32_bc']
 
 elif os.name == 'posix':
     include_dirs = [my_inc, '/usr/local/include']
     library_dirs = ['/usr/local/lib']
     libraries = ['ssl', 'crypto']
 
-
-## Copy the SWIG-generated .c file.
-#cfile = '_m2crypto_wrap.c'
-#src = 'swigout' + os.sep + cfile
-#dst = 'swig' + os.sep + cfile
-#shutil.copyfile(src, dst)
-#cfile = dst
-#
-## Copy the SWIG-generated .py file.
-#pyfile = '_m2crypto.py'
-#src = 'swigout' + os.sep + pyfile
-#dst = 'M2Crypto' + os.sep + pyfile
-#shutil.copyfile(src, dst)
-
 # Describe the module.
 m2crypto = Extension(name = '__m2crypto',
-                        sources = ['swig/_m2crypto.i'],
-                        include_dirs = include_dirs,
-                        library_dirs = library_dirs,
-                        libraries = libraries 
-                        )
+                     sources = ['swig/_m2crypto.i'],
+                     include_dirs = include_dirs,
+                     library_dirs = library_dirs,
+                     libraries = libraries 
+                     )
 
 setup(name = 'M2Crypto',
     version = '0.08',
