@@ -1,0 +1,10 @@
+    <para><ulink url="http://www.post1.com/home/ngps/m2">M2Crypto</ulink> is a
+    <ulink url="http://www.python.org">Python</ulink> interface to <ulink
+    url="http://www.openssl.org">OpenSSL</ulink>. It makes available to the
+    Python programmer SSL functionality to implement clients and servers,
+    HTTPS extensions to Python's HTTP functionality, FTP/TLS client and server
+    implementations, S/MIME v2, RSA, DSA, DH, symmetric ciphers, message
+    digests, HMACs and unforgeable HMAC'ing AuthCookies for web applications.
+    </para>
+
+    <!--$Id: m2_blurb.docbook,v 1.1 2003/06/22 16:41:19 ngps Exp $-->
