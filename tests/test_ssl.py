@@ -4,11 +4,10 @@
 
 Copyright (c) 2000-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: test_ssl.py,v 1.1 2001/07/22 08:24:32 ngps Exp $'
+RCS_id='$Id: test_ssl.py,v 1.2 2001/09/17 15:02:18 ngps Exp $'
 
-import cStringIO, os, socket, string, sys
-import tempfile, thread, time, unittest
-from M2Crypto import Rand, SSL, httpslib, m2urllib
+import os, socket, string, sys, tempfile, thread, time, unittest
+from M2Crypto import Rand, SSL
 
 srv_host = 'localhost'
 srv_port = 64000
@@ -20,52 +19,107 @@ class SSLClientTestCase(unittest.TestCase):
         if pid == 0:
             os.execvp('openssl', args)
         else:
-            time.sleep(0.1)
+            time.sleep(0.5)
             return pid
 
     def stop_server(self, pid):
         os.kill(pid, 1)
         os.waitpid(pid, 0)
 
+    def http_get(self, s):
+        s.send('GET / HTTP/1.0\n\n') 
+        resp = ''
+        while 1:
+            try:
+                r = s.recv(4096)
+                if not r:
+                    break
+            except SSL.SSLError: # s_server throws an 'unexpected eof'...
+                break
+            resp = resp + r 
+        return resp
+
     def setUp(self):
         self.srv_host = srv_host
         self.srv_port = srv_port
         self.srv_addr = (srv_host, srv_port)
         self.srv_url = 'https://%s:%s/' % (srv_host, srv_port)
+        self.args = ['s_server', '-quiet', '-www', '-accept', str(self.srv_port)]
 
     def tearDown(self):
         global srv_port
         srv_port = srv_port - 1
 
     def test_server_simple(self):
-        args = ['s_server', '-quiet', '-www', '-accept', str(self.srv_port)]
-        pid = self.start_server(args)
-        url = m2urllib.urlopen(self.srv_url)
-        data = url.read()
-        url.close()
+        pid = self.start_server(self.args)
+        ctx = SSL.Context()
+        s = SSL.Connection(ctx)
+        s.connect(self.srv_addr)
+        data = self.http_get(s)
+        s.close()
         self.stop_server(pid)
-        self.failIfEqual(data.find('s_server -quiet -www'), -1)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
     def test_tls1_nok(self):
-        args = ['s_server', '-quiet', '-www', '-no_tls1', '-accept', str(self.srv_port)]
-        pid = self.start_server(args)
+        self.args.append('-no_tls1')
+        pid = self.start_server(self.args)
         ctx = SSL.Context('tlsv1')
         s = SSL.Connection(ctx)
-        self.failUnlessRaises(SSL.SSLError, s.connect, self.srv_addr)
+        try:
+            s.connect(self.srv_addr)
+        except SSL.SSLError, e:
+            self.failUnless(e[0], 'wrong version number')
         s.close()
         self.stop_server(pid)
 
     def test_tls1_ok(self):
-        args = ['s_server', '-quiet', '-www', '-accept', str(self.srv_port)]
-        pid = self.start_server(args)
+        self.args.append('-tls1')
+        pid = self.start_server(self.args)
         ctx = SSL.Context('tlsv1')
-        h = httpslib.HTTPSConnection(srv_host, srv_port, ssl_context=ctx)
-        h.putrequest('GET', '/')
-        h.endheaders()
-        data = h.getresponse().read()
-        h.close()
+        s = SSL.Connection(ctx)
+        s.connect(self.srv_addr)
+        data = self.http_get(s)
+        s.close()
         self.stop_server(pid)
-        self.failIfEqual(data.find('s_server -quiet -www'), -1)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
+    def test_cipher_mismatch(self):
+        self.args = self.args + ['-cipher', 'EXP-RC4-MD5']
+        pid = self.start_server(self.args)
+        ctx = SSL.Context()
+        s = SSL.Connection(ctx)
+        s.set_cipher_list('EXP-RC2-CBC-MD5')
+        try:
+            s.connect(self.srv_addr)
+        except SSL.SSLError, e:
+            self.failUnless(e[0], 'sslv3 alert handshake failure')
+        s.close()
+        self.stop_server(pid)
+        
+    def test_no_such_cipher(self):
+        self.args = self.args + ['-cipher', 'EXP-RC4-MD5']
+        pid = self.start_server(self.args)
+        ctx = SSL.Context()
+        s = SSL.Connection(ctx)
+        s.set_cipher_list('EXP-RC2-MD5')
+        try:
+            s.connect(self.srv_addr)
+        except SSL.SSLError, e:
+            self.failUnless(e[0], 'no ciphers available')
+        s.close()
+        self.stop_server(pid)
+        
+    def test_cipher_ok(self):
+        self.args = self.args + ['-cipher', 'EXP-RC4-MD5']
+        pid = self.start_server(self.args)
+        ctx = SSL.Context()
+        s = SSL.Connection(ctx)
+        s.set_cipher_list('EXP-RC4-MD5')
+        s.connect(self.srv_addr)
+        data = self.http_get(s)
+        s.close()
+        self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
 
 def suite():
@@ -99,3 +153,24 @@ if __name__ == '__main__':
         zap_servers()
 
 
+"""
+Client tests:
+- server -verify
+- server -Verify
+- server -nbio
+- server -nbio_test
+- server -nocert
++ simple server test
++ server -cipher
++ server -tls1
++ server -no_tls1
+
+Server tests:
+- ???
+
+Others:
+- ssl_dispatcher
+- SSLServer
+- ForkingSSLServer
+- ThreadingSSLServer
+"""
