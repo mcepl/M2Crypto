@@ -4,7 +4,7 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: test_dh.py,v 1.1 2000/12/03 09:47:32 ngps Exp $'
+RCS_id='$Id: test_dh.py,v 1.2 2001/07/20 13:54:23 ngps Exp $'
 
 import unittest
 from M2Crypto import DH, BIO, Rand, m2
@@ -17,6 +17,9 @@ class DHTestCase(unittest.TestCase):
     def genparam_callback(self, *args):
         pass 
 
+    def genparam_callback2(self):
+        pass 
+
     def check_init_junk(self):
         self.assertRaises(TypeError, DH.DH, 'junk')
 
@@ -24,12 +27,16 @@ class DHTestCase(unittest.TestCase):
         a = DH.gen_params(128, 2, self.genparam_callback)
         assert a.check_params() == 0
 
+    def check_gen_params_bad_cb(self):
+        a = DH.gen_params(128, 2, self.genparam_callback2)
+        assert a.check_params() == 0
+
     def check_print_params(self):
         a = DH.gen_params(128, 2, self.genparam_callback)
         bio = BIO.MemoryBuffer()
         a.print_params(bio)
         params = bio.read()
-        if sys.version[:3] == '2.0':
+        if sys.version[:3] in ('2.0', '2.1'):
             assert params.find('(128 bit)')
             assert params.find('generator: 2 (0x2)')
         elif sys.version[:3] == '1.5': 
