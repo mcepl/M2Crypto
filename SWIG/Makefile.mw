@@ -1,4 +1,4 @@
-# $Id: Makefile.mw,v 1.1 2003/06/22 17:30:52 ngps Exp $
+# $Id: Makefile.mw,v 1.2 2003/09/15 16:21:44 ngps Exp $
 
 # Python
 PYFLAGS=-D__WIN32__ -DHAVE_CONFIG_H -Ic:/pkg/py22/include
@@ -22,7 +22,7 @@ all:	swig
 
 swig: _m2crypto.i
 	$(SWIG) $(SWIGFLAGS) _m2crypto.i
-	gcc -c -DTHREADING -g $(INCLUDE) _m2crypto_wrap.c
+	gcc -c -DTHREADING -g -I$(INCLUDE) _m2crypto_wrap.c
 	dllwrap --dllname __m2crypto.pyd --driver-name gcc \
             --def _m2crypto.def -o __m2crypto.pyd _m2crypto_wrap.o \
             -s --entry _DllMain@12 --target=i386-mingw32 $(LIBS)
