@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Context.py,v 1.6 2003/06/30 06:14:34 ngps Exp $'
+RCS_id='$Id: Context.py,v 1.7 2003/10/26 13:25:08 ngps Exp $'
 
 # M2Crypto
 import cb
@@ -151,6 +151,16 @@ class Context:
 
         'dhpfile'   - File object containing the PEM-encoded DH 
         parameters.
+        """
+        f = BIO.openfile(dhpfile)
+        dhp = m2.dh_read_parameters(f.bio_ptr())
+        m2.ssl_ctx_set_tmp_dh(self.ctx, dhp)
+
+    def set_tmp_rsa(self, rsafile):
+        """Load ephemeral RSA key into the context.
+
+        'rsafile'   - File object containing the PEM-encoded RSA
+        keypair.
         """
         f = BIO.openfile(dhpfile)
         dhp = m2.dh_read_parameters(f.bio_ptr())
