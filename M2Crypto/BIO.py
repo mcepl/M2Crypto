@@ -1,13 +1,13 @@
 """M2Crypto wrapper for OpenSSL BIO API.
 
-This is all a bit ad hoc and incoherent at the moment.
+This is all a bit ad hoc and incoherent at the moment. Should
+class BIO be a mixin or a superclass?
 
 Copyright (c) 1999, 2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: BIO.py,v 1.4 2000/04/17 16:13:11 ngps Exp $'
+RCS_id='$Id: BIO.py,v 1.5 2000/08/23 15:25:35 ngps Exp $'
 
-import M2Crypto
-m2=M2Crypto
+import m2
 
 m2.bio_init()
 
@@ -53,6 +53,9 @@ class BIO:
             return 0
         return m2.bio_write(self.bio, data)
 
+    def write_close(self):
+        pass
+
     def reset(self):
         m2.bio_reset(self.bio)
 
@@ -68,7 +71,6 @@ class MemoryBuffer(BIO):
     """Object wrapper for BIO_s_mem."""
 
     def __init__(self, data=None):
-        BIO.__init__(self, None)
         self.bio = m2.bio_new(m2.bio_s_mem())
         self._pyfree = 1
         if data is not None:
@@ -83,11 +85,11 @@ class MemoryBuffer(BIO):
         else:
             return m2.bio_read(self.bio, m2.bio_ctrl_pending(self.bio))
             
-    #def read_all(self):
-    #    return m2.bio_read(self.bio, m2.bio_ctrl_pending(self.bio))
-        
     # Backwards-compatibility.
     getvalue = read_all = read
+
+    def write_close(self):
+        return m2.bio_set_mem_eof_return(self.bio, 0)
 
 
 class File(BIO):
@@ -97,7 +99,6 @@ class File(BIO):
     Python, use Python's file object."""
 
     def __init__(self, pyfile, close_flag=0):
-        BIO.__init__(self, None)
         self.pyfile = pyfile
         self.close_flag = close_flag
         self.bio=m2.bio_new_fp(pyfile, 0)
@@ -157,4 +158,32 @@ class IOBuffer(BIO):
 
     def writeable(self):
         return self.can_write
+
+
+class CipherFilter(BIO):
+
+    def __init__(self, obio):
+        self.obio = obio
+        self.bio = m2.bio_new(m2.bio_f_cipher())
+        self.closed = 0
+
+    def __del__(self):
+        if not self.closed:
+            self.close()
+
+    def close(self):
+        m2.bio_pop(self.bio)
+        m2.bio_free(self.bio)
+        self.closed = 1
+        
+    def write_close(self):
+        self.obio.write_close()
+
+    def set_cipher(self, algo, key, iv, op):
+        cipher = getattr(m2, algo)
+        if not cipher:
+            raise ValueError, ('unknown cipher', algo)
+        m2.bio_set_cipher(self.bio, cipher(), key, iv, op) 
+        m2.bio_push(self.bio, self.obio._ptr())
+
 
