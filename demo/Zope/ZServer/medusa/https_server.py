@@ -2,14 +2,14 @@
 
 """A https server built on Medusa's http_server. 
 
-Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: https_server.py,v 1.6 2003/06/30 06:22:00 ngps Exp $'
+RCS_id='$Id: https_server.py,v 1.7 2004/03/21 15:23:41 ngps Exp $'
 
 import asynchat, asyncore, http_server, socket, sys
-from M2Crypto import SSL
+from M2Crypto import SSL, version
 
-VERSION_STRING='0.12'
+VERSION_STRING=version
 
 class https_channel(http_server.http_channel):
 

@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Copyright (c) 2000-2003, Ng Pheng Siong. All Rights Reserved.
+# Copyright (c) 2000-2004, Ng Pheng Siong. All Rights Reserved.
 # This file is derived from Zope's ZServer/HTTPServer.py.
 #
 # This software is subject to the provisions of the Zope Public License,
@@ -54,12 +54,12 @@ from ZServer import CONNECTION_LIMIT, ZOPE_VERSION
 from HTTPServer import zhttp_handler
 from zLOG import register_subsystem
 
-from M2Crypto import SSL
+from M2Crypto import SSL, version
 from medusa.https_server import https_server, https_channel
 from medusa.asyncore import dispatcher
 
 
-ZSERVER_SSL_VERSION='0.12'
+ZSERVER_SSL_VERSION=version
 
 register_subsystem('ZServer HTTPS_Server')
 
