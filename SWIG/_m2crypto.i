@@ -25,6 +25,7 @@ static int thread_mode = 0;
 %include _bio.i
 %include _rand.i
 %include _evp.i
+%include _aes.i
 %include _rc4.i
 %include _dh.i
 %include _rsa.i
