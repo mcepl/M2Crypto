@@ -1,0 +1,13 @@
+-------------
+ 03 Jun 2001
+-------------
+
+This directory contains contributions by users of M2Crypto. Some of these
+may get folded into the main distribution in time.
+
+
+- dispatcher.py by Ilya Etingof <ilya@glas.net>.
+
+- m2crypto.spec by Sean Reifschneider <jafo-rpms@tummy.com>.
+
+

@@ -1,0 +1,189 @@
+--- z2.py	Fri Mar  9 05:41:09 2001
++++ z2s.py	Thu May 17 21:35:10 2001
+@@ -173,6 +173,18 @@
+ 
+     Multiple -w options can be provided to run multiple servers.
+ 
++  -y port
++  
++    The SSL Web server (HTTPS) port.  This defaults to %(HTTPS_PORT)s. The
++    standard port for HTTPS services is 443.  If this is a dash
++    (e.g. -y -), then HTTPS is disabled.
++
++    The number can be preeceeded by an ip address follwed by a colon
++    to specify an address to listen on. This allows different servers
++    to listen on different addresses.
++
++    Multiple -y options can be provided to run multiple servers.
++
+   -W port
+   
+     The "WebDAV source" port.  If this is a dash (e.g. -w -), then
+@@ -186,6 +198,19 @@
+ 
+     Multiple -W options can be provided to run multiple servers.
+ 
++  -Y port
++  
++    The "WebDAV source over SSL" port.  If this is a dash (e.g. -Y -), then
++    "WebDAV source over SSL" is disabled.  The default is disabled.  Note that
++    this feature is a workaround for the lack of "source-link" support
++    in standard WebDAV clients.
++
++    The port can be preeceeded by an ip address follwed by a colon
++    to specify an address to listen on. This allows different servers
++    to listen on different addresses.
++
++    Multiple -Y options can be provided to run multiple servers.
++
+   -f port
+   
+     The FTP port.  If this is a dash (e.g. -f -), then FTP
+@@ -335,13 +360,23 @@
+ # Port for HTTP Server. The standard port for HTTP services is 80.
+ HTTP_PORT=8080
+ 
++# Port for HTTPS Server. The standard port for HTTP services is 443.
++HTTPS_PORT=8443
++
+ # HTTP enivornment settings.
+ HTTP_ENV={}
+ 
++# HTTPS enivornment settings.
++HTTPS_ENV={}
++
+ # Port for the special "WebDAV source view" HTTP handler.  There is no
+ # standard port for this handler, which is disabled by default.
+ WEBDAV_SOURCE_PORT=[]
+ 
++# Port for the special "WebDAV source view over SSL" HTTP handler.  There is no
++# standard port for this handler, which is disabled by default.
++WEBDAV_SSL_SOURCE_PORT=[]
++
+ ## FTP configuration
+ 
+ # Port for the FTP Server. The standard port for FTP services is 21.
+@@ -409,7 +444,7 @@
+         raise 'Invalid python version', string.split(sys.version)[0]
+ 
+     opts, args = getopt.getopt(sys.argv[1:],
+-                               'hz:Z:t:i:a:d:u:w:W:f:p:m:Sl:2DP:rF:L:XM:')
++                               'hz:Z:t:i:a:d:u:w:W:y:Y:f:p:m:Sl:2DP:rF:L:XM:')
+ 
+     DEBUG=0
+     READ_ONLY=0
+@@ -458,8 +493,12 @@
+             MONITOR_PORT=server_info(MONITOR_PORT, v)
+         elif o=='-w':
+             HTTP_PORT=server_info(HTTP_PORT, v)
++        elif o=='-y':
++            HTTPS_PORT=server_info(HTTPS_PORT, v)
+         elif o=='-W':
+             WEBDAV_SOURCE_PORT=server_info(WEBDAV_SOURCE_PORT, v)
++        elif o=='-Y':
++            WEBDAV_SSL_SOURCE_PORT=server_info(WEBDAV_SSL_SOURCE_PORT, v)
+         elif o=='-f':
+             FTP_PORT=server_info(FTP_PORT, v)
+         elif o=='-P':
+@@ -588,11 +627,14 @@
+     from ZServer import resolver, logger, asyncore
+ 
+     from ZServer import zhttp_server, zhttp_handler
++    from ZServer import zhttps_server, zhttps_handler
+     from ZServer.WebDAVSrcHandler import WebDAVSrcHandler
+     from ZServer import PCGIServer,FTPServer,FCGIServer
+ 
+     from ZServer import secure_monitor_server
+ 
++    from M2Crypto import SSL, Rand
++
+     ## ZServer startup
+     ##
+ 
+@@ -632,9 +674,41 @@
+             # from another web server to ZServer, and would like the CGI
+             # environment to reflect the CGI environment of the other web
+             # server.    
++            try:
++                del HTTP_ENV['HTTPS']
++            except KeyError:
++                pass
+             zh = zhttp_handler(MODULE, '', HTTP_ENV)
+             hs.install_handler(zh)
+ 
++    # HTTPS Server
++    if HTTPS_PORT:
++        ssl_ctx = SSL.Context('sslv23')
++        ssl_ctx.load_cert('%s/server.pem' % INSTANCE_HOME)
++        ssl_ctx.load_verify_location('%s/ca.pem' % INSTANCE_HOME)
++        ssl_ctx.load_client_CA('%s/ca.pem' % INSTANCE_HOME)
++        ssl_ctx.set_verify(SSL.verify_none, 10)
++        ssl_ctx.set_session_id_ctx(MODULE)
++        ssl_ctx.set_tmp_dh('%s/dh1024.pem' % INSTANCE_HOME)
++        if type(HTTPS_PORT) is type(0): HTTPS_PORT=((IP_ADDRESS, HTTPS_PORT),)
++    
++        for address, port in HTTPS_PORT:
++            hss = zhttps_server(
++                ip=address,
++                port=port,
++                ssl_ctx=ssl_ctx,
++                resolver=rs,
++                logger_object=lg)
++    
++            try:
++                del HTTPS_ENV['HTTP']
++            except KeyError:
++                pass
++            HTTPS_ENV['HTTPS']='ON'
++    
++            zsh = zhttp_handler(MODULE, '', HTTPS_ENV)
++            hss.install_handler(zsh)
++
+     # WebDAV source Server (runs HTTP, but munges request to return
+     #  'manage_FTPget').
+     if WEBDAV_SOURCE_PORT:
+@@ -660,6 +734,35 @@
+             zh = WebDAVSrcHandler(MODULE, '', HTTP_ENV)
+             hs.install_handler(zh)
+ 
++    # WebDAV-over-SSL source Server (runs HTTPS, but munges request to return
++    #  'manage_FTPget').
++    if WEBDAV_SSL_SOURCE_PORT:
++        ssl_ctx = SSL.Context('sslv23')
++        ssl_ctx.load_cert('%s/server.pem' % INSTANCE_HOME)
++        ssl_ctx.load_verify_location('%s/ca.pem' % INSTANCE_HOME)
++        ssl_ctx.load_client_CA('%s/ca.pem' % INSTANCE_HOME)
++        ssl_ctx.set_verify(SSL.verify_none, 10)
++        ssl_ctx.set_session_id_ctx(MODULE)
++        ssl_ctx.set_tmp_dh('%s/dh1024.pem' % INSTANCE_HOME)
++        if type(WEBDAV_SSL_SOURCE_PORT) is type(0):
++            WEBDAV_SSL_SOURCE_PORT=((IP_ADDRESS, WEBDAV_SSL_SOURCE_PORT),)
++        for address, port in WEBDAV_SSL_SOURCE_PORT:
++            hss = zhttps_server(
++                ip=address,
++                port=port,
++                ssl_ctx=ssl_ctx,
++                resolver=rs,
++                logger_object=lg)
++
++            try:
++                del HTTPS_ENV['HTTP']
++            except KeyError:
++                pass
++            HTTPS_ENV['HTTPS']='ON'
++
++            zsh = WebDAVSrcHandler(MODULE, '', HTTPS_ENV)
++            hss.install_handler(zsh)
++
+     # FTP Server
+     if FTP_PORT:
+         if type(FTP_PORT) is type(0): FTP_PORT=((IP_ADDRESS, FTP_PORT),)
+@@ -768,6 +871,8 @@
+     sys.exit(0)
+ 
+ # Start Medusa, Ye Hass!
++Rand.load_file('%s/randpool.dat' % INSTANCE_HOME, -1)
+ sys.ZServerExitCode=0
+ asyncore.loop()
++Rand.save_file('%s/randpool.dat' % INSTANCE_HOME)
+ sys.exit(sys.ZServerExitCode)
