@@ -4,12 +4,12 @@
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: https_server.py,v 1.2 2001/07/20 13:48:40 ngps Exp $'
+RCS_id='$Id: https_server.py,v 1.3 2001/09/19 13:38:00 ngps Exp $'
 
 import asynchat, asyncore, http_server, socket, sys
 from M2Crypto import SSL
 
-VERSION_STRING='0.06'
+VERSION_STRING='0.07'
 
 class https_channel(http_server.http_channel):
 
@@ -27,7 +27,7 @@ class https_channel(http_server.http_channel):
         except SSL.SSLError, why:
             self.close()
             self.log_info('send: closing channel %s %s' % (repr(self), why))
-            return ''
+            return 0
 
     def recv(self, buffer_size):
         try:
