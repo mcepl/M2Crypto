@@ -2,14 +2,14 @@
 
 """A https server built on Medusa's http_server. 
 
-Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: https_server.py,v 1.1 2002/12/23 05:56:33 ngps Exp $'
+RCS_id='$Id: https_server.py,v 1.2 2003/01/07 16:53:05 ngps Exp $'
 
 import asynchat, asyncore, http_server, socket, sys
 from M2Crypto import SSL
 
-VERSION_STRING='0.07'
+VERSION_STRING='0.09'
 
 class https_channel(http_server.http_channel):
 
@@ -72,10 +72,13 @@ class https_server(http_server.http_server):
             return
 
         # Turn the vanilla socket into an SSL connection.
-        ssl_conn=SSL.Connection(self.ssl_ctx, conn)
-        ssl_conn._setup_ssl(addr)
-        ssl_conn.accept_ssl()
-        self.channel_class(self, ssl_conn, addr)
+        try:
+            ssl_conn=SSL.Connection(self.ssl_ctx, conn)
+            ssl_conn._setup_ssl(addr)
+            ssl_conn.accept_ssl()
+            self.channel_class(self, ssl_conn, addr)
+        except SSL.SSLError:
+            pass
 
     def writeable(self):
         return 0

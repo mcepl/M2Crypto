@@ -1,8 +1,8 @@
 """An FTP/TLS server built on Medusa's ftp_server. 
 
-Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-_RCS_id='$Id: ftps_server.py,v 1.2 2002/12/23 04:30:45 ngps Exp $'
+_RCS_id='$Id: ftps_server.py,v 1.3 2003/01/07 16:55:58 ngps Exp $'
 
 # Python
 import socket, string, sys, time
@@ -14,7 +14,7 @@ import asynchat, asyncore, ftp_server, logger
 # M2Crypto
 from M2Crypto import SSL
 
-VERSION_STRING='0.07'
+VERSION_STRING='0.09'
 
 class ftp_tls_channel(ftp_server.ftp_channel):
     

@@ -1,15 +1,15 @@
 """M2Crypto enhancement to xmlrpclib.
 
-Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: m2xmlrpclib.py,v 1.5 2002/01/05 12:19:50 ngps Exp $'
+RCS_id='$Id: m2xmlrpclib.py,v 1.6 2003/01/07 16:47:03 ngps Exp $'
 
 import base64, string, sys
 
 from xmlrpclib import *
 import SSL, httpslib, m2urllib
 
-__version__='0.07'
+__version__='0.09'
 
 class SSL_Transport(Transport):
 

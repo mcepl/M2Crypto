@@ -17,16 +17,16 @@ if __name__ == "__main__":
     os.path.walk(start, zap, "/*.pyc")
 
     if os.name == 'nt':
-        zap_m2 = ("_m2cryptoc.dll", "_m2crypto.py")
+        zap_m2 = ("__m2cryptoc.pyd",)
     elif os.name == 'posix':
-        zap_m2 = ("__m2crypto.so", "_m2crypto.py")
+        zap_m2 = ("__m2crypto.so",)
     for x in zap_m2:
         try:
             os.remove("%s/M2Crypto/%s" % (start, x))
         except:
             pass
 
-    zap_swig = ("_m2crypto_wrap*", "_m2cryptoc.*", "_m2crypto.py", "vc60.pdb")
+    zap_swig = ("_m2crypto_wrap*", "_m2crypto.c", "_m2crypto.py", "vc60.pdb")
     for x in zap_swig:
         for z in glob.glob("%s/swig/%s" % (start, x)):
             try:
