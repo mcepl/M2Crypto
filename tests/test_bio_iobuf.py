@@ -1,10 +1,10 @@
-#!/usr/bin/env python2.0
+#!/usr/bin/env python
 
 """Unit tests for M2Crypto.BIO.IOBuffer.
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: test_bio_iobuf.py,v 1.1 2000/11/08 14:40:34 ngps Exp $'
+RCS_id='$Id: test_bio_iobuf.py,v 1.2 2002/12/23 04:57:32 ngps Exp $'
 
 from cStringIO import StringIO
 
@@ -23,34 +23,34 @@ class IOBufferTestCase(unittest.TestCase):
 
     def check_init_empty(self):
         mb = MemoryBuffer()
-        io = IOBuffer(mb._ptr())
+        io = IOBuffer(mb)
         out = io.read()
         assert out is None
 
     def check_init_something(self):
         mb = MemoryBuffer(self.data)
-        io = IOBuffer(mb._ptr())
+        io = IOBuffer(mb)
         out = io.read(len(self.data))
         assert out == self.data
 
     def check_read_less_than(self):
         chunk = len(self.data) - 7
         mb = MemoryBuffer(self.data)
-        io = IOBuffer(mb._ptr())
+        io = IOBuffer(mb)
         out = io.read(chunk)
         assert out == self.data[:chunk]
         
     def check_read_more_than(self):
         chunk = len(self.data) + 8
         mb = MemoryBuffer(self.data)
-        io = IOBuffer(mb._ptr())
+        io = IOBuffer(mb)
         out = io.read(chunk)
         assert out == self.data
 
     def check_readline(self):
         buf = StringIO()
         mb = MemoryBuffer(self.data)
-        io = IOBuffer(mb._ptr())
+        io = IOBuffer(mb)
         while 1:
             out = io.readline()
             if not out:
@@ -62,7 +62,7 @@ class IOBufferTestCase(unittest.TestCase):
     def check_readlines(self):
         buf = StringIO()
         mb = MemoryBuffer(self.data)
-        io = IOBuffer(mb._ptr())
+        io = IOBuffer(mb)
         lines = io.readlines()
         for line in lines:
             assert line == self._data
@@ -71,14 +71,14 @@ class IOBufferTestCase(unittest.TestCase):
 
     def check_closed(self):
         mb = MemoryBuffer(self.data)
-        io = IOBuffer(mb._ptr())
+        io = IOBuffer(mb)
         io.close()
         self.assertRaises(IOError, io.write, self.data)
         assert not io.readable() and not io.writeable()
 
     def check_read_only(self):
         mb = MemoryBuffer(self.data)
-        io = IOBuffer(mb._ptr(), mode='r')
+        io = IOBuffer(mb, mode='r')
         self.assertRaises(IOError, io.write, self.data)
         assert not io.writeable()
 

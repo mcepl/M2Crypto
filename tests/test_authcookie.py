@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: test_authcookie.py,v 1.1 2002/01/11 13:24:04 ngps Exp $'
+RCS_id='$Id: test_authcookie.py,v 1.2 2002/12/23 04:57:03 ngps Exp $'
 
 import Cookie, binascii, time, unittest
 from M2Crypto.AuthCookie import AuthCookie, AuthCookieJar, mix, unmix, unmix3
@@ -12,7 +12,7 @@ from M2Crypto import Rand, EVP
 
 class AuthCookieTestCase(unittest.TestCase):
 
-    _format = 'Set-Cookie: _M2AUTH_="exp=%s&data=%s&digest=%s"; secure;'
+    _format = 'Set-Cookie: _M2AUTH_="exp=%s&data=%s&digest=%s";'
     _token = '_M2AUTH_'
 
     def setUp(self):
@@ -101,7 +101,6 @@ class AuthCookieTestCase(unittest.TestCase):
         c = self.jar.makeCookie(t, self.data)
         s = Cookie.SmartCookie()
         s.load(c.output())
-        s[self._token]['secure'] = 1
         self.failIf(self.jar.isGoodCookieString(s.output()))
 
     def check_cookie_str_arbitrary_change(self):
@@ -110,7 +109,6 @@ class AuthCookieTestCase(unittest.TestCase):
         str = cout[:32] + 'this is bad' + cout[32:]
         s = Cookie.SmartCookie()
         s.load(str)
-        s[self._token]['secure'] = 1
         self.failIf(self.jar.isGoodCookieString(s.output()))
 
     def check_cookie_str_changed_exp(self):
@@ -119,7 +117,6 @@ class AuthCookieTestCase(unittest.TestCase):
         str = cout[:26] + '2' + cout[27:]
         s = Cookie.SmartCookie()
         s.load(str)
-        s[self._token]['secure'] = 1
         self.failIf(self.jar.isGoodCookieString(s.output()))
 
     def check_cookie_str_changed_data(self):
@@ -128,7 +125,6 @@ class AuthCookieTestCase(unittest.TestCase):
         str = cout[:36] + 'X' + cout[37:]
         s = Cookie.SmartCookie()
         s.load(str)
-        s[self._token]['secure'] = 1
         self.failIf(self.jar.isGoodCookieString(s.output()))
 
     def check_cookie_str_changed_mac(self):
@@ -137,7 +133,6 @@ class AuthCookieTestCase(unittest.TestCase):
         str = cout[:76] + 'X' + cout[77:]
         s = Cookie.SmartCookie()
         s.load(str)
-        s[self._token]['secure'] = 1
         self.failIf(self.jar.isGoodCookieString(s.output()))
 
 
