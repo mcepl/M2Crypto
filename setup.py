@@ -3,10 +3,10 @@
 """
 Distutils installer for M2Crypto.
 
-Copyright (c) 1999-2003, Ng Pheng Siong. All rights reserved.
+Copyright (c) 1999-2004, Ng Pheng Siong. All rights reserved.
 """
 
-_RCS_id = '$Id: setup.py,v 1.10 2003/10/26 17:58:59 ngps Exp $'
+_RCS_id = '$Id: setup.py,v 1.11 2004/03/21 10:18:27 ngps Exp $'
 
 import os, shutil
 from distutils.core import setup, Extension
