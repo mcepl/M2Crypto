@@ -4,29 +4,17 @@
 
 Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: echod-iterative.py,v 1.1 1999/09/12 09:25:08 ngps Exp $'
+RCS_id='$Id: echod-iterative.py,v 1.2 1999/10/01 16:13:02 ngps Exp $'
 
-import SocketServer
 from M2Crypto import SSL
+import echod_lib
 
-class ssl_echo_handler(SocketServer.BaseRequestHandler):
+class ssl_echo_handler(echod_lib.ssl_echo_handler):
+    buffer='Ye Olde One-At-A-Time Echo Servre\r\n'
 
-	buffer='Ye Olde One-At-A-Time Echo Servre\r\n'
-
-	def handle(self):
-		self.request.send(self.buffer)
-		while 1:
-			buf=self.request.recv(1024)
-			if not buf:
-				break
-			self.request.send(buf)	
-
-	def finish(self):
-		self.request.close()
 
 if __name__=='__main__':
-	ctx=SSL.Context('sslv23')
-	ctx.load_cert('server.pem')
-	s=SSL.SSLServer(('', 9999), ssl_echo_handler, ctx)
-	s.serve_forever()	
+    ctx=echod_lib.init_context('sslv23', 'server.pem', 'ca.pem', SSL.verify_peer)
+    s=SSL.SSLServer(('', 9999), ssl_echo_handler, ctx)
+    s.serve_forever()   
 
