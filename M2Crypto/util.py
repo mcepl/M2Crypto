@@ -1,12 +1,16 @@
 """M2Crypto utility routines.
 
-Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: util.py,v 1.4 2000/02/23 15:43:09 ngps Exp $'
+RCS_id='$Id: util.py,v 1.5 2002/12/23 03:42:04 ngps Exp $'
 
 import sys
-import M2Crypto
-m2 = M2Crypto
+import m2
+
+class UtilError(Exception): pass
+
+m2.util_init(UtilError)
+
 
 def h2b(s):
     import array, string
@@ -32,6 +36,18 @@ def pkcs7_pad(data, blklen):
     return data+chr(pad)*pad
 
 
+def octx_to_num(x):
+    v = 0L
+    lx = len(x)
+    for i in range(lx):
+        v = v + ord(x[i]) * (256L ** (lx-i-1))
+    return v
+
+def genparam_callback(p, n, out=sys.stdout):
+    ch = ['.','+','*','\n']
+    out.write(ch[p])
+    out.flush()
+
 def passphrase_callback(v, prompt1='Enter passphrase:', prompt2='Verify passphrase:'):
     from getpass import getpass
     while 1:
@@ -47,18 +63,4 @@ def passphrase_callback(v, prompt1='Enter passphrase:', prompt2='Verify passphra
             return None
     return p1
 
-
-def genparam_callback(p, n):
-    from sys import stdout
-    ch=['.','+','*','\n']
-    stdout.write(ch[p])
-    stdout.flush()
-
-
-def octx_to_num(x):
-    v = 0L
-    lx = len(x)
-    for i in range(lx):
-        v = v + ord(x[i]) * (256L ** (lx-i-1))
-    return v
 
