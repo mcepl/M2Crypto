@@ -5,6 +5,8 @@
 - Created Makefile for Python 2.3.
 - Modified LICENCE: changed my name to the generic "the author" in the 
   all-caps disclaimer paragraph.
+- Allow to save RSA key pair in the clear.
+- ZServerSSL for Zope 2.7.
 
 
  Changes since 0.10
