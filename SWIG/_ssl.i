@@ -1,5 +1,5 @@
 /* Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved. */
-/* $Id: _ssl.i,v 1.3 2003/06/30 06:17:42 ngps Exp $ */
+/* $Id: _ssl.i,v 1.4 2003/10/26 13:20:05 ngps Exp $ */
 
 %{
 #include <pythread.h>
@@ -14,6 +14,8 @@
 %apply Pointer NONNULL { SSL_CIPHER * };
 %apply Pointer NONNULL { STACK * };
 %apply Pointer NONNULL { BIO * };
+%apply Pointer NONNULL { DH * };
+%apply Pointer NONNULL { RSA * };
 %apply Pointer NONNULL { PyObject *pyfunc };
 
 %name(ssl_get_error) extern int SSL_get_error(SSL *, int);
@@ -211,8 +213,26 @@ void ssl_ctx_set_info_callback(SSL_CTX *ctx, PyObject *pyfunc) {
     SSL_CTX_set_info_callback(ctx, ssl_info_callback);
 }
 
-void ssl_ctx_set_tmp_dh(SSL_CTX *ctx, DH* dh) {
+long ssl_ctx_set_tmp_dh(SSL_CTX *ctx, DH* dh) {
     SSL_CTX_set_tmp_dh(ctx, dh);
+}
+
+void ssl_ctx_set_tmp_dh_callback(SSL_CTX *ctx,  PyObject *pyfunc) {
+    Py_XDECREF(ssl_set_tmp_dh_cb_func);
+    Py_INCREF(pyfunc);
+    ssl_set_tmp_dh_cb_func = pyfunc;
+    SSL_CTX_set_tmp_dh_callback(ctx, ssl_set_tmp_dh_callback);
+}
+
+long ssl_ctx_set_tmp_rsa(SSL_CTX *ctx, RSA* rsa) {
+    SSL_CTX_set_tmp_dh(ctx, rsa);
+}
+
+void ssl_ctx_set_tmp_rsa_callback(SSL_CTX *ctx,  PyObject *pyfunc) {
+    Py_XDECREF(ssl_set_tmp_rsa_cb_func);
+    Py_INCREF(pyfunc);
+    ssl_set_tmp_rsa_cb_func = pyfunc;
+    SSL_CTX_set_tmp_rsa_callback(ctx, ssl_set_tmp_rsa_callback);
 }
 
 int ssl_ctx_load_verify_locations(SSL_CTX *ctx, const char *cafile) {
