@@ -2,8 +2,9 @@
 
 Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: EVP.py,v 1.4 2000/02/25 15:29:03 ngps Exp $'
+RCS_id='$Id: EVP.py,v 1.5 2000/04/01 14:46:10 ngps Exp $'
 
+import util
 import M2Crypto
 m2 = M2Crypto
 
@@ -30,7 +31,7 @@ class MessageDigest:
 
 
 class HMAC:
-    def __init__(self, algo, key):
+    def __init__(self, key, algo='sha1'):
         md = getattr(m2, algo)
         if not md:
             raise ValueError, ('unknown algorithm', algo)
@@ -42,6 +43,9 @@ class HMAC:
         if self.ctx:
             m2.hmac_ctx_free(self.ctx)
 
+    def reset(self, key):
+        m2.hmac_init(self.ctx, key, self.md)
+
     def update(self, data):
         m2.hmac_update(self.ctx, data)
 
@@ -49,6 +53,12 @@ class HMAC:
         return m2.hmac_final(self.ctx)
     
     digest=final
+
+def hmac(key, data, algo='sha1'):
+    md = getattr(m2, algo)
+    if not md:
+        raise ValueError, ('unknown algorithm', algo)
+    return m2.hmac(key, data, md())
 
 
 class Cipher:
@@ -78,22 +88,38 @@ class Cipher:
 
 
 class PKey:
-    def __init__(self, md, pkey=None):
-        if pkey is None:
-            self.pkey = m2.pkey_new()
-        else:
+    def __init__(self, pkey=None, _pyfree=0, md='sha1'):
+        if pkey is not None:
             self.pkey = pkey
+            self._pyfree = _pyfree
+        else:
+            self.pkey = m2.pkey_new()
+            self._pyfree = 1
         mda = getattr(m2, md)
         if not mda:
             raise ValueError, ('unknown message digest', md)
         self.md = mda()
 
     def __del__(self):
-        m2.pkey_free(self.pkey)
+        if self._pyfree:
+            m2.pkey_free(self.pkey)
+
+    def _ptr(self):
+        return self.pkey
 
     def update(self, data):
         m2.sign_update(self.ctx, data)
 
     def final(self):
         return m2.sign_final(self.ctx, self.pkey)
+
+def load_key(file, callback=util.passphrase_callback):
+    bio = m2.bio_new_file(file, 'r')
+    if bio is None:
+        raise Err.get_error()
+    cptr = m2.pkey_read_pem(bio, callback)
+    m2.bio_free(bio)
+    if cptr is None:
+        raise Err.get_error()
+    return PKey(cptr, 1)
 
