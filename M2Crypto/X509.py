@@ -2,10 +2,10 @@
 
 Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: X509.py,v 1.6 2000/04/17 16:18:05 ngps Exp $'
+RCS_id='$Id: X509.py,v 1.7 2000/05/07 16:02:56 ngps Exp $'
 
 # M2Crypto
-import ASN1, BIO
+import ASN1, BIO, Err
 import M2Crypto 
 m2=M2Crypto
 
@@ -105,6 +105,12 @@ def load_cert(pemfile):
         raise Err.get_error()
     cptr = m2.x509_read_pem(bio)
     m2.bio_free(bio)
+    if cptr is None:
+        raise Err.get_error()
+    return X509(cptr, 1)
+
+def load_cert_bio(bio):
+    cptr = m2.x509_read_pem(bio._ptr())
     if cptr is None:
         raise Err.get_error()
     return X509(cptr, 1)

@@ -2,9 +2,9 @@
 
 Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: EVP.py,v 1.5 2000/04/01 14:46:10 ngps Exp $'
+RCS_id='$Id: EVP.py,v 1.6 2000/05/07 16:02:19 ngps Exp $'
 
-import util
+import Err, util
 import M2Crypto
 m2 = M2Crypto
 
@@ -123,3 +123,8 @@ def load_key(file, callback=util.passphrase_callback):
         raise Err.get_error()
     return PKey(cptr, 1)
 
+def load_key_bio(bio, callback=util.passphrase_callback):
+    cptr = m2.pkey_read_pem(bio._ptr(), callback)
+    if cptr is None:
+        raise Err.get_error()
+    return PKey(cptr, 1)
