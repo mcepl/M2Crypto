@@ -2,20 +2,27 @@
 
 """Demonstration of M2Crypto.xmlrpclib2.
 
-Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: xmlrpc_cli.py,v 1.2 2000/02/03 16:37:50 ngps Exp $'
+RCS_id='$Id: xmlrpc_cli.py,v 1.3 2001/06/01 12:57:02 ngps Exp $'
 
-from M2Crypto.xmlrpclib2 import Server, SSL_Transport
+from M2Crypto import Rand
+from M2Crypto.m2xmlrpclib import Server, SSL_Transport
 
-# XXX This works for Zope 2.0.x but not for Zope 2.1.x.
-# Server is Zope on ZServerSSL.
-#zs=Server('https://127.0.0.1:8443/QuickStart', SSL_Transport())
-#print zs.objectIds()
+def ZServerSSL():
+    # Server is Zope-2.3.0 on ZServerSSL.
+    zs = Server('https://127.0.0.1:9443/', SSL_Transport())
+    print zs.propertyMap()
 
-# Server is ../https/START.py.
-zs=Server('https://127.0.0.1:9443/RPC2', SSL_Transport())
-print zs.Testing(1, 2, 3)
-print zs.BringOn('SOAP')
+def xmlrpc_srv():
+    # Server is ../https/START_xmlrpc.py or ./xmlrpc_srv.py.
+    zs = Server('https://127.0.0.1:9443', SSL_Transport())
+    print zs.Testing(1, 2, 3)
+    print zs.BringOn('SOAP')
 
+if __name__ == '__main__':
+    Rand.load_file('../randpool.dat', -1)
+    #ZserverSSL()
+    xmlrpc_srv()
+    Rand.save_file('../randpool.dat')
 
