@@ -3,8 +3,8 @@
 ============================
 
 :Author: Ng Pheng Siong
-:Id: $Id: ZServerSSL-HOWTO,v 1.1 2003/06/22 17:40:13 ngps Exp $
-:Date: $Date: 2003/06/22 17:40:13 $
+:Id: $Id: ZServerSSL-HOWTO,v 1.2 2004/04/06 07:24:11 ngps Exp $
+:Date: $Date: 2004/04/06 07:24:11 $
 :Web-Site: http://www.post1.com/home/ngps/m2
 
 .. contents::
@@ -22,17 +22,17 @@ With the HTTPS server, ZServerSSL also provides WebDAV-over-HTTPS
 and XMLRPC-over-HTTPS access to Zope.
 
 These instructions apply to both Un*x and Windows installations of
-Zope 2.6.1. To avoid cluttering the presentation, Windows pathnames
+Zope 2.6.4. To avoid cluttering the presentation, Windows pathnames
 are shown in Un\*x fashion.
 
 
 Preparation
 -------------
 
-1. Download M2Crypto 0.11, contained in the file ``m2crypto-0.11.zip``.
+1. Download M2Crypto 0.13, contained in the file ``m2crypto-0.13.zip``.
 
-2. Unpack ``m2crypto-0.11.zip``. This will create a directory
-   ``m2crypto-0.11``. Henceforth, we refer to this directory as ``$M2``.
+2. Unpack ``m2crypto-0.13.zip``. This will create a directory
+   ``m2crypto-0.13``. Henceforth, we refer to this directory as ``$M2``.
 
 3. Install M2Crypto per the instructions in ``$M2/INSTALL``.
 
@@ -64,7 +64,7 @@ Below, we refer to your Zope top-level directory as ``$ZOPE``.
 5. Copy ``$ZSSL/ca.pem`` to ``$ZOPE``. This file contains an example
    Certification Authority (CA) certificate. For information on
    operating your own CA, see
-   http://www.post1.com/home/ngps/m2/howto.ca.html or one of numerous
+   http://sandbox.rulemaker.net/ngps/m2/howto.ca.html or one of numerous
    similar documents available on the web.
 
 6. Copy ``$ZSSL/server.pem`` to ``$ZOPE``. This file contains an RSA
@@ -83,7 +83,7 @@ Below, we refer to your Zope top-level directory as ``$ZOPE``.
        import asyncore
        from medusa import resolver, logger
        from HTTPServer import zhttp_server, zhttp_handler
-      +from HTTPS_Server import zhttps_server, zhttps_handler
+      +from HTTPS_Server import zhttps_server, zhttps0_handler, zhttps_handler
        from PCGIServer import PCGIServer
        from FCGIServer import FCGIServer
        from FTPServer import FTPServer
@@ -183,7 +183,7 @@ This testing is done with Mozilla 1.1 on FreeBSD.
 Python with M2Crypto 
 ~~~~~~~~~~~~~~~~~~~~~~
 
-This testing is done with M2Crypto 0.11 and Python 2.2.2 on FreeBSD.
+This testing is done with M2Crypto 0.13 and Python 2.2.2 on FreeBSD.
 
 HTTPS
 ```````
@@ -194,7 +194,7 @@ HTTPS
 >>> u = url.open('https://127.0.0.1:9443/')
 send: 'GET / HTTP/1.1\r\nHost: 127.0.0.1:9443\r\nAccept-Encoding: identity\r\nUser-agent: Python-urllib/1.15\r\nConnection: close\r\n\r\n'
 reply: 'HTTP/1.1 200 OK\r\n'
-header: Server: ZServerSSL/0.11
+header: Server: ZServerSSL/0.13
 header: Date: Sun, 22 Jun 2003 13:42:34 GMT
 header: Connection: close
 header: Content-Type: text/html
@@ -242,4 +242,4 @@ XMLRPC-over-HTTPS
 Conclusion
 ------------
 
-Well, it works! ;-)
+Yes, it works. ;-)
