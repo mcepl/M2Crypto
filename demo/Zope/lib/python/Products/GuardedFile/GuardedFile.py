@@ -1,11 +1,12 @@
 """GuardedFile.GuardedFile
 
-Copyright (c) 2000 Ng Pheng Siong. All rights reserved.
+Copyright (c) 2000-2003 Ng Pheng Siong. All rights reserved.
 This software is released under the ZPL. Usual disclaimers apply."""
 
-RCS_id = '$Id: GuardedFile.py,v 1.2 2002/12/23 05:34:05 ngps Exp $'
-__version__ = '$Revision: 1.2 $'[11:-2]
+RCS_id = '$Id: GuardedFile.py,v 1.3 2003/06/16 16:55:44 ngps Exp $'
+__version__ = '$Revision: 1.3 $'[11:-2]
 
+from AccessControl import getSecurityManager
 from Globals import HTMLFile, MessageDialog
 from OFS.Image import File, cookId
 
@@ -30,6 +31,8 @@ def manage_addGuardedFile(self, id, file, title='', precondition='', content_typ
     proxy_role = "proxy_for_%s" % id
     self._addRole(proxy_role)
     obj.manage_role(proxy_role, ['View'])
+    uname = getSecurityManager().getUser().getUserName()
+    self.manage_addLocalRoles(uname, (proxy_role,), REQUEST)
 
     # Feedback.
     if REQUEST: return MessageDialog(
@@ -46,5 +49,6 @@ class GuardedFile(File):
         """Delete self's proxy role."""
         role = "proxy_for_%s" % self.__name__
         container._delRoles([role], None)
+        self.manage_delLocalRoles(self.users_with_local_role(role))
  
 
