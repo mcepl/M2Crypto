@@ -1,8 +1,8 @@
 """M2Crypto wrapper for OpenSSL X509 API.
 
-Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved. """
+Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: X509.py,v 1.3 2000/02/23 15:42:18 ngps Exp $'
+RCS_id='$Id: X509.py,v 1.4 2000/02/25 15:21:36 ngps Exp $'
 
 # M2Crypto
 import ASN1, BIO
@@ -14,8 +14,13 @@ m2.x509_init()
 V_OK = m2.X509_V_OK
 
 class X509_Store_Context:
-    def __init__(self, x509_store_ctx):
+    def __init__(self, x509_store_ctx, _pyfree=0):
         self.ctx = x509_store_ctx
+        self._pyfree = _pyfree
+
+    #def __del__(self):
+    # XXX verify this method
+    #    m2.x509_store_ctx_cleanup(self.ctx)
 
 
 class X509_Name:
@@ -27,9 +32,14 @@ class X509_Name:
            'CN' : m2.NID_commonName,
            'Email' : m2.NID_pkcs9_emailAddress}
 
-    def __init__(self, x509_name):
+    def __init__(self, x509_name, _pyfree=0):
         assert x509_name is not None
         self.x509_name = x509_name
+        self._pyfree = _pyfree
+
+    def __del__(self):
+        if self._pyfree:
+            m2.x509_name_free(self.x509_name)
 
     def __str__(self):
         return m2.x509_name_oneline(self.x509_name)
@@ -42,9 +52,17 @@ class X509_Name:
 
 
 class X509:
-    def __init__(self, x509):
-        assert not x509 is None
-        self.x509=x509
+    def __init__(self, x509=None, _pyfree=0):
+        if x509 is not None:
+            self.x509 = x509
+            self._pyfree = _pyfree
+        else:
+            self.x509 = m2.x509_new()
+            self._pyfree = 1
+
+    def __del__(self):
+        if self._pyfree:
+            m2.x509_free(self.x509)
 
     def as_text(self):
         buf=BIO.MemoryBuffer()
@@ -84,7 +102,7 @@ def load_cert(pemfile):
     f.close()
     if cptr is None:
         raise Err.get_error()
-    return X509(cptr)
+    return X509(cptr, 1)
 
 
 class X509_Stack:
@@ -102,8 +120,17 @@ class X509_Stack:
 
 
 class Request:
-    def __init__(self, req):
-        self.req = req
+    def __init__(self, req=None, _pyfree=0):
+        if req is not None:
+            self.req = req
+            self._pyfree = _pyfree
+        else:
+            self.req = m2.x509_req_new()
+            self._pyfree = 1
+
+    def __del__(self):
+        if self._pyfree:
+            m2.x509_req_free(self.req)
 
     def as_text(self):
         buf=BIO.MemoryBuffer()
@@ -116,12 +143,21 @@ def load_request(pemfile):
     f.close()
     if cptr is None:
         raise Err.get_error()
-    return Request(cptr)
+    return Request(cptr, 1)
 
 
 class CRL:
-    def __init__(self, crl):
-        self.crl = crl
+    def __init__(self, crl=None, _pyfree=0):
+        if crl is not None:
+            self.crl = crl
+            self._pyfree = _pyfree
+        else:
+            self.crl = m2.x509_crl_new()
+            self._pyfree = 1
+
+    def __del__(self):
+        if self._pyfree:
+            m2.x509_crl_free(self.crl)
 
     def as_text(self):
         buf=BIO.MemoryBuffer()
@@ -134,6 +170,6 @@ def load_crl(pemfile):
     f.close()
     if cptr is None:
         raise Err.get_error()
-    return CRL(cptr)
+    return CRL(cptr, 1)
 
 
