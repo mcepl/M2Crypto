@@ -6,7 +6,7 @@ _m2crypto_wrap.c and _m2crypto.py.
 Copyright (c) 1999-2002, Ng Pheng Siong. All rights reserved.
 """
 
-_RCS_id = '$Id: setup.py,v 1.1 2002/03/05 13:45:30 ngps Exp $'
+_RCS_id = '$Id: setup.py,v 1.2 2002/03/05 15:06:21 ngps Exp $'
 
 import os, shutil
 from distutils.core import setup, Extension
@@ -15,10 +15,10 @@ from distutils.core import setup, Extension
 my_inc = 'swig'
 
 if os.name == 'nt':
-    openssl_dir = 'c:/openssl'
-    include_dirs = [my_inc, openssl_dir]
-    library_dirs = [openssl_dir]
-    libraries = ['ssl', 'crypto'] # What?
+    openssl_dir = 'c:/pkg/openssl'
+    include_dirs = [my_inc, openssl_dir + '/include']
+    library_dirs = [openssl_dir + '/lib']
+    libraries = ['libeay32', 'ssleay32']
 
 elif os.name == 'posix':
     include_dirs = [my_inc, '/usr/local/include']
