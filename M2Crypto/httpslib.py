@@ -1,36 +1,98 @@
-"""M2Crypto enhancement to Python's httplib.
+"""M2Crypto support for Python 1.5.2 and Python 2.0's httplib. 
 
-Copyright (c) 1999 Ng Pheng Siong. All rights reserved. """
+Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: httpslib.py,v 1.1 1999/09/12 14:33:33 ngps Exp $'
+RCS_id='$Id: httpslib.py,v 1.2 2000/11/29 15:20:47 ngps Exp $'
 
-import httplib
-import string
-
+import sys
+from httplib import *
 import SSL
 
-HTTPS_PORT=443
+if sys.version[:3] == '2.0':
 
-class HTTPS(httplib.HTTP):
-	def __init__(self, ssl_context, host='', port=None):
-		self.debuglevel=0
-		self.file=None
-		self.ssl_ctx=ssl_context
-		if host:
-			self.connect(host, port)
+    class HTTPSConnection(HTTPConnection):
+    
+        """
+        This class allows communication via SSL using M2Crypto.
+        """
+    
+        default_port = HTTPS_PORT
+    
+        def __init__(self, host, port=None, **ssl):
+            keys = ssl.keys()
+            try: 
+                keys.remove('key_file')
+            except ValueError:
+                pass
+            try:
+                keys.remove('cert_file')
+            except ValueError:
+                pass
+            try:
+                keys.remove('ssl_context')
+            except ValueError:
+                pass
+            if keys:
+                raise IllegalKeywordArgument()
+            try:
+                self.ssl_ctx = ssl['ssl_context']
+            except KeyError:
+                self.ssl_ctx = SSL.Context('sslv23')
+            HTTPConnection.__init__(self, host, port)
+    
+        def connect(self):
+            self.sock = SSL.Connection(self.ssl_ctx)
+            self.sock.connect((self.host, self.port))
+    
+        def close(self):
+            # This kludges around line 545 of httplib.py,
+            # which closes the connection in this object;
+            # the connection remains open in the response
+            # object.
+            #
+            # M2Crypto doesn't close-here-keep-open-there,
+            # so, in effect, we don't close until the whole 
+            # business is over and gc kicks in.
+            #
+            # Long-running callers beware leakage.
+            pass
 
-	def connect(self, host, port=443):
-		# Cribbed from httplib.HTTP.
-		if not port:
-			i = string.find(host, ':')
-			if i >= 0:
-				host, port = host[:i], host[i+1:]
-				try: port = string.atoi(port)
-				except string.atoi_error:
-					raise socket.error, "nonnumeric port"
-		if not port: port = HTTPS_PORT
-		self.sock = SSL.Connection(self.ssl_ctx)
-		if self.debuglevel > 0: print 'connect:', (host, port)
-		self.sock.connect((host, port))
+
+    class HTTPS(HTTP):
+        
+        _connection_class = HTTPSConnection
+    
+        def __init__(self, host='', port=None, **ssl):
+            HTTP.__init__(self, host, port)
+            try:
+                self.ssl_ctx = ssl['ssl_context']
+            except KeyError:
+                self.ssl_ctx = SSL.Context('sslv23')
+
+
+elif sys.version[:3] == '1.5':
+
+    class HTTPS(HTTP):
+    
+        def __init__(self, ssl_context, host='', port=None):
+            self.debuglevel=0
+            self.file=None
+            self.ssl_ctx=ssl_context
+            if host:
+                self.connect(host, port)
+    
+        def connect(self, host, port=None):
+            # Cribbed from httplib.HTTP.
+            if not port:
+                i = string.find(host, ':')
+                if i >= 0:
+                    host, port = host[:i], host[i+1:]
+                    try: port = string.atoi(port)
+                    except string.atoi_error:
+                        raise socket.error, "nonnumeric port"
+            if not port: port = HTTPS_PORT
+            self.sock = SSL.Connection(self.ssl_ctx)
+            if self.debuglevel > 0: print 'connect:', (host, port)
+            self.sock.connect((host, port))
 
 
