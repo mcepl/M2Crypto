@@ -12,7 +12,6 @@ import filesys
 import ftp_server
 import http_server
 import status_handler
-import xmlrpc_handler
 
 # M2Crypto
 import https_server
@@ -37,7 +36,7 @@ ssl_ctx.load_client_CA('ca.pem')
 ssl_ctx.set_verify(SSL.verify_none, 10)
 ssl_ctx.set_session_id_ctx('127.0.0.1:9443')
 ssl_ctx.set_tmp_dh('dh1024.pem')
-#ssl_ctx.set_info_callback()
+ssl_ctx.set_info_callback()
 
 hss=https_server.https_server('', HTTPS_PORT, ssl_ctx)
 
@@ -48,13 +47,13 @@ dh=default_handler.default_handler(fs)
 hs.install_handler(dh)
 hss.install_handler(dh)
 
-class rpc_demo (xmlrpc_handler.xmlrpc_handler):
-    def call (self, method, params):
-        print 'method="%s" params=%s' % (method, params)
-        return "Sure, that works"
-rpch = rpc_demo()
-hs.install_handler(rpch)
-hss.install_handler(rpch)
+#class rpc_demo (xmlrpc_handler.xmlrpc_handler):
+#    def call (self, method, params):
+#        print 'method="%s" params=%s' % (method, params)
+#        return "Sure, that works"
+#rpch = rpc_demo()
+#hs.install_handler(rpch)
+#hss.install_handler(rpch)
 
 ph=poison_handler.poison_handler(10)
 hs.install_handler(ph)

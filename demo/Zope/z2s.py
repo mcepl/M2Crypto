@@ -119,7 +119,7 @@ Options:
 
   -W port
 
-    The "WebDAV source" port.  If this is a dash (e.g. -w -), then
+    The "WebDAV source" port.  If this is a dash (e.g. -W -), then
     "WebDAV source" is disabled.  The default is disabled.  Note that
     this feature is a workaround for the lack of "source-link" support
     in standard WebDAV clients.
@@ -132,8 +132,8 @@ Options:
 
   -Y port
 
-    The "WebDAV source over SSL" port.  If this is a dash (e.g. -Y -), then
-    "WebDAV source over SSL" is disabled.  The default is disabled.  Note that
+    The "WebDAV source over HTTPS" port.  If this is a dash (e.g. -Y -), then
+    "WebDAV source over HTTPS" is disabled.  The default is disabled.  Note that
     this feature is a workaround for the lack of "source-link" support
     in standard WebDAV clients.
 
@@ -616,7 +616,11 @@ try:
         sys.__detailedlog=DL
 
     # Import Zope (or Main)
-    exec "import "+MODULE in {}
+    if MODULE == 'Zope':
+        import Zope
+        Zope.startup()
+    else:
+        exec "import "+MODULE in {}
 
     # Location of the ZServer log file. This file logs all ZServer activity.
     # You may wish to create different logs for different servers. See
@@ -984,7 +988,7 @@ try:
         raise
 
     # Check umask sanity if we're on posix.
-    if os.name == 'posix':
+    if os.name == 'posix' and not os.environ.get('Z_DEBUG_MODE'):
         # umask is silly, blame POSIX.  We have to set it to get its value.
         current_umask = os.umask(0)
         os.umask(current_umask)

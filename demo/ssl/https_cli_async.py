@@ -7,7 +7,7 @@ This isn't really a HTTPS client; it's just a toy.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: https_cli_async.py,v 1.2 2002/12/23 04:40:38 ngps Exp $'
+RCS_id='$Id: https_cli_async.py,v 1.3 2003/06/22 17:19:30 ngps Exp $'
 
 import asyncore, sys, time
 from M2Crypto import Rand, SSL
@@ -19,7 +19,7 @@ class https_client(SSL.ssl_dispatcher):
         self.path = path
         self.buffer = 'GET %s HTTP/1.0\r\n\r\n' % self.path
         self.create_socket(ssl_ctx)
-        self.socket.connect((host, 443))
+        self.socket.connect((host, 9443))
         self._can_read = 1
         self._count = 0
 
