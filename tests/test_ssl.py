@@ -2,7 +2,7 @@
 
 """Unit tests for M2Crypto.SSL.
 
-Copyright (c) 2000-2001 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 2000-2004 Ng Pheng Siong. All rights reserved."""
 
 RCS_id='$Id: test_ssl.py,v 1.2 2001/09/17 15:02:18 ngps Exp $'
 
@@ -68,7 +68,7 @@ class SSLClientTestCase(unittest.TestCase):
         try:
             s.connect(self.srv_addr)
         except SSL.SSLError, e:
-            self.failUnless(e[0], 'wrong version number')
+            self.failUnlessEqual(e[0], 'wrong version number')
         s.close()
         self.stop_server(pid)
 
@@ -83,6 +83,38 @@ class SSLClientTestCase(unittest.TestCase):
         self.stop_server(pid)
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
+    def test_sslv23_no_v2(self):
+        self.args.append('-no_tls1')
+        pid = self.start_server(self.args)
+        ctx = SSL.Context('sslv23')
+        s = SSL.Connection(ctx)
+        s.connect(self.srv_addr)
+        self.failUnlessEqual(s.get_version(), 'SSLv3')
+        s.close()
+        self.stop_server(pid)
+
+    def test_sslv23_no_v2_no_service(self):
+        self.args = self.args + ['-no_tls1', '-no_ssl3']
+        pid = self.start_server(self.args)
+        ctx = SSL.Context('sslv23')
+        s = SSL.Connection(ctx)
+        try:
+            s.connect(self.srv_addr)
+        except SSL.SSLError, e:
+            self.failUnlessEqual(e[0], 'unsupported protocol')
+        s.close()
+        self.stop_server(pid)
+
+    def test_sslv23_weak_crypto(self):
+        self.args = self.args + ['-no_tls1', '-no_ssl3']
+        pid = self.start_server(self.args)
+        ctx = SSL.Context('sslv23', weak_crypto=1)
+        s = SSL.Connection(ctx)
+        s.connect(self.srv_addr)
+        self.failUnlessEqual(s.get_version(), 'SSLv2')
+        s.close()
+        self.stop_server(pid)
+
     def test_cipher_mismatch(self):
         self.args = self.args + ['-cipher', 'EXP-RC4-MD5']
         pid = self.start_server(self.args)
@@ -92,7 +124,7 @@ class SSLClientTestCase(unittest.TestCase):
         try:
             s.connect(self.srv_addr)
         except SSL.SSLError, e:
-            self.failUnless(e[0], 'sslv3 alert handshake failure')
+            self.failUnlessEqual(e[0], 'sslv3 alert handshake failure')
         s.close()
         self.stop_server(pid)
         
@@ -105,9 +137,32 @@ class SSLClientTestCase(unittest.TestCase):
         try:
             s.connect(self.srv_addr)
         except SSL.SSLError, e:
-            self.failUnless(e[0], 'no ciphers available')
+            self.failUnlessEqual(e[0], 'no ciphers available')
         s.close()
         self.stop_server(pid)
+        
+    def test_no_weak_cipher(self):
+        self.args = self.args + ['-cipher', 'EXP']
+        pid = self.start_server(self.args)
+        ctx = SSL.Context()
+        s = SSL.Connection(ctx)
+        try:
+            s.connect(self.srv_addr)
+        except SSL.SSLError, e:
+            self.failUnlessEqual(e[0], 'sslv3 alert handshake failure')
+        s.close()
+        self.stop_server(pid)
+        
+    def test_use_weak_cipher(self):
+        self.args = self.args + ['-cipher', 'EXP']
+        pid = self.start_server(self.args)
+        ctx = SSL.Context(weak_crypto=1)
+        s = SSL.Connection(ctx)
+        s.connect(self.srv_addr)
+        data = self.http_get(s)
+        s.close()
+        self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
         
     def test_cipher_ok(self):
         self.args = self.args + ['-cipher', 'EXP-RC4-MD5']
