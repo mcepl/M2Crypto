@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: util.py,v 1.6 2004/03/25 06:35:20 ngps Exp $'
+RCS_id='$Id: util.py,v 1.7 2004/04/07 16:06:24 ngps Exp $'
 
 import sys
 import m2
@@ -59,4 +59,6 @@ def passphrase_callback(v, prompt1='Enter passphrase:', prompt2='Verify passphra
             return None
     return p1
 
+def no_passphrase_callback(*args):
+    return ''
 
