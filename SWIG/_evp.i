@@ -1,5 +1,5 @@
 /* Copyright (c) 1999 Ng Pheng Siong. All rights reserved. */
-/* $Id: _evp.i,v 1.2 2003/09/15 16:22:17 ngps Exp $ */
+/* $Id: _evp.i,v 1.3 2003/10/26 13:17:56 ngps Exp $ */
 
 %{
 #include <assert.h>
@@ -46,10 +46,12 @@
 %name(cast5_cbc) extern const EVP_CIPHER *EVP_cast5_cbc(void);
 %name(cast5_cfb) extern const EVP_CIPHER *EVP_cast5_cfb(void);
 %name(cast5_ofb) extern const EVP_CIPHER *EVP_cast5_ofb(void);
+/*
 %name(rc5_ecb) extern const EVP_CIPHER *EVP_rc5_32_12_16_ecb(void);
 %name(rc5_cbc) extern const EVP_CIPHER *EVP_rc5_32_12_16_cbc(void);
 %name(rc5_cfb) extern const EVP_CIPHER *EVP_rc5_32_12_16_cfb(void);
 %name(rc5_ofb) extern const EVP_CIPHER *EVP_rc5_32_12_16_ofb(void);
+*/
 %name(rc4) extern const EVP_CIPHER *EVP_rc4(void);
 %name(rc2_40_cbc) extern const EVP_CIPHER *EVP_rc2_40_cbc(void);
 %name(aes_128_ecb) extern const EVP_CIPHER *EVP_aes_128_ecb(void);
@@ -280,9 +282,9 @@ EVP_CIPHER_CTX *cipher_ctx_new(void) {
     EVP_CIPHER_CTX *ctx;
 
     if (!(ctx = (EVP_CIPHER_CTX *)PyMem_Malloc(sizeof(EVP_CIPHER_CTX)))) {
-        PyErr_SetString(PyExc_MemoryError, "hmac_ctx_new");
+        PyErr_SetString(PyExc_MemoryError, "cipher_ctx_new");
     }
-    EVP_CIPHER_CTX_init(ctx);
+    /* EVP_CIPHER_CTX_init(ctx); */
     return ctx;
 }
 
@@ -329,6 +331,7 @@ PyObject *bytes_to_key(const EVP_CIPHER *cipher, EVP_MD *md,
     ilen = PyString_Size(iv);
     ibuf = (const void *)PyString_AsString(iv);
 #endif
+    assert((slen == 8) || (slen == 0));
     if (!(key = PyMem_Malloc(cipher->key_len))) {
         PyErr_SetString(PyExc_MemoryError, "bytes_to_key");
         return NULL;
