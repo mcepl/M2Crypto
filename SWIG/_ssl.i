@@ -22,6 +22,7 @@
 %apply Pointer NONNULL { RSA * };
 %apply Pointer NONNULL { PyObject *pyfunc };
 
+%name(ssl_get_version) extern const char *SSL_get_version(SSL *);
 %name(ssl_get_error) extern int SSL_get_error(SSL *, int);
 %name(ssl_get_state) extern const char *SSL_state_string(const SSL *);
 %name(ssl_get_state_v) extern const char *SSL_state_string_long(const SSL *);
