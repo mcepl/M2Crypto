@@ -1,9 +1,13 @@
-# $Id: Makefile.py21,v 1.1 2003/06/22 17:30:52 ngps Exp $
+# $Id: Makefile.py21,v 1.2 2003/09/15 16:34:31 ngps Exp $
 
 CFLAGS	   = -DTHREADING -g
 INCLUDE	   = -I/usr/local/include -I.
 LIBS       = -L/usr/local/lib -lssl -lcrypto
-PYVER      = 2.1
+#if PYTHON_VERSION
+PYVER = $(PYTHON_VERSION)
+#else
+PYVER = 2.1
+#endif
 PYINCLUDE  = -DHAVE_CONFIG_H -I/usr/local/include/python$(PYVER) \
 	-I/usr/local/lib/python$(PYVER)/config
 PYLIB      = /usr/local/lib/python$(PYVER)/config
