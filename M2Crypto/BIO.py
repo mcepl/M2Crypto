@@ -1,8 +1,8 @@
 """M2Crypto wrapper for OpenSSL BIO API.
 
-Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: BIO.py,v 1.10 2004/03/21 12:23:26 ngps Exp $'
+RCS_id='$Id: BIO.py,v 1.11 2004/03/21 13:50:12 ngps Exp $'
 
 import m2
 from m2 import bio_do_handshake as bio_do_ssl_handshake
@@ -43,17 +43,17 @@ class BIO:
     def read(self, size=None):
         if not self.readable():
             raise IOError, 'cannot read'
-        if size == 0:
-            return ''
-        elif size < 0:
-            raise ValueError, 'read count is negative'
-        elif size is None:
+        if size is None:
             buf = StringIO()
             while 1:
                 data = m2.bio_read(self.bio, 4096)
                 if not data: break
                 buf.write(data)
             return buf.getvalue()
+        elif size == 0:
+            return ''
+        elif size < 0:
+            raise ValueError, 'read count is negative'
         else:
             return m2.bio_read(self.bio, size)
 
