@@ -1,6 +1,6 @@
 """Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Connection.py,v 1.1 2000/02/23 15:35:02 ngps Exp $'
+RCS_id='$Id: Connection.py,v 1.2 2000/04/01 14:57:02 ngps Exp $'
 
 # Python
 import socket, sys
@@ -36,6 +36,17 @@ class Connection:
     def listen(self, qlen=5):
         self.socket.listen(qlen)    
 
+    def _check_ssl_return(self, ret):
+        res = m2.ssl_get_error(self.ssl, ret)
+        if res == m2.ssl_error_none:
+            return 1
+        elif res == m2.ssl_error_zero_return:
+            return 0
+        elif res in [m2.ssl_error_want_read, m2.ssl_error_want_write]:
+            return -1
+        elif res in [m2.ssl_error_syscall, m2.ssl_error_ssl]:
+            raise Err.SSLError(Err.get_error_code(), self.socket.getpeername())
+
     def _setup_ssl(self, addr):
         self.addr=addr
         # Make a BIO_s_socket.
@@ -48,9 +59,8 @@ class Connection:
         m2.bio_set_ssl(self.sslbio, self.ssl, 1)
 
     def accept_ssl(self, addr):
-        ret = m2.ssl_accept(self.ssl) 
-        if not ret:
-            raise Err.SSLError(Err.get_error_code(), addr)
+        m2.ssl_accept(self.ssl)
+        #return self._check_ssl_return(m2.ssl_accept(self.ssl))
 
     def accept(self):
         sock, addr = self.socket.accept()
@@ -59,63 +69,34 @@ class Connection:
         ssl.accept_ssl(addr)
         return ssl, addr
 
-    def connect(self, addr):
+    def _old_connect(self, addr):
         self.socket.connect(addr)
         self._setup_ssl(addr)
         ret = m2.ssl_connect(self.ssl)
         if not ret:
             raise Err.SSLError(Err.get_error_code(), addr)
 
+    def connect(self, addr):
+        self.socket.connect(addr)
+        self._setup_ssl(addr)
+        return self._check_ssl_return(m2.ssl_connect(self.ssl))
+
     def shutdown(self, how):
         m2.ssl_set_shutdown(self.ssl, how)
 
     def _write_bio(self, data):
-        return m2.bio_write(self.sslbio, data)
+        return m2.ssl_write(self.ssl, data)
 
     def _read_bio(self, size=4096):
-        if size<=0:
+        if size <= 0:
             raise ValueError, 'size <= 0'
-        return m2.bio_read(self.sslbio, size)
+        return m2.ssl_read(self.ssl, size)
 
-    send = write =_write_bio
-    recv = read =_read_bio
-
-    def _write_nbio(self, data):
-        (n, err)=m2.ssl_write_nbio(self.ssl, data)
-        if n==-1:
-            if err==m2.ssl_error_zero_return:
-                return 0
-            elif err==m2.ssl_error_syscall:
-                raise Err.SSLError(n, self.socket.getpeername())
-            else:
-                return -1
-        else:
-            if n==0:    # In non-blocking SSL, this means 'try again'.
-                return -1
-            else:
-                return n
-
-    def _read_nbio(self, size=4096):
-        (n, blob, err)=m2.ssl_read_nbio(self.ssl, size)
-        if n==-1:
-            if err==m2.ssl_error_zero_return:
-                return ''
-            elif err in [m2.ssl_error_ssl, m2.ssl_error_syscall]:
-                m2.err_print_errors_fp(sys.stderr)
-                raise Err.SSLError(n, self.socket.getpeername())
-            else:
-                return None # XXX None is overloaded to mean 'try-again'.
-        else:
-            return blob
+    send = write = _write_nbio = _write_bio
+    recv = read  = _read_nbio  = _read_bio
 
     def setblocking(self, mode):
         self.socket.setblocking(mode)
-        if mode==0:
-            self.recv=self.read=self._read_nbio
-            self.send=self.write=self._write_nbio
-        else:
-            self.recv=self.read=self._read_bio
-            self.send=self.write=self._write_bio
 
     def fileno(self):
         return self.socket.fileno()
@@ -123,8 +104,8 @@ class Connection:
     def get_state(self):
         return m2.ssl_get_state(self.ssl)
 
-    def get_error(self, err):
-        return SSL_error[m2.ssl_get_error(self.ssl, err)]
+    #def get_error(self, err):
+    #    return SSL_error[m2.ssl_get_error(self.ssl, err)]
     
     def verify_ok(self):
         return (m2.ssl_get_verify_result(self.ssl) == m2.X509_V_OK)
@@ -136,35 +117,37 @@ class Connection:
         c=m2.ssl_get_peer_cert(self.ssl)
         if c is None:
             return None
-        return X509.X509(c)
+        # Need to free the pointer coz OpenSSL doesn't.
+        return X509.X509(c, 1)
     
     def get_peer_cert_chain(self):
         c=m2.ssl_get_peer_cert_chain(self.ssl)
         if c is None:
             return None
+        # No need to free the pointer coz OpenSSL does.
         return X509.X509_Stack(c)
     
     def get_cipher(self):
         c=m2.ssl_get_current_cipher(self.ssl)
         if c is None:
             return None
+        # XXX Need to free the pointer?
         return Cipher(c)
     
     def get_ciphers(self):
         c=m2.ssl_get_ciphers(self.ssl)
         if c is None:
             return None
+        # XXX Need to free the pointer?
         return Cipher_Stack(c)
 
     def _makefile(self, mode='r', bufsize=1024):
-        # XXX doesn't work
-        socket2 = self.socket.makefile(mode, bufsize)
-        sockbio = m2.bio_new_socket(socket2.fileno(), 1)
-        ssl = m2.ssl_dup(self.ssl)
-        m2.ssl_set_bio(ssl, sockbio, sockbio)
+        #sockbio = m2.bio_dup_chain(self.sockbio)
+        #ssl = m2.ssl_dup(self.ssl)
+        #m2.ssl_set_bio(ssl, sockbio, sockbio)
         sslbio = m2.bio_dup_chain(self.sslbio)
         #m2.bio_set_ssl(sslbio, ssl, 0)
-        m2.bio_push(sslbio, sockbio)
+        #m2.bio_push(sslbio, sockbio)
         return BIO.IOBuffer(sslbio, mode, bufsize)
 
     def makefile(self, mode='r', bufsize=1024):
@@ -174,4 +157,8 @@ class Connection:
     def getpeername(self):
         return self.socket.getpeername()
 
+    def set_session_id_ctx(self, id):
+        ret = m2.ssl_set_session_id_context(self.ssl, id)
+        if not ret:
+            raise Err.SSLError(Err.get_error_code(), '')
 
