@@ -128,6 +128,7 @@
 %constant int SSL_OP_NO_SSLv2             = 0x01000000L;
 %constant int SSL_OP_NO_SSLv3             = 0x02000000L;
 %constant int SSL_OP_NO_TLSv1             = 0x04000000L;
+%constant int SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS = 0x00000800L;
 
 %inline %{
 static PyObject *_ssl_err;
