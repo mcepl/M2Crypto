@@ -1,8 +1,8 @@
-"""M2Crypto support for Python 1.5.2 and Python 2.0's httplib. 
+"""M2Crypto support for Python 1.5.2 and Python 2.x's httplib. 
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: httpslib.py,v 1.4 2002/01/05 07:04:55 ngps Exp $'
+RCS_id='$Id: httpslib.py,v 1.5 2002/12/23 03:38:21 ngps Exp $'
 
 import string, sys
 from httplib import *
@@ -40,6 +40,7 @@ if sys.version[0] == '2':
                 raise IllegalKeywordArgument()
             try:
                 self.ssl_ctx = ssl['ssl_context']
+                assert isinstance(self.ssl_ctx, SSL.Context)
             except KeyError:
                 self.ssl_ctx = SSL.Context('sslv23')
             HTTPConnection.__init__(self, host, port)
@@ -83,6 +84,7 @@ elif sys.version[:3] == '1.5':
     class HTTPS(HTTP):
     
         def __init__(self, ssl_context, host='', port=None):
+            assert isinstance(ssl_context, SSL.Context)
             self.debuglevel=0
             self.file=None
             self.ssl_ctx=ssl_context
