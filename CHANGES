@@ -1,4 +1,21 @@
 
+ Changes since 0.10
+--------------------
+- Dave Berkeley <dave@rotwang.freeserve.co.uk> contributed fixes to
+  SSL.Context-related memory leaks and code to set the size of the SSL
+  session cache.
+- Brent Chun <bnc@intel-research.net> contributed the following:
+  + Fixes to memory leaks.
+  + Code to expose X.509 certificate chain operations.
+  + Code to expose set/get operations on the SSL session cache.
+- Changed swig/ to SWIG/, for the convenience of people who don't read
+  INSTALL. Some Makefiles may break because of this. setup.py continues
+  to work, of course.
+- ZServerSSL tested with Zope 2.6.1. There is now a HOWTO.
+- Updated README and INSTALL.
+- Filled doc/ with stuff that went missing in several past releases.
+
+
  Changes since 0.09
 --------------------
 - Updated to OpenSSL 0.9.7. Thanks to Toby Allsopp <toby@MI6.GEN.NZ> for
