@@ -1,8 +1,7 @@
-#!/usr/bin/env python
+""" M2Crypto utility routines.
+Copyright (c) 1999 Ng Pheng Siong. All rights reserved. """
 
-""" Copyright (c) 1999 Ng Pheng Siong. All rights reserved. """
-
-RCS_id='$Id: util.py,v 1.1 1999/08/19 15:44:17 ngps Exp $'
+RCS_id='$Id: util.py,v 1.2 1999/09/12 14:35:10 ngps Exp $'
 
 def h2b(s):
 	import array
@@ -24,4 +23,25 @@ def pkcs7_pad(data, blklen):
 		raise ValueError, 'illegal block size'
 	pad=(blklen-(len(data)%blklen))
 	return data+chr(pad)*pad
+
+def passphrase_callback(v):
+	from getpass import getpass
+	while 1:
+		p1=getpass('Enter passphrase: ')
+		if v:
+			p2=getpass('Verify passphrase: ')
+			if p1==p2:
+				break
+		else:
+			break
+	return p1
+
+def genparam_callback(p, n):
+	from sys import stdout
+	ch=['.','+','*','\n']
+	stdout.write(ch[p])
+	stdout.flush()
+
+def seval(expr):
+	return eval(expr, {'__builtins__':None}, {})
 
