@@ -1,8 +1,8 @@
 """M2Crypto = Python + OpenSSL + SWIG
 
-Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: __init__.py,v 1.5 2002/12/29 12:44:33 ngps Exp $'
+RCS_id='$Id: __init__.py,v 1.6 2004/03/25 06:33:09 ngps Exp $'
 
 import __m2crypto
 import BIO
@@ -24,5 +24,10 @@ encrypt=1
 decrypt=0
 
 __m2crypto.lib_init()
+
+import _version
+
+version = _version.version
+version_info = _version.version_info
 
 

@@ -1,6 +1,6 @@
 """M2Crypto Version Info"""
 
-RCS_id='$Id: _version.py,v 1.1 2004/03/21 13:47:44 ngps Exp $
+RCS_id='$Id: _version.py,v 1.2 2004/03/25 06:33:29 ngps Exp $'
 
 import string
 version_info = (0, 13)

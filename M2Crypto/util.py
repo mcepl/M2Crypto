@@ -1,8 +1,8 @@
 """M2Crypto utility routines.
 
-Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: util.py,v 1.5 2002/12/23 03:42:04 ngps Exp $'
+RCS_id='$Id: util.py,v 1.6 2004/03/25 06:35:20 ngps Exp $'
 
 import sys
 import m2
@@ -11,7 +11,6 @@ class UtilError(Exception): pass
 
 m2.util_init(UtilError)
 
-
 def h2b(s):
     import array, string
     ar=array.array('c')
@@ -19,22 +18,19 @@ def h2b(s):
     if s[:2]=='0x':
         start=2
     for i in range(start, len(s), 2):
-        num=string.atoi("0x%s"%(s[i:i+2],), 16)
+        num=string.atoi("%s"%(s[i:i+2],), 16)
         ar.append(chr(num))
     return ar.tostring()        
-
 
 def pkcs5_pad(data, blklen=8):
     pad=(8-(len(data)%8))
     return data+chr(pad)*pad
-
 
 def pkcs7_pad(data, blklen):
     if blklen>255:
         raise ValueError, 'illegal block size'
     pad=(blklen-(len(data)%blklen))
     return data+chr(pad)*pad
-
 
 def octx_to_num(x):
     v = 0L

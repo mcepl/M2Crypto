@@ -1,5 +1,5 @@
 /* Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved. */
-/* $Id: _lib.i,v 1.3 2004/03/21 12:35:24 ngps Exp $ */
+/* $Id: _lib.i,v 1.4 2004/03/25 06:37:33 ngps Exp $ */
 
 %{
 #include <openssl/dh.h>
@@ -42,35 +42,6 @@ void blob_free(Blob *blob) {
 }
 
 
-/* Bignum routines that aren't not numerous enough to 
-warrant a separate file. */
-
-PyObject *bn_to_mpi(BIGNUM *bn) {
-    int len;
-    unsigned char *mpi;
-    PyObject *pyo;  
-
-    len = BN_bn2mpi(bn, NULL);
-    if ((mpi=(unsigned char *)malloc(len))==NULL) {
-        PyErr_SetString(PyExc_RuntimeError, 
-            ERR_error_string(ERR_get_error(), NULL));
-        return NULL;
-    }
-    len=BN_bn2mpi(bn, mpi);
-    pyo=PyString_FromStringAndSize((const char *)mpi, len);
-    free(mpi);
-    return pyo;
-}
-
-BIGNUM *mpi_to_bn(Blob *mpi) {
-    return BN_mpi2bn(mpi->data, mpi->len, NULL);
-}
-
-BIGNUM *bin_to_bn(Blob *bin) {
-    return BN_bin2bn(bin->data, bin->len, NULL);
-}
-
-
 /* C callbacks invoked by OpenSSL; these in turn call back into 
 Python. */
 
@@ -103,7 +74,6 @@ int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
         SSL_set_app_data(ssl, _save);
     }
 
-    /* XXX if the callback raised a Python exception, what is ret? */
     cret = (int)PyInt_AsLong(ret);
     Py_XDECREF(ret);
     Py_XDECREF(argv);
@@ -231,6 +201,134 @@ int passphrase_callback(char *buf, int num, int v, void *arg) {
 void lib_init() {
     SSLeay_add_all_algorithms();
     ERR_load_ERR_strings();
+}
+
+/* Bignum routines that aren't not numerous enough to 
+warrant a separate file. */
+
+PyObject *bn_to_mpi(BIGNUM *bn) {
+    int len;
+    unsigned char *mpi;
+    PyObject *pyo;  
+
+    len = BN_bn2mpi(bn, NULL);
+    if ((mpi=(unsigned char *)malloc(len))==NULL) {
+        PyErr_SetString(PyExc_RuntimeError, 
+            ERR_error_string(ERR_get_error(), NULL));
+        return NULL;
+    }
+    len=BN_bn2mpi(bn, mpi);
+    pyo=PyString_FromStringAndSize((const char *)mpi, len);
+    free(mpi);
+    return pyo;
+}
+
+BIGNUM *mpi_to_bn(PyObject *value) {
+    const void *vbuf;
+    int vlen;
+
+#if PYTHON_API_VERSION >= 1009
+    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+        return NULL;
+#else /* assume PYTHON_API_VERSION == 1007 */
+    if (!PyString_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "expected a string object");
+        return NULL;
+    }
+    vlen = PyString_Size(value);
+    vbuf = (const void *)PyString_AsString(value);
+#endif
+    return BN_mpi2bn(vbuf, vlen, NULL);
+}
+
+PyObject *bn_to_bin(BIGNUM *bn) {
+    int len;
+    unsigned char *bin;
+    PyObject *pyo;  
+
+    len = BN_num_bytes(bn);
+    if ((bin=(unsigned char *)malloc(len))==NULL) {
+      PyErr_SetString(PyExc_MemoryError, "Cannot malloc buffer for conversion.");
+      return NULL;
+    }
+    BN_bn2bin(bn, bin);
+    pyo=PyString_FromStringAndSize((const char *)bin, len);
+    free(bin);
+    return pyo;
+}
+
+BIGNUM *bin_to_bn(PyObject *value) {
+    const void *vbuf;
+    int vlen;
+
+#if PYTHON_API_VERSION >= 1009
+    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+        return NULL;
+#else /* assume PYTHON_API_VERSION == 1007 */
+    if (!PyString_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "expected a string object");
+        return NULL;
+    }
+    vlen = PyString_Size(value);
+    vbuf = (const void *)PyString_AsString(value);
+#endif
+    return BN_bin2bn(vbuf, vlen, NULL);
+}
+
+BIGNUM *hex_to_bn(PyObject *value) {
+    const void *vbuf;
+    int vlen;
+    BIGNUM *bn;
+
+#if PYTHON_API_VERSION >= 1009
+    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+        return NULL;
+#else /* assume PYTHON_API_VERSION == 1007 */
+    if (!PyString_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "expected a string object");
+        return NULL;
+    }
+    vbuf = (const void *)PyString_AsString(value);
+#endif
+    if ((bn=BN_new())==NULL) {
+      PyErr_SetString(PyExc_MemoryError, "Unable to malloc a BIGNUM.");
+      return NULL;
+    }
+    if ((BN_hex2bn(&bn, (const char *)vbuf) <= 0)) {
+      PyErr_SetString(PyExc_RuntimeError, 
+            ERR_error_string(ERR_get_error(), NULL));
+      free(bn);
+      return NULL;
+    }
+    return bn;
+}
+
+BIGNUM *dec_to_bn(PyObject *value) {
+    const void *vbuf;
+    int vlen;
+    BIGNUM *bn;
+
+#if PYTHON_API_VERSION >= 1009
+    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+        return NULL;
+#else /* assume PYTHON_API_VERSION == 1007 */
+    if (!PyString_Check(value)) {
+        PyErr_SetString(PyExc_TypeError, "expected a string object");
+        return NULL;
+    }
+    vbuf = (const void *)PyString_AsString(value);
+#endif
+    if ((bn=BN_new())==NULL) {
+      PyErr_SetString(PyExc_MemoryError, "Unable to malloc a BIGNUM.");
+      return NULL;
+    }
+    if ((BN_dec2bn(&bn, (const char *)vbuf) <= 0)) {
+      PyErr_SetString(PyExc_RuntimeError, 
+            ERR_error_string(ERR_get_error(), NULL));
+      free(bn);
+      return NULL;
+    }
+    return bn;
 }
 %}
 

@@ -1,8 +1,8 @@
 """M2Crypto support for Python 1.5.2 and Python 2.x's httplib. 
 
-Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: httpslib.py,v 1.8 2004/03/21 12:29:17 ngps Exp $'
+RCS_id='$Id: httpslib.py,v 1.9 2004/03/25 06:35:20 ngps Exp $'
 
 import string, sys
 from httplib import *
