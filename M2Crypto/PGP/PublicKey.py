@@ -2,7 +2,7 @@
 
 Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: PublicKey.py,v 1.1 1999/12/22 15:52:22 ngps Exp $'
+RCS_id='$Id: PublicKey.py,v 1.2 2000/11/26 09:51:21 ngps Exp $'
 
 
 from constants import *
@@ -12,7 +12,7 @@ import RSA
 class PublicKey:
     def __init__(self, pubkey_pkt):
         self._pubkey_pkt = pubkey_pkt
-        self._pubkey = RSA.new_pub_key(pubkey_pkt._e, pubkey_pkt._n)
+        self._pubkey = RSA.new_pub_key((pubkey_pkt._e, pubkey_pkt._n))
         self._userid = {}
         self._signature = {}
 
