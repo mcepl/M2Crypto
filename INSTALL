@@ -3,8 +3,8 @@
 ==========================
 
 :Author: Ng Pheng Siong
-:Id: $Id: INSTALL,v 1.12 2004/03/25 08:48:40 ngps Exp $
-:Date: $Date: 2004/03/25 08:48:40 $
+:Id: $Id: INSTALL,v 1.13 2004/03/28 14:39:03 ngps Exp $
+:Date: $Date: 2004/03/28 14:39:03 $
 :Web-Site: http://sandbox.rulemaker.net/ngps/m2
 
 .. contents::
@@ -171,9 +171,9 @@ Building on Mac OS X
 Larry Bugbee has kindly updated the instructions for Mac OS X 10.2:
 
 0. MacOSX 10.2 comes with OpenSSL 0.9.6x and installing a current version
-can lead to incompatabilities between Apache and other apps depending
-on 0.9.6.  I am not ready for the hassle to rebuild Apache and all the
-other dependencies, so I built OpenSSL 0.9.7c in /usr/local with::
+   can lead to incompatabilities between Apache and other apps depending
+   on 0.9.6.  I am not ready for the hassle to rebuild Apache and all the
+   other dependencies, so I built OpenSSL 0.9.7c in /usr/local with::
 
     ./config --prefix=/usr/local --openssldir=/usr/local/openssl
     make
@@ -182,10 +182,10 @@ other dependencies, so I built OpenSSL 0.9.7c in /usr/local with::
 1. ``cd swig``
 
 2. Check the path to the version of OpenSSL you want for M2Crypto. If
-you decided to install a newer OpenSSL in /usr/local and not use
-Apple's pre-installed version, the path in 'Makefile.osx' is ready to go.
+   you decided to install a newer OpenSSL in /usr/local and not use
+   Apple's pre-installed version, the path in 'Makefile.osx' is ready to go.
 
-3. make -f Makefile.osx
+3. ``make -f Makefile.osx``
 
 4. ``cd ..``
 
