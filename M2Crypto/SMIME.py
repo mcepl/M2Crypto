@@ -2,7 +2,7 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: SMIME.py,v 1.2 2000/04/17 16:17:21 ngps Exp $'
+RCS_id='$Id: SMIME.py,v 1.3 2000/05/07 16:01:40 ngps Exp $'
 
 import BIO, EVP, X509, Err
 import M2Crypto
@@ -97,6 +97,12 @@ class SMIME:
             certfile = keyfile
         self.pkey = EVP.load_key(keyfile)
         self.x509 = X509.load_cert(certfile)
+
+    def load_key_bio(self, keybio, certbio=None):
+        if certbio is None:
+            certbio = keybio
+        self.pkey = EVP.load_key_bio(keybio)
+        self.x509 = X509.load_cert_bio(certbio)
 
     def set_x509_stack(self, stack):
         assert isinstance(stack, X509.X509_Stack)
