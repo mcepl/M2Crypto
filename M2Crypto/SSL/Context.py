@@ -1,11 +1,10 @@
 """Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Context.py,v 1.2 2000/04/01 14:59:09 ngps Exp $'
+RCS_id='$Id: Context.py,v 1.3 2000/08/23 15:35:24 ngps Exp $'
 
 # M2Crypto
 import cb
-from M2Crypto import util, BIO, M2Crypto
-m2 = M2Crypto
+from M2Crypto import util, BIO, Err, m2
 
 class _ctxmap:
     singleton = None
@@ -87,4 +86,13 @@ class Context:
 
     def set_info_callback(self, callback=cb.ssl_info_callback):
         m2.ssl_ctx_set_info_callback(self.ctx, callback) 
+
+    def set_cipher_list(self, cipher_list):
+        return m2.ssl_ctx_set_cipher_list(self.ctx, cipher_list)
+
+    def add_session(self, session):
+        return m2.ssl_ctx_add_session(self.ctx, session._ptr())
+
+    def remove_session(self, session):
+        return m2.ssl_ctx_remove_session(self.ctx, session._ptr())
 
