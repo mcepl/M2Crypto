@@ -5,9 +5,9 @@ is blocking. (Need fix?)
 
 This isn't really a HTTPS client; it's just a toy.
 
-Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: https_cli_async.py,v 1.1 2001/06/03 04:23:19 ngps Exp $'
+RCS_id='$Id: https_cli_async.py,v 1.2 2002/12/23 04:40:38 ngps Exp $'
 
 import asyncore, sys, time
 from M2Crypto import Rand, SSL

@@ -2,9 +2,9 @@
 
 """A simple iterative SSL 'echo' server.
 
-Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: echod-iterative.py,v 1.5 2001/09/18 12:19:59 ngps Exp $'
+RCS_id='$Id: echod-iterative.py,v 1.6 2002/12/23 04:38:06 ngps Exp $'
 
 from M2Crypto import Rand, SSL
 import echod_lib

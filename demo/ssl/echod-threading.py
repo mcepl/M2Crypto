@@ -2,15 +2,22 @@
 
 """A multi-threading SSL 'echo' server.
 
-Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: echod-threading.py,v 1.3 2000/04/17 15:57:28 ngps Exp $'
+RCS_id='$Id: echod-threading.py,v 1.4 2002/12/23 04:39:04 ngps Exp $'
 
 from M2Crypto import DH, Rand, SSL, threading
 import echod_lib
 
 class ssl_echo_handler(echod_lib.ssl_echo_handler):
+
     buffer='Ye Olde Threading Echo Servre\r\n'
+
+    def finish(self):
+        # Threading servers need this.
+        self.request.set_shutdown(SSL.SSL_SENT_SHUTDOWN|SSL.SSL_RECEIVED_SHUTDOWN)
+        self.request.close()
+
 
 if __name__=='__main__':
     try:

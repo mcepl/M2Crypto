@@ -4,7 +4,7 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: test.py,v 1.2 2000/04/17 15:36:29 ngps Exp $'
+RCS_id='$Id: test.py,v 1.3 2002/12/23 04:33:55 ngps Exp $'
 
 from M2Crypto import BIO, Rand, SMIME, X509
 
@@ -33,7 +33,7 @@ def sign():
     p7 = s.sign(buf)
     out = BIO.openfile('clear.p7', 'w')
     out.write('To: ngps@post1.com\n')
-    out.write('From: m2crypto@m2crypto.org\n')
+    out.write('From: ngps@post1.com\n')
     out.write('Subject: testing\n')
     buf = makebuf() # Recreate buf, because sign() has consumed it.
     s.write(out, p7, buf)
@@ -43,7 +43,7 @@ def sign():
     p7 = s.sign(buf)
     out = BIO.openfile('opaque.p7', 'w')
     out.write('To: ngps@post1.com\n')
-    out.write('From: m2crypto@m2crypto.org\n')
+    out.write('From: ngps@mpost1.com\n')
     out.write('Subject: testing\n')
     s.write(out, p7)
     out.close()
@@ -59,7 +59,7 @@ def verify_clear():
     st = X509.X509_Store()
     st.load_info('ca.pem')
     s.set_x509_store(st)
-    p7, data = SMIME.load_pkcs7('clear.p7')
+    p7, data = SMIME.smime_load_pkcs7('clear.p7')
     v = s.verify(p7)
     if v:
         print 'ok'
@@ -76,7 +76,7 @@ def verify_opaque():
     st = X509.X509_Store()
     st.load_info('ca.pem')
     s.set_x509_store(st)
-    p7, data = SMIME.load_pkcs7('opaque.p7')
+    p7, data = SMIME.smime_load_pkcs7('opaque.p7')
     v = s.verify(p7, data)
     if v:
         print 'ok'
@@ -93,7 +93,7 @@ def verify_netscape():
     st = X509.X509_Store()
     st.load_info('ca.pem')
     s.set_x509_store(st)
-    p7, data = SMIME.load_pkcs7('ns.p7')
+    p7, data = SMIME.smime_load_pkcs7('ns.p7')
     v = s.verify(p7, data)
     print '\n', v, '\n...ok'
 
@@ -125,7 +125,7 @@ def sv():
     s.set_x509_stack(sk)
 
     # Verify.
-    p7, buf = SMIME.load_pkcs7_bio(bio)
+    p7, buf = SMIME.smime_load_pkcs7_bio(bio)
     v = s.verify(p7, flags=SMIME.PKCS7_DETACHED)
     
     if v:
@@ -162,13 +162,33 @@ def ed():
         print 'not ok'
 
 
+def zope_test():
+    print 'test zophistry...'
+    f = open('client.pem')
+    cert_str = f.read()
+    key_bio = BIO.MemoryBuffer(cert_str)    
+    cert_bio = BIO.MemoryBuffer(cert_str)   # XXX Kludge.
+    s = SMIME.SMIME()
+    s.load_key_bio(key_bio, cert_bio)
+    # XXX unfinished...
+
+
+def leak_test():
+    # Seems ok, not leaking.
+    while 1:
+        ed()
+        #sv()
+
+
 if __name__ == '__main__':
     Rand.load_file('../randpool.dat', -1) 
     ed()
     sign()
     verify_opaque()
     verify_clear()
-    verify_netscape()
+    #verify_netscape()
     sv()
+    #zope_test()
+    #leak_test()
     Rand.save_file('../randpool.dat')
 

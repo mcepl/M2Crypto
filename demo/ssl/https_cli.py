@@ -2,12 +2,12 @@
 
 """Demonstrations of M2Crypto.httpslib.
 
-Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: https_cli.py,v 1.4 2001/06/01 14:27:59 ngps Exp $'
+RCS_id='$Id: https_cli.py,v 1.5 2002/12/23 04:40:03 ngps Exp $'
 
 import sys
-from M2Crypto import Rand, SSL, httpslib
+from M2Crypto import Rand, SSL, httpslib, threading
 
 
 if sys.version[:3] == '1.5':
@@ -30,10 +30,10 @@ if sys.version[:3] == '1.5':
         f.close()
 
 
-elif sys.version[:3] in ('2.0', '2.1'):
+elif sys.version[0] == '2':
 
     def test_httpslib():
-        ctx = SSL.Context('sslv3')
+        ctx = SSL.Context('sslv2')
         #ctx.load_cert('client.pem')
         ctx.set_info_callback()
         h = httpslib.HTTPSConnection('127.0.0.1', 9443, ssl_context=ctx)
@@ -61,6 +61,8 @@ elif sys.version[:3] in ('2.0', '2.1'):
 
 if __name__=='__main__':
     Rand.load_file('../randpool.dat', -1) 
+    #threading.init()
     test_httpslib()
+    #threading.cleanup()
     Rand.save_file('../randpool.dat')
 

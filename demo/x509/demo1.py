@@ -2,9 +2,9 @@
 
 """X.509 certificate manipulation and such.
 
-Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: demo1.py,v 1.2 2000/04/01 15:09:11 ngps Exp $'
+RCS_id='$Id: demo1.py,v 1.3 2002/12/23 04:45:04 ngps Exp $'
 
 import os
 
@@ -28,7 +28,7 @@ def demo1():
 
 def demo2():
     print 'Test 2: As text...'
-    cert = X509.load_cert('server.pem')
+    cert = X509.load_cert('client2.pem')
     print 'version     ', cert.get_version()
     print 'serial#     ', cert.get_serial_number()
     print 'not before  ', cert.get_not_before()

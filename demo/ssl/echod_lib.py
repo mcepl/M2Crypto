@@ -1,14 +1,14 @@
 """Support routines for the various SSL 'echo' servers.
 
-Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: echod_lib.py,v 1.4 2001/09/18 12:17:57 ngps Exp $'
+RCS_id='$Id: echod_lib.py,v 1.5 2002/12/23 04:39:22 ngps Exp $'
 
 import SocketServer
-from M2Crypto import Err, SSL
+from M2Crypto import SSL
 
 def init_context(protocol, certfile, cafile, verify, verify_depth=10):
-    ctx=SSL.Context(protocol)
+    ctx = SSL.Context(protocol)
     ctx.load_cert(certfile)
     ctx.load_client_ca(cafile)
     ctx.load_verify_info(cafile)
@@ -21,14 +21,16 @@ def init_context(protocol, certfile, cafile, verify, verify_depth=10):
 
 class ssl_echo_handler(SocketServer.BaseRequestHandler):
 
-    buffer='Ye Olde Echo Servre\r\n'
+    buffer = 'Ye Olde Echo Servre\r\n'
 
     def handle(self):
         peer = self.request.get_peer_cert()
         if peer is not None:
             print 'Client CA        =', peer.get_issuer().O
             print 'Client Subject   =', peer.get_subject().CN
-        self.request.write(self.buffer)
+        print 'XXX'
+        x = self.request.write(self.buffer)
+        print 'YYY:', x
         while 1:
             try:
                 buf = self.request.read()

@@ -4,7 +4,7 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: unsmime.py,v 1.1 2000/04/17 15:38:26 ngps Exp $'
+RCS_id='$Id: unsmime.py,v 1.2 2002/12/23 04:33:15 ngps Exp $'
 
 from M2Crypto import BIO, Rand, SMIME, X509
 import sys
@@ -16,7 +16,7 @@ def decrypt_verify(p7file, recip_key, signer_cert, ca_cert):
     s.load_key(recip_key)
 
     # Extract PKCS#7 blob from input.
-    p7, bio = SMIME.load_pkcs7_bio(p7file)
+    p7, bio = SMIME.smime_load_pkcs7_bio(p7file)
 
     # Decrypt.
     data = s.decrypt(p7)
@@ -34,7 +34,7 @@ def decrypt_verify(p7file, recip_key, signer_cert, ca_cert):
     s.set_x509_store(st)
 
     # Verify.
-    p7, bio = SMIME.load_pkcs7_bio(BIO.MemoryBuffer(data))
+    p7, bio = SMIME.smime_load_pkcs7_bio(BIO.MemoryBuffer(data))
     if bio is not None:
         # Netscape Messenger clear-signs, when also encrypting.
         data = s.verify(p7, bio)
