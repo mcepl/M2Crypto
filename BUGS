@@ -1,0 +1,15 @@
+-------------
+ 01 Jun 2001
+-------------
+
+1.  SSL.Connection.makefile() returns an instance of BIO.IOBuffer, 
+which is a file-like object. If you close the SSL.Connection, then 
+try to read()/write() the BIO.IOBuffer, you'll get unpredictable 
+results.
+
+2.  If you pass in bogus callbacks, the interpreter might crash. This 
+has been fixed for RSA, DSA, DH callbacks, but not for SSL callbacks, 
+yet.
+
+---------------------------------------------------------------------------
+$Id: BUGS,v 1.1 2001/06/01 13:39:30 ngps Exp $
