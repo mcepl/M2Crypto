@@ -1,10 +1,10 @@
 """GuardedFile.GuardedFile
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved.
-This software is released under the ZPL."""
+This software is released under the ZPL. Usual disclaimers apply."""
 
-RCS_id = '$Id: GuardedFile.py,v 1.1 2000/05/07 16:15:34 ngps Exp $'
-__version__ = '$Revision: 1.1 $'[11:-2]
+RCS_id = '$Id: GuardedFile.py,v 1.2 2002/12/23 05:34:05 ngps Exp $'
+__version__ = '$Revision: 1.2 $'[11:-2]
 
 from Globals import HTMLFile, MessageDialog
 from OFS.Image import File, cookId
