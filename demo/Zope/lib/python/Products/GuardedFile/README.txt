@@ -9,8 +9,8 @@ GuardedFile
     When the GuardedFile is deleted, its associated proxy role is also
     removed.
 
-    In all other aspects GuardedFile behaves exactly like a File.
+    In all other aspects a GuardedFile behaves exactly like a File.
 
     
-    $Id: README.txt,v 1.1 2000/05/07 16:14:52 ngps Exp $
-    $Revision: 1.1 $
+    $Id: README.txt,v 1.2 2003/06/16 16:53:42 ngps Exp $
+    $Revision: 1.2 $
