@@ -72,7 +72,7 @@ class zhttps0_handler(zhttp_handler):
 
     def get_environment(self, request):
         env = zhttp_handler.get_environment(self, request)
-        # set SSL_* headers...
+        env['SSL_CIPHER'] = request.channel.get_cipher()
         return env
 
 

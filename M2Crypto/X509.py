@@ -12,7 +12,7 @@ sufficiency.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: X509.py,v 1.9 2003/05/11 16:12:42 ngps Exp $'
+RCS_id='$Id: X509.py,v 1.10 2003/10/26 16:55:58 ngps Exp $'
 
 # M2Crypto
 import ASN1, BIO, Err
@@ -42,7 +42,8 @@ class X509_Name:
            'O'  : m2.NID_organizationName,
            'OU' : m2.NID_organizationalUnitName,
            'CN' : m2.NID_commonName,
-           'Email' : m2.NID_pkcs9_emailAddress}
+           'Email' : m2.NID_pkcs9_emailAddress,
+           'emailAddress': m2.NID_pkcs9_emailAddress}
 
     def __init__(self, x509_name, _pyfree=0):
         assert m2.x509_name_type_check(x509_name), "'x509_name' type error" 

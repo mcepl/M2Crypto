@@ -2,11 +2,11 @@
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Context.py,v 1.7 2003/10/26 13:25:08 ngps Exp $'
+RCS_id='$Id: Context.py,v 1.8 2003/10/26 16:58:22 ngps Exp $'
 
 # M2Crypto
 import cb
-from M2Crypto import util, BIO, Err, m2
+from M2Crypto import util, BIO, Err, RSA, m2
 
 class _ctxmap:
     singleton = None
@@ -156,15 +156,23 @@ class Context:
         dhp = m2.dh_read_parameters(f.bio_ptr())
         m2.ssl_ctx_set_tmp_dh(self.ctx, dhp)
 
-    def set_tmp_rsa(self, rsafile):
+    def set_tmp_dh_callback(self, callback=None):
+        if callback is not None:
+            m2.ssl_ctx_set_tmp_dh_callback(self.ctx, callback) 
+
+    def set_tmp_rsa(self, rsa):
         """Load ephemeral RSA key into the context.
 
-        'rsafile'   - File object containing the PEM-encoded RSA
-        keypair.
+        'rsa'   - M2Crypto.RSA.RSA instance.
         """
-        f = BIO.openfile(dhpfile)
-        dhp = m2.dh_read_parameters(f.bio_ptr())
-        m2.ssl_ctx_set_tmp_dh(self.ctx, dhp)
+        if isinstance(rsa, RSA.RSA):
+            m2.ssl_ctx_set_tmp_rsa(self.ctx, rsa.rsa)
+        else:
+            raise TypeError, "Expected an instance of RSA.RSA, got %s." % (rsa,)
+
+    def set_tmp_rsa_callback(self, callback=None):
+        if callback is not None:
+            m2.ssl_ctx_set_tmp_rsa_callback(self.ctx, callback) 
 
     def set_info_callback(self, callback=cb.ssl_info_callback):
         # XXX Has problem with Python threading...

@@ -1,6 +1,6 @@
 """Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Cipher.py,v 1.2 2002/12/23 03:59:37 ngps Exp $'
+RCS_id='$Id: Cipher.py,v 1.3 2003/10/26 16:57:43 ngps Exp $'
 
 from M2Crypto import m2
 
@@ -10,6 +10,12 @@ class Cipher:
 
     def __len__(self):
         return m2.ssl_cipher_get_bits(self.cipher)
+
+    def __repr__(self):
+        return "%s-%s" % (self.name(), len(self))
+
+    def __str__(self):
+        return "%s-%s" % (self.name(), len(self))
 
     def version(self):
         return m2.ssl_cipher_get_version(self.cipher)

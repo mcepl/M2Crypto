@@ -2,9 +2,9 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: SMIME.py,v 1.4 2002/12/23 03:48:35 ngps Exp $'
+RCS_id='$Id: SMIME.py,v 1.5 2003/10/26 16:55:17 ngps Exp $'
 
-import BIO, EVP, X509, Err
+import BIO, EVP, X509, Err, util
 import m2
 
 PKCS7_TEXT	= m2.PKCS7_TEXT
@@ -53,6 +53,9 @@ class PKCS7:
 
     def write_der(self, bio):
         return m2.pkcs7_write_bio_der(self.pkcs7, bio._ptr())
+
+    def get0_signers(self, certs, flags = 0):
+      return X509.X509_Stack(m2.pkcs7_get0_signers(self.pkcs7, certs.stack, flags), 1)
 
 
 def load_pkcs7(p7file):
@@ -117,16 +120,16 @@ class SMIME_Error(Exception): pass
 m2.smime_init(SMIME_Error)
 
 class SMIME:
-    def load_key(self, keyfile, certfile=None):
+    def load_key(self, keyfile, certfile=None, callback=util.passphrase_callback):
         if certfile is None:
             certfile = keyfile
-        self.pkey = EVP.load_key(keyfile)
+        self.pkey = EVP.load_key(keyfile, callback)
         self.x509 = X509.load_cert(certfile)
 
-    def load_key_bio(self, keybio, certbio=None):
+    def load_key_bio(self, keybio, certbio=None, callback=util.passphrase_callback):
         if certbio is None:
             certbio = keybio
-        self.pkey = EVP.load_key_bio(keybio)
+        self.pkey = EVP.load_key_bio(keybio, callback)
         self.x509 = X509.load_cert_bio(certbio)
 
     def set_x509_stack(self, stack):
