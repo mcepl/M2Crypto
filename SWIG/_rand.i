@@ -1,10 +1,11 @@
-/* Copyright (c) 1999 Ng Pheng Siong. All rights reserved. */
-/* $Id: _rand.i,v 1.1 2003/06/22 17:30:52 ngps Exp $ */
+/* Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved. */
+/* $Id: _rand.i,v 1.2 2004/04/06 07:27:35 ngps Exp $ */
 
 %module _rand
 
 %name(rand_load_file) extern int RAND_load_file(const char *, long);
 %name(rand_save_file) extern int RAND_write_file(const char *);
+%name(rand_poll) extern int RAND_poll(void);
 %name(rand_status) extern int RAND_status(void);
 %name(rand_cleanup) extern void RAND_cleanup(void);
 
@@ -15,12 +16,6 @@ void rand_init(PyObject *rand_err) {
     Py_INCREF(rand_err);
     _rand_err = rand_err;
 }
-
-/*
-void rand_seed(Blob *seed) {
-    RAND_seed(seed->data, seed->len);
-}
-*/
 
 PyObject *rand_seed(PyObject *seed) {
     const void *buf;
@@ -41,12 +36,6 @@ PyObject *rand_seed(PyObject *seed) {
     Py_INCREF(Py_None);
     return Py_None;
 }
-
-/*
-void rand_add(Blob *buf, double entropy) {
-    RAND_add(buf->data, buf->len, entropy);
-}
-*/
 
 PyObject *rand_add(PyObject *blob, double entropy) {
     const void *buf;
@@ -110,5 +99,28 @@ PyObject *rand_pseudo_bytes(int n) {
         return tuple;
     }
 }
+
+void rand_screen(void) {
+#ifdef __WINDOWS__
+    RAND_screen();
+#endif
+}
+
+int rand_win32_event(unsigned int imsg, int wparam, long lparam) {
+#ifdef __WINDOWS__
+    return RAND_event(imsg, wparam, lparam);
+#else
+    return 0;
+#endif
+}
 %}
+
+/* 
+2004-04-05, ngps: Still missing:
+  RAND_egd
+  RAND_egd_bytes
+  RAND_query_egd_bytes
+  RAND_file_name
+*/
+
 
