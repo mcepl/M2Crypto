@@ -1,41 +1,29 @@
-#!/usr/bin/env python
+""" M2Crypto wrapper for OpenSSL DSA API.
+Copyright (c) 1999 Ng Pheng Siong. All rights reserved. """
 
-RCS_id='$Id: DSA.py,v 1.1 1999/08/16 15:31:39 ngps Exp $'
+RCS_id='$Id: DSA.py,v 1.2 1999/09/12 14:27:40 ngps Exp $'
 
-from M2Crypto import dsa_init, dsa_new, dsa_free, dsa_size, \
-	dsa_get_p, dsa_get_q, dsa_get_g, dsa_get_pub, dsa_get_priv, \
-	dsa_set_p, dsa_set_q, dsa_set_g, \
-	dsa_gen_key, dsa_sign, dsa_verify, \
-	dsa_read_params, dsa_read_key
+import util
+import BIO
+import M2Crypto
+m2=M2Crypto
 
-dsa_init()
-
-def passphrase_callback(v):
-	from getpass import getpass
-	while 1:
-		p1=getpass('Enter passphrase: ')
-		if v:
-			p2=getpass('Verify passphrase: ')
-			if p1==p2:
-				break
-		else:
-			break
-	return p1
+m2.dsa_init()
 
 class DSA:
-	def __init__(self, this=dsa_new()):
+	def __init__(self, this=m2.dsa_new()):
 		self.this=this
 
 	def __del__(self):
-		dsa_free(self.this)
+		m2.dsa_free(self.this)
 
 	def __len__(self):
-		return dsa_size(self.this)
+		return m2.dsa_size(self.this)
 
 	def __getattr__(self, name):
 		if name in ['p', 'q', 'g', 'pub', 'priv']:
-			method=eval('dsa_get_%s' % (name,))
-			return long(method(self.this))
+			method=eval('m2.dsa_get_%s' % (name,))
+			return method(self.this)
 		else:
 			raise AttributeError
 
@@ -48,48 +36,53 @@ class DSA:
 			self.__dict__[name]=value
 
 	def set_params(self, p, q, g):
-		dsa_set_p(self.this, str(p))
-		dsa_set_q(self.this, str(q))
-		dsa_set_g(self.this, str(g))
+		m2.dsa_set_p(self.this, p)
+		m2.dsa_set_q(self.this, q)
+		m2.dsa_set_g(self.this, g)
 
 	def gen_key(self):
-		dsa_gen_key(self.this)	
+		m2.dsa_gen_key(self.this)	
 
-	def save_key(self, file, callback=passphrase_callback):
+	def save_key(self, file, callback=util.passphrase_callback):
 		pass
 
 	def save_params(self, file):
 		pass
 
 	def sign(self, digest):
-		return dsa_sign(self.this, digest)
+		return m2.dsa_sign(self.this, digest)
 	
 	def verify(self, digest, r, s):
-		return dsa_verify(self.this, digest, str(r), str(s))
+		return m2.dsa_verify(self.this, digest, r, s)
+
+	def sign_asn1(self, digest):
+		return m2.dsa_sign_asn1(self.this, digest)
+	
+	def verify_asn1(self, digest, blob):
+		return m2.dsa_verify_asn1(self.this, digest, blob)
 
 class DSA_pub(DSA):
 	pass	
 
-def genparam_callback(p, n):
-	from sys import stdout
-	ch=['.','+','*','\n']
-	stdout.write(ch[p])
-	stdout.flush()
-
-def gen_params(plen, seed, counter, h, g, callback=genparam_callback):
+def gen_params(plen, seed, counter, h, g, callback=util.genparam_callback):
 	pass
 
-def load_params(file, callback=passphrase_callback):
+def load_params(file, callback=util.passphrase_callback):
 	f=open(file)
 	dsa=dsa_read_params(f, callback)
 	f.close()
 	return DSA(dsa)
 
-def load_key(file, callback=passphrase_callback):
-	f=open(file)
-	dsa=dsa_read_key(f, callback)
+def load_key(file, callback=util.passphrase_callback):
+	f=BIO.openfile(file)
+	dsa=m2.dsa_read_key(f.bio_ptr(), callback)
 	f.close()
 	return DSA(dsa)
 
-if __name__=='__main__':
-	pass
+def load_key0(file, callback=util.passphrase_callback):
+	f=open(file)
+	dsa=m2.dsa_read_key(f, callback)
+	f.close()
+	return DSA(dsa)
+
+
