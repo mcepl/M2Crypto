@@ -12,7 +12,7 @@ sufficiency.
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: X509.py,v 1.11 2004/03/21 12:27:43 ngps Exp $'
+RCS_id='$Id: X509.py,v 1.12 2004/04/06 07:20:50 ngps Exp $'
 
 # M2Crypto
 import ASN1, BIO, Err
@@ -57,7 +57,6 @@ class X509_Name_Entry:
 		return m2.x509_name_entry_set_object( self.x509_name_entry, asn1obj._ptr() )
 
 	def create_by_txt( self, field, type, entry, len):
-		print repr(type(field))
 		return m2.x509_name_entry_create_by_txt( self.x509_name_entry._ptr(), field, type, entry, len )
 
 	def Print(self):
