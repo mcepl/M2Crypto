@@ -1,6 +1,10 @@
 """M2Crypto wrapper for OpenSSL EVP API.
 
-Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.
+
+Portions Copyright (c) 2004 Open Source Applications Foundation.
+Author: Heikki Toivonen
+"""
 
 RCS_id='$Id: EVP.py,v 1.10 2004/04/12 02:04:19 ngps Exp $'
 
@@ -179,19 +183,27 @@ class PKey:
         """
         return m2.verify_final(self.ctx, None, self.pkey)
 
-    def assign_rsa(self, rsa):
+    def assign_rsa(self, rsa, capture=1):
         """
         Assign the RSA key pair to self.
 
         @type rsa: M2Crypto.RSA.RSA
         @param rsa: M2Crypto.RSA.RSA object to be assigned to self.
 
+        @type capture:  boolean
+        @param capture: If true (default), this PKey object will own the RSA
+                        object, meaning that once the PKey object gets
+                        deleted it is no longer safe to use the RSA object.
+        
         @rtype: int
         @return: Return 1 for success and 0 for failure.
         """
-        ret = m2.pkey_assign_rsa(self.pkey, rsa.rsa)
-        if ret:
-            rsa._pyfree = 0
+        if capture:
+            ret = m2.pkey_assign_rsa(self.pkey, rsa.rsa)
+            if ret:
+                rsa._pyfree = 0
+        else:
+            ret = m2.pkey_set1_rsa(self.pkey, rsa.rsa)
         return ret
 
     def save_key(self, file, cipher='aes_128_cbc', callback=util.passphrase_callback):
