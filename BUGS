@@ -1,5 +1,5 @@
 -------------
- 12 May 2003
+ 29 Jun 2003
 -------------
 
 1.  SSL.Connection.makefile() returns an instance of BIO.IOBuffer, 
@@ -19,5 +19,9 @@ ftps_server. (Works using Python 2.1.)
 5. Possible concurrency bugs in the SSL functionality as reported by Brent
 Chun.
 
+6. demo/ssl/echod-forking.py no longer works. (Tested with Python 2.2.2.)
+I won't bother try fixing this, since forking servers are passe.
+
+
 ---------------------------------------------------------------------------
-$Id: BUGS,v 1.4 2003/05/11 16:20:36 ngps Exp $
+$Id: BUGS,v 1.5 2003/06/30 06:12:41 ngps Exp $

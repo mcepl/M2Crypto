@@ -15,7 +15,7 @@ TODO:
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
 """
 
-RCS_id = '$Id: https_srv.py,v 1.2 2002/12/23 04:41:31 ngps Exp $'
+RCS_id = '$Id: https_srv.py,v 1.3 2003/06/30 06:26:15 ngps Exp $'
 
 import os, sys
 from SimpleHTTPServer import SimpleHTTPRequestHandler
@@ -142,7 +142,7 @@ if __name__ == '__main__':
         #SSL.verify_peer | SSL.verify_fail_if_no_peer_cert)
     ctx.set_tmp_dh('dh1024.pem')
     os.chdir(wdir)
-    httpsd = HTTPS_Server(('', 9443), HTTP_Handler, ctx)
+    httpsd = HTTPS_Server(('', 19443), HTTP_Handler, ctx)
     httpsd.serve_forever()
     Rand.save_file('../randpool.dat')
 

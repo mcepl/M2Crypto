@@ -1,4 +1,9 @@
 
+ Changes since 0.11
+--------------------
+- ZServerSSL with client certificate-based authentication rides again.
+
+
  Changes since 0.10
 --------------------
 - Dave Berkeley <dave@rotwang.freeserve.co.uk> contributed fixes to

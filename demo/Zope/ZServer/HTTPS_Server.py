@@ -37,13 +37,12 @@ changes from Zope's HTTP server:
     Well, this is a *HTTPS* server :)
 
     X.509 certificate-based authentication -- When this is in force,
-    zhttps_handler, a subclass of zhttp_handler, is installed.  The 
-    https server is configured to _require_ an X.509 certificate 
-    from the client. When the request reaches zhttps_handler, it pulls 
-    the client's distinguished name (DN) from the certificate, maps 
-    that to a Zope user name and sets REMOTE_USER accordingly; if a 
-    mapping does not exist, REMOTE_USER is not set. Zope's REMOTE_USER
-    machinery takes care of the rest.
+    zhttps_handler, a subclass of zhttp_handler, is installed.  The
+    https server is configured to _require_ an X.509 certificate from
+    the client. When the request reaches zhttps_handler, it sets
+    REMOTE_USER to the client's subject distinguished name (DN) from
+    the certificate. Zope's REMOTE_USER machinery takes care of the
+    rest, e.g., in conjunction with the RemoteUserFolder product.
     
 """ 
 
@@ -60,25 +59,22 @@ from medusa.https_server import https_server, https_channel
 from medusa.asyncore import dispatcher
 
 
-ZSERVER_SSL_VERSION='0.11'
-
+ZSERVER_SSL_VERSION='0.12'
 
 register_subsystem('ZServer HTTPS_Server')
+
 
 class zhttps_handler(zhttp_handler):
     "zhttps handler - sets REMOTE_USER to user's X.509 certificate Subject DN"
 
-    def __init__ (self, module, x509_zope_map, uri_base=None, env=None):
+    def __init__ (self, module, uri_base=None, env=None):
         zhttp_handler.__init__(self, module, uri_base, env)
-        self.x509_zope = x509_zope_map
 
     def get_environment(self, request):
         env = zhttp_handler.get_environment(self, request)
-        peer = request.channel.get_peer_cert().get_subject()
-        try:
-            env['REMOTE_USER'] = self.x509_zope[str(peer)]
-        except KeyError:
-            pass
+        peer = request.channel.get_peer_cert()
+        if peer is not None:
+            env['REMOTE_USER'] = str(peer.get_subject())
         return env
 
 
