@@ -1,70 +1,43 @@
 -------------
- 20 Jul 2001
+ 25 Dec 2002
 -------------
 
-You need Python 1.5.2, 2.0 or 2.1, OpenSSL 0.9.6 or later, and SWIG 1.3.6.
-
-A Distutils setup.py is being worked on; it is held up by limitations 
-in Distutils 1.0 wherein the SWIG call interface cannot be customised 
-by the module developer.
-
-I expect to have a working Distutils setup.py eventually. In the meantime,
-please use the makefiles.
-
-I have received mail regarding the hassle of having to fix the paths to
-OpenSSL libraries in the Makefiles. Several people opined that I should fix
-the paths to the 'standard', which for OpenSSL 0.9.6 is /usr/local/ssl on
-Un*x.
-
-My personal preference (and the default for OpenSSL 0.9.5) is /usr/local.
-Please bear with me and continue to do the fixing. Note that Python 2.1
-uses 'Makefile', Python 2.0 'Makefile.py20' and Python 1.5.2
-'Makefile.py1'.
-
-Building on Win32 requires MS VC++ 6.0 or the freely-available Borland C++
-command line tools. It should be fairly obvious which makefile to use for
-your compiler suite and Python version.
-
-Richard Jones <richard@bizarsoftware.com.au> has kindly contributed a
-makefile for Mac OS X. See instructions below.
+You need Python 2.1, 2.2, OpenSSL 0.9.6 or later, and SWIG 1.3.17.  Earlier
+versions of Python may or may not work. This distribution is tested with
+OpenSSL 0.9.6h.
 
 
-Building on Unix
------------------
-1. cd swig
-2. Fix paths in Makefile (Makefile.py20, Makefile.py1) if necessary.
-3. Python 2.1: make
-   Python 2.0: make -f Makefile.py20
-   Python 1.5.2: make -f Makefile.py1
-4. cd ..
-5. Install the directory M2Crypto into a directory on the PYTHONPATH.
-6. If you have PyUnit installed: 
-   cd tests, python alltests.py
-7. cd ..
-8. cd demo
-9. Try out the various test programs.
+Standard installation procedure
+-------------------------------
+This works on Unix and Windows/MSVC++. 
+
+$ unzip m2crypto-0.08.zip
+$ cd m2crypto-0.08
+$ python setup.py build
+$ python setup.py test
+$ python setup.py install
 
 
-Building on Windows
---------------------
-1. cd swig
-2. Fix paths in Makefile.vc (Makefile.vc.py20, Makefile.vc.py1, etc.) if 
-   necessary.
-3. Python 2.1: "nmake -f Makefile.vc" or "make -f Makefile.bc"
-   Python 2.0: "nmake -f Makefile.vc.py20" or "make -f Makefile.bc.py20"
-   Python 1.5.2: "nmake -f Makefile.vc.py1" or "make -f Makefile.bc.py1"
-4. cd ..
-5. Install the directory M2Crypto into a directory on the PYTHONPATH.
-6. If you have PyUnit installed: 
-   cd tests, python alltests.py
-7. cd ..
-8. cd demo
-9. Try out the various test programs.
+Building on Windows with mingw32
+---------------------------------
+My platform is Bloodshed Dev-C++ version 4; Mingw compiler 2.95.2-1.
+
+First, build OpenSSL 0.9.6h using mingw32. This produces openssl.exe, libssl32.a
+and libeay32.a. To keep setup.py simple, rename libssl32.a and libeay32.a to
+libssleay32.a and liblibeay32.a, respectively. Install the .a files somewhere; I
+use c:/pkg/openssl/lib. (.h files go into c:/pkg/openssl/include.) Now follow
+the standard installation procedure above.
+
+
+Building on Windows with BC++ free compiler suite
+--------------------------------------------------
+This is currently broken, probably due to interaction between this version of
+SWIG and BC++. Since I have mingw32 working, I'm unlikely to attempt to fix
+this.
 
 
 Building on Mac OS X
 ---------------------
-
 Richard Jones <richard@bizarsoftware.com.au> has kindly contributed a
 makefile for Mac OS X. It is included here as Makefile.osx. I have not
 tested it myself.
@@ -95,5 +68,5 @@ Here are Richard's instructions on building OpenSSL 0.9.6 on OS X:
 > and you're there.
 
 ---------------------------------------------------------------------------
-$Id: INSTALL,v 1.2 2001/07/20 13:17:09 ngps Exp $
+$Id: INSTALL,v 1.3 2002/12/24 17:47:57 ngps Exp $
 
