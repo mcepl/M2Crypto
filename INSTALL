@@ -3,9 +3,9 @@
 ==========================
 
 :Author: Ng Pheng Siong
-:Id: $Id: INSTALL,v 1.8 2003/10/26 13:15:31 ngps Exp $
-:Date: $Date: 2003/10/26 13:15:31 $
-:Web-Site: http://www.post1.com/home/ngps/m2
+:Id: $Id: INSTALL,v 1.9 2003/10/26 17:23:27 ngps Exp $
+:Date: $Date: 2003/10/26 17:23:27 $
+:Web-Site: http://sandbox.rulemaker.net/ngps/m2
 
 .. contents::
 
@@ -163,30 +163,28 @@ Then,
 Building on Mac OS X
 ----------------------
 
-.. NOTE:: 
-   This section has been left as is since it was originally
-   created. It is possibly outdated now. Updates are welcome.
+Larry Bugbee has kindly updated the instructions for Mac OS X 10.2:
 
-Richard Jones has kindly contributed a makefile for Mac OS X. It is included
-here as Makefile.osx. I have not tested it myself.
+0. MacOSX 10.2 comes with OpenSSL 0.9.6x and installing a current version
+can lead to incompatabilities between Apache and other apps depending
+on 0.9.6.  I am not ready for the hassle to rebuild Apache and all the
+other dependencies, so I built OpenSSL 0.9.7c in /usr/local with::
 
-Follow these steps:
+    ./config --prefix=/usr/local --openssldir=/usr/local/openssl
+    make
+    ...etc.
 
 1. ``cd swig``
 
-2. Fix paths in ``Makefile.osx``.
+2. Check the path to the version of OpenSSL you want for M2Crypto. If
+you decided to install a newer OpenSSL in /usr/local and not use
+Apple's pre-installed version, the path in 'Makefile.osx' is ready to go.
 
-3. One of:
-
-	- Python 2.1: make -f Makefile.osx
-
-	- Python 2.0: dunno, give it a go...
-
-	- Python 1.5.2: dunno, give it a go...
+3. make -f Makefile.osx
 
 4. ``cd ..``
 
-5. Install the directory ``M2Crypto`` into a directory on the PYTHONPATH.
+5. Move the directory ``M2Crypto`` into Python's ``site-packages`` directory.
 
 6. If you have PyUnit installed::
 
@@ -198,15 +196,3 @@ Follow these steps:
 
 9. Try out the various test programs.
 
-Here are Richard's instructions on building OpenSSL 0.9.6 on OS X::
-
-    > That and one needs to install openssl-0.9.6. But that's a whole other
-    > story. In short:
-    > 1. ./Configure OpenBSD
-    > 2. edit root Makefile to change "gcc" to "cc"
-    > 3. edit Makefile in apps and test to change the libraries to:
-    >   LIBCRYPTO=../libcrypto.a
-    >   LIBSSL=../libssl.a
-    > 
-    > and you're there.
-    
