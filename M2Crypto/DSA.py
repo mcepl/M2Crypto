@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: DSA.py,v 1.5 2002/12/23 03:50:16 ngps Exp $'
+RCS_id='$Id: DSA.py,v 1.6 2004/03/31 01:19:55 ngps Exp $'
 
 import sys
 import util, BIO, m2
@@ -35,7 +35,7 @@ class DSA:
 
     def __getattr__(self, name):
         if name in ['p', 'q', 'g', 'pub', 'priv']:
-            method = getattr(m2, 'm2.dsa_get_%s' % (name,))
+            method = getattr(m2, 'dsa_get_%s' % (name,))
             assert m2.dsa_type_check(self.dsa), "'dsa' type error"
             return method(self.dsa)
         else:
