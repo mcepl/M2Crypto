@@ -2,7 +2,7 @@
 
 Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Err.py,v 1.1 1999/10/01 15:56:44 ngps Exp $'
+RCS_id='$Id: Err.py,v 1.2 2000/02/23 15:40:51 ngps Exp $'
 
 import BIO
 import M2Crypto
@@ -12,4 +12,34 @@ def get_error():
     err=BIO.MemoryBuffer()
     m2.err_print_errors(err.bio_ptr())
     return err.getvalue()
+
+def get_error_code():
+    return m2.err_get_error()
+
+def get_error_lib(err):
+    return m2.err_lib_error_string(err)
+
+def get_error_func(err):
+    return m2.err_func_error_string(err)
+
+def get_error_reason(err):
+    return m2.err_reason_error_string(err)
+
+def get_x509_verify_error(err):
+    return m2.x509_get_verify_error(err)
+
+class SSLError(Exception):
+    def __init__(self, err, client_addr):
+        self.err = err
+        self.client_addr = client_addr
+
+    def __str__(self):
+        return "%s: %s: %s" % \
+            (m2.err_func_error_string(self.err), \
+            self.client_addr, \
+            m2.err_reason_error_string(self.err))
+
+class M2CryptoError(Exception):
+    pass
+ 
 
