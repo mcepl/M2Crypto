@@ -1,13 +1,13 @@
-# $Id: Makefile.mw,v 1.2 2003/09/15 16:21:44 ngps Exp $
+# $Id: Makefile.mw,v 1.3 2003/09/16 02:53:28 ngps Exp $
 
 # Python
-PYFLAGS=-D__WIN32__ -DHAVE_CONFIG_H -Ic:/pkg/py22/include
-PYLIB=c:/pkg/py22/libs/libpython22.a
-PYINCLUDE=-Ic:/pkg/py22/include
+PYFLAGS=-D__WIN32__ -DHAVE_CONFIG_H -Ic:/pkg/py23/include
+PYLIB=c:/pkg/py23/libs/libpython23.a
+PYINCLUDE=-Ic:/pkg/py23/include
 
 # OpenSSL
 SSLINCLUDE=-Ic:/pkg/openssl/include
-SSLLIB=c:/pkg/openssl/lib/libssleay32.a c:/pkg/openssl/lib/liblibeay32.a
+SSLLIB=c:/pkg/openssl/lib/libssl32.a c:/pkg/openssl/lib/libeay32.a
 
 # Windoze
 INCLUDE=$(PYINCLUDE) $(SSLINCLUDE) -I.
@@ -22,7 +22,7 @@ all:	swig
 
 swig: _m2crypto.i
 	$(SWIG) $(SWIGFLAGS) _m2crypto.i
-	gcc -c -DTHREADING -g -I$(INCLUDE) _m2crypto_wrap.c
+	gcc -c -DTHREADING -g $(INCLUDE) _m2crypto_wrap.c
 	dllwrap --dllname __m2crypto.pyd --driver-name gcc \
             --def _m2crypto.def -o __m2crypto.pyd _m2crypto_wrap.o \
             -s --entry _DllMain@12 --target=i386-mingw32 $(LIBS)
