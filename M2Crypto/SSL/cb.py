@@ -1,6 +1,6 @@
 """Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: cb.py,v 1.1 2000/02/23 15:38:59 ngps Exp $'
+RCS_id='$Id: cb.py,v 1.2 2000/04/01 14:59:52 ngps Exp $'
 
 # Python
 import sys
@@ -17,7 +17,8 @@ def ssl_verify_callback_stub(ssl_ctx_ptr, x509_ptr, errnum, errdepth, ok):
 def ssl_verify_callback(ssl_ctx_ptr, x509_ptr, errnum, errdepth, ok):
     unknown_issuer = [
         m2.X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY,
-        m2.X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE 
+        m2.X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE,
+        m2.X509_V_ERR_CERT_UNTRUSTED
         ]
     ssl_ctx = Context.map()[ssl_ctx_ptr]
     if errnum in unknown_issuer: 
