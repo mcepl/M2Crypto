@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Context.py,v 1.4 2002/12/23 03:56:03 ngps Exp $'
+RCS_id='$Id: Context.py,v 1.5 2003/06/22 16:52:50 ngps Exp $'
 
 # M2Crypto
 import cb
@@ -39,11 +39,14 @@ class Context:
         self.ctx = m2.ssl_ctx_new(proto())
         self.allow_unknown_ca = 0
         map()[self.ctx] = self
+        m2.ssl_ctx_set_cache_size(self.ctx, 128L)
 
     def __del__(self):
-        del map()[self.ctx]
         m2.ssl_ctx_free(self.ctx)
 
+    def close(self):
+        del map()[self.ctx]
+        
     def load_cert(self, certfile, keyfile=None, callback=util.passphrase_callback):
         """Load certificate and private key into the context.
         
@@ -61,6 +64,27 @@ class Context:
         m2.ssl_ctx_use_cert(self.ctx, certfile)
         if not keyfile: 
             keyfile = certfile
+        m2.ssl_ctx_use_privkey(self.ctx, keyfile)
+        if not m2.ssl_ctx_check_privkey(self.ctx):
+            raise ValueError, 'public/private key mismatch'
+
+    def load_cert_chain(self, certchainfile, keyfile=None, callback=util.passphrase_callback):
+        """Load certificate chain and private key into the context.
+        
+        'certchainfile' - File object containing the PEM-encoded certificate chain.
+
+        'keyfile'       - File object containing the PEM-encoded private key.
+        Default value of None indicates that the private key is to be found
+        in 'certchainfile'.
+
+        'callback'      - Callable object to be invoked if the private key is
+        passphrase-protected. Default callback provides a simple
+        terminal-style input for the passphrase.
+        """
+        m2.ssl_ctx_passphrase_callback(self.ctx, callback)
+        m2.ssl_ctx_use_cert_chain(self.ctx, certchainfile)
+        if not keyfile: 
+            keyfile = certchainfile
         m2.ssl_ctx_use_privkey(self.ctx, keyfile)
         if not m2.ssl_ctx_check_privkey(self.ctx):
             raise ValueError, 'public/private key mismatch'
@@ -145,4 +169,8 @@ class Context:
     def set_session_timeout(self, timeout):
         return m2.ssl_ctx_set_session_timeout(self.ctx, timeout)
 
+    def set_session_cache_mode(self, mode):
+        return m2.ssl_ctx_set_session_cache_mode(self.ctx, mode)
 
+    def get_session_cache_mode(self):
+        return m2.ssl_ctx_get_session_cache_mode(self.ctx)
