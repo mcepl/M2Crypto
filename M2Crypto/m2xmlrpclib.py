@@ -1,15 +1,15 @@
 """M2Crypto enhancement to xmlrpclib.
 
-Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: m2xmlrpclib.py,v 1.4 2001/06/03 04:37:15 ngps Exp $'
+RCS_id='$Id: m2xmlrpclib.py,v 1.5 2002/01/05 12:19:50 ngps Exp $'
 
 import base64, string, sys
 
 from xmlrpclib import *
 import SSL, httpslib, m2urllib
 
-__version__='0.06'
+__version__='0.07'
 
 class SSL_Transport(Transport):
 
@@ -21,17 +21,18 @@ class SSL_Transport(Transport):
         else:
             self.ssl_ctx=ssl_context
 
-    def request(self, host, handler, request_body):
+    def request(self, host, handler, request_body, verbose=0):
         # Handle username and password.
         user_passwd, host_port = m2urllib.splituser(host)
         _host, _port = m2urllib.splitport(host_port)
-        if sys.version[:3] in ('2.0', '2.1'):
+        if sys.version[0] == '2':
             h = httpslib.HTTPS(_host, int(_port), ssl_context=self.ssl_ctx)
         elif sys.version[:3] ==  '1.5':
             h = httpslib.HTTPS(self.ssl_ctx, _host, int(_port))
         else:
             raise RuntimeError, 'unsupported Python version'
-        h.set_debuglevel(1)
+        if verbose:
+            h.set_debuglevel(1)
 
         # What follows is as in xmlrpclib.Transport. (Except the authz bit.)
         h.putrequest("POST", handler)
@@ -63,5 +64,6 @@ class SSL_Transport(Transport):
                 headers
                 )
 
+        self.verbose = verbose
         return self.parse_response(h.getfile())
 
