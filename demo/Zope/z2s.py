@@ -785,8 +785,7 @@ try:
         ssl_ctx.set_session_id_ctx(MODULE)
         ssl_ctx.set_tmp_dh('%s/dh1024.pem' % INSTANCE_HOME)
         if X509_REMOTE_USER:
-            ssl_ctx.set_verify(SSL.verify_peer|SSL.verify_fail_if_no_peer_cert, 10)
-            #ssl_ctx.set_verify(SSL.verify_peer, 10)
+            ssl_ctx.set_verify(SSL.verify_peer, 10)
         else:
             ssl_ctx.set_verify(SSL.verify_none, 10)
         if type(HTTPS_PORT) is type(0): HTTPS_PORT=((IP_ADDRESS, HTTPS_PORT),)
