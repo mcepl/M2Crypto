@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: RSA.py,v 1.8 2004/04/09 16:17:19 ngps Exp $'
+RCS_id='$Id: RSA.py,v 1.9 2004/04/12 02:05:14 ngps Exp $'
 
 import sys
 import util, BIO, Err, m2
@@ -18,11 +18,9 @@ pkcs1_oaep_padding = m2.pkcs1_oaep_padding
 
 
 class RSA:
-
     """
-    Object interface to an RSA key pair.
+    RSA Key Pair.
     """
-
     def __init__(self, rsa, _pyfree=0):
         assert m2.rsa_type_check(rsa), "'rsa' type error"
         self.rsa = rsa
@@ -68,10 +66,10 @@ class RSA:
 
     def save_key_bio(self, bio, cipher='aes_128_cbc', callback=util.passphrase_callback):
         """
-        Save the key pair to an M2Crypto.BIO object in PEM format.
+        Save the key pair to an M2Crypto.BIO.BIO object in PEM format.
 
-        @type bio: M2Crypto.BIO
-        @param bio: M2Crypto.BIO object to save key to.
+        @type bio: M2Crypto.BIO.BIO
+        @param bio: M2Crypto.BIO.BIO object to save key to.
 
         @type cipher: string
         @param cipher: Symmetric cipher to protect the key. The default
@@ -81,6 +79,7 @@ class RSA:
         @type callback: Python callable
         @param callback: A Python callable object that is invoked
         to acquire a passphrase with which to protect the key.
+        The default is util.passphrase_callback.
         """
         if cipher is None:
             return m2.rsa_write_key_no_cipher(self.rsa, bio._ptr(), callback)
@@ -107,16 +106,17 @@ class RSA:
         @type callback: Python callable
         @param callback: A Python callable object that is invoked
         to acquire a passphrase with which to protect the key.
+        The default is util.passphrase_callback.
         """
         bio = BIO.openfile(file, 'wb')
         return self.save_key_bio(bio, cipher, callback)
 
     def save_key_der_bio(self, bio):
         """
-        Save the key pair to an M2Crypto.BIO object in DER format.
+        Save the key pair to an M2Crypto.BIO.BIO object in DER format.
 
-        @type bio: M2Crypto.BIO
-        @param bio: M2Crypto.BIO object to save key to.
+        @type bio: M2Crypto.BIO.BIO
+        @param bio: M2Crypto.BIO.BIO object to save key to.
         """
         return m2.rsa_write_key_der(self.rsa, bio._ptr())
 
@@ -124,18 +124,18 @@ class RSA:
         """
         Save the key pair to a file in DER format.
 
-        @type bio: M2Crypto.BIO
-        @param bio: M2Crypto.BIO object to save key to.
+        @type bio: M2Crypto.BIO.BIO
+        @param bio: M2Crypto.BIO.BIO object to save key to.
         """
         bio = BIO.openfile(file, 'wb')
         return self.save_key_der_bio(bio)
 
     def save_pub_key_bio(self, bio):
         """
-        Save the public key to an M2Crypto.BIO object in PEM format.
+        Save the public key to an M2Crypto.BIO.BIO object in PEM format.
 
-        @type bio: M2Crypto.BIO
-        @param bio: M2Crypto.BIO object to save key to.
+        @type bio: M2Crypto.BIO.BIO
+        @param bio: M2Crypto.BIO.BIO object to save key to.
         """ 
         return m2.rsa_write_pub_key(self.rsa, bio._ptr())
 
@@ -187,6 +187,7 @@ class RSA_pub(RSA):
 def rsa_error():
     raise RSAError, m2.err_reason_error_string(m2.err_get_error())
 
+
 def keygen_callback(p, n, out=sys.stdout):
     """
     Default callback for gen_key().
@@ -198,28 +199,39 @@ def keygen_callback(p, n, out=sys.stdout):
 
 def gen_key(bits, e, callback=keygen_callback):
     """
-    Factory function that generates an RSA key pair and instantiates 
-    an RSA object from it.
-    
-    _bits_ is the key length in bits.
+    Generate an RSA key pair.
 
-    _e_ is the value for e, the RSA public exponent.
+    @type bits: int
+    @param bits: Key length, in bits.
 
-    (Optional) _callback_ is a Python callback object that will be
-    invoked during key generation; its usual purpose is to provide visual
-    feedback.
+    @type e: int
+    @param e: The RSA public exponent.
+
+    @type callback: Python callable
+    @param callback: A Python callable object that is invoked
+    during key generation; its usual purpose is to provide visual
+    feedback. The default callback is keygen_callback.
+
+    @rtype: M2Crypto.RSA.RSA
+    @return: M2Crypto.RSA.RSA object.
     """ 
     return RSA(m2.rsa_generate_key(bits, e, callback), 1)
 
 
 def load_key(file, callback=util.passphrase_callback):
     """
-    Factory function that instantiates an RSA object.
+    Load an RSA key pair from file.
 
-    _file_ contains the PEM representation of the RSA key pair. 
+    @type file: string
+    @param file: Name of file containing RSA public key in PEM format.
 
-    (Optional) _callback_ is a Python callback object that will be 
-    invoked if the RSA key pair is passphrase-protected.
+    @type callback: Python callable
+    @param callback: A Python callable object that is invoked
+    to acquire a passphrase with which to unlock the key.
+    The default is util.passphrase_callback.
+
+    @rtype: M2Crypto.RSA.RSA
+    @return: M2Crypto.RSA.RSA object.
     """
     bio = BIO.openfile(file)
     return load_key_bio(bio, callback)
@@ -227,13 +239,19 @@ def load_key(file, callback=util.passphrase_callback):
 
 def load_key_bio(bio, callback=util.passphrase_callback):
     """
-    Factory function that instantiates an RSA object.
+    Load an RSA key pair from an M2Crypto.BIO.BIO object.
 
-    The argument 'bio' is an M2Crypto.BIO object that contains the PEM
-    representation of the RSA key pair. 
+    @type bio: M2Crypto.BIO.BIO
+    @param bio: M2Crypto.BIO.BIO object containing RSA key pair in PEM
+    format.
 
-    The argument 'callback' is a Python callback object that will be invoked if
-    the RSA key pair is passphrase-protected.
+    @type callback: Python callable
+    @param callback: A Python callable object that is invoked
+    to acquire a passphrase with which to unlock the key.
+    The default is util.passphrase_callback.
+
+    @rtype: M2Crypto.RSA.RSA
+    @return: M2Crypto.RSA.RSA object.
     """
     rsa = m2.rsa_read_key(bio._ptr(), callback)
     if rsa is None:
@@ -241,11 +259,34 @@ def load_key_bio(bio, callback=util.passphrase_callback):
     return RSA(rsa, 1)
 
 
+def load_key_string(string, callback=util.passphrase_callback):
+    """
+    Load an RSA key pair from a string.
+
+    @type string: string
+    @param string: String containing RSA key pair in PEM format.
+
+    @type callback: Python callable
+    @param callback: A Python callable object that is invoked
+    to acquire a passphrase with which to unlock the key.
+    The default is util.passphrase_callback.
+
+    @rtype: M2Crypto.RSA.RSA
+    @return: M2Crypto.RSA.RSA object.
+    """
+    bio = BIO.MemoryBuffer(string)
+    return load_key_bio(bio, callback)
+
+
 def load_pub_key(file):
     """
-    Factory function that instantiates an RSA_pub object.
+    Load an RSA public key from file.
 
-    The argument 'file' contains the PEM representation of the RSA public key.
+    @type file: string
+    @param file: Name of file containing RSA public key in PEM format.
+
+    @rtype: M2Crypto.RSA.RSA_pub
+    @return: M2Crypto.RSA.RSA_pub object.
     """
     bio = BIO.openfile(file) 
     return load_pub_key_bio(bio)
@@ -253,10 +294,14 @@ def load_pub_key(file):
 
 def load_pub_key_bio(bio):
     """
-    Factory function that instantiates an RSA_pub object.
+    Load an RSA public key from an M2Crypto.BIO.BIO object.
 
-    The argument 'bio' is an M2Crypto.BIO object that contains the PEM
-    representation of the RSA public key.
+    @type bio: M2Crypto.BIO.BIO
+    @param bio: M2Crypto.BIO.BIO object containing RSA public key in PEM
+    format.
+
+    @rtype: M2Crypto.RSA.RSA_pub
+    @return: M2Crypto.RSA.RSA_pub object.
     """ 
     rsa = m2.rsa_read_pub_key(bio._ptr())
     if rsa is None:
@@ -266,15 +311,20 @@ def load_pub_key_bio(bio):
 
 def new_pub_key((e, n)):
     """
-    Factory function that instantiates an RSA_pub object from a (e, n) tuple.
+    Instantiate an RSA_pub object from an (e, n) tuple.
 
-    'e' is the RSA public exponent; it is a string in OpenSSL's MPINT format,
-    i.e., 4-byte big-endian bit-count followed by the appropriate number of
-    bits.
+    @type e: string
+    @param e: The RSA public exponent; it is a string in OpenSSL's MPINT 
+    format - 4-byte big-endian bit-count followed by the appropriate 
+    number of bits.
 
-    'n' is the RSA composite of primes; it is a string in OpenSSL's MPINT format,
-    i.e., 4-byte big-endian bit-count followed by the appropriate number of
-    bits.
+    @type n: string
+    @param n: The RSA composite of primes; it is a string in OpenSSL's MPINT 
+    format - 4-byte big-endian bit-count followed by the appropriate 
+    number of bits.
+
+    @rtype: M2Crypto.RSA.RSA_pub
+    @return: M2Crypto.RSA.RSA_pub object.
     """ 
     rsa = m2.rsa_new()
     m2.rsa_set_e(rsa, e)

@@ -8,6 +8,13 @@
 - Added rand_poll, rand_screen and rand_win32_event functions to
   M2Crypto.Rand.
 - Updated ZServerSSL files to match Zope 2.7.0 versions.
+- Integrated (overlapping) patches by Peter Teniz and Heikki Toivonen
+  covering operations on X.509-related structures that gives M2Crypto 
+  PKI functionality. Thanks Peter and Heikki.
+- Peter Teniz contributed demo2004/pki/x509auth.py.
+- Created demo2004/ directory that will contain new or updated demos.
+- Added verify_[init|update|final] in _evp.i. Patch by Zachery Corbiere.
+  Thanks Zac.
 
 
  Changes since 0.12/0.11

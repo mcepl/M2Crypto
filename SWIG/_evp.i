@@ -1,5 +1,5 @@
 /* Copyright (c) 1999 Ng Pheng Siong. All rights reserved. */
-/* $Id: _evp.i,v 1.4 2004/04/09 16:28:42 ngps Exp $ */
+/* $Id: _evp.i,v 1.5 2004/04/12 02:08:17 ngps Exp $ */
 
 %{
 #include <assert.h>
@@ -69,8 +69,9 @@
 
 %name(pkey_new) extern EVP_PKEY *EVP_PKEY_new(void);
 %name(pkey_free) extern void EVP_PKEY_free(EVP_PKEY *);
-%name(sign_init) extern int EVP_SignInit(EVP_MD_CTX *, const EVP_MD *);
 %name(pkey_assign) extern int EVP_PKEY_assign(EVP_PKEY *pkey, int type, char *key);
+%name(sign_init) extern int EVP_SignInit(EVP_MD_CTX *, const EVP_MD *);
+%name(verify_init) extern int EVP_VerifyInit(EVP_MD_CTX *, const EVP_MD *);
 
 %inline %{
 #define PKCS5_SALT_LEN  8
@@ -383,6 +384,46 @@ PyObject *sign_final(EVP_MD_CTX *ctx, EVP_PKEY *pkey) {
         return NULL;
     }
     return PyString_FromStringAndSize(sigbuf, siglen);
+}
+
+PyObject *verify_update(EVP_MD_CTX *ctx, PyObject *blob) {
+    const void *buf;
+    int len;
+
+#if PYTHON_API_VERSION >= 1009
+    if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
+        return NULL;
+#else /* assume PYTHON_API_VERSION == 1007 */
+    if (!PyString_Check(blob)) {
+        PyErr_SetString(PyExc_TypeError, "expected a string object");
+        return NULL;
+    }
+    len = PyString_Size(blob);
+    buf = PyString_AsString(blob);
+#endif
+    EVP_VerifyUpdate(ctx, buf, len);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+
+int verify_final(EVP_MD_CTX *ctx, PyObject *blob, EVP_PKEY *pkey) {
+    unsigned char *kbuf; 
+    int len;
+    unsigned int ret;
+
+#if PYTHON_API_VERSION >= 1009
+    if (PyObject_AsReadBuffer(blob, (const void **)&kbuf, &len) == -1)
+        return -1;
+#else /* assume PYTHON_API_VERSION == 1007 */
+    if (!PyString_Check(blob)) {
+        PyErr_SetString(PyExc_TypeError, "expected a string object");
+        return -1;
+    }
+    len = PyString_Size(blob);
+    buf = PyString_AsString(blob);
+#endif
+    return = EVP_VerifyFinal(ctx, kbuf, len, pkey);
 }
 
 int pkey_write_pem_no_cipher(EVP_PKEY *pkey, BIO *f, PyObject *pyfunc) {
