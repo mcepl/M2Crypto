@@ -3,7 +3,7 @@
 ** Portions created by Open Source Applications Foundation (OSAF) are
 ** Copyright (C) 2004 OSAF. All Rights Reserved.
 */
-/* $Id: _ssl.i,v 1.6 2004/04/09 16:29:45 ngps Exp $ */
+/* $Id$ */
 
 %{
 #include <pythread.h>
