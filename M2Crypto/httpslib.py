@@ -1,14 +1,18 @@
 """M2Crypto support for Python 1.5.2 and Python 2.0's httplib. 
 
-Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: httpslib.py,v 1.2 2000/11/29 15:20:47 ngps Exp $'
+RCS_id='$Id: httpslib.py,v 1.3 2001/06/03 04:39:24 ngps Exp $'
 
-import sys
+import string, sys
 from httplib import *
 import SSL
 
-if sys.version[:3] == '2.0':
+if sys.version[:3] in ('2.0', '2.1'):
+    
+    if sys.version[:3] == '2.1':
+        # In 2.1, httplib exports "HTTP" only.
+        from httplib import HTTPConnection, HTTPS_PORT
 
     class HTTPSConnection(HTTPConnection):
     

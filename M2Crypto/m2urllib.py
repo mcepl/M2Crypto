@@ -1,11 +1,11 @@
 """M2Crypto enhancement to Python's urllib for handling 
 'https' url's.
 
-Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: m2urllib.py,v 1.2 2000/11/29 15:22:29 ngps Exp $'
+RCS_id='$Id: m2urllib.py,v 1.3 2001/06/03 04:36:30 ngps Exp $'
 
-import sys
+import sys, urllib
 from urllib import *
 
 import SSL
@@ -42,14 +42,15 @@ def open_https(self, url, data=None):
             auth = string.strip(base64.encodestring(user_passwd))
         else:
             auth = None
-        # Here!
-        if sys.version[:3] == '2.0':
-            h = httpslib.HTTPS(host, ssl_context=self.ctx)
+        # Start here!
+        if sys.version[:3] in ('2.0', '2.1'):
+            #h = httpslib.HTTPS(host, ssl_context=self.ctx)
+            h = httpslib.HTTPSConnection(host=host, ssl_context=self.ctx)
         elif sys.version[:3] == '1.5':
             h = httpslib.HTTPS(self.ctx, host)
         else:
             raise RuntimeError, 'unsupported Python version'
-        # Here!
+        # Stop here!
         if data is not None:
             h.putrequest('POST', selector)
             h.putheader('Content-type', 'application/x-www-form-urlencoded')
@@ -62,15 +63,24 @@ def open_https(self, url, data=None):
         h.endheaders()
         if data is not None:
             h.send(data + '\r\n')
-        errcode, errmsg, headers = h.getreply()
-        fp = h.getfile()
-        if errcode == 200:
-            return addinfourl(fp, headers, "https:" + url)
-        else:
-            if data is None:
-                return self.http_error(url, fp, errcode, errmsg, headers)
+        # Here again!
+        if sys.version[:3] in ('2.0', '2.1'):
+            resp = h.getresponse()
+            fp = resp.fp
+            return urllib.addinfourl(fp, {}, "https:" + url)
+        elif sys.version[:3] == '1.5':
+            errcode, errmsg, headers = h.getreply()
+            fp = h.getfile()
+            if errcode == 200:
+                return urllib.addinfourl(fp, headers, "https:" + url)
             else:
-                return self.http_error(url, fp, errcode, errmsg, headers, data)
+                if data is None:
+                    return self.http_error(url, fp, errcode, errmsg, headers)
+                else:
+                    return self.http_error(url, fp, errcode, errmsg, headers, data)
+        else:
+            raise RuntimeError, 'unsupported Python version'
+        # Stop again.
 
 # Minor brain surgery. 
 URLopener.open_https = open_https

@@ -1,15 +1,15 @@
 """M2Crypto enhancement to xmlrpclib.
 
-Copyright (c) 1999 Ng Pheng Siong. All rights reserved. """
+Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: m2xmlrpclib.py,v 1.3 2000/12/13 15:41:25 ngps Exp $'
+RCS_id='$Id: m2xmlrpclib.py,v 1.4 2001/06/03 04:37:15 ngps Exp $'
 
 import base64, string, sys
 
 from xmlrpclib import *
 import SSL, httpslib, m2urllib
 
-__version__='0.05p2'
+__version__='0.06'
 
 class SSL_Transport(Transport):
 
@@ -25,7 +25,7 @@ class SSL_Transport(Transport):
         # Handle username and password.
         user_passwd, host_port = m2urllib.splituser(host)
         _host, _port = m2urllib.splitport(host_port)
-        if sys.version[:3] == '2.0':
+        if sys.version[:3] in ('2.0', '2.1'):
             h = httpslib.HTTPS(_host, int(_port), ssl_context=self.ssl_ctx)
         elif sys.version[:3] ==  '1.5':
             h = httpslib.HTTPS(self.ssl_ctx, _host, int(_port))
