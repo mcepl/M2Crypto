@@ -1,5 +1,5 @@
 /* Copyright (c) 1999 Ng Pheng Siong. All rights reserved. */
-/* $Id: _evp.i,v 1.1 2003/06/22 17:30:52 ngps Exp $ */
+/* $Id: _evp.i,v 1.2 2003/09/15 16:22:17 ngps Exp $ */
 
 %{
 #include <assert.h>
@@ -402,7 +402,7 @@ PyObject *cipher_update(EVP_CIPHER_CTX *ctx, PyObject *blob) {
     len = PyString_Size(blob);
     buf = PyString_AsString(blob);
 #endif
-    if (!(obuf = PyMem_Malloc(len))) {
+    if (!(obuf = PyMem_Malloc(len + EVP_CIPHER_CTX_block_size(ctx) - 1))) {
         PyErr_SetString(PyExc_MemoryError, "cipher_update");
         return NULL;
     }
