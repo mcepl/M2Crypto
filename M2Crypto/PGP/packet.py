@@ -10,7 +10,7 @@ is not implemented.
 
 Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: packet.py,v 1.1 1999/12/22 15:51:28 ngps Exp $'
+RCS_id='$Id: packet.py,v 1.2 2000/04/17 16:21:09 ngps Exp $'
 
 # XXX Work-in-progress.
 
@@ -26,7 +26,7 @@ except ImportError:
     from StringIO import StringIO
 
 from M2Crypto import EVP, RSA
-from M2Crypto.util import oct2_to_num, octx_to_num
+from M2Crypto.util import octx_to_num
 
 from constants import *
 
@@ -256,7 +256,7 @@ class pke_packet(packet):
             self._keyid = self.body.read(8)
             self._pkc = ord(self.body.read(1))
     
-            deklen = (oct2_to_num(self.body.read(2)) + 7 ) / 8
+            deklen = (struct.unpack('>H', self.body.read(2))[0] + 7 ) / 8
             self._dek = octx_to_num(self.body.read(deklen))
 
 
