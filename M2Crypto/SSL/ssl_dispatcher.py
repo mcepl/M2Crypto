@@ -1,6 +1,6 @@
-"""Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
+"""Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: ssl_dispatcher.py,v 1.3 2001/06/03 04:42:29 ngps Exp $'
+RCS_id='$Id: ssl_dispatcher.py,v 1.4 2002/12/23 03:56:38 ngps Exp $'
 
 # Python
 import asyncore, socket
@@ -24,9 +24,11 @@ class ssl_dispatcher(asyncore.dispatcher):
         self.socket.connect(addr)
         self.socket.setblocking(0)
 
-    def recv(self, size=4096):
-        return self.socket.recv(size)
+    def recv(self, buffer_size=4096):
+        """Receive data over SSL."""
+        return self.socket.recv(buffer_size)
 
     def send(self, buffer):
+        """Send data over SSL."""
         return self.socket.send(buffer)
 

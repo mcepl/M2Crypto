@@ -1,7 +1,7 @@
 """BIO cipher filtering demonstration.
-Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: bio_ciph_test.py,v 1.1 2000/08/23 15:37:51 ngps Exp $'
+RCS_id='$Id: bio_ciph_test.py,v 1.2 2002/12/23 04:05:11 ngps Exp $'
 
 from M2Crypto import BIO, Rand, m2
 
@@ -12,7 +12,7 @@ def test_py(cipher):
     data = '123456789012345678901234'
     # Encrypt.
     mem = BIO.MemoryBuffer()
-    cf = BIO.CipherFilter(mem)
+    cf = BIO.CipherStream(mem)
     cf.set_cipher(cipher, 'key', 'iv', 1)
     cf.write(data)
     cf.flush()
@@ -22,7 +22,7 @@ def test_py(cipher):
 
     # Decrypt.
     mem = BIO.MemoryBuffer(xxx)
-    cf = BIO.CipherFilter(mem)
+    cf = BIO.CipherStream(mem)
     cf.set_cipher(cipher, 'key', 'iv', 0)
     cf.write_close()
     data2 = cf.read()
@@ -33,7 +33,7 @@ def test_py(cipher):
 
 if __name__=='__main__':
     ciphers=['bf_ecb', 'bf_cbc', 'bf_cfb', 'bf_ofb',\
-        'idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb',\
+        #'idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb',\
         'cast5_ecb', 'cast5_cbc', 'cast5_cfb', 'cast5_ofb',\
         'rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb',\
         'des_ecb', 'des_cbc', 'des_cfb', 'des_ofb',\

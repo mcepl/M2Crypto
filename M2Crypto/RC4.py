@@ -1,29 +1,33 @@
-#!/usr/bin/env python
+"""M2Crypto wrapper for OpenSSL RC4 API.
 
-RCS_id='$Id: RC4.py,v 1.1 1999/08/16 15:32:16 ngps Exp $'
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-from M2Crypto import rc4_new, rc4_free, \
-	rc4_set_key, rc4_update
+RCS_id='$Id: RC4.py,v 1.2 2002/12/23 03:49:25 ngps Exp $'
+
+from m2 import rc4_new, rc4_free, rc4_set_key, rc4_update
 
 class RC4:
-	def __init__(self, key=None):
-		self.cipher=rc4_new()
-		if key:
-			rc4_set_key(self.cipher, key)
 
-	def __del__(self):
-		rc4_free(self.cipher)
+    """Object interface to the stream cipher RC4."""
 
-	def set_key(self, key):
-		if key:
-			rc4_set_key(self.cipher, key)	
-		else:
-			raise ValueError, 'key==None'
+    def __init__(self, key=None):
+        self.cipher = rc4_new()
+        if key:
+            rc4_set_key(self.cipher, key)
 
-	def update(self, data):
-		return rc4_update(self.cipher, data)
+    def __del__(self):
+        try:
+            rc4_free(self.cipher)
+        except AttributeError:
+            pass
 
-	def final(self):
-		return ''
+    def set_key(self, key):
+        rc4_set_key(self.cipher, key)   
+
+    def update(self, data):
+        return rc4_update(self.cipher, data)
+
+    def final(self):
+        return ''
 
 

@@ -1,22 +1,13 @@
 """M2Crypto PGP2 RSA.
 
-Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: RSA.py,v 1.2 2000/11/26 09:49:47 ngps Exp $'
+RCS_id='$Id: RSA.py,v 1.3 2002/12/23 04:02:12 ngps Exp $'
 
 import sys
-from M2Crypto import m2
-
-if sys.version[:3] == '2.0':
-    from M2Crypto import RSA as _RSA
-
-elif sys.version[:3] == '1.5':
-    from M2Crypto import RSA
-    _RSA = RSA
-    del RSA
-
-else:
-    raise RuntimeError, 'unknown Python version'
+from M2Crypto import m2, RSA
+_RSA = RSA
+del RSA
 
 
 class RSA(_RSA.RSA):

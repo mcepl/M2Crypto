@@ -1,6 +1,14 @@
-"""Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
+"""M2Crypto SSL services.
 
-RCS_id='$Id: __init__.py,v 1.1 2000/02/23 15:37:43 ngps Exp $'
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
+
+RCS_id='$Id: __init__.py,v 1.2 2002/12/23 03:58:22 ngps Exp $'
+
+# M2Crypto
+from M2Crypto import m2
+
+class SSLError(Exception): pass
+m2.ssl_init(SSLError)
 
 # M2Crypto.SSL
 from Cipher import Cipher, Cipher_Stack
@@ -8,15 +16,13 @@ from Context import Context
 from Connection import Connection
 from SSLServer import SSLServer, ForkingSSLServer, ThreadingSSLServer
 from ssl_dispatcher import ssl_dispatcher
-
-# M2Crypto
-from M2Crypto import M2Crypto
-m2 = M2Crypto
-
-m2.ssl_init()
+from timeout import timeout
 
 verify_none = m2.SSL_VERIFY_NONE
 verify_peer = m2.SSL_VERIFY_PEER
 verify_fail_if_no_peer_cert = m2.SSL_VERIFY_FAIL_IF_NO_PEER_CERT
 verify_client_once = m2.SSL_VERIFY_CLIENT_ONCE
+
+SSL_SENT_SHUTDOWN = m2.SSL_SENT_SHUTDOWN
+SSL_RECEIVED_SHUTDOWN = m2.SSL_RECEIVED_SHUTDOWN
 

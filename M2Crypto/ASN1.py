@@ -1,10 +1,9 @@
-"""Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
+"""Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: ASN1.py,v 1.1 2000/02/23 15:44:25 ngps Exp $'
+RCS_id='$Id: ASN1.py,v 1.2 2002/12/23 03:52:12 ngps Exp $'
 
 import BIO
-import M2Crypto
-m2=M2Crypto
+import m2
 
 class ASN1_UTCTIME:
     def __init__(self, asn1):

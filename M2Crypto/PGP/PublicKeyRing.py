@@ -1,8 +1,8 @@
 """M2Crypto PGP2.
 
-Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: PublicKeyRing.py,v 1.1 1999/12/22 15:52:06 ngps Exp $'
+RCS_id='$Id: PublicKeyRing.py,v 1.2 2002/12/23 04:01:47 ngps Exp $'
 
 
 from constants import *

@@ -1,6 +1,6 @@
-"""Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
+"""Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Session.py,v 1.1 2000/08/23 15:34:46 ngps Exp $'
+RCS_id='$Id: Session.py,v 1.2 2002/12/23 03:58:03 ngps Exp $'
 
 from M2Crypto import BIO, Err, m2
 

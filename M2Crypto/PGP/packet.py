@@ -8,9 +8,9 @@ the abstract 'packet' class.
 The 'message digest' packet type, mentioned but not documented in RFC1991,
 is not implemented.
 
-Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: packet.py,v 1.2 2000/04/17 16:21:09 ngps Exp $'
+RCS_id='$Id: packet.py,v 1.3 2002/12/23 04:03:07 ngps Exp $'
 
 # XXX Work-in-progress.
 

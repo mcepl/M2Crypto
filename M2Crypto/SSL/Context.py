@@ -1,6 +1,8 @@
-"""Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
+"""M2Crypto.SSL.Context
 
-RCS_id='$Id: Context.py,v 1.3 2000/08/23 15:35:24 ngps Exp $'
+Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
+
+RCS_id='$Id: Context.py,v 1.4 2002/12/23 03:56:03 ngps Exp $'
 
 # M2Crypto
 import cb
@@ -27,6 +29,9 @@ def map():
 
 
 class Context:
+
+    """'Context' for SSL connections."""
+
     def __init__(self, protocol='sslv23'):
         proto = getattr(m2, protocol + '_method')
         if proto is None:
@@ -40,6 +45,18 @@ class Context:
         m2.ssl_ctx_free(self.ctx)
 
     def load_cert(self, certfile, keyfile=None, callback=util.passphrase_callback):
+        """Load certificate and private key into the context.
+        
+        'certfile'  - File object containing the PEM-encoded certificate.
+
+        'keyfile'   - File object containing the PEM-encoded private key.
+        Default value of None indicates that the private key is to be found
+        in 'certfile'.
+
+        'callback'  - Callable object to be invoked if the private key is
+        passphrase-protected. Default callback provides a simple
+        terminal-style input for the passphrase.
+        """
         m2.ssl_ctx_passphrase_callback(self.ctx, callback)
         m2.ssl_ctx_use_cert(self.ctx, certfile)
         if not keyfile: 
@@ -49,11 +66,23 @@ class Context:
             raise ValueError, 'public/private key mismatch'
 
     def load_client_ca(self, cafile):
+        """Load CA certs into the context. These CA certs are sent to the
+        peer during *SSLv3 certificate request*.
+        
+        'cafile'    - File object containing one or more PEM-encoded CA
+        certificates concatenated together.
+        """
         m2.ssl_ctx_load_client_CA(self.ctx, cafile)
 
     load_client_CA = load_client_ca
 
     def load_verify_info(self, cafile):
+        """Load CA certs into the context. These CA certs are used during
+        verification of the peer's certificate.
+
+        'cafile'    - File object containing one or more PEM-encoded CA
+        certificates concatenated together.
+        """
         return m2.ssl_ctx_load_verify_locations(self.ctx, cafile)
 
     load_verify_location = load_verify_info
@@ -63,10 +92,18 @@ class Context:
         if not ret:
             raise Err.SSLError(Err.get_error_code(), '')
 
-    def set_allow_unknown_ca(self, ok):
+    def set_allow_unknown_ca(self, ok): 
+        """Set the context to accept/reject a peer certificate if the 
+        certificate's CA is unknown.
+
+        'ok'        - 'true' to accept, 'false' to reject.
+        """
         self.allow_unknown_ca = ok
 
     def get_allow_unknown_ca(self):
+        """Get the context's setting that accepts/rejects a peer
+        certificate if the certificate's CA is unknown.
+        """
         return self.allow_unknown_ca
 
     def set_verify(self, mode, depth, callback=cb.ssl_verify_callback):
@@ -80,11 +117,17 @@ class Context:
         return m2.ssl_ctx_get_verify_depth(self.ctx)
 
     def set_tmp_dh(self, dhpfile):
+        """Load ephemeral DH parameters into the context.
+
+        'dhpfile'   - File object containing the PEM-encoded DH 
+        parameters.
+        """
         f = BIO.openfile(dhpfile)
         dhp = m2.dh_read_parameters(f.bio_ptr())
         m2.ssl_ctx_set_tmp_dh(self.ctx, dhp)
 
     def set_info_callback(self, callback=cb.ssl_info_callback):
+        # XXX Has problem with Python threading...
         m2.ssl_ctx_set_info_callback(self.ctx, callback) 
 
     def set_cipher_list(self, cipher_list):
@@ -95,4 +138,11 @@ class Context:
 
     def remove_session(self, session):
         return m2.ssl_ctx_remove_session(self.ctx, session._ptr())
+
+    def get_session_timeout(self):
+        return m2.ssl_ctx_get_session_timeout(self.ctx)
+
+    def set_session_timeout(self, timeout):
+        return m2.ssl_ctx_set_session_timeout(self.ctx, timeout)
+
 

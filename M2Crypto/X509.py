@@ -1,15 +1,26 @@
 """M2Crypto wrapper for OpenSSL X509 API.
 
+This module has evolved based on the needs of supporting X.509 
+certificate operations (mainly attribute getters for 
+authentication purposes) from within an SSL connection.
+
+This module is emphatically not sufficient to implement CA-like
+functionality in Python. Given the availability of open source CA 
+tools such as OpenSSL's CA.[sh|pl], Oscar, IBM's XXX, it is 
+unlikely that this module will ever evolve to the aforementioned
+sufficiency.
+
 Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: X509.py,v 1.7 2000/05/07 16:02:56 ngps Exp $'
+RCS_id='$Id: X509.py,v 1.8 2002/12/23 03:44:03 ngps Exp $'
 
 # M2Crypto
 import ASN1, BIO, Err
-import M2Crypto 
-m2=M2Crypto
+import m2
 
-m2.x509_init()
+class X509Error(Exception): pass
+
+m2.x509_init(X509Error)
 
 V_OK = m2.X509_V_OK
 
@@ -24,6 +35,7 @@ class X509_Store_Context:
 
 
 class X509_Name:
+
     nid = {'C'  : m2.NID_countryName,
            'SP' : m2.NID_stateOrProvinceName,
            'L'  : m2.NID_localityName,
@@ -33,87 +45,100 @@ class X509_Name:
            'Email' : m2.NID_pkcs9_emailAddress}
 
     def __init__(self, x509_name, _pyfree=0):
-        assert x509_name is not None
+        assert m2.x509_name_type_check(x509_name), "'x509_name' type error" 
         self.x509_name = x509_name
         self._pyfree = _pyfree
 
     def __del__(self):
-        if self._pyfree:
-            m2.x509_name_free(self.x509_name)
+        try:
+            if self._pyfree:
+                m2.x509_name_free(self.x509_name)
+        except AttributeError:
+            pass
 
     def __str__(self):
+        assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error" 
         return m2.x509_name_oneline(self.x509_name)
 
     def __getattr__(self, attr):
         if attr in self.nid.keys():
+            assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error" 
             return m2.x509_name_by_nid(self.x509_name, self.nid[attr])
         else:
-            raise AttributeError, self, attr
+            raise AttributeError, (self, attr)
 
 
 class X509:
-    def __init__(self, x509=None, _pyfree=0):
-        if x509 is not None:
-            self.x509 = x509
-            self._pyfree = _pyfree
-        else:
-            self.x509 = m2.x509_new()
-            self._pyfree = 1
+
+    """
+    Object interface to an X.509 digital certificate.
+    """
+
+    def __init__(self, x509, _pyfree=0):
+        assert m2.x509_type_check(x509), "'x509' type error"
+        self.x509 = x509
+        self._pyfree = _pyfree
 
     def __del__(self):
-        if self._pyfree:
-            m2.x509_free(self.x509)
+        try:
+            if self._pyfree:
+                m2.x509_free(self.x509)
+        except AttributeError:
+            pass
 
     def _ptr(self):
+        assert m2.x509_type_check(self.x509), "'x509' type error"
         return self.x509
 
     def as_text(self):
+        assert m2.x509_type_check(self.x509), "'x509' type error"
         buf=BIO.MemoryBuffer()
         m2.x509_print(buf.bio_ptr(), self.x509)
         return buf.read_all()
 
     def as_der(self):
+        assert m2.x509_type_check(self.x509), "'x509' type error"
         buf=BIO.MemoryBuffer()
         m2.i2d_x509(buf.bio_ptr(), self.x509)
         return buf.read_all()
 
     def get_version(self):
+        assert m2.x509_type_check(self.x509), "'x509' type error"
         return m2.x509_get_version(self.x509)
 
     def get_serial_number(self):
+        assert m2.x509_type_check(self.x509), "'x509' type error"
         asn1_integer = m2.x509_get_serial_number(self.x509)
         return m2.asn1_integer_get(asn1_integer)
 
     def get_not_before(self):
+        assert m2.x509_type_check(self.x509), "'x509' type error"
         return ASN1.ASN1_UTCTIME(m2.x509_get_not_before(self.x509))
 
     def get_not_after(self):
+        assert m2.x509_type_check(self.x509), "'x509' type error"
         return ASN1.ASN1_UTCTIME(m2.x509_get_not_after(self.x509))
 
     def get_pubkey(self):
+        assert m2.x509_type_check(self.x509), "'x509' type error"
         return m2.x509_get_pubkey(self.x509)
 
     def get_issuer(self):
+        assert m2.x509_type_check(self.x509), "'x509' type error"
         return X509_Name(m2.x509_get_issuer_name(self.x509))
 
     def get_subject(self):
+        assert m2.x509_type_check(self.x509), "'x509' type error"
         return X509_Name(m2.x509_get_subject_name(self.x509))
 
-def load_cert(pemfile):
-    bio = m2.bio_new_file(pemfile, 'r')
-    if bio is None:
-        raise Err.get_error()
-    cptr = m2.x509_read_pem(bio)
-    m2.bio_free(bio)
-    if cptr is None:
-        raise Err.get_error()
-    return X509(cptr, 1)
+
+def load_cert(file):
+    bio = BIO.openfile(file)
+    return load_cert_bio(bio)
+
 
 def load_cert_bio(bio):
-    cptr = m2.x509_read_pem(bio._ptr())
-    if cptr is None:
-        raise Err.get_error()
-    return X509(cptr, 1)
+    return X509(m2.x509_read_pem(bio._ptr()), 1)
 
 
 class X509_Store:

@@ -1,14 +1,14 @@
-"""Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
+"""Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: SSLServer.py,v 1.1 2000/02/23 15:36:44 ngps Exp $'
+RCS_id='$Id: SSLServer.py,v 1.2 2002/12/23 03:56:26 ngps Exp $'
 
 # Python
 import socket, SocketServer
 
 # M2Crypto
 from Connection import Connection
-from M2Crypto import Err, M2Crypto
-m2 = M2Crypto
+from M2Crypto.SSL import SSLError
+from M2Crypto import m2
 
 
 class SSLServer(SocketServer.TCPServer):
@@ -29,7 +29,7 @@ class SSLServer(SocketServer.TCPServer):
             request, client_address = self.get_request()
             if self.verify_request(request, client_address):
                 self.process_request(request, client_address)
-        except Err.SSLError:
+        except SSLError:
             self.handle_error()
 
     def handle_error(self):
@@ -37,9 +37,6 @@ class SSLServer(SocketServer.TCPServer):
         import traceback
         traceback.print_exc()
         print '-'*40
-
-    #def verify_request(self, request, client_address):
-    #    return self.request.verify_ok()
 
 
 class ForkingSSLServer(SocketServer.ForkingMixIn, SSLServer):

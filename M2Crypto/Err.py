@@ -1,12 +1,11 @@
 """M2Crypto wrapper for OpenSSL Error API.
 
-Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Err.py,v 1.2 2000/02/23 15:40:51 ngps Exp $'
+RCS_id='$Id: Err.py,v 1.3 2002/12/23 03:51:29 ngps Exp $'
 
 import BIO
-import M2Crypto
-m2=M2Crypto
+import m2
 
 def get_error():
     err=BIO.MemoryBuffer()
