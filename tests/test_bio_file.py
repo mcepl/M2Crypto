@@ -1,21 +1,25 @@
-#!/usr/bin/env python2.0
+#!/usr/bin/env python
 
 """Unit tests for M2Crypto.BIO.File.
 
-Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: test_bio_file.py,v 1.1 2000/11/08 14:41:35 ngps Exp $'
+RCS_id='$Id: test_bio_file.py,v 1.2 2002/01/13 14:44:45 ngps Exp $'
 
 import unittest
 import M2Crypto
 from M2Crypto.BIO import File, openfile
-import os
+import os, sys
 
 class FileTestCase(unittest.TestCase):
 
     def setUp(self):
         self.data = 'abcdef' * 64
-        self.fname = os.tmpnam()
+        if sys.version[0] == '2' and sys.platform != 'win32':
+            self.fname = os.tmpnam()
+        elif sys.version[:3] == '1.5' or sys.platform == 'win32':
+            import tempfile
+            self.fname = tempfile.mktemp()
 
     def tearDown(self):
         try:
@@ -62,6 +66,12 @@ class FileTestCase(unittest.TestCase):
 
 
 def suite():
+    # Python 2.2 warns that os.tmpnam() is unsafe.
+    try:
+        import warnings
+        warnings.filterwarnings('ignore')
+    except ImportError:
+        pass
     return unittest.makeSuite(FileTestCase, 'check_')
     
 
