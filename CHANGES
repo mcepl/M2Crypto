@@ -11,9 +11,18 @@
   allow M2Crypto to build with stock OpenSSL on various Linuxen.
 - Added ssl_set_tmp_dh_callback.
 - Added ssl_set_tmp_rsa and ssl_set_tmp_rsa_callback to support weak-cipher
-  browsers. (Do these still exist?)
-- ZServerSSL now exports SSL_* request headers (a la mod_ssl) to Zope applications.
-- Perform distutils's SWIG .i search path tweaking within setup.py.
+  browsers.
+- ZServerSSL exports SSL_CIPHER request header (a la mod_ssl) to Zope applications.
+- Perform distutils's SWIG .i search path tweaking within setup.py. setup.py
+  should now work "out of the box".
+- Allow using a passphrase callback in class SMIME. Thanks to Artur Frysiak
+  <wiget@pld-linux.org> for the patch.
+- Added method get0_signers to class PKCS7, which retrieves signers' certificates
+  from a PKCS7 blob. Thanks again to Artur Frysiak.
+- Added contrib/smimeplus.py, a high-level S/MIME interface, contributed by Bernard
+  Yue <bernie@3captus.com>. Thanks Bernard.
+- Alias 'emailAddress' to 'Email' in X509.X509_Name.nid to support recent OpenSSL 
+  convention.
 
 
  Changes since 0.10

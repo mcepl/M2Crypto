@@ -1,5 +1,5 @@
 /* Copyright (c) 2000 Ng Pheng Siong. All rights reserved. */
-/* $Id: _pkcs7.i,v 1.1 2003/06/22 17:30:52 ngps Exp $ */
+/* $Id: _pkcs7.i,v 1.2 2003/10/26 16:58:59 ngps Exp $ */
 
 %{
 #include <openssl/bio.h>
@@ -169,6 +169,11 @@ const char *pkcs7_type_sn(PKCS7 *pkcs7) {
 
 int smime_crlf_copy(BIO *in, BIO *out) {
     return SMIME_crlf_copy(in, out, PKCS7_TEXT);
+}
+
+/* return STACK_OF(X509)* */
+STACK *pkcs7_get0_signers(PKCS7 *p7, STACK *certs, int flags) {
+	return PKCS7_get0_signers(p7,certs,flags);
 }
 %}
 
