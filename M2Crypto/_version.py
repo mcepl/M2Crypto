@@ -1,8 +1,8 @@
 """M2Crypto Version Info"""
 
-RCS_id='$Id: _version.py,v 1.4 2004/04/12 02:07:28 ngps Exp $'
+RCS_id='$Id: _version.py,v 1.5 2004/06/30 07:48:20 ngps Exp $'
 
 import string
-version_info = (0, 13, 2)
+version_info = (0, 14, 's1')
 version = string.join(map(lambda x: "%s" % x, version_info), ".")
 

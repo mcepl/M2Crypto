@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: https_cli.py,v 1.7 2003/06/30 06:25:44 ngps Exp $'
+RCS_id='$Id: https_cli.py,v 1.8 2004/06/30 07:52:13 ngps Exp $'
 
 import sys
 from M2Crypto import Rand, SSL, httpslib, threading
@@ -35,7 +35,7 @@ elif sys.version[0] == '2':
     def test_httpslib():
         ctx = SSL.Context('sslv23')
         ctx.load_cert_chain('client.pem')
-        ctx.load_verify_locations('ca.pem')
+        ctx.load_verify_locations('ca.pem', '')
         ctx.set_verify(SSL.verify_peer, 10)        
         ctx.set_info_callback()
         h = httpslib.HTTPSConnection('127.0.0.1', 9443, ssl_context=ctx)
@@ -59,7 +59,6 @@ elif sys.version[0] == '2':
             sys.stdout.flush()
         f.close()
         h.close()
-
 
 if __name__=='__main__':
     Rand.load_file('../randpool.dat', -1) 

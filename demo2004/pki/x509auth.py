@@ -200,7 +200,7 @@ class CertHandler:
         self.CreatePKey ()
         X509Cert = M2Crypto.X509.X509 ()
         X509Cert.set_version ( self.Params['Version'] )
-        X509Cert.set_serial ( self.Params['Serial'] )
+        X509Cert.set_serial_number ( self.Params['Serial'] )
         X509Cert.set_not_before ( int( time.time() - self.Params['NotBefore'] ))        # 1 year in the past
         X509Cert.set_not_after ( int( time.time() + self.Params['NotAfter'] ))          # 5 years in the future
         X509Cert.set_issuer ( self.Params['Issuer'] )

@@ -6,7 +6,7 @@ Portions Copyright (c) 2004 Open Source Applications Foundation.
 Author: Heikki Toivonen
 """
 
-RCS_id='$Id: X509.py,v 1.14 2004/04/12 02:06:52 ngps Exp $'
+RCS_id='$Id: X509.py,v 1.15 2004/06/30 07:47:11 ngps Exp $'
 
 # M2Crypto
 import ASN1, BIO, Err
@@ -293,9 +293,7 @@ class X509:
 
     def set_serial_number(self, serial):
         """
-        Set serial number. Every certificate must have a serial number.
-        A CA must issue unique serial numbers for all the certificates
-        that it issues.
+        Set serial number.
 
         @type serial:   int
         @param serial:  Serial number.

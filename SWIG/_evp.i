@@ -1,5 +1,5 @@
 /* Copyright (c) 1999 Ng Pheng Siong. All rights reserved. */
-/* $Id: _evp.i,v 1.5 2004/04/12 02:08:17 ngps Exp $ */
+/* $Id: _evp.i,v 1.6 2004/06/30 07:49:41 ngps Exp $ */
 
 %{
 #include <assert.h>
@@ -423,7 +423,7 @@ int verify_final(EVP_MD_CTX *ctx, PyObject *blob, EVP_PKEY *pkey) {
     len = PyString_Size(blob);
     buf = PyString_AsString(blob);
 #endif
-    return = EVP_VerifyFinal(ctx, kbuf, len, pkey);
+    return EVP_VerifyFinal(ctx, kbuf, len, pkey);
 }
 
 int pkey_write_pem_no_cipher(EVP_PKEY *pkey, BIO *f, PyObject *pyfunc) {
