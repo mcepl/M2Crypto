@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Connection.py,v 1.9 2003/01/07 16:47:43 ngps Exp $'
+RCS_id='$Id: Connection.py,v 1.10 2003/06/22 16:49:01 ngps Exp $'
 
 # Python
 import socket, sys
@@ -223,6 +223,7 @@ class Connection:
     def makefile(self, mode='rb', bufsize='ignored'):
         # XXX Need to dup().
         bio = BIO.BIO(self.sslbio, _close_cb=self.close)
+        BIO.bio_do_ssl_handshake(bio._ptr())
         return BIO.IOBuffer(bio, mode)
 
     def getsockname(self):
@@ -247,17 +248,17 @@ class Connection:
         return m2.ssl_get_default_session_timeout(self.ssl)
 
     def get_socket_read_timeout(self):
-        return timeout.struct_to_timeout(self.socket.getsockopt(socket.SOL_SOCKET, socket.RCVTIMEO, 8))
+        return timeout.struct_to_timeout(self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, 8))
 
     def get_socket_write_timeout(self):
-        return timeout.struct_to_timeout(self.socket.getsockopt(socket.SOL_SOCKET, socket.SNDTIMEO, 8))
+        return timeout.struct_to_timeout(self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_SNDTIMEO, 8))
 
     def set_socket_read_timeout(self, timeo):
-        assert isinstance(timeout, timeo)
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.RCVTIMEO, timeo.pack())
+        assert isinstance(timeo, timeout.timeout)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, timeo.pack())
 
-    def set_socket_write_timeout(self, timeout):
-        assert isinstance(timeout, timeo)
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SNDTIMEO, timeo.pack())
+    def set_socket_write_timeout(self, timeo):
+        assert isinstance(timeo, timeout.timeout)
+        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDTIMEO, timeo.pack())
 
 

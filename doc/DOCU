@@ -3,7 +3,7 @@
 ========================
 
 :Author: Ng Pheng Siong
-:Id: $Id: DOCU,v 1.1 2003/06/22 16:41:18 ngps Exp $
+:Id: $Id: DOCU,v 1.2 2003/06/22 16:43:02 ngps Exp $
 
 
 2003-06-22
@@ -20,8 +20,8 @@ ReStructuredText equivalent) to generate HTML is like getting rid of
 the "compile/link" step in the "edit-compile/link-run"
 cycle. Productivity goes up!
 
-Of course, nobody in his right mind uses Zope's TTW interface to do
-serious editing. I use Emacs/ange-ftp.
+Of course, nobody in his right mind does serious editing using Zope's
+TTW interface. I use Emacs/ange-ftp.
 
 I envisage some kind of ReportLab-based magic to generate PDF output
 easily from within Zope.

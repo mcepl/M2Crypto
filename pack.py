@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
     zap_swig = ("_m2crypto_wrap*", "_m2crypto.c", "_m2crypto.py", "vc60.pdb")
     for x in zap_swig:
-        for z in glob.glob("%s/swig/%s" % (start, x)):
+        for z in glob.glob("%s/SWIG/%s" % (start, x)):
             try:
                 os.remove(z)
             except:

@@ -2,9 +2,10 @@
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: BIO.py,v 1.8 2002/12/23 03:47:21 ngps Exp $'
+RCS_id='$Id: BIO.py,v 1.9 2003/06/22 16:47:36 ngps Exp $'
 
 import m2
+from m2 import bio_do_handshake as bio_do_ssl_handshake
 
 class BIOError(Exception): pass
 
@@ -46,7 +47,7 @@ class BIO:
             raise ValueError, 'read count is negative'
         return m2.bio_read(self.bio, size)
 
-    def readline(self, size=256):
+    def readline(self, size=4096):
         if not self.readable():
             raise IOError, 'cannot read'
         buf = m2.bio_gets(self.bio, size)
@@ -57,7 +58,7 @@ class BIO:
             raise IOError, 'cannot read'
         lines=[]
         while 1:
-            buf=m2.bio_gets(self.bio, 1024)
+            buf=m2.bio_gets(self.bio, 4096)
             if buf is None:
                 break
             lines.append(buf)
@@ -135,7 +136,7 @@ class File(BIO):
     """
 
     def __init__(self, pyfile, close_pyfile=1):
-        BIO.__init__(self)
+        BIO.__init__(self, _pyfree=1)
         self.pyfile = pyfile
         self.close_pyfile = close_pyfile
         self.bio = m2.bio_new_fp(pyfile, 0)
@@ -159,7 +160,7 @@ class IOBuffer(BIO):
     """
 
     def __init__(self, under_bio, mode='rwb', _pyfree=1):
-        BIO.__init__(self)
+        BIO.__init__(self, _pyfree=_pyfree)
         self.io = m2.bio_new(m2.bio_f_buffer())
         self.bio = m2.bio_push(self.io, under_bio._ptr())
         # This reference keeps the underlying BIO alive while we're not closed.
@@ -168,7 +169,6 @@ class IOBuffer(BIO):
             self.write_closed = 0
         else:
             self.write_closed = 1
-        self._pyfree = _pyfree
 
     def __del__(self):
         if self._pyfree:
@@ -188,7 +188,7 @@ class CipherStream(BIO):
     SALT_LEN = m2.PKCS5_SALT_LEN
 
     def __init__(self, obio):
-        BIO.__init__(self)
+        BIO.__init__(self, _pyfree=1)
         self.obio = obio
         self.bio = m2.bio_new(m2.bio_f_cipher())
         self.closed = 0
