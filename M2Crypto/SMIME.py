@@ -2,12 +2,11 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: SMIME.py,v 1.1 2000/04/01 14:48:32 ngps Exp $'
+RCS_id='$Id: SMIME.py,v 1.2 2000/04/17 16:17:21 ngps Exp $'
 
 import BIO, EVP, X509, Err
 import M2Crypto
 m2=M2Crypto
-
 
 PKCS7_TEXT	    = m2.PKCS7_TEXT
 PKCS7_NOCERTS	= m2.PKCS7_NOCERTS
@@ -18,6 +17,11 @@ PKCS7_NOVERIFY	= m2.PKCS7_NOVERIFY
 PKCS7_DETACHED	= m2.PKCS7_DETACHED
 PKCS7_BINARY	= m2.PKCS7_BINARY
 PKCS7_NOATTR	= m2.PKCS7_NOATTR
+
+PKCS7_SIGNED	        = m2.PKCS7_SIGNED
+PKCS7_ENVELOPED	        = m2.PKCS7_ENVELOPED
+PKCS7_SIGNED_ENVELOPED	= m2.PKCS7_SIGNED_ENVELOPED
+PKCS7_DATA	            = m2.PKCS7_DATA 
 
 
 class PKCS7:
@@ -36,6 +40,17 @@ class PKCS7:
     def _ptr(self):
         return self.pkcs7
 
+    def type(self, text_name=0):
+        if text_name:
+            return m2.pkcs7_type_sn(self.pkcs7)
+        else:
+            return m2.pkcs7_type_nid(self.pkcs7)
+
+    def write(self, bio):
+        return m2.pkcs7_write_bio(self.pkcs7, bio._ptr())
+
+    def write_der(self, bio):
+        return m2.pkcs7_write_bio_der(self.pkcs7, bio._ptr())
 
 def load_pkcs7(p7file):
     bio = m2.bio_new_file(p7file, 'r')
@@ -48,7 +63,15 @@ def load_pkcs7(p7file):
     if bio_ptr is None:
         return PKCS7(p7_ptr, 1), None
     else:
-        #return PKCS7(p7_ptr, 1), BIO.MemoryBuffer(bio_ptr, 1)
+        return PKCS7(p7_ptr, 1), BIO.BIO(bio_ptr, 1)
+    
+def load_pkcs7_bio(p7_bio):
+    p7_ptr, bio_ptr = m2.smime_read_pkcs7(p7_bio._ptr())
+    if p7_ptr is None:
+        raise Err.get_error()
+    if bio_ptr is None:
+        return PKCS7(p7_ptr, 1), None
+    else:
         return PKCS7(p7_ptr, 1), BIO.BIO(bio_ptr, 1)
     
             
@@ -160,4 +183,22 @@ class SMIME:
             return m2.smime_write_pkcs7(out_bio._ptr(), pkcs7._ptr(), flags)
         else:
             return m2.smime_write_pkcs7_multi(out_bio._ptr(), pkcs7._ptr(), data_bio._ptr(), flags)
+
+
+def text_crlf(text):
+    bio_in = BIO.MemoryBuffer(text)
+    bio_out = BIO.MemoryBuffer()
+    if m2.smime_crlf_copy(bio_in, bio_out):
+        return bio_out.read()
+    else:
+        raise Err.get_error()
+
+
+def text_crlf_bio(bio_in):
+    bio_out = BIO.MemoryBuffer()
+    m2.smime_crlf_copy(bio_in, bio_out)
+    if m2.smime_crlf_copy(bio_in, bio_out):
+        return bio_out
+    else:
+        raise Err.get_error()
 
