@@ -1,14 +1,14 @@
 """Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Connection.py,v 1.3 2000/04/17 16:22:35 ngps Exp $'
+RCS_id='$Id: Connection.py,v 1.4 2000/08/23 15:33:32 ngps Exp $'
 
 # Python
 import socket, sys
 
 # M2Crypto
 from Cipher import Cipher, Cipher_Stack
-from M2Crypto import util, BIO, Err, X509, M2Crypto
-m2 = M2Crypto
+from Session import Session
+from M2Crypto import util, BIO, Err, X509, m2
 
 class Connection:
     def __init__(self, ctx, sock=None):
@@ -24,11 +24,14 @@ class Connection:
     def close(self):
         m2.ssl_shutdown(self.ssl)
         try:
-            m2.bio_free(self.sslbio)
-            m2.bio_free(self.sockbio)
+            m2.bio_free_all(self.sslbio)
+            #m2.bio_free(self.sockbio)
         except AttributeError:
             pass
         self.socket.close()
+
+    def set_shutdown(self, mode):
+        m2.ssl_set_shutdown1(self.ssl, mode)
 
     def bind(self, addr):
         self.socket.bind(addr)
@@ -59,7 +62,8 @@ class Connection:
         m2.bio_set_ssl(self.sslbio, self.ssl, 1)
 
     def accept_ssl(self):
-        return self._check_ssl_return(m2.ssl_accept(self.ssl))
+        #return self._check_ssl_return(m2.ssl_accept(self.ssl))
+        return m2.ssl_accept(self.ssl)
 
     def accept(self):
         sock, addr = self.socket.accept()
@@ -68,13 +72,6 @@ class Connection:
         ssl.accept_ssl()
         return ssl, addr
 
-#    def _old_connect(self, addr):
-#        self.socket.connect(addr)
-#        self._setup_ssl(addr)
-#        ret = m2.ssl_connect(self.ssl)
-#        if not ret:
-#            raise Err.SSLError(Err.get_error_code(), addr)
-
     def connect(self, addr):
         self.socket.connect(addr)
         self._setup_ssl(addr)
@@ -82,6 +79,9 @@ class Connection:
 
     def shutdown(self, how):
         m2.ssl_set_shutdown(self.ssl, how)
+
+    def renegotiate(self):
+        return m2.ssl_renegotiate(self.ssl)
 
     def _write_bio(self, data):
         return m2.ssl_write(self.ssl, data)
@@ -105,20 +105,29 @@ class Connection:
     def setblocking(self, mode):
         self.socket.setblocking(mode)
         if mode:
-            self.send = self.write = self._write_nbio
-            self.recv = self.read = self._read_nbio
-        else:
             self.send = self.write = self._write_bio
             self.recv = self.read = self._read_bio
+        else:
+            self.send = self.write = self._write_nbio
+            self.recv = self.read = self._read_nbio
 
     def fileno(self):
         return self.socket.fileno()
+
+    def get_context(self):
+        return m2.ssl_get_ssl_ctx(self.ssl)
 
     def get_state(self):
         return m2.ssl_get_state(self.ssl)
 
     def verify_ok(self):
         return (m2.ssl_get_verify_result(self.ssl) == m2.X509_V_OK)
+
+    def get_verify_mode(self):
+        return m2.ssl_get_verify_mode(self.ssl)
+
+    def get_verify_depth(self):
+        return m2.ssl_get_verify_depth(self.ssl)
 
     def get_verify_result(self):
         return m2.ssl_get_verify_result(self.ssl)
@@ -151,15 +160,21 @@ class Connection:
         # XXX Need to free the pointer?
         return Cipher_Stack(c)
 
-    def _makefile(self, mode='rw', bufsize=1024):
-        # XXX Doesn't work.
-        #sockbio = m2.bio_dup_chain(self.sockbio)
-        ssl = m2.ssl_dup(self.ssl)
-        m2.ssl_set_bio(ssl, sockbio, sockbio)
-        sslbio = m2.bio_dup_chain(self.sslbio)
-        m2.bio_set_ssl(sslbio, ssl, 0)
-        m2.bio_push(sslbio, sockbio)
-        return BIO.IOBuffer(sslbio, mode, bufsize)
+    def get_cipher_list(self, idx=0):
+        return m2.ssl_get_cipher_list(self.ssl, idx)
+
+    def set_cipher_list(self, cipher_list):
+        return m2.ssl_set_cipher_list(self.ssl, cipher_list)
+
+#    def _makefile(self, mode='rw', bufsize=1024):
+#        # XXX Doesn't work.
+#        #sockbio = m2.bio_dup_chain(self.sockbio)
+#        ssl = m2.ssl_dup(self.ssl)
+#        m2.ssl_set_bio(ssl, sockbio, sockbio)
+#        sslbio = m2.bio_dup_chain(self.sslbio)
+#        m2.bio_set_ssl(sslbio, ssl, 0)
+#        m2.bio_push(sslbio, sockbio)
+#        return BIO.IOBuffer(sslbio, mode, bufsize)
 
     def makefile(self, mode='r', bufsize=1024):
         # XXX Need to dup().
@@ -172,4 +187,11 @@ class Connection:
         ret = m2.ssl_set_session_id_context(self.ssl, id)
         if not ret:
             raise Err.SSLError(Err.get_error_code(), '')
+
+    def get_session(self):
+        sess = m2.ssl_get_session(self.ssl)
+        return Session(sess)
+
+    def set_session(self, session):
+        m2.ssl_set_session(self.ssl, session._ptr())
 
