@@ -6,9 +6,9 @@ This client interoperates with M2Crypto's Medusa-based FTP/TLS
 server as well as Peter Runestig's patched-for-TLS OpenBSD FTP 
 server.
 
-Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-_RCS_id = '$Id: ftp_tls.py,v 1.1 2002/01/05 07:30:23 ngps Exp $'
+_RCS_id = '$Id: ftp_tls.py,v 1.2 2002/12/23 04:39:42 ngps Exp $'
 
 from M2Crypto import SSL, ftpslib
 

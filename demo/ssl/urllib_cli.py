@@ -2,22 +2,21 @@
 
 """Demonstrations of M2Crypto.m2urllib2.
 
-Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: urllib_cli.py,v 1.1 2000/11/29 15:18:22 ngps Exp $'
+RCS_id='$Id: urllib_cli.py,v 1.2 2002/12/23 04:43:12 ngps Exp $'
 
-import sys
 from M2Crypto import Rand, SSL, m2urllib
 
-
 def test_urllib():
-    url = m2urllib.urlopen('https://127.0.0.1:443/')
+    url = m2urllib.FancyURLopener()
+    url.addheader('Connection', 'close')
+    u = url.open('https://127.0.0.1:9443/')
     while 1:
-        data = url.read()
-        if not data:
-            break
-        sys.stdout.write(data)
-    url.close()
+        data = u.read()
+        if not data: break
+        print data
+    u.close()
 
 
 if __name__=='__main__':

@@ -2,13 +2,12 @@
 
 """A simple SSL 'echo' client that uses the BIO interface.
 
-Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: bioecho.py,v 1.1 2000/04/17 15:53:30 ngps Exp $'
+RCS_id='$Id: bioecho.py,v 1.2 2002/12/23 04:36:27 ngps Exp $'
 
-import getopt
-import sys
-from M2Crypto import Err, SSL, X509
+import getopt, sys
+from M2Crypto import SSL, X509
 
 host='127.0.0.1'
 port=9999
@@ -21,11 +20,11 @@ for opt in optlist:
         port=opt[1]
 
 ctx=SSL.Context('sslv3')
-ctx.load_cert('client0.pem')
+ctx.load_cert('client.pem')
 ctx.load_verify_info('ca.pem')
-#ctx.load_client_ca('ca.pem')
+ctx.load_client_ca('ca.pem')
 ctx.set_verify(SSL.verify_peer, 10)
-#ctx.set_info_callback()
+ctx.set_info_callback()
 
 s=SSL.Connection(ctx)
 s.connect((host, port))
@@ -44,11 +43,6 @@ bio = s.makefile('rw')
 while 1:
     data = bio.readline()
     if not data:
-        print 'readline:',
-        e = Err.get_error_code()
-        #print Err.get_error_lib(e)
-        #print Err.get_error_func(e)
-        print Err.get_error_reason(e)
         break
     sys.stdout.write(data)
     sys.stdout.flush()
@@ -57,13 +51,6 @@ while 1:
         break
     n = bio.write(buf)
     bio.flush()
-    if not n:
-        print 'write:', 
-        e = Err.get_error_code()
-        #print Err.get_error_lib(e)
-        #print Err.get_error_func(e)
-        print Err.get_error_reason(e)
-        break
 
 bio.close()
 s.close()

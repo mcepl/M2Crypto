@@ -2,9 +2,9 @@
 
 """Demonstration of M2Crypto.xmlrpclib2.
 
-Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: xmlrpc_cli.py,v 1.3 2001/06/01 12:57:02 ngps Exp $'
+RCS_id='$Id: xmlrpc_cli.py,v 1.4 2002/12/23 04:43:31 ngps Exp $'
 
 from M2Crypto import Rand
 from M2Crypto.m2xmlrpclib import Server, SSL_Transport

@@ -3,9 +3,9 @@ a HTTPS server, saves the negotiated SSL session id, parses the HTML
 returned by the server, then requests each HREF in a separate thread 
 using the saved SSL session id.
 
-Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: sess.py,v 1.2 2000/09/11 14:52:29 ngps Exp $'
+RCS_id='$Id: sess.py,v 1.3 2002/12/23 04:42:52 ngps Exp $'
 
 from M2Crypto import Err, Rand, SSL, X509, threading
 m2_threading = threading; del threading
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     Rand.load_file('../randpool.dat', -1) 
 
     host = '127.0.0.1'
-    port = 9443
+    port = 443
     req = '/'
 
     optlist, optarg = getopt.getopt(sys.argv[1:], 'h:p:r:')

@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-_RCS_id='$Id: ftps_server.py,v 1.1 2001/09/19 13:52:23 ngps Exp $'
+_RCS_id='$Id: ftps_server.py,v 1.2 2002/12/23 04:30:45 ngps Exp $'
 
 # Python
 import socket, string, sys, time
@@ -18,6 +18,8 @@ VERSION_STRING='0.07'
 
 class ftp_tls_channel(ftp_server.ftp_channel):
     
+    """FTP/TLS server channel for Medusa."""
+
     def __init__(self, server, ssl_ctx, conn, addr):
         """Initialise the channel."""
         self.ssl_ctx = ssl_ctx
@@ -75,6 +77,7 @@ class ftp_tls_channel(ftp_server.ftp_channel):
                     raise
 
     def send(self, data):
+        """Send data over SSL."""
         try:
             result = self.socket.send(data)
             if result <= 0:
@@ -87,6 +90,7 @@ class ftp_tls_channel(ftp_server.ftp_channel):
             return 0
 
     def recv(self, buffer_size):
+        """Receive data over SSL."""
         try:
             result = self.socket.recv(buffer_size)
             if not result:
@@ -177,6 +181,7 @@ class ftp_tls_channel(ftp_server.ftp_channel):
         self.client_dc = cdc
 
     def make_recv_channel(self, fd):
+        """Create a connection for receiving data."""
         pa = self.passive_acceptor
         if pa:
             if pa.ready:
@@ -207,7 +212,7 @@ class ftp_tls_channel(ftp_server.ftp_channel):
         self.client_dc = cdc
 
     def cmd_auth(self, line):
-        """Prepare for AUTH TLS operation."""
+        """Prepare for TLS operation."""
         # XXX Handle variations.
         if line[1] != 'TLS':
             self.command_not_understood (string.join(line))
@@ -250,11 +255,14 @@ class ftp_tls_channel(ftp_server.ftp_channel):
 
 class ftp_tls_server(ftp_server.ftp_server):
 
+    """FTP/TLS server for Medusa."""
+
     SERVER_IDENT = 'M2Crypto FTP/TLS Server (v%s)' % VERSION_STRING
 
     ftp_channel_class = ftp_tls_channel
 
     def __init__(self, authz, ssl_ctx, host=None, ip='', port=21, resolver=None, log_obj=None):
+        """Initialise the server."""
         self.ssl_ctx = ssl_ctx
         self.ip = ip
         self.port = port
@@ -291,6 +299,7 @@ class ftp_tls_server(ftp_server.ftp_server):
         self.log_info(l % (time.ctime(time.time()), repr(self.authorizer), self.hostname, self.port))
 
     def handle_accept(self):
+        """Accept a socket and dispatch a channel to handle it."""
         conn, addr = self.accept()
         self.total_sessions.increment()
         self.log_info('Connection from %s:%d' % addr)
@@ -306,7 +315,7 @@ class nbio_ftp_tls_actor:
         self.ssl_ctx = ssl_ctx
         self.client_addr = client_addr
         self._ssl_handshaking = 1
-        self._ssl_handshake_ok = 1
+        self._ssl_handshake_ok = 0
         if sock:
             self.socket = SSL.Connection(self.ssl_ctx, sock)
             self.socket.setup_addr(self.client_addr)
@@ -315,7 +324,7 @@ class nbio_ftp_tls_actor:
             if self._ssl_handshake_ok:
                 self._ssl_handshaking = 0
             self.add_channel()
-        # else we've not gotten a connection yet; when that happens,
+        # else the client hasn't connected yet; when that happens,
         # handle_connect() will be triggered.
 
     def tls_neg_ok(self):
@@ -327,13 +336,9 @@ class nbio_ftp_tls_actor:
         return self._ssl_handshake_ok
 
     def handle_connect(self):
-        """Handle a data connection that happened after this instance came 
-        into being.
-        
-        That is, when this instance was, well, instantiated, the underlying
-        data connection has not been connected (in active mode) or accepted
-        (in passive mode).
-        """
+        """Handle a data connection that occurs after this instance came 
+        into being. When this handler is triggered, self.socket has been 
+        created and refers to the underlying connected socket."""
         self.socket = SSL.Connection(self.ssl_ctx, self.socket)
         self.socket.setup_addr(self.client_addr)
         self.socket.setup_ssl()
@@ -343,6 +348,7 @@ class nbio_ftp_tls_actor:
         self.add_channel()
 
     def send(self, data):
+        """Send data over SSL."""
         try:
             result = self.socket.send(data)
             if result <= 0:
@@ -355,6 +361,7 @@ class nbio_ftp_tls_actor:
             return 0
 
     def recv(self, buffer_size):
+        """Receive data over SSL."""
         try:
             result = self.socket.recv(buffer_size)
             if not result:
@@ -393,12 +400,14 @@ class tls_xmit_channel(nbio_ftp_tls_actor, ftp_server.xmit_channel):
             return ftp_server.xmit_channel.writable(self)
 
     def handle_read(self):
-        """Handle a read event."""
+        """Handle a read event: either continue with TLS negotiation
+        or let the application handle this event."""
         if self.tls_neg_ok():
             ftp_server.xmit_channel.handle_read(self) 
 
     def handle_write(self):
-        """Handle a write event."""
+        """Handle a write event: either continue with TLS negotiation
+        or let the application handle this event."""
         if self.tls_neg_ok():
             ftp_server.xmit_channel.handle_write(self) 
 
@@ -417,12 +426,14 @@ class tls_recv_channel(nbio_ftp_tls_actor, ftp_server.recv_channel):
         return self._ssl_handshaking
 
     def handle_read(self):
-        """Handle a read event."""
+        """Handle a read event: either continue with TLS negotiation
+        or let the application handle this event."""
         if self.tls_neg_ok():
             ftp_server.recv_channel.handle_read(self) 
 
     def handle_write(self):
-        """Handle a write event."""
+        """Handle a write event: either continue with TLS negotiation
+        or let the application handle this event."""
         if self.tls_neg_ok():
             ftp_server.recv_channel.handle_write(self) 
 

@@ -2,22 +2,22 @@
 1. One thread per connection.
 2. Generates directory listings. 
 
-TODO:
-1. Cache stat() of directory entries.
-2. Fancy directory indexing.
-3. Interface ZPublisher.
-
 In addition, it has the following properties:
 1. Works over HTTPS only.
 2. Displays SSL handshaking and SSL session info.
 3. Performs SSL renegotiation when a magic url is requested.
 
-Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved.
+TODO:
+1. Cache stat() of directory entries.
+2. Fancy directory indexing.
+3. Interface ZPublisher.
+
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
 """
 
-RCS_id = '$Id: https_srv.py,v 1.1 2000/08/23 15:48:07 ngps Exp $'
+RCS_id = '$Id: https_srv.py,v 1.2 2002/12/23 04:41:31 ngps Exp $'
 
-import os
+import os, sys
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 
 from M2Crypto import Rand, SSL
@@ -45,7 +45,7 @@ def mkdirlist(path, url):
             f.write('<a href="/%s">%s</a><br>\r\n' % (d, d2))
         else:
             f.write('<a href="%s/%s">%s</a><br>\r\n' % (url, d, d2))
-    f.write('</pre>\r\n')
+    f.write('</pre>\r\n\r\n')
     f.reset()
     return f
 
@@ -54,6 +54,18 @@ class HTTP_Handler(SimpleHTTPRequestHandler):
 
     server_version = "https_srv/0.1"
     reneg = 0
+
+    # Cribbed from SimpleHTTPRequestHander to add the ".der" entry,
+    # which facilitates installing your own certificates into browsers.
+    extensions_map = {
+            '': 'text/plain',   # Default, *must* be present
+            '.html': 'text/html',
+            '.htm': 'text/html',
+            '.gif': 'image/gif',
+            '.jpg': 'image/jpeg',
+            '.jpeg': 'image/jpeg',
+            '.der': 'application/x-x509-ca-cert'
+            }
 
     def send_head(self):
         if self.path[1:8] == '_reneg_':
@@ -76,8 +88,8 @@ class HTTP_Handler(SimpleHTTPRequestHandler):
         return f
 
     def do_GET(self):
-        sess = self.request.get_session()
-        self.log_message('\n%s', sess.as_text())
+        #sess = self.request.get_session()
+        #self.log_message('\n%s', sess.as_text())
         f = self.send_head()
         if self.reneg:
             self.reneg = 0
@@ -89,8 +101,8 @@ class HTTP_Handler(SimpleHTTPRequestHandler):
             f.close()
 
     def do_HEAD(self):
-        sess = self.request.get_session()
-        self.log_message('\n%s', sess.as_text())
+        #sess = self.request.get_session()
+        #self.log_message('\n%s', sess.as_text())
         f = self.send_head()
         if f:
             f.close()
@@ -120,9 +132,16 @@ def init_context(protocol, certfile, cafile, verify, verify_depth=10):
 
 
 if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        wdir = '.'
+    else:
+        wdir = sys.argv[1]
     Rand.load_file('../randpool.dat', -1)
-    ctx = init_context('sslv23', 'server.pem', 'ca.pem', SSL.verify_none)
+    ctx = init_context('sslv23', 'server.pem', 'ca.pem', \
+        SSL.verify_none)
+        #SSL.verify_peer | SSL.verify_fail_if_no_peer_cert)
     ctx.set_tmp_dh('dh1024.pem')
+    os.chdir(wdir)
     httpsd = HTTPS_Server(('', 9443), HTTP_Handler, ctx)
     httpsd.serve_forever()
     Rand.save_file('../randpool.dat')

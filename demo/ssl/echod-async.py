@@ -2,9 +2,9 @@
 
 """An asyncore-based SSL 'echo' server.
 
-Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: echod-async.py,v 1.4 2002/01/05 08:27:31 ngps Exp $'
+RCS_id='$Id: echod-async.py,v 1.5 2002/12/23 04:37:27 ngps Exp $'
 
 import asyncore, errno, socket, time
 from M2Crypto import Rand, SSL
