@@ -1,13 +1,18 @@
 -------------
- 03 Jun 2001
+ 29 Dec 2002
 -------------
 
 This directory contains contributions by users of M2Crypto. Some of these
 may get folded into the main distribution in time.
 
-
 - dispatcher.py by Ilya Etingof <ilya@glas.net>.
 
 - m2crypto.spec by Sean Reifschneider <jafo-rpms@tummy.com>.
+
+- Smarter non-blocking behaviour patch by Dave Brueck 
+  <dave@pythonapocrypha.com>.
+
+
+Thanks guys!
 
 
