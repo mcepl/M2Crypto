@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Connection.py,v 1.5 2001/06/03 04:44:07 ngps Exp $'
+RCS_id='$Id: Connection.py,v 1.6 2001/09/19 14:55:45 ngps Exp $'
 
 # Python
 import socket, sys
@@ -13,8 +13,7 @@ from Session import Session
 from M2Crypto import util, BIO, Err, X509, m2
 import timeout
 
-SSLError = getattr(__import__('M2Crypto.SSL', globals(), locals(), 'SSLError'),
-    'SSLError')
+SSLError = getattr(__import__('M2Crypto.SSL', globals(), locals(), 'SSLError'), 'SSLError')
 
 class Connection:
 
@@ -27,7 +26,6 @@ class Connection:
             self.socket=sock
         else:
             self.socket=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            # XXX debugging
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._fileno = self.socket.fileno()
 
@@ -49,6 +47,9 @@ class Connection:
     def listen(self, qlen=5):
         self.socket.listen(qlen)    
 
+    def ssl_get_error(self, ret):
+        return m2.ssl_get_error(self.ssl, ret)
+
     def _check_ssl_return(self, ret):
         res = m2.ssl_get_error(self.ssl, ret)
         if res == m2.ssl_error_none:
@@ -62,20 +63,30 @@ class Connection:
             raise SSLError(m2.err_reason_error_string(m2.err_get_error()), 
                 self.socket.getpeername())
 
-    def _setup_ssl(self, addr):
-        self.addr=addr
+    def setup_addr(self, addr):
+        self.addr = addr
+
+    def setup_ssl(self):
         # Make a BIO_s_socket.
-        self.sockbio=m2.bio_new_socket(self.socket.fileno(), 0)
+        self.sockbio = m2.bio_new_socket(self.socket.fileno(), 0)
         # Link SSL struct with the BIO_socket.
         m2.ssl_set_bio(self.ssl, self.sockbio, self.sockbio)
         # Make a BIO_f_ssl.
-        self.sslbio=m2.bio_new(m2.bio_f_ssl())
+        self.sslbio = m2.bio_new(m2.bio_f_ssl())
         # Link BIO_f_ssl with the SSL struct.
         m2.bio_set_ssl(self.sslbio, self.ssl, 1)
 
+    def _setup_ssl(self, addr):
+        """Deprecated"""
+        self.setup_addr(addr)
+        self.setup_ssl()
+
+    def set_accept_state(self):
+        m2.ssl_set_accept_state(self.ssl)
+
     def accept_ssl(self):
-        #return self._check_ssl_return(m2.ssl_accept(self.ssl))
         return m2.ssl_accept(self.ssl)
+        #return self._check_ssl_return(m2.ssl_accept(self.ssl))
 
     def accept(self):
         """
@@ -85,14 +96,25 @@ class Connection:
         """
         sock, addr = self.socket.accept()
         ssl = Connection(self.ctx, sock)
-        ssl._setup_ssl(addr)
+        ssl.addr = addr
+        ssl.setup_ssl()
+        ssl.set_accept_state()
         ssl.accept_ssl()
         return ssl, addr
 
+    def set_connect_state(self):
+        m2.ssl_set_connect_state(self.ssl)
+
+    def connect_ssl(self):
+        return m2.ssl_connect(self.ssl)
+        #return self._check_ssl_return(m2.ssl_connect(self.ssl))
+
     def connect(self, addr):
         self.socket.connect(addr)
-        self._setup_ssl(addr)
-        return self._check_ssl_return(m2.ssl_connect(self.ssl))
+        self.addr = addr
+        self.setup_ssl()
+        self.set_connect_state()
+        return self.connect_ssl()
 
     def shutdown(self, how):
         m2.ssl_set_shutdown(self.ssl, how)
@@ -237,6 +259,9 @@ class Connection:
         # XXX Need to dup().
         bio = BIO.BIO(self.sslbio, _close_cb=self.close)
         return BIO.IOBuffer(bio, mode)
+
+    def getsockname(self):
+        return self.socket.getsockname()
 
     def getpeername(self):
         return self.socket.getpeername()
