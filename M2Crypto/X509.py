@@ -25,12 +25,14 @@ class X509_Extension:
     """
     # XXX Does not allow copying from existing extension.
 
-    def __init__(self, name, value, critical=0):
+    def __init__(self, name, value, critical=0, _pyfree=1):
         self.x509_ext = m2.x509v3_ext_conf(None, None, name, value)
         self.set_critical(critical)
+        self._pyfree = _pyfree
 
     def __del__(self):
-        m2.x509_extension_free(self.x509_ext)
+        if self._pyfree:
+            m2.x509_extension_free(self.x509_ext)
 
     def _ptr(self):
         return self.x509_ext
@@ -56,6 +58,20 @@ class X509_Extension:
         """
         return m2.x509_extension_get_critical(self.x509_ext)
 
+    def get_name(self):
+        """
+        Get the extension name, for example 'subjectAltName'.
+        """
+        return m2.x509_extension_get_name(self.x509_ext)
+
+    def get_value(self):
+        """
+        Get the extension value, for example 'DNS:www.example.com'.
+        """
+        buf=BIO.MemoryBuffer()
+        m2.x509_ext_print(buf.bio_ptr(), self.x509_ext, 0, 0)
+        return buf.read_all()
+
 
 class X509_Extension_Stack:
     """
@@ -77,13 +93,16 @@ class X509_Extension_Stack:
     def __len__(self):
         return m2.sk_x509_extension_num(self.stack)
 
-    # XXX How do I get the actual X509_EXTENSION from the stack?
-    #def __getitem__(self, idx):
-    #       if idx < 0 or idx >= m2.sk_x509_extension_num(self.stack):
-    #               raise IndexError, 'index out of range'
-    #       v=m2.sk_x509_extension_value(self.stack, idx)
-    #       return X509_Extension(v)
+    def __getitem__(self, idx):
+        if idx < 0 or idx >= m2.sk_x509_extension_num(self.stack):
+            raise IndexError
 
+        ret = X509_Extension('foo', 'bar') # XXX Need 'copy constructor'
+        m2.x509_extension_free(ret.x509_ext)
+        ret.x509_ext = m2.sk_x509_extension_value(self.stack, idx)
+        ret._pyfree = 0
+        return ret
+ 
     def _ptr(self):
         return self.stack
 
@@ -373,6 +392,42 @@ class X509:
         """
         assert m2.x509_type_check(self.x509), "'x509' type error"
         return m2.x509_add_ext(self.x509, ext.x509_ext, -1)
+
+    def get_ext(self, name):
+        """
+        Get X509 extension by name.
+
+        @type name:    Name of the extension
+        @param name:   str
+        @return:       X509_Extension
+        """
+        for i in range(self.get_ext_count()):
+            ext = self.get_ext_at(i)
+            if ext.get_name() == name:
+                return ext
+
+    def get_ext_at(self, index):
+        """
+        Get X509 extension by index.
+
+        @type index:    Name of the extension
+        @param index:   int
+        @return:        X509_Extension
+        """
+        if index < 0 or index >= self.get_ext_count():
+            raise IndexError
+        
+        ret = X509_Extension('foo', 'bar') # XXX We need 'copy constructor'
+        m2.x509_extension_free(ret.x509_ext)
+        ret.x509_ext = m2.x509_get_ext(self.x509, index)
+        ret._pyfree = 0
+        return ret
+
+    def get_ext_count(self):
+        """
+        Get X509 extension count.
+        """
+        return m2.x509_get_ext_count(self.x509)        
 
     def sign(self, pkey, md):
         """
