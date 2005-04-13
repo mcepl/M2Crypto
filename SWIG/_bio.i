@@ -1,4 +1,9 @@
-/* Copyright (c) 1999 Ng Pheng Siong. All rights reserved. */
+/* Copyright (c) 1999 Ng Pheng Siong. All rights reserved.
+ *
+ * Portions created by Open Source Applications Foundation (OSAF) are
+ * Copyright (C) 2004-2005 OSAF. All Rights Reserved.
+ * Author: Heikki Toivonen
+*/
 /* $Id: _bio.i,v 1.1 2003/06/22 17:30:52 ngps Exp $ */
 
 %{
@@ -8,6 +13,7 @@
 %apply Pointer NONNULL { BIO * };
 %apply Pointer NONNULL { BIO_METHOD * };
 
+%name(bio_s_bio) extern BIO_METHOD *BIO_s_bio(void);
 %name(bio_s_mem) extern BIO_METHOD *BIO_s_mem(void);
 %name(bio_s_socket) extern BIO_METHOD *BIO_s_socket(void);
 %name(bio_f_ssl) extern BIO_METHOD *BIO_f_ssl(void);
@@ -55,12 +61,12 @@ PyObject *bio_read(BIO *bio, int num) {
     Py_BEGIN_ALLOW_THREADS
     r = BIO_read(bio, buf, num);
     Py_END_ALLOW_THREADS
-    if (r == -2) {
+    if (r < 0) {
         PyMem_Free(buf);
-        PyErr_SetString(_bio_err, ERR_reason_error_string(ERR_get_error()));
-        return NULL;
-    } else if (r == -1) {
-        PyMem_Free(buf);
+        if (ERR_peek_error()) {
+            PyErr_SetString(_bio_err, ERR_reason_error_string(ERR_get_error()));
+            return NULL;
+        }
         Py_INCREF(Py_None);
         return Py_None;
     }
@@ -81,12 +87,12 @@ PyObject *bio_gets(BIO *bio, int num) {
     Py_BEGIN_ALLOW_THREADS
     r = BIO_gets(bio, buf, num);
     Py_END_ALLOW_THREADS
-    if (r == -2) {
+    if (r < 0) {
         PyMem_Free(buf);
-        PyErr_SetString(_bio_err, ERR_reason_error_string(ERR_get_error()));
-        return NULL;
-    } else if (r == -1) {
-        PyMem_Free(buf);
+        if (ERR_peek_error()) {
+            PyErr_SetString(_bio_err, ERR_reason_error_string(ERR_get_error()));
+            return NULL;
+        }
         Py_INCREF(Py_None);
         return Py_None;
     }
@@ -113,12 +119,25 @@ int bio_write(BIO *bio, PyObject *from) {
     Py_BEGIN_ALLOW_THREADS
     ret = BIO_write(bio, fbuf, flen);
     Py_END_ALLOW_THREADS
+    if (ret < 0) {
+	if (ERR_peek_error()) {
+            PyErr_SetString(_bio_err, ERR_reason_error_string(ERR_get_error()));
+        }
+    }
     return ret;
 }
 
 /* XXX Casting size_t to int. */
 int bio_ctrl_pending(BIO *bio) {
     return (int)BIO_ctrl_pending(bio);
+}
+
+int bio_ctrl_wpending(BIO *bio) {
+    return (int)BIO_ctrl_wpending(bio);
+}
+
+int bio_ctrl_get_write_guarantee(BIO *a) {
+    return BIO_ctrl_get_write_guarantee(a);
 }
 
 int bio_reset(BIO *bio) {
@@ -174,6 +193,27 @@ int bio_get_fd(BIO *bio) {
 
 int bio_do_handshake(BIO *bio) {
     return BIO_do_handshake(bio);
+}
+
+/* macro */
+int bio_make_bio_pair(BIO* b1, BIO* b2) {
+    return BIO_make_bio_pair(b1, b2);
+}
+
+int bio_set_write_buf_size(BIO* b, size_t size) {
+    return BIO_set_write_buf_size(b, size);
+}
+
+int bio_should_retry(BIO* a) {
+    return BIO_should_retry(a);
+}
+
+int bio_should_read(BIO* a) {
+    return BIO_should_read(a);
+}
+
+int bio_should_write(BIO* a) {
+    return BIO_should_write(a);
 }
 %}
 

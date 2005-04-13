@@ -1,4 +1,8 @@
-/* Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved. */
+/* Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved.
+ *
+ * Portions created by Open Source Applications Foundation (OSAF) are
+ * Copyright (C) 2004-2005 OSAF. All Rights Reserved.
+ * Author: Heikki Toivonen
 /* $Id: _m2crypto.i,v 1.2 2003/10/26 13:19:14 ngps Exp $ */
 
 %module _m2crypto
@@ -11,7 +15,6 @@ static char *RCS_id="$Id: _m2crypto.i,v 1.2 2003/10/26 13:19:14 ngps Exp $";
 #include <_lib.h>
 
 static PyObject *ssl_verify_cb_func;
-static PyObject *ssl_info_cb_func;
 static PyObject *ssl_info_cb_func;
 static PyObject *ssl_set_tmp_dh_cb_func;
 static PyObject *ssl_set_tmp_rsa_cb_func;

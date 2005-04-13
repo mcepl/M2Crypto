@@ -2,7 +2,12 @@
 
 """Unit tests for M2Crypto.X509.
 
-Contributed by Toby Allsopp <toby@MI6.GEN.NZ> under M2Crypto's license."""
+Contributed by Toby Allsopp <toby@MI6.GEN.NZ> under M2Crypto's license.
+
+Portions created by Open Source Applications Foundation (OSAF) are
+Copyright (C) 2004-2005 OSAF. All Rights Reserved.
+Author: Heikki Toivonen
+"""
 
 RCS_id='$Id: test_x509.py,v 1.1 2003/05/11 16:17:25 ngps Exp $'
 

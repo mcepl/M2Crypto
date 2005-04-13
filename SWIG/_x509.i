@@ -1,7 +1,7 @@
 /* Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.  */
 /*
 ** Portions created by Open Source Applications Foundation (OSAF) are
-** Copyright (C) 2004 OSAF. All Rights Reserved.
+** Copyright (C) 2004-2005 OSAF. All Rights Reserved.
 */
 /* $Id: _x509.i,v 1.3 2004/04/09 16:30:48 ngps Exp $   */
 
