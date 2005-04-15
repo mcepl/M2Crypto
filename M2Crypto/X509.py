@@ -455,12 +455,6 @@ class X509:
         else:
             return m2.x509_verify(self.x509, m2.x509_get_pubkey(self.x509))
 
-    def as_text(self):
-        assert m2.x509_type_check(self.x509), "'x509' type error"
-        buf = BIO.MemoryBuffer()
-        m2.x509_print( buf.bio_ptr(), self.x509 )
-        return buf.read_all()
-
 
 def load_cert(file):
     """
