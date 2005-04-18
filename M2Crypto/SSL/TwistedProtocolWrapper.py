@@ -9,6 +9,8 @@ RCS_id='$Id: TwistedProtocolWrapper.py,v 1.11 2005/02/01 23:56:50 heikki Exp $'
 
 from twisted.protocols.policies import ProtocolWrapper
 from twisted.python.failure import Failure
+from twisted.internet.interfaces import ITLSTransport
+from zope.interface import implements
 
 import M2Crypto # for M2Crypto.BIO.BIOError
 from M2Crypto import BIO, m2, X509
@@ -43,6 +45,9 @@ class TLSProtocolWrapper(ProtocolWrapper):
         sslChecker(): function  Should do SSL post connection check
 
     """
+
+    implements(ITLSTransport)
+    
     def __init__(self, factory, wrappedProtocol):
         if debug:
             print 'TwistedProtocolWrapper.__init__'
