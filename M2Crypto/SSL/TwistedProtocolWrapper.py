@@ -51,7 +51,16 @@ class TLSProtocolWrapper(ProtocolWrapper):
     def __init__(self, factory, wrappedProtocol):
         if debug:
             print 'TwistedProtocolWrapper.__init__'
-        ProtocolWrapper.__init__(self, factory, wrappedProtocol)
+
+        #ProtocolWrapper.__init__(self, factory, wrappedProtocol)
+        #XXX: Twisted 2.0 has a new addition where the wrappingFactory is
+        #     set as the factory of the wrappedProtocol. This is an issue
+        #     as the wrap should be transparent. What we want is 
+        #     the factory of the wrappedProtocol to be the wrappedFactory and
+        #     not the outer wrappingFactory. This is how it was implemented in
+        #     Twisted 1.3
+        self.factory = factory
+        self.wrappedProtocol = wrappedProtocol
 
         # wrappedProtocol == client/server instance
         # factory.wrappedFactory == client/server factory
