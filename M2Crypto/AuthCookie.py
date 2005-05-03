@@ -8,8 +8,7 @@ RCS_id='$Id: AuthCookie.py,v 1.2 2002/12/23 03:41:24 ngps Exp $'
 import Rand, m2
 
 # Python. Cookie is bundled with Python 2.x. 
-import Cookie, array, binascii, re, time
-from cStringIO import StringIO
+import Cookie, binascii, re, time
 
 
 _MIX_FORMAT = 'exp=%s&data=%s&digest='
