@@ -68,7 +68,7 @@ class ASN1_Object:
     def __del__(self):
         try:
             if self._pyfree:
-                m2.asn1_object_free(self.asn1)
+                m2.asn1_object_free(self.asn1obj)
         except AttributeError:
             pass
 
