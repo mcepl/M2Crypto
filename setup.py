@@ -8,7 +8,7 @@ Copyright (c) 1999-2004, Ng Pheng Siong. All rights reserved.
 
 _RCS_id = '$Id: setup.py,v 1.13 2004/03/28 11:30:01 ngps Exp $'
 
-import os, shutil, sys
+import os, sys
 from distutils.core import setup, Extension
 from distutils.command import build_ext
 
@@ -71,20 +71,19 @@ if os.name == 'nt':
     include_dirs = [my_inc, openssl_dir + '/include']
     library_dirs = [openssl_dir + '\\lib']
     libraries = ['ssleay32', 'libeay32']
-    extra_compile_args = [ "-DTHREADING" ]
-
+    
 elif os.name == 'posix':
     include_dirs = [my_inc, '/usr/include']
     library_dirs = ['/usr/lib']
     libraries = ['ssl', 'crypto']
-    extra_compile_args = [ "-DTHREADING" ]
 
 m2crypto = Extension(name = '__m2crypto',
                      sources = ['SWIG/_m2crypto.i'],
                      include_dirs = include_dirs,
                      library_dirs = library_dirs,
                      libraries = libraries,
-                     extra_compile_args = extra_compile_args
+                     extra_compile_args = ['-DTHREADING', 
+                                           '-DSWIG_COBJECT_PYTHON']
                      )
 
 setup(name = 'M2Crypto',
