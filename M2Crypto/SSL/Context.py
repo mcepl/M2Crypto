@@ -116,7 +116,7 @@ class Context:
         """
         #assert not (cafile is None and capath is None), "cafile and capath are None."
         assert not (cafile is None), "cafile is None."
-        return m2.ssl_ctx_load_verify_locations(self.ctx, cafile, capath or '')
+        return m2.ssl_ctx_load_verify_locations(self.ctx, cafile, capath)
 
     # Deprecated.
     load_verify_info = load_verify_locations
