@@ -75,6 +75,8 @@ if os.name == 'nt':
 elif os.name == 'posix':
     include_dirs = [my_inc, '/usr/include']
     library_dirs = ['/usr/lib']
+    if sys.platform == 'cygwin':
+        library_dirs += ['/usr/bin'] # libpython is here
     libraries = ['ssl', 'crypto']
 
 m2crypto = Extension(name = '__m2crypto',
