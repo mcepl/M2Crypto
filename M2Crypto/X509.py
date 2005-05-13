@@ -279,6 +279,13 @@ class X509:
         m2.x509_write_pem(buf.bio_ptr(), self.x509)
         return buf.read_all()
 
+    def save_pem(self, filename):
+        """
+        save_pem
+        """
+        bio=BIO.openfile(filename, 'wb')
+        return m2.x509_write_pem(bio.bio_ptr(), self.x509)
+
     def set_version(self, version):
         """
         Set version.
