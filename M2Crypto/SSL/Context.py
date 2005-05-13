@@ -6,7 +6,7 @@ RCS_id='$Id: Context.py,v 1.11 2004/04/09 16:25:24 ngps Exp $'
 
 # M2Crypto
 import cb
-from M2Crypto import util, BIO, Err, RSA, m2
+from M2Crypto import util, BIO, Err, RSA, m2, X509
 
 class _ctxmap:
     singleton = None
@@ -209,3 +209,14 @@ class Context:
 
     def set_options(self, op):
         return m2.ssl_ctx_set_options(self.ctx, op)
+
+    def get_cert_store(self):
+        """
+        Get the certificate store associated with this context.
+        """
+        # XXX This is tricky: ssl_ctx_get_cert_store() returns just a pointer
+        # XXX without increasing reference counts or anything. So
+        # XXX if the store now goes away, the value we returned will be
+        # XXX bogus. Dunno if we can do anything about this.
+        return X509.X509_Store(m2.ssl_ctx_get_cert_store(self.ctx))
+    
