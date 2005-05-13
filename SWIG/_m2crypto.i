@@ -1,3 +1,4 @@
+/* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 /* Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved.
  *
  * Portions created by Open Source Applications Foundation (OSAF) are
@@ -21,6 +22,13 @@ static PyObject *ssl_set_tmp_rsa_cb_func;
 
 static int thread_mode = 0;
 %}
+
+%include <openssl/opensslv.h>
+#if OPENSSL_VERSION_NUMBER >= 0x0090707fL
+#define CONST const
+#else
+#define CONST
+#endif
 
 %include constraints.i
 %include _threads.i
