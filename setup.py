@@ -69,14 +69,21 @@ my_inc = os.path.join(os.getcwd(), 'SWIG')
 if os.name == 'nt':
     openssl_dir = 'c:\\pkg\\openssl'
     include_dirs = [my_inc, openssl_dir + '/include']
+    swig_opts = ['-I"' + openssl_dir + os.sep + 'include"']
     library_dirs = [openssl_dir + '\\lib']
     libraries = ['ssleay32', 'libeay32']
     
 elif os.name == 'posix':
     include_dirs = [my_inc, '/usr/include']
+    swig_opts = ['-I/usr/include']
     library_dirs = ['/usr/lib']
     if sys.platform == 'cygwin':
-        library_dirs += ['/usr/bin'] # libpython is here
+        # Cygwin SHOULD work (there's code in distutils), but
+        # if one first starts a Windows command prompt, then bash,
+        # the distutils code does not seem to work. If you start
+        # Cygwin directly, then it would work even without this change.
+        # Someday distutils will be fixed and this won't be needed.
+        library_dirs += ['/usr/bin']
     libraries = ['ssl', 'crypto']
 
 m2crypto = Extension(name = '__m2crypto',
@@ -85,11 +92,12 @@ m2crypto = Extension(name = '__m2crypto',
                      library_dirs = library_dirs,
                      libraries = libraries,
                      extra_compile_args = ['-DTHREADING', 
-                                           '-DSWIG_COBJECT_PYTHON']
+                                           '-DSWIG_COBJECT_PYTHON'],
+                     swig_opts = swig_opts
                      )
 
 setup(name = 'M2Crypto',
-    version = '0.13',
+    version = '0.14s1',
     description = 'M2Crypto: A Python crypto and SSL toolkit',
     author = 'Ng Pheng Siong',
     author_email = 'ngps@netmemetic.com',

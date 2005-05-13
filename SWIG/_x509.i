@@ -1,3 +1,4 @@
+/* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 /* Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.  */
 /*
 ** Portions created by Open Source Applications Foundation (OSAF) are
@@ -62,7 +63,7 @@
 %name(x509_name_entry_free) extern void X509_NAME_ENTRY_free( X509_NAME_ENTRY *);
 %name(x509_name_entry_create_by_nid) extern X509_NAME_ENTRY *X509_NAME_ENTRY_create_by_NID( X509_NAME_ENTRY **, int, int, unsigned char *, int);
 %name(x509_name_entry_set_object) extern int X509_NAME_ENTRY_set_object( X509_NAME_ENTRY *, ASN1_OBJECT *);
-%name(x509_name_entry_set_data) extern int X509_NAME_ENTRY_set_data( X509_NAME_ENTRY *, int, unsigned char *, int);
+%name(x509_name_entry_set_data) extern int X509_NAME_ENTRY_set_data( X509_NAME_ENTRY *, int, CONST unsigned char *, int);
 %name(x509_name_entry_get_object) extern ASN1_OBJECT *X509_NAME_ENTRY_get_object(X509_NAME_ENTRY *);
 %name(x509_name_entry_get_data) extern ASN1_STRING *X509_NAME_ENTRY_get_data(X509_NAME_ENTRY *);
 

@@ -1,3 +1,4 @@
+/* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 /* Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved. */
 /*
 ** Portions created by Open Source Applications Foundation (OSAF) are
@@ -22,8 +23,8 @@
 %apply Pointer NONNULL { RSA * };
 %apply Pointer NONNULL { PyObject *pyfunc };
 
-%name(ssl_get_version) extern const char *SSL_get_version(SSL *);
-%name(ssl_get_error) extern int SSL_get_error(SSL *, int);
+%name(ssl_get_version) extern const char *SSL_get_version(CONST SSL *);
+%name(ssl_get_error) extern int SSL_get_error(CONST SSL *, int);
 %name(ssl_get_state) extern const char *SSL_state_string(const SSL *);
 %name(ssl_get_state_v) extern const char *SSL_state_string_long(const SSL *);
 %name(ssl_get_alert_type) extern const char *SSL_alert_type_string(int);
@@ -39,13 +40,14 @@
 %name(ssl_ctx_new) extern SSL_CTX *SSL_CTX_new(SSL_METHOD *);
 %name(ssl_ctx_free) extern void SSL_CTX_free(SSL_CTX *);
 %name(ssl_ctx_set_verify_depth) extern void SSL_CTX_set_verify_depth(SSL_CTX *, int);
-%name(ssl_ctx_get_verify_depth) extern int SSL_CTX_get_verify_depth(SSL_CTX *);
-%name(ssl_ctx_get_verify_mode) extern int SSL_CTX_get_verify_mode(SSL_CTX *);
+%name(ssl_ctx_get_verify_depth) extern int SSL_CTX_get_verify_depth(CONST SSL_CTX *);
+%name(ssl_ctx_get_verify_mode) extern int SSL_CTX_get_verify_mode(CONST SSL_CTX *);
 %name(ssl_ctx_set_cipher_list) extern int SSL_CTX_set_cipher_list(SSL_CTX *, const char *);
 %name(ssl_ctx_add_session) extern int SSL_CTX_add_session(SSL_CTX *, SSL_SESSION *);
 %name(ssl_ctx_remove_session) extern int SSL_CTX_remove_session(SSL_CTX *, SSL_SESSION *);
 %name(ssl_ctx_set_session_timeout) extern long SSL_CTX_set_timeout(SSL_CTX *, long);
-%name(ssl_ctx_get_session_timeout) extern long SSL_CTX_get_timeout(SSL_CTX *);
+%name(ssl_ctx_get_session_timeout) extern long SSL_CTX_get_timeout(CONST SSL_CTX *);
+%name(ssl_ctx_get_cert_store) extern X509_STORE *SSL_CTX_get_cert_store(CONST SSL_CTX *);
 
 %name(bio_new_ssl) extern BIO *BIO_new_ssl(SSL_CTX *, int);
 
@@ -55,35 +57,35 @@
 %name(ssl_set_bio) extern void SSL_set_bio(SSL *, BIO *, BIO *);
 %name(ssl_set_accept_state) extern void SSL_set_accept_state(SSL *);
 %name(ssl_set_connect_state) extern void SSL_set_connect_state(SSL *);
-%name(ssl_get_shutdown) extern int SSL_get_shutdown(SSL *);
+%name(ssl_get_shutdown) extern int SSL_get_shutdown(CONST SSL *);
 %name(ssl_set_shutdown) extern void SSL_set_shutdown(SSL *, int);
 %name(ssl_shutdown) extern int SSL_shutdown(SSL *);
 %name(ssl_clear) extern int SSL_clear(SSL *);
 %name(ssl_do_handshake) extern int SSL_do_handshake(SSL *);
 %name(ssl_renegotiate) extern int SSL_renegotiate(SSL *);
-%name(ssl_pending) extern int SSL_pending(SSL *);
+%name(ssl_pending) extern int SSL_pending(CONST SSL *);
 
-%name(ssl_get_peer_cert) extern X509 *SSL_get_peer_certificate(SSL *);
-%name(ssl_get_current_cipher) extern SSL_CIPHER *SSL_get_current_cipher(SSL *);
-%name(ssl_get_verify_mode) extern int SSL_get_verify_mode(SSL *);
-%name(ssl_get_verify_depth) extern int SSL_get_verify_depth(SSL *);
-%name(ssl_get_verify_result) extern long SSL_get_verify_result(SSL *);
-%name(ssl_get_ssl_ctx) extern SSL_CTX *SSL_get_SSL_CTX(SSL *);
-%name(ssl_get_default_session_timeout) extern long SSL_get_default_timeout(SSL *);
+%name(ssl_get_peer_cert) extern X509 *SSL_get_peer_certificate(CONST SSL *);
+%name(ssl_get_current_cipher) extern SSL_CIPHER *SSL_get_current_cipher(CONST SSL *);
+%name(ssl_get_verify_mode) extern int SSL_get_verify_mode(CONST SSL *);
+%name(ssl_get_verify_depth) extern int SSL_get_verify_depth(CONST SSL *);
+%name(ssl_get_verify_result) extern long SSL_get_verify_result(CONST SSL *);
+%name(ssl_get_ssl_ctx) extern SSL_CTX *SSL_get_SSL_CTX(CONST SSL *);
+%name(ssl_get_default_session_timeout) extern long SSL_get_default_timeout(CONST SSL *);
 
 %name(ssl_set_cipher_list) extern int SSL_set_cipher_list(SSL *, const char *);
-%name(ssl_get_cipher_list) extern const char *SSL_get_cipher_list(SSL *, int);
+%name(ssl_get_cipher_list) extern const char *SSL_get_cipher_list(CONST SSL *, int);
 
-%name(ssl_cipher_get_name) extern const char *SSL_CIPHER_get_name(SSL_CIPHER *);
-%name(ssl_cipher_get_version) extern char *SSL_CIPHER_get_version(SSL_CIPHER *);
+%name(ssl_cipher_get_name) extern const char *SSL_CIPHER_get_name(CONST SSL_CIPHER *);
+%name(ssl_cipher_get_version) extern char *SSL_CIPHER_get_version(CONST SSL_CIPHER *);
 
-%name(ssl_get_session) extern SSL_SESSION *SSL_get_session(SSL *);
+%name(ssl_get_session) extern SSL_SESSION *SSL_get_session(CONST SSL *);
 %name(ssl_get1_session) extern SSL_SESSION *SSL_get1_session(SSL *);
 %name(ssl_set_session) extern int SSL_set_session(SSL *, SSL_SESSION *);
 %name(ssl_session_free) extern void SSL_SESSION_free(SSL_SESSION *);
-%name(ssl_session_print) extern int SSL_SESSION_print(BIO *, SSL_SESSION *);
+%name(ssl_session_print) extern int SSL_SESSION_print(BIO *, CONST SSL_SESSION *);
 %name(ssl_session_set_timeout) extern long SSL_SESSION_set_timeout(SSL_SESSION *, long);
-%name(ssl_session_get_timeout) extern long SSL_SESSION_get_timeout(SSL_SESSION *);
+%name(ssl_session_get_timeout) extern long SSL_SESSION_get_timeout(CONST SSL_SESSION *);
 
 %constant int ssl_error_none              = SSL_ERROR_NONE;
 %constant int ssl_error_ssl               = SSL_ERROR_SSL;
@@ -170,6 +172,7 @@ int ssl_ctx_use_cert_chain(SSL_CTX *ctx, char *file) {
     }
     return i;
 }
+
 
 int ssl_ctx_use_privkey(SSL_CTX *ctx, char *file) {
     int i;
