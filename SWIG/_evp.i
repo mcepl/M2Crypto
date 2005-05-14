@@ -12,6 +12,7 @@ Author: Heikki Toivonen
 #include <openssl/err.h>
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
+#include <openssl/rsa.h>
 %}
 
 %apply Pointer NONNULL { EVP_MD_CTX * };
@@ -20,6 +21,7 @@ Author: Heikki Toivonen
 %apply Pointer NONNULL { HMAC_CTX * };
 %apply Pointer NONNULL { EVP_CIPHER_CTX * };
 %apply Pointer NONNULL { EVP_CIPHER * };
+%apply Pointer NONNULL { RSA * };
 
 %name(md5) extern const EVP_MD *EVP_md5(void);
 %name(sha1) extern const EVP_MD *EVP_sha1(void);
@@ -75,8 +77,9 @@ Author: Heikki Toivonen
 
 %name(pkey_new) extern EVP_PKEY *EVP_PKEY_new(void);
 %name(pkey_free) extern void EVP_PKEY_free(EVP_PKEY *);
-%name(pkey_assign) extern int EVP_PKEY_assign(EVP_PKEY *pkey, int type, char *key);
-%name(pkey_set1_rsa) extern int EVP_PKEY_set1_RSA(EVP_PKEY *pkey, RSA *key);
+%name(pkey_assign) extern int EVP_PKEY_assign(EVP_PKEY *, int, char *);
+%name(pkey_set1_rsa) extern int EVP_PKEY_set1_RSA(EVP_PKEY *, RSA *);
+%name(pkey_get1_rsa) extern RSA* EVP_PKEY_get1_RSA(EVP_PKEY *);
 %name(sign_init) extern int EVP_SignInit(EVP_MD_CTX *, const EVP_MD *);
 %name(verify_init) extern int EVP_VerifyInit(EVP_MD_CTX *, const EVP_MD *);
 
@@ -417,7 +420,6 @@ PyObject *verify_update(EVP_MD_CTX *ctx, PyObject *blob) {
 int verify_final(EVP_MD_CTX *ctx, PyObject *blob, EVP_PKEY *pkey) {
     unsigned char *kbuf; 
     int len;
-    unsigned int ret;
 
 #if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(blob, (const void **)&kbuf, &len) == -1)
