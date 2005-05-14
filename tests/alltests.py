@@ -6,7 +6,9 @@ import os, unittest
 from M2Crypto import Rand
 
 def suite():
-    modules_to_test = ['test_bio_membuf',
+    modules_to_test = [
+        'test_asn1',
+        'test_bio_membuf',
         'test_bio_file',
         'test_bio_iobuf',
         'test_authcookie',
