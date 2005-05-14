@@ -111,6 +111,16 @@ class RSA:
         bio = BIO.openfile(file, 'wb')
         return self.save_key_bio(bio, cipher, callback)
 
+    save_pem = save_key
+
+    def as_pem(self, cipher='aes_128_cbc', callback=util.passphrase_callback):
+        """
+        Returns the key(pair) as a string in PEM format.
+        """
+        bio = BIO.MemoryBuffer()
+        self.save_key_bio(bio, cipher, callback)
+        return bio.read()
+
     def save_key_der_bio(self, bio):
         """
         Save the key pair to an M2Crypto.BIO.BIO object in DER format.
