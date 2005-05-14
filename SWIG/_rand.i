@@ -1,3 +1,4 @@
+/* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 /* Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved. */
 /* $Id: _rand.i,v 1.2 2004/04/06 07:27:35 ngps Exp $ */
 
@@ -85,11 +86,13 @@ PyObject *rand_pseudo_bytes(int n) {
                 return NULL;
     if (!(tuple=PyTuple_New(2))) {
         PyErr_SetString(PyExc_RuntimeError, "rand_pseudo_bytes: PyTuple_New()");
+        PyMem_Free(blob);
         return NULL;
     }
     ret = RAND_pseudo_bytes(blob, n);
     if (ret == -1) {
         PyMem_Free(blob);
+        Py_DECREF(tuple);
         Py_INCREF(Py_None);
         return Py_None;
     } else {
