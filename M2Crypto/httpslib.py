@@ -10,7 +10,7 @@ import SSL
 
 if sys.version[0] == '2':
     
-    if sys.version[:3] != '2.0':
+    if sys.version_info[:2] > (2, 0):
         # In 2.1 and above, httplib exports "HTTP" only.
         from httplib import HTTPConnection, HTTPS_PORT
 
@@ -22,7 +22,7 @@ if sys.version[0] == '2':
     
         default_port = HTTPS_PORT
     
-        if (sys.version[:3] == '2.2' and sys.version_info[2] > 1) or (sys.version[:3] == '2.3'):
+        if sys.version_info[:3] > (2, 2, 1):
         
             # 2.2.2 and above have the 'strict' param.
             def __init__(self, host, port=None, strict=None, **ssl):
@@ -98,7 +98,7 @@ if sys.version[0] == '2':
         
         _connection_class = HTTPSConnection
     
-        if (sys.version[:3] == '2.2' and sys.version_info[2] > 1) or (sys.version[:3] == '2.3'):
+        if sys.version_info[:3] > (2, 2, 1):
             # 2.2.2 and above have the 'strict' param.            
             def __init__(self, host='', port=None, strict=None, **ssl):
                 HTTP.__init__(self, host, port, strict)
