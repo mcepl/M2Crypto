@@ -1,3 +1,4 @@
+/* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 /* Copyright (c) 1999 Ng Pheng Siong. All rights reserved. */
 /* $Id: _rc4.i,v 1.1 2003/06/22 17:30:52 ngps Exp $ */
 
@@ -41,6 +42,7 @@ PyObject *rc4_set_key(RC4_KEY *key, PyObject *value) {
 }
 
 PyObject *rc4_update(RC4_KEY *key, PyObject *in) {
+    PyObject *ret;
     const void *buf;
     int len;
     void *out;
@@ -61,7 +63,9 @@ PyObject *rc4_update(RC4_KEY *key, PyObject *in) {
         return NULL;
     }
     RC4(key, len, buf, out);
-    return PyString_FromStringAndSize(out, len);
+    ret = PyString_FromStringAndSize(out, len);
+    PyMem_Free(out);
+    return ret;
 }
 
 int rc4_type_check(RC4_KEY *key) {
