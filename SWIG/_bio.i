@@ -1,3 +1,4 @@
+/* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 /* Copyright (c) 1999 Ng Pheng Siong. All rights reserved.
  *
  * Portions created by Open Source Applications Foundation (OSAF) are
