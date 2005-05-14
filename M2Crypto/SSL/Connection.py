@@ -154,11 +154,11 @@ class Connection:
         """Set this connection's underlying socket to _mode_."""
         self.socket.setblocking(mode)
         if mode:
-            self.send = self.write = _write_bio
-            self.recv = self.read = _read_bio
+            self.send = self.write = self._write_bio
+            self.recv = self.read = self._read_bio
         else:
-            self.send = self.write = _write_nbio
-            self.recv = self.read = _read_nbio
+            self.send = self.write = self._write_nbio
+            self.recv = self.read = self._read_nbio
 
     def fileno(self):
         return self.socket.fileno()
