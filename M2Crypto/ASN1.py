@@ -1,8 +1,13 @@
-"""M2Crypto wrapper for OpenSSL ASN1 API.
+"""
+M2Crypto wrapper for OpenSSL ASN1 API.
 
-Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.
 
-RCS_id='$Id: ASN1.py,v 1.4 2004/04/09 16:16:07 ngps Exp $'
+Portions created by Open Source Applications Foundation (OSAF) are
+Copyright (C) 2005 OSAF. All Rights Reserved.
+"""
+
+RCS_id = '$Id: ASN1.py,v 1.4 2004/04/09 16:16:07 ngps Exp $'
 
 import BIO
 import m2
@@ -16,6 +21,16 @@ class ASN1_Integer:
     def __init__(self, asn1int, _pyfree=0):
         self.asn1int = asn1int
         self._pyfree = _pyfree
+
+    def __cmp__(self, other):
+        return m2.asn1_integer_cmp(self.asn1int, other.asn1int)
+
+    def __del__(self):
+        try:
+            if self._pyfree:
+                m2.asn1_integer_free(self.asn1int)
+        except AttributeError:
+            pass
 
 
 class ASN1_BitString:
@@ -92,7 +107,7 @@ class ASN1_UTCTIME:
                 m2.asn1_utctime_free(self.asn1_utctime)
         except AttributeError:
             pass
-
+            
     def __str__(self):
         assert m2.asn1_utctime_type_check(self.asn1_utctime), "'asn1_utctime' type error'"
         buf = BIO.MemoryBuffer()
@@ -104,10 +119,16 @@ class ASN1_UTCTIME:
         return self.asn1_utctime
 
     def set_string (self, string):
+        """
+        Set time from UTC string.
+        """
         assert m2.asn1_utctime_type_check(self.asn1_utctime), "'asn1_utctime' type error'"
         return m2.asn1_utctime_set_string( self.asn1_utctime, string )
 
     def set_time (self, time):
+        """
+        Set time from seconds since epoch (long).
+        """
         assert m2.asn1_utctime_type_check(self.asn1_utctime), "'asn1_utctime' type error'"
         return m2.asn1_utctime_set( self.asn1_utctime, time )
 
