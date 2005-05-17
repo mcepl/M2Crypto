@@ -12,8 +12,8 @@ Author: Heikki Toivonen
 RCS_id='$Id: test_x509.py,v 1.1 2003/05/11 16:17:25 ngps Exp $'
 
 import unittest
-import os
-from M2Crypto import X509, EVP, RSA, Rand
+import os, time
+from M2Crypto import X509, EVP, RSA, Rand, ASN1
 
 class X509TestCase(unittest.TestCase):
 
@@ -36,6 +36,14 @@ class X509TestCase(unittest.TestCase):
         extstack.push(ext1)
         extstack.push(ext2)
         assert(extstack[1].get_name() == 'nsComment')
+        assert len(extstack) == 2
+        if 0:
+            ext3 = extstack.pop()
+            assert len(extstack) == 1
+            assert(extstack[1].get_name() == 'subjectAltName')
+            extstack.push(ext3)
+            assert len(extstack) == 2
+            assert(extstack[1].get_name() == 'nsComment')
         x.add_extensions(extstack)
         x.sign(pk,'md5')
         return x, pk
@@ -57,6 +65,15 @@ class X509TestCase(unittest.TestCase):
         cert.set_serial_number(1)
         cert.set_version(2)
         cert.set_subject(sub)
+        t = long(time.time()) + time.timezone
+        now = ASN1.ASN1_UTCTIME()
+        now.set_time(t)
+        nowPlusYear = ASN1.ASN1_UTCTIME()
+        nowPlusYear.set_time(t + 60 * 60 * 24 * 365)
+        cert.set_not_before(now)
+        cert.set_not_after(nowPlusYear)
+        assert str(cert.get_not_before()) == str(now)
+        assert str(cert.get_not_after()) == str(nowPlusYear)
         issuer = X509.X509_Name()
         issuer.CN = 'The Issuer Monkey'
         issuer.O = 'The Organization Otherwise Known as My CA, Inc.'
@@ -70,6 +87,7 @@ class X509TestCase(unittest.TestCase):
         assert(cert.get_ext('subjectAltName').get_name() == 'subjectAltName')
         assert(cert.get_ext_at(0).get_name() == 'subjectAltName')
         assert(cert.get_ext_at(0).get_value() == 'DNS:foobar.example.com')
+        assert cert.verify()
 
 def suite():
     return unittest.makeSuite(X509TestCase, 'check')

@@ -5,8 +5,6 @@
 
 """PKI demo by Peter Teniz <peter.teniz@inverisa.net>"""
 
-import sys, os, re
-import StringIO
 import M2Crypto
 
 
@@ -65,7 +63,7 @@ class Cert:
 		X509Name.add_entry_by_txt ( field='Email',        type=MBSTRING_ASC, entry='user@localhost',        len=-1, loc=-1, set=0 )    # pkcs9 email address
 		X509Name.add_entry_by_txt ( field='emailAddress', type=MBSTRING_ASC, entry='user@localhost',        len=-1, loc=-1, set=0 )    # pkcs9 email address     
 
-		self.X509Request.set_subject_name( x509NamePtr=X509Name._ptr() )
+		self.X509Request.set_subject_name( X509Name )
 
 		#
 		# publickey
@@ -99,7 +97,7 @@ class Cert:
 
 		ASN1 = M2Crypto.ASN1.ASN1_UTCTIME ()
 		ASN1.set_time ( 500 )
-		self.X509Certificate.set_not_before( ASN1._ptr() )		#  60 * 60 * 24 * 365  -> 1 year
+		self.X509Certificate.set_not_before( ASN1 )
 
 		#
 		# time notAfter
@@ -107,7 +105,7 @@ class Cert:
 
 		ASN1 = M2Crypto.ASN1.ASN1_UTCTIME ()
 		ASN1.set_time ( 500 )
-		self.X509Certificate.set_not_after( ASN1._ptr() )		#  60 * 60 * 24 * 365  -> 1 year
+		self.X509Certificate.set_not_after( ASN1 )
 
 		#
 		# public key
@@ -124,7 +122,7 @@ class Cert:
 		#print X509Name.entry_count ()
 		#print X509Name.as_text ()
 
-		self.X509Certificate.set_subject_name( x509NamePtr=X509Name._ptr() )
+		self.X509Certificate.set_subject_name( X509Name )
 
 		#
 		# issuer
@@ -144,7 +142,7 @@ class Cert:
 		#print X509Name.entry_count ()
 		#print X509Name.as_text ()
 
-		self.X509Certificate.set_issuer_name( x509NamePtr=X509Name._ptr() )
+		self.X509Certificate.set_issuer_name( X509Name )
 
 		#
 		# signing
@@ -162,6 +160,3 @@ if __name__ == '__main__':
 	run.CreatePKey ()
 	run.CreateX509Request ()
 	run.CreateX509Certificate ()
-
-
-

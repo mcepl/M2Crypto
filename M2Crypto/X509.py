@@ -123,10 +123,15 @@ class X509_Extension_Stack:
     def pop(self):
         """
         Pop X509_Extension object from the stack.
+        
+        @return: X509_Extension popped
         """
-        # XXX ngps: Doesn't look right. What gets returned?
-        x509__ext_ptr = m2.sk_x509_extension_pop(self.stack)
+        # XXX This method does not yet work. See also X509_Stack.
+        if m2.sk_x509_extension_num(self.stack) <= 0:
+            return None
+        x509_ext_ptr = m2.sk_x509_extension_pop(self.stack)
         del self._refkeeper[x509_ext_ptr]
+        return X509_Extension(x509_ext_ptr)
 
 
 class X509_Name_Entry:
@@ -230,13 +235,6 @@ class X509_Name:
         m2.x509_name_print(buf.bio_ptr(), self.x509_name, 0)
         return buf.read_all()
 
-    #def Print(self):
-    # XXX What's the difference between this and as_text?
-    #    assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error"
-    #    buf = BIO.MemoryBuffer()
-    #    m2.x509_name_print( buf.bio_ptr(), self.x509_name )
-    #    return buf.read_all()
-
 
 class X509:
     """
@@ -298,25 +296,21 @@ class X509:
         assert m2.x509_type_check(self.x509), "'x509' type error"
         return m2.x509_set_version(self.x509, version)
 
-    def set_not_before(self, timeptr):
+    def set_not_before(self, asn1_utctime):
         assert m2.x509_type_check(self.x509), "'x509' type error"
-        return m2.x509_set_not_before(self.x509, timeptr )
+        return m2.x509_set_not_before(self.x509, asn1_utctime._ptr())
 
-    def set_not_after(self, timeptr):
+    def set_not_after(self, asn1_utctime):
         assert m2.x509_type_check(self.x509), "'x509' type error"
-        return m2.x509_set_not_after(self.x509, timeptr )
-
-    def set_pubkey(self, pkey):
-        assert m2.x509_type_check(self.x509), "'x509' type error"
-        return m2.x509_set_pubkey(self.x509, pkey.pkey)
+        return m2.x509_set_not_after(self.x509, asn1_utctime._ptr())
 
     def set_subject_name(self, name):
         assert m2.x509_type_check(self.x509), "'x509' type error"
         return m2.x509_set_subject_name(self.x509, name.x509_name)
 
-    def set_issuer_name(self, x509NamePtr):
+    def set_issuer_name(self, name):
         assert m2.x509_type_check(self.x509), "'x509' type error"
-        return m2.x509_set_issuer_name(self.x509, x509NamePtr)
+        return m2.x509_set_issuer_name(self.x509, name.x509_name)
 
     def get_version(self):
         assert m2.x509_type_check(self.x509), "'x509' type error"
@@ -494,9 +488,9 @@ class X509_Store_Context:
         self.ctx = x509_store_ctx
         self._pyfree = _pyfree
 
-    #def __del__(self):
-    # XXX verify this method
-    #    m2.x509_store_ctx_cleanup(self.ctx)
+    def __del__(self):
+        if self._pyfree:
+            m2.x509_store_ctx_cleanup(self.ctx)
 
 
 class X509_Store:
@@ -526,6 +520,8 @@ class X509_Store:
     def add_x509(self, x509):
         assert isinstance(x509, X509)
         return m2.x509_store_add_cert(self.store, x509._ptr())
+        
+    add_cert = add_x509
 
 
 class X509_Stack:
@@ -563,6 +559,7 @@ class X509_Stack:
         return m2.sk_x509_push(self.stack, x509._ptr())
 
     def pop(self):
+        # See also X509_Extension_Stack. This method should return something.
         x509_ptr = m2.sk_x509_pop(self.stack)
         del self._refkeeper[x509_ptr]
 

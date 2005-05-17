@@ -44,6 +44,7 @@
 %name(asn1_integer_free) extern void ASN1_INTEGER_free( ASN1_INTEGER *);
 %name(asn1_integer_get) extern long ASN1_INTEGER_get(ASN1_INTEGER *);
 %name(asn1_integer_set) extern int ASN1_INTEGER_set(ASN1_INTEGER *, long);
+%name(asn1_integer_cmp) extern int ASN1_INTEGER_cmp(ASN1_INTEGER *, ASN1_INTEGER *);
 
 %inline %{
 /* ASN1_UTCTIME_set_string () is a macro */
