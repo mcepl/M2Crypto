@@ -176,6 +176,75 @@ class SSLClientTestCase(unittest.TestCase):
         self.stop_server(pid)
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
+    def test_twisted_wrapper(self):
+        # Test only when twisted and ZopeInterfaces are present
+        try:
+            from twisted.internet.protocol import ClientFactory
+            from twisted.protocols.basic import LineReceiver
+            from twisted.internet import reactor
+            from twisted.protocols.policies import ProtocolWrapper, WrappingFactory
+            from M2Crypto.SSL.TwistedProtocolWrapper import TLSProtocolWrapper
+        except ImportError:
+            return
+        
+        class EchoClient(LineReceiver):
+            def connectionMade(self):
+                self.sendLine('GET / HTTP/1.0\n\n')
+
+            def lineReceived(self, line):
+                global twisted_data
+                twisted_data += line
+
+        class EchoClientFactory(ClientFactory):
+            protocol = EchoClient
+            startTLS = 1 # Start in SSL mode
+        
+            # Optional, will create SSL.Context() by default
+            def getContext(self):
+                ctx = SSL.Context()
+                return ctx
+
+            # Optional, will not check by default
+            def sslChecker(self, x509, host):
+                check = SSL.Checker.Checker(host=srv_host,
+                                            peerCertHash='545C873E4FF7E31BF439D80C9F5F128DF7E3EE57')
+                return check(x509)
+
+            def clientConnectionFailed(self, connector, reason):
+                reactor.stop()
+                assert 0, reason
+        
+            def clientConnectionLost(self, connector, reason):
+                reactor.stop()
+                
+        pid = self.start_server(self.args)
+
+        global twisted_data
+        twisted_data = ''
+        
+        factory = EchoClientFactory()
+        wrappingFactory = WrappingFactory(factory)
+        wrappingFactory.protocol = TLSProtocolWrapper
+        reactor.connectTCP(srv_host, srv_port, wrappingFactory)
+        reactor.run() # This will block until reactor.stop() is called
+
+        self.stop_server(pid)
+        self.failIf(string.find(twisted_data, 's_server -quiet -www') == -1)
+
+    def test_checker(self):
+        from M2Crypto.SSL import Checker
+        from M2Crypto import X509
+
+        check = Checker.Checker(host=srv_host,
+                                peerCertHash='545C873E4FF7E31BF439D80C9F5F128DF7E3EE57')
+        x509 = X509.load_cert('server.pem')
+        assert check(x509, srv_host)
+        
+        import doctest
+        doctest.testmod(Checker)
+        
+
+twisted_data = ''
 
 def suite():
     return unittest.makeSuite(SSLClientTestCase)
