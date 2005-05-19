@@ -34,6 +34,7 @@ static int thread_mode = 0;
 %include _threads.i
 %include _lib.i
 %include _bio.i
+%include _bn.i
 %include _rand.i
 %include _evp.i
 %include _aes.i
