@@ -67,7 +67,7 @@ PyObject *bn_rand_range(PyObject *range)
 	PyTuple_SET_ITEM(tuple, 0, range);
 	rangePyString = PyString_Format(format, tuple);
 	if (!rangePyString) {
-		PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));	
+		PyErr_SetString(PyExc_Exception, "PyString_Format failed");	
 		Py_DECREF(format);
 		Py_DECREF(tuple);
 		return NULL;	
