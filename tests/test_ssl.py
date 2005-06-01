@@ -7,10 +7,30 @@ Copyright (c) 2000-2004 Ng Pheng Siong. All rights reserved."""
 RCS_id='$Id: test_ssl.py,v 1.2 2001/09/17 15:02:18 ngps Exp $'
 
 import os, socket, string, sys, tempfile, thread, time, unittest
-from M2Crypto import Rand, SSL
+from M2Crypto import Rand, SSL, m2
 
 srv_host = 'localhost'
 srv_port = 64000
+
+def verify_cb_new_function(ok, store):
+    try:
+        assert not ok
+        err = store.get_error()
+        assert err == m2.X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY or \
+               err == m2.X509_V_ERR_CERT_UNTRUSTED or \
+               err == m2.X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE
+        app_data = m2.x509_store_ctx_get_app_data(store.ctx)
+        assert app_data
+    except AssertionError, e:
+        # If we let exceptions propagate from here the
+        # caller may see strange errors. This is cleaner.
+        return 0   
+    return 1
+
+class VerifyCB:
+    def __call__(self, ok, store):
+        return verify_cb_new_function(ok, store)
+
 
 class SSLClientTestCase(unittest.TestCase):
 
@@ -171,6 +191,97 @@ class SSLClientTestCase(unittest.TestCase):
         s = SSL.Connection(ctx)
         s.set_cipher_list('EXP-RC4-MD5')
         s.connect(self.srv_addr)
+        data = self.http_get(s)
+        s.close()
+        self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+        
+    def verify_cb_new(self, ok, store):
+        return verify_cb_new_function(ok, store)
+
+    def test_verify_cb_new(self):
+        pid = self.start_server(self.args)
+        ctx = SSL.Context()
+        ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9,
+                       self.verify_cb_new)
+        s = SSL.Connection(ctx)
+        try:
+            s.connect(self.srv_addr)
+        except SSL.SSLError, e:
+            assert 0, e
+        data = self.http_get(s)
+        s.close()
+        self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
+    def test_verify_cb_new_class(self):
+        pid = self.start_server(self.args)
+        ctx = SSL.Context()
+        ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9,
+                       VerifyCB())
+        s = SSL.Connection(ctx)
+        try:
+            s.connect(self.srv_addr)
+        except SSL.SSLError, e:
+            assert 0, e
+        data = self.http_get(s)
+        s.close()
+        self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
+    def test_verify_cb_new_function(self):
+        pid = self.start_server(self.args)
+        ctx = SSL.Context()
+        ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9,
+                       verify_cb_new_function)
+        s = SSL.Connection(ctx)
+        try:
+            s.connect(self.srv_addr)
+        except SSL.SSLError, e:
+            assert 0, e
+        data = self.http_get(s)
+        s.close()
+        self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
+    def verify_cb_exception(self, ok, store):
+        raise Exception, 'We should fail verification'
+
+    def test_verify_cb_exception(self):
+        pid = self.start_server(self.args)
+        ctx = SSL.Context()
+        ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9,
+                       self.verify_cb_exception)
+        s = SSL.Connection(ctx)
+        self.assertRaises(SSL.SSLError, s.connect, self.srv_addr)
+        s.close()
+        self.stop_server(pid)
+
+    def verify_cb_old(self, ctx_ptr, x509_ptr, err, depth, ok):
+        try:
+            from M2Crypto import X509
+            assert not ok
+            assert err == m2.X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY or \
+                   err == m2.X509_V_ERR_CERT_UNTRUSTED or \
+                   err == m2.X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE
+            assert m2.ssl_ctx_get_cert_store(ctx_ptr)
+            assert X509.X509(x509_ptr).as_pem()
+        except AssertionError:
+            # If we let exceptions propagate from here the
+            # caller may see strange errors. This is cleaner.
+            return 0
+        return 1
+
+    def test_verify_cb_old(self):
+        pid = self.start_server(self.args)
+        ctx = SSL.Context()
+        ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9,
+                       self.verify_cb_old)
+        s = SSL.Connection(ctx)
+        try:
+            s.connect(self.srv_addr)
+        except SSL.SSLError, e:
+            assert 0, e
         data = self.http_get(s)
         s.close()
         self.stop_server(pid)

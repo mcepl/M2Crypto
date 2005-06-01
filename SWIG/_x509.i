@@ -84,6 +84,11 @@
 %name(x509_store_free) extern void X509_STORE_free(X509_STORE *);
 %name(x509_store_add_cert) extern int X509_STORE_add_cert(X509_STORE *, X509 *);
 
+%name(x509_store_ctx_get_current_cert) extern X509 *X509_STORE_CTX_get_current_cert(X509_STORE_CTX *);
+%name(x509_store_ctx_get_error) extern int X509_STORE_CTX_get_error(X509_STORE_CTX *);
+%name(x509_store_ctx_get_error_depth) extern int X509_STORE_CTX_get_error_depth(X509_STORE_CTX *);
+%name(x509_store_ctx_free) extern void X509_STORE_CTX_free(X509_STORE_CTX *);
+
 %name(x509_extension_get_critical) extern int X509_EXTENSION_get_critical(X509_EXTENSION *);
 %name(x509_extension_set_critical) extern int X509_EXTENSION_set_critical(X509_EXTENSION *, int);
 
@@ -271,16 +276,6 @@ int x509_req_add_extensions(X509_REQ *req, STACK *exts) {
     return X509_REQ_add_extensions(req, (STACK_OF(X509_EXTENSION) *)exts);
 }
 
-/* These two are %name'd above.
-int x509_req_sign(X509_REQ *x, EVP_PKEY *pkey, EVP_MD *md) {
-    return X509_REQ_sign(x, pkey, md);
-}
-
-int x509_req_verify(X509_REQ *x, EVP_PKEY *pkey) {
-    return X509_REQ_verify(x, pkey);
-}
-*/
-
 X509_NAME_ENTRY *x509_name_entry_create_by_txt( X509_NAME_ENTRY **ne, char *field, int type, unsigned char *bytes, int len) {
 	return X509_NAME_ENTRY_create_by_txt( ne, field, type, bytes, len);
 }
@@ -327,6 +322,12 @@ int sk_x509_extension_num(STACK *stack) {
 X509_EXTENSION *sk_x509_extension_value(STACK *stack, int i) {
     return sk_X509_EXTENSION_value((STACK_OF(X509_EXTENSION) *)stack, i);
 }
+
+/* X509_STORE_CTX_get_app_data is a macro. */
+void *x509_store_ctx_get_app_data(X509_STORE_CTX *ctx) {
+  return X509_STORE_CTX_get_app_data(ctx);
+}
+
 %}
 
 /* Free malloc'ed return value for x509_name_oneline */
