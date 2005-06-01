@@ -7,6 +7,7 @@
 #include <openssl/evp.h>
 #include <openssl/rsa.h>
 #include <openssl/ssl.h>
+#include <openssl/x509.h>
 #include <ceval.h>
 
 /* Blob interface. Deprecated. */
@@ -46,42 +47,120 @@ void blob_free(Blob *blob) {
 Python. */
 
 int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
-    PyObject *argv, *ret, *_x509, *_ssl_ctx;
-    X509 *x509;
+    PyObject *argv, *ret;
+    PyObject *_x509_store_ctx_swigptr=0, *_x509_store_ctx_obj=0, *_x509_store_ctx_inst=0, *_klass=0;
+    PyObject *_x509=0, *_ssl_ctx=0;
     SSL *ssl;
     SSL_CTX *ssl_ctx;
-    int errnum, errdepth, cret;
+    X509 *x509;
+    int errnum, errdepth;
+    int cret;
+    int new_style_callback = 0, warning_raised_exception=0;
+#if PY_VERSION_HEX >= 0x20300F0
+    PyGILState_STATE gilstate;
+#else
     PyThreadState *_save;
-
-    x509 = X509_STORE_CTX_get_current_cert(ctx);
-    errnum = X509_STORE_CTX_get_error(ctx);
-    errdepth = X509_STORE_CTX_get_error_depth(ctx);
+#endif
 
     ssl = (SSL *)X509_STORE_CTX_get_app_data(ctx);
-    ssl_ctx = SSL_get_SSL_CTX(ssl);
-
-    _x509 = SWIG_NewPointerObj((void *)x509, SWIGTYPE_p_X509, 0);
-    _ssl_ctx = SWIG_NewPointerObj((void *)ssl_ctx, SWIGTYPE_p_SSL_CTX, 0);
-    argv = Py_BuildValue("(OOiii)", _ssl_ctx, _x509, errnum, errdepth, ok);
-
+    	
+#if PY_VERSION_HEX >= 0x20300F0
+    gilstate = PyGILState_Ensure();
+#else
     if (thread_mode) {
         _save = (PyThreadState *)SSL_get_app_data(ssl);
         PyEval_RestoreThread(_save);
     }
-    ret = PyEval_CallObject(ssl_verify_cb_func, argv);
+    if (PyErr_Warn(PyExc_DeprecationWarning, "This should not work. If it does for you, let me know. --Heikki Toivonen")) {
+        if (thread_mode) {
+            _save = PyEval_SaveThread();
+            SSL_set_app_data(ssl, _save);
+        }
+        return 0;
+    }
+#endif
+
+    if (PyMethod_Check(ssl_verify_cb_func)) {
+        PyObject *func;
+        PyCodeObject *code;
+        func = PyMethod_Function(ssl_verify_cb_func);
+        code = (PyCodeObject *) PyFunction_GetCode(func);
+        if (code && code->co_argcount == 3) { /* XXX Python internals */
+            new_style_callback = 1;
+        }
+    } else if (PyFunction_Check(ssl_verify_cb_func)) {
+        PyCodeObject *code = (PyCodeObject *) PyFunction_GetCode(ssl_verify_cb_func);
+        if (code && code->co_argcount == 2) { /* XXX Python internals */
+            new_style_callback = 1;
+        }    
+    } else {
+        /* XXX There are lots of other callable types, but we will assume
+         * XXX that any other type of callable uses the new style callback,
+         * XXX although this is not entirely safe assumption.
+         */
+        new_style_callback = 1;
+    }
+    
+    if (new_style_callback) {
+        PyObject *x509mod = PyDict_GetItemString(PyImport_GetModuleDict(), "M2Crypto.X509");
+        _klass = PyObject_GetAttrString(x509mod, "X509_Store_Context");
+    
+        _x509_store_ctx_swigptr = SWIG_NewPointerObj((void *)ctx, SWIGTYPE_p_X509_STORE_CTX, 0);
+        _x509_store_ctx_obj = Py_BuildValue("(Oi)", _x509_store_ctx_swigptr, 0);
+        _x509_store_ctx_inst = PyInstance_New(_klass, _x509_store_ctx_obj, NULL);
+        argv = Py_BuildValue("(iO)", ok, _x509_store_ctx_inst);
+    } else {
+        if (PyErr_Warn(PyExc_DeprecationWarning, "Old style callback, use cb_func(ok, store) instead")) {
+            warning_raised_exception = 1;
+        }
+       
+        x509 = X509_STORE_CTX_get_current_cert(ctx);
+        errnum = X509_STORE_CTX_get_error(ctx);
+        errdepth = X509_STORE_CTX_get_error_depth(ctx);
+    
+        ssl = (SSL *)X509_STORE_CTX_get_app_data(ctx);
+        ssl_ctx = SSL_get_SSL_CTX(ssl);
+    
+        _x509 = SWIG_NewPointerObj((void *)x509, SWIGTYPE_p_X509, 0);
+        _ssl_ctx = SWIG_NewPointerObj((void *)ssl_ctx, SWIGTYPE_p_SSL_CTX, 0);
+        argv = Py_BuildValue("(OOiii)", _ssl_ctx, _x509, errnum, errdepth, ok);    
+    }
+
+    if (!warning_raised_exception) {
+        ret = PyEval_CallObject(ssl_verify_cb_func, argv);
+    } else {
+        ret = 0;
+    }
+
+    if (!ret) {
+        /* Got an exception in PyEval_CallObject(), let's fail verification
+         * to be safe.
+         */
+        cret = 0;   
+    } else {
+        cret = (int)PyInt_AsLong(ret);
+    }
+    Py_XDECREF(ret);
+    Py_XDECREF(argv);
+    if (new_style_callback) {
+        Py_XDECREF(_x509_store_ctx_inst);
+        Py_XDECREF(_x509_store_ctx_obj);
+        Py_XDECREF(_x509_store_ctx_swigptr);
+        Py_XDECREF(_klass);
+    } else {
+        Py_XDECREF(_x509);
+        Py_XDECREF(_ssl_ctx);
+    }
+
+#if PY_VERSION_HEX >= 0x20300F0
+    PyGILState_Release(gilstate);
+#else
     if (thread_mode) {
         _save = PyEval_SaveThread();
         SSL_set_app_data(ssl, _save);
     }
+#endif
 
-    cret = (int)PyInt_AsLong(ret);
-    Py_XDECREF(ret);
-    Py_XDECREF(argv);
-    Py_XDECREF(_ssl_ctx);
-    Py_XDECREF(_x509);
-
-    if (cret) 
-        X509_STORE_CTX_set_error(ctx, X509_V_OK);
     return cret;
 }
 

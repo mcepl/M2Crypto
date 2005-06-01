@@ -10,7 +10,7 @@ Author: Heikki Toivonen
 RCS_id='$Id: X509.py,v 1.15 2004/06/30 07:47:11 ngps Exp $'
 
 # M2Crypto
-import ASN1, BIO, Err
+from M2Crypto import ASN1, BIO, Err, EVP
 import m2
 
 class X509Error(Exception): pass
@@ -348,7 +348,7 @@ class X509:
 
     def get_pubkey(self):
         assert m2.x509_type_check(self.x509), "'x509' type error"
-        return m2.x509_get_pubkey(self.x509)
+        return EVP.PKey(m2.x509_get_pubkey(self.x509), _pyfree=1)
 
     def set_pubkey(self, pkey):
         """
@@ -452,7 +452,7 @@ class X509:
     def verify(self, pkey=None):
         assert m2.x509_type_check(self.x509), "'x509' type error"
         if pkey:
-            return m2.x509_verify(self.x509, pkey)
+            return m2.x509_verify(self.x509, pkey.pkey)
         else:
             return m2.x509_verify(self.x509, m2.x509_get_pubkey(self.x509))
 
@@ -490,7 +490,22 @@ class X509_Store_Context:
 
     def __del__(self):
         if self._pyfree:
-            m2.x509_store_ctx_cleanup(self.ctx)
+            m2.x509_store_ctx_free(self.ctx)
+            
+    def _ptr(self):
+        return self.ctx
+            
+    def get_current_cert(self):
+        # XXX OpenSSL does not addref the returned cert so
+        # XXX our return value will be bogus once the context
+        # XXX goes away.
+        return X509(m2.x509_store_ctx_get_current_cert(self.ctx), _pyfree=0)
+
+    def get_error(self):
+        return m2.x509_store_ctx_get_error(self.ctx)
+        
+    def get_error_depth(self):
+        return m2.x509_store_ctx_get_error_depth(self.ctx)
 
 
 class X509_Store:
@@ -601,7 +616,7 @@ class Request:
         @rtype:      EVP_PKEY
         @return:     Public key from the request.
         """
-        return m2.x509_req_get_pubkey(self.req)
+        return EVP.PKey(m2.x509_req_get_pubkey(self.req), _pyfree=1)
 
     def set_pubkey(self, pkey):
         """
@@ -657,7 +672,7 @@ class Request:
         return m2.x509_req_add_extensions(self.req, ext_stack._ptr())
 
     def verify(self, pkey):
-        return m2.x509_req_verify(self.req, pkey)
+        return m2.x509_req_verify(self.req, pkey.pkey)
 
     def sign(self, pkey, md):
         mda = getattr(m2, md)
