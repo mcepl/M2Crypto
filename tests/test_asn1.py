@@ -27,16 +27,27 @@ class ASN1TestCase(unittest.TestCase):
         asn1 = ASN1.ASN1_UTCTIME()
         assert str(asn1) == 'Bad time value'
         
-        asn1.set_string('990807053011Z')
-        assert str(asn1) == 'Aug  7 05:30:11 1999 GMT'
+        format = '%b %d %H:%M:%S %Y GMT'
+        utcformat = '%y%m%d%H%M%SZ'
+
+        s = '990807053011Z'
+        asn1.set_string(s)
+        #assert str(asn1) == 'Aug  7 05:30:11 1999 GMT'
+        t1 = time.strptime(str(asn1), format)
+        t2 = time.strptime(s, utcformat)
+        assert t1 == t2
         
         asn1.set_time(500)
-        assert str(asn1) == 'Jan  1 00:08:20 1970 GMT'
+        #assert str(asn1) == 'Jan  1 00:08:20 1970 GMT'
+        t1 = time.strftime(format, time.strptime(str(asn1), format))
+        t2 = time.strftime(format, time.gmtime(500))
+        assert t1 == t2
         
         t = long(time.time()) + time.timezone
         asn1.set_time(t)
-        t2 = time.strftime('%b %d %H:%M:%S %Y', time.gmtime(t))
-        assert str(asn1)[:-4] == str(t2)
+        t1 = time.strftime(format, time.strptime(str(asn1), format))
+        t2 = time.strftime(format, time.gmtime(t))
+        assert t1 == t2
          
 
 def suite():
