@@ -5,7 +5,7 @@ Copyright (c) 1999 Ng Pheng Siong. All rights reserved.
 Portions Copyright (c) 2004 Open Source Applications Foundation.
 Author: Heikki Toivonen
 */
-/* $Id: _evp.i,v 1.6 2004/06/30 07:49:41 ngps Exp $ */
+/* $Id$ */
 
 %{
 #include <assert.h>
@@ -440,6 +440,16 @@ int pkey_write_pem_no_cipher(EVP_PKEY *pkey, BIO *f, PyObject *pyfunc) {
 
     Py_INCREF(pyfunc);
     ret = PEM_write_bio_PrivateKey(f, pkey, NULL, NULL, 0,
+            passphrase_callback, (void *)pyfunc);
+    Py_DECREF(pyfunc);
+    return ret;
+}
+
+int pkey_write_pem(EVP_PKEY *pkey, BIO *f, EVP_CIPHER *cipher, PyObject *pyfunc) {
+    int ret;
+
+    Py_INCREF(pyfunc);
+    ret = PEM_write_bio_PrivateKey(f, pkey, cipher, NULL, 0,
             passphrase_callback, (void *)pyfunc);
     Py_DECREF(pyfunc);
     return ret;
