@@ -7,7 +7,7 @@ Copyright (C) 2004-2005 OSAF. All Rights Reserved.
 Author: Heikki Toivonen
 """
 
-RCS_id='$Id: X509.py,v 1.15 2004/06/30 07:47:11 ngps Exp $'
+RCS_id='$Id$'
 
 # M2Crypto
 from M2Crypto import ASN1, BIO, Err, EVP
@@ -455,6 +455,24 @@ class X509:
             return m2.x509_verify(self.x509, pkey.pkey)
         else:
             return m2.x509_verify(self.x509, m2.x509_get_pubkey(self.x509))
+            
+    def check_ca(self):
+        """
+        Check if the certificate is a Certificate Authority (CA) certificate.
+        
+        @return: 0 if the certificate is not CA, nonzero otherwise.
+        """
+        return m2.x509_check_ca(self.x509)
+        
+    def check_purpose(self, id, ca):
+        """
+        Check if the certificate's purpose matches the asked purpose.
+        
+        @param id: Purpose id. See X509_PURPOSE_* constants.
+        @param ca: 1 if the certificate should be CA, 0 otherwise.
+        @return: 0 if the certificate purpose does not match, nonzero otherwise.
+        """
+        return m2.x509_check_purpose(self.x509, id, ca)
 
 
 def load_cert(file):

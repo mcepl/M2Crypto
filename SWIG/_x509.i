@@ -4,7 +4,7 @@
 ** Portions created by Open Source Applications Foundation (OSAF) are
 ** Copyright (C) 2004-2005 OSAF. All Rights Reserved.
 */
-/* $Id: _x509.i,v 1.3 2004/04/09 16:30:48 ngps Exp $   */
+/* $Id$   */
 
 %{
 #include <openssl/x509.h>
@@ -35,6 +35,40 @@
 %name(x509_set_issuer_name) extern int X509_set_issuer_name(X509 *, X509_NAME *);
 %name(x509_get_subject_name) extern X509_NAME *X509_get_subject_name(X509 *);
 %name(x509_set_subject_name) extern int X509_set_subject_name(X509 *, X509_NAME *);
+
+/* From x509.h */
+/* standard trust ids */
+%constant int X509_TRUST_DEFAULT      = -1;
+%constant int X509_TRUST_COMPAT       = 1;
+%constant int X509_TRUST_SSL_CLIENT   = 2;
+%constant int X509_TRUST_SSL_SERVER   = 3;
+%constant int X509_TRUST_EMAIL        = 4;
+%constant int X509_TRUST_OBJECT_SIGN  = 5;
+%constant int X509_TRUST_OCSP_SIGN    = 6;
+%constant int X509_TRUST_OCSP_REQUEST = 7;
+
+/* trust_flags values */
+%constant int X509_TRUST_DYNAMIC      = 1;
+%constant int X509_TRUST_DYNAMIC_NAME = 2;
+
+/* check_trust return codes */
+%constant int X509_TRUST_TRUSTED      = 1;
+%constant int X509_TRUST_REJECTED     = 2;
+%constant int X509_TRUST_UNTRUSTED    = 3;
+
+/* From x509v3.h */
+%constant int X509_PURPOSE_SSL_CLIENT         = 1;
+%constant int X509_PURPOSE_SSL_SERVER         = 2;
+%constant int X509_PURPOSE_NS_SSL_SERVER      = 3;
+%constant int X509_PURPOSE_SMIME_SIGN         = 4;
+%constant int X509_PURPOSE_SMIME_ENCRYPT      = 5;
+%constant int X509_PURPOSE_CRL_SIGN           = 6;
+%constant int X509_PURPOSE_ANY                = 7;
+%constant int X509_PURPOSE_OCSP_HELPER        = 8;
+
+%name(x509_check_ca) extern int X509_check_ca(X509 *);
+%name(x509_check_purpose) extern X509_check_purpose(X509 *, int, int);
+%name(x509_check_trust) extern X509_check_trust(X509 *, int, int);
 
 %name(x509_write_pem) extern int PEM_write_bio_X509(BIO *, X509 *);
 %name(x509_write_pem_file) extern int PEM_write_X509(FILE *, X509 *);
