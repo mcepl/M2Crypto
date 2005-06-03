@@ -1,5 +1,5 @@
 /* Copyright (c) 2000 Ng Pheng Siong. All rights reserved. */
-/* $Id: _pkcs7.i,v 1.2 2003/10/26 16:58:59 ngps Exp $ */
+/* $Id$ */
 
 %{
 #include <openssl/bio.h>

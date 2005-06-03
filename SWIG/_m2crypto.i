@@ -4,12 +4,12 @@
  * Portions created by Open Source Applications Foundation (OSAF) are
  * Copyright (C) 2004-2005 OSAF. All Rights Reserved.
  * Author: Heikki Toivonen
-/* $Id: _m2crypto.i,v 1.2 2003/10/26 13:19:14 ngps Exp $ */
+/* $Id$ */
 
 %module _m2crypto
 
 %{
-static char *RCS_id="$Id: _m2crypto.i,v 1.2 2003/10/26 13:19:14 ngps Exp $";
+static char *RCS_id="$Id$";
 
 #include <openssl/err.h>
 #include <openssl/rand.h>

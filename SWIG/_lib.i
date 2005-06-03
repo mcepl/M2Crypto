@@ -1,5 +1,5 @@
 /* Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved. */
-/* $Id: _lib.i,v 1.4 2004/03/25 06:37:33 ngps Exp $ */
+/* $Id$ */
 
 %{
 #include <openssl/dh.h>
