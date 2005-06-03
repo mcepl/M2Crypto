@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 /* Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved. */
-/* $Id: _rand.i,v 1.2 2004/04/06 07:27:35 ngps Exp $ */
+/* $Id$ */
 
 %module _rand
 

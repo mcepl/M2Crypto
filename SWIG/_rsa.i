@@ -1,5 +1,5 @@
 /* Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved. */
-/* $Id: _rsa.i,v 1.2 2003/09/27 16:02:53 ngps Exp $ */
+/* $Id$ */
 
 %{
 #include <openssl/bn.h>

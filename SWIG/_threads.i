@@ -1,5 +1,5 @@
 /* Copyright (c) 1999 Ng Pheng Siong. All rights reserved. */
-/* $Id: _threads.i,v 1.1 2003/06/22 17:30:52 ngps Exp $ */
+/* $Id$ */
 
 %{
 #include <pythread.h>
