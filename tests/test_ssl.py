@@ -72,128 +72,150 @@ class SSLClientTestCase(unittest.TestCase):
 
     def test_server_simple(self):
         pid = self.start_server(self.args)
-        ctx = SSL.Context()
-        s = SSL.Connection(ctx)
-        s.connect(self.srv_addr)
-        data = self.http_get(s)
-        s.close()
-        self.stop_server(pid)
+        try:
+            ctx = SSL.Context()
+            s = SSL.Connection(ctx)
+            s.connect(self.srv_addr)
+            data = self.http_get(s)
+            s.close()
+        finally:
+            self.stop_server(pid)
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
     def test_tls1_nok(self):
         self.args.append('-no_tls1')
         pid = self.start_server(self.args)
-        ctx = SSL.Context('tlsv1')
-        s = SSL.Connection(ctx)
         try:
-            s.connect(self.srv_addr)
-        except SSL.SSLError, e:
-            self.failUnlessEqual(e[0], 'wrong version number')
-        s.close()
-        self.stop_server(pid)
+            ctx = SSL.Context('tlsv1')
+            s = SSL.Connection(ctx)
+            try:
+                s.connect(self.srv_addr)
+            except SSL.SSLError, e:
+                self.failUnlessEqual(e[0], 'wrong version number')
+            s.close()
+        finally:
+            self.stop_server(pid)
 
     def test_tls1_ok(self):
         self.args.append('-tls1')
         pid = self.start_server(self.args)
-        ctx = SSL.Context('tlsv1')
-        s = SSL.Connection(ctx)
-        s.connect(self.srv_addr)
-        data = self.http_get(s)
-        s.close()
-        self.stop_server(pid)
+        try:
+            ctx = SSL.Context('tlsv1')
+            s = SSL.Connection(ctx)
+            s.connect(self.srv_addr)
+            data = self.http_get(s)
+            s.close()
+        finally:
+            self.stop_server(pid)
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
     def test_sslv23_no_v2(self):
         self.args.append('-no_tls1')
         pid = self.start_server(self.args)
-        ctx = SSL.Context('sslv23')
-        s = SSL.Connection(ctx)
-        s.connect(self.srv_addr)
-        self.failUnlessEqual(s.get_version(), 'SSLv3')
-        s.close()
-        self.stop_server(pid)
+        try:
+            ctx = SSL.Context('sslv23')
+            s = SSL.Connection(ctx)
+            s.connect(self.srv_addr)
+            self.failUnlessEqual(s.get_version(), 'SSLv3')
+            s.close()
+        finally:
+            self.stop_server(pid)
 
     def test_sslv23_no_v2_no_service(self):
         self.args = self.args + ['-no_tls1', '-no_ssl3']
         pid = self.start_server(self.args)
-        ctx = SSL.Context('sslv23')
-        s = SSL.Connection(ctx)
         try:
-            s.connect(self.srv_addr)
-        except SSL.SSLError, e:
-            self.failUnlessEqual(e[0], 'unsupported protocol')
-        s.close()
-        self.stop_server(pid)
+            ctx = SSL.Context('sslv23')
+            s = SSL.Connection(ctx)
+            try:
+                s.connect(self.srv_addr)
+            except SSL.SSLError, e:
+                self.failUnlessEqual(e[0], 'unsupported protocol')
+            s.close()
+        finally:
+            self.stop_server(pid)
 
     def test_sslv23_weak_crypto(self):
         self.args = self.args + ['-no_tls1', '-no_ssl3']
         pid = self.start_server(self.args)
-        ctx = SSL.Context('sslv23', weak_crypto=1)
-        s = SSL.Connection(ctx)
-        s.connect(self.srv_addr)
-        self.failUnlessEqual(s.get_version(), 'SSLv2')
-        s.close()
-        self.stop_server(pid)
+        try:
+            ctx = SSL.Context('sslv23', weak_crypto=1)
+            s = SSL.Connection(ctx)
+            s.connect(self.srv_addr)
+            self.failUnlessEqual(s.get_version(), 'SSLv2')
+            s.close()
+        finally:
+            self.stop_server(pid)
 
     def test_cipher_mismatch(self):
         self.args = self.args + ['-cipher', 'EXP-RC4-MD5']
         pid = self.start_server(self.args)
-        ctx = SSL.Context()
-        s = SSL.Connection(ctx)
-        s.set_cipher_list('EXP-RC2-CBC-MD5')
         try:
-            s.connect(self.srv_addr)
-        except SSL.SSLError, e:
-            self.failUnlessEqual(e[0], 'sslv3 alert handshake failure')
-        s.close()
-        self.stop_server(pid)
+            ctx = SSL.Context()
+            s = SSL.Connection(ctx)
+            s.set_cipher_list('EXP-RC2-CBC-MD5')
+            try:
+                s.connect(self.srv_addr)
+            except SSL.SSLError, e:
+                self.failUnlessEqual(e[0], 'sslv3 alert handshake failure')
+            s.close()
+        finally:
+            self.stop_server(pid)
         
     def test_no_such_cipher(self):
         self.args = self.args + ['-cipher', 'EXP-RC4-MD5']
         pid = self.start_server(self.args)
-        ctx = SSL.Context()
-        s = SSL.Connection(ctx)
-        s.set_cipher_list('EXP-RC2-MD5')
         try:
-            s.connect(self.srv_addr)
-        except SSL.SSLError, e:
-            self.failUnlessEqual(e[0], 'no ciphers available')
-        s.close()
-        self.stop_server(pid)
+            ctx = SSL.Context()
+            s = SSL.Connection(ctx)
+            s.set_cipher_list('EXP-RC2-MD5')
+            try:
+                s.connect(self.srv_addr)
+            except SSL.SSLError, e:
+                self.failUnlessEqual(e[0], 'no ciphers available')
+            s.close()
+        finally:
+            self.stop_server(pid)
         
     def test_no_weak_cipher(self):
         self.args = self.args + ['-cipher', 'EXP']
         pid = self.start_server(self.args)
-        ctx = SSL.Context()
-        s = SSL.Connection(ctx)
         try:
-            s.connect(self.srv_addr)
-        except SSL.SSLError, e:
-            self.failUnlessEqual(e[0], 'sslv3 alert handshake failure')
-        s.close()
-        self.stop_server(pid)
+            ctx = SSL.Context()
+            s = SSL.Connection(ctx)
+            try:
+                s.connect(self.srv_addr)
+            except SSL.SSLError, e:
+                self.failUnlessEqual(e[0], 'sslv3 alert handshake failure')
+            s.close()
+        finally:
+            self.stop_server(pid)
         
     def test_use_weak_cipher(self):
         self.args = self.args + ['-cipher', 'EXP']
         pid = self.start_server(self.args)
-        ctx = SSL.Context(weak_crypto=1)
-        s = SSL.Connection(ctx)
-        s.connect(self.srv_addr)
-        data = self.http_get(s)
-        s.close()
-        self.stop_server(pid)
+        try:
+            ctx = SSL.Context(weak_crypto=1)
+            s = SSL.Connection(ctx)
+            s.connect(self.srv_addr)
+            data = self.http_get(s)
+            s.close()
+        finally:
+            self.stop_server(pid)
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
         
     def test_cipher_ok(self):
         self.args = self.args + ['-cipher', 'EXP-RC4-MD5']
         pid = self.start_server(self.args)
-        ctx = SSL.Context()
-        s = SSL.Connection(ctx)
-        s.set_cipher_list('EXP-RC4-MD5')
-        s.connect(self.srv_addr)
-        data = self.http_get(s)
-        s.close()
-        self.stop_server(pid)
+        try:
+            ctx = SSL.Context()
+            s = SSL.Connection(ctx)
+            s.set_cipher_list('EXP-RC4-MD5')
+            s.connect(self.srv_addr)
+            data = self.http_get(s)
+            s.close()
+        finally:
+            self.stop_server(pid)
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
         
     def verify_cb_new(self, ok, store):
@@ -201,47 +223,53 @@ class SSLClientTestCase(unittest.TestCase):
 
     def test_verify_cb_new(self):
         pid = self.start_server(self.args)
-        ctx = SSL.Context()
-        ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9,
-                       self.verify_cb_new)
-        s = SSL.Connection(ctx)
         try:
-            s.connect(self.srv_addr)
-        except SSL.SSLError, e:
-            assert 0, e
-        data = self.http_get(s)
-        s.close()
-        self.stop_server(pid)
+            ctx = SSL.Context()
+            ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9,
+                           self.verify_cb_new)
+            s = SSL.Connection(ctx)
+            try:
+                s.connect(self.srv_addr)
+            except SSL.SSLError, e:
+                assert 0, e
+            data = self.http_get(s)
+            s.close()
+        finally:
+            self.stop_server(pid)
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
     def test_verify_cb_new_class(self):
         pid = self.start_server(self.args)
-        ctx = SSL.Context()
-        ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9,
-                       VerifyCB())
-        s = SSL.Connection(ctx)
         try:
-            s.connect(self.srv_addr)
-        except SSL.SSLError, e:
-            assert 0, e
-        data = self.http_get(s)
-        s.close()
-        self.stop_server(pid)
+            ctx = SSL.Context()
+            ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9,
+                           VerifyCB())
+            s = SSL.Connection(ctx)
+            try:
+                s.connect(self.srv_addr)
+            except SSL.SSLError, e:
+                assert 0, e
+            data = self.http_get(s)
+            s.close()
+        finally:
+            self.stop_server(pid)
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
     def test_verify_cb_new_function(self):
         pid = self.start_server(self.args)
-        ctx = SSL.Context()
-        ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9,
-                       verify_cb_new_function)
-        s = SSL.Connection(ctx)
         try:
-            s.connect(self.srv_addr)
-        except SSL.SSLError, e:
-            assert 0, e
-        data = self.http_get(s)
-        s.close()
-        self.stop_server(pid)
+            ctx = SSL.Context()
+            ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9,
+                           verify_cb_new_function)
+            s = SSL.Connection(ctx)
+            try:
+                s.connect(self.srv_addr)
+            except SSL.SSLError, e:
+                assert 0, e
+            data = self.http_get(s)
+            s.close()
+        finally:
+            self.stop_server(pid)
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
     def verify_cb_exception(self, ok, store):
@@ -249,13 +277,15 @@ class SSLClientTestCase(unittest.TestCase):
 
     def test_verify_cb_exception(self):
         pid = self.start_server(self.args)
-        ctx = SSL.Context()
-        ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9,
-                       self.verify_cb_exception)
-        s = SSL.Connection(ctx)
-        self.assertRaises(SSL.SSLError, s.connect, self.srv_addr)
-        s.close()
-        self.stop_server(pid)
+        try:
+            ctx = SSL.Context()
+            ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9,
+                           self.verify_cb_exception)
+            s = SSL.Connection(ctx)
+            self.assertRaises(SSL.SSLError, s.connect, self.srv_addr)
+            s.close()
+        finally:
+            self.stop_server(pid)
 
     def verify_cb_old(self, ctx_ptr, x509_ptr, err, depth, ok):
         try:
@@ -274,17 +304,19 @@ class SSLClientTestCase(unittest.TestCase):
 
     def test_verify_cb_old(self):
         pid = self.start_server(self.args)
-        ctx = SSL.Context()
-        ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9,
-                       self.verify_cb_old)
-        s = SSL.Connection(ctx)
         try:
-            s.connect(self.srv_addr)
-        except SSL.SSLError, e:
-            assert 0, e
-        data = self.http_get(s)
-        s.close()
-        self.stop_server(pid)
+            ctx = SSL.Context()
+            ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9,
+                           self.verify_cb_old)
+            s = SSL.Connection(ctx)
+            try:
+                s.connect(self.srv_addr)
+            except SSL.SSLError, e:
+                assert 0, e
+            data = self.http_get(s)
+            s.close()
+        finally:
+            self.stop_server(pid)
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
     def test_twisted_wrapper(self):
@@ -308,19 +340,7 @@ class SSLClientTestCase(unittest.TestCase):
 
         class EchoClientFactory(ClientFactory):
             protocol = EchoClient
-            startTLS = 1 # Start in SSL mode
         
-            # Optional, will create SSL.Context() by default
-            def getContext(self):
-                ctx = SSL.Context()
-                return ctx
-
-            # Optional, will not check by default
-            def sslChecker(self, x509, host):
-                check = SSL.Checker.Checker(host=srv_host,
-                                            peerCertHash='545C873E4FF7E31BF439D80C9F5F128DF7E3EE57')
-                return check(x509)
-
             def clientConnectionFailed(self, connector, reason):
                 reactor.stop()
                 assert 0, reason
@@ -330,16 +350,17 @@ class SSLClientTestCase(unittest.TestCase):
                 
         pid = self.start_server(self.args)
 
-        global twisted_data
-        twisted_data = ''
-        
-        factory = EchoClientFactory()
-        wrappingFactory = WrappingFactory(factory)
-        wrappingFactory.protocol = TLSProtocolWrapper
-        reactor.connectTCP(srv_host, srv_port, wrappingFactory)
-        reactor.run() # This will block until reactor.stop() is called
-
-        self.stop_server(pid)
+        try:
+            global twisted_data
+            twisted_data = ''
+            
+            factory = EchoClientFactory()
+            wrappingFactory = WrappingFactory(factory)
+            wrappingFactory.protocol = TLSProtocolWrapper
+            reactor.connectTCP(srv_host, srv_port, wrappingFactory)
+            reactor.run() # This will block until reactor.stop() is called
+        finally:
+            self.stop_server(pid)
         self.failIf(string.find(twisted_data, 's_server -quiet -www') == -1)
 
     def test_checker(self):
@@ -350,6 +371,7 @@ class SSLClientTestCase(unittest.TestCase):
                                 peerCertHash='545C873E4FF7E31BF439D80C9F5F128DF7E3EE57')
         x509 = X509.load_cert('server.pem')
         assert check(x509, srv_host)
+        self.assertRaises(Checker.WrongHost, check, x509, 'example.com')
         
         import doctest
         doctest.testmod(Checker)
