@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: util.py,v 1.7 2004/04/07 16:06:24 ngps Exp $'
+RCS_id='$Id$'
 
 import sys
 import m2
