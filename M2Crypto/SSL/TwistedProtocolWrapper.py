@@ -20,6 +20,10 @@ from M2Crypto.SSL import Checker
 debug = 0
 
 
+def _alwaysSucceedsPostConnectionCheck(peerX509, expectedHost):
+    return 1
+
+
 def connectSSL(host, port, factory, contextFactory, timeout=30,
                bindAddress=None,
                reactor=twisted.internet.reactor,
@@ -63,7 +67,7 @@ def connectTCP(host, port, factory, timeout=30, bindAddress=None,
 
 def listenSSL(port, factory, contextFactory, backlog=5, interface='',
               reactor=twisted.internet.reactor,  
-              postConnectionCheck=Checker.Checker()):
+              postConnectionCheck=_alwaysSucceedsPostConnectionCheck):
     """
     A convenience function to listen for SSL/TLS connections using Twisted. 
 
@@ -100,9 +104,6 @@ def listenTCP(port, factory, backlog=5, interface='',
                            postConnectionCheck=postConnectionCheck)
     reactor.listenTCP(port, wrappingFactory, backlog, interface)
 
-
-def _alwaysSucceedsPostConnectionCheck(peerX509, expectedHost):
-    return 1
 
 class TLSProtocolWrapper(ProtocolWrapper):
     """
@@ -330,7 +331,11 @@ class TLSProtocolWrapper(ProtocolWrapper):
                 x509 = X509.X509(x, 1)
             else:
                 x509 = None
-            if not self.postConnectionCheck(x509, self.transport.addr[0]):
+            if self.isClient:
+                host = self.transport.addr[0]
+            else:
+                host = None
+            if not self.postConnectionCheck(x509, host):
                 raise Checker.SSLVerificationError, 'post connection check'
             self.checked = 1
 
