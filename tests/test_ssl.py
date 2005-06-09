@@ -325,8 +325,7 @@ class SSLClientTestCase(unittest.TestCase):
             from twisted.internet.protocol import ClientFactory
             from twisted.protocols.basic import LineReceiver
             from twisted.internet import reactor
-            from twisted.protocols.policies import ProtocolWrapper, WrappingFactory
-            from M2Crypto.SSL.TwistedProtocolWrapper import TLSProtocolWrapper
+            import M2Crypto.SSL.TwistedProtocolWrapper as wrapper
         except ImportError:
             return
         
@@ -350,14 +349,17 @@ class SSLClientTestCase(unittest.TestCase):
                 
         pid = self.start_server(self.args)
 
+        class ContextFactory:
+            def getContext(self):
+                return SSL.Context()
+
         try:
             global twisted_data
             twisted_data = ''
             
+            contextFactory = ContextFactory()
             factory = EchoClientFactory()
-            wrappingFactory = WrappingFactory(factory)
-            wrappingFactory.protocol = TLSProtocolWrapper
-            reactor.connectTCP(srv_host, srv_port, wrappingFactory)
+            wrapper.connectSSL(srv_host, srv_port, factory, contextFactory)
             reactor.run() # This will block until reactor.stop() is called
         finally:
             self.stop_server(pid)

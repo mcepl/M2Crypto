@@ -5,53 +5,135 @@ Copyright (c) 2004-2005 Open Source Applications Foundation.
 All rights reserved.
 """
 
-RCS_id='$Id: TwistedProtocolWrapper.py,v 1.11 2005/02/01 23:56:50 heikki Exp $'
+RCS_id = '$Id$'
 
+import twisted.protocols.policies as policies
+import twisted.internet.reactor
 from twisted.protocols.policies import ProtocolWrapper
-from twisted.python.failure import Failure
 from twisted.internet.interfaces import ITLSTransport
 from zope.interface import implements
 
 import M2Crypto # for M2Crypto.BIO.BIOError
-from M2Crypto import BIO, m2, X509
-from M2Crypto.SSL import Context, Connection, Checker
+from M2Crypto import m2, X509
+from M2Crypto.SSL import Checker
 
 debug = 0
 
-class _Null:
-    def __init__(self, *args, **kw): pass
-    def __call__(self, *args, **kw): return self
+
+def connectSSL(host, port, factory, contextFactory, timeout=30,
+               bindAddress=None,
+               reactor=twisted.internet.reactor,
+               postConnectionCheck=Checker.Checker()):
+    """
+    A convenience function to start an SSL/TLS connection using Twisted.
+    
+    See IReactorSSL interface in Twisted. 
+    """
+    wrappingFactory = policies.WrappingFactory(factory)
+    wrappingFactory.protocol = lambda factory, wrappedProtocol: \
+        TLSProtocolWrapper(factory,
+                           wrappedProtocol,
+                           startPassThrough=0,
+                           client=1,
+                           contextFactory=contextFactory,
+                           postConnectionCheck=postConnectionCheck)
+    reactor.connectTCP(host, port, wrappingFactory, timeout, bindAddress)
+        
+
+def connectTCP(host, port, factory, timeout=30, bindAddress=None,
+               reactor=twisted.internet.reactor,
+               postConnectionCheck=Checker.Checker()):
+    """
+    A convenience function to start a TCP connection using Twisted. 
+
+    NOTE: You must call startTLS(ctx) to go into SSL/TLS mode.
+
+    See IReactorTCP interface in Twisted. 
+    """
+    wrappingFactory = policies.WrappingFactory(factory)
+    wrappingFactory.protocol = lambda factory, wrappedProtocol: \
+        TLSProtocolWrapper(factory,
+                           wrappedProtocol,
+                           startPassThrough=1,
+                           client=1,
+                           contextFactory=None,
+                           postConnectionCheck=postConnectionCheck)
+    reactor.connectTCP(host, port, wrappingFactory, timeout, bindAddress)
+
+
+def listenSSL(port, factory, contextFactory, backlog=5, interface='',
+              reactor=twisted.internet.reactor,  
+              postConnectionCheck=Checker.Checker()):
+    """
+    A convenience function to listen for SSL/TLS connections using Twisted. 
+
+    See IReactorSSL interface in Twisted. 
+    """
+    wrappingFactory = policies.WrappingFactory(factory)
+    wrappingFactory.protocol = lambda factory, wrappedProtocol: \
+        TLSProtocolWrapper(factory,
+                           wrappedProtocol,
+                           startPassThrough=0,
+                           client=0,
+                           contextFactory=contextFactory,
+                           postConnectionCheck=postConnectionCheck)
+    reactor.listenTCP(port, wrappingFactory, backlog, interface)
+
+
+def listenTCP(port, factory, backlog=5, interface='',
+              reactor=twisted.internet.reactor,  
+              postConnectionCheck=None):
+    """
+    A convenience function to listen for TCP connections using Twisted. 
+    
+    NOTE: You must call startTLS(ctx) to go into SSL/TLS mode.
+
+    See IReactorTCP interface in Twisted. 
+    """
+    wrappingFactory = policies.WrappingFactory(factory)
+    wrappingFactory.protocol = lambda factory, wrappedProtocol: \
+        TLSProtocolWrapper(factory,
+                           wrappedProtocol,
+                           startPassThrough=1,
+                           client=0,
+                           contextFactory=None,
+                           postConnectionCheck=postConnectionCheck)
+    reactor.listenTCP(port, wrappingFactory, backlog, interface)
+
+
+def _alwaysSucceedsPostConnectionCheck(peerX509, expectedHost):
+    return 1
 
 class TLSProtocolWrapper(ProtocolWrapper):
     """
-    A SSL/TLS protocol wrapper to be used with Twisted.
-
-    Usage:
-        factory = MyFactory()
-        factory.startTLS = True # Starts SSL immediately, otherwise waits
-                                # for STARTTLS from peer. Application must
-                                # handle STARTTLS up to the point where
-                                # SSL handshake happens, after which startTLS()
-                                # method needs to be called. Twisted handles
-                                # this automatically with SMTP, for example.
-        wrappingFactory = TLSWrappingFactory(factory)
-        wrappingFactory.protocol = TLSProtocolWrapper
-        reactor.connectTCP(host, port, wrappingFactory)
-
-    MyFactory should have the following interface (XXX ugly):
-
-        startTLS:     boolean   Set to True to start SSL immediately
-        getContext(): function  Should return M2Crypto.SSL.Context()
-        sslChecker(): function  Should do SSL post connection check
-
+    A SSL/TLS protocol wrapper to be used with Twisted. Typically
+    you would not use this class directly. Use connectTCP, 
+    connectSSL, listenTCP, listenSSL functions defined above,
+    which will hook in this class.
     """
 
     implements(ITLSTransport)
     
-    def __init__(self, factory, wrappedProtocol):
+    def __init__(self, factory, wrappedProtocol, startPassThrough, client,
+                 contextFactory, postConnectionCheck):
+        """
+        @param factory:
+        @param wrappedProtocol:
+        @param startPassThrough:    If true we won't encrypt at all. Need to
+                                    call startTLS() later to switch to SSL/TLS.
+        @param client:              True if this should be a client protocol.
+        @param contextFactory:      Factory that creates SSL.Context objects.
+                                    The called function is getContext().
+        @param postConnectionCheck: The post connection check callback that
+                                    will be called just after connection has
+                                    been established but before any real data
+                                    has been exchanged. The first argument to
+                                    this function is an X509 object, the second
+                                    is the expected host name string.
+        """
         if debug:
             print 'TwistedProtocolWrapper.__init__'
-
+            
         #ProtocolWrapper.__init__(self, factory, wrappedProtocol)
         #XXX: Twisted 2.0 has a new addition where the wrappingFactory is
         #     set as the factory of the wrappedProtocol. This is an issue
@@ -61,7 +143,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
         #     Twisted 1.3
         self.factory = factory
         self.wrappedProtocol = wrappedProtocol
-
+        
         # wrappedProtocol == client/server instance
         # factory.wrappedFactory == client/server factory
 
@@ -69,24 +151,15 @@ class TLSProtocolWrapper(ProtocolWrapper):
         self.encrypted = '' # Encrypted data we need to decrypt and pass on
         self.tlsStarted = 0 # SSL/TLS mode or pass through
         self.checked = 0 # Post connection check done or not
-        self.isClient = 1
+        self.isClient = client
         self.helloDone = 0 # True when hello has been sent
-        
-        if hasattr(factory.wrappedFactory, 'getContext'):
-            ctx = factory.wrappedFactory.getContext()
+        if postConnectionCheck is None:
+            self.postConnectionCheck = _alwaysSucceedsPostConnectionCheck
         else:
-            ctx = Context() # Note that this results in insecure SSL
+            self.postConnectionCheck = postConnectionCheck
 
-        if hasattr(factory.wrappedFactory, 'sslChecker'):
-            self.postConnectionCheck = factory.wrappedFactory.sslChecker
-        else:
-            # This may be ok for servers, but typically clients would
-            # want to make sure they are talking to the expected host.
-            self.postConnectionCheck = _Null
-            
-        if hasattr(factory.wrappedFactory, 'startTLS'):
-            if factory.wrappedFactory.startTLS:
-                self.startTLS(ctx)
+        if not startPassThrough:
+            self.startTLS(contextFactory.getContext())
 
     def __del__(self):
         self.clear()
@@ -95,9 +168,10 @@ class TLSProtocolWrapper(ProtocolWrapper):
         """
         Clear this instance, after which it is ready for reuse.
         """
+        if debug:
+            print 'TwistedProtocolWrapper.clear'
         if self.tlsStarted:
-            if self.sslBio:
-                m2.bio_free_all(self.sslBio)
+            m2.bio_free_all(self.sslBio)
             self.sslBio = None
             self.internalBio = None
             self.networkBio = None
@@ -110,7 +184,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
         # We can reuse self.ctx and it will be deleted automatically
         # when this instance dies
         
-    def startTLS(self, ctx, client=1):
+    def startTLS(self, ctx):
         """
         Start SSL/TLS. If this is not called, this instance just passes data
         through untouched.
@@ -136,12 +210,10 @@ class TLSProtocolWrapper(ProtocolWrapper):
 
         self.ssl = m2.ssl_new(self.ctx.ctx)
 
-        if client:
+        if self.isClient:
             m2.ssl_set_connect_state(self.ssl)
-            self.isClient = 1
         else:
             m2.ssl_set_accept_state(self.ssl)
-            self.isClient = 0
             
         m2.ssl_set_bio(self.ssl, self.internalBio, self.internalBio)
         m2.bio_set_ssl(self.sslBio, self.ssl, 1)
@@ -249,6 +321,9 @@ class TLSProtocolWrapper(ProtocolWrapper):
         ProtocolWrapper.connectionLost(self, reason)
 
     def _check(self):
+        if debug:
+            print 'TwistedProtocolWrapper._check'
+        
         if not self.checked and m2.ssl_is_init_finished(self.ssl):
             x = m2.ssl_get_peer_cert(self.ssl)
             if x:
