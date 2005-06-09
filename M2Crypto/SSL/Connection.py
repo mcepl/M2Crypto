@@ -2,23 +2,30 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Connection.py,v 1.14 2004/04/09 16:24:36 ngps Exp $'
+RCS_id = '$Id$'
 
 # Python
-import socket, sys
+import socket
 
 # M2Crypto
 from Cipher import Cipher, Cipher_Stack
 from Session import Session
-from M2Crypto import util, BIO, Err, X509, m2
+from M2Crypto import BIO, X509, m2
 import timeout
+import Checker
 
 #SSLError = getattr(__import__('M2Crypto.SSL', globals(), locals(), 'SSLError'), 'SSLError')
 from M2Crypto.SSL import SSLError
 
+def _serverPostConnectionCheck(peerX509, expectedHost):
+    return 1
+
 class Connection:
 
     """An SSL connection."""
+
+    clientPostConnectionCheck = Checker.Checker()
+    serverPostConnectionCheck = _serverPostConnectionCheck
 
     def __init__(self, ctx, sock=None):
         self.ctx = ctx
@@ -104,6 +111,10 @@ class Connection:
         ssl.setup_ssl()
         ssl.set_accept_state()
         ssl.accept_ssl()
+        check = getattr(self, 'postConnectionCheck', Connection.serverPostConnectionCheck)
+        if check is not None:
+            if not check(self.get_peer_cert(), self.addr[0]):
+                raise Checker.SSLVerificationError, 'post connection check failed'
         return ssl, addr
 
     def set_connect_state(self):
@@ -117,7 +128,12 @@ class Connection:
         self.addr = addr
         self.setup_ssl()
         self.set_connect_state()
-        return self.connect_ssl()
+        ret = self.connect_ssl()
+        check = getattr(self, 'postConnectionCheck', Connection.clientPostConnectionCheck)
+        if check is not None:
+            if not check(self.get_peer_cert(), self.addr[0]):
+                raise Checker.SSLVerificationError, 'post connection check failed'
+        return ret
 
     def shutdown(self, how):
         m2.ssl_set_shutdown(self.ssl, how)
@@ -286,3 +302,5 @@ class Connection:
         "Return the TLS/SSL protocol version for this connection."
         return m2.ssl_get_version(self.ssl)
 
+    def set_post_connection_check_callback(self, postConnectionCheck):
+        self.postConnectionCheck = postConnectionCheck
