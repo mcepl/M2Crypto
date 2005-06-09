@@ -334,7 +334,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
             if self.isClient:
                 host = self.transport.addr[0]
             else:
-                host = None
+                host = self.transport.getPeer().host
             if not self.postConnectionCheck(x509, host):
                 raise Checker.SSLVerificationError, 'post connection check'
             self.checked = 1
