@@ -13,6 +13,6 @@ and may mitigate the impact of a successful site penetration.
 ZSmime adds a DTML tag "dtml-smime" to Zope. 
 
 
-$Id: README.txt,v 1.1 2000/05/07 15:56:57 ngps Exp $
+$Id$
 $Revision: 1.1 $
 

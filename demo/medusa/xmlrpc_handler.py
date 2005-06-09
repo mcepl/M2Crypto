@@ -5,7 +5,7 @@
 
 # Based on "xmlrpcserver.py" by Fredrik Lundh (fredrik@pythonware.com)
 
-VERSION = "$Id: xmlrpc_handler.py,v 1.1 2002/12/23 05:56:33 ngps Exp $"
+VERSION = "$Id$"
 
 import http_server
 import xmlrpclib

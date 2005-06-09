@@ -25,7 +25,7 @@ Portions created by Open Source Applications Foundation (OSAF) are
 Copyright (C) 2004 OSAF. All Rights Reserved.
 """
 
-RCS_id='$Id: m2.py,v 1.4 2004/04/09 16:22:38 ngps Exp $'
+RCS_id='$Id$'
 
 from __m2crypto import *
 lib_init()

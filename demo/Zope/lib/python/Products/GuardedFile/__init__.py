@@ -3,7 +3,7 @@
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved.
 This software is released under the ZPL."""
 
-RCS_id = '$Id: __init__.py,v 1.1 2000/05/07 16:15:07 ngps Exp $'
+RCS_id = '$Id$'
 __version__ = '$Revision: 1.1 $'[11:-2]
 
 import GuardedFile

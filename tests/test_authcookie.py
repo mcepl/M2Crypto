@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: test_authcookie.py,v 1.2 2002/12/23 04:57:03 ngps Exp $'
+RCS_id='$Id$'
 
 import Cookie, binascii, time, unittest
 from M2Crypto.AuthCookie import AuthCookie, AuthCookieJar, mix, unmix, unmix3

@@ -31,7 +31,7 @@ drwxr-xr-x  12 0        0             512 May 31 17:08 python2.1
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: ftpslib.py,v 1.3 2002/12/23 03:44:51 ngps Exp $'
+RCS_id='$Id$'
 
 # Python
 from ftplib import *

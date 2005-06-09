@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: BIO.py,v 1.11 2004/03/21 13:50:12 ngps Exp $'
+RCS_id='$Id$'
 
 import m2
 from m2 import bio_do_handshake as bio_do_ssl_handshake

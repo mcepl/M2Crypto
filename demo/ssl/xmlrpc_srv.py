@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: xmlrpc_srv.py,v 1.2 2002/12/23 04:43:51 ngps Exp $'
+RCS_id='$Id$'
 
 # M2Crypto
 from M2Crypto import DH, SSL

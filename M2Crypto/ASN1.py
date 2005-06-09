@@ -7,7 +7,7 @@ Portions created by Open Source Applications Foundation (OSAF) are
 Copyright (C) 2005 OSAF. All Rights Reserved.
 """
 
-RCS_id = '$Id: ASN1.py,v 1.4 2004/04/09 16:16:07 ngps Exp $'
+RCS_id = '$Id$'
 
 import BIO
 import m2

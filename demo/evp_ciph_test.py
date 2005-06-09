@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: evp_ciph_test.py,v 1.4 2003/10/26 13:21:16 ngps Exp $'
+RCS_id='$Id$'
 
 from M2Crypto import EVP, Rand
 import array

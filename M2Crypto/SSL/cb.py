@@ -1,6 +1,6 @@
 """Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: cb.py,v 1.4 2002/12/23 03:59:20 ngps Exp $'
+RCS_id='$Id$'
 
 # Python
 import sys

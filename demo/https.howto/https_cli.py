@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: https_cli.py,v 1.1 2002/12/23 05:55:30 ngps Exp $'
+RCS_id='$Id$'
 
 import sys
 from M2Crypto import Rand, SSL, httpslib, threading

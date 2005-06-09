@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: s_server.py,v 1.2 2002/12/23 04:42:30 ngps Exp $'
+RCS_id='$Id$'
 
 from socket import *
 import asyncore

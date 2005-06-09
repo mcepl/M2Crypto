@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: echod-iterative.py,v 1.7 2003/06/30 06:25:19 ngps Exp $'
+RCS_id='$Id$'
 
 from M2Crypto import Rand, SSL
 import echod_lib

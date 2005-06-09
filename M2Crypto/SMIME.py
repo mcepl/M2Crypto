@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: SMIME.py,v 1.5 2003/10/26 16:55:17 ngps Exp $'
+RCS_id='$Id$'
 
 import BIO, EVP, X509, Err, util
 import m2

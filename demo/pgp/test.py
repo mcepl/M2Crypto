@@ -5,7 +5,7 @@
 
 Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: test.py,v 1.1 1999/12/22 15:44:06 ngps Exp $'
+RCS_id='$Id$'
 
 
 from M2Crypto import EVP, PGP

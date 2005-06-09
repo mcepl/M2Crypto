@@ -1,4 +1,4 @@
-# $Id: Makefile.mw,v 1.4 2004/03/27 09:44:52 ngps Exp $
+# $Id$
 
 # Python
 PYFLAGS=-D__WIN32__ -DHAVE_CONFIG_H -Ic:/pkg/py23/include

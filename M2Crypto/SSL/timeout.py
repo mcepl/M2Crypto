@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: timeout.py,v 1.1 2002/12/23 03:59:01 ngps Exp $'
+RCS_id='$Id$'
 
 import struct
 from M2Crypto import m2

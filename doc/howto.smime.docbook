@@ -955,7 +955,7 @@ openssl x509 -inform pem -outform der -in signer.pem -out signer.der
     <sect1 id="id-kludge">
     <title></title>
     <para>
-    <literal>$Id: howto.smime.docbook,v 1.1 2003/06/22 16:41:18 ngps Exp $</literal>
+    <literal>$Id$</literal>
     </para>
     </sect1>
 </article>

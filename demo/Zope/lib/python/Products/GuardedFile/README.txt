@@ -12,5 +12,5 @@ GuardedFile
     In all other aspects a GuardedFile behaves exactly like a File.
 
     
-    $Id: README.txt,v 1.2 2003/06/16 16:53:42 ngps Exp $
+    $Id$
     $Revision: 1.2 $

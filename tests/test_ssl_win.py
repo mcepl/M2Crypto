@@ -7,7 +7,7 @@ on your PATH.
 
 Copyright (c) 2000-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: test_ssl_win.py,v 1.2 2002/12/29 12:46:00 ngps Exp $'
+RCS_id='$Id$'
 
 import os, os.path, string, time, unittest
 import win32process

@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: echod_lib.py,v 1.6 2003/06/30 06:25:19 ngps Exp $'
+RCS_id='$Id$'
 
 import SocketServer
 from M2Crypto import SSL

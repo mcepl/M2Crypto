@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: PublicKey.py,v 1.3 2002/12/23 04:01:25 ngps Exp $'
+RCS_id='$Id$'
 
 
 from constants import *

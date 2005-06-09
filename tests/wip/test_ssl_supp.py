@@ -4,7 +4,7 @@
 
 Copyright (c) 2000-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: test_ssl_supp.py,v 1.1 2002/12/23 06:14:02 ngps Exp $'
+RCS_id='$Id$'
 
 import unittest
 from M2Crypto import Rand

@@ -10,7 +10,7 @@ is not implemented.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: packet.py,v 1.3 2002/12/23 04:03:07 ngps Exp $'
+RCS_id='$Id$'
 
 # XXX Work-in-progress.
 

@@ -5,7 +5,7 @@
 #                                                All Rights Reserved.
 #
 
-RCS_ID = '$Id: default_handler.py,v 1.1 2004/03/25 06:29:56 ngps Exp $'
+RCS_ID = '$Id$'
 
 # standard python modules
 import mimetypes

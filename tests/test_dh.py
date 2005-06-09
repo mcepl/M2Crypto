@@ -4,7 +4,7 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: test_dh.py,v 1.2 2001/07/20 13:54:23 ngps Exp $'
+RCS_id='$Id$'
 
 import unittest
 from M2Crypto import DH, BIO, Rand, m2

@@ -1,5 +1,5 @@
 # -*- Mode: Python -*-
-#       $Id: filesys.py,v 1.1 2004/03/25 06:29:56 ngps Exp $
+#       $Id$
 #       Author: Sam Rushing <rushing@nightmare.com>
 #
 # Generic filesystem interface.

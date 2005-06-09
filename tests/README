@@ -55,4 +55,4 @@ these should be driven by PyUnit tests. (Just don't ask when. ;-)
 - demo/x509/demo1.py
 
 ---------------------------------------------------------------------------
-$Id: README,v 1.1 2001/06/01 13:37:37 ngps Exp $
+$Id$

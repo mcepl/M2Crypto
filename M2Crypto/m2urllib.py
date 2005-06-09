@@ -3,7 +3,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: m2urllib.py,v 1.6 2003/01/07 16:46:07 ngps Exp $'
+RCS_id='$Id$'
 
 import string, sys, urllib
 from urllib import *

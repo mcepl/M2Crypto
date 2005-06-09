@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: https_server.py,v 1.2 2004/03/25 06:31:57 ngps Exp $'
+RCS_id='$Id$'
 
 import asynchat, asyncore, http_server, socket, sys
 from M2Crypto import SSL, version

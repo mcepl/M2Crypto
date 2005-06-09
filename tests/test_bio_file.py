@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: test_bio_file.py,v 1.2 2002/01/13 14:44:45 ngps Exp $'
+RCS_id='$Id$'
 
 import unittest
 import M2Crypto

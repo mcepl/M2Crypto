@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: echo-eg.py,v 1.1 2002/12/23 06:09:27 ngps Exp $'
+RCS_id='$Id$'
 
 import getopt, sys
 from socket import gethostname

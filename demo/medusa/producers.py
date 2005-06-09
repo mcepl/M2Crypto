@@ -1,6 +1,6 @@
 # -*- Mode: Python; tab-width: 4 -*-
 
-RCS_ID = '$Id: producers.py,v 1.1 2002/12/23 05:56:33 ngps Exp $'
+RCS_ID = '$Id$'
 
 import string
 

@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: sendsmime.py,v 1.1 2002/12/23 04:46:43 ngps Exp $'
+RCS_id='$Id$'
 
 from M2Crypto import BIO, Rand, SMIME, X509
 import smtplib, string, sys

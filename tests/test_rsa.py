@@ -4,7 +4,7 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: test_rsa.py,v 1.2 2002/12/23 04:58:36 ngps Exp $'
+RCS_id='$Id$'
 
 import unittest
 import os, sha, tempfile

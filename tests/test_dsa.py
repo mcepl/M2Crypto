@@ -4,7 +4,7 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id = '$Id: test_dsa.py,v 1.1 2000/12/03 09:46:46 ngps Exp $'
+RCS_id = '$Id$'
 
 import unittest
 import sha

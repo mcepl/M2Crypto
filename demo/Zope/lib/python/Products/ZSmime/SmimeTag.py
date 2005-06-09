@@ -3,7 +3,7 @@
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved.
 This software is released under the ZPL. Usual disclaimers apply."""
 
-RCS_id = '$Id: SmimeTag.py,v 1.2 2001/03/18 15:31:59 ngps Exp $'
+RCS_id = '$Id$'
 __version__ = '$Revision: 1.2 $'[11:-2]
 
 # Zope tag stuff.

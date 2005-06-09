@@ -4,7 +4,7 @@
 
 Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: pgpstep.py,v 1.2 2000/04/17 15:31:53 ngps Exp $'
+RCS_id='$Id$'
 
 from M2Crypto import PGP, util
 import time
