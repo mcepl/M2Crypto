@@ -1,32 +1,6 @@
--------------
- 25 Mar 2004
--------------
+M2Crypto bugs are handled by bugzilla.osafoundation.org, product
+M2Crypto.
 
-- Reported memory leak due to cyclical definitions of
-_write_bio/_write_nbio and _read_bio/_read_nbio in SSL.Connection.
+This URL will show all currently open M2Crypto bugs:
 
-- evp_ciph_demo.py, which uses the EVP.Cipher API, dumps core when
-the AES ciphers are tested. bio_ciph_test.py, which uses BIO.CipherStream,
-do not.
-
-- SSL.Connection.makefile() returns an instance of BIO.IOBuffer, 
-which is a file-like object. If you close the SSL.Connection, then 
-try to read()/write() the BIO.IOBuffer, you'll get unpredictable 
-results.
-
-- If you pass in bogus callbacks, the interpreter might crash. This 
-has been fixed for RSA, DSA, DH callbacks, but not for SSL callbacks, 
-yet.
-
-- Python 2.[23]: FTP/TLS passive mode client doesn't work against the 
-Medusa-based ftps_server. (Works using Python 2.1.)
-
-- Possible concurrency bugs in the SSL functionality as reported by Brent
-Chun.
-
-- demo/ssl/echod-forking.py no longer works. (Tested with Python 2.2.2.)
-I won't bother try fixing this, since forking servers are passe.
-
-
----------------------------------------------------------------------------
-$Id$
+https://bugzilla.osafoundation.org/buglist.cgi?product=M2Crypto&bug_status=NEW&bug_status=ASSIGNED&bug_status=REOPENED
