@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Context.py,v 1.11 2004/04/09 16:25:24 ngps Exp $'
+RCS_id='$Id$'
 
 # M2Crypto
 import cb
@@ -114,8 +114,7 @@ class Context:
         'capath'    - Directory containing PEM-encoded CA certificates
         (one certificate per file).
         """
-        #assert not (cafile is None and capath is None), "cafile and capath are None."
-        assert not (cafile is None), "cafile is None."
+        assert not (cafile is None and capath is None), "cafile and capath are None."
         return m2.ssl_ctx_load_verify_locations(self.ctx, cafile, capath)
 
     # Deprecated.

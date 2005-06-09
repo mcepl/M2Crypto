@@ -378,6 +378,9 @@ class SSLClientTestCase(unittest.TestCase):
         import doctest
         doctest.testmod(Checker)
         
+    def test_ctx_load_verify_locations(self):
+        ctx = SSL.Context()
+        self.assertRaises(AssertionError, ctx.load_verify_locations, None, None)
 
 twisted_data = ''
 
