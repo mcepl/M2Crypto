@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: __init__.py,v 1.4 2004/04/09 16:26:22 ngps Exp $'
+RCS_id='$Id$'
 
 # M2Crypto
 from M2Crypto import m2

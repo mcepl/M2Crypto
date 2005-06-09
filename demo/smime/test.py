@@ -4,7 +4,7 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: test.py,v 1.3 2002/12/23 04:33:55 ngps Exp $'
+RCS_id='$Id$'
 
 from M2Crypto import BIO, Rand, SMIME, X509
 

@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: demo1.py,v 1.3 2002/12/23 04:45:04 ngps Exp $'
+RCS_id='$Id$'
 
 import os
 

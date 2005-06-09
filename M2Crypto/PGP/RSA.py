@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: RSA.py,v 1.3 2002/12/23 04:02:12 ngps Exp $'
+RCS_id='$Id$'
 
 import sys
 from M2Crypto import m2, RSA

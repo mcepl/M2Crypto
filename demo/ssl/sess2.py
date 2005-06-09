@@ -7,7 +7,7 @@ of course.)
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: sess2.py,v 1.1 2002/12/23 06:09:27 ngps Exp $'
+RCS_id='$Id$'
 
 from M2Crypto import Err, Rand, SSL, X509, threading
 m2_threading = threading; del threading

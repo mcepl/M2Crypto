@@ -1,6 +1,6 @@
 """Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: Cipher.py,v 1.3 2003/10/26 16:57:43 ngps Exp $'
+RCS_id='$Id$'
 
 from M2Crypto import m2
 

@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: dsatest.py,v 1.2 2002/12/23 04:07:00 ngps Exp $'
+RCS_id='$Id$'
 
 from M2Crypto import DSA, EVP, Rand
 

@@ -1,4 +1,4 @@
-# $Id: Makefile.py22,v 1.2 2004/03/21 12:32:59 ngps Exp $
+# $Id$
 
 CFLAGS	   = -DTHREADING -g
 INCLUDE	   = -I/usr/local/include -I.

@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: echod-threading.py,v 1.4 2002/12/23 04:39:04 ngps Exp $'
+RCS_id='$Id$'
 
 from M2Crypto import DH, Rand, SSL, threading
 import echod_lib

@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: echod-forking.py,v 1.6 2002/12/23 04:37:46 ngps Exp $'
+RCS_id='$Id$'
 
 from M2Crypto import DH, Rand, SSL
 import echod_lib

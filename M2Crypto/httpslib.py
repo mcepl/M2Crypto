@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: httpslib.py,v 1.9 2004/03/25 06:35:20 ngps Exp $'
+RCS_id='$Id$'
 
 import string, sys
 from httplib import *

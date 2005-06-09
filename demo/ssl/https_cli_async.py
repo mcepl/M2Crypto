@@ -7,7 +7,7 @@ This isn't really a HTTPS client; it's just a toy.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: https_cli_async.py,v 1.3 2003/06/22 17:19:30 ngps Exp $'
+RCS_id='$Id$'
 
 import asyncore, sys, time
 from M2Crypto import Rand, SSL

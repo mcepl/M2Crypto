@@ -4,7 +4,7 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: test_bio_iobuf.py,v 1.3 2004/03/21 12:39:44 ngps Exp $'
+RCS_id='$Id$'
 
 from cStringIO import StringIO
 

@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: m2xmlrpclib.py,v 1.7 2003/09/15 16:47:53 ngps Exp $'
+RCS_id='$Id$'
 
 import base64, string, sys
 

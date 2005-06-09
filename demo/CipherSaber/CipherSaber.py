@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: CipherSaber.py,v 1.3 2002/12/23 04:10:49 ngps Exp $'
+RCS_id='$Id$'
 
 # XXX getopt handling has bugs.
 

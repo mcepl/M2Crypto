@@ -1,6 +1,6 @@
 """Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: ssl_dispatcher.py,v 1.4 2002/12/23 03:56:38 ngps Exp $'
+RCS_id='$Id$'
 
 # Python
 import asyncore, socket

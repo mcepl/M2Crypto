@@ -4,7 +4,7 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: unsmime.py,v 1.2 2002/12/23 04:33:15 ngps Exp $'
+RCS_id='$Id$'
 
 from M2Crypto import BIO, Rand, SMIME, X509
 import sys

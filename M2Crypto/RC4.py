@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: RC4.py,v 1.2 2002/12/23 03:49:25 ngps Exp $'
+RCS_id='$Id$'
 
 from m2 import rc4_new, rc4_free, rc4_set_key, rc4_update
 

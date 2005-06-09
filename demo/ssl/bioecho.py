@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: bioecho.py,v 1.2 2002/12/23 04:36:27 ngps Exp $'
+RCS_id='$Id$'
 
 import getopt, sys
 from M2Crypto import SSL, X509

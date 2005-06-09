@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: DSA.py,v 1.6 2004/03/31 01:19:55 ngps Exp $'
+RCS_id='$Id$'
 
 import sys
 import util, BIO, m2

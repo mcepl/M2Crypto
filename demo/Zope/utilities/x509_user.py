@@ -43,7 +43,7 @@ This associates the user who owns client.pem to the Zope "superuser".
 Copyright (c) 2000 Ng Pheng Siong. This program is released under the ZPL.
 """
 
-RCS_id='$Id: x509_user.py,v 1.1 2002/12/23 05:54:01 ngps Exp $'
+RCS_id='$Id$'
 
 import anydbm, getopt, sys
 

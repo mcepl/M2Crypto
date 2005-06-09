@@ -1,6 +1,6 @@
 # -*- Mode: Python; tab-width: 4 -*-
 
-VERSION_STRING = "$Id: status_handler.py,v 1.1 2002/12/23 05:56:33 ngps Exp $"
+VERSION_STRING = "$Id$"
 
 #			
 # medusa status extension

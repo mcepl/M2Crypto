@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2003/09/15 16:34:31 ngps Exp $
+# $Id$
 
 CFLAGS	   = -DTHREADING -g
 INCLUDE	   = -I/usr/local/include -I.

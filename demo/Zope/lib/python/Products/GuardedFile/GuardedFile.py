@@ -3,7 +3,7 @@
 Copyright (c) 2000-2003 Ng Pheng Siong. All rights reserved.
 This software is released under the ZPL. Usual disclaimers apply."""
 
-RCS_id = '$Id: GuardedFile.py,v 1.3 2003/06/16 16:55:44 ngps Exp $'
+RCS_id = '$Id$'
 __version__ = '$Revision: 1.3 $'[11:-2]
 
 from AccessControl import getSecurityManager

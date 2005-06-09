@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-_RCS_id='$Id: ftps_server.py,v 1.1 2004/03/25 06:29:56 ngps Exp $'
+_RCS_id='$Id$'
 
 # Python
 import socket, string, sys, time

@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: c.py,v 1.4 2003/06/22 17:14:46 ngps Exp $'
+RCS_id='$Id$'
 
 from socket import *
 import sys

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-RCS_id = '$Id: alltests.py,v 1.4 2003/05/11 16:17:25 ngps Exp $'
+RCS_id = '$Id$'
 
 import os, unittest
 from M2Crypto import Rand

@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: threading.py,v 1.2 2002/12/23 03:47:55 ngps Exp $'
+RCS_id='$Id$'
 
 # M2Crypto
 import m2

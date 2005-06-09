@@ -5,7 +5,7 @@ using the saved SSL session id.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: sess.py,v 1.4 2003/06/22 17:20:52 ngps Exp $'
+RCS_id='$Id$'
 
 from M2Crypto import Err, Rand, SSL, X509, threading
 m2_threading = threading; del threading

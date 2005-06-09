@@ -1,6 +1,6 @@
 """Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: callback.py,v 1.2 2002/12/23 03:52:31 ngps Exp $'
+RCS_id='$Id$'
 
 import SSL
 

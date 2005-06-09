@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: constants.py,v 1.2 2002/12/23 04:02:48 ngps Exp $'
+RCS_id='$Id$'
 
 CTB_TAG             = 128
 

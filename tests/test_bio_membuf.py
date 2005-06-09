@@ -4,7 +4,7 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: test_bio_membuf.py,v 1.2 2002/12/23 04:57:57 ngps Exp $'
+RCS_id='$Id$'
 
 import unittest
 import M2Crypto

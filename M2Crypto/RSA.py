@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: RSA.py,v 1.9 2004/04/12 02:05:14 ngps Exp $'
+RCS_id='$Id$'
 
 import sys
 import util, BIO, Err, m2

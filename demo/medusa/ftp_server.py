@@ -5,7 +5,7 @@
 #						 All Rights Reserved.
 #
 
-RCS_ID =  '$Id: ftp_server.py,v 1.1 2002/12/23 05:56:33 ngps Exp $'
+RCS_ID =  '$Id$'
 
 # An extensible, configurable, asynchronous FTP server.
 # 

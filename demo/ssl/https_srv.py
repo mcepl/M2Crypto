@@ -15,7 +15,7 @@ TODO:
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
 """
 
-RCS_id = '$Id: https_srv.py,v 1.3 2003/06/30 06:26:15 ngps Exp $'
+RCS_id = '$Id$'
 
 import os, sys
 from SimpleHTTPServer import SimpleHTTPRequestHandler

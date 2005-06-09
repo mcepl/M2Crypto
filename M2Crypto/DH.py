@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id: DH.py,v 1.4 2002/12/23 03:50:38 ngps Exp $'
+RCS_id='$Id$'
 
 from util import genparam_callback
 import BIO, Err, m2

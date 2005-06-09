@@ -1,6 +1,6 @@
 # -*- Mode: Python -*-
 
-RCS_ID = '$Id: producers.py,v 1.1 2004/03/25 06:29:57 ngps Exp $'
+RCS_ID = '$Id$'
 
 """
 A collection of producers.
