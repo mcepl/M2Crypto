@@ -3,10 +3,10 @@
 server3 from the book 'Network Security with OpenSSL', but modified to
 Python/M2Crypto from the original C implementation.
 
-Copyright (c) 2004 Open Source Applications Foundation.
+Copyright (c) 2004-2005 Open Source Applications Foundation.
 Author: Heikki Toivonen
 """
-from M2Crypto import SSL, Rand, threading
+from M2Crypto import SSL, Rand, threading, DH
 import thread
 from socket import *
 
@@ -35,7 +35,7 @@ def setup_server_ctx():
     #    print "***No default verify paths"
     ctx.load_cert_chain('server.pem')
     ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert,
-                   10)#, verify_callback) # XXX Crash with callback
+                   10, verify_callback)
     ctx.set_options(SSL.op_all | SSL.op_no_sslv2)
     #ctx.set_tmp_dh_callback(tmp_dh_callback)# XXX This causes crash
     ctx.set_tmp_dh('dh1024.pem')
@@ -45,11 +45,11 @@ def setup_server_ctx():
         ctx.set_info_callback()
     return ctx
 
-def post_connection_check(conn):
-    cert = conn.get_peer_cert()
-    if cert is None:
+def post_connection_check(peerX509, expectedHost):
+    if peerX509 is None:
         print "***No peer certificate"
     # Not sure if we can do any other checks
+    return 1
 
 def do_server_loop(conn):
     while 1:
@@ -77,6 +77,7 @@ def do_server_loop(conn):
 #    conn.setup_addr(addr)
 def server_thread(ctx, sock, addr):
     conn = SSL.Connection(ctx, sock)
+    conn.set_post_connection_check_callback(post_connection_check)
     conn.setup_addr(addr)
     conn.set_accept_state()
     conn.setup_ssl()
