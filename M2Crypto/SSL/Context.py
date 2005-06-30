@@ -212,10 +212,9 @@ class Context:
     def get_cert_store(self):
         """
         Get the certificate store associated with this context.
+        
+        @warning: The store is NOT refcounted, and as such can not be relied
+        to be valid once the context goes away or is changed.
         """
-        # XXX This is tricky: ssl_ctx_get_cert_store() returns just a pointer
-        # XXX without increasing reference counts or anything. So
-        # XXX if the store now goes away, the value we returned will be
-        # XXX bogus. Dunno if we can do anything about this.
         return X509.X509_Store(m2.ssl_ctx_get_cert_store(self.ctx))
     
