@@ -514,17 +514,26 @@ class X509_Store_Context:
         return self.ctx
             
     def get_current_cert(self):
-        # XXX OpenSSL does not addref the returned cert so
-        # XXX our return value will be bogus once the context
-        # XXX goes away.
+        """
+        Get current X.509 certificate.
+        
+        @warning: The returned certificate is NOT refcounted, so you can not
+        rely on it being valid once the store context goes away or is modified.
+        """
         return X509(m2.x509_store_ctx_get_current_cert(self.ctx), _pyfree=0)
 
     def get_error(self):
+        """
+        Get error code.
+        """
         return m2.x509_store_ctx_get_error(self.ctx)
         
     def get_error_depth(self):
+        """
+        Get error depth.
+        """
         return m2.x509_store_ctx_get_error_depth(self.ctx)
-
+        
 
 class X509_Store:
     """
