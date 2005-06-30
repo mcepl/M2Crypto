@@ -166,13 +166,13 @@ int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
 
 void ssl_info_callback(const SSL *s, int where, int ret) {
     PyObject *argv, *retval, *_SSL;
-#if 0 && PY_VERSION_HEX >= 0x20300F0
+#if PY_VERSION_HEX >= 0x20300F0
     PyGILState_STATE gilstate;
 #else
     PyThreadState *_save;
 #endif
 
-#if 0 && PY_VERSION_HEX >= 0x20300F0
+#if PY_VERSION_HEX >= 0x20300F0
     gilstate = PyGILState_Ensure();
 #else
     if (thread_mode) {
@@ -190,7 +190,7 @@ void ssl_info_callback(const SSL *s, int where, int ret) {
     Py_XDECREF(argv);
     Py_XDECREF(_SSL);
 
-#if 0 && PY_VERSION_HEX >= 0x20300F0
+#if PY_VERSION_HEX >= 0x20300F0
     PyGILState_Release(gilstate);
 #else
     if (thread_mode) {
