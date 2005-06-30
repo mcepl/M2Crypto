@@ -50,6 +50,9 @@ class DH:
         else:
             self.__dict__[name] = value
 
+    def _ptr(self):
+        return self.dh
+
     def check_params(self):
         assert m2.dh_type_check(self.dh), "'dh' type error"
         return m2.dh_check(self.dh)
