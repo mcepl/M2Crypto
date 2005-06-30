@@ -244,26 +244,40 @@ DH *ssl_set_tmp_dh_callback(SSL *ssl, int is_export, int keylength) {
 RSA *ssl_set_tmp_rsa_callback(SSL *ssl, int is_export, int keylength) {
     PyObject *argv, *ret, *_ssl;
     RSA *rsa;
+#if PY_VERSION_HEX >= 0x20300F0
+    PyGILState_STATE gilstate;
+#else
     PyThreadState *_save;
+#endif
 
-    _ssl = SWIG_NewPointerObj((void *)ssl, SWIGTYPE_p_SSL, 0);
-    argv = Py_BuildValue("(Oii)", _ssl, is_export, keylength);
-
+#if PY_VERSION_HEX >= 0x20300F0
+    gilstate = PyGILState_Ensure();
+#else
     if (thread_mode) {
         _save = (PyThreadState *)SSL_get_app_data(ssl);
         PyEval_RestoreThread(_save);
     }
+#endif
+
+    _ssl = SWIG_NewPointerObj((void *)ssl, SWIGTYPE_p_SSL, 0);
+    argv = Py_BuildValue("(Oii)", _ssl, is_export, keylength);
+
     ret = PyEval_CallObject(ssl_set_tmp_rsa_cb_func, argv);
-    if (thread_mode) {
-        _save = PyEval_SaveThread();
-        SSL_set_app_data(ssl, _save);
-    }
 
     if ((SWIG_ConvertPtr(ret, (void **)&rsa, SWIGTYPE_p_RSA, SWIG_POINTER_EXCEPTION | 0)) == -1)
       rsa = NULL;
     Py_XDECREF(ret);
     Py_XDECREF(argv);
     Py_XDECREF(_ssl);
+
+#if PY_VERSION_HEX >= 0x20300F0
+    PyGILState_Release(gilstate);
+#else
+    if (thread_mode) {
+        _save = PyEval_SaveThread();
+        SSL_set_app_data(ssl, _save);
+    }
+#endif
 
     return rsa;
 }
