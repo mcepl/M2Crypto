@@ -20,12 +20,14 @@ def verify_callback(ok, store):
 dh1024 = None
 
 def init_dhparams():
+    global dh1024
     dh1024 = DH.load_params('dh1024.pem')
 
 def tmp_dh_callback(ssl, is_export, keylength):
+    global dh1024
     if not dh1024:
         init_dhparams()
-    return dh1024
+    return dh1024._ptr()
 
 def setup_server_ctx():
     ctx = SSL.Context('sslv23')
@@ -37,8 +39,8 @@ def setup_server_ctx():
     ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert,
                    10, verify_callback)
     ctx.set_options(SSL.op_all | SSL.op_no_sslv2)
-    #ctx.set_tmp_dh_callback(tmp_dh_callback)# XXX This causes crash
-    ctx.set_tmp_dh('dh1024.pem')
+    ctx.set_tmp_dh_callback(tmp_dh_callback)
+    #ctx.set_tmp_dh('dh1024.pem')
     if ctx.set_cipher_list('ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH') != 1:
         print "***No valid ciphers"
     if verbose_debug:
