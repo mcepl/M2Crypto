@@ -182,7 +182,13 @@ class Context:
             m2.ssl_ctx_set_tmp_rsa_callback(self.ctx, callback) 
 
     def set_info_callback(self, callback=cb.ssl_info_callback):
-        # XXX Has problem with Python threading...
+        """
+        Set a callback function that can be used to get state information
+        about the SSL connections that are created from this context.
+        
+        @param callback: Callback function. The default prints information to
+                         stderr.
+        """
         m2.ssl_ctx_set_info_callback(self.ctx, callback) 
 
     def set_cipher_list(self, cipher_list):
