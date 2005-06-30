@@ -166,24 +166,38 @@ int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
 
 void ssl_info_callback(const SSL *s, int where, int ret) {
     PyObject *argv, *retval, *_SSL;
+#if 0 && PY_VERSION_HEX >= 0x20300F0
+    PyGILState_STATE gilstate;
+#else
     PyThreadState *_save;
+#endif
 
-    _SSL = SWIG_NewPointerObj((void *)s, SWIGTYPE_p_SSL, 0);
-    argv = Py_BuildValue("(iiO)", where, ret, _SSL);
-    
+#if 0 && PY_VERSION_HEX >= 0x20300F0
+    gilstate = PyGILState_Ensure();
+#else
     if (thread_mode) {
         _save = (PyThreadState *)SSL_get_app_data((SSL *)s);
         PyEval_RestoreThread(_save);
     }
+#endif
+
+    _SSL = SWIG_NewPointerObj((void *)s, SWIGTYPE_p_SSL, 0);
+    argv = Py_BuildValue("(iiO)", where, ret, _SSL);
+    
     retval = PyEval_CallObject(ssl_info_cb_func, argv);
-    if (thread_mode) {
-        _save = PyEval_SaveThread();
-        SSL_set_app_data((SSL *)s, _save);
-    }
 
     Py_XDECREF(retval);
     Py_XDECREF(argv);
     Py_XDECREF(_SSL);
+
+#if 0 && PY_VERSION_HEX >= 0x20300F0
+    PyGILState_Release(gilstate);
+#else
+    if (thread_mode) {
+        _save = PyEval_SaveThread();
+        SSL_set_app_data((SSL *)s, _save);
+    }
+#endif
 }
 
 DH *ssl_set_tmp_dh_callback(SSL *ssl, int is_export, int keylength) {
