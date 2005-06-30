@@ -272,6 +272,23 @@ class SSLClientTestCase(unittest.TestCase):
             self.stop_server(pid)
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
+    def test_verify_cb_lambda(self):
+        pid = self.start_server(self.args)
+        try:
+            ctx = SSL.Context()
+            ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9,
+                           lambda ok, store: 1)
+            s = SSL.Connection(ctx)
+            try:
+                s.connect(self.srv_addr)
+            except SSL.SSLError, e:
+                assert 0, e
+            data = self.http_get(s)
+            s.close()
+        finally:
+            self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
     def verify_cb_exception(self, ok, store):
         raise Exception, 'We should fail verification'
 
@@ -281,6 +298,26 @@ class SSLClientTestCase(unittest.TestCase):
             ctx = SSL.Context()
             ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9,
                            self.verify_cb_exception)
+            s = SSL.Connection(ctx)
+            self.assertRaises(SSL.SSLError, s.connect, self.srv_addr)
+            s.close()
+        finally:
+            self.stop_server(pid)
+
+    def test_verify_cb_not_callable(self):
+        ctx = SSL.Context()
+        self.assertRaises(TypeError,
+                          ctx.set_verify,
+                          SSL.verify_peer | SSL.verify_fail_if_no_peer_cert,
+                          9,
+                          1)
+
+    def test_verify_cb_wrong_callable(self):
+        pid = self.start_server(self.args)
+        try:
+            ctx = SSL.Context()
+            ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9,
+                           lambda _: '')
             s = SSL.Connection(ctx)
             self.assertRaises(SSL.SSLError, s.connect, self.srv_addr)
             s.close()
