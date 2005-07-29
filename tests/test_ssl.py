@@ -130,7 +130,11 @@ class SSLClientTestCase(unittest.TestCase):
             try:
                 s.connect(self.srv_addr)
             except SSL.SSLError, e:
-                self.failUnlessEqual(e[0], 'unsupported protocol')
+                # XXX Not totally sure if this is correct, but SSLv2 handling DID change.
+                if m2.OPENSSL_VERSION_NUMBER < 0x90800F:
+                    self.failUnlessEqual(e[0], 'unsupported protocol')
+                else:
+                    self.failUnlessEqual(e[1], 'Software caused connection abort')
             s.close()
         finally:
             self.stop_server(pid)

@@ -4,6 +4,10 @@
 %{
 #include <openssl/evp.h>
 
+#if OPENSSL_VERSION_NUMBER >= 0x0090800fL
+#include <openssl/aes.h>
+#endif
+
 /* 
 // 2004-10-10, ngps: 
 // CTR mode is not included in the default OpenSSL build.
