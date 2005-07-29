@@ -32,6 +32,12 @@ static int thread_mode = 0;
 #define CONST
 #endif
 
+#if OPENSSL_VERSION_NUMBER >= 0x0090800fL
+#define CONST098 const
+#else
+#define CONST098
+#endif
+
 %include constraints.i
 %include _threads.i
 %include _lib.i

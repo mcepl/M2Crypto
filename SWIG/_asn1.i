@@ -20,8 +20,8 @@
 %name(asn1_object_create) extern ASN1_OBJECT *ASN1_OBJECT_create( int, unsigned char *, int, const char *, const char *);
 %name(asn1_object_free) extern void ASN1_OBJECT_free( ASN1_OBJECT *);
 %name(i2d_asn1_object) extern int i2d_ASN1_OBJECT( ASN1_OBJECT *, unsigned char **);
-%name(c2i_asn1_object) extern ASN1_OBJECT *c2i_ASN1_OBJECT( ASN1_OBJECT **, unsigned char **, long);
-%name(d2i_asn1_object) extern ASN1_OBJECT *d2i_ASN1_OBJECT( ASN1_OBJECT **, unsigned char **, long);
+%name(c2i_asn1_object) extern ASN1_OBJECT *c2i_ASN1_OBJECT( ASN1_OBJECT **, CONST098 unsigned char **, long);
+%name(d2i_asn1_object) extern ASN1_OBJECT *d2i_ASN1_OBJECT( ASN1_OBJECT **, CONST098 unsigned char **, long);
 
 %name(asn1_bit_string_new) extern ASN1_BIT_STRING *ASN1_BIT_STRING_new( void );
 /* %name(asn1_bit_string_set) extern int *ASN1_BIT_STRING_set(ASN1_BIT_STRING *, unsigned char *, int); */
@@ -37,7 +37,7 @@
 %name(asn1_utctime_free) extern void ASN1_UTCTIME_free(ASN1_UTCTIME *);
 %name(asn1_utctime_check) extern int ASN1_UTCTIME_check(ASN1_UTCTIME *);
 %name(asn1_utctime_set) extern ASN1_UTCTIME *ASN1_UTCTIME_set(ASN1_UTCTIME *, long);
-%name(asn1_utctime_set_string) extern int ASN1_UTCTIME_set_string(ASN1_UTCTIME *, char *);
+%name(asn1_utctime_set_string) extern int ASN1_UTCTIME_set_string(ASN1_UTCTIME *, CONST098 char *);
 %name(asn1_utctime_print) extern int ASN1_UTCTIME_print(BIO *, ASN1_UTCTIME *);
 
 %name(asn1_integer_new) extern ASN1_INTEGER *ASN1_INTEGER_new( void );
