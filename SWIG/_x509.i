@@ -66,7 +66,7 @@
 %constant int X509_PURPOSE_ANY                = 7;
 %constant int X509_PURPOSE_OCSP_HELPER        = 8;
 
-%name(x509_check_ca) extern int X509_check_ca(X509 *);
+/*%name(x509_check_ca) extern int X509_check_ca(X509 *);*/
 %name(x509_check_purpose) extern X509_check_purpose(X509 *, int, int);
 %name(x509_check_trust) extern X509_check_trust(X509 *, int, int);
 

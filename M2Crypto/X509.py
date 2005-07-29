@@ -462,7 +462,8 @@ class X509:
         
         @return: 0 if the certificate is not CA, nonzero otherwise.
         """
-        return m2.x509_check_ca(self.x509)
+        #return m2.x509_check_ca(self.x509)
+        raise NotImplementedError
         
     def check_purpose(self, id, ca):
         """
