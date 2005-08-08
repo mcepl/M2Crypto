@@ -41,7 +41,7 @@ def connectSSL(host, port, factory, contextFactory, timeout=30,
                            client=1,
                            contextFactory=contextFactory,
                            postConnectionCheck=postConnectionCheck)
-    reactor.connectTCP(host, port, wrappingFactory, timeout, bindAddress)
+    return reactor.connectTCP(host, port, wrappingFactory, timeout, bindAddress)
         
 
 def connectTCP(host, port, factory, timeout=30, bindAddress=None,
@@ -62,7 +62,7 @@ def connectTCP(host, port, factory, timeout=30, bindAddress=None,
                            client=1,
                            contextFactory=None,
                            postConnectionCheck=postConnectionCheck)
-    reactor.connectTCP(host, port, wrappingFactory, timeout, bindAddress)
+    return reactor.connectTCP(host, port, wrappingFactory, timeout, bindAddress)
 
 
 def listenSSL(port, factory, contextFactory, backlog=5, interface='',
@@ -81,7 +81,7 @@ def listenSSL(port, factory, contextFactory, backlog=5, interface='',
                            client=0,
                            contextFactory=contextFactory,
                            postConnectionCheck=postConnectionCheck)
-    reactor.listenTCP(port, wrappingFactory, backlog, interface)
+    return reactor.listenTCP(port, wrappingFactory, backlog, interface)
 
 
 def listenTCP(port, factory, backlog=5, interface='',
@@ -102,7 +102,7 @@ def listenTCP(port, factory, backlog=5, interface='',
                            client=0,
                            contextFactory=None,
                            postConnectionCheck=postConnectionCheck)
-    reactor.listenTCP(port, wrappingFactory, backlog, interface)
+    return reactor.listenTCP(port, wrappingFactory, backlog, interface)
 
 
 class TLSProtocolWrapper(ProtocolWrapper):
