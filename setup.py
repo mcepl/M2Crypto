@@ -104,7 +104,7 @@ m2crypto = Extension(name = '__m2crypto',
                      )
 
 setup(name = 'M2Crypto',
-    version = '0.14s1',
+    version = '0.15',
     description = 'M2Crypto: A Python crypto and SSL toolkit',
     author = 'Ng Pheng Siong',
     author_email = 'ngps@netmemetic.com',
