@@ -27,6 +27,9 @@ class PKCS7_Error(Exception): pass
 m2.pkcs7_init(PKCS7_Error)
 
 class PKCS7:
+
+    m2_pkcs7_free = m2.pkcs7_free
+
     def __init__(self, pkcs7=None, _pyfree=0):
         if pkcs7 is not None:
             self.pkcs7 = pkcs7
@@ -34,10 +37,10 @@ class PKCS7:
         else:
             self.pkcs7 = m2.pkcs7_new()
             self._pyfree = 1
-
+            
     def __del__(self):
-        if self._pyfree:
-            m2.pkcs7_free(self.pkcs7)
+        if getattr(self, '_pyfree', 0):
+            self.m2_pkcs7_free(self.pkcs7)
 
     def _ptr(self):
         return self.pkcs7
@@ -62,7 +65,7 @@ def load_pkcs7(p7file):
     bio = m2.bio_new_file(p7file, 'r')
     if bio is None:
         raise Err.get_error()
-    p7_ptr = m2.pkcs7_read_bio(p7_bio._ptr())
+    p7_ptr = m2.pkcs7_read_bio(bio._ptr())
     if p7_ptr is None:
         raise Err.get_error()
     return PKCS7(p7_ptr, 1)

@@ -17,17 +17,16 @@ class DSA:
     Object interface to a DSA key pair.
     """
 
+    m2_dsa_free = m2.dsa_free
+
     def __init__(self, dsa, _pyfree=0):
         assert m2.dsa_type_check(dsa), "'dsa' type error"
         self.dsa = dsa
         self._pyfree = _pyfree
-
+        
     def __del__(self):
-        try:
-            if self._pyfree:
-                m2.dsa_free(self.dsa)
-        except AttributeError:
-            pass
+        if getattr(self, '_pyfree', 0):
+            self.m2_dsa_free(self.dsa)
 
     def __len__(self):
         assert m2.dsa_type_check(self.dsa), "'dsa' type error"

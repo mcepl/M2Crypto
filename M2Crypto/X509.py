@@ -33,13 +33,16 @@ class X509_Extension:
     """
     X509 Extension
     """
+    
+    m2_x509_extension_free = m2.x509_extension_free
+    
     def __init__(self, x509_ext_ptr=None, _pyfree=1):
         self.x509_ext = x509_ext_ptr
         self._pyfree = _pyfree
 
     def __del__(self):
-        if self._pyfree and self.x509_ext:
-            m2.x509_extension_free(self.x509_ext)
+        if getattr(self, '_pyfree', 0) and self.x509_ext:
+            self.m2_x509_extension_free(self.x509_ext)
 
     def _ptr(self):
         return self.x509_ext
@@ -84,6 +87,9 @@ class X509_Extension_Stack:
     """
     X509 Extension Stack
     """
+
+    m2_sk_x509_extension_free = m2.sk_x509_extension_free
+
     def __init__(self, stack=None, _pyfree=0):
         if stack is not None:
             self.stack = stack
@@ -92,10 +98,10 @@ class X509_Extension_Stack:
             self.stack = m2.sk_x509_extension_new_null()
             self._pyfree = 1
         self._refkeeper = {}
-
+        
     def __del__(self):
-        if self._pyfree:
-            m2.sk_x509_extension_free(self.stack)
+        if getattr(self, '_pyfree', 0):
+            self.m2_sk_x509_extension_free(self.stack)
 
     def __len__(self):
         return m2.sk_x509_extension_num(self.stack)
@@ -138,16 +144,16 @@ class X509_Name_Entry:
     """
     X509 Name Entry
     """
+
+    m2_x509_name_entry_free = m2.x509_name_entry_free
+
     def __init__(self, x509_name_entry, _pyfree=0):
         self.x509_name_entry = x509_name_entry
         self._pyfree = _pyfree
-
+        
     def __del__(self):
-        try:
-            if self._pyfree:
-                m2.x509_name_entry_free(self.x509_name_entry)
-        except AttributeError:
-            pass    
+        if self._pyfree:
+            self.m2_x509_name_entry_free(self.x509_name_entry)
 
     def _ptr(self):
         return self.x509_name_entry
@@ -185,6 +191,8 @@ class X509_Name:
            'emailAddress'           : m2.NID_pkcs9_emailAddress
            }
 
+    m2_x509_name_free = m2.x509_name_free
+
     def __init__(self, x509_name=None, _pyfree=0):
         if x509_name is not None:
             assert m2.x509_name_type_check(x509_name), "'x509_name' type error"
@@ -193,13 +201,10 @@ class X509_Name:
         else:
             self.x509_name = m2.x509_name_new ()
             self._pyfree = 1
-
+            
     def __del__(self):
-        try:
-            if self._pyfree:
-                m2.x509_name_free(self.x509_name)
-        except AttributeError:
-            pass
+        if getattr(self, '_pyfree', 0):
+            self.m2_x509_name_free(self.x509_name)
 
     def __str__(self):
         assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error" 
@@ -240,6 +245,9 @@ class X509:
     """
     X.509 Certificate
     """
+
+    m2_x509_free = m2.x509_free
+
     def __init__(self, x509=None, _pyfree=0):
         if x509 is not None:
             assert m2.x509_type_check(x509), "'x509' type error"
@@ -248,13 +256,10 @@ class X509:
         else:
             self.x509 = m2.x509_new ()
             self._pyfree = 1
-
+            
     def __del__(self):
-        try:
-            if self._pyfree:
-                m2.x509_free(self.x509)
-        except AttributeError:
-            pass
+        if getattr(self, '_pyfree', 0):
+            self.m2_x509_free(self.x509)
 
     def _ptr(self):
         assert m2.x509_type_check(self.x509), "'x509' type error"
@@ -503,13 +508,16 @@ class X509_Store_Context:
     """
     X509 Store Context
     """
+
+    m2_x509_store_ctx_free = m2.x509_store_ctx_free
+
     def __init__(self, x509_store_ctx, _pyfree=0):
         self.ctx = x509_store_ctx
         self._pyfree = _pyfree
-
+        
     def __del__(self):
         if self._pyfree:
-            m2.x509_store_ctx_free(self.ctx)
+            self.m2_x509_store_ctx_free(self.ctx)
             
     def _ptr(self):
         return self.ctx
@@ -540,6 +548,9 @@ class X509_Store:
     """
     X509 Store
     """
+
+    m2_x509_store_free = m2.x509_store_free
+
     def __init__(self, store=None, _pyfree=0):
         if store is not None:
             self.store = store
@@ -547,10 +558,10 @@ class X509_Store:
         else:
             self.store = m2.x509_store_new()
             self._pyfree = 1
-
+            
     def __del__(self):
-        if self._pyfree:
-            m2.x509_store_free(self.store)
+        if getattr(self, '_pyfree', 0):
+            self.m2_x509_store_free(self.store)
 
     def _ptr(self):
         return self.store
@@ -571,6 +582,9 @@ class X509_Stack:
     """
     X509 Stack
     """
+
+    m2_sk_x509_free = m2.sk_x509_free
+
     def __init__(self, stack=None, _pyfree=0):
         if stack is not None:
             self.stack = stack
@@ -579,11 +593,11 @@ class X509_Stack:
             self.stack = m2.sk_x509_new_null()
             self._pyfree = 1
         self._refkeeper = {}
-
+        
     def __del__(self):
-        if self._pyfree:
-            m2.sk_x509_free(self.stack)
-
+        if getattr(self, '_pyfree', 0):
+            self.m2_sk_x509_free(self.stack)
+            
     def __len__(self):
         return m2.sk_x509_num(self.stack)
 
@@ -611,6 +625,9 @@ class Request:
     """
     X509 Certificate Request.
     """
+
+    m2_x509_req_free = m2.x509_req_free
+
     def __init__(self, req=None, _pyfree=0):
         if req is not None:
             self.req = req
@@ -618,11 +635,11 @@ class Request:
         else:
             self.req = m2.x509_req_new()
             self._pyfree = 1
-
+            
     def __del__(self):
-        if self._pyfree:
-            m2.x509_req_free(self.req)
-
+        if getattr(self, '_pyfree', 0):
+            self.m2_x509_req_free(self.req)
+            
     def as_text(self):
         buf=BIO.MemoryBuffer()
         m2.x509_req_print(buf.bio_ptr(), self.req)
@@ -731,6 +748,9 @@ class CRL:
     """
     X509 Certificate Revocation List
     """
+
+    m2_x509_crl_free = m2.x509_crl_free
+
     def __init__(self, crl=None, _pyfree=0):
         if crl is not None:
             self.crl = crl
@@ -738,10 +758,10 @@ class CRL:
         else:
             self.crl = m2.x509_crl_new()
             self._pyfree = 1
-
+            
     def __del__(self):
-        if self._pyfree:
-            m2.x509_crl_free(self.crl)
+        if getattr(self, '_pyfree', 0):
+            self.m2_x509_crl_free(self.crl)
 
     def as_text(self):
         """

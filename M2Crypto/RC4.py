@@ -10,16 +10,16 @@ class RC4:
 
     """Object interface to the stream cipher RC4."""
 
+    rc4_free = rc4_free
+
     def __init__(self, key=None):
         self.cipher = rc4_new()
         if key:
             rc4_set_key(self.cipher, key)
-
+            
     def __del__(self):
-        try:
-            rc4_free(self.cipher)
-        except AttributeError:
-            pass
+        if getattr(self, 'cipher', None):        
+            self.rc4_free(self.cipher)
 
     def set_key(self, key):
         rc4_set_key(self.cipher, key)   

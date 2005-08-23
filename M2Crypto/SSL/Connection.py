@@ -27,6 +27,8 @@ class Connection:
     clientPostConnectionCheck = Checker.Checker()
     serverPostConnectionCheck = _serverPostConnectionCheck
 
+    m2_bio_free = m2.bio_free
+
     def __init__(self, ctx, sock=None):
         self.ctx = ctx
         self.ssl = m2.ssl_new(self.ctx.ctx)
@@ -36,13 +38,12 @@ class Connection:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._fileno = self.socket.fileno()
-
+        
     def __del__(self):
-        try:
-            m2.bio_free(self.sslbio)
-            m2.bio_free(self.sockbio)
-        except AttributeError:
-            pass
+        if getattr(self, 'sslbio', None):
+            self.m2_bio_free(self.sslbio)
+        if getattr(self, 'sockbio', None):
+            self.m2_bio_free(self.sockbio)
         self.socket.close()
 
     def close(self):
