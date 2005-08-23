@@ -18,17 +18,16 @@ class DH:
     protocol.
     """
 
+    m2_dh_free = m2.dh_free
+
     def __init__(self, dh, _pyfree=0):
         assert m2.dh_type_check(dh)
         self.dh = dh
         self._pyfree = _pyfree
-
+        
     def __del__(self):
-        try:
-            if self._pyfree:
-                m2.dh_free(self.dh)
-        except AttributeError:
-            pass
+        if getattr(self, '_pyfree', 0):
+            self.m2_dh_free(self.dh)
 
     def __len__(self):
         assert m2.dh_type_check(self.dh), "'dh' type error"

@@ -5,14 +5,17 @@ RCS_id='$Id$'
 from M2Crypto import BIO, Err, m2
 
 class Session:
+
+    m2_ssl_session_free = m2.ssl_session_free
+
     def __init__(self, session, _pyfree=0):
         assert session is not None
         self.session = session
         self._pyfree = _pyfree
-
+        
     def __del__(self):
-        if self._pyfree:
-            m2.ssl_session_free(self.session)
+        if getattr(self, '_pyfree', 0):
+            self.m2_ssl_session_free(self.session)
 
     def _ptr(self):
         return self.session

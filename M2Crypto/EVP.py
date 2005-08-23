@@ -22,10 +22,12 @@ class MessageDigest:
         self.md=md()
         self.ctx=m2.md_ctx_new()
         m2.digest_init(self.ctx, self.md)
+        
+        self.m2_md_ctx_free = m2.md_ctx_free
 
     def __del__(self):
-        if self.ctx:
-            m2.md_ctx_free(self.ctx)
+        if getattr(self, 'ctx', None):
+            self.m2_md_ctx_free(self.ctx)
 
     def update(self, data):
         m2.digest_update(self.ctx, data)
@@ -38,6 +40,9 @@ class MessageDigest:
 
 
 class HMAC:
+    
+    m2_hmac_ctx_free = m2.hmac_ctx_free
+
     def __init__(self, key, algo='sha1'):
         md = getattr(m2, algo)
         if not md:
@@ -45,10 +50,10 @@ class HMAC:
         self.md=md()
         self.ctx=m2.hmac_ctx_new()
         m2.hmac_init(self.ctx, key, self.md)
-
+        
     def __del__(self):
-        if self.ctx:
-            m2.hmac_ctx_free(self.ctx)
+        if getattr(self, 'ctx', None):
+            self.m2_hmac_ctx_free(self.ctx)
 
     def reset(self, key):
         m2.hmac_init(self.ctx, key, self.md)
@@ -69,6 +74,9 @@ def hmac(key, data, algo='sha1'):
 
 
 class Cipher:
+
+    m2_cipher_ctx_free = m2.cipher_ctx_free
+
     def __init__(self, alg, key, iv, op, key_as_bytes=0, d='md5', salt='12345678', i=1):
         cipher = getattr(m2, alg)
         if not cipher:
@@ -82,10 +90,10 @@ class Cipher:
         self.ctx=m2.cipher_ctx_new()
         m2.cipher_init(self.ctx, self.cipher, key, iv, op)
         del key
-
+        
     def __del__(self):
-        if self.ctx:
-            m2.cipher_ctx_free(self.ctx)
+        if getattr(self, 'ctx', None):        
+            self.m2_cipher_ctx_free(self.ctx)
 
     def update(self, data):
         return m2.cipher_update(self.ctx, data)
@@ -98,6 +106,10 @@ class PKey:
     """
     Public Key
     """
+    
+    m2_pkey_free = m2.pkey_free
+    m2_md_ctx_free = m2.md_ctx_free
+
     def __init__(self, pkey=None, _pyfree=0, md='sha1'):
         if pkey is not None:
             self.pkey = pkey
@@ -106,11 +118,12 @@ class PKey:
             self.pkey = m2.pkey_new()
             self._pyfree = 1
         self._set_context(md)
-
+        
     def __del__(self):
-        if self._pyfree:
-            m2.pkey_free(self.pkey)
-        m2.md_ctx_free(self.ctx)
+        if getattr(self, '_pyfree', 0):
+            self.m2_pkey_free(self.pkey)
+        if getattr(self, 'ctx', None):
+            self.m2_md_ctx_free(self.ctx)
 
     def _ptr(self):
         return self.pkey

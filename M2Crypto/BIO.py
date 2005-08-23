@@ -17,16 +17,18 @@ class BIO:
 
     """Abstract object interface to the BIO API."""
 
+    m2_bio_free = m2.bio_free
+
     def __init__(self, bio=None, _pyfree=0, _close_cb=None):
         self.bio = bio
         self._pyfree = _pyfree
         self._close_cb = _close_cb
         self.closed = 0
         self.write_closed = 0
-
+        
     def __del__(self):
         if self._pyfree:
-            m2.bio_free(self.bio)
+            self.m2_bio_free(self.bio)
 
     def _ptr(self):
         return self.bio
@@ -169,6 +171,9 @@ class IOBuffer(BIO):
     that makefile() of said underlying SSL socket works.
     """
 
+    m2_bio_pop = m2.bio_pop
+    m2_bio_free = m2.bio_free
+
     def __init__(self, under_bio, mode='rwb', _pyfree=1):
         BIO.__init__(self, _pyfree=_pyfree)
         self.io = m2.bio_new(m2.bio_f_buffer())
@@ -179,11 +184,11 @@ class IOBuffer(BIO):
             self.write_closed = 0
         else:
             self.write_closed = 1
-
+            
     def __del__(self):
-        if self._pyfree:
-            m2.bio_pop(self.bio)
-            m2.bio_free(self.io)
+        if getattr(self, '_pyfree', 0):
+            self.m2_bio_pop(self.bio)
+            self.m2_bio_free(self.io)
 
     def close(self):
         BIO.close(self)
@@ -197,19 +202,22 @@ class CipherStream(BIO):
 
     SALT_LEN = m2.PKCS5_SALT_LEN
 
+    m2_bio_pop = m2.bio_pop
+    m2_bio_free = m2.bio_free
+
     def __init__(self, obio):
         BIO.__init__(self, _pyfree=1)
         self.obio = obio
         self.bio = m2.bio_new(m2.bio_f_cipher())
         self.closed = 0
-
+        
     def __del__(self):
-        if not self.closed:
+        if not getattr(self, 'closed', 1):
             self.close()
 
     def close(self):
-        m2.bio_pop(self.bio)
-        m2.bio_free(self.bio)
+        self.m2_bio_pop(self.bio)
+        self.m2_bio_free(self.bio)
         self.closed = 1
         
     def write_close(self):

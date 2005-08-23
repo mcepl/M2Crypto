@@ -21,17 +21,17 @@ class RSA:
     """
     RSA Key Pair.
     """
+
+    m2_rsa_free = m2.rsa_free
+
     def __init__(self, rsa, _pyfree=0):
         assert m2.rsa_type_check(rsa), "'rsa' type error"
         self.rsa = rsa
         self._pyfree = _pyfree
-
+        
     def __del__(self):
-        try:
-            if self._pyfree:
-                m2.rsa_free(self.rsa)
-        except AttributeError:
-            pass
+        if getattr(self, '_pyfree', 0):
+            self.m2_rsa_free(self.rsa)
 
     def __len__(self):
         return m2.rsa_size(self.rsa) << 3

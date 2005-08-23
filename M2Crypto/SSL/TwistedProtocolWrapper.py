@@ -115,6 +115,8 @@ class TLSProtocolWrapper(ProtocolWrapper):
 
     implements(ITLSTransport)
     
+    m2_bio_free_all = m2.bio_free_all
+
     def __init__(self, factory, wrappedProtocol, startPassThrough, client,
                  contextFactory, postConnectionCheck):
         """
@@ -161,7 +163,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
 
         if not startPassThrough:
             self.startTLS(contextFactory.getContext())
-
+            
     def __del__(self):
         self.clear()
 
@@ -171,8 +173,8 @@ class TLSProtocolWrapper(ProtocolWrapper):
         """
         if debug:
             print 'TwistedProtocolWrapper.clear'
-        if self.tlsStarted:
-            m2.bio_free_all(self.sslBio)
+        if getattr(self, 'tlsStarted', 0):
+            self.m2_bio_free_all(self.sslBio)
             self.sslBio = None
             self.internalBio = None
             self.networkBio = None
