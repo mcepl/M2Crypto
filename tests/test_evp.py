@@ -10,7 +10,7 @@ Author: Heikki Toivonen
 RCS_id = '$Id$'
 
 import unittest
-from M2Crypto import EVP, RSA
+from M2Crypto import EVP, RSA, util
 
 class EVPTestCase(unittest.TestCase):
     def _gen_callback(self, *args):
@@ -36,7 +36,12 @@ class EVPTestCase(unittest.TestCase):
         assert pkey.as_pem(callback=self._pass_callback) != pkey.as_pem(cipher=None)
         self.assertRaises(ValueError, pkey.as_pem, cipher='noXX$$%%suchcipher',
                           callback=self._pass_callback)
-
+                          
+    def check_MessageDigest(self):
+        md = EVP.MessageDigest('sha1')
+        md.update('Hello')
+        assert util.octx_to_num(md.final()) == 1415821221623963719413415453263690387336440359920
+        
 def suite():
     return unittest.makeSuite(EVPTestCase, 'check')
     
