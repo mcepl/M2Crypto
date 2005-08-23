@@ -36,13 +36,15 @@ class DHTestCase(unittest.TestCase):
         bio = BIO.MemoryBuffer()
         a.print_params(bio)
         params = bio.read()
-        if sys.version[:3] in ('2.0', '2.1'):
-            assert params.find('(128 bit)')
-            assert params.find('generator: 2 (0x2)')
-        elif sys.version[:3] == '1.5': 
-            import string
-            assert string.find(params, '(128 bit)')
-            assert string.find(params, 'generator: 2 (0x2)')
+        try:
+            if sys.version_info:
+                assert params.find('(128 bit)')
+                assert params.find('generator: 2 (0x2)')
+        except AttributeError:
+            if sys.version[:3] == '1.5': 
+                import string
+                assert string.find(params, '(128 bit)')
+                assert string.find(params, 'generator: 2 (0x2)')
 
     def check_load_params(self):
         a = DH.load_params('dhparams.pem')
