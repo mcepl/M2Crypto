@@ -17,7 +17,7 @@ import Checker
 #SSLError = getattr(__import__('M2Crypto.SSL', globals(), locals(), 'SSLError'), 'SSLError')
 from M2Crypto.SSL import SSLError
 
-def _serverPostConnectionCheck(peerX509, expectedHost):
+def _serverPostConnectionCheck(*args, **kw):
     return 1
 
 class Connection:
@@ -112,9 +112,9 @@ class Connection:
         ssl.setup_ssl()
         ssl.set_accept_state()
         ssl.accept_ssl()
-        check = getattr(self, 'postConnectionCheck', Connection.serverPostConnectionCheck)
+        check = getattr(self, 'postConnectionCheck', self.serverPostConnectionCheck)
         if check is not None:
-            if not check(self.get_peer_cert(), self.addr[0]):
+            if not check(self.get_peer_cert(), ssl.addr[0]):
                 raise Checker.SSLVerificationError, 'post connection check failed'
         return ssl, addr
 
@@ -130,7 +130,7 @@ class Connection:
         self.setup_ssl()
         self.set_connect_state()
         ret = self.connect_ssl()
-        check = getattr(self, 'postConnectionCheck', Connection.clientPostConnectionCheck)
+        check = getattr(self, 'postConnectionCheck', self.clientPostConnectionCheck)
         if check is not None:
             if not check(self.get_peer_cert(), self.addr[0]):
                 raise Checker.SSLVerificationError, 'post connection check failed'
