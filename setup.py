@@ -104,13 +104,15 @@ m2crypto = Extension(name = '__m2crypto',
                      )
 
 setup(name = 'M2Crypto',
-    version = '0.15',
-    description = 'M2Crypto: A Python crypto and SSL toolkit',
-    author = 'Ng Pheng Siong',
-    author_email = 'ngps@netmemetic.com',
-    url = 'http://sandbox.rulemaker.net/ngps/m2/',
-    packages = ['M2Crypto', 'M2Crypto.SSL', 'M2Crypto.PGP'],
-    ext_package = 'M2Crypto',
-    ext_modules = [m2crypto]
-    )
+      version = '0.16',
+      description = 'M2Crypto: A Python crypto and SSL toolkit',
+      author = 'Ng Pheng Siong',
+      author_email = 'ngps@netmemetic.com',
+      maintainer = 'Heikki Toivonen',
+      maintainer_email = 'heikki@osafoundation.org',
+      url = 'http://wiki.osafoundation.org/bin/view/Projects/MeTooCrypto',
+      packages = ['M2Crypto', 'M2Crypto.SSL', 'M2Crypto.PGP'],
+      ext_package = 'M2Crypto',
+      ext_modules = [m2crypto]
+      )
 
