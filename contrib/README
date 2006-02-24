@@ -1,23 +1,5 @@
--------------
- 21 Mar 2004
--------------
-
 This directory contains contributions by users of M2Crypto. Some of these
 may get folded into the main distribution in time.
-
-- dispatcher.py by Ilya Etingof <ilya@glas.net>.
-
-- m2crypto.spec by Sean Reifschneider <jafo-rpms@tummy.com>.
-
-- Smarter non-blocking behaviour patch by Dave Brueck 
-<dave@pythonapocrypha.com>.
-
-- Isaac Salzberg's application of Mihai Ibanescu's patch (on SF) that
-allows HTTPS tunneling thru an authenticating proxy.
-
-- A high-level interface to M2Crypto.SMIME by Bernard Yue.
-
-- Demonstration of PKI functionality contributed by Peter Teniz.
 
 Thanks guys!
 
