@@ -19,6 +19,16 @@
 %apply Pointer NONNULL { X509_NAME_ENTRY * };
 %apply Pointer NONNULL { EVP_PKEY * };
 
+%{
+#if OPENSSL_VERSION_NUMBER >= 0x0090800fL
+%}
+
+%name(x509_check_ca) extern int X509_check_ca(X509 *);
+
+%{
+#endif
+%}
+
 %name(x509_new) extern X509 *X509_new( void );
 %name(x509_dup) extern X509 *X509_dup(X509 *);
 %name(x509_free) extern void X509_free(X509 *);
@@ -66,7 +76,6 @@
 %constant int X509_PURPOSE_ANY                = 7;
 %constant int X509_PURPOSE_OCSP_HELPER        = 8;
 
-/*%name(x509_check_ca) extern int X509_check_ca(X509 *);*/
 %name(x509_check_purpose) extern X509_check_purpose(X509 *, int, int);
 %name(x509_check_trust) extern X509_check_trust(X509 *, int, int);
 

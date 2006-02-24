@@ -466,9 +466,10 @@ class X509:
         Check if the certificate is a Certificate Authority (CA) certificate.
         
         @return: 0 if the certificate is not CA, nonzero otherwise.
+        
+        @requires: OpenSSL 0.9.8 or newer 
         """
-        #return m2.x509_check_ca(self.x509)
-        raise NotImplementedError
+        return m2.x509_check_ca(self.x509)
         
     def check_purpose(self, id, ca):
         """
