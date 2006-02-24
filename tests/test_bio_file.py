@@ -15,9 +15,9 @@ class FileTestCase(unittest.TestCase):
 
     def setUp(self):
         self.data = 'abcdef' * 64
-        if sys.version[0] == '2' and sys.platform != 'win32':
+        if sys.platform != 'win32':
             self.fname = os.tmpnam()
-        elif sys.version[:3] == '1.5' or sys.platform == 'win32':
+        else:
             import tempfile
             self.fname = tempfile.mktemp()
 
