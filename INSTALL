@@ -17,28 +17,24 @@ The following software packages are pre-requisites:
 - **OpenSSL 0.9.7 or newer**
 - **SWIG 1.3.24 or newer**
 
-.. NOTE:: 
-   This file needs to be updated with current information. It was last correct
-   with 0.13 release(?)
-   
 
-Installing on Un\*x
---------------------
+Installing on Un\*x and on Windows with Cygwin
+----------------------------------------------
 
 ::
 
-    $ unzip m2crypto-0.13.zip
-    $ cd m2crypto-0.13
+    $ tar zxf m2crypto-0.15.tar.gz
+    $ cd m2crypto-0.15
     $ python setup.py build
     # python setup.py install
     $ cd tests
     $ python alltests.py
     
-Also see the examples in ``m2crypto-0.13/demo``.
+Also see the examples in ``m2crypto-0.15/demo``.
 
 
-Installing on Windows 
------------------------
+Installing on Windows
+---------------------
 
 .. NOTE:: 
    This section has been left as is from M2Crypto 0.12's
