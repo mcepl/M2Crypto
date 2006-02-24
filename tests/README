@@ -1,58 +1,9 @@
--------------
- 01 Jun 2001
--------------
+This directory contains unit tests for M2Crypto.
 
-This directory contains unit tests for M2Crypto. You'll need PyUnit
-installed to run these tests.
+You must first install M2Crypto, then cd into this directory, and 
+run the tests.
 
-PyUnit is at http://pyunit.sourceforge.net. PyUnit is bundled with Python
-2.1.
+Invoke 'alltests.py' to execute all tests. Each test can also be run
+individually.
 
-These tests are written in Python 2.0 and modified for Pythons 1.5 and 2.1
-where necessary.
-
-Invoke 'alltests.py' to execute the tests.
-
----------------------------------------------------------------------------
-
-The following are other demos and test programs for M2Crypto. Eventually,
-these should be driven by PyUnit tests. (Just don't ask when. ;-)
-
-- demo/https/START_xmlrpc.py
-    demo/ssl/https_cli.py
-    demo/ssl/urllib_cli.py
-    demo/ssl/xmlrpc_cli.py
-
-- demo/ssl/https_srv.py
-    demo/ssl/https_cli.py
-    demo/ssl/urllib_cli.py
-
-- demo/ssl/xmlrpc_srv.py
-    demo/ssl/xmlrpc_cli.py
-
-- demo/ssl/echod-iterative.py
-- demo/ssl/echod-forking.py 
-- demo/ssl/echod-threading.py 
-- demo/ssl/echod-thread.py 
-- demo/ssl/echod-async.py 
-    demo/ssl/echo.py
-    demo/ssl/bioecho.py
-
-- demo/smime/test.py
-
-- demo/dhtest.py
-- demo/rsatest.py
-- demo/dsatest.py
-- demo/hmactest.py
-- demo/evp_ciph_test.py
-- demo/bio_ciph_test.py
-
-# Password is "asdfg".
-- (cd demo/CipherSaber; ./ciphersaber.py -d -i cstest.cs1)
-
-# These do little.
-- demo/pkcs7/test.py
-- demo/x509/demo1.py
-
----------------------------------------------------------------------------
-$Id$
+Look also in the demo directory for other samples.
