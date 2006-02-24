@@ -20,7 +20,31 @@ class WrongCertificate(SSLVerificationError):
     pass
 
 class WrongHost(SSLVerificationError):
-    pass
+    def __init__(self, expectedHost, actualHost, fieldName='commonName'):
+        """
+        This exception will be raised if the certificate returned by the
+        peer was issued for a different host than we tried to connect to.
+        This could be due to a server misconfiguration or an active attack.
+        
+        @param expectedHost: The name of the host we expected to find in the
+                             certificate.
+        @param actualHost:   The name of the host we actually found in the
+                             certificate.
+        @param fieldName:    The field name where we noticed the error. This
+                             should be either 'commonName' or 'subjectAltName'.
+        """
+        if fieldName not in ('commonName', 'subjectAltName'):
+            raise ValueError('Unknown fieldName, should be either commonName or subjectAltName')
+        
+        SSLVerificationError.__init__(self)
+        self.expectedHost = expectedHost
+        self.actualHost = actualHost
+        self.fieldName = fieldName
+        
+    def __str__(self):
+        return 'Peer certificate %s does not match host, expected %s, got %s' \
+               % (self.fieldName, self.expectedHost, self.actualHost)
+
 
 class Checker:
     def __init__(self, host=None, peerCertHash=None, peerCertDigest='sha1'):
@@ -31,25 +55,25 @@ class Checker:
 
     def __call__(self, peerCert, host=None):
         if peerCert is None:
-            raise NoCertificate, 'peer did not return certificate'
+            raise NoCertificate('peer did not return certificate')
 
         if host is not None:
             self.host = host
         
         if self.fingerprint:
             if self.digest not in ('sha1', 'md5'):
-                raise ValueError, 'unsupported digest "%s"' %(self.digest)
+                raise ValueError('unsupported digest "%s"' %(self.digest))
 
             if (self.digest == 'sha1' and len(self.fingerprint) != 40) or \
                (self.digest == 'md5' and len(self.fingerprint) != 32):
-                raise WrongCertificate, 'peer certificate fingerprint length does not match'
+                raise WrongCertificate('peer certificate fingerprint length does not match')
             
             der = peerCert.as_der()
             md = EVP.MessageDigest(self.digest)
             md.update(der)
             digest = md.final()
             if util.octx_to_num(digest) != int(self.fingerprint, 16):
-                raise WrongCertificate, 'peer certificate fingerprint does not match'
+                raise WrongCertificate('peer certificate fingerprint does not match')
 
         if self.host:
             hostValidationPassed = False
@@ -59,7 +83,9 @@ class Checker:
             try:
                 subjectAltName = peerCert.get_ext('subjectAltName').get_value()
                 if not self._match(self.host, subjectAltName, True):
-                    raise WrongHost, 'subjectAltName does not match host. Expected "DNS:%s", got "%s".' %(self.host, subjectAltName)
+                    raise WrongHost(expectedHost=self.host, 
+                                    actualHost=subjectAltName,
+                                    fieldName='subjectAltName')
                 hostValidationPassed = True
             except LookupError:
                 pass
@@ -69,9 +95,11 @@ class Checker:
                 try:
                     commonName = peerCert.get_subject().CN
                     if not self._match(self.host, commonName):
-                        raise WrongHost, 'peer certificate commonName does not match host. Expected "%s", got "%s".' %(self.host, commonName)
+                        raise WrongHost(expectedHost=self.host,
+                                        actualHost=commonName,
+                                        fieldName='commonName')
                 except AttributeError:
-                    raise WrongHost, 'no commonName in peer certificate'
+                    raise WrongCertificate('no commonName in peer certificate')
 
         return True
 
