@@ -1,8 +1,12 @@
-"""M2Crypto = Python + OpenSSL + SWIG
+"""
+M2Crypto = Python + OpenSSL + SWIG
 
-Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2005 Ng Pheng Siong. All rights reserved.
 
-RCS_id='$Id$'
+Portions created by Open Source Applications Foundation (OSAF) are
+Copyright (C) 2004-2006 OSAF. All Rights Reserved.
+
+"""
 
 import __m2crypto
 import BIO
@@ -25,9 +29,5 @@ decrypt=0
 
 __m2crypto.lib_init()
 
-import _version
-
-version = _version.version
-version_info = _version.version_info
-
-
+version_info = (0, 16)
+version = '.'.join([str(v) for v in version_info])
