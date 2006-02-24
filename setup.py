@@ -6,7 +6,7 @@ Distutils installer for M2Crypto.
 Copyright (c) 1999-2004, Ng Pheng Siong. All rights reserved.
 
 Portions created by Open Source Applications Foundation (OSAF) are
-Copyright (C) 2004-2005 OSAF. All Rights Reserved.
+Copyright (C) 2004-2006 OSAF. All Rights Reserved.
 """
 
 _RCS_id = '$Id$'
