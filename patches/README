@@ -1,8 +1,0 @@
-
- 18 Oct 1999
--------------
-
-1. xmlrpclib.py.patch is a patch to xmlrpclib.py to facilitate 
-   xmlrpc over https.
-
-
