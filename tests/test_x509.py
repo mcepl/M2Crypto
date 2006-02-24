@@ -13,7 +13,7 @@ RCS_id = '$Id$'
 
 import unittest
 import os, time
-from M2Crypto import X509, EVP, RSA, Rand, ASN1
+from M2Crypto import X509, EVP, RSA, Rand, ASN1, m2
 
 class X509TestCase(unittest.TestCase):
 
@@ -94,6 +94,11 @@ class X509TestCase(unittest.TestCase):
         assert(cert.get_ext_at(0).get_value() == 'DNS:foobar.example.com')
         assert cert.verify()
         assert cert.verify(pkey)
+        
+        if m2.OPENSSL_VERSION_NUMBER >= 0x0090800fL:
+            assert not cert.check_ca()
+        else:
+            self.assertRaises(AttributeError, cert.check_ca)
 
     def check_mkcacert(self):
         req, pk = self.mkreq(512, ca=1)
@@ -119,7 +124,11 @@ class X509TestCase(unittest.TestCase):
         ext = X509.new_extension('basicConstraints', 'CA:TRUE')
         cert.add_ext(ext)
         cert.sign(pk, 'sha1')
-        #assert cert.check_ca()
+
+        if m2.OPENSSL_VERSION_NUMBER >= 0x0090800fL:
+            assert cert.check_ca()
+        else:
+            self.assertRaises(AttributeError, cert.check_ca)
 
 def suite():
     return unittest.makeSuite(X509TestCase, 'check')
