@@ -1,11 +1,9 @@
-===============
- M2Crypto 0.13
-===============
+=========
+ M2Crypto
+=========
 
-:Author: Ng Pheng Siong
-:Id: $Id$
-:Date: $Date: 2004/03/25 08:12:46 $
-:Web-Site: http://sandbox.rulemaker.net/ngps/m2
+:Maintainer: Heikki Toivonen
+:Web-Site: http://wiki.osafoundation.org/bin/view/Projects/MeTooCrypto
 
 
 M2Crypto = Python + OpenSSL + SWIG
@@ -37,14 +35,10 @@ M2Crypto comes with the following:
 
 - **ZSmime**: An S/MIME messenger for **Zope**.
 
+- And much more.
+
 M2Crypto is released under a very liberal BSD-style licence. See 
 LICENCE for details.
-
-This release requires Python 2.1, 2.2 or 2.3, OpenSSL 0.9.7 or later,
-and SWIG 1.3.21. Earlier versions of Python may or may not
-work. OpenSSL versions earlier than 0.9.7 will not work; you are
-recommended to use the current version of OpenSSL. Earlier versions of
-SWIG may not work with new-style Python classes.
 
 To install, see the file INSTALL.
 
@@ -79,5 +73,3 @@ Have fun! Your feedback is welcome.
 .. [4] In recent years, there have been reported vulnerabilities
    in some versions of OpenSSL and attacks against the SSL protocol
    itself.
-
-
