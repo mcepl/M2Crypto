@@ -13,8 +13,7 @@
 Directories
 -----------------------
 
-This distribution is contained in ``m2crypto-X.XX/demo2004/ZopeX3/``. Its
-directory structure assumes the following:
+Directory structure assumes the following:
 
 - ZopeX3.0.0 is installed in <install-dir>.
 - An instance has been created in <instance-home>.
