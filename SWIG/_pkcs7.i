@@ -57,14 +57,18 @@ PyObject *pkcs7_decrypt(PKCS7 *pkcs7, EVP_PKEY *pkey, X509 *cert, int flags) {
     BIO *bio;
     PyObject *ret; 
 
-    if (!(bio=BIO_new(BIO_s_mem())))
+    if (!(bio=BIO_new(BIO_s_mem()))) {
+        PyErr_SetString(PyExc_MemoryError, "pkcs7_decrypt");
         return NULL;
+    }
     if (!PKCS7_decrypt(pkcs7, pkey, cert, bio, flags)) {
+        PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
         BIO_free(bio);
         return NULL;
     }
     outlen = BIO_ctrl_pending(bio);
     if (!(outbuf=(char *)malloc(outlen))) {
+        PyErr_SetString(PyExc_MemoryError, "pkcs7_decrypt");
         BIO_free(bio);
         return NULL;
     }
@@ -89,15 +93,19 @@ PyObject *pkcs7_verify1(PKCS7 *pkcs7, STACK *stack, X509_STORE *store, BIO *data
     BIO *bio;
     PyObject *ret; 
 
-    if (!(bio=BIO_new(BIO_s_mem())))
+    if (!(bio=BIO_new(BIO_s_mem()))) {
+        PyErr_SetString(PyExc_MemoryError, "pkcs7_verify1");
         return NULL;
+    }
     if (!PKCS7_verify(pkcs7, (STACK_OF(X509) *)stack, store, data, bio, flags)) {
+        PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
         BIO_free(bio);
         Py_INCREF(Py_None);
         return Py_None;
     }
     outlen = BIO_ctrl_pending(bio);
     if (!(outbuf=(char *)malloc(outlen))) {
+        PyErr_SetString(PyExc_MemoryError, "pkcs7_verify1");
         BIO_free(bio);
         return NULL;
     }
