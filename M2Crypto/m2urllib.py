@@ -46,13 +46,7 @@ def open_https(self, url, data=None, ssl_context=None):
         else:
             auth = None
         # Start here!
-        if sys.version[:2] == '2.':
-            #h = httpslib.HTTPS(host, ssl_context=self.ctx)
-            h = httpslib.HTTPSConnection(host=host, ssl_context=self.ctx)
-        elif sys.version[:3] == '1.5':
-            h = httpslib.HTTPS(self.ctx, host)
-        else:
-            raise RuntimeError, 'unsupported Python version'
+        h = httpslib.HTTPSConnection(host=host, ssl_context=self.ctx)
         h.set_debuglevel(1)
         # Stop here!
         if data is not None:
@@ -62,29 +56,14 @@ def open_https(self, url, data=None, ssl_context=None):
         else:
             h.putrequest('GET', selector)
         if auth: h.putheader('Authorization', 'Basic %s' % auth)
-        if sys.version[:3] == '1.5':
-            if realhost: h.putheader('Host', realhost)
         for args in self.addheaders: apply(h.putheader, args)
         h.endheaders()
         if data is not None:
             h.send(data + '\r\n')
         # Here again!
-        if sys.version[:2]  == '2.':
-            resp = h.getresponse()
-            fp = resp.fp
-            return urllib.addinfourl(fp, {}, "https:" + url)
-        elif sys.version[:3] == '1.5':
-            errcode, errmsg, headers = h.getreply()
-            fp = h.getfile()
-            if errcode == 200:
-                return urllib.addinfourl(fp, headers, "https:" + url)
-            else:
-                if data is None:
-                    return self.http_error(url, fp, errcode, errmsg, headers)
-                else:
-                    return self.http_error(url, fp, errcode, errmsg, headers, data)
-        else:
-            raise RuntimeError, 'unsupported Python version'
+        resp = h.getresponse()
+        fp = resp.fp
+        return urllib.addinfourl(fp, {}, "https:" + url)
         # Stop again.
 
 # Minor brain surgery. 
