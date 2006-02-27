@@ -7,9 +7,10 @@ RCS_id='$Id$'
 import base64, string, sys
 
 from xmlrpclib import *
+import M2Crypto
 import SSL, httpslib, m2urllib
 
-__version__='0.12'
+__version__ = M2Crypto.version
 
 class SSL_Transport(Transport):
 
@@ -25,12 +26,7 @@ class SSL_Transport(Transport):
         # Handle username and password.
         user_passwd, host_port = m2urllib.splituser(host)
         _host, _port = m2urllib.splitport(host_port)
-        if sys.version[0] == '2':
-            h = httpslib.HTTPS(_host, int(_port), ssl_context=self.ssl_ctx)
-        elif sys.version[:3] ==  '1.5':
-            h = httpslib.HTTPS(self.ssl_ctx, _host, int(_port))
-        else:
-            raise RuntimeError, 'unsupported Python version'
+        h = httpslib.HTTPS(_host, int(_port), ssl_context=self.ssl_ctx)
         if verbose:
             h.set_debuglevel(1)
 
