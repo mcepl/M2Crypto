@@ -2,7 +2,7 @@
 ----
 - Minimum requirements updated: Python 2.3+, OpenSSL 0.9.7+, SWIG 1.3.24+
 - Optional features from OpenSSL 0.9.8 and newer
-
+- SMIME methods and functions raise correct exceptions
 
 0.15
 ----
