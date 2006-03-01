@@ -82,6 +82,7 @@ Author: Heikki Toivonen
 %name(pkey_get1_rsa) extern RSA* EVP_PKEY_get1_RSA(EVP_PKEY *);
 %name(sign_init) extern int EVP_SignInit(EVP_MD_CTX *, const EVP_MD *);
 %name(verify_init) extern int EVP_VerifyInit(EVP_MD_CTX *, const EVP_MD *);
+%name(pkey_size) extern int EVP_PKEY_size(EVP_PKEY *);
 
 %inline %{
 #define PKCS5_SALT_LEN  8
@@ -467,5 +468,20 @@ EVP_PKEY *pkey_read_pem(BIO *f, PyObject *pyfunc) {
 int pkey_assign_rsa(EVP_PKEY *pkey, RSA *rsa) {
     return EVP_PKEY_assign_RSA(pkey, rsa);
 }
+
+PyObject * pkey_as_der(EVP_PKEY *pkey){
+    unsigned char * pp = NULL;
+    int len;
+    PyObject * der;
+    len = i2d_PUBKEY(pkey, &pp);
+    if (len < 0){
+        PyErr_SetString(PyExc_ValueError, "EVP_PKEY as DER failed");
+        return NULL; 
+    }
+    der = PyString_FromStringAndSize(/*(void *)*/ pp, len);
+    OPENSSL_free(pp);
+    return der;
+}
+
 %}
 

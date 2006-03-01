@@ -2,7 +2,10 @@
 ----
 - Minimum requirements updated: Python 2.3+, OpenSSL 0.9.7+, SWIG 1.3.24+
 - Optional features from OpenSSL 0.9.8 and newer
+- Enhancements to EVP and X509 to allow proxy certificate handling,
+  by Matt Rodriguez
 - SMIME methods and functions raise correct exceptions
+- memory leak fixes
 
 0.15
 ----
