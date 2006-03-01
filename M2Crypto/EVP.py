@@ -15,6 +15,8 @@ class MessageDigest:
     """
     Message Digest
     """
+    m2_md_ctx_free = m2.md_ctx_free
+
     def __init__(self, algo):
         md = getattr(m2, algo)
         if not md:
@@ -23,8 +25,6 @@ class MessageDigest:
         self.ctx=m2.md_ctx_new()
         m2.digest_init(self.ctx, self.md)
         
-        self.m2_md_ctx_free = m2.md_ctx_free
-
     def __del__(self):
         if getattr(self, 'ctx', None):
             self.m2_md_ctx_free(self.ctx)
