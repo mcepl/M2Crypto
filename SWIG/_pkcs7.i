@@ -134,7 +134,7 @@ PyObject *smime_read_pkcs7(BIO *bio) {
     PyObject *tuple, *_p7, *_BIO;
 
     if (!(p7=SMIME_read_PKCS7(bio, &bcont))) {
-        PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
+        PyErr_SetString(_smime_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
     if (!(tuple=PyTuple_New(2))) {
