@@ -23,10 +23,12 @@ def new_extension(name, value, critical=0, _pyfree=1):
     """
     Create new X509_Extension instance.
     """
-    x509_ext_ptr = m2.x509v3_ext_conf(None, None, name, value)
+    lhash = m2.x509v3_lhash()
+    ctx = m2.x509v3_set_conf_lhash(lhash)
+    x509_ext_ptr = m2.x509v3_ext_conf(lhash, ctx, name, value)
     x509_ext = X509_Extension(x509_ext_ptr, _pyfree)
     x509_ext.set_critical(critical)
-    return x509_ext
+    return x509_ext 
 
 
 class X509_Extension:
@@ -86,6 +88,12 @@ class X509_Extension:
 class X509_Extension_Stack:
     """
     X509 Extension Stack
+    
+    @warning: Do not modify the underlying OpenSSL stack
+    except through this interface, or use any OpenSSL functions that do so
+    indirectly. Doing so will get the OpenSSL stack and the internal pystack
+    of this class out of sync, leading to python memory leaks, exceptions
+    or even python crashes!
     """
 
     m2_sk_x509_extension_free = m2.sk_x509_extension_free
@@ -94,24 +102,25 @@ class X509_Extension_Stack:
         if stack is not None:
             self.stack = stack
             self._pyfree = _pyfree
+            num = m2.sk_x509_extension_num(self.stack)
+            for i in range(num):
+                self.pystack.append(X509_Extension(m2.sk_x509_extension_value(self.stack, i),
+                                                   _pyfree=_pyfree))
         else:
             self.stack = m2.sk_x509_extension_new_null()
             self._pyfree = 1
-        self._refkeeper = {}
+            self.pystack = [] # This must be kept in sync with self.stack
         
     def __del__(self):
         if getattr(self, '_pyfree', 0):
             self.m2_sk_x509_extension_free(self.stack)
 
     def __len__(self):
-        return m2.sk_x509_extension_num(self.stack)
+        assert m2.sk_x509_extension_num(self.stack) == len(self.pystack)
+        return len(self.pystack)
 
     def __getitem__(self, idx):
-        if idx < 0 or idx >= m2.sk_x509_extension_num(self.stack):
-            raise IndexError
-
-        return X509_Extension(m2.sk_x509_extension_value(self.stack, idx),
-                              _pyfree=0)
+        return self.pystack[idx]
  
     def _ptr(self):
         return self.stack
@@ -122,9 +131,12 @@ class X509_Extension_Stack:
 
         @type x509_ext: M2Crypto.X509.X509_Extension
         @param x509_ext: X509_Extension object to be pushed onto the stack.
+        @return: The number of extensions on the stack.
         """
-        self._refkeeper[x509_ext._ptr()] = x509_ext
-        return m2.sk_x509_extension_push(self.stack, x509_ext._ptr())
+        self.pystack.append(x509_ext)
+        ret = m2.sk_x509_extension_push(self.stack, x509_ext._ptr())
+        assert ret == len(self.pystack)
+        return ret
 
     def pop(self):
         """
@@ -132,12 +144,11 @@ class X509_Extension_Stack:
         
         @return: X509_Extension popped
         """
-        # XXX This method does not yet work. See also X509_Stack.
-        if m2.sk_x509_extension_num(self.stack) <= 0:
-            return None
         x509_ext_ptr = m2.sk_x509_extension_pop(self.stack)
-        del self._refkeeper[x509_ext_ptr]
-        return X509_Extension(x509_ext_ptr)
+        if x509_ext_ptr is None:
+            assert len(self.pystack) == 0
+            return None
+        return self.pystack.pop()
 
 
 class X509_Name_Entry:
@@ -582,6 +593,12 @@ class X509_Store:
 class X509_Stack:
     """
     X509 Stack
+
+    @warning: Do not modify the underlying OpenSSL stack
+    except through this interface, or use any OpenSSL functions that do so
+    indirectly. Doing so will get the OpenSSL stack and the internal pystack
+    of this class out of sync, leading to python memory leaks, exceptions
+    or even python crashes!
     """
 
     m2_sk_x509_free = m2.sk_x509_free
@@ -590,36 +607,71 @@ class X509_Stack:
         if stack is not None:
             self.stack = stack
             self._pyfree = _pyfree
+            self.pystack = [] # This must be kept in sync with self.stack
+            num = m2.sk_x509_num(self.stack)
+            for i in range(num):
+                self.pystack.append(X509(m2.sk_x509_value(self.stack, i),
+                                         _pyfree=_pyfree))
         else:
             self.stack = m2.sk_x509_new_null()
             self._pyfree = 1
-        self._refkeeper = {}
+            self.pystack = [] # This must be kept in sync with self.stack
         
     def __del__(self):
         if getattr(self, '_pyfree', 0):
             self.m2_sk_x509_free(self.stack)
             
     def __len__(self):
-        return m2.sk_x509_num(self.stack)
+        assert m2.sk_x509_num(self.stack) == len(self.pystack)
+        return len(self.pystack)
 
     def __getitem__(self, idx):
-        if idx < 0 or idx >= m2.sk_x509_num(self.stack):
-            raise IndexError, 'index out of range'
-        v=m2.sk_x509_value(self.stack, idx)
-        return X509(v)
+        return self.pystack[idx]
 
     def _ptr(self):
         return self.stack
 
     def push(self, x509):
+        """
+        push an X509 certificate onto the stack.
+        
+        @param x509: X509 object.
+        @return: The number of X509 objects currently on the stack.
+        """
         assert isinstance(x509, X509)
-        self._refkeeper[x509._ptr()] = x509
-        return m2.sk_x509_push(self.stack, x509._ptr())
+        self.pystack.append(x509)
+        ret = m2.sk_x509_push(self.stack, x509._ptr())
+        assert ret == len(self.pystack)
+        return ret
 
     def pop(self):
-        # See also X509_Extension_Stack. This method should return something.
+        """
+        pop a certificate from the stack.
+        
+        @return: X509 object that was popped, or None if there is nothing
+        to pop. 
+        """
         x509_ptr = m2.sk_x509_pop(self.stack)
-        del self._refkeeper[x509_ptr]
+        if x509_ptr is None:
+            assert len(self.pystack) == 0
+            return None
+        return self.pystack.pop()
+
+    def as_der(self):
+        """
+        Return the stack as a DER encoded string
+        """
+        return m2.get_der_encoding_stack(self.stack)     
+
+
+def new_stack_from_der(der_string):
+    """
+    Create a new X509_Stack from DER string.
+    
+    @return: X509_Stack
+    """
+    stack_ptr = m2.make_stack_from_der_sequence(der_string)
+    return X509_Stack(stack_ptr, 1)
 
 
 class Request:

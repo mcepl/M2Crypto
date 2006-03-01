@@ -282,6 +282,20 @@ class PKey:
         self.save_key_bio(bio, cipher, callback)
         return bio.read_all()
 
+    def as_der(self):
+        """
+        Return key in DER format in a string
+        """
+        buf = m2.pkey_as_der(self.pkey)
+        bio = BIO.MemoryBuffer(buf)
+        return bio.read_all()
+   
+    def size(self):
+        """
+        Return the size of the key in bytes.
+        """
+        return m2.pkey_size(self.pkey)
+   
 
 def load_key(file, callback=util.passphrase_callback):
     """

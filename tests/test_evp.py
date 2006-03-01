@@ -37,11 +37,35 @@ class EVPTestCase(unittest.TestCase):
         self.assertRaises(ValueError, pkey.as_pem, cipher='noXX$$%%suchcipher',
                           callback=self._pass_callback)
                           
+    def check_as_der(self):
+        rsa = RSA.gen_key(512, 3, callback=self._gen_callback)
+        pkey = EVP.PKey()
+        pkey.assign_rsa(rsa)
+        der_blob = pkey.as_der()        
+        #A quick but not thorough sanity check
+        assert len(der_blob) == 92
+          
+        
     def check_MessageDigest(self):
         md = EVP.MessageDigest('sha1')
         md.update('Hello')
         assert util.octx_to_num(md.final()) == 1415821221623963719413415453263690387336440359920
-        
+
+    def check_as_der(self):
+        rsa = RSA.gen_key(512, 3, callback=self._gen_callback)
+        pkey = EVP.PKey()
+        pkey.assign_rsa(rsa)
+        der_blob = pkey.as_der()
+        #A quick but not thorough sanity check
+        assert len(der_blob) == 92
+
+    def check_size(self):
+        rsa = RSA.gen_key(512, 3, callback=self._gen_callback)
+        pkey = EVP.PKey()
+        pkey.assign_rsa(rsa)
+        size = pkey.size() 
+        assert size == 64
+
 def suite():
     return unittest.makeSuite(EVPTestCase, 'check')
     

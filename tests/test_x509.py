@@ -12,7 +12,7 @@ Author: Heikki Toivonen
 RCS_id = '$Id$'
 
 import unittest
-import os, time
+import os, time, base64
 from M2Crypto import X509, EVP, RSA, Rand, ASN1, m2
 
 class X509TestCase(unittest.TestCase):
@@ -38,13 +38,12 @@ class X509TestCase(unittest.TestCase):
             extstack.push(ext2)
             assert(extstack[1].get_name() == 'nsComment')
             assert len(extstack) == 2
-            if 0:
-                ext3 = extstack.pop()
-                assert len(extstack) == 1
-                assert(extstack[1].get_name() == 'subjectAltName')
-                extstack.push(ext3)
-                assert len(extstack) == 2
-                assert(extstack[1].get_name() == 'nsComment')
+            ext3 = extstack.pop()
+            assert len(extstack) == 1
+            assert(extstack[0].get_name() == 'subjectAltName')
+            extstack.push(ext3)
+            assert len(extstack) == 2
+            assert(extstack[1].get_name() == 'nsComment')
             x.add_extensions(extstack)
         x.sign(pk,'md5')
         assert x.verify(pk)
@@ -130,12 +129,72 @@ class X509TestCase(unittest.TestCase):
         else:
             self.assertRaises(AttributeError, cert.check_ca)
 
+class X509_StackTestCase(unittest.TestCase):
+    
+    def check_make_stack_from_der(self):
+        f = open("der_encoded_seq.b64")
+        b64 = f.read(1304)
+        seq = base64.decodestring(b64)
+        stack = X509.new_stack_from_der(seq)
+        cert = stack.pop()
+        
+        subject = cert.get_subject() 
+        assert str(subject) == "/DC=org/DC=doegrids/OU=Services/CN=host/bosshog.lbl.gov"
+    
+    def check_make_stack_check_num(self):
+        f = open("der_encoded_seq.b64")
+        b64 = f.read(1304)
+        seq = base64.decodestring(b64)
+        stack = X509.new_stack_from_der(seq)
+        num = len(stack)
+        assert num == 1 
+        cert = stack.pop() 
+        num = len(stack)
+        assert num == 0 
+        subject = cert.get_subject() 
+        assert str(subject) == "/DC=org/DC=doegrids/OU=Services/CN=host/bosshog.lbl.gov"
+
+    def check_make_stack(self):
+        stack = X509.X509_Stack()
+        cert = X509.load_cert("x509.pem")
+        issuer = X509.load_cert("ca.pem")
+        cert_subject1 = cert.get_subject()
+        issuer_subject1 = issuer.get_subject()
+        stack.push(cert)
+        stack.push(issuer)
+        issuer_pop = stack.pop() 
+        cert_pop = stack.pop() 
+        cert_subject2 = cert_pop.get_subject() 
+        issuer_subject2 = issuer.get_subject()
+        assert str(cert_subject1) == str(cert_subject2)
+        assert str(issuer_subject1) == str(issuer_subject2)
+    
+    def check_as_der(self):
+        stack = X509.X509_Stack()
+        cert = X509.load_cert("x509.pem")
+        issuer = X509.load_cert("ca.pem")
+        cert_subject1 = cert.get_subject()
+        issuer_subject1 = issuer.get_subject()
+        stack.push(cert)
+        stack.push(issuer)
+        der_seq = stack.as_der() 
+        stack2 = X509.new_stack_from_der(der_seq)
+        issuer_pop = stack2.pop() 
+        cert_pop = stack2.pop() 
+        cert_subject2 = cert_pop.get_subject() 
+        issuer_subject2 = issuer.get_subject()
+        assert str(cert_subject1) == str(cert_subject2)
+        assert str(issuer_subject1) == str(issuer_subject2)
+        
+
 def suite():
-    return unittest.makeSuite(X509TestCase, 'check')
+     suite = unittest.TestSuite()
+     suite.addTest(unittest.makeSuite(X509TestCase, 'check'))
+     suite.addTest(unittest.makeSuite(X509_StackTestCase, 'check'))
+     return suite
 
 
 if __name__ == '__main__':
     Rand.load_file('randpool.dat', -1)
     unittest.TextTestRunner().run(suite())
     Rand.save_file('randpool.dat')
-

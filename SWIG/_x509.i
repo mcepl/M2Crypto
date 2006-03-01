@@ -46,6 +46,7 @@
 %name(x509_get_subject_name) extern X509_NAME *X509_get_subject_name(X509 *);
 %name(x509_set_subject_name) extern int X509_set_subject_name(X509 *, X509_NAME *);
 
+                            
 /* From x509.h */
 /* standard trust ids */
 %constant int X509_TRUST_DEFAULT      = -1;
@@ -134,6 +135,7 @@
 
 %name(x509_extension_get_critical) extern int X509_EXTENSION_get_critical(X509_EXTENSION *);
 %name(x509_extension_set_critical) extern int X509_EXTENSION_set_critical(X509_EXTENSION *, int);
+
 
 %constant int NID_commonName                  = 13;
 %constant int NID_countryName                 = 14;
@@ -323,8 +325,29 @@ X509_NAME_ENTRY *x509_name_entry_create_by_txt( X509_NAME_ENTRY **ne, char *fiel
 	return X509_NAME_ENTRY_create_by_txt( ne, field, type, bytes, len);
 }
 
+LHASH * 
+x509v3_lhash(){ 
+       return lh_new(NULL,NULL);
+}
+
+X509V3_CTX *
+x509v3_set_conf_lhash(LHASH * lhash){
+      X509V3_CTX * ctx;
+      ctx = PyMem_New(X509V3_CTX, sizeof(X509V3_CTX));
+      if (!ctx) {
+          PyErr_SetString(PyExc_MemoryError, "x509v3_set_conf_lhash");
+      	  return NULL;
+      }
+      X509V3_set_conf_lhash(ctx, lhash);        
+      return ctx;
+}
+
 X509_EXTENSION *x509v3_ext_conf(LHASH *conf, X509V3_CTX *ctx, char *name, char *value) {
-    return X509V3_EXT_conf(conf, ctx, name, value);
+      X509_EXTENSION * ext = NULL;
+      ext = X509V3_EXT_conf(conf, ctx, name, value); 
+      PyMem_Free(ctx); 
+      lh_free(conf);
+      return ext;
 }
 
 /* X509_EXTENSION_free() might be a macro, didn't find definition. */
@@ -332,8 +355,16 @@ void x509_extension_free(X509_EXTENSION *ext) {
     X509_EXTENSION_free(ext);
 }
 
-char *x509_extension_get_name(X509_EXTENSION *ext) {
-    return strdup(OBJ_nid2sn(OBJ_obj2nid(X509_EXTENSION_get_object(ext))));
+PyObject *x509_extension_get_name(X509_EXTENSION *ext) {
+    PyObject * ext_name;
+    char * ext_name_str; 
+    ext_name_str = OBJ_nid2sn(OBJ_obj2nid(X509_EXTENSION_get_object(ext)));
+    if (!ext_name_str) {
+    	PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+    	return NULL;
+    }
+    ext_name = PyString_FromStringAndSize(ext_name_str, strlen(ext_name_str));
+    return ext_name;
 }
 
 /* sk_X509_EXTENSION_new_null is a macro. */
@@ -369,6 +400,55 @@ X509_EXTENSION *sk_x509_extension_value(STACK *stack, int i) {
 /* X509_STORE_CTX_get_app_data is a macro. */
 void *x509_store_ctx_get_app_data(X509_STORE_CTX *ctx) {
   return X509_STORE_CTX_get_app_data(ctx);
+}
+
+/*#defines for i2d and d2i types, which are typed differently
+in openssl-0.9.8 than they are in openssl-0.9.7. This will
+be picked up by the C preprocessor, not the SWIG preprocessor.
+Used in the wrapping of ASN1_seq_unpack and ASN1_seq_pack functions.
+*/
+#if OPENSSL_VERSION_NUMBER >= 0x0090800fL 
+#define D2ITYPE d2i_of_void *
+#define I2DTYPE i2d_of_void *
+#else
+#define D2ITYPE char *(*)()
+#define I2DTYPE int (*)()
+#endif   
+
+STACK *
+make_stack_from_der_sequence(PyObject * pyEncodedString){
+    PyObject *err;
+    STACK_OF(X509) *certs;
+    int encoded_string_len;
+    char *encoded_string;
+
+    encoded_string_len = PyString_Size(pyEncodedString);
+    encoded_string = PyString_AsString(pyEncodedString);
+
+    certs = ASN1_seq_unpack((unsigned char *)encoded_string, encoded_string_len, (D2ITYPE)d2i_X509, (void(*)())X509_free ); 
+    if (!certs) {
+       PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+       return NULL;
+    }
+ 
+    return certs;
+}
+
+PyObject *
+get_der_encoding_stack(STACK * stack){
+    PyObject * encodedString;
+    
+    unsigned char * encoding;
+    int len; 
+    
+    encoding = ASN1_seq_pack((STACK_OF(X509)*) stack, (I2DTYPE)i2d_X509, NULL, &len); 
+    if (!encoding) {
+       PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+       return NULL;
+    }
+    encodedString = PyString_FromStringAndSize((const char *)encoding, len);
+    OPENSSL_free(encoding);
+    return encodedString; 
 }
 
 %}
