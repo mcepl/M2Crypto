@@ -53,20 +53,16 @@ int rsa_write_key_no_cipher(RSA *rsa, BIO *f, PyObject *pyfunc) {
 
     Py_INCREF(pyfunc);
     ret = PEM_write_bio_RSAPrivateKey(f, rsa, NULL, NULL, 0, 
-				      passphrase_callback, (void *)pyfunc);
+                      passphrase_callback, (void *)pyfunc);
     Py_DECREF(pyfunc);
     return ret;
 }
 
 RSA *rsa_read_pub_key(BIO *f) {
-    /* return PEM_read_bio_RSAPublicKey(f, NULL, NULL, NULL);   
-    Broken by incompatible change introduced in OpenSSL 0.9.6. */
     return PEM_read_bio_RSA_PUBKEY(f, NULL, NULL, NULL);   
 }
 
 int rsa_write_pub_key(RSA *rsa, BIO *f) {
-    /* return PEM_write_bio_RSAPublicKey(f, rsa);
-    Broken by incompatible change introduced in OpenSSL 0.9.6. */
     return PEM_write_bio_RSA_PUBKEY(f, rsa);
 }
 
