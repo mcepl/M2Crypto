@@ -417,7 +417,6 @@ Used in the wrapping of ASN1_seq_unpack and ASN1_seq_pack functions.
 
 STACK *
 make_stack_from_der_sequence(PyObject * pyEncodedString){
-    PyObject *err;
     STACK_OF(X509) *certs;
     int encoded_string_len;
     char *encoded_string;
