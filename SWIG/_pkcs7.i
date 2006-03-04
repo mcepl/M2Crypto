@@ -138,7 +138,7 @@ PyObject *smime_read_pkcs7(BIO *bio) {
         return NULL;
     }
     if (!(tuple=PyTuple_New(2))) {
-        PyErr_SetString(PyExc_RuntimeError, "smime_read_pkcs7: PyTuple_New()");
+        PyErr_SetString(PyExc_RuntimeError, "PyTuple_New() fails");
         return NULL;
     }
     _p7 = SWIG_NewPointerObj((void *)p7, SWIGTYPE_p_PKCS7, 0);
