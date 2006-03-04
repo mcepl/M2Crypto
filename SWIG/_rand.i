@@ -85,7 +85,7 @@ PyObject *rand_pseudo_bytes(int n) {
     if (!(blob=(unsigned char *)PyMem_Malloc(n)))
                 return NULL;
     if (!(tuple=PyTuple_New(2))) {
-        PyErr_SetString(PyExc_RuntimeError, "rand_pseudo_bytes: PyTuple_New()");
+        PyErr_SetString(PyExc_RuntimeError, "PyTuple_New() fails");
         PyMem_Free(blob);
         return NULL;
     }
