@@ -192,26 +192,6 @@ DSA *dsa_read_key(BIO *f, PyObject *pyfunc) {
     return ret;
 }
 
-/* Deprecated.
-PyObject *dsa_sign(DSA *dsa, Blob *digest) {
-    PyObject *pytuple;
-    DSA_SIG *sig; 
-
-    if (!(sig=DSA_do_sign(digest->data, digest->len, dsa))) {
-        PyErr_SetString(PyExc_RuntimeError, 
-            ERR_error_string(ERR_get_error(), NULL));
-        return NULL;
-    }
-    if (!(pytuple=PyTuple_New(2))) {
-        PyErr_SetString(PyExc_RuntimeError, "PyTuple_New() fails");
-        return NULL;
-    }
-    PyTuple_SET_ITEM(pytuple, 0, dsa_sig_get_r(sig));
-    PyTuple_SET_ITEM(pytuple, 1, dsa_sig_get_s(sig));
-    return pytuple;
-}
-*/
-
 PyObject *dsa_sign(DSA *dsa, PyObject *value) {
     const void *vbuf;
     int vlen;
@@ -234,11 +214,13 @@ PyObject *dsa_sign(DSA *dsa, PyObject *value) {
         return NULL;
     }
     if (!(tuple = PyTuple_New(2))) {
-        PyErr_SetString(_dsa_err, "unable to create tuple");
+        DSA_SIG_free(sig);
+        PyErr_SetString(PyExc_RuntimeError, "PyTuple_New() fails");
         return NULL;
     }
     PyTuple_SET_ITEM(tuple, 0, dsa_sig_get_r(sig));
     PyTuple_SET_ITEM(tuple, 1, dsa_sig_get_s(sig));
+    DSA_SIG_free(sig);
     return tuple;
 }
 
@@ -288,32 +270,6 @@ int dsa_verify(DSA *dsa, PyObject *value, PyObject *r, PyObject *s) {
     return ret;
 }
 
-/*
-Blob *dsa_sign_asn1(DSA *dsa, Blob *digest) {
-        Blob *sig; 
-        unsigned char sigbuf[256];
-        unsigned int siglen;
-
-        if (!DSA_sign(0, digest->data, digest->len, sigbuf, &siglen, dsa)) {
-                PyErr_SetString(PyExc_RuntimeError, 
-                        ERR_error_string(ERR_get_error(), NULL));
-                return NULL;
-        }
-        if ((sig=(Blob *)malloc(sizeof(Blob)))==NULL) {
-                PyErr_SetString(PyExc_MemoryError, "dsa_sign");
-                return NULL;
-        }
-        if ((sig->data=(unsigned char *)malloc(siglen))==NULL) {
-        free(sig);
-                PyErr_SetString(PyExc_MemoryError, "dsa_sign");
-                return NULL;
-        }
-        sig->len=siglen;
-        strncpy((char *)sig->data, (const char *)sigbuf, siglen);
-        return sig;
-}
-*/
-
 PyObject *dsa_sign_asn1(DSA *dsa, PyObject *value) {
     const void *vbuf;
     int vlen;
@@ -345,12 +301,6 @@ PyObject *dsa_sign_asn1(DSA *dsa, PyObject *value) {
     PyMem_Free(sigbuf);
     return ret;
 }
-
-/*
-int dsa_verify_asn1(DSA *dsa, Blob *digest, Blob *sig) {
-        return DSA_verify(0, digest->data, digest->len, sig->data, sig->len, dsa);
-}
-*/
 
 int dsa_verify_asn1(DSA *dsa, PyObject *value, PyObject *sig) {
     const void *vbuf; 
