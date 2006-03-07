@@ -2,15 +2,12 @@
 /* Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved.
  *
  * Portions created by Open Source Applications Foundation (OSAF) are
- * Copyright (C) 2004-2005 OSAF. All Rights Reserved.
- * Author: Heikki Toivonen
-/* $Id$ */
+ * Copyright (C) 2004-2006 OSAF. All Rights Reserved.
+ */
 
 %module _m2crypto
 
 %{
-static char *RCS_id="$Id$";
-
 #include <openssl/err.h>
 #include <openssl/rand.h>
 #include <_lib.h>
@@ -55,6 +52,7 @@ static int thread_mode = 0;
 %include _asn1.i
 %include _pkcs7.i
 %include _util.i
+%include _ec.i
 
 #ifdef SWIG_VERSION
 %constant int encrypt = 1;

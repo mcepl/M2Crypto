@@ -94,7 +94,7 @@ class X509TestCase(unittest.TestCase):
         assert cert.verify()
         assert cert.verify(pkey)
         
-        if m2.OPENSSL_VERSION_NUMBER >= 0x0090800fL:
+        if m2.OPENSSL_VERSION_NUMBER >= 0x90800f:
             assert not cert.check_ca()
         else:
             self.assertRaises(AttributeError, cert.check_ca)
