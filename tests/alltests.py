@@ -3,7 +3,7 @@
 RCS_id = '$Id$'
 
 import os, unittest
-from M2Crypto import Rand
+from M2Crypto import Rand, m2
 
 def suite():
     modules_to_test = [
@@ -23,6 +23,9 @@ def suite():
         modules_to_test.append('test_ssl')
     elif os.name == 'nt':
         modules_to_test.append('test_ssl_win')
+    if m2.OPENSSL_VERSION_NUMBER >= 0x90800F:
+        modules_to_test.append('test_ecdh')
+        modules_to_test.append('test_ecdsa')
     alltests = unittest.TestSuite()
     for module in map(__import__, modules_to_test):
         alltests.addTest(module.suite())

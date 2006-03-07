@@ -4,6 +4,8 @@
 - Optional features from OpenSSL 0.9.8 and newer
 - Enhancements to EVP and X509 to allow proxy certificate handling,
   by Matt Rodriguez
+- ECDSA signatures and ECDH key agreement, requires OpenSSL 0.9.8+,
+  by Arno Bakker
 - SMIME methods and functions raise correct exceptions
 - memory leak fixes
 
