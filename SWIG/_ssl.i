@@ -213,17 +213,9 @@ int ssl_ctx_set_session_id_context(SSL_CTX *ctx, PyObject *sid_ctx) {
     const void *buf;
     int len;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(sid_ctx, &buf, &len) == -1)
         return -1;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(sid_ctx)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return -1;
-    }
-    len = PyString_Size(sid_ctx);
-    buf = (const void *)PyString_AsString(sid_ctx);
-#endif
+
     return SSL_CTX_set_session_id_context(ctx, buf, len);
 }
 
@@ -290,17 +282,9 @@ int ssl_set_session_id_context(SSL *ssl, PyObject *sid_ctx) {
     const void *buf;
     int len;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(sid_ctx, &buf, &len) == -1)
         return -1;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(sid_ctx)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return -1;
-    }
-    len = PyString_Size(sid_ctx);
-    buf = (const void *)PyString_AsString(sid_ctx);
-#endif
+
     return SSL_set_session_id_context(ssl, buf, len);
 }
 
@@ -496,17 +480,9 @@ int ssl_write(SSL *ssl, PyObject *blob) {
     int len, r, err;
     PyThreadState *_save;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
         return -1;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(blob)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return -1;
-    }
-    len = PyString_Size(blob);
-    buf = (const void *)PyString_AsString(blob);
-#endif
+
     if (thread_mode) {
         _save = (PyThreadState *)PyEval_SaveThread();
         SSL_set_app_data(ssl, _save);
@@ -544,17 +520,9 @@ int ssl_write_nbio(SSL *ssl, PyObject *blob) {
     const void *buf;
     int len, r, err;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
         return -1;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(blob)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return -1;
-    }
-    len = PyString_Size(blob);
-    buf = (const void *)PyString_AsString(blob);
-#endif
+
     r = SSL_write(ssl, buf, len);
     switch (SSL_get_error(ssl, r)) {
         case SSL_ERROR_NONE:

@@ -98,17 +98,9 @@ PyObject *dsa_set_p(DSA *dsa, PyObject *value) {
     const void *vbuf;
     int vlen;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(value)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-#endif
+
     if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
         PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
@@ -125,17 +117,9 @@ PyObject *dsa_set_q(DSA *dsa, PyObject *value) {
     const void *vbuf;
     int vlen;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(value)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-#endif
+
     if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
         PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
@@ -152,17 +136,9 @@ PyObject *dsa_set_g(DSA *dsa, PyObject *value) {
     const void *vbuf;
     int vlen;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(value)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-#endif
+
     if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
         PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
@@ -198,17 +174,9 @@ PyObject *dsa_sign(DSA *dsa, PyObject *value) {
     PyObject *tuple;
     DSA_SIG *sig; 
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(value)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-#endif
+
     if (!(sig = DSA_do_sign(vbuf, vlen, dsa))) {
         PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
@@ -230,25 +198,11 @@ int dsa_verify(DSA *dsa, PyObject *value, PyObject *r, PyObject *s) {
     DSA_SIG *sig;
     int ret;
 
-#if PYTHON_API_VERSION >= 1009
     if ((PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         || (PyObject_AsReadBuffer(r, &rbuf, &rlen) == -1)
         || (PyObject_AsReadBuffer(s, &sbuf, &slen) == -1))
         return -1;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if ((!PyString_Check(value)) 
-        || (!PyString_Check(r)) 
-        || (!PyString_Check(s))) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return -1;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-    rlen = PyString_Size(r);
-    rbuf = (const void *)PyString_AsString(r);
-    slen = PyString_Size(s);
-    sbuf = (const void *)PyString_AsString(s);
-#endif
+
     if (!(sig = DSA_SIG_new())) {
         PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
         return -1;
@@ -277,17 +231,9 @@ PyObject *dsa_sign_asn1(DSA *dsa, PyObject *value) {
     int siglen;
     PyObject *ret;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(value)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-#endif
+
     if (!(sigbuf = PyMem_Malloc(DSA_size(dsa)))) {
         PyErr_SetString(PyExc_MemoryError, "dsa_sign_asn1");
         return NULL;
@@ -307,21 +253,10 @@ int dsa_verify_asn1(DSA *dsa, PyObject *value, PyObject *sig) {
     void *sbuf;
     int vlen, slen, ret;
 
-#if PYTHON_API_VERSION >= 1009
     if ((PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         || (PyObject_AsReadBuffer(sig, (const void **)&sbuf, &slen) == -1))
         return -1;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if ((!PyString_Check(value)) 
-        || (!PyString_Check(sig))) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return -1;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-    slen = PyString_Size(sig);
-    sbuf = (void *)PyString_AsString(sig);
-#endif
+
     if ((ret = DSA_verify(0, vbuf, vlen, sbuf, slen, dsa)) == -1)
         PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
     return ret;

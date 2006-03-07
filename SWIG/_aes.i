@@ -45,17 +45,9 @@ PyObject *AES_set_key(AES_KEY *key, PyObject *value, int bits, int op) {
     const void *vbuf; 
     int vlen;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(value)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-#endif
+
     if (op == 0) 
         AES_set_encrypt_key(vbuf, bits, key);
     else
@@ -73,17 +65,9 @@ PyObject *AES_crypt(const AES_KEY *key, PyObject *in, int outlen, int op) {
     int len;
     unsigned char *out;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(in, &buf, &len) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(in)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    len = PyString_Size(in);
-    buf = (const void *)PyString_AsString(in);
-#endif
+
     if (!(out = (unsigned char *)PyMem_Malloc(outlen))) {
         PyErr_SetString(PyExc_MemoryError, "cannot malloc output buffer");
         return NULL;

@@ -111,17 +111,9 @@ PyObject *digest_update(EVP_MD_CTX *ctx, PyObject *blob) {
     const void *buf;
     int len;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(blob)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    len = PyString_Size(blob);
-    buf = PyString_AsString(blob);
-#endif
+
     EVP_DigestUpdate(ctx, buf, (unsigned int)len);
     Py_INCREF(Py_None);
     return Py_None;
@@ -160,17 +152,9 @@ PyObject *hmac_init(HMAC_CTX *ctx, PyObject *key, const EVP_MD *md) {
     const void *kbuf;
     int klen;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(key, &kbuf, &klen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(key)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    klen = PyString_Size(key);
-    kbuf = PyString_AsString(key);
-#endif
+
     HMAC_Init(ctx, kbuf, klen, md);
     Py_INCREF(Py_None);
     return Py_None;
@@ -180,17 +164,9 @@ PyObject *hmac_update(HMAC_CTX *ctx, PyObject *blob) {
     const void *buf;
     int len;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(blob)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    len = PyString_Size(blob);
-    buf = PyString_AsString(blob);
-#endif
+
     HMAC_Update(ctx, buf, (unsigned int)len);
     Py_INCREF(Py_None);
     return Py_None;
@@ -217,21 +193,10 @@ PyObject *hmac(PyObject *key, PyObject *data, const EVP_MD *md) {
     int klen, dlen, blen;
     PyObject *ret;
 
-#if PYTHON_API_VERSION >= 1009
     if ((PyObject_AsReadBuffer(key, &kbuf, &klen) == -1)
         || (PyObject_AsReadBuffer(data, &dbuf, &dlen) == -1))
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(key)
-        || !PyString_Check(data)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    klen = PyString_Size(key);
-    kbuf = (const void *)PyString_AsString(key);
-    dlen = PyString_Size(data);
-    dbuf = (const void *)PyString_AsString(data);
-#endif
+
     if (!(blob = PyMem_Malloc(EVP_MAX_MD_SIZE))) {
         PyErr_SetString(PyExc_MemoryError, "hmac");
         return NULL;
@@ -265,25 +230,11 @@ PyObject *bytes_to_key(const EVP_CIPHER *cipher, EVP_MD *md,
     void *key;
     PyObject *ret;
 
-#if PYTHON_API_VERSION >= 1009
     if ((PyObject_AsReadBuffer(data, &dbuf, &dlen) == -1)
         || (PyObject_AsReadBuffer(salt, &sbuf, &slen) == -1)
         || (PyObject_AsReadBuffer(iv, &ibuf, &ilen) == -1))
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(data)
-        || !PyString_Check(salt)
-        || !PyString_Check(iv)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    dlen = PyString_Size(data);
-    dbuf = (const void *)PyString_AsString(data);
-    slen = PyString_Size(salt);
-    sbuf = (const void *)PyString_AsString(salt);
-    ilen = PyString_Size(iv);
-    ibuf = (const void *)PyString_AsString(iv);
-#endif
+
     assert((slen == 8) || (slen == 0));
     if (!(key = PyMem_Malloc(cipher->key_len))) {
         PyErr_SetString(PyExc_MemoryError, "bytes_to_key");
@@ -303,21 +254,10 @@ PyObject *cipher_init(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
     const void *kbuf, *ibuf;
     int klen, ilen;
 
-#if PYTHON_API_VERSION >= 1009
     if ((PyObject_AsReadBuffer(key, &kbuf, &klen) == -1)
         || (PyObject_AsReadBuffer(iv, &ibuf, &ilen) == -1))
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(key)
-        || !PyString_Check(iv)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    klen = PyString_Size(key);
-    kbuf = (const void *)PyString_AsString(key);
-    ilen = PyString_Size(iv);
-    ibuf = (const void *)PyString_AsString(iv);
-#endif
+
     EVP_CipherInit(ctx, cipher, (unsigned char *)kbuf, (unsigned char *)ibuf, mode);
     Py_INCREF(Py_None);
     return Py_None;
@@ -329,17 +269,9 @@ PyObject *cipher_update(EVP_CIPHER_CTX *ctx, PyObject *blob) {
     void *obuf;
     PyObject *ret;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(blob)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    len = PyString_Size(blob);
-    buf = PyString_AsString(blob);
-#endif
+
     if (!(obuf = PyMem_Malloc(len + EVP_CIPHER_CTX_block_size(ctx) - 1))) {
         PyErr_SetString(PyExc_MemoryError, "cipher_update");
         return NULL;
@@ -369,17 +301,9 @@ PyObject *sign_update(EVP_MD_CTX *ctx, PyObject *blob) {
     const void *buf;
     int len;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(blob)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    len = PyString_Size(blob);
-    buf = PyString_AsString(blob);
-#endif
+
     EVP_SignUpdate(ctx, buf, len);
     Py_INCREF(Py_None);
     return Py_None;
@@ -400,17 +324,9 @@ PyObject *verify_update(EVP_MD_CTX *ctx, PyObject *blob) {
     const void *buf;
     int len;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(blob)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    len = PyString_Size(blob);
-    buf = PyString_AsString(blob);
-#endif
+
     EVP_VerifyUpdate(ctx, buf, len);
     Py_INCREF(Py_None);
     return Py_None;
@@ -421,17 +337,9 @@ int verify_final(EVP_MD_CTX *ctx, PyObject *blob, EVP_PKEY *pkey) {
     unsigned char *kbuf; 
     int len;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(blob, (const void **)&kbuf, &len) == -1)
         return -1;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(blob)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return -1;
-    }
-    len = PyString_Size(blob);
-    buf = PyString_AsString(blob);
-#endif
+
     return EVP_VerifyFinal(ctx, kbuf, len, pkey);
 }
 

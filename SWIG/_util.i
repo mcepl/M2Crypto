@@ -19,17 +19,9 @@ PyObject *util_hex_to_string(PyObject *blob) {
     char *ret;
     int len;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(blob)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    len = PyString_Size(blob);
-    buf = (const void *)PyString_AsString(blob);
-#endif
+
     ret = hex_to_string((unsigned char *)buf, (long)len);
     if (!ret) {
         PyErr_SetString(_util_err, ERR_reason_error_string(ERR_get_error()));
@@ -46,16 +38,9 @@ PyObject *util_string_to_hex(PyObject *blob) {
     unsigned char *ret;
     int len;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(blob)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    buf = (const void *)PyString_AsString(blob);
-#endif
+
     ret = string_to_hex((char *)buf, (long *)&len);
     if (ret == NULL) {
         PyErr_SetString(_util_err, ERR_reason_error_string(ERR_get_error()));
