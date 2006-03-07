@@ -7,7 +7,12 @@
 - ECDSA signatures and ECDH key agreement, requires OpenSSL 0.9.8+,
   by Arno Bakker
 - SMIME methods and functions raise correct exceptions
-- memory leak fixes
+- ssl_ctx_set_tmp_(dh|rsa) now return value, and the rsa version calls
+  the rsa function instead of the dh function
+- Memory leak fixes
+- Compiler warning fixes
+- More and better Epydoc formatted docstrings
+- More tests
 
 0.15
 ----

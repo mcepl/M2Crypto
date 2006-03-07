@@ -388,7 +388,6 @@ PyObject *sign_update(EVP_MD_CTX *ctx, PyObject *blob) {
 PyObject *sign_final(EVP_MD_CTX *ctx, EVP_PKEY *pkey) {
     unsigned char sigbuf[256]; /* XXX fixed length buffer */
     unsigned int siglen;
-    PyObject *ret;
 
     if (!EVP_SignFinal(ctx, sigbuf, &siglen, pkey)) {
         PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));

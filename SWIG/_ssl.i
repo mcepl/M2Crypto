@@ -235,7 +235,7 @@ void ssl_ctx_set_info_callback(SSL_CTX *ctx, PyObject *pyfunc) {
 }
 
 long ssl_ctx_set_tmp_dh(SSL_CTX *ctx, DH* dh) {
-    SSL_CTX_set_tmp_dh(ctx, dh);
+    return SSL_CTX_set_tmp_dh(ctx, dh);
 }
 
 void ssl_ctx_set_tmp_dh_callback(SSL_CTX *ctx,  PyObject *pyfunc) {
@@ -246,7 +246,7 @@ void ssl_ctx_set_tmp_dh_callback(SSL_CTX *ctx,  PyObject *pyfunc) {
 }
 
 long ssl_ctx_set_tmp_rsa(SSL_CTX *ctx, RSA* rsa) {
-    SSL_CTX_set_tmp_dh(ctx, rsa);
+    return SSL_CTX_set_tmp_rsa(ctx, rsa);
 }
 
 void ssl_ctx_set_tmp_rsa_callback(SSL_CTX *ctx,  PyObject *pyfunc) {
@@ -315,7 +315,7 @@ int ssl_set_fd(SSL *ssl, int fd) {
 }
 
 PyObject *ssl_accept(SSL *ssl) {
-    PyObject *obj;
+    PyObject *obj = NULL;
     int r, err;
     PyThreadState *_save;
 
@@ -356,7 +356,7 @@ PyObject *ssl_accept(SSL *ssl) {
 }
 
 PyObject *ssl_connect(SSL *ssl) {
-    PyObject *obj;
+    PyObject *obj = NULL;
     int r, err;
     PyThreadState *_save;
 
@@ -401,7 +401,7 @@ void ssl_set_shutdown1(SSL *ssl, int mode) {
 }
 
 PyObject *ssl_read(SSL *ssl, int num) {
-    PyObject *obj;
+    PyObject *obj = NULL;
     void *buf;
     int r, err;
     PyThreadState *_save;
@@ -451,7 +451,7 @@ PyObject *ssl_read(SSL *ssl, int num) {
 }
 
 PyObject *ssl_read_nbio(SSL *ssl, int num) {
-    PyObject *obj;
+    PyObject *obj = NULL;
     void *buf;
     int r, err;
 

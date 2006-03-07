@@ -164,7 +164,7 @@ class Context:
         """
         f = BIO.openfile(dhpfile)
         dhp = m2.dh_read_parameters(f.bio_ptr())
-        m2.ssl_ctx_set_tmp_dh(self.ctx, dhp)
+        return m2.ssl_ctx_set_tmp_dh(self.ctx, dhp)
 
     def set_tmp_dh_callback(self, callback=None):
         if callback is not None:
@@ -176,7 +176,7 @@ class Context:
         'rsa'   - M2Crypto.RSA.RSA instance.
         """
         if isinstance(rsa, RSA.RSA):
-            m2.ssl_ctx_set_tmp_rsa(self.ctx, rsa.rsa)
+            return m2.ssl_ctx_set_tmp_rsa(self.ctx, rsa.rsa)
         else:
             raise TypeError, "Expected an instance of RSA.RSA, got %s." % (rsa,)
 
