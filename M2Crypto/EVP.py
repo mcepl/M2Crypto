@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.
 
-Portions Copyright (c) 2004 Open Source Applications Foundation.
+Portions Copyright (c) 2004-2006 Open Source Applications Foundation.
 Author: Heikki Toivonen
 """
 
@@ -30,7 +30,12 @@ class MessageDigest:
             self.m2_md_ctx_free(self.ctx)
 
     def update(self, data):
-        m2.digest_update(self.ctx, data)
+        """
+        Add data to be digested.
+        
+        @return: -1 for Python error, 1 for success, 0 for OpenSSL failure.
+        """
+        return m2.digest_update(self.ctx, data)
 
     def final(self):
         return m2.digest_final(self.ctx)
@@ -184,8 +189,9 @@ class PKey:
 
         @type data: string
         @param data: Data to be verified.
+        @return: -1 on Python error, 1 for success, 0 for OpenSSL error
         """
-        m2.verify_update(self.ctx, data)
+        return m2.verify_update(self.ctx, data)
 
     def verify_final(self):
         """

@@ -48,7 +48,7 @@ class EVPTestCase(unittest.TestCase):
         
     def check_MessageDigest(self):
         md = EVP.MessageDigest('sha1')
-        md.update('Hello')
+        assert md.update('Hello') == 1
         assert util.octx_to_num(md.final()) == 1415821221623963719413415453263690387336440359920
 
     def check_as_der(self):

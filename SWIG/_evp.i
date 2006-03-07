@@ -2,7 +2,7 @@
 /* 
 Copyright (c) 1999 Ng Pheng Siong. All rights reserved.
 
-Portions Copyright (c) 2004 Open Source Applications Foundation.
+Portions Copyright (c) 2004-2006 Open Source Applications Foundation.
 Author: Heikki Toivonen
 */
 /* $Id$ */
@@ -107,16 +107,14 @@ void md_ctx_free(EVP_MD_CTX *ctx) {
     PyMem_Free((void *)ctx);
 }
 
-PyObject *digest_update(EVP_MD_CTX *ctx, PyObject *blob) {
+int digest_update(EVP_MD_CTX *ctx, PyObject *blob) {
     const void *buf;
     int len;
 
     if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
-        return NULL;
+        return -1;
 
-    EVP_DigestUpdate(ctx, buf, (unsigned int)len);
-    Py_INCREF(Py_None);
-    return Py_None;
+    return EVP_DigestUpdate(ctx, buf, (unsigned int)len);
 }
 
 PyObject *digest_final(EVP_MD_CTX *ctx) {
@@ -320,16 +318,14 @@ PyObject *sign_final(EVP_MD_CTX *ctx, EVP_PKEY *pkey) {
     return PyString_FromStringAndSize(sigbuf, siglen);
 }
 
-PyObject *verify_update(EVP_MD_CTX *ctx, PyObject *blob) {
+int verify_update(EVP_MD_CTX *ctx, PyObject *blob) {
     const void *buf;
     int len;
 
     if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
-        return NULL;
+        return -1;
 
-    EVP_VerifyUpdate(ctx, buf, len);
-    Py_INCREF(Py_None);
-    return Py_None;
+    return EVP_VerifyUpdate(ctx, buf, len);
 }
 
 

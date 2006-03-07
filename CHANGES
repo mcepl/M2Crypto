@@ -9,6 +9,9 @@
 - SMIME methods and functions raise correct exceptions
 - ssl_ctx_set_tmp_(dh|rsa) now return value, and the rsa version calls
   the rsa function instead of the dh function
+- digest_update and verify_update return type changed to int, which allows
+  better error reporting; EVP.MessageDigest.update and
+  EVP.PKey.verify_update likewise changed
 - Memory leak fixes
 - Compiler warning fixes
 - More and better Epydoc formatted docstrings
