@@ -357,7 +357,7 @@ void x509_extension_free(X509_EXTENSION *ext) {
 
 PyObject *x509_extension_get_name(X509_EXTENSION *ext) {
     PyObject * ext_name;
-    char * ext_name_str; 
+    const char * ext_name_str; 
     ext_name_str = OBJ_nid2sn(OBJ_obj2nid(X509_EXTENSION_get_object(ext)));
     if (!ext_name_str) {
     	PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
