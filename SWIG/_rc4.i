@@ -25,17 +25,9 @@ PyObject *rc4_set_key(RC4_KEY *key, PyObject *value) {
     const void *vbuf;
     int vlen;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(value)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-#endif
+
     RC4_set_key(key, vlen, vbuf);
     Py_INCREF(Py_None);
     return Py_None;
@@ -47,17 +39,9 @@ PyObject *rc4_update(RC4_KEY *key, PyObject *in) {
     int len;
     void *out;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(in, &buf, &len) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(in)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    len = PyString_Size(in);
-    buf = (const void *)PyString_AsString(in);
-#endif
+
     if (!(out = PyMem_Malloc(len))) {
         PyErr_SetString(PyExc_MemoryError, "expected a string object");
         return NULL;

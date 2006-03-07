@@ -56,29 +56,11 @@ int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
     int errnum, errdepth;
     int cret;
     int new_style_callback = 0, warning_raised_exception=0;
-#if PY_VERSION_HEX >= 0x20300F0
     PyGILState_STATE gilstate;
-#else
-    PyThreadState *_save;
-#endif
 
     ssl = (SSL *)X509_STORE_CTX_get_app_data(ctx);
     	
-#if PY_VERSION_HEX >= 0x20300F0
     gilstate = PyGILState_Ensure();
-#else
-    if (thread_mode) {
-        _save = (PyThreadState *)SSL_get_app_data(ssl);
-        PyEval_RestoreThread(_save);
-    }
-    if (PyErr_Warn(PyExc_DeprecationWarning, "This should not work. If it does for you, let me know. --Heikki Toivonen")) {
-        if (thread_mode) {
-            _save = PyEval_SaveThread();
-            SSL_set_app_data(ssl, _save);
-        }
-        return 0;
-    }
-#endif
 
     if (PyMethod_Check(ssl_verify_cb_func)) {
         PyObject *func;
@@ -152,34 +134,16 @@ int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
         Py_XDECREF(_ssl_ctx);
     }
 
-#if PY_VERSION_HEX >= 0x20300F0
     PyGILState_Release(gilstate);
-#else
-    if (thread_mode) {
-        _save = PyEval_SaveThread();
-        SSL_set_app_data(ssl, _save);
-    }
-#endif
 
     return cret;
 }
 
 void ssl_info_callback(const SSL *s, int where, int ret) {
     PyObject *argv, *retval, *_SSL;
-#if PY_VERSION_HEX >= 0x20300F0
     PyGILState_STATE gilstate;
-#else
-    PyThreadState *_save;
-#endif
 
-#if PY_VERSION_HEX >= 0x20300F0
     gilstate = PyGILState_Ensure();
-#else
-    if (thread_mode) {
-        _save = (PyThreadState *)SSL_get_app_data((SSL *)s);
-        PyEval_RestoreThread(_save);
-    }
-#endif
 
     _SSL = SWIG_NewPointerObj((void *)s, SWIGTYPE_p_SSL, 0);
     argv = Py_BuildValue("(iiO)", where, ret, _SSL);
@@ -190,33 +154,15 @@ void ssl_info_callback(const SSL *s, int where, int ret) {
     Py_XDECREF(argv);
     Py_XDECREF(_SSL);
 
-#if PY_VERSION_HEX >= 0x20300F0
     PyGILState_Release(gilstate);
-#else
-    if (thread_mode) {
-        _save = PyEval_SaveThread();
-        SSL_set_app_data((SSL *)s, _save);
-    }
-#endif
 }
 
 DH *ssl_set_tmp_dh_callback(SSL *ssl, int is_export, int keylength) {
     PyObject *argv, *ret, *_ssl;
     DH *dh;
-#if PY_VERSION_HEX >= 0x20300F0
     PyGILState_STATE gilstate;
-#else
-    PyThreadState *_save;
-#endif
 
-#if PY_VERSION_HEX >= 0x20300F0
     gilstate = PyGILState_Ensure();
-#else
-    if (thread_mode) {
-        _save = (PyThreadState *)SSL_get_app_data(ssl);
-        PyEval_RestoreThread(_save);
-    }
-#endif
 
     _ssl = SWIG_NewPointerObj((void *)ssl, SWIGTYPE_p_SSL, 0);
     argv = Py_BuildValue("(Oii)", _ssl, is_export, keylength);
@@ -229,14 +175,7 @@ DH *ssl_set_tmp_dh_callback(SSL *ssl, int is_export, int keylength) {
     Py_XDECREF(argv);
     Py_XDECREF(_ssl);
 
-#if PY_VERSION_HEX >= 0x20300F0
     PyGILState_Release(gilstate);
-#else
-    if (thread_mode) {
-        _save = PyEval_SaveThread();
-        SSL_set_app_data(ssl, _save);
-    }
-#endif
 
     return dh;
 }
@@ -244,20 +183,9 @@ DH *ssl_set_tmp_dh_callback(SSL *ssl, int is_export, int keylength) {
 RSA *ssl_set_tmp_rsa_callback(SSL *ssl, int is_export, int keylength) {
     PyObject *argv, *ret, *_ssl;
     RSA *rsa;
-#if PY_VERSION_HEX >= 0x20300F0
     PyGILState_STATE gilstate;
-#else
-    PyThreadState *_save;
-#endif
 
-#if PY_VERSION_HEX >= 0x20300F0
     gilstate = PyGILState_Ensure();
-#else
-    if (thread_mode) {
-        _save = (PyThreadState *)SSL_get_app_data(ssl);
-        PyEval_RestoreThread(_save);
-    }
-#endif
 
     _ssl = SWIG_NewPointerObj((void *)ssl, SWIGTYPE_p_SSL, 0);
     argv = Py_BuildValue("(Oii)", _ssl, is_export, keylength);
@@ -270,14 +198,7 @@ RSA *ssl_set_tmp_rsa_callback(SSL *ssl, int is_export, int keylength) {
     Py_XDECREF(argv);
     Py_XDECREF(_ssl);
 
-#if PY_VERSION_HEX >= 0x20300F0
     PyGILState_Release(gilstate);
-#else
-    if (thread_mode) {
-        _save = PyEval_SaveThread();
-        SSL_set_app_data(ssl, _save);
-    }
-#endif
 
     return rsa;
 }
@@ -348,17 +269,9 @@ BIGNUM *mpi_to_bn(PyObject *value) {
     const void *vbuf;
     int vlen;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(value)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-#endif
+
     return BN_mpi2bn(vbuf, vlen, NULL);
 }
 
@@ -382,17 +295,9 @@ BIGNUM *bin_to_bn(PyObject *value) {
     const void *vbuf;
     int vlen;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(value)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-#endif
+
     return BN_bin2bn(vbuf, vlen, NULL);
 }
 
@@ -401,16 +306,9 @@ BIGNUM *hex_to_bn(PyObject *value) {
     int vlen;
     BIGNUM *bn;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(value)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    vbuf = (const void *)PyString_AsString(value);
-#endif
+
     if ((bn=BN_new())==NULL) {
       PyErr_SetString(PyExc_MemoryError, "Unable to malloc a BIGNUM.");
       return NULL;
@@ -429,16 +327,9 @@ BIGNUM *dec_to_bn(PyObject *value) {
     int vlen;
     BIGNUM *bn;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(value)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    vbuf = (const void *)PyString_AsString(value);
-#endif
+
     if ((bn=BN_new())==NULL) {
       PyErr_SetString(PyExc_MemoryError, "Unable to malloc a BIGNUM.");
       return NULL;

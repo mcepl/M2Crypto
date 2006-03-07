@@ -22,17 +22,9 @@ PyObject *rand_seed(PyObject *seed) {
     const void *buf;
     int len;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(seed, &buf, &len) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(seed)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    len = PyString_Size(seed);
-    buf = PyString_AsString(seed);
-#endif
+
     RAND_seed(buf, len);
     Py_INCREF(Py_None);
     return Py_None;
@@ -42,17 +34,9 @@ PyObject *rand_add(PyObject *blob, double entropy) {
     const void *buf;
     int len;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(blob)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    len = PyString_Size(blob);
-    buf = PyString_AsString(blob);
-#endif
+
     RAND_add(buf, len, entropy);
     Py_INCREF(Py_None);
     return Py_None;

@@ -106,17 +106,9 @@ int bio_write(BIO *bio, PyObject *from) {
     const void *fbuf;
     int flen, ret;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(from, &fbuf, &flen) == -1)
         return -1;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(from)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return -1;
-    }
-    flen = PyString_Size(from);
-    fbuf = (const void *)PyString_AsString(from);
-#endif
+
     Py_BEGIN_ALLOW_THREADS
     ret = BIO_write(bio, fbuf, flen);
     Py_END_ALLOW_THREADS
@@ -165,19 +157,10 @@ PyObject *bio_set_cipher(BIO *b, EVP_CIPHER *c, PyObject *key, PyObject *iv, int
     const void *kbuf, *ibuf;
     int klen, ilen;
 
-#if PYTHON_API_VERSION >= 1009
     if ((PyObject_AsReadBuffer(key, &kbuf, &klen) == -1)
         || (PyObject_AsReadBuffer(iv, &ibuf, &ilen) == -1))
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(key) 
-        || !PyString_Check(iv)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    kbuf = PyString_AsString(key);
-    ibuf = PyString_AsString(iv);
-#endif
+
     BIO_set_cipher(b, (const EVP_CIPHER *)c, 
         (unsigned char *)kbuf, (unsigned char *)ibuf, op);
     Py_INCREF(Py_None);

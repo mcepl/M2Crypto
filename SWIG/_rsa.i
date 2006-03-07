@@ -87,17 +87,9 @@ PyObject *rsa_set_e(RSA *rsa, PyObject *value) {
     const void *vbuf;
     int vlen;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(value)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-#endif
+
     if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
         PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
@@ -114,17 +106,9 @@ PyObject *rsa_set_n(RSA *rsa, PyObject *value) {
     const void *vbuf;
     int vlen;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(value)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-#endif
+
     if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
         PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
@@ -141,17 +125,9 @@ PyObject *rsa_set_e_bin(RSA *rsa, PyObject *value) {
     const void *vbuf;
     int vlen;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(value)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-#endif
+
     if (!(bn = BN_bin2bn((unsigned char *)vbuf, vlen, NULL))) {
         PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
@@ -168,17 +144,9 @@ PyObject *rsa_set_n_bin(RSA *rsa, PyObject *value) {
     const void *vbuf;
     int vlen;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(value)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-#endif
+
     if (!(bn = BN_bin2bn((unsigned char *)vbuf, vlen, NULL))) {
         PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
@@ -196,17 +164,9 @@ PyObject *rsa_private_encrypt(RSA *rsa, PyObject *from, int padding) {
     int flen, tlen;
     PyObject *ret;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(from, &fbuf, &flen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(from)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    flen = PyString_Size(from);
-    fbuf = (const void *)PyString_AsString(from);
-#endif
+
     if (!(tbuf = PyMem_Malloc(BN_num_bytes(rsa->n)))) {
         PyErr_SetString(PyExc_MemoryError, "rsa_private_encrypt");
         return NULL;
@@ -229,17 +189,9 @@ PyObject *rsa_public_decrypt(RSA *rsa, PyObject *from, int padding) {
     int flen, tlen;
     PyObject *ret;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(from, &fbuf, &flen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(from)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    flen = PyString_Size(from);
-    fbuf = (const void *)PyString_AsString(from);
-#endif
+
     if (!(tbuf = PyMem_Malloc(BN_num_bytes(rsa->n)))) {
         PyErr_SetString(PyExc_MemoryError, "rsa_public_decrypt");
         return NULL;
@@ -262,17 +214,9 @@ PyObject *rsa_public_encrypt(RSA *rsa, PyObject *from, int padding) {
     int flen, tlen;
     PyObject *ret;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(from, &fbuf, &flen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(from)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    flen = PyString_Size(from);
-    fbuf = (const void *)PyString_AsString(from);
-#endif
+
     if (!(tbuf = PyMem_Malloc(BN_num_bytes(rsa->n)))) {
         PyErr_SetString(PyExc_MemoryError, "rsa_public_encrypt");
         return NULL;
@@ -295,17 +239,9 @@ PyObject *rsa_private_decrypt(RSA *rsa, PyObject *from, int padding) {
     int flen, tlen;
     PyObject *ret;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(from, &fbuf, &flen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(from)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    flen = PyString_Size(from);
-    fbuf = (const void *)PyString_AsString(from);
-#endif
+
     if (!(tbuf = PyMem_Malloc(BN_num_bytes(rsa->n)))) {
         PyErr_SetString(PyExc_MemoryError, "rsa_private_decrypt");
         return NULL;

@@ -192,17 +192,9 @@ PyObject *ecdsa_sign(EC_KEY *key, PyObject *value) {
     PyObject *tuple;
     ECDSA_SIG *sig; 
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(value)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-#endif
+
     if (!(sig = ECDSA_do_sign(vbuf, vlen, key))) {
         PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
@@ -224,25 +216,11 @@ int ecdsa_verify(EC_KEY *key, PyObject *value, PyObject *r, PyObject *s) {
     ECDSA_SIG *sig;
     int ret;
 
-#if PYTHON_API_VERSION >= 1009
     if ((PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         || (PyObject_AsReadBuffer(r, &rbuf, &rlen) == -1)
         || (PyObject_AsReadBuffer(s, &sbuf, &slen) == -1))
         return -1;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if ((!PyString_Check(value)) 
-        || (!PyString_Check(r)) 
-        || (!PyString_Check(s))) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return -1;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-    rlen = PyString_Size(r);
-    rbuf = (const void *)PyString_AsString(r);
-    slen = PyString_Size(s);
-    sbuf = (const void *)PyString_AsString(s);
-#endif
+
     if (!(sig = ECDSA_SIG_new())) {
         PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
         return -1;
@@ -272,17 +250,9 @@ PyObject *ecdsa_sign_asn1(EC_KEY *key, PyObject *value) {
     int siglen;
     PyObject *ret;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(value)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-#endif
+
     if (!(sigbuf = PyMem_Malloc(ECDSA_size(key)))) {
         PyErr_SetString(PyExc_MemoryError, "ecdsa_sign_asn1");
         return NULL;
@@ -303,21 +273,10 @@ int ecdsa_verify_asn1(EC_KEY *key, PyObject *value, PyObject *sig) {
     void *sbuf;
     int vlen, slen, ret;
 
-#if PYTHON_API_VERSION >= 1009
     if ((PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         || (PyObject_AsReadBuffer(sig, (const void **)&sbuf, &slen) == -1))
         return -1;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if ((!PyString_Check(value)) 
-        || (!PyString_Check(sig))) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return -1;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-    slen = PyString_Size(sig);
-    sbuf = (void *)PyString_AsString(sig);
-#endif
+
     if ((ret = ECDSA_verify(0, vbuf, vlen, sbuf, slen, key)) == -1)
         PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
     return ret;
@@ -363,19 +322,11 @@ EC_KEY* ec_key_from_pubkey_der(PyObject *pubkey) {
     const unsigned char *tempBuf;
     EC_KEY *keypair;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(pubkey, &keypairbuf, &keypairbuflen) == -1)
     {
         return NULL;
     }
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(pubkey)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    keypairbuflen = PyString_Size(pubkey);
-    keypairbuf = PyString_AsString(pubkey);
-#endif
+
     tempBuf = (const unsigned char *)keypairbuf;
     tempLen = (long)keypairbuflen;
     if ((keypair = d2i_EC_PUBKEY( NULL, &tempBuf, tempLen )) == 0)

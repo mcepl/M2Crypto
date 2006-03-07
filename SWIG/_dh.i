@@ -80,17 +80,9 @@ PyObject *dh_compute_key(DH *dh, PyObject *pubkey) {
     BIGNUM *pk;
     PyObject *ret;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(pubkey, &pkbuf, &pklen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(pubkey)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    pklen = PyString_Size(pubkey);
-    pkbuf = (const void *)PyString_AsString(pubkey);
-#endif
+
     if (!(pk = BN_mpi2bn((unsigned char *)pkbuf, pklen, NULL))) {
         PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
@@ -149,17 +141,9 @@ PyObject *dh_set_p(DH *dh, PyObject *value) {
     const void *vbuf;
     int vlen;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(value)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-#endif
+
     if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
         PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
@@ -176,17 +160,9 @@ PyObject *dh_set_g(DH *dh, PyObject *value) {
     const void *vbuf;
     int vlen;
 
-#if PYTHON_API_VERSION >= 1009
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         return NULL;
-#else /* assume PYTHON_API_VERSION == 1007 */
-    if (!PyString_Check(value)) {
-        PyErr_SetString(PyExc_TypeError, "expected a string object");
-        return NULL;
-    }
-    vlen = PyString_Size(value);
-    vbuf = (const void *)PyString_AsString(value);
-#endif
+
     if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
         PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
