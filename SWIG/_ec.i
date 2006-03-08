@@ -18,11 +18,16 @@
 
 %apply Pointer NONNULL { EC_KEY * };
 
-%name(ec_key_new) extern EC_KEY *EC_KEY_new(void);
-%name(ec_key_free) extern void EC_KEY_free(EC_KEY *);
-%name(ec_key_size) extern int ECDSA_size(const EC_KEY *); 
-%name(ec_key_gen_key) extern int EC_KEY_generate_key(EC_KEY *);
-%name(ec_key_check_key) extern int EC_KEY_check_key(const EC_KEY *);
+%rename(ec_key_new) EC_KEY_new;
+extern EC_KEY *EC_KEY_new(void);
+%rename(ec_key_free) EC_KEY_free;
+extern void EC_KEY_free(EC_KEY *);
+%rename(ec_key_size) ECDSA_size;
+extern int ECDSA_size(const EC_KEY *); 
+%rename(ec_key_gen_key) EC_KEY_generate_key;
+extern int EC_KEY_generate_key(EC_KEY *);
+%rename(ec_key_check_key) EC_KEY_check_key;
+extern int EC_KEY_check_key(const EC_KEY *);
 
 /* Curve identifier constants from OpenSSL */
 %constant int NID_secp112r1 = NID_secp112r1;

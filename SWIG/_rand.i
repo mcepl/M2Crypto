@@ -4,11 +4,16 @@
 
 %module _rand
 
-%name(rand_load_file) extern int RAND_load_file(const char *, long);
-%name(rand_save_file) extern int RAND_write_file(const char *);
-%name(rand_poll) extern int RAND_poll(void);
-%name(rand_status) extern int RAND_status(void);
-%name(rand_cleanup) extern void RAND_cleanup(void);
+%rename(rand_load_file) RAND_load_file;
+extern int RAND_load_file(const char *, long);
+%rename(rand_save_file) RAND_write_file;
+extern int RAND_write_file(const char *);
+%rename(rand_poll) RAND_poll;
+extern int RAND_poll(void);
+%rename(rand_status) RAND_status;
+extern int RAND_status(void);
+%rename(rand_cleanup) RAND_cleanup;
+extern void RAND_cleanup(void);
 
 %inline %{
 static PyObject *_rand_err;

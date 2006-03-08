@@ -15,8 +15,10 @@
 %apply Pointer NONNULL { STACK * };
 %apply Pointer NONNULL { X509 * };
 
-%name(pkcs7_new) extern PKCS7 *PKCS7_new(void);
-%name(pkcs7_free) extern void PKCS7_free(PKCS7 *);
+%rename(pkcs7_new) PKCS7_new;
+extern PKCS7 *PKCS7_new(void);
+%rename(pkcs7_free) PKCS7_free;
+extern void PKCS7_free(PKCS7 *);
 
 /* S/MIME operation */
 %constant int PKCS7_TEXT	= 0x1;

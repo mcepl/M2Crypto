@@ -23,28 +23,43 @@
 #if OPENSSL_VERSION_NUMBER >= 0x0090800fL
 %}
 
-%name(x509_check_ca) extern int X509_check_ca(X509 *);
+%rename(x509_check_ca) X509_check_ca;
+extern int X509_check_ca(X509 *);
 
 %{
 #endif
 %}
 
-%name(x509_new) extern X509 *X509_new( void );
-%name(x509_dup) extern X509 *X509_dup(X509 *);
-%name(x509_free) extern void X509_free(X509 *);
-%name(x509_crl_free) extern void X509_CRL_free(X509_CRL *);
+%rename(x509_new) X509_new;
+extern X509 *X509_new( void );
+%rename(x509_dup) X509_dup;
+extern X509 *X509_dup(X509 *);
+%rename(x509_free) X509_free;
+extern void X509_free(X509 *);
+%rename(x509_crl_free) X509_CRL_free;
+extern void X509_CRL_free(X509_CRL *);
 
-%name(x509_print) extern int X509_print(BIO *, X509 *);
-%name(x509_crl_print) extern int X509_CRL_print(BIO *, X509_CRL *);
+%rename(x509_print) X509_print;
+extern int X509_print(BIO *, X509 *);
+%rename(x509_crl_print) X509_CRL_print;
+extern int X509_CRL_print(BIO *, X509_CRL *);
 
-%name(x509_get_serial_number) extern ASN1_INTEGER *X509_get_serialNumber(X509 *);
-%name(x509_set_serial_number) extern int X509_set_serialNumber(X509 *, ASN1_INTEGER *);
-%name(x509_get_pubkey) extern EVP_PKEY *X509_get_pubkey(X509 *);
-%name(x509_set_pubkey) extern int X509_set_pubkey(X509 *, EVP_PKEY *);
-%name(x509_get_issuer_name) extern X509_NAME *X509_get_issuer_name(X509 *);
-%name(x509_set_issuer_name) extern int X509_set_issuer_name(X509 *, X509_NAME *);
-%name(x509_get_subject_name) extern X509_NAME *X509_get_subject_name(X509 *);
-%name(x509_set_subject_name) extern int X509_set_subject_name(X509 *, X509_NAME *);
+%rename(x509_get_serial_number) X509_get_serialNumber;
+extern ASN1_INTEGER *X509_get_serialNumber(X509 *);
+%rename(x509_set_serial_number) X509_set_serialNumber;
+extern int X509_set_serialNumber(X509 *, ASN1_INTEGER *);
+%rename(x509_get_pubkey) X509_get_pubkey;
+extern EVP_PKEY *X509_get_pubkey(X509 *);
+%rename(x509_set_pubkey) X509_set_pubkey;
+extern int X509_set_pubkey(X509 *, EVP_PKEY *);
+%rename(x509_get_issuer_name) X509_get_issuer_name;
+extern X509_NAME *X509_get_issuer_name(X509 *);
+%rename(x509_set_issuer_name) X509_set_issuer_name;
+extern int X509_set_issuer_name(X509 *, X509_NAME *);
+%rename(x509_get_subject_name) X509_get_subject_name;
+extern X509_NAME *X509_get_subject_name(X509 *);
+%rename(x509_set_subject_name) X509_set_subject_name;
+extern int X509_set_subject_name(X509 *, X509_NAME *);
 
                             
 /* From x509.h */
@@ -77,64 +92,110 @@
 %constant int X509_PURPOSE_ANY                = 7;
 %constant int X509_PURPOSE_OCSP_HELPER        = 8;
 
-%name(x509_check_purpose) extern X509_check_purpose(X509 *, int, int);
-%name(x509_check_trust) extern X509_check_trust(X509 *, int, int);
+%rename(x509_check_purpose) X509_check_purpose;
+extern X509_check_purpose(X509 *, int, int);
+%rename(x509_check_trust) X509_check_trust;
+extern X509_check_trust(X509 *, int, int);
 
-%name(x509_write_pem) extern int PEM_write_bio_X509(BIO *, X509 *);
-%name(x509_write_pem_file) extern int PEM_write_X509(FILE *, X509 *);
+%rename(x509_write_pem) PEM_write_bio_X509;
+extern int PEM_write_bio_X509(BIO *, X509 *);
+%rename(x509_write_pem_file) PEM_write_X509;
+extern int PEM_write_X509(FILE *, X509 *);
 
-%name(x509_verify) extern int X509_verify(X509 *a, EVP_PKEY *r);
-%name(x509_get_verify_error) extern const char *X509_verify_cert_error_string(long);
+%rename(x509_verify) X509_verify;
+extern int X509_verify(X509 *a, EVP_PKEY *r);
+%rename(x509_get_verify_error) X509_verify_cert_error_string;
+extern const char *X509_verify_cert_error_string(long);
 
-%name(x509_add_ext) extern int X509_add_ext(X509 *, X509_EXTENSION *, int);
-%name(x509_get_ext_count) extern int X509_get_ext_count(X509 *);
-%name(x509_get_ext) extern X509_EXTENSION *X509_get_ext(X509 *, int);
-%name(x509_ext_print) extern int X509V3_EXT_print(BIO *, X509_EXTENSION *, unsigned long, int);
+%rename(x509_add_ext) X509_add_ext;
+extern int X509_add_ext(X509 *, X509_EXTENSION *, int);
+%rename(x509_get_ext_count) X509_get_ext_count;
+extern int X509_get_ext_count(X509 *);
+%rename(x509_get_ext) X509_get_ext;
+extern X509_EXTENSION *X509_get_ext(X509 *, int);
+%rename(x509_ext_print) X509V3_EXT_print;
+extern int X509V3_EXT_print(BIO *, X509_EXTENSION *, unsigned long, int);
 
-%name(x509_name_new) extern X509_NAME *X509_NAME_new( void );
-%name(x509_name_free) extern void X509_NAME_free(X509_NAME *);
-%name(x509_name_print) extern int X509_NAME_print(BIO *, X509_NAME *, int);
-%name(x509_name_get_entry) extern X509_NAME_ENTRY *X509_NAME_get_entry(X509_NAME *, int);
-%name(x509_name_entry_count) extern int X509_NAME_entry_count(X509_NAME *);
-%name(x509_name_delete_entry) extern X509_NAME_ENTRY *X509_NAME_delete_entry(X509_NAME *, int);
-%name(x509_name_add_entry) extern int X509_NAME_add_entry(X509_NAME *, X509_NAME_ENTRY *, int, int);
-%name(x509_name_add_entry_by_obj) extern int X509_NAME_add_entry_by_OBJ(X509_NAME *, ASN1_OBJECT *, int, unsigned char *, int, int, int );
-%name(x509_name_add_entry_by_nid) extern int X509_NAME_add_entry_by_NID(X509_NAME *, int, int, unsigned char *, int, int, int );
-%name(x509_name_print_ex) extern int X509_NAME_print_ex(BIO *, X509_NAME *, int, unsigned long);
-%name(x509_name_print_ex_fp) extern int X509_NAME_print_ex_fp(FILE *, X509_NAME *, int, unsigned long);
+%rename(x509_name_new) X509_NAME_new;
+extern X509_NAME *X509_NAME_new( void );
+%rename(x509_name_free) X509_NAME_free;
+extern void X509_NAME_free(X509_NAME *);
+%rename(x509_name_print) X509_NAME_print;
+extern int X509_NAME_print(BIO *, X509_NAME *, int);
+%rename(x509_name_get_entry) X509_NAME_get_entry;
+extern X509_NAME_ENTRY *X509_NAME_get_entry(X509_NAME *, int);
+%rename(x509_name_entry_count) X509_NAME_entry_count;
+extern int X509_NAME_entry_count(X509_NAME *);
+%rename(x509_name_delete_entry) X509_NAME_delete_entry;
+extern X509_NAME_ENTRY *X509_NAME_delete_entry(X509_NAME *, int);
+%rename(x509_name_add_entry) X509_NAME_add_entry;
+extern int X509_NAME_add_entry(X509_NAME *, X509_NAME_ENTRY *, int, int);
+%rename(x509_name_add_entry_by_obj) X509_NAME_add_entry_by_OBJ;
+extern int X509_NAME_add_entry_by_OBJ(X509_NAME *, ASN1_OBJECT *, int, unsigned char *, int, int, int );
+%rename(x509_name_add_entry_by_nid) X509_NAME_add_entry_by_NID;
+extern int X509_NAME_add_entry_by_NID(X509_NAME *, int, int, unsigned char *, int, int, int );
+%rename(x509_name_print_ex) X509_NAME_print_ex;
+extern int X509_NAME_print_ex(BIO *, X509_NAME *, int, unsigned long);
+%rename(x509_name_print_ex_fp) X509_NAME_print_ex_fp;
+extern int X509_NAME_print_ex_fp(FILE *, X509_NAME *, int, unsigned long);
 
-%name(x509_name_entry_new) extern X509_NAME_ENTRY *X509_NAME_ENTRY_new( void );
-%name(x509_name_entry_free) extern void X509_NAME_ENTRY_free( X509_NAME_ENTRY *);
-%name(x509_name_entry_create_by_nid) extern X509_NAME_ENTRY *X509_NAME_ENTRY_create_by_NID( X509_NAME_ENTRY **, int, int, unsigned char *, int);
-%name(x509_name_entry_set_object) extern int X509_NAME_ENTRY_set_object( X509_NAME_ENTRY *, ASN1_OBJECT *);
-%name(x509_name_entry_set_data) extern int X509_NAME_ENTRY_set_data( X509_NAME_ENTRY *, int, CONST unsigned char *, int);
-%name(x509_name_entry_get_object) extern ASN1_OBJECT *X509_NAME_ENTRY_get_object(X509_NAME_ENTRY *);
-%name(x509_name_entry_get_data) extern ASN1_STRING *X509_NAME_ENTRY_get_data(X509_NAME_ENTRY *);
+%rename(x509_name_entry_new) X509_NAME_ENTRY_new;
+extern X509_NAME_ENTRY *X509_NAME_ENTRY_new( void );
+%rename(x509_name_entry_free) X509_NAME_ENTRY_free;
+extern void X509_NAME_ENTRY_free( X509_NAME_ENTRY *);
+%rename(x509_name_entry_create_by_nid) X509_NAME_ENTRY_create_by_NID;
+extern X509_NAME_ENTRY *X509_NAME_ENTRY_create_by_NID( X509_NAME_ENTRY **, int, int, unsigned char *, int);
+%rename(x509_name_entry_set_object) X509_NAME_ENTRY_set_object;
+extern int X509_NAME_ENTRY_set_object( X509_NAME_ENTRY *, ASN1_OBJECT *);
+%rename(x509_name_entry_set_data) X509_NAME_ENTRY_set_data;
+extern int X509_NAME_ENTRY_set_data( X509_NAME_ENTRY *, int, CONST unsigned char *, int);
+%rename(x509_name_entry_get_object) X509_NAME_ENTRY_get_object;
+extern ASN1_OBJECT *X509_NAME_ENTRY_get_object(X509_NAME_ENTRY *);
+%rename(x509_name_entry_get_data) X509_NAME_ENTRY_get_data;
+extern ASN1_STRING *X509_NAME_ENTRY_get_data(X509_NAME_ENTRY *);
 
-%name(x509_req_new) extern X509_REQ * X509_REQ_new();
-%name(x509_req_free) extern void X509_REQ_free(X509_REQ *);
-%name(x509_req_print) extern int X509_REQ_print(BIO *, X509_REQ *);
+%rename(x509_req_new) X509_REQ_new;
+extern X509_REQ * X509_REQ_new();
+%rename(x509_req_free) X509_REQ_free;
+extern void X509_REQ_free(X509_REQ *);
+%rename(x509_req_print) X509_REQ_print;
+extern int X509_REQ_print(BIO *, X509_REQ *);
 
-%name(x509_req_get_pubkey) extern EVP_PKEY *X509_REQ_get_pubkey(X509_REQ *);
-%name(x509_req_set_pubkey) extern int X509_REQ_set_pubkey(X509_REQ *, EVP_PKEY *);
-%name(x509_req_set_subject_name) extern int X509_REQ_set_subject_name(X509_REQ *, X509_NAME *);
+%rename(x509_req_get_pubkey) X509_REQ_get_pubkey;
+extern EVP_PKEY *X509_REQ_get_pubkey(X509_REQ *);
+%rename(x509_req_set_pubkey) X509_REQ_set_pubkey;
+extern int X509_REQ_set_pubkey(X509_REQ *, EVP_PKEY *);
+%rename(x509_req_set_subject_name) X509_REQ_set_subject_name;
+extern int X509_REQ_set_subject_name(X509_REQ *, X509_NAME *);
 
-%name(x509_req_verify) extern int X509_REQ_verify(X509_REQ *, EVP_PKEY *);
-%name(x509_req_sign) extern int X509_REQ_sign(X509_REQ *, EVP_PKEY *, const EVP_MD *);
+%rename(x509_req_verify) X509_REQ_verify;
+extern int X509_REQ_verify(X509_REQ *, EVP_PKEY *);
+%rename(x509_req_sign) X509_REQ_sign;
+extern int X509_REQ_sign(X509_REQ *, EVP_PKEY *, const EVP_MD *);
 
-%name(i2d_x509) extern int i2d_X509_bio(BIO *, X509 *);
+%rename(i2d_x509) i2d_X509_bio;
+extern int i2d_X509_bio(BIO *, X509 *);
 
-%name(x509_store_new) extern X509_STORE *X509_STORE_new(void);
-%name(x509_store_free) extern void X509_STORE_free(X509_STORE *);
-%name(x509_store_add_cert) extern int X509_STORE_add_cert(X509_STORE *, X509 *);
+%rename(x509_store_new) X509_STORE_new;
+extern X509_STORE *X509_STORE_new(void);
+%rename(x509_store_free) X509_STORE_free;
+extern void X509_STORE_free(X509_STORE *);
+%rename(x509_store_add_cert) X509_STORE_add_cert;
+extern int X509_STORE_add_cert(X509_STORE *, X509 *);
 
-%name(x509_store_ctx_get_current_cert) extern X509 *X509_STORE_CTX_get_current_cert(X509_STORE_CTX *);
-%name(x509_store_ctx_get_error) extern int X509_STORE_CTX_get_error(X509_STORE_CTX *);
-%name(x509_store_ctx_get_error_depth) extern int X509_STORE_CTX_get_error_depth(X509_STORE_CTX *);
-%name(x509_store_ctx_free) extern void X509_STORE_CTX_free(X509_STORE_CTX *);
+%rename(x509_store_ctx_get_current_cert) X509_STORE_CTX_get_current_cert;
+extern X509 *X509_STORE_CTX_get_current_cert(X509_STORE_CTX *);
+%rename(x509_store_ctx_get_error) X509_STORE_CTX_get_error;
+extern int X509_STORE_CTX_get_error(X509_STORE_CTX *);
+%rename(x509_store_ctx_get_error_depth) X509_STORE_CTX_get_error_depth;
+extern int X509_STORE_CTX_get_error_depth(X509_STORE_CTX *);
+%rename(x509_store_ctx_free) X509_STORE_CTX_free;
+extern void X509_STORE_CTX_free(X509_STORE_CTX *);
 
-%name(x509_extension_get_critical) extern int X509_EXTENSION_get_critical(X509_EXTENSION *);
-%name(x509_extension_set_critical) extern int X509_EXTENSION_set_critical(X509_EXTENSION *, int);
+%rename(x509_extension_get_critical) X509_EXTENSION_get_critical;
+extern int X509_EXTENSION_get_critical(X509_EXTENSION *);
+%rename(x509_extension_set_critical) X509_EXTENSION_set_critical;
+extern int X509_EXTENSION_set_critical(X509_EXTENSION *, int);
 
 
 %constant int NID_commonName                  = 13;

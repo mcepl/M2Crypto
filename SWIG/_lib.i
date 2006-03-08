@@ -415,11 +415,15 @@ BIGNUM *dec_to_bn(PyObject *value) {
 
 /* A bunch of "straight-thru" functions. */
 
-%name(err_print_errors_fp) extern void ERR_print_errors_fp(FILE *);
-%name(err_print_errors) extern void ERR_print_errors(BIO *);
-%name(err_get_error) extern unsigned long ERR_get_error(void);
-%name(err_lib_error_string) extern const char *ERR_lib_error_string(unsigned long);
-%name(err_func_error_string) extern const char *ERR_func_error_string(unsigned long);
-%name(err_reason_error_string) extern const char *ERR_reason_error_string(unsigned long);
-
-
+%rename(err_print_errors_fp) ERR_print_errors_fp;
+extern void ERR_print_errors_fp(FILE *);
+%rename(err_print_errors) ERR_print_errors;
+extern void ERR_print_errors(BIO *);
+%rename(err_get_error) ERR_get_error;
+extern unsigned long ERR_get_error(void);
+%rename(err_lib_error_string) ERR_lib_error_string;
+extern const char *ERR_lib_error_string(unsigned long);
+%rename(err_func_error_string) ERR_func_error_string;
+extern const char *ERR_func_error_string(unsigned long);
+%rename(err_reason_error_string) ERR_reason_error_string;
+extern const char *ERR_reason_error_string(unsigned long);

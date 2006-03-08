@@ -11,10 +11,14 @@
 %apply Pointer NONNULL { RSA * };
 %apply Pointer NONNULL { PyObject *pyfunc };
 
-%name(rsa_new) extern RSA *RSA_new(void);
-%name(rsa_free) extern void RSA_free(RSA *);
-%name(rsa_size) extern int RSA_size(const RSA *);
-%name(rsa_check_key) extern int RSA_check_key(const RSA *);
+%rename(rsa_new) RSA_new;
+extern RSA *RSA_new(void);
+%rename(rsa_free) RSA_free;
+extern void RSA_free(RSA *);
+%rename(rsa_size) RSA_size;
+extern int RSA_size(const RSA *);
+%rename(rsa_check_key) RSA_check_key;
+extern int RSA_check_key(const RSA *);
 
 %constant int no_padding        = RSA_NO_PADDING;
 %constant int pkcs1_padding     = RSA_PKCS1_PADDING;

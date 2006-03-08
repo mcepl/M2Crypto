@@ -18,10 +18,14 @@ PyObject *dsa_sig_get_s(DSA_SIG *dsa_sig) {
 
 %apply Pointer NONNULL { DSA * };
 
-%name(dsa_new) extern DSA *DSA_new(void);
-%name(dsa_free) extern void DSA_free(DSA *);
-%name(dsa_size) extern int DSA_size(const DSA *); /* assert(dsa->q); */
-%name(dsa_gen_key) extern int DSA_generate_key(DSA *);
+%rename(dsa_new) DSA_new;
+extern DSA *DSA_new(void);
+%rename(dsa_free) DSA_free;
+extern void DSA_free(DSA *);
+%rename(dsa_size) DSA_size;
+extern int DSA_size(const DSA *); /* assert(dsa->q); */
+%rename(dsa_gen_key) DSA_generate_key;
+extern int DSA_generate_key(DSA *);
 
 %inline %{
 static PyObject *_dsa_err;
