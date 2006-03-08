@@ -163,7 +163,7 @@ class X509_Name_Entry:
         self._pyfree = _pyfree
         
     def __del__(self):
-        if self._pyfree:
+        if getattr(self, '_pyfree', 0):
             self.m2_x509_name_entry_free(self.x509_name_entry)
 
     def _ptr(self):
@@ -245,10 +245,17 @@ class X509_Name:
     def entry_count( self ):
         return m2.x509_name_entry_count( self.x509_name )
 
-    def as_text(self):
+    def as_text(self, indent=0, flags=m2.XN_FLAG_COMPAT):
+        """
+        as_text returns the name as a string.
+        
+        @param indent: Each line in multiline format is indented 
+                       by this many spaces.
+        @param flags:  Flags that control how the output should be formatted.
+        """
         assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error"
         buf=BIO.MemoryBuffer()
-        m2.x509_name_print(buf.bio_ptr(), self.x509_name, 0)
+        m2.x509_name_print_ex(buf.bio_ptr(), self.x509_name, indent, flags)
         return buf.read_all()
 
 

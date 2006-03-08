@@ -237,6 +237,31 @@ extern int X509_EXTENSION_set_critical(X509_EXTENSION *, int);
 %constant int		X509_V_ERR_CERT_REJECTED			= 28;
 %constant int		X509_V_ERR_APPLICATION_VERIFICATION		= 50;
 
+/* x509.h */
+%constant int XN_FLAG_COMPAT = 0;
+%constant int XN_FLAG_SEP_COMMA_PLUS = (1 << 16);
+%constant int XN_FLAG_SEP_CPLUS_SPC = (2 << 16);
+%constant int XN_FLAG_SEP_MULTILINE = (4 << 16);
+%constant int XN_FLAG_DN_REV = (1 << 20);
+%constant int XN_FLAG_FN_LN = (1 << 21);
+%constant int XN_FLAG_SPC_EQ = (1 << 23);
+%constant int XN_FLAG_DUMP_UNKNOWN_FIELDS = (1 << 24);
+%constant int XN_FLAG_FN_ALIGN = (1 << 25);
+%constant int XN_FLAG_ONELINE =(ASN1_STRFLGS_RFC2253 | \
+            ASN1_STRFLGS_ESC_QUOTE | \
+            XN_FLAG_SEP_CPLUS_SPC | \
+            XN_FLAG_SPC_EQ);
+%constant int XN_FLAG_MULTILINE = (ASN1_STRFLGS_ESC_CTRL | \
+            ASN1_STRFLGS_ESC_MSB | \
+            XN_FLAG_SEP_MULTILINE | \
+            XN_FLAG_SPC_EQ | \
+            XN_FLAG_FN_LN | \
+            XN_FLAG_FN_ALIGN);
+%constant int XN_FLAG_RFC2253 = (ASN1_STRFLGS_RFC2253 | \
+            XN_FLAG_SEP_COMMA_PLUS | \
+            XN_FLAG_DN_REV | \
+            XN_FLAG_DUMP_UNKNOWN_FIELDS);
+
 /* Cribbed from rsa.h. */
 %constant int RSA_3                           = 0x3L;
 %constant int RSA_F4                          = 0x10001L;
