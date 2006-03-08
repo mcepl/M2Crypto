@@ -150,6 +150,7 @@ class X509TestCase(unittest.TestCase):
         assert proxycert.get_ext_at(0).get_value() == 'Path Length Constraint: infinite\nPolicy Language: Inherit all\n', '"%s"' % proxycert.get_ext_at(0).get_value()
         assert proxycert.get_ext_count() == 1, proxycert.get_ext_count()
         assert proxycert.get_subject().as_text() == 'C=UK, CN=OpenSSL Group, CN=Proxy', proxycert.get_subject().as_text()
+        assert proxycert.get_subject().as_text(indent=2, flags=m2.XN_FLAG_RFC2253) == '  CN=Proxy,CN=OpenSSL Group,C=UK', '"%s"' %  proxycert.get_subject().as_text(indent=2, flags=m2.XN_FLAG_RFC2253)
 
     def make_eecert(self, cacert):
         eecert = X509.X509()

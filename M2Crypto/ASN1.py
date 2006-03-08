@@ -47,11 +47,16 @@ class ASN1_String:
         return buf.read_all()
 
     def __del__(self):
-        if self._pyfree:
+        if getattr(self, '_pyfree', 0):
             self.m2_asn1_string_free(self.asn1str)
                                                                                                         
     def _ptr(self):
         return self.asn1str
+    
+    def as_text(self, flags=m2.ASN1_STRFLGS_RFC2253):
+        buf = BIO.MemoryBuffer()
+        m2.asn1_string_print_ex( buf.bio_ptr(), self.asn1str, flags)
+        return buf.read_all()
 
 
 class ASN1_Object:

@@ -40,6 +40,8 @@ extern void ASN1_STRING_free( ASN1_STRING *);
 extern int ASN1_STRING_set( ASN1_STRING *, const void *, int);
 %rename(asn1_string_print) ASN1_STRING_print;
 extern int ASN1_STRING_print(BIO *, ASN1_STRING *);
+%rename(asn1_string_print_ex) ASN1_STRING_print_ex;
+extern int ASN1_STRING_print_ex(BIO *, ASN1_STRING *, unsigned long);
 
 %rename(asn1_utctime_new) ASN1_UTCTIME_new;
 extern ASN1_UTCTIME *ASN1_UTCTIME_new( void );
@@ -64,6 +66,20 @@ extern long ASN1_INTEGER_get(ASN1_INTEGER *);
 extern int ASN1_INTEGER_set(ASN1_INTEGER *, long);
 %rename(asn1_integer_cmp) ASN1_INTEGER_cmp;
 extern int ASN1_INTEGER_cmp(ASN1_INTEGER *, ASN1_INTEGER *);
+
+%constant int ASN1_STRFLGS_ESC_2253 = 1;
+%constant int ASN1_STRFLGS_ESC_CTRL = 2;
+%constant int ASN1_STRFLGS_ESC_MSB = 4;
+%constant int ASN1_STRFLGS_ESC_QUOTE = 8;
+%constant int ASN1_STRFLGS_UTF8_CONVERT = 0x10;
+%constant int ASN1_STRFLGS_DUMP_UNKNOWN = 0x100;
+%constant int ASN1_STRFLGS_DUMP_DER = 0x200;
+%constant int ASN1_STRFLGS_RFC2253 = (ASN1_STRFLGS_ESC_2253 | \
+                ASN1_STRFLGS_ESC_CTRL | \
+                ASN1_STRFLGS_ESC_MSB | \
+                ASN1_STRFLGS_UTF8_CONVERT | \
+                ASN1_STRFLGS_DUMP_UNKNOWN | \
+                ASN1_STRFLGS_DUMP_DER);
 
 %inline %{
 /* ASN1_UTCTIME_set_string () is a macro */
