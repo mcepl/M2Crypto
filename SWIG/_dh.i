@@ -11,11 +11,16 @@
 
 %apply Pointer NONNULL { DH * };
 
-%name(dh_new) extern DH *DH_new(void);
-%name(dh_free) extern void DH_free(DH *);
-%name(dh_size) extern int DH_size(const DH *);
-%name(dh_generate_key) extern int DH_generate_key(DH *);
-%name(dhparams_print) extern int DHparams_print(BIO *, const DH *);
+%rename(dh_new) DH_new;
+extern DH *DH_new(void);
+%rename(dh_free) DH_free;
+extern void DH_free(DH *);
+%rename(dh_size) DH_size;
+extern int DH_size(const DH *);
+%rename(dh_generate_key) DH_generate_key;
+extern int DH_generate_key(DH *);
+%rename(dhparams_print) DHparams_print;
+extern int DHparams_print(BIO *, const DH *);
 
 %constant int dh_check_ok             = 0;
 %constant int dh_check_p_not_prime    = DH_CHECK_P_NOT_PRIME;

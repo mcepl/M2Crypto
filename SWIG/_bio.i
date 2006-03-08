@@ -14,24 +14,40 @@
 %apply Pointer NONNULL { BIO * };
 %apply Pointer NONNULL { BIO_METHOD * };
 
-%name(bio_s_bio) extern BIO_METHOD *BIO_s_bio(void);
-%name(bio_s_mem) extern BIO_METHOD *BIO_s_mem(void);
-%name(bio_s_socket) extern BIO_METHOD *BIO_s_socket(void);
-%name(bio_f_ssl) extern BIO_METHOD *BIO_f_ssl(void);
-%name(bio_f_buffer) extern BIO_METHOD *BIO_f_buffer(void);
-%name(bio_f_cipher) extern BIO_METHOD *BIO_f_cipher(void);
+%rename(bio_s_bio) BIO_s_bio;
+extern BIO_METHOD *BIO_s_bio(void);
+%rename(bio_s_mem) BIO_s_mem;
+extern BIO_METHOD *BIO_s_mem(void);
+%rename(bio_s_socket) BIO_s_socket;
+extern BIO_METHOD *BIO_s_socket(void);
+%rename(bio_f_ssl) BIO_f_ssl;
+extern BIO_METHOD *BIO_f_ssl(void);
+%rename(bio_f_buffer) BIO_f_buffer;
+extern BIO_METHOD *BIO_f_buffer(void);
+%rename(bio_f_cipher) BIO_f_cipher;
+extern BIO_METHOD *BIO_f_cipher(void);
 
-%name(bio_new) extern BIO *BIO_new(BIO_METHOD *);
-%name(bio_new_socket) extern BIO *BIO_new_socket(int, int);
-%name(bio_new_fd) extern BIO *BIO_new_fd(int, int);
-%name(bio_new_fp) extern BIO *BIO_new_fp(FILE *, int);
-%name(bio_new_file) extern BIO *BIO_new_file(const char *, const char *);
-%name(bio_free) extern int BIO_free(BIO *);
-%name(bio_free_all) extern void BIO_free_all(BIO *);
-%name(bio_dup_chain) extern BIO *BIO_dup_chain(BIO *);
+%rename(bio_new) BIO_new;
+extern BIO *BIO_new(BIO_METHOD *);
+%rename(bio_new_socket) BIO_new_socket;
+extern BIO *BIO_new_socket(int, int);
+%rename(bio_new_fd) BIO_new_fd;
+extern BIO *BIO_new_fd(int, int);
+%rename(bio_new_fp) BIO_new_fp;
+extern BIO *BIO_new_fp(FILE *, int);
+%rename(bio_new_file) BIO_new_file;
+extern BIO *BIO_new_file(const char *, const char *);
+%rename(bio_free) BIO_free;
+extern int BIO_free(BIO *);
+%rename(bio_free_all) BIO_free_all;
+extern void BIO_free_all(BIO *);
+%rename(bio_dup_chain) BIO_dup_chain;
+extern BIO *BIO_dup_chain(BIO *);
 
-%name(bio_push) extern BIO *BIO_push(BIO *, BIO *);
-%name(bio_pop) extern BIO *BIO_pop(BIO *);
+%rename(bio_push) BIO_push;
+extern BIO *BIO_push(BIO *, BIO *);
+%rename(bio_pop) BIO_pop;
+extern BIO *BIO_pop(BIO *);
 
 %constant int bio_noclose             = BIO_NOCLOSE;
 %constant int bio_close               = BIO_CLOSE;

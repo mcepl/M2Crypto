@@ -16,35 +16,54 @@
 %apply Pointer NONNULL { ASN1_INTEGER * };
 %apply Pointer NONNULL { ASN1_UTCTIME * };
 
-%name(asn1_object_new) extern ASN1_OBJECT *ASN1_OBJECT_new( void );
-%name(asn1_object_create) extern ASN1_OBJECT *ASN1_OBJECT_create( int, unsigned char *, int, const char *, const char *);
-%name(asn1_object_free) extern void ASN1_OBJECT_free( ASN1_OBJECT *);
-%name(i2d_asn1_object) extern int i2d_ASN1_OBJECT( ASN1_OBJECT *, unsigned char **);
-%name(c2i_asn1_object) extern ASN1_OBJECT *c2i_ASN1_OBJECT( ASN1_OBJECT **, CONST098 unsigned char **, long);
-%name(d2i_asn1_object) extern ASN1_OBJECT *d2i_ASN1_OBJECT( ASN1_OBJECT **, CONST098 unsigned char **, long);
+%rename(asn1_object_new) ASN1_OBJECT_new;
+extern ASN1_OBJECT *ASN1_OBJECT_new( void );
+%rename(asn1_object_create) ASN1_OBJECT_create;
+extern ASN1_OBJECT *ASN1_OBJECT_create( int, unsigned char *, int, const char *, const char *);
+%rename(asn1_object_free) ASN1_OBJECT_free;
+extern void ASN1_OBJECT_free( ASN1_OBJECT *);
+%rename(i2d_asn1_object) i2d_ASN1_OBJECT;
+extern int i2d_ASN1_OBJECT( ASN1_OBJECT *, unsigned char **);
+%rename(c2i_asn1_object) c2i_ASN1_OBJECT;
+extern ASN1_OBJECT *c2i_ASN1_OBJECT( ASN1_OBJECT **, CONST098 unsigned char **, long);
+%rename(d2i_asn1_object) d2i_ASN1_OBJECT;
+extern ASN1_OBJECT *d2i_ASN1_OBJECT( ASN1_OBJECT **, CONST098 unsigned char **, long);
 
-%name(asn1_bit_string_new) extern ASN1_BIT_STRING *ASN1_BIT_STRING_new( void );
-/* %name(asn1_bit_string_set) extern int *ASN1_BIT_STRING_set(ASN1_BIT_STRING *, unsigned char *, int); */
-/* %name(asn1_bit_string_set_bit) extern int *ASN1_BIT_STRING_set_bit(ASN1_BIT_STRING *, int, int); */
-/* %name(asn1_bit_string_get_bit) extern int *ASN1_BIT_STRING_get_bit(ASN1_BIT_STRING *, int); */
+%rename(asn1_bit_string_new) ASN1_BIT_STRING_new;
+extern ASN1_BIT_STRING *ASN1_BIT_STRING_new( void );
 
-%name(asn1_string_new) extern ASN1_STRING *ASN1_STRING_new( void );
-%name(asn1_string_free) extern void ASN1_STRING_free( ASN1_STRING *);
-%name(asn1_string_set) extern int ASN1_STRING_set( ASN1_STRING *, const void *, int);
-%name(asn1_string_print) extern int ASN1_STRING_print(BIO *, ASN1_STRING *);
+%rename(asn1_string_new) ASN1_STRING_new;
+extern ASN1_STRING *ASN1_STRING_new( void );
+%rename(asn1_string_free) ASN1_STRING_free;
+extern void ASN1_STRING_free( ASN1_STRING *);
+%rename(asn1_string_set) ASN1_STRING_set;
+extern int ASN1_STRING_set( ASN1_STRING *, const void *, int);
+%rename(asn1_string_print) ASN1_STRING_print;
+extern int ASN1_STRING_print(BIO *, ASN1_STRING *);
 
-%name(asn1_utctime_new) extern ASN1_UTCTIME *ASN1_UTCTIME_new( void );
-%name(asn1_utctime_free) extern void ASN1_UTCTIME_free(ASN1_UTCTIME *);
-%name(asn1_utctime_check) extern int ASN1_UTCTIME_check(ASN1_UTCTIME *);
-%name(asn1_utctime_set) extern ASN1_UTCTIME *ASN1_UTCTIME_set(ASN1_UTCTIME *, long);
-%name(asn1_utctime_set_string) extern int ASN1_UTCTIME_set_string(ASN1_UTCTIME *, CONST098 char *);
-%name(asn1_utctime_print) extern int ASN1_UTCTIME_print(BIO *, ASN1_UTCTIME *);
+%rename(asn1_utctime_new) ASN1_UTCTIME_new;
+extern ASN1_UTCTIME *ASN1_UTCTIME_new( void );
+%rename(asn1_utctime_free) ASN1_UTCTIME_free;
+extern void ASN1_UTCTIME_free(ASN1_UTCTIME *);
+%rename(asn1_utctime_check) ASN1_UTCTIME_check;
+extern int ASN1_UTCTIME_check(ASN1_UTCTIME *);
+%rename(asn1_utctime_set) ASN1_UTCTIME_set;
+extern ASN1_UTCTIME *ASN1_UTCTIME_set(ASN1_UTCTIME *, long);
+%rename(asn1_utctime_set_string) ASN1_UTCTIME_set_string;
+extern int ASN1_UTCTIME_set_string(ASN1_UTCTIME *, CONST098 char *);
+%rename(asn1_utctime_print) ASN1_UTCTIME_print;
+extern int ASN1_UTCTIME_print(BIO *, ASN1_UTCTIME *);
 
-%name(asn1_integer_new) extern ASN1_INTEGER *ASN1_INTEGER_new( void );
-%name(asn1_integer_free) extern void ASN1_INTEGER_free( ASN1_INTEGER *);
-%name(asn1_integer_get) extern long ASN1_INTEGER_get(ASN1_INTEGER *);
-%name(asn1_integer_set) extern int ASN1_INTEGER_set(ASN1_INTEGER *, long);
-%name(asn1_integer_cmp) extern int ASN1_INTEGER_cmp(ASN1_INTEGER *, ASN1_INTEGER *);
+%rename(asn1_integer_new) ASN1_INTEGER_new;
+extern ASN1_INTEGER *ASN1_INTEGER_new( void );
+%rename(asn1_integer_free) ASN1_INTEGER_free;
+extern void ASN1_INTEGER_free( ASN1_INTEGER *);
+%rename(asn1_integer_get) ASN1_INTEGER_get;
+extern long ASN1_INTEGER_get(ASN1_INTEGER *);
+%rename(asn1_integer_set) ASN1_INTEGER_set;
+extern int ASN1_INTEGER_set(ASN1_INTEGER *, long);
+%rename(asn1_integer_cmp) ASN1_INTEGER_cmp;
+extern int ASN1_INTEGER_cmp(ASN1_INTEGER *, ASN1_INTEGER *);
 
 %inline %{
 /* ASN1_UTCTIME_set_string () is a macro */
