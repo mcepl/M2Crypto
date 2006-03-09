@@ -14,6 +14,7 @@
   EVP.PKey.verify_update likewise changed
 - X509_Name and ASN1_String as_text (new for ASN1_String) take optional
   parameters to control formatting.
+- Cipher_Stack, X509_Stack and X509_Extension_Stack are iterable
 - Memory leak fixes
 - SWIG and compiler warning fixes
 - More and better Epydoc formatted docstrings

@@ -217,6 +217,22 @@ class SSLClientTestCase(unittest.TestCase):
             s.set_cipher_list('EXP-RC4-MD5')
             s.connect(self.srv_addr)
             data = self.http_get(s)
+            
+            cipher_stack = s.get_ciphers()
+            assert cipher_stack[0].name() == 'EXP-RC4-MD5', cipher_stack[0].name()
+            self.assertRaises(IndexError, cipher_stack.__getitem__, 2)
+            # For some reason there are 2 entries in the stack
+            #assert len(cipher_stack) == 1, len(cipher_stack)
+            assert s.get_cipher_list() == 'EXP-RC4-MD5', s.get_cipher_list()
+            
+            # Test Cipher_Stack iterator
+            i = 0
+            for cipher in cipher_stack:
+                i += 1
+                assert cipher.name() == 'EXP-RC4-MD5', '"%s"' % cipher.name()
+            # For some reason there are 2 entries in the stack
+            #assert i == 1, i
+            
             s.close()
         finally:
             self.stop_server(pid)

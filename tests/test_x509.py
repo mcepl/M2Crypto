@@ -36,20 +36,39 @@ class X509TestCase(unittest.TestCase):
             extstack = X509.X509_Extension_Stack()
             extstack.push(ext1)
             extstack.push(ext2)
-            assert(extstack[1].get_name() == 'nsComment')
-            assert len(extstack) == 2
-            ext3 = extstack.pop()
-            assert len(extstack) == 1
-            assert(extstack[0].get_name() == 'subjectAltName')
-            extstack.push(ext3)
-            assert len(extstack) == 2
-            assert(extstack[1].get_name() == 'nsComment')
             x.add_extensions(extstack)
         x.sign(pk,'md5')
         assert x.verify(pk)
         pk2 = x.get_pubkey()
         assert x.verify(pk2)
         return x, pk
+
+    def check_extstack(self):
+        # new
+        ext1 = X509.new_extension('subjectAltName', 'DNS:foobar.example.com')
+        ext2 = X509.new_extension('nsComment', 'Hello there')
+        extstack = X509.X509_Extension_Stack()
+        
+        # push
+        extstack.push(ext1)
+        extstack.push(ext2)
+        assert(extstack[1].get_name() == 'nsComment')
+        assert len(extstack) == 2
+        
+        # iterator
+        i = 0
+        for e in extstack:
+            i += 1
+            assert len(e.get_name()) > 0
+        assert i == 2
+        
+        # pop
+        ext3 = extstack.pop()
+        assert len(extstack) == 1
+        assert(extstack[0].get_name() == 'subjectAltName')
+        extstack.push(ext3)
+        assert len(extstack) == 2
+        assert(extstack[1].get_name() == 'nsComment')
 
     def check_mkreq(self):
         (req, _) = self.mkreq(512)
@@ -64,6 +83,7 @@ class X509TestCase(unittest.TestCase):
         pkey = req.get_pubkey()
         assert(req.verify(pkey))
         sub = req.get_subject()
+        assert len(sub) == 2, len(sub)
         cert = X509.X509()
         cert.set_serial_number(1)
         cert.set_version(2)
@@ -237,6 +257,14 @@ class X509_StackTestCase(unittest.TestCase):
         issuer_subject1 = issuer.get_subject()
         stack.push(cert)
         stack.push(issuer)
+        
+        # Test stack iterator
+        i = 0
+        for c in stack:
+            i += 1
+            assert len(c.get_subject().CN) > 0
+        assert i == 2
+        
         issuer_pop = stack.pop() 
         cert_pop = stack.pop() 
         cert_subject2 = cert_pop.get_subject() 

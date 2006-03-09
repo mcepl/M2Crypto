@@ -32,8 +32,11 @@ class Cipher_Stack:
         return m2.sk_ssl_cipher_num(self.stack)
 
     def __getitem__(self, idx):
-        if idx < 0 or idx >= m2.sk_ssl_cipher_num(self.stack):
-            raise IndexError, 'index out of range'
+        if not 0 <= idx < m2.sk_ssl_cipher_num(self.stack):
+            raise IndexError('index out of range')
         v=m2.sk_ssl_cipher_value(self.stack, idx)
         return Cipher(v)
 
+    def __iter__(self):
+        return (self[i] for i in xrange(m2.sk_ssl_cipher_num(self.stack)))
+    
