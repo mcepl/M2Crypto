@@ -53,7 +53,7 @@ class ASN1_String:
     def _ptr(self):
         return self.asn1str
     
-    def as_text(self, flags=m2.ASN1_STRFLGS_RFC2253):
+    def as_text(self, flags=0):
         buf = BIO.MemoryBuffer()
         m2.asn1_string_print_ex( buf.bio_ptr(), self.asn1str, flags)
         return buf.read_all()
