@@ -36,8 +36,23 @@ extern ASN1_BIT_STRING *ASN1_BIT_STRING_new( void );
 extern ASN1_STRING *ASN1_STRING_new( void );
 %rename(asn1_string_free) ASN1_STRING_free;
 extern void ASN1_STRING_free( ASN1_STRING *);
+
+%typemap(in) (const void *, int) { 
+    if (PyString_Check($input)) {
+        $1 = PyString_AsString($input); 
+        $2 = PyString_Size($input);
+    } else {
+        $1 = NULL;
+        $2 = 0;
+        PyErr_SetString(PyExc_TypeError, "expected string");
+    }
+}
+
 %rename(asn1_string_set) ASN1_STRING_set;
 extern int ASN1_STRING_set( ASN1_STRING *, const void *, int);
+
+%typemap(in) (const void *, int);
+
 %rename(asn1_string_print) ASN1_STRING_print;
 extern int ASN1_STRING_print(BIO *, ASN1_STRING *);
 %rename(asn1_string_print_ex) ASN1_STRING_print_ex;
