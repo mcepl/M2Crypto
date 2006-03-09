@@ -7,7 +7,7 @@ Copyright (c) 2005 Open Source Applications Foundation. All rights reserved."""
 RCS_id='$Id$'
 
 import unittest, time
-from M2Crypto import ASN1
+from M2Crypto import ASN1, m2
 
 class ASN1TestCase(unittest.TestCase):
 
@@ -18,7 +18,15 @@ class ASN1TestCase(unittest.TestCase):
         pass # XXX Dunno how to test
 
     def check_String(self):
-        pass # XXX Dunno how to test
+        asn1ptr = m2.asn1_string_new()
+        text = 'hello there'
+        # In RFC2253 format:
+        # #040B68656C6C6F207468657265
+        #      h e l l o   t h e r e 
+        m2.asn1_string_set(asn1ptr, text)
+        a = ASN1.ASN1_String(asn1ptr)
+        assert a.as_text() == 'hello there', a.as_text()
+        assert a.as_text(flags=m2.ASN1_STRFLGS_RFC2253) == '#040B68656C6C6F207468657265', a.as_text(flags=m2.ASN1_STRFLGS_RFC2253)
 
     def check_Object(self):
         pass # XXX Dunno how to test
