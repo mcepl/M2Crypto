@@ -121,6 +121,9 @@ class X509_Extension_Stack:
 
     def __getitem__(self, idx):
         return self.pystack[idx]
+    
+    def __iter__(self):
+        return iter(self.pystack)
  
     def _ptr(self):
         return self.stack
@@ -174,11 +177,6 @@ class X509_Name_Entry:
 
     def create_by_txt( self, field, type, entry, len):
         return m2.x509_name_entry_create_by_txt( self.x509_name_entry._ptr(), field, type, entry, len )
-
-    def as_text(self):
-        buf = BIO.MemoryBuffer()
-        m2.x509_name_entry_print( buf.bio_ptr(), self.x509_name_entry )
-        return buf.read_all()
 
 
 class X509_Name:
@@ -235,6 +233,9 @@ class X509_Name:
         else:
             self.__dict__[attr] = value
 
+    def __len__(self):
+        return m2.x509_name_entry_count(self.x509_name)
+
     def _ptr(self):
         #assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error" 
         return self.x509_name
@@ -244,7 +245,7 @@ class X509_Name:
 
     def entry_count( self ):
         return m2.x509_name_entry_count( self.x509_name )
-
+    
     def as_text(self, indent=0, flags=m2.XN_FLAG_COMPAT):
         """
         as_text returns the name as a string.
@@ -634,6 +635,9 @@ class X509_Stack:
 
     def __getitem__(self, idx):
         return self.pystack[idx]
+    
+    def __iter__(self):
+        return iter(self.pystack)
 
     def _ptr(self):
         return self.stack
