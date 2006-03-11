@@ -197,7 +197,12 @@ class X509_Name:
            'CN'                     : m2.NID_commonName,
            'commonName'             : m2.NID_commonName,
            'Email'                  : m2.NID_pkcs9_emailAddress,
-           'emailAddress'           : m2.NID_pkcs9_emailAddress
+           'emailAddress'           : m2.NID_pkcs9_emailAddress,
+           'serialNumber'           : m2.NID_serialNumber,
+           'SN'                     : m2.NID_surname,
+           'surname'                : m2.NID_surname,
+           'GN'                     : m2.NID_givenName,
+           'givenName'              : m2.NID_givenName
            }
 
     m2_x509_name_free = m2.x509_name_free
@@ -240,8 +245,9 @@ class X509_Name:
         #assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error" 
         return self.x509_name
 
-    def add_entry_by_txt( self, field, type, entry, len, loc, set):
-        return m2.x509_name_add_entry_by_txt( self.x509_name, field, type, entry, len, loc, set )
+    def add_entry_by_txt(self, field, type, entry, len, loc, set):
+        return m2.x509_name_add_entry_by_txt(self.x509_name, field, type,
+                                             entry, len, loc, set )
 
     def entry_count( self ):
         return m2.x509_name_entry_count( self.x509_name )

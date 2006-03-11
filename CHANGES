@@ -6,6 +6,8 @@
   by Matt Rodriguez
 - ECDSA signatures and ECDH key agreement, requires OpenSSL 0.9.8+,
   by Arno Bakker
+- Added serialNumber, SN, surname, GN and givenName fields to X509_Name,
+  by Martin Paljak
 - SMIME methods and functions raise correct exceptions
 - ssl_ctx_set_tmp_(dh|rsa) now return value, and the rsa version calls
   the rsa function instead of the dh function

@@ -204,6 +204,9 @@ extern int X509_EXTENSION_set_critical(X509_EXTENSION *, int);
 %constant int NID_stateOrProvinceName         = 16;
 %constant int NID_organizationName            = 17;
 %constant int NID_organizationalUnitName      = 18;
+%constant int NID_serialNumber                = 105;
+%constant int NID_surname                     = 100;
+%constant int NID_givenName                   = 99;
 %constant int NID_pkcs9_emailAddress          = 48;
 
 /* Cribbed from x509_vfy.h. */
