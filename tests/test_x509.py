@@ -70,6 +70,41 @@ class X509TestCase(unittest.TestCase):
         assert len(extstack) == 2
         assert(extstack[1].get_name() == 'nsComment')
 
+    def check_x509_name(self):
+        n = X509.X509_Name()
+        # XXX Why is country not listed?
+        #n.C = 'My Country'
+        #assert n.C == 'My Country'
+        n.SP = 'State or Province'
+        assert n.SP == 'State or Province'
+        n.L = 'locality name'
+        assert n.L == 'locality name'
+        n.O = 'orhanization name'
+        assert n.O == 'orhanization name'
+        n.OU = 'org unit'
+        assert n.OU == 'org unit'
+        n.CN = 'common name'
+        assert n.CN == 'common name'
+        n.Email = 'bob@example.com'
+        assert n.Email == 'bob@example.com'
+        n.serialNumber = '1234'
+        assert n.serialNumber == '1234'
+        n.SN = 'surname'
+        assert n.SN == 'surname'
+        n.GN = 'given name'
+        assert n.GN == 'given name'
+        assert n.as_text() == 'ST=State or Province, L=locality name, O=orhanization name, OU=org unit, CN=common name/emailAddress=bob@example.com/serialNumber=1234, SN=surname, GN=given name', '"%s"' % n.as_text()
+        assert len(n) == 9, len(n)
+        n.givenName = 'name given'
+        assert n.GN == 'given name' # Just gets the first
+        assert n.as_text() == 'ST=State or Province, L=locality name, O=orhanization name, OU=org unit, CN=common name/emailAddress=bob@example.com/serialNumber=1234, SN=surname, GN=given name, GN=name given', '"%s"' % n.as_text()
+        assert len(n) == 10, len(n)
+        n.add_entry_by_txt(field="CN", type=ASN1.MBSTRING_ASC,
+                           entry="Proxy", len=-1, loc=-1, set=0)
+        assert len(n) == 11, len(n)
+        assert n.as_text() == 'ST=State or Province, L=locality name, O=orhanization name, OU=org unit, CN=common name/emailAddress=bob@example.com/serialNumber=1234, SN=surname, GN=given name, GN=name given, CN=Proxy', '"%s"' % n.as_text()
+                           
+                           
     def check_mkreq(self):
         (req, _) = self.mkreq(512)
         req.save_pem('tmp_request.pem')
