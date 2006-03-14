@@ -11,6 +11,7 @@ def suite():
         'test_bio_membuf',
         'test_bio_file',
         'test_bio_iobuf',
+        'test_bio_ssl',
         'test_bn',
         'test_authcookie',
         'test_dh',

@@ -72,6 +72,12 @@ class Connection:
     def ssl_get_error(self, ret):
         return m2.ssl_get_error(self.ssl, ret)
 
+    def set_bio(self, readbio, writebio):
+        """
+        Explicitly set read and write bios
+        """
+        m2.ssl_set_bio(self.ssl, readbio._ptr(), writebio._ptr())
+        
     def set_client_CA_list_from_file(self, cafile):
         m2.ssl_set_client_CA_list(self.ssl, cafile)
 
@@ -261,7 +267,7 @@ class Connection:
         m2mode = ['', 'r'][r] + ['', 'w'][w] + ['', 'b'][b]      
         # XXX Need to dup().
         bio = BIO.BIO(self.sslbio, _close_cb=self.close)
-        BIO.bio_do_ssl_handshake(bio._ptr())
+        m2.bio_do_handshake(bio._ptr())
         return BIO.IOBuffer(bio, m2mode)
 
     def getsockname(self):
