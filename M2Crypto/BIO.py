@@ -4,7 +4,9 @@ Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
 RCS_id='$Id$'
 
-import m2
+import m2 
+
+# Deprecated
 from m2 import bio_do_handshake as bio_do_ssl_handshake
 
 from cStringIO import StringIO
@@ -91,14 +93,38 @@ class BIO:
         m2.bio_flush(self.bio)
 
     def reset(self):
-        raise NotImplementedError
+        """
+        Sets the bio to its initial state
+        """
+        return m2.bio_reset(self.bio)
 
     def close(self):
         self.closed = 1
         if self._close_cb:
             self._close_cb()
 
+    def should_retry(self):
+        """
+        Can the call be attempted again, or was there an error
+        ie do_handshake 
+       
+        """
+        return m2.bio_should_retry(self.bio) 
 
+    def should_read(self):
+        """
+        Returns whether the cause of the condition is the bio
+        should read more data
+        """
+        return m2.bio_should_read(self.bio)
+    
+    def should_write(self):
+        """
+        Returns whether the cause of the condition is the bio
+        should write more data
+        """
+        return m2.bio_should_write(self.bio)
+    
 class MemoryBuffer(BIO):
 
     """
@@ -230,4 +256,31 @@ class CipherStream(BIO):
         m2.bio_set_cipher(self.bio, cipher(), key, iv, op) 
         m2.bio_push(self.bio, self.obio._ptr())
 
+
+class SSLBio(BIO):
+    """
+    Object interface to BIO_f_ssl 
+    """
+    def __init__(self, _pyfree=1):
+        BIO.__init__(self, _pyfree)
+        self.bio = m2.bio_new(m2.bio_f_ssl())
+        self.closed = 0
+
+   
+    def set_ssl(self, conn, close_flag=m2.bio_noclose):
+        """
+        Sets the bio to the SSL pointer which is
+        contained in the connection object.  
+        """
+        self._pyfree = 0 
+        m2.bio_set_ssl(self.bio, conn.ssl, close_flag)
+       
+    def do_handshake(self):
+        """
+        Do the handshake.
+        
+        Return 1 if the handshake completes
+        Return 0 or a negative number if there is a problem
+        """
+        return m2.bio_do_handshake(self.bio)
 
