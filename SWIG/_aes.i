@@ -68,8 +68,8 @@ PyObject *AES_crypt(const AES_KEY *key, PyObject *in, int outlen, int op) {
     if (PyObject_AsReadBuffer(in, &buf, &len) == -1)
         return NULL;
 
-    if (!(out = (unsigned char *)PyMem_Malloc(outlen))) {
-        PyErr_SetString(PyExc_MemoryError, "cannot malloc output buffer");
+    if (!(out=(unsigned char *)PyMem_Malloc(outlen))) {
+        PyErr_SetString(PyExc_MemoryError, "AES_crypt");
         return NULL;
     }
     if (op == 0)

@@ -422,10 +422,9 @@ x509v3_lhash(){
 X509V3_CTX *
 x509v3_set_conf_lhash(LHASH * lhash){
       X509V3_CTX * ctx;
-      ctx = PyMem_New(X509V3_CTX, sizeof(X509V3_CTX));
-      if (!ctx) {
+      if (!(ctx=(X509V3_CTX *)PyMem_Malloc(sizeof(X509V3_CTX)))) {
           PyErr_SetString(PyExc_MemoryError, "x509v3_set_conf_lhash");
-      	  return NULL;
+          return NULL;
       }
       X509V3_set_conf_lhash(ctx, lhash);        
       return ctx;
@@ -544,7 +543,7 @@ get_der_encoding_stack(STACK * stack){
 /* Free malloc'ed return value for x509_name_oneline */
 %typemap(python, ret) char * {
     if ($1 != NULL)
-        free($1);
+        OPENSSL_free($1); 
 }
 %inline %{
 char *x509_name_oneline(X509_NAME *x) {
