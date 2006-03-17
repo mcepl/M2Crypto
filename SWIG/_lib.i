@@ -13,13 +13,14 @@
 /* Blob interface. Deprecated. */
 
 Blob *blob_new(int len, const char *errmsg) {
-    Blob *blob=(Blob *)malloc(sizeof(Blob));
-    if (!blob) {
+    
+    Blob *blob;
+    if (!(blob=(Blob *)PyMem_Malloc(sizeof(Blob)))){
         PyErr_SetString(PyExc_MemoryError, errmsg);
         return NULL;
     }
-    if ((blob->data=(unsigned char *)malloc(len))==NULL) {
-        free(blob);
+    if (!(blob->data=(unsigned char *)PyMem_Malloc(len))) {
+        PyMem_Free(blob);
         PyErr_SetString(PyExc_MemoryError, errmsg);
         return NULL;
     }
@@ -38,8 +39,8 @@ Blob *blob_copy(Blob *from, const char *errmsg) {
 }
 
 void blob_free(Blob *blob) {
-    free(blob->data);
-    free(blob);
+    PyMem_Free(blob->data);
+    PyMem_Free(blob);
 }
 
 
@@ -254,14 +255,14 @@ PyObject *bn_to_mpi(BIGNUM *bn) {
     PyObject *pyo;  
 
     len = BN_bn2mpi(bn, NULL);
-    if ((mpi=(unsigned char *)malloc(len))==NULL) {
+    if (!(mpi=(unsigned char *)PyMem_Malloc(len))) {
         PyErr_SetString(PyExc_RuntimeError, 
             ERR_error_string(ERR_get_error(), NULL));
         return NULL;
     }
     len=BN_bn2mpi(bn, mpi);
     pyo=PyString_FromStringAndSize((const char *)mpi, len);
-    free(mpi);
+    PyMem_Free(mpi);
     return pyo;
 }
 
@@ -281,13 +282,13 @@ PyObject *bn_to_bin(BIGNUM *bn) {
     PyObject *pyo;  
 
     len = BN_num_bytes(bn);
-    if ((bin=(unsigned char *)malloc(len))==NULL) {
-      PyErr_SetString(PyExc_MemoryError, "Cannot malloc buffer for conversion.");
+    if (!(bin=(unsigned char *)PyMem_Malloc(len))) {
+      PyErr_SetString(PyExc_MemoryError, "bn_to_bin");
       return NULL;
     }
     BN_bn2bin(bn, bin);
     pyo=PyString_FromStringAndSize((const char *)bin, len);
-    free(bin);
+    PyMem_Free(bin);
     return pyo;
 }
 
@@ -310,14 +311,14 @@ BIGNUM *hex_to_bn(PyObject *value) {
         return NULL;
 
     if ((bn=BN_new())==NULL) {
-      PyErr_SetString(PyExc_MemoryError, "Unable to malloc a BIGNUM.");
-      return NULL;
+        PyErr_SetString(PyExc_MemoryError, "hex_to_bn");
+        return NULL;
     }
-    if ((BN_hex2bn(&bn, (const char *)vbuf) <= 0)) {
-      PyErr_SetString(PyExc_RuntimeError, 
-            ERR_error_string(ERR_get_error(), NULL));
-      free(bn);
-      return NULL;
+    if (BN_hex2bn(&bn, (const char *)vbuf) <= 0) {
+        PyErr_SetString(PyExc_RuntimeError, 
+              ERR_error_string(ERR_get_error(), NULL));
+        BN_free(bn);
+        return NULL;
     }
     return bn;
 }
@@ -331,13 +332,13 @@ BIGNUM *dec_to_bn(PyObject *value) {
         return NULL;
 
     if ((bn=BN_new())==NULL) {
-      PyErr_SetString(PyExc_MemoryError, "Unable to malloc a BIGNUM.");
+      PyErr_SetString(PyExc_MemoryError, "dec_to_bn");
       return NULL;
     }
     if ((BN_dec2bn(&bn, (const char *)vbuf) <= 0)) {
       PyErr_SetString(PyExc_RuntimeError, 
             ERR_error_string(ERR_get_error(), NULL));
-      free(bn);
+      BN_free(bn);
       return NULL;
     }
     return bn;
@@ -352,7 +353,7 @@ BIGNUM *dec_to_bn(PyObject *value) {
         PyErr_SetString(PyExc_TypeError, "expected PyString");
         return NULL;
     }
-    $1=(Blob *)malloc(sizeof(Blob));
+    $1=(Blob *)PyMem_Malloc(sizeof(Blob));
     if (!$1) {
         PyErr_SetString(PyExc_MemoryError, "malloc Blob");
         return NULL;
@@ -367,7 +368,8 @@ BIGNUM *dec_to_bn(PyObject *value) {
         $result=Py_None;
     } else {
         $result=PyString_FromStringAndSize((const char *)$1->data, $1->len);
-        free($1->data); free($1);
+        PyMem_Free($1->data);
+        PyMem_Free($1);
     }
 }
 
