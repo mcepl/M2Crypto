@@ -4,8 +4,6 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 from M2Crypto import RSA, EVP, Rand
 
 msg="The magic words are squeamish ossifrage."

@@ -4,8 +4,6 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 from M2Crypto import DSA, EVP, Rand
 
 md=EVP.MessageDigest('sha1')

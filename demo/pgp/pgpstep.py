@@ -4,8 +4,6 @@
 
 Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 from M2Crypto import PGP, util
 import time
 

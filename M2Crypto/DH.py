@@ -2,8 +2,6 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 from util import genparam_callback
 import BIO, Err, m2
 

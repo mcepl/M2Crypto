@@ -4,8 +4,6 @@
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 import getopt, sys
 from socket import gethostname
 from M2Crypto import Err, Rand, SSL, X509, threading

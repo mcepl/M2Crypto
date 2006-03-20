@@ -4,8 +4,6 @@
 
 Copyright (c) 2005 Open Source Applications Foundation. All rights reserved."""
 
-RCS_id='$Id$'
-
 import unittest, time
 from M2Crypto import ASN1, m2
 

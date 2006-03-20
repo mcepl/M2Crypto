@@ -2,8 +2,6 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 from constants import *
 
 from packet import public_key_packet, trust_packet, userid_packet,\

@@ -5,8 +5,6 @@
 #						 All Rights Reserved.
 #
 
-RCS_ID =  '$Id$'
-
 import re
 import string
 

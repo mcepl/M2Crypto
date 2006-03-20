@@ -5,8 +5,6 @@
 #						 All Rights Reserved.
 #
 
-RCS_ID =  '$Id$'
-
 # An extensible, configurable, asynchronous FTP server.
 # 
 # All socket I/O is non-blocking, however file I/O is currently
@@ -49,7 +47,7 @@ import time
 # 2) carefully control the effective uid around filesystem accessing
 #    methods, using try/finally. [this seems to work]
 
-VERSION = string.split(RCS_ID)[2]
+VERSION = '1.1'
 
 from counter import counter
 import producers

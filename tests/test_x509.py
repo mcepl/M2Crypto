@@ -9,8 +9,6 @@ Copyright (C) 2004-2005 OSAF. All Rights Reserved.
 Author: Heikki Toivonen
 """
 
-RCS_id = '$Id$'
-
 import unittest
 import os, time, base64
 from M2Crypto import X509, EVP, RSA, Rand, ASN1, m2

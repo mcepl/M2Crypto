@@ -10,8 +10,6 @@ is not implemented.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 # XXX Work-in-progress.
 
 # Be liberal in what you accept.

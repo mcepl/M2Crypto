@@ -7,8 +7,6 @@ Copyright (c) 2004-2005 Open Source Applications Foundation
 Author: Heikki Toivonen
 """
 
-RCS_id = '$Id$'
-
 import unittest
 from M2Crypto import EVP, RSA, util
 

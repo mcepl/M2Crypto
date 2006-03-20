@@ -7,8 +7,6 @@ This isn't really a HTTPS client; it's just a toy.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 import asyncore, sys, time
 from M2Crypto import Rand, SSL
 

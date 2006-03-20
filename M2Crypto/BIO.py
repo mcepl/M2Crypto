@@ -2,8 +2,6 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 import m2 
 
 # Deprecated

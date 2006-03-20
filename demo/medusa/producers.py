@@ -1,7 +1,5 @@
 # -*- Mode: Python; tab-width: 4 -*-
 
-RCS_ID = '$Id$'
-
 import string
 
 """

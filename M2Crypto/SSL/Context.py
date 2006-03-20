@@ -2,8 +2,6 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 # M2Crypto
 import cb
 from M2Crypto import util, BIO, Err, RSA, m2, X509

@@ -2,8 +2,6 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-_RCS_id='$Id$'
-
 # Python
 import socket, string, sys, time
 

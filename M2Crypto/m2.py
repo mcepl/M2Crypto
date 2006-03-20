@@ -25,8 +25,6 @@ Portions created by Open Source Applications Foundation (OSAF) are
 Copyright (C) 2004 OSAF. All Rights Reserved.
 """
 
-RCS_id='$Id$'
-
 from __m2crypto import *
 lib_init()
 

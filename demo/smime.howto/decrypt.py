@@ -4,8 +4,6 @@
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 from M2Crypto import BIO, SMIME, X509
 
 # Instantiate an SMIME object.

@@ -4,8 +4,6 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 import unittest
 import M2Crypto
 from M2Crypto.BIO import MemoryBuffer

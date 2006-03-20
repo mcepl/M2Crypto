@@ -4,8 +4,6 @@
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 import Cookie, binascii, time, unittest
 from M2Crypto.AuthCookie import AuthCookie, AuthCookieJar, mix, unmix, unmix3
 from M2Crypto import Rand, EVP

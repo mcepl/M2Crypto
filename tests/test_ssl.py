@@ -4,8 +4,6 @@
 
 Copyright (c) 2000-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 import os, socket, string, sys, tempfile, thread, time, unittest
 from M2Crypto import Rand, SSL, m2
 

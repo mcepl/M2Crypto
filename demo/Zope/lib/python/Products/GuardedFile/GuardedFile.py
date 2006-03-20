@@ -3,8 +3,7 @@
 Copyright (c) 2000-2003 Ng Pheng Siong. All rights reserved.
 This software is released under the ZPL. Usual disclaimers apply."""
 
-RCS_id = '$Id$'
-__version__ = '$Revision: 1.3 $'[11:-2]
+__version__ = '1.3'
 
 from AccessControl import getSecurityManager
 from Globals import HTMLFile, MessageDialog

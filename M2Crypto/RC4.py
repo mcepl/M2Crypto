@@ -2,8 +2,6 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 from m2 import rc4_new, rc4_free, rc4_set_key, rc4_update
 
 class RC4:

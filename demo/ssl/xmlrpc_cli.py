@@ -4,8 +4,6 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 from M2Crypto import Rand
 from M2Crypto.m2xmlrpclib import Server, SSL_Transport
 

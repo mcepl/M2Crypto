@@ -7,8 +7,6 @@ Copyright (C) 2004-2005 OSAF. All Rights Reserved.
 Author: Heikki Toivonen
 """
 
-RCS_id='$Id$'
-
 # M2Crypto
 from M2Crypto import ASN1, BIO, Err, EVP
 import m2

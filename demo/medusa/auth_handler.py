@@ -5,8 +5,6 @@
 #						 All Rights Reserved.
 #
 
-RCS_ID =  '$Id$'
-
 # support for 'basic' authenticaion.
 
 import base64

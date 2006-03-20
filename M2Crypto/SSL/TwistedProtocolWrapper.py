@@ -5,8 +5,6 @@ Copyright (c) 2004-2005 Open Source Applications Foundation.
 All rights reserved.
 """
 
-RCS_id = '$Id$'
-
 import twisted.protocols.policies as policies
 import twisted.internet.reactor
 from twisted.protocols.policies import ProtocolWrapper

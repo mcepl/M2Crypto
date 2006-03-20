@@ -4,8 +4,6 @@ M2Crypto wrapper for OpenSSL BN (BIGNUM) API.
 Copyright (c) 2005 Open Source Applications Foundation. All rights reserved.
 """
 
-RCS_id = '$Id$'
-
 import m2
 
 def rand(bits, top=-1, bottom=0):

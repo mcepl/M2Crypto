@@ -4,8 +4,6 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 import unittest
 import os, sha, tempfile
 from M2Crypto import RSA, BIO, Rand, m2
