@@ -2,8 +2,6 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 # M2Crypto
 from M2Crypto import DH, SSL
 from echod_lib import init_context

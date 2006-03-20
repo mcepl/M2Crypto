@@ -4,8 +4,6 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 from M2Crypto import EVP, Rand
 from M2Crypto.util import h2b
 

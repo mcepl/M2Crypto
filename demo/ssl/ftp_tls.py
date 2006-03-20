@@ -8,8 +8,6 @@ server.
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-_RCS_id = '$Id$'
-
 from M2Crypto import SSL, ftpslib, threading
 
 def passive():

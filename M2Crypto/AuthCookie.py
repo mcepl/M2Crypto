@@ -2,8 +2,6 @@
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 # M2Crypto
 import Rand, m2
 

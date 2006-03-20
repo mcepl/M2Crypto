@@ -5,8 +5,6 @@
 #						 All Rights Reserved.
 #
 
-RCS_ID = '$Id$'
-
 # standard python modules
 import os
 import re

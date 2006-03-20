@@ -4,8 +4,6 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 import os
 
 from M2Crypto import X509

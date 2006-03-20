@@ -9,8 +9,6 @@ Portions created by Open Source Applications Foundation (OSAF) are
 Copyright (C) 2004-2006 OSAF. All Rights Reserved.
 """
 
-_RCS_id = '$Id$'
-
 import os, sys
 from distutils.core import setup, Extension
 from distutils.command import build_ext

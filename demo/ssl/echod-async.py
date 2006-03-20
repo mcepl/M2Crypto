@@ -4,8 +4,6 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 import asyncore, errno, socket, time
 from M2Crypto import Rand, SSL
 import echod_lib

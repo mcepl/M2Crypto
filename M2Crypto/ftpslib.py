@@ -31,8 +31,6 @@ drwxr-xr-x  12 0        0             512 May 31 17:08 python2.1
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 # Python
 from ftplib import *
 from ftplib import parse150, parse227

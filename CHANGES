@@ -19,6 +19,7 @@
 - X509_Name and ASN1_String as_text (new for ASN1_String) take optional
   parameters to control formatting.
 - Cipher_Stack, X509_Stack and X509_Extension_Stack are iterable
+- Removed RCS_id, RCS_ID and _RCS_id from Python files
 - Memory leak fixes
 - SWIG and compiler warning fixes
 - More and better Epydoc formatted docstrings

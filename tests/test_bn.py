@@ -6,8 +6,6 @@ Unit tests for M2Crypto.BN.
 Copyright (c) 2005 Open Source Applications Foundation. All rights reserved.
 """
 
-RCS_id = '$Id$'
-
 import unittest, re
 from M2Crypto import BN, Rand
 

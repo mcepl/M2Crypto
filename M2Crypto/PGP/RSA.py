@@ -2,8 +2,6 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 import sys
 from M2Crypto import m2, RSA
 _RSA = RSA

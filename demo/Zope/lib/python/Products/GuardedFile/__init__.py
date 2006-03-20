@@ -3,8 +3,7 @@
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved.
 This software is released under the ZPL."""
 
-RCS_id = '$Id$'
-__version__ = '$Revision: 1.1 $'[11:-2]
+__version__ = '1.1'
 
 import GuardedFile
 

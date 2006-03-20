@@ -1,7 +1,5 @@
 # -*- Mode: Python -*-
 
-RCS_ID = '$Id$'
-
 """
 A collection of producers.
 Each producer implements a particular feature:  They can be combined

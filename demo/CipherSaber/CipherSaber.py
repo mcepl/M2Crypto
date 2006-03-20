@@ -4,8 +4,6 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 # XXX getopt handling has bugs.
 
 from M2Crypto import RC4, Rand

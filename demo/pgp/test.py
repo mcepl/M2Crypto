@@ -5,9 +5,6 @@
 
 Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
-
 from M2Crypto import EVP, PGP
 from cStringIO import StringIO
 

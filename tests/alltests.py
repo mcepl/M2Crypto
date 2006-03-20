@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-RCS_id = '$Id$'
-
 import os, unittest
 from M2Crypto import Rand, m2
 

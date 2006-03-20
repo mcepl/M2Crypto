@@ -6,8 +6,6 @@
 #                                                All Rights Reserved.
 #
 
-RCS_ID =  '$Id$'
-
 # python modules
 import os
 import re
@@ -26,7 +24,7 @@ import producers
 import status_handler
 import logger
 
-VERSION_STRING = string.split(RCS_ID)[2]
+VERSION_STRING = '1.1'
 
 from counter import counter
 from urllib import unquote, splitquery

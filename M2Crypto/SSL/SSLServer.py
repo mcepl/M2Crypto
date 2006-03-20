@@ -1,7 +1,5 @@
 """Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 # Python
 import socket, SocketServer
 

@@ -7,8 +7,6 @@ on your PATH.
 
 Copyright (c) 2000-2001 Ng Pheng Siong. All rights reserved."""
 
-RCS_id='$Id$'
-
 import os, os.path, string, time, unittest
 import win32process
 

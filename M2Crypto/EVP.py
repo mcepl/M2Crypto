@@ -6,8 +6,6 @@ Portions Copyright (c) 2004-2006 Open Source Applications Foundation.
 Author: Heikki Toivonen
 """
 
-RCS_id='$Id$'
-
 from M2Crypto import Err, util, BIO
 import m2
 
