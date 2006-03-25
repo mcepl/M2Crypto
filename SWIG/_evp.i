@@ -29,6 +29,16 @@ extern const EVP_MD *EVP_md5(void);
 extern const EVP_MD *EVP_sha1(void);
 %rename(ripemd160) EVP_ripemd160;
 extern const EVP_MD *EVP_ripemd160(void);
+
+%rename(sha224) EVP_sha224;
+extern const EVP_MD *EVP_sha224(void);
+%rename(sha256) EVP_sha256;
+extern const EVP_MD *EVP_sha256(void);
+%rename(sha384) EVP_sha384;
+extern const EVP_MD *EVP_sha384(void);
+%rename(sha512) EVP_sha512;
+extern const EVP_MD *EVP_sha512(void);
+
 %rename(digest_init) EVP_DigestInit;
 extern int EVP_DigestInit(EVP_MD_CTX *, const EVP_MD *);
 

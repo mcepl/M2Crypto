@@ -8,9 +8,12 @@
   by Matt Rodriguez
 - ECDSA signatures and ECDH key agreement, requires OpenSSL 0.9.8+,
   by Arno Bakker
+- Added sha224, sha256, sha384 and sha512, by Larry Bugbee
 - Added serialNumber, SN, surname, GN and givenName fields to X509_Name,
   by Martin Paljak
 - SMIME methods and functions raise correct exceptions
+- Raise ValueError instead of AttributeError when a non-existing hash
+  algorithm or SSL version is asked for
 - ssl_ctx_set_tmp_(dh|rsa) now return value, and the rsa version calls
   the rsa function instead of the dh function
 - digest_update and verify_update return type changed to int, which allows

@@ -35,6 +35,7 @@ class X509TestCase(unittest.TestCase):
             extstack.push(ext1)
             extstack.push(ext2)
             x.add_extensions(extstack)
+        self.assertRaises(ValueError, x.sign, pk, 'sha513')
         x.sign(pk,'md5')
         assert x.verify(pk)
         pk2 = x.get_pubkey()

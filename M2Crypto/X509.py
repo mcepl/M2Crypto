@@ -472,8 +472,8 @@ class X509:
                      for example 'sha1'.
         """
         assert m2.x509_type_check(self.x509), "'x509' type error"
-        mda = getattr(m2, md)
-        if not mda:
+        mda = getattr(m2, md, None)
+        if mda is None:
             raise ValueError, ('unknown message digest', md)
         return m2.x509_sign(self.x509, pkey.pkey, mda())
 
@@ -788,8 +788,8 @@ class Request:
         return m2.x509_req_verify(self.req, pkey.pkey)
 
     def sign(self, pkey, md):
-        mda = getattr(m2, md)
-        if not mda:
+        mda = getattr(m2, md, None)
+        if mda is None:
             raise ValueError, ('unknown message digest', md)
         return m2.x509_req_sign(self.req, pkey.pkey, mda())
 
