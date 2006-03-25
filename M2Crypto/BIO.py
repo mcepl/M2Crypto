@@ -248,8 +248,8 @@ class CipherStream(BIO):
         self.obio.write_close()
 
     def set_cipher(self, algo, key, iv, op):
-        cipher = getattr(m2, algo)
-        if not cipher:
+        cipher = getattr(m2, algo, None)
+        if cipher is None:
             raise ValueError, ('unknown cipher', algo)
         m2.bio_set_cipher(self.bio, cipher(), key, iv, op) 
         m2.bio_push(self.bio, self.obio._ptr())

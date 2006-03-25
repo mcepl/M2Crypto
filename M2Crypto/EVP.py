@@ -16,8 +16,8 @@ class MessageDigest:
     m2_md_ctx_free = m2.md_ctx_free
 
     def __init__(self, algo):
-        md = getattr(m2, algo)
-        if not md:
+        md = getattr(m2, algo, None)
+        if md is None:
             raise ValueError, ('unknown algorithm', algo)
         self.md=md()
         self.ctx=m2.md_ctx_new()
@@ -47,8 +47,8 @@ class HMAC:
     m2_hmac_ctx_free = m2.hmac_ctx_free
 
     def __init__(self, key, algo='sha1'):
-        md = getattr(m2, algo)
-        if not md:
+        md = getattr(m2, algo, None)
+        if md is None:
             raise ValueError, ('unknown algorithm', algo)
         self.md=md()
         self.ctx=m2.hmac_ctx_new()
@@ -70,8 +70,8 @@ class HMAC:
     digest=final
 
 def hmac(key, data, algo='sha1'):
-    md = getattr(m2, algo)
-    if not md:
+    md = getattr(m2, algo, None)
+    if md is None:
         raise ValueError, ('unknown algorithm', algo)
     return m2.hmac(key, data, md())
 
@@ -81,13 +81,13 @@ class Cipher:
     m2_cipher_ctx_free = m2.cipher_ctx_free
 
     def __init__(self, alg, key, iv, op, key_as_bytes=0, d='md5', salt='12345678', i=1):
-        cipher = getattr(m2, alg)
-        if not cipher:
+        cipher = getattr(m2, alg, None)
+        if cipher is None:
             raise ValueError, ('unknown cipher', alg)
         self.cipher=cipher()
         if key_as_bytes:
-            kmd = getattr(m2, d)
-            if not kmd:
+            kmd = getattr(m2, d, None)
+            if kmd is None:
                 raise ValueError, ('unknown message digest', d)
             key = m2.bytes_to_key(self.cipher, kmd(), key, salt, iv, i)
         self.ctx=m2.cipher_ctx_new()
@@ -132,8 +132,8 @@ class PKey:
         return self.pkey
 
     def _set_context(self, md):
-        mda = getattr(m2, md)
-        if not mda:
+        mda = getattr(m2, md, None)
+        if mda is None:
             raise ValueError, ('unknown message digest', md)
         self.md = mda()
         self.ctx = m2.md_ctx_new()

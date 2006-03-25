@@ -71,6 +71,7 @@ class SSLClientTestCase(unittest.TestCase):
     def test_server_simple(self):
         pid = self.start_server(self.args)
         try:
+            self.assertRaises(ValueError, SSL.Context, 'tlsv5')
             ctx = SSL.Context()
             s = SSL.Connection(ctx)
             s.connect(self.srv_addr)

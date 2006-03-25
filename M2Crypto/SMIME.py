@@ -107,8 +107,8 @@ class Cipher:
     """
 
     def __init__(self, algo):
-        cipher = getattr(m2, algo)
-        if not cipher:
+        cipher = getattr(m2, algo, None)
+        if cipher is None:
             raise ValueError, ('unknown cipher', algo)
         self.cipher = cipher()
 
