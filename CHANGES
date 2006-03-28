@@ -6,6 +6,8 @@
   by Matt Rodriguez
 - SSLBio and related additions to help do SSL with BIOs directly,
   by Matt Rodriguez
+- Added --openssl option to build command which can be used to specify
+  where OpenSSL is installed, by Matt Rodriguez
 - ECDSA signatures and ECDH key agreement, requires OpenSSL 0.9.8+,
   by Arno Bakker
 - Added sha224, sha256, sha384 and sha512, by Larry Bugbee
