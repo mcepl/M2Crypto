@@ -11,29 +11,37 @@ Copyright (C) 2004-2006 OSAF. All Rights Reserved.
 
 import os, sys
 from distutils.core import setup, Extension
-from distutils.command import build_ext
+from distutils.command import build_ext 
 
-my_inc = os.path.join(os.getcwd(), 'SWIG')
+def parse_args(option_dict):
+    args = sys.argv[1:]
+    for arg in args:
+        if arg.startswith("--openssl"):
+            option_dict['openssl_prefix'] = arg.split("=")[1]
+            sys.argv.remove(arg)
+            break
 
 if os.name == 'nt':
-    openssl_dir = 'c:\\pkg\\openssl'
-    include_dirs = [my_inc, openssl_dir + '/include']
-    swig_opts_str = '-I"' + openssl_dir + os.sep + 'include"'
-    library_dirs = [openssl_dir + '\\lib']
     libraries = ['ssleay32', 'libeay32']
-    
-elif os.name == 'posix':
-    include_dirs = [my_inc, '/usr/include']
-    swig_opts_str = '-I/usr/include'
-    library_dirs = ['/usr/lib']
-    if sys.platform == 'cygwin':
-        # Cygwin SHOULD work (there's code in distutils), but
-        # if one first starts a Windows command prompt, then bash,
-        # the distutils code does not seem to work. If you start
-        # Cygwin directly, then it would work even without this change.
-        # Someday distutils will be fixed and this won't be needed.
-        library_dirs += ['/usr/bin']
+    option_dict = {'openssl_prefix': 'c:\\pkg'}
+else:
     libraries = ['ssl', 'crypto']
+    option_dict = {'openssl_prefix': '/usr'}
+    
+parse_args(option_dict)
+	
+include_dir = os.path.join(option_dict['openssl_prefix'], 'include')
+include_dirs = [os.path.join(os.getcwd(), 'SWIG'), include_dir]
+swig_opts_str = ''.join(('-I', include_dir))
+
+library_dirs = [os.path.join(option_dict['openssl_prefix'], 'lib')]
+if sys.platform == 'cygwin':
+    # Cygwin SHOULD work (there's code in distutils), but
+    # if one first starts a Windows command prompt, then bash,
+    # the distutils code does not seem to work. If you start
+    # Cygwin directly, then it would work even without this change.
+    # Someday distutils will be fixed and this won't be needed.
+    library_dirs += [os.path.join(option_dict['openssl_prefix'], 'bin')]
 
 
 if sys.version_info < (2,4):
@@ -87,7 +95,7 @@ if sys.version_info < (2,4):
             self.spawn(swig_cmd + ["-o", target, source])
 
         return new_sources
-
+    
     build_ext.build_ext.swig_sources = swig_sources
 
 
