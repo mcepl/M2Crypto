@@ -14,7 +14,7 @@ def test_httpslib():
     ctx.load_verify_locations('ca.pem', '')
     ctx.set_verify(SSL.verify_peer, 10)        
     ctx.set_info_callback()
-    h = httpslib.HTTPSConnection('127.0.0.1', 9443, ssl_context=ctx)
+    h = httpslib.HTTPSConnection('localhost', 19443, ssl_context=ctx)
     h.set_debuglevel(1)
     h.putrequest('GET', '/')
     h.putheader('Accept', 'text/html')
