@@ -23,14 +23,16 @@ class SSLServer(SocketServer.TCPServer):
         self.server_activate()
 
     def handle_request(self):
+        request = None
+        client_address = None
         try:
             request, client_address = self.get_request()
             if self.verify_request(request, client_address):
                 self.process_request(request, client_address)
         except SSLError:
-            self.handle_error()
+            self.handle_error(request, client_address)
 
-    def handle_error(self):
+    def handle_error(self, request, client_address):
         print '-'*40
         import traceback
         traceback.print_exc()
