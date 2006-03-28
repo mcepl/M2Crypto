@@ -17,7 +17,7 @@ class https_client(SSL.ssl_dispatcher):
         self.path = path
         self.buffer = 'GET %s HTTP/1.0\r\n\r\n' % self.path
         self.create_socket(ssl_ctx)
-        self.socket.connect((host, 9443))
+        self.socket.connect((host, 19443))
         self._can_read = 1
         self._count = 0
 
@@ -68,7 +68,7 @@ if __name__ == '__main__':
         '/postgresql/xfunc-c.html', 
         '/python2.1/modindex.html')
     for u in url:
-        https_client('', u, ctx)
+        https_client('localhost', u, ctx)
     asyncore.loop()
     Rand.save_file('../randpool.dat')
 
