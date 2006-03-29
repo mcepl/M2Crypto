@@ -11,7 +11,4 @@ save_file           = m2.rand_save_file
 rand_bytes          = m2.rand_bytes
 rand_pseudo_bytes   = m2.rand_pseudo_bytes
 
-def estimate_entropy(buf):
-    raise NotImplementedError
-
 
