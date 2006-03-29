@@ -8,7 +8,8 @@ Author: Heikki Toivonen
 """
 
 import unittest
-from M2Crypto import EVP, RSA, util
+import cStringIO
+from M2Crypto import EVP, RSA, util, Rand
 
 class EVPTestCase(unittest.TestCase):
     def _gen_callback(self, *args):
@@ -75,10 +76,63 @@ class EVPTestCase(unittest.TestCase):
         assert util.octx_to_num(EVP.hmac('key', 'data', algo='sha512')) == 3160730054100700080556942280820129108466291087966635156623014063982211353635774277148932854680195471287740489442390820077884317620321797003323909388868696, util.octx_to_num(EVP.hmac('key', 'data', algo='sha512'))
         self.assertRaises(ValueError, EVP.hmac, 'key', 'data', algo='sha513')
 
-def suite():
-    return unittest.makeSuite(EVPTestCase, 'check')
+
+class CipherTestCase(unittest.TestCase):
+    def cipher_filter(self, cipher, inf, outf):
+        while 1:
+            buf=inf.read()
+            if not buf:
+                break
+            outf.write(cipher.update(buf))
+        outf.write(cipher.final())
+        return outf.getvalue()
+
+    def try_algo(self, algo):
+        enc = 1
+        dec = 0
+        otxt='against stupidity the gods themselves contend in vain'
     
+        k=EVP.Cipher(algo, 'goethe','12345678', enc, 1, 'sha1', 'saltsalt', 5)
+        pbuf=cStringIO.StringIO(otxt)
+        cbuf=cStringIO.StringIO()
+        ctxt=self.cipher_filter(k, pbuf, cbuf)
+        pbuf.close()
+        cbuf.close()
+    
+        j=EVP.Cipher(algo, 'goethe','12345678', dec, 1, 'sha1', 'saltsalt', 5)
+        pbuf=cStringIO.StringIO()
+        cbuf=cStringIO.StringIO(ctxt)
+        ptxt=self.cipher_filter(j, cbuf, pbuf)
+        pbuf.close()
+        cbuf.close()
+    
+        assert otxt == ptxt, '%s algorithm cipher test failed' % algo
+        
+    def check_ciphers(self):
+        ciphers=['bf_ecb', 'bf_cbc', 'bf_cfb', 'bf_ofb',\
+            #'idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb',\
+            'cast5_ecb', 'cast5_cbc', 'cast5_cfb', 'cast5_ofb',\
+            #'rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb',\
+            'des_ecb', 'des_cbc', 'des_cfb', 'des_ofb',\
+            'des_ede_ecb', 'des_ede_cbc', 'des_ede_cfb', 'des_ede_ofb',\
+            'des_ede3_ecb', 'des_ede3_cbc', 'des_ede3_cfb', 'des_ede3_ofb',\
+            'aes_128_ecb', 'aes_128_cbc', 'aes_128_cfb', 'aes_128_ofb',\
+            'aes_192_ecb', 'aes_192_cbc', 'aes_192_cfb', 'aes_192_ofb',\
+            'aes_256_ecb', 'aes_256_cbc', 'aes_256_cfb', 'aes_256_ofb',\
+            'rc4', 'rc2_40_cbc']
+        for i in ciphers:
+            self.try_algo(i)
+
+        self.assertRaises(ValueError, self.try_algo, 'nosuchalgo4567')
+
+def suite():
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(EVPTestCase, 'check'))
+    suite.addTest(unittest.makeSuite(CipherTestCase, 'check'))
+    return suite    
 
 if __name__ == '__main__':
+    Rand.load_file('randpool.dat', -1) 
     unittest.TextTestRunner().run(suite())
+    Rand.save_file('randpool.dat')
 
