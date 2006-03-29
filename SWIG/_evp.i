@@ -278,28 +278,23 @@ void cipher_ctx_free(EVP_CIPHER_CTX *ctx) {
 }
 
 PyObject *bytes_to_key(const EVP_CIPHER *cipher, EVP_MD *md, 
-                        PyObject *data, PyObject *salt, PyObject *iv, int iter) {
-    const void *dbuf, *sbuf, *ibuf;
-    int dlen, slen, ilen, klen;
-    void *key;
+                        PyObject *data, PyObject *salt,
+                        PyObject *iv, /* Not used */
+                        int iter) {
+    unsigned char key[EVP_MAX_KEY_LENGTH];
+    const void *dbuf, *sbuf;
+    int dlen, slen, klen;
     PyObject *ret;
 
     if ((PyObject_AsReadBuffer(data, &dbuf, &dlen) == -1)
-        || (PyObject_AsReadBuffer(salt, &sbuf, &slen) == -1)
-        || (PyObject_AsReadBuffer(iv, &ibuf, &ilen) == -1))
+        || (PyObject_AsReadBuffer(salt, &sbuf, &slen) == -1))
         return NULL;
 
     assert((slen == 8) || (slen == 0));
-    if (!(key = PyMem_Malloc(cipher->key_len))) {
-        PyErr_SetString(PyExc_MemoryError, "bytes_to_key");
-        return NULL;
-    }
     klen = EVP_BytesToKey(cipher, md, (unsigned char *)sbuf, 
         (unsigned char *)dbuf, dlen, iter, 
-        (unsigned char *)key, (unsigned char*) ibuf);
-    /* assert (klen == key->len); */
+        key, NULL); /* Since we are not returning IV no need to derive it */
     ret = PyString_FromStringAndSize(key, klen);
-    PyMem_Free(key);
     return ret;
 }
 
