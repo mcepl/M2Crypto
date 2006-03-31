@@ -28,6 +28,8 @@
 - X509_Name and ASN1_String as_text (new for ASN1_String) take optional
   parameters to control formatting.
 - Cipher_Stack, X509_Stack and X509_Extension_Stack are iterable
+- EVP.MessageDigest now properly cleans up the underlying data when the object
+  gets deleted
 - Multithreaded SSL no longer uses the SSL_set/get_app_data to set and
   restore thread state, but uses the standard PyGILState_STATE instead.
 - Removed RCS_id, RCS_ID and _RCS_id from Python files

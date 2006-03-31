@@ -153,14 +153,14 @@ void evp_init(PyObject *evp_err) {
 EVP_MD_CTX *md_ctx_new(void) {
     EVP_MD_CTX *ctx;
 
-    if (!(ctx = (EVP_MD_CTX *)PyMem_Malloc(sizeof(EVP_MD_CTX)))) {
+    if (!(ctx = EVP_MD_CTX_create())) {
         PyErr_SetString(PyExc_MemoryError, "md_ctx_new");
     }
     return ctx;
 }
 
 void md_ctx_free(EVP_MD_CTX *ctx) {
-    PyMem_Free((void *)ctx);
+    EVP_MD_CTX_destroy(ctx);
 }
 
 int digest_update(EVP_MD_CTX *ctx, PyObject *blob) {
@@ -193,12 +193,14 @@ HMAC_CTX *hmac_ctx_new(void) {
 
     if (!(ctx = (HMAC_CTX *)PyMem_Malloc(sizeof(HMAC_CTX)))) {
         PyErr_SetString(PyExc_MemoryError, "hmac_ctx_new");
+        return NULL;
     }
+    HMAC_CTX_init(ctx);
     return ctx;
 }
 
 void hmac_ctx_free(HMAC_CTX *ctx) {
-    HMAC_cleanup(ctx);
+    HMAC_CTX_cleanup(ctx);
     PyMem_Free((void *)ctx);
 }
 
@@ -267,8 +269,9 @@ EVP_CIPHER_CTX *cipher_ctx_new(void) {
 
     if (!(ctx = (EVP_CIPHER_CTX *)PyMem_Malloc(sizeof(EVP_CIPHER_CTX)))) {
         PyErr_SetString(PyExc_MemoryError, "cipher_ctx_new");
+        return NULL;
     }
-    /* EVP_CIPHER_CTX_init(ctx); */
+    EVP_CIPHER_CTX_init(ctx);
     return ctx;
 }
 
