@@ -8,6 +8,7 @@
 #ifdef THREADING
 static PyThread_type_lock lock_cs[CRYPTO_NUM_LOCKS];
 static long lock_count[CRYPTO_NUM_LOCKS];
+static int thread_mode = 0;
 #endif
 
 void threading_locking_callback(int mode, int type, const char *file, int line) {

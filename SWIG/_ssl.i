@@ -356,17 +356,12 @@ int ssl_set_fd(SSL *ssl, int fd) {
 PyObject *ssl_accept(SSL *ssl) {
     PyObject *obj = NULL;
     int r, err;
-    PyThreadState *_save;
+    PyGILState_STATE gilstate;
 
-    if (thread_mode) {
-        _save = (PyThreadState *)PyEval_SaveThread();
-        SSL_set_app_data(ssl, _save);
-    }
     r = SSL_accept(ssl);
-    if (thread_mode) {
-        _save = (PyThreadState *)SSL_get_app_data(ssl);
-        PyEval_RestoreThread(_save);
-    }
+
+    gilstate = PyGILState_Ensure();
+
     switch (SSL_get_error(ssl, r)) {
         case SSL_ERROR_NONE:
         case SSL_ERROR_ZERO_RETURN:
@@ -391,23 +386,21 @@ PyObject *ssl_accept(SSL *ssl) {
             obj = NULL;
             break;
     }
+
+    PyGILState_Release(gilstate);
+
     return obj;
 }
 
 PyObject *ssl_connect(SSL *ssl) {
     PyObject *obj = NULL;
     int r, err;
-    PyThreadState *_save;
+    PyGILState_STATE gilstate;
 
-    if (thread_mode) {
-        _save = (PyThreadState *)PyEval_SaveThread();
-        SSL_set_app_data(ssl, _save);
-    }
     r = SSL_connect(ssl);
-    if (thread_mode) {
-        _save = (PyThreadState *)SSL_get_app_data(ssl);
-        PyEval_RestoreThread(_save);
-    }
+
+    gilstate = PyGILState_Ensure();
+    
     switch (SSL_get_error(ssl, r)) {
         case SSL_ERROR_NONE:
         case SSL_ERROR_ZERO_RETURN:
@@ -432,6 +425,9 @@ PyObject *ssl_connect(SSL *ssl) {
             obj = NULL;
             break;
     }
+    
+    PyGILState_Release(gilstate);
+    
     return obj;
 }
 
@@ -443,21 +439,22 @@ PyObject *ssl_read(SSL *ssl, int num) {
     PyObject *obj = NULL;
     void *buf;
     int r, err;
-    PyThreadState *_save;
+    PyGILState_STATE gilstate;
+
+    gilstate = PyGILState_Ensure();
 
     if (!(buf = PyMem_Malloc(num))) {
         PyErr_SetString(PyExc_MemoryError, "ssl_read");
+        PyGILState_Release(gilstate);
         return NULL;
     }
-    if (thread_mode) {
-        _save = (PyThreadState *)PyEval_SaveThread();
-        SSL_set_app_data(ssl, _save);
-    }
+
+    PyGILState_Release(gilstate);
+
     r = SSL_read(ssl, buf, num);
-    if (thread_mode) {
-        _save = (PyThreadState *)SSL_get_app_data(ssl);
-        PyEval_RestoreThread(_save);
-    }
+
+    gilstate = PyGILState_Ensure();
+
     switch (SSL_get_error(ssl, r)) {
         case SSL_ERROR_NONE:
         case SSL_ERROR_ZERO_RETURN:
@@ -486,6 +483,9 @@ PyObject *ssl_read(SSL *ssl, int num) {
             break;
     }
     PyMem_Free(buf);
+
+    PyGILState_Release(gilstate);
+
     return obj;
 }
 
@@ -493,12 +493,22 @@ PyObject *ssl_read_nbio(SSL *ssl, int num) {
     PyObject *obj = NULL;
     void *buf;
     int r, err;
+    PyGILState_STATE gilstate;
+
+    gilstate = PyGILState_Ensure();
 
     if (!(buf = PyMem_Malloc(num))) {
         PyErr_SetString(PyExc_MemoryError, "ssl_read");
+        PyGILState_Release(gilstate);
         return NULL;
     }
+    
+    PyGILState_Release(gilstate);
+    
     r = SSL_read(ssl, buf, num);
+    
+    gilstate = PyGILState_Ensure();
+    
     switch (SSL_get_error(ssl, r)) {
         case SSL_ERROR_NONE:
         case SSL_ERROR_ZERO_RETURN:
@@ -527,37 +537,44 @@ PyObject *ssl_read_nbio(SSL *ssl, int num) {
             break;
     }
     PyMem_Free(buf);
+    
+    PyGILState_Release(gilstate);
+    
     return obj;
 }
 
 int ssl_write(SSL *ssl, PyObject *blob) {
     const void *buf;
-    int len, r, err;
-    PyThreadState *_save;
+    int len, r, err, ret;
+    PyGILState_STATE gilstate;
 
-    if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
+    gilstate = PyGILState_Ensure();
+
+    if (PyObject_AsReadBuffer(blob, &buf, &len) == -1) {
+        PyGILState_Release(gilstate);
         return -1;
+    }
 
-    if (thread_mode) {
-        _save = (PyThreadState *)PyEval_SaveThread();
-        SSL_set_app_data(ssl, _save);
-    }
+    PyGILState_Release(gilstate);
+    
     r = SSL_write(ssl, buf, len);
-    if (thread_mode) {
-        _save = (PyThreadState *)SSL_get_app_data(ssl);
-        PyEval_RestoreThread(_save);
-    }
+
+    gilstate = PyGILState_Ensure();
+
     switch (SSL_get_error(ssl, r)) {
         case SSL_ERROR_NONE:
         case SSL_ERROR_ZERO_RETURN:
-            return r;
+            ret = r;
+            break;
         case SSL_ERROR_WANT_WRITE:
         case SSL_ERROR_WANT_READ:
         case SSL_ERROR_WANT_X509_LOOKUP:
-            return -1;
+            ret = -1;
+            break;
         case SSL_ERROR_SSL:
             PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
-            return -1;
+            ret = -1;
+            break;
         case SSL_ERROR_SYSCALL:
             err = ERR_get_error();
             if (err)
@@ -567,28 +584,45 @@ int ssl_write(SSL *ssl, PyObject *blob) {
             else if (r == -1)
                 PyErr_SetFromErrno(_ssl_err);
         default:
-            return -1;
+            ret = -1;
     }
+    
+    PyGILState_Release(gilstate);
+    
+    return ret;
 }
 
 int ssl_write_nbio(SSL *ssl, PyObject *blob) {
     const void *buf;
-    int len, r, err;
+    int len, r, err, ret;
+    PyGILState_STATE gilstate;
 
-    if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
+    gilstate = PyGILState_Ensure();
+
+    if (PyObject_AsReadBuffer(blob, &buf, &len) == -1) {
+        PyGILState_Release(gilstate);
         return -1;
+    }
 
+    PyGILState_Release(gilstate);
+    
     r = SSL_write(ssl, buf, len);
+    
+    gilstate = PyGILState_Ensure();
+    
     switch (SSL_get_error(ssl, r)) {
         case SSL_ERROR_NONE:
         case SSL_ERROR_ZERO_RETURN:
-            return r;
+            ret = r;
+            break;
         case SSL_ERROR_WANT_WRITE:
         case SSL_ERROR_WANT_READ:
         case SSL_ERROR_WANT_X509_LOOKUP:
-            return -1;
+            ret = -1;
+            break;
         case SSL_ERROR_SSL:
-            return -1;
+            ret = -1;
+            break;
         case SSL_ERROR_SYSCALL:
             err = ERR_get_error();
             if (err)
@@ -598,8 +632,12 @@ int ssl_write_nbio(SSL *ssl, PyObject *blob) {
             else if (r == -1)
                 PyErr_SetFromErrno(_ssl_err);
         default:
-            return -1;
+            ret = -1;
     }
+    
+    PyGILState_Release(gilstate);
+    
+    return ret;
 }
 
 int ssl_cipher_get_bits(SSL_CIPHER *c) {
