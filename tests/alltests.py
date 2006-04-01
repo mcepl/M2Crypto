@@ -6,6 +6,7 @@ from M2Crypto import Rand, m2
 def suite():
     modules_to_test = [
         'test_asn1',
+        'test_bio',
         'test_bio_membuf',
         'test_bio_file',
         'test_bio_iobuf',
