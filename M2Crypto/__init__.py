@@ -39,7 +39,6 @@ import httpslib
 import m2xmlrpclib
 import threading
 import util
-import callback
 
 encrypt=1
 decrypt=0
