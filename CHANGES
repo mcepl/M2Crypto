@@ -10,11 +10,16 @@
   where OpenSSL is installed, by Matt Rodriguez
 - ECDSA signatures and ECDH key agreement, requires OpenSSL 0.9.8+,
   by Arno Bakker
+- Fix non-hashable type problems in SSL._ctxmap and users,
+  by Michael Weiser
 - Fixed SSLServer.handle_error to take the correct number of
   arguments, by Dan Williams
 - Added sha224, sha256, sha384 and sha512, by Larry Bugbee
 - Added serialNumber, SN, surname, GN and givenName fields to X509_Name,
   by Martin Paljak
+- m2.X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT is the fourth certificate
+  verification error that will be allowed when unknown CAs are allowed
+  error that will be allo
 - Fixed EVP.Cipher to work with aes_* ciphers (used to crash Python).
   The actual problem was in m2.bytes_to_key.
 - SMIME methods and functions raise correct exceptions
