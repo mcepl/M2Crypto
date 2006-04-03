@@ -38,7 +38,7 @@ class Context:
             raise ValueError, "no such protocol '%s'" % protocol
         self.ctx = m2.ssl_ctx_new(proto())
         self.allow_unknown_ca = 0
-        map()[self.ctx] = self
+        map()[long(self.ctx)] = self
         m2.ssl_ctx_set_cache_size(self.ctx, 128L)
         if weak_crypto is None:
             if protocol == 'sslv23':
@@ -50,7 +50,7 @@ class Context:
             self.m2_ssl_ctx_free(self.ctx)
 
     def close(self):
-        del map()[self.ctx]
+        del map()[long(self.ctx)]
         
     def load_cert(self, certfile, keyfile=None, callback=util.passphrase_callback):
         """Load certificate and private key into the context.
