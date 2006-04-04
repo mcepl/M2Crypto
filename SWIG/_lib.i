@@ -348,7 +348,7 @@ BIGNUM *dec_to_bn(PyObject *value) {
 
 /* Various useful typemaps. */
 
-%typemap(python, in) Blob * {
+%typemap(in) Blob * {
     if (!PyString_Check($input)) {
         PyErr_SetString(PyExc_TypeError, "expected PyString");
         return NULL;
@@ -362,7 +362,7 @@ BIGNUM *dec_to_bn(PyObject *value) {
     $1->len=PyString_Size($input);
 }
 
-%typemap(python, out) Blob * {
+%typemap(out) Blob * {
     if ($1==NULL) {
         Py_INCREF(Py_None);
         $result=Py_None;
@@ -373,7 +373,7 @@ BIGNUM *dec_to_bn(PyObject *value) {
     }
 }
 
-%typemap(python, in) FILE * {
+%typemap(in) FILE * {
     if (!PyFile_Check($input)) {
         PyErr_SetString(PyExc_TypeError, "expected PyFile");
         return NULL;
@@ -381,7 +381,7 @@ BIGNUM *dec_to_bn(PyObject *value) {
     $1=PyFile_AsFile($input);
 }
 
-%typemap(python, in) PyObject *pyfunc {
+%typemap(in) PyObject *pyfunc {
     if (!PyCallable_Check($input)) {
         PyErr_SetString(PyExc_TypeError, "expected PyCallable");
         return NULL;
@@ -389,7 +389,7 @@ BIGNUM *dec_to_bn(PyObject *value) {
     $1=$input;
 }
 
-%typemap(python, in) PyObject *pyblob {
+%typemap(in) PyObject *pyblob {
     if (!PyString_Check($input)) {
         PyErr_SetString(PyExc_TypeError, "expected PyString");
         return NULL;
@@ -397,15 +397,15 @@ BIGNUM *dec_to_bn(PyObject *value) {
     $1=$input;
 }
 
-%typemap(python, in) PyObject * {
+%typemap(in) PyObject * {
     $1=$input;
 }
 
-%typemap(python, out) PyObject * {
+%typemap(out) PyObject * {
     $result=$1;
 }
 
-%typemap(python, out) int {
+%typemap(out) int {
     $result=PyInt_FromLong($1);
     if (PyErr_Occurred()) SWIG_fail;
 }

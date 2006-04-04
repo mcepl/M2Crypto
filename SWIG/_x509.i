@@ -541,7 +541,7 @@ get_der_encoding_stack(STACK * stack){
 %}
 
 /* Free malloc'ed return value for x509_name_oneline */
-%typemap(python, ret) char * {
+%typemap(ret) char * {
     if ($1 != NULL)
         OPENSSL_free($1); 
 }
@@ -550,4 +550,4 @@ char *x509_name_oneline(X509_NAME *x) {
     return X509_NAME_oneline(x, NULL, 0);
 }
 %}
-%typemap(python, ret) char *;
+%typemap(ret) char *;
