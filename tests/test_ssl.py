@@ -410,6 +410,18 @@ class SSLClientTestCase(unittest.TestCase):
             self.stop_server(pid)
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
+    def test_HTTPSConnection(self):
+        pid = self.start_server(self.args)
+        try:
+            from M2Crypto import httpslib
+            c = httpslib.HTTPSConnection(srv_host, srv_port)
+            c.request('GET', '/')
+            data = c.getresponse().read()
+            c.close()
+        finally:
+            self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
     def test_twisted_wrapper(self):
         # Test only when twisted and ZopeInterfaces are present
         try:
@@ -456,6 +468,10 @@ class SSLClientTestCase(unittest.TestCase):
             self.stop_server(pid)
         self.failIf(string.find(twisted_data, 's_server -quiet -www') == -1)
 
+
+twisted_data = ''
+
+class CheckerTestCase(unittest.TestCase):
     def test_checker(self):
         from M2Crypto.SSL import Checker
         from M2Crypto import X509
@@ -469,14 +485,18 @@ class SSLClientTestCase(unittest.TestCase):
         import doctest
         doctest.testmod(Checker)
         
+    
+class ContextTestCase(unittest.TestCase):
     def test_ctx_load_verify_locations(self):
         ctx = SSL.Context()
         self.assertRaises(AssertionError, ctx.load_verify_locations, None, None)
 
-twisted_data = ''
-
 def suite():
-    return unittest.makeSuite(SSLClientTestCase)
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(CheckerTestCase))
+    suite.addTest(unittest.makeSuite(ContextTestCase))
+    suite.addTest(unittest.makeSuite(SSLClientTestCase))
+    return suite    
     
 
 def zap_servers():
