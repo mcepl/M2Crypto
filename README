@@ -11,7 +11,7 @@ M2Crypto = Python + OpenSSL + SWIG
 
 M2Crypto is a crypto and SSL toolkit for Python.
 
-M2 stands for "me, too!" [1]_
+M2 stands for "me, too!"
 
 M2Crypto comes with the following:
 
@@ -53,19 +53,9 @@ Note these caveats:
   between OpenSSL versions. (Multiple free's lead to crashes very
   quickly, so these should be relatively rare.)
     
-- No memory locking/clearing for keys, passphrases, etc.
-    
-- PRNG may not be CS [2]_ nor CS [3]_.
+- No memory locking/clearing for keys, passphrases, etc. because AFAIK
+  Python does not provide the features needed. On the C (OpenSSL) side
+  things are cleared when the Python objects are deleted.
     
 
 Have fun! Your feedback is welcome.
-
-
-.. [1] Similar software are Marc-Andre Lemburg's mxCrypto, and two earlier
-   Python interfaces to the SSL portion of SSLeay/OpenSSL. Since M2Crypto,
-   yet more OpenSSL wrappers and non-OpenSSL crypto toolkits for
-   Python have appeared.
-
-.. [2] Continuous seeding.
-
-.. [3] Cryptographically strong.
