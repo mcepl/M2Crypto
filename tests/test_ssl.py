@@ -456,6 +456,12 @@ class SSLClientTestCase(unittest.TestCase):
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
     def test_twisted_wrapper(self):
+        #
+        # LEAK ALERT! Twisted seems to leak a lot, even without SSL.
+        # If this method is commented out, the leak detection code does
+        # not find any leaks.
+        #
+        
         # Test only when twisted and ZopeInterfaces are present
         try:
             from twisted.internet.protocol import ClientFactory
