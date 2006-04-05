@@ -32,6 +32,7 @@ def suite():
 
 
 def dump_garbage():
+    import gc
     print '\nGarbage:'
     leaks = gc.collect()
     if leaks:

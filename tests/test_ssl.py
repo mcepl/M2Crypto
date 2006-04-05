@@ -4,6 +4,26 @@
 
 Copyright (c) 2000-2004 Ng Pheng Siong. All rights reserved."""
 
+"""
+TODO
+
+Client tests:
+- server -verify
+- server -Verify
+- server -nbio
+- server -nbio_test
+- server -nocert
+
+Server tests:
+- ???
+
+Others:
+- ssl_dispatcher
+- SSLServer
+- ForkingSSLServer
+- ThreadingSSLServer
+"""
+
 import os, socket, string, sys, tempfile, thread, time, unittest
 from M2Crypto import Rand, SSL, m2
 
@@ -531,6 +551,13 @@ def zap_servers():
 
 
 if __name__ == '__main__':
+    report_leaks = 0
+    
+    if report_leaks:
+        import gc
+        gc.enable()
+        gc.set_debug(gc.DEBUG_LEAK)
+    
     try:
         Rand.load_file('../randpool.dat', -1) 
         unittest.TextTestRunner().run(suite())
@@ -538,25 +565,6 @@ if __name__ == '__main__':
     finally:
         zap_servers()
 
-
-"""
-Client tests:
-- server -verify
-- server -Verify
-- server -nbio
-- server -nbio_test
-- server -nocert
-+ simple server test
-+ server -cipher
-+ server -tls1
-+ server -no_tls1
-
-Server tests:
-- ???
-
-Others:
-- ssl_dispatcher
-- SSLServer
-- ForkingSSLServer
-- ThreadingSSLServer
-"""
+    if report_leaks:
+        import alltests
+        alltests.dump_garbage()
