@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
-import os, unittest
-from M2Crypto import Rand, m2
-
 def suite():
+    from M2Crypto import m2
+    
     modules_to_test = [
         'test_asn1',
         'test_bio',
@@ -31,7 +30,35 @@ def suite():
         alltests.addTest(module.suite())
     return alltests
 
+
+def dump_garbage():
+    print '\nGarbage:'
+    leaks = gc.collect()
+    if leaks:
+    
+        print '\nLeaked objects:'
+        for x in gc.garbage:
+            s = str(x)
+            if len(s) > 77: s = s[:73]+'...'
+            print type(x), '\n  ', s
+    
+        print 'There were %d leaks.' % leaks
+    else:
+        print 'Python garabge collector did not detect any leaks.'
+        print 'However, it is still possible there are leaks in the C code.'
+
+
 if __name__ == '__main__':
+    report_leaks = 0
+    
+    if report_leaks:
+        import gc
+        gc.enable()
+        gc.set_debug(gc.DEBUG_LEAK)
+    
+    import os, unittest
+    from M2Crypto import Rand
+    
     try:
         Rand.load_file('randpool.dat', -1) 
         unittest.TextTestRunner().run(suite())
@@ -41,4 +68,5 @@ if __name__ == '__main__':
             from test_ssl import zap_servers
             zap_servers()
 
-
+    if report_leaks:
+        dump_garbage()
