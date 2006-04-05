@@ -37,11 +37,13 @@
   gets deleted
 - Multithreaded SSL no longer uses the SSL_set/get_app_data to set and
   restore thread state, but uses the standard PyGILState_STATE instead.
+- m2urllib no longer outputs the HTTP headers (there was an erronous call
+  to set_debuglevel(1))
 - Removed RCS_id, RCS_ID and _RCS_id from Python files
 - Memory leak fixes
 - SWIG and compiler warning fixes
 - More and better Epydoc formatted docstrings
-- More tests
+- More tests, also made many demos into tests
 
 0.15
 ----
