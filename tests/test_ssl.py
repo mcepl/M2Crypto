@@ -422,6 +422,19 @@ class SSLClientTestCase(unittest.TestCase):
             self.stop_server(pid)
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
+    def test_urllib(self):
+        pid = self.start_server(self.args)
+        try:
+            from M2Crypto import m2urllib
+            url = m2urllib.FancyURLopener()
+            url.addheader('Connection', 'close')
+            u = url.open('https://%s:%s/' % (srv_host, srv_port))
+            data = u.read()
+            u.close()
+        finally:
+            self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
     def test_twisted_wrapper(self):
         # Test only when twisted and ZopeInterfaces are present
         try:
