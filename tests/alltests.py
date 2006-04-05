@@ -34,8 +34,8 @@ def suite():
 def dump_garbage():
     import gc
     print '\nGarbage:'
-    leaks = gc.collect()
-    if leaks:
+    gc.collect()
+    if len(gc.garbage):
     
         print '\nLeaked objects:'
         for x in gc.garbage:
@@ -43,7 +43,7 @@ def dump_garbage():
             if len(s) > 77: s = s[:73]+'...'
             print type(x), '\n  ', s
     
-        print 'There were %d leaks.' % leaks
+        print 'There were %d leaks.' % len(gc.garbage)
     else:
         print 'Python garabge collector did not detect any leaks.'
         print 'However, it is still possible there are leaks in the C code.'
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     if report_leaks:
         import gc
         gc.enable()
-        gc.set_debug(gc.DEBUG_LEAK)
+        gc.set_debug(gc.DEBUG_LEAK & ~gc.DEBUG_SAVEALL)
     
     import os, unittest
     from M2Crypto import Rand
