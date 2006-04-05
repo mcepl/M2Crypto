@@ -455,6 +455,33 @@ class SSLClientTestCase(unittest.TestCase):
             self.stop_server(pid)
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
+    def test_blocking0(self):
+        pid = self.start_server(self.args)
+        try:
+            ctx = SSL.Context()
+            s = SSL.Connection(ctx)
+            s.setblocking(0)
+            self.assertRaises(Exception, s.connect, self.srv_addr)
+            s.close()
+        finally:
+            self.stop_server(pid)
+
+    def test_blocking1(self):
+        pid = self.start_server(self.args)
+        try:
+            ctx = SSL.Context()
+            s = SSL.Connection(ctx)
+            s.setblocking(1)
+            try:
+                s.connect(self.srv_addr)
+            except SSL.SSLError, e:
+                assert 0, e
+            data = self.http_get(s)
+            s.close()
+        finally:
+            self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
     def test_twisted_wrapper(self):
         #
         # LEAK ALERT! Twisted seems to leak a lot, even without SSL.

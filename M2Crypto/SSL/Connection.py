@@ -37,6 +37,8 @@ class Connection:
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._fileno = self.socket.fileno()
         
+        self.blocking = self.socket.gettimeout()
+        
     def __del__(self):
         if getattr(self, 'sslbio', None):
             self.m2_bio_free(self.sslbio)
@@ -168,18 +170,22 @@ class Connection:
             raise ValueError, 'size <= 0'
         return m2.ssl_read_nbio(self.ssl, size)
 
-    sendall = send = write = _write_bio
-    recv = read  = _read_bio
+    def write(self, data):
+        if self.blocking:
+            return self._write_bio(data)
+        return self._write_nbio(data)
+    sendall = send = write
+    
+    def read(self, data):
+        if self.blocking:
+            return self._read_bio(data)
+        return self._read_nbio(data)
+    recv = read
 
     def setblocking(self, mode):
         """Set this connection's underlying socket to _mode_."""
         self.socket.setblocking(mode)
-        if mode:
-            self.send = self.write = self._write_bio
-            self.recv = self.read = self._read_bio
-        else:
-            self.send = self.write = self._write_nbio
-            self.recv = self.read = self._read_nbio
+        self.blocking = mode
 
     def fileno(self):
         return self.socket.fileno()
