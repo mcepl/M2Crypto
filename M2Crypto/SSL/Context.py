@@ -2,6 +2,8 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
+from weakref import WeakValueDictionary
+
 # M2Crypto
 import cb
 from M2Crypto import util, BIO, Err, RSA, m2, X509
@@ -9,7 +11,7 @@ from M2Crypto import util, BIO, Err, RSA, m2, X509
 class _ctxmap:
     singleton = None
     def __init__(self):
-        self.map = {}
+        self.map = WeakValueDictionary()
 
     def __getitem__(self, key):
         return self.map[key] 
