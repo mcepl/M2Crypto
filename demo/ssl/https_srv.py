@@ -130,6 +130,8 @@ def init_context(protocol, certfile, cafile, verify, verify_depth=10):
 
 
 if __name__ == '__main__':
+    from M2Crypto import threading as m2threading
+    m2threading.init()
     if len(sys.argv) < 2:
         wdir = '.'
     else:
@@ -143,5 +145,6 @@ if __name__ == '__main__':
     httpsd = HTTPS_Server(('', 19443), HTTP_Handler, ctx)
     httpsd.serve_forever()
     Rand.save_file('../randpool.dat')
+    m2threading.cleanup()
 
 
