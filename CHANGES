@@ -19,7 +19,8 @@
   by Martin Paljak
 - m2.X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT is the fourth certificate
   verification error that will be allowed when unknown CAs are allowed
-  error that will be allo
+- post connection checks in Connection.accept() and connect() fixed (these
+  were broken in 0.15)
 - Fixed EVP.Cipher to work with aes_* ciphers (used to crash Python).
   The actual problem was in m2.bytes_to_key.
 - SMIME methods and functions raise correct exceptions
