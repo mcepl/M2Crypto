@@ -102,6 +102,10 @@ class X509TestCase(unittest.TestCase):
                            entry="Proxy", len=-1, loc=-1, set=0)
         assert len(n) == 11, len(n)
         assert n.as_text() == 'ST=State or Province, L=locality name, O=orhanization name, OU=org unit, CN=common name/emailAddress=bob@example.com/serialNumber=1234, SN=surname, GN=given name, GN=name given, CN=Proxy', '"%s"' % n.as_text()
+        
+        self.assertRaises(AttributeError, n.__getattr__, 'foobar')
+        n.foobar = 1
+        assert n.foobar == 1, n.foobar
                            
                            
     def check_mkreq(self):

@@ -58,7 +58,7 @@ class X509_Extension:
                          set this extension to critical.
         """
         return m2.x509_extension_set_critical(self.x509_ext, critical)
-
+    
     def get_critical(self):
         """
         Return whether or not this is a critical extension.
@@ -67,7 +67,7 @@ class X509_Extension:
         @return:  Nonzero if this is a critical extension.
         """
         return m2.x509_extension_get_critical(self.x509_ext)
-
+    
     def get_name(self):
         """
         Get the extension name, for example 'subjectAltName'.
@@ -80,7 +80,7 @@ class X509_Extension:
         """
         buf=BIO.MemoryBuffer()
         m2.x509_ext_print(buf.bio_ptr(), self.x509_ext, 0, 0)
-        return buf.read_all()
+        return buf.read_all()    
 
 
 class X509_Extension_Stack:
@@ -223,18 +223,21 @@ class X509_Name:
         return m2.x509_name_oneline(self.x509_name)
 
     def __getattr__(self, attr):
-        if attr in self.nid.keys():
+        if attr in self.nid:
             assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error" 
             return m2.x509_name_by_nid(self.x509_name, self.nid[attr])
-        else:
-            raise AttributeError, (self, attr)
+
+        if attr in self.__dict__:
+            return self.__dict__[attr]
+
+        raise AttributeError, (self, attr)
 
     def __setattr__(self, attr, value):
-        if attr in self.nid.keys():
+        if attr in self.nid:
             assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error"
             return m2.x509_name_set_by_nid(self.x509_name, self.nid[attr], value)
-        else:
-            self.__dict__[attr] = value
+
+        self.__dict__[attr] = value
 
     def __len__(self):
         return m2.x509_name_entry_count(self.x509_name)
