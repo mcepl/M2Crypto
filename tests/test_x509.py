@@ -71,9 +71,8 @@ class X509TestCase(unittest.TestCase):
 
     def check_x509_name(self):
         n = X509.X509_Name()
-        # XXX Why is country not listed?
-        #n.C = 'My Country'
-        #assert n.C == 'My Country'
+        n.C = 'US' # It seems this actually needs to be a real 2 letter country code
+        assert n.C == 'US'
         n.SP = 'State or Province'
         assert n.SP == 'State or Province'
         n.L = 'locality name'
@@ -92,17 +91,17 @@ class X509TestCase(unittest.TestCase):
         assert n.SN == 'surname'
         n.GN = 'given name'
         assert n.GN == 'given name'
-        assert n.as_text() == 'ST=State or Province, L=locality name, O=orhanization name, OU=org unit, CN=common name/emailAddress=bob@example.com/serialNumber=1234, SN=surname, GN=given name', '"%s"' % n.as_text()
-        assert len(n) == 9, len(n)
+        assert n.as_text() == 'C=US, ST=State or Province, L=locality name, O=orhanization name, OU=org unit, CN=common name/emailAddress=bob@example.com/serialNumber=1234, SN=surname, GN=given name', '"%s"' % n.as_text()
+        assert len(n) == 10, len(n)
         n.givenName = 'name given'
         assert n.GN == 'given name' # Just gets the first
-        assert n.as_text() == 'ST=State or Province, L=locality name, O=orhanization name, OU=org unit, CN=common name/emailAddress=bob@example.com/serialNumber=1234, SN=surname, GN=given name, GN=name given', '"%s"' % n.as_text()
-        assert len(n) == 10, len(n)
+        assert n.as_text() == 'C=US, ST=State or Province, L=locality name, O=orhanization name, OU=org unit, CN=common name/emailAddress=bob@example.com/serialNumber=1234, SN=surname, GN=given name, GN=name given', '"%s"' % n.as_text()
+        assert len(n) == 11, len(n)
         n.add_entry_by_txt(field="CN", type=ASN1.MBSTRING_ASC,
                            entry="Proxy", len=-1, loc=-1, set=0)
-        assert len(n) == 11, len(n)
-        assert n.as_text() == 'ST=State or Province, L=locality name, O=orhanization name, OU=org unit, CN=common name/emailAddress=bob@example.com/serialNumber=1234, SN=surname, GN=given name, GN=name given, CN=Proxy', '"%s"' % n.as_text()
-        
+        assert len(n) == 12, len(n)
+        assert n.as_text() == 'C=US, ST=State or Province, L=locality name, O=orhanization name, OU=org unit, CN=common name/emailAddress=bob@example.com/serialNumber=1234, SN=surname, GN=given name, GN=name given, CN=Proxy', '"%s"' % n.as_text()
+
         self.assertRaises(AttributeError, n.__getattr__, 'foobar')
         n.foobar = 1
         assert n.foobar == 1, n.foobar
