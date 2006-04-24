@@ -34,7 +34,8 @@ def verify_cb_new_function(ok, store):
     try:
         assert not ok
         err = store.get_error()
-        assert err == m2.X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY or \
+        assert err == m2.X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT or \
+               err == m2.X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY or \
                err == m2.X509_V_ERR_CERT_UNTRUSTED or \
                err == m2.X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE
         app_data = m2.x509_store_ctx_get_app_data(store.ctx)
@@ -82,7 +83,11 @@ class SSLClientTestCase(unittest.TestCase):
         self.srv_port = srv_port
         self.srv_addr = (srv_host, srv_port)
         self.srv_url = 'https://%s:%s/' % (srv_host, srv_port)
-        self.args = ['s_server', '-quiet', '-www', '-accept', str(self.srv_port)]
+        self.args = ['s_server', '-quiet', '-www',
+                     '-cert', 'server.pem',
+                     #'-key', 'server_key.pem', 
+                     #'-CAfile', 'ca.pem',
+                     '-accept', str(self.srv_port)]
 
     def tearDown(self):
         global srv_port
@@ -367,7 +372,8 @@ class SSLClientTestCase(unittest.TestCase):
         try:
             from M2Crypto import X509
             assert not ok
-            assert err == m2.X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY or \
+            assert err == m2.X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT or \
+                   err == m2.X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY or \
                    err == m2.X509_V_ERR_CERT_UNTRUSTED or \
                    err == m2.X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE
             assert m2.ssl_ctx_get_cert_store(ctx_ptr)
@@ -429,6 +435,24 @@ class SSLClientTestCase(unittest.TestCase):
         finally:
             self.stop_server(pid)
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
+    def test_verify_cert(self):
+        pid = self.start_server(self.args)
+        try:
+            ctx = SSL.Context()
+            ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
+            ctx.load_verify_locations('ca.pem')
+            s = SSL.Connection(ctx)
+            try:
+                s.connect(self.srv_addr)
+            except SSL.SSLError, e:
+                assert 0, e
+            data = self.http_get(s)
+            s.close()
+        finally:
+            self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
 
     def test_HTTPSConnection(self):
         pid = self.start_server(self.args)
@@ -543,7 +567,7 @@ class CheckerTestCase(unittest.TestCase):
         from M2Crypto import X509
 
         check = Checker.Checker(host=srv_host,
-                                peerCertHash='545C873E4FF7E31BF439D80C9F5F128DF7E3EE57')
+                                peerCertHash='9594D272A975F58F4430511D15B4B7FF3D778113')
         x509 = X509.load_cert('server.pem')
         assert check(x509, srv_host)
         self.assertRaises(Checker.WrongHost, check, x509, 'example.com')

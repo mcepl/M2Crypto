@@ -49,14 +49,14 @@ class SMIMETestCase(unittest.TestCase):
         s.set_x509_stack(sk)
         
         st = X509.X509_Store()
-        st.load_info('signer.pem')
+        st.load_info('ca.pem')
         s.set_x509_store(st)
         
         p7, data = SMIME.smime_load_pkcs7_bio(signature)
         assert data.read() == cleartext
         assert isinstance(p7, SMIME.PKCS7), p7
-        #v = s.verify(p7) # XXX expired cert
-        #assert v == cleartext
+        v = s.verify(p7)
+        assert v == cleartext
     
     def _check_2_verifyBad(self):
         s = SMIME.SMIME()
