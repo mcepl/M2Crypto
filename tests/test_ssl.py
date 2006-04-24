@@ -460,15 +460,10 @@ class SSLClientTestCase(unittest.TestCase):
             ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
             ctx.load_verify_locations('server.pem')
             s = SSL.Connection(ctx)
-            try:
-                s.connect(self.srv_addr)
-            except SSL.SSLError, e:
-                assert 0, e
-            data = self.http_get(s)
+            self.assertRaises(SSL.SSLError, s.connect, self.srv_addr)
             s.close()
         finally:
             self.stop_server(pid)
-        self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
     def test_HTTPSConnection(self):
         pid = self.start_server(self.args)
