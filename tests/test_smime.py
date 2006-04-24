@@ -8,39 +8,37 @@ Copyright (C) 2006 Open Source Applications Foundation. All Rights Reserved.
 import unittest
 from M2Crypto import SMIME, BIO, Rand, X509
 
-cleartext = 'some text to manipulate'
-signature = signature2 = None
-encrypted = encrypted2 = None
-signedEncrypted = None
-
 class SMIMETestCase(unittest.TestCase):
-    def check_1_sign(self):
-        global signature, signature2
-        
-        buf = BIO.MemoryBuffer(cleartext)
+    cleartext = 'some text to manipulate'
+
+    def setUp(self):
+        # XXX Ugly, but not sure what would be better
+        self.signature = self.check_sign()
+        self.encrypted = self.check_encrypt()
+        self.signedEncrypted = self.check_signEncrypt()
+    
+    def check_sign(self):
+        buf = BIO.MemoryBuffer(self.cleartext)
         s = SMIME.SMIME()
         s.load_key('signer_key.pem', 'signer.pem')
         p7 = s.sign(buf)
         assert len(buf) == 0
         assert p7.type() == SMIME.PKCS7_SIGNED, p7.type()
         assert isinstance(p7, SMIME.PKCS7), p7
-        #assert p7.get0_signers()
         out = BIO.MemoryBuffer()
         p7.write(out)
         
         buf = out.read()
         
         assert buf[:len('-----BEGIN PKCS7-----')] == '-----BEGIN PKCS7-----'
-        #assert buf[-len('-----END PKCS7-----'):] == '-----END PKCS7-----'
+        buf = buf.strip()
+        assert buf[-len('-----END PKCS7-----'):] == '-----END PKCS7-----', buf[-len('-----END PKCS7-----'):]
         assert len(buf) > len('-----END PKCS7-----') + len('-----BEGIN PKCS7-----')
         
-        s.write(out, p7, BIO.MemoryBuffer(cleartext))
-        signature = out
-        # another copy...
-        s.write(out, p7, BIO.MemoryBuffer(cleartext))
-        signature2 = out
-    
-    def check_2_verify(self):
+        s.write(out, p7, BIO.MemoryBuffer(self.cleartext))
+        return out
+            
+    def check_verify(self):
         s = SMIME.SMIME()
         
         x509 = X509.load_cert('signer.pem')
@@ -52,13 +50,14 @@ class SMIMETestCase(unittest.TestCase):
         st.load_info('ca.pem')
         s.set_x509_store(st)
         
-        p7, data = SMIME.smime_load_pkcs7_bio(signature)
-        assert data.read() == cleartext
+        p7, data = SMIME.smime_load_pkcs7_bio(self.signature)
+        
+        assert data.read() == self.cleartext
         assert isinstance(p7, SMIME.PKCS7), p7
         v = s.verify(p7)
-        assert v == cleartext
+        assert v == self.cleartext
     
-    def _check_2_verifyBad(self):
+    def check_verifyBad(self):
         s = SMIME.SMIME()
         
         x509 = X509.load_cert('recipient.pem')
@@ -70,15 +69,15 @@ class SMIMETestCase(unittest.TestCase):
         st.load_info('recipient.pem')
         s.set_x509_store(st)
         
-        p7, data = SMIME.smime_load_pkcs7_bio(signature2)
-        assert data.read() == cleartext
+        p7, data = SMIME.smime_load_pkcs7_bio(self.signature)
+        assert data.read() == self.cleartext
         assert isinstance(p7, SMIME.PKCS7), p7
-        self.assertRaises(SMIME.SMIME_Error, s.verify, p7) # Bad signer
+        self.assertRaises(SMIME.PKCS7_Error, s.verify, p7) # Bad signer
 
-    def check_3_encrypt(self):
+    def check_encrypt(self):
         global encrypted, encrypted2
         
-        buf = BIO.MemoryBuffer(cleartext)
+        buf = BIO.MemoryBuffer(self.cleartext)
         s = SMIME.SMIME()
 
         x509 = X509.load_cert('recipient.pem')
@@ -92,52 +91,47 @@ class SMIMETestCase(unittest.TestCase):
         assert len(buf) == 0
         assert p7.type() == SMIME.PKCS7_ENVELOPED, p7.type()
         assert isinstance(p7, SMIME.PKCS7), p7
-        #assert p7.get0_signers()
         out = BIO.MemoryBuffer()
         p7.write(out)
     
         buf = out.read()
         
         assert buf[:len('-----BEGIN PKCS7-----')] == '-----BEGIN PKCS7-----'
-        #assert buf[-len('-----END PKCS7-----'):] == '-----END PKCS7-----'
+        buf = buf.strip()
+        assert buf[-len('-----END PKCS7-----'):] == '-----END PKCS7-----'
         assert len(buf) > len('-----END PKCS7-----') + len('-----BEGIN PKCS7-----')
         
         s.write(out, p7)
-        encrypted = out
-        # another copy...
-        s.write(out, p7)
-        encrypted2 = out
-
-    def check_4_decrypt(self):
+        return out
+    
+    def check_decrypt(self):
         s = SMIME.SMIME()
 
         s.load_key('recipient_key.pem', 'recipient.pem')
         
-        p7, data = SMIME.smime_load_pkcs7_bio(encrypted)
+        p7, data = SMIME.smime_load_pkcs7_bio(self.encrypted)
         assert isinstance(p7, SMIME.PKCS7), p7
         self.assertRaises(SMIME.SMIME_Error, s.verify, p7) # No signer
         
         out = s.decrypt(p7)
-        assert out == cleartext
+        assert out == self.cleartext
 
-    def _check_4_decryptBad(self):
+    def check_decryptBad(self):
         s = SMIME.SMIME()
 
         s.load_key('signer_key.pem', 'signer.pem')
         
-        p7, data = SMIME.smime_load_pkcs7_bio(encrypted2)
+        p7, data = SMIME.smime_load_pkcs7_bio(self.encrypted)
         assert isinstance(p7, SMIME.PKCS7), p7
         self.assertRaises(SMIME.SMIME_Error, s.verify, p7) # No signer
 
         # Cannot decrypt: no recipient matches certificate
         self.assertRaises(SMIME.PKCS7_Error, s.decrypt, p7)
 
-    def check_5_signEncrypt(self):
-        global signedEncrypted
-        
+    def check_signEncrypt(self):
         s = SMIME.SMIME()
         
-        buf = BIO.MemoryBuffer(cleartext)
+        buf = BIO.MemoryBuffer(self.cleartext)
         
         s.load_key('signer_key.pem', 'signer.pem')
         p7 = s.sign(buf)
@@ -159,16 +153,15 @@ class SMIMETestCase(unittest.TestCase):
         
         out = BIO.MemoryBuffer()
         s.write(out, p7)
+        return out
         
-        signedEncrypted = out
-        
-    def _check_6_decryptVerify(self):
+    def _check_decryptVerify(self):
         s = SMIME.SMIME()
     
         s.load_key('recipient_key.pem', 'recipient.pem')
         
         # XXX Bug not enough data?
-        p7, data = SMIME.smime_load_pkcs7_bio(signedEncrypted)
+        p7, data = SMIME.smime_load_pkcs7_bio(self.signedEncrypted)
         
         out = s.decrypt(p7)
         
@@ -178,13 +171,13 @@ class SMIMETestCase(unittest.TestCase):
         s.set_x509_stack(sk)
         
         st = X509.X509_Store()
-        st.load_info('signer.pem')
+        st.load_info('ca.pem')
         s.set_x509_store(st)
         
         p7_bio = BIO.MemoryBuffer(out)
         p7, data = SMIME.smime_load_pkcs7_bio(p7_bio)
         v = s.verify(p7)
-        assert v == cleartext
+        assert v == self.cleartext
     
 
 def suite():
