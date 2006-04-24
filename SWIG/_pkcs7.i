@@ -183,9 +183,5 @@ int smime_crlf_copy(BIO *in, BIO *out) {
     return SMIME_crlf_copy(in, out, PKCS7_TEXT);
 }
 
-/* return STACK_OF(X509)* */
-STACK *pkcs7_get0_signers(PKCS7 *p7, STACK *certs, int flags) {
-	return PKCS7_get0_signers(p7,certs,flags);
-}
 %}
 
