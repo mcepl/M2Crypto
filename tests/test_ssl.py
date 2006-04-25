@@ -7,13 +7,6 @@ Copyright (c) 2000-2004 Ng Pheng Siong. All rights reserved."""
 """
 TODO
 
-Client tests:
-- server -verify
-- server -Verify
-- server -nbio
-- server -nbio_test
-- server -nocert
-
 Server tests:
 - ???
 
@@ -84,9 +77,7 @@ class SSLClientTestCase(unittest.TestCase):
         self.srv_addr = (srv_host, srv_port)
         self.srv_url = 'https://%s:%s/' % (srv_host, srv_port)
         self.args = ['s_server', '-quiet', '-www',
-                     '-cert', 'server.pem',
-                     #'-key', 'server_key.pem', 
-                     #'-CAfile', 'ca.pem',
+                     #'-cert', 'server.pem', Implicitly using this
                      '-accept', str(self.srv_port)]
 
     def tearDown(self):
@@ -465,6 +456,70 @@ class SSLClientTestCase(unittest.TestCase):
         finally:
             self.stop_server(pid)
 
+    def test_verify_cert_mutual_auth(self):
+        self.args.extend(['-Verify', '2', '-CAfile', 'ca.pem'])        
+        pid = self.start_server(self.args)
+        try:
+            ctx = SSL.Context()
+            ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
+            ctx.load_verify_locations('ca.pem')
+            ctx.load_cert('x509.pem')
+            s = SSL.Connection(ctx)
+            try:
+                s.connect(self.srv_addr)
+            except SSL.SSLError, e:
+                assert 0, e
+            data = self.http_get(s)
+            s.close()
+        finally:
+            self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
+    def test_verify_cert_mutual_auth_servernbio(self):
+        self.args.extend(['-Verify', '2', '-CAfile', 'ca.pem', '-nbio'])
+        pid = self.start_server(self.args)
+        try:
+            ctx = SSL.Context()
+            ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
+            ctx.load_verify_locations('ca.pem')
+            ctx.load_cert('x509.pem')
+            s = SSL.Connection(ctx)
+            try:
+                s.connect(self.srv_addr)
+            except SSL.SSLError, e:
+                assert 0, e
+            data = self.http_get(s)
+            s.close()
+        finally:
+            self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
+    def test_verify_cert_mutual_auth_fail(self):
+        self.args.extend(['-Verify', '2', '-CAfile', 'ca.pem'])        
+        pid = self.start_server(self.args)
+        try:
+            ctx = SSL.Context()
+            ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
+            ctx.load_verify_locations('ca.pem')
+            s = SSL.Connection(ctx)
+            self.assertRaises(SSL.SSLError, s.connect, self.srv_addr)
+            s.close()
+        finally:
+            self.stop_server(pid)
+
+    def test_verify_nocert_fail(self):
+        self.args.extend(['-nocert'])        
+        pid = self.start_server(self.args)
+        try:
+            ctx = SSL.Context()
+            ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
+            ctx.load_verify_locations('ca.pem')
+            s = SSL.Connection(ctx)
+            self.assertRaises(SSL.SSLError, s.connect, self.srv_addr)
+            s.close()
+        finally:
+            self.stop_server(pid)
+
     def test_HTTPSConnection(self):
         pid = self.start_server(self.args)
         try:
@@ -519,7 +574,7 @@ class SSLClientTestCase(unittest.TestCase):
 
     def test_twisted_wrapper(self):
         #
-        # LEAK ALERT! Twisted seems to leak a lot, even without SSL.
+        # LEAK ALERT!
         # If this method is commented out, the leak detection code does
         # not find any leaks.
         #
