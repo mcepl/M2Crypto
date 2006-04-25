@@ -15,7 +15,6 @@ class SMIMETestCase(unittest.TestCase):
         # XXX Ugly, but not sure what would be better
         self.signature = self.check_sign()
         self.encrypted = self.check_encrypt()
-        self.signedEncrypted = self.check_signEncrypt()
     
     def check_sign(self):
         buf = BIO.MemoryBuffer(self.cleartext)
@@ -75,8 +74,6 @@ class SMIMETestCase(unittest.TestCase):
         self.assertRaises(SMIME.PKCS7_Error, s.verify, p7) # Bad signer
 
     def check_encrypt(self):
-        global encrypted, encrypted2
-        
         buf = BIO.MemoryBuffer(self.cleartext)
         s = SMIME.SMIME()
 
@@ -128,14 +125,14 @@ class SMIMETestCase(unittest.TestCase):
         # Cannot decrypt: no recipient matches certificate
         self.assertRaises(SMIME.PKCS7_Error, s.decrypt, p7)
 
-    def check_signEncrypt(self):
-        s = SMIME.SMIME()
-        
+    def check_signEncryptDecryptVerify(self):
+        # sign
         buf = BIO.MemoryBuffer(self.cleartext)
-        
+        s = SMIME.SMIME()    
         s.load_key('signer_key.pem', 'signer.pem')
         p7 = s.sign(buf)
         
+        # encrypt
         x509 = X509.load_cert('recipient.pem')
         sk = X509.X509_Stack()
         sk.push(x509)
@@ -144,27 +141,32 @@ class SMIMETestCase(unittest.TestCase):
         s.set_cipher(SMIME.Cipher('des_ede3_cbc'))
         
         tmp = BIO.MemoryBuffer()
-        
-        s.write(tmp, p7)
-        
+        s.write(tmp, p7, BIO.MemoryBuffer(self.cleartext))
+
         p7 = s.encrypt(tmp)
-        # XXX Hmm, how to get PKCS7_SIGNED_ENVELOPED?
-        assert p7.type() == SMIME.PKCS7_ENVELOPED, p7.type()
         
-        out = BIO.MemoryBuffer()
-        s.write(out, p7)
-        return out
-        
-    def _check_decryptVerify(self):
+        signedEncrypted = BIO.MemoryBuffer()
+        s.write(signedEncrypted, p7)
+
+        # decrypt
         s = SMIME.SMIME()
     
         s.load_key('recipient_key.pem', 'recipient.pem')
         
-        # XXX Bug not enough data?
-        p7, data = SMIME.smime_load_pkcs7_bio(self.signedEncrypted)
+        if 1:
+            f = open('smime_test.txt', 'wb')
+            f.write(signedEncrypted.read())
+            f.close()
+            p7, data = SMIME.smime_load_pkcs7('smime_test.txt')
+            import os
+            os.remove('smime_test.txt')
+        else:
+            # XXX Bug: "not enough data" with straight bio?
+            p7, data = SMIME.smime_load_pkcs7_bio(signedEncrypted)
         
         out = s.decrypt(p7)
         
+        # verify
         x509 = X509.load_cert('signer.pem')
         sk = X509.X509_Stack()
         sk.push(x509)
