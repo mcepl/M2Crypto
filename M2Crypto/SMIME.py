@@ -17,7 +17,7 @@ PKCS7_NOATTR	= m2.PKCS7_NOATTR
 
 PKCS7_SIGNED	        = m2.PKCS7_SIGNED
 PKCS7_ENVELOPED	        = m2.PKCS7_ENVELOPED
-PKCS7_SIGNED_ENVELOPED	= m2.PKCS7_SIGNED_ENVELOPED
+PKCS7_SIGNED_ENVELOPED	= m2.PKCS7_SIGNED_ENVELOPED # Deprecated
 PKCS7_DATA	        = m2.PKCS7_DATA 
 
 class PKCS7_Error(Exception): pass
@@ -55,12 +55,16 @@ class PKCS7:
     def write_der(self, bio):
         return m2.pkcs7_write_bio_der(self.pkcs7, bio._ptr())
 
-
 def load_pkcs7(p7file):
     bio = m2.bio_new_file(p7file, 'r')
     if bio is None:
         raise Err.get_error()
-    p7_ptr = m2.pkcs7_read_bio(bio._ptr())
+
+    try:
+        p7_ptr = m2.pkcs7_read_bio(bio)
+    finally:
+        m2.bio_free(bio)
+        
     if p7_ptr is None:
         raise Err.get_error()
     return PKCS7(p7_ptr, 1)
@@ -77,8 +81,12 @@ def smime_load_pkcs7(p7file):
     bio = m2.bio_new_file(p7file, 'r')
     if bio is None:
         raise Err.get_error()
-    p7_ptr, bio_ptr = m2.smime_read_pkcs7(bio)
-    m2.bio_free(bio)
+    
+    try:
+        p7_ptr, bio_ptr = m2.smime_read_pkcs7(bio)
+    finally:
+        m2.bio_free(bio)
+    
     if p7_ptr is None:
         raise Err.get_error()
     if bio_ptr is None:
