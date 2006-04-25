@@ -214,9 +214,6 @@ class SMIME:
                 raise SMIME_Error, Err.get_error()
         return blob
 
-    def save_certs(self, savefile):
-        pass
-
     def write(self, out_bio, pkcs7, data_bio=None, flags=0):
         assert isinstance(pkcs7, PKCS7)
         if data_bio is None:
