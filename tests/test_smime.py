@@ -13,7 +13,7 @@ class SMIMETestCase(unittest.TestCase):
 
     def setUp(self):
         # XXX Ugly, but not sure what would be better
-        self.signature = self.check_sign()
+        self.signed = self.check_sign()
         self.encrypted = self.check_encrypt()
     
     def check_sign(self):
@@ -49,7 +49,7 @@ class SMIMETestCase(unittest.TestCase):
         st.load_info('ca.pem')
         s.set_x509_store(st)
         
-        p7, data = SMIME.smime_load_pkcs7_bio(self.signature)
+        p7, data = SMIME.smime_load_pkcs7_bio(self.signed)
         
         assert data.read() == self.cleartext
         assert isinstance(p7, SMIME.PKCS7), p7
@@ -68,7 +68,7 @@ class SMIMETestCase(unittest.TestCase):
         st.load_info('recipient.pem')
         s.set_x509_store(st)
         
-        p7, data = SMIME.smime_load_pkcs7_bio(self.signature)
+        p7, data = SMIME.smime_load_pkcs7_bio(self.signed)
         assert data.read() == self.cleartext
         assert isinstance(p7, SMIME.PKCS7), p7
         self.assertRaises(SMIME.PKCS7_Error, s.verify, p7) # Bad signer
@@ -159,8 +159,18 @@ class SMIMETestCase(unittest.TestCase):
             f.close()
             p7, data = SMIME.smime_load_pkcs7('smime_test.txt')
             import os
-            os.remove('smime_test.txt')
+            #os.remove('smime_test.txt')
         else:
+#            f = open('smime_test.txt', 'wb')
+#            f.write(signedEncrypted.read())
+#            f.close()
+#            p7, data = SMIME.smime_load_pkcs7('smime_test.txt')
+#            
+#            f = open('smime_test.txt', 'rb')
+#            t = f.read()
+#            print t
+#            signedEncrypted = BIO.MemoryBuffer(t)
+#            f.close()
             # XXX Bug: "not enough data" with straight bio?
             p7, data = SMIME.smime_load_pkcs7_bio(signedEncrypted)
         
@@ -180,10 +190,61 @@ class SMIMETestCase(unittest.TestCase):
         p7, data = SMIME.smime_load_pkcs7_bio(p7_bio)
         v = s.verify(p7)
         assert v == self.cleartext
+
+
+class WriteLoadTestCase(unittest.TestCase):
+    def setUp(self):
+        s = SMIME.SMIME()
+        s.load_key('signer_key.pem', 'signer.pem')
+        p7 = s.sign(BIO.MemoryBuffer('some text'))
+        self.filename = 'sig.p7'
+        f = BIO.openfile(self.filename, 'wb')
+        assert p7.write(f) == 1
+        f.close()
+
+        self.filenameSmime = 'sig.p7s'
+        f = BIO.openfile(self.filenameSmime, 'wb')
+        assert s.write(f, p7, BIO.MemoryBuffer('some text')) == 1
+        f.close()
+        
+    def check_write_pkcs7_der(self):
+        buf = BIO.MemoryBuffer()
+        assert SMIME.load_pkcs7(self.filename).write_der(buf) == 1
+        s = buf.read()
+        assert len(s) == 1168, len(s)
+        
+    def check_load_pkcs7(self):
+        assert SMIME.load_pkcs7(self.filename).type() == SMIME.PKCS7_SIGNED
     
+    def check_load_pkcs7_bio(self):
+        f = open(self.filename, 'rb')
+        buf = BIO.MemoryBuffer(f.read())
+        f.close()
+        
+        assert SMIME.load_pkcs7_bio(buf).type() == SMIME.PKCS7_SIGNED
+
+    def check_load_smime(self):
+        a, b = SMIME.smime_load_pkcs7(self.filenameSmime)
+        assert isinstance(a, SMIME.PKCS7), a
+        assert isinstance(b, BIO.BIO), b
+        assert a.type() == SMIME.PKCS7_SIGNED
+        
+    def check_load_smime_bio(self):
+        f = open(self.filenameSmime, 'rb')
+        buf = BIO.MemoryBuffer(f.read())
+        f.close()
+
+        a, b = SMIME.smime_load_pkcs7_bio(buf)
+        assert isinstance(a, SMIME.PKCS7), a
+        assert isinstance(b, BIO.BIO), b
+        assert a.type() == SMIME.PKCS7_SIGNED
+
 
 def suite():
-    return unittest.makeSuite(SMIMETestCase, 'check')
+    suite = unittest.TestSuite()
+    suite.addTest(unittest.makeSuite(SMIMETestCase, 'check'))
+    suite.addTest(unittest.makeSuite(WriteLoadTestCase, 'check'))
+    return suite
 
 
 if __name__ == '__main__':
