@@ -764,7 +764,7 @@ CLASS="SCREEN"
 >    <TT
 CLASS="USERINPUT"
 ><B
->openssl rsa &#60; newreq.pem &#62; newkey.pem
+>openssl rsa &#60; newkey.pem &#62; newkey2.pem
     </B
 ></TT
 >
@@ -785,7 +785,7 @@ CLASS="REPLACEABLE"
 ><P
 ><TT
 CLASS="FILENAME"
->newkey.pem</TT
+>newkey2.pem</TT
 > looks like this:
     </P
 ><PRE
@@ -793,7 +793,7 @@ CLASS="SCREEN"
 >    <TT
 CLASS="USERINPUT"
 ><B
->cat newkey.pem
+>cat newkey2.pem
     </B
 ></TT
 >
@@ -823,11 +823,11 @@ CLASS="FILENAME"
 >, and
     the private key - <TT
 CLASS="FILENAME"
->newreq.pem</TT
+>newkey.pem</TT
 > (encrypted) or
     <TT
 CLASS="FILENAME"
->newkey.pem</TT
+>newkey2.pem</TT
 > (unencrypted) - are now ready to be used.
     You may wish to rename the files to more intuitive names.
     </P
