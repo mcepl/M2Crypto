@@ -25,6 +25,16 @@ extern int RSA_check_key(const RSA *);
 %constant int sslv23_padding    = RSA_SSLV23_PADDING;
 %constant int pkcs1_oaep_padding = RSA_PKCS1_OAEP_PADDING;
 
+%constant int NID_sha1 = NID_sha1;
+%constant int NID_sha224 = NID_sha224;
+%constant int NID_sha256 = NID_sha256;
+%constant int NID_sha384 = NID_sha384;
+%constant int NID_sha512 = NID_sha512;
+
+%constant int NID_md5 = NID_md5;
+
+%constant int NID_ripemd160 = NID_ripemd160;
+
 %inline %{
 static PyObject *_rsa_err;
 
@@ -259,6 +269,62 @@ PyObject *rsa_private_decrypt(RSA *rsa, PyObject *from, int padding) {
     }
     ret = PyString_FromStringAndSize((const char *)tbuf, tlen);
     PyMem_Free(tbuf);
+    return ret;
+}
+
+PyObject *rsa_sign(RSA *rsa, PyObject *py_digest_string, int method_type) {
+    int digest_len = 0;
+    int buf_len = 0;
+    int ret = 0;
+    unsigned int real_buf_len = 0;
+    char *digest_string = NULL;
+    unsigned char * sign_buf = NULL;
+    PyObject *signature; 
+    
+    ret = PyString_AsStringAndSize(py_digest_string, &digest_string, &digest_len); 
+    if (ret == -1) {
+        /* PyString_AsStringAndSize raises the correct exceptions. */
+        return NULL;
+    }
+    
+    buf_len = RSA_size(rsa);
+    sign_buf = (unsigned char *)PyMem_Malloc(buf_len);
+    ret = RSA_sign(method_type, (const unsigned char *)digest_string, digest_len, 
+                   sign_buf, &real_buf_len, rsa);
+   
+    if (!ret) {
+        PyMem_Free(sign_buf);
+        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
+    signature =  PyString_FromStringAndSize((const char*) sign_buf, buf_len);
+    PyMem_Free(sign_buf);
+    return signature;
+}     
+ 
+int rsa_verify(RSA *rsa, PyObject *py_verify_string, PyObject* py_sign_string, int method_type){
+    int ret = 0;
+    char * sign_string = NULL;
+    char * verify_string = NULL;
+    int verify_len = 0;
+    int sign_len = 0;
+    
+    ret = PyString_AsStringAndSize(py_verify_string, &verify_string, &verify_len); 
+    if (ret == -1) {
+        /* PyString_AsStringAndSize raises the correct exceptions. */
+        return 0;
+    }
+    ret = PyString_AsStringAndSize(py_sign_string, &sign_string, &sign_len);
+    if (ret == -1) {
+        return 0;
+    }
+
+    ret = RSA_verify(method_type, (unsigned char *) verify_string,
+                     verify_len, (unsigned char *) sign_string,
+                     sign_len, rsa);
+    if (!ret) {
+        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+    } 
     return ret;
 }
 

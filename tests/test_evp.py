@@ -8,7 +8,7 @@ Author: Heikki Toivonen
 """
 
 import unittest
-import cStringIO
+import cStringIO, sha
 from M2Crypto import EVP, RSA, util, Rand
 
 class EVPTestCase(unittest.TestCase):
@@ -37,6 +37,10 @@ class EVPTestCase(unittest.TestCase):
                           callback=self._pass_callback)
                           
     def check_as_der(self):
+        """
+        Test DER encoding the PKey instance after assigning 
+        a RSA key to it.
+        """
         rsa = RSA.gen_key(512, 3, callback=self._gen_callback)
         pkey = EVP.PKey()
         pkey.assign_rsa(rsa)
@@ -51,10 +55,14 @@ class EVPTestCase(unittest.TestCase):
         assert md.update('Hello') == 1
         assert util.octx_to_num(md.final()) == 1415821221623963719413415453263690387336440359920
 
-    def check_as_der(self):
+    def check_as_der_capture_key(self):
+        """
+        Test DER encoding the PKey instance after assigning 
+        a RSA key to it. Have the PKey instance capture the RSA key.
+        """
         rsa = RSA.gen_key(512, 3, callback=self._gen_callback)
         pkey = EVP.PKey()
-        pkey.assign_rsa(rsa)
+        pkey.assign_rsa(rsa, 1)
         der_blob = pkey.as_der()
         #A quick but not thorough sanity check
         assert len(der_blob) == 92
@@ -75,6 +83,36 @@ class EVPTestCase(unittest.TestCase):
         assert util.octx_to_num(EVP.hmac('key', 'data', algo='sha384')) == 30471069101236165765942696708481556386452105164815350204559050657318908408184002707969468421951222432574647369766282, util.octx_to_num(EVP.hmac('key', 'data', algo='sha384'))
         assert util.octx_to_num(EVP.hmac('key', 'data', algo='sha512')) == 3160730054100700080556942280820129108466291087966635156623014063982211353635774277148932854680195471287740489442390820077884317620321797003323909388868696, util.octx_to_num(EVP.hmac('key', 'data', algo='sha512'))
         self.assertRaises(ValueError, EVP.hmac, 'key', 'data', algo='sha513')
+
+
+    def check_get_rsa(self):
+        """
+        Testing retrieving the RSA key from the PKey instance.
+        """
+        rsa = RSA.gen_key(512, 3, callback=self._gen_callback)
+        pkey = EVP.PKey()
+        pkey.assign_rsa(rsa) 
+        rsa2 = pkey.get_rsa()
+        assert rsa.e == rsa2.e
+        assert rsa.n == rsa2.n
+        # Not sure why these two are not the same...
+        assert rsa.as_pem(callback=self._pass_callback)
+        assert rsa2.as_pem(callback=self._pass_callback)
+        
+        message = "This is the message string"
+        digest = sha.sha(message).digest()
+        assert rsa.sign(digest) == rsa2.sign(digest)
+        
+        rsa3 = RSA.gen_key(512, 3, callback=self._gen_callback)
+        assert rsa.sign(digest) != rsa3.sign(digest)
+    
+    def check_get_rsa_fail(self):
+        """
+        Testing trying to retrieve the RSA key from the PKey instance
+        when it is not holding a RSA Key. Should raise a ValueError.
+        """
+        pkey = EVP.PKey()
+        self.assertRaises(ValueError, pkey.get_rsa)
 
 
 class CipherTestCase(unittest.TestCase):
