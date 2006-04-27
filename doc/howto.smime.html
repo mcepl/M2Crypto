@@ -991,7 +991,7 @@ CLASS="PROGRAMLISTING"
     tmp = BIO.MemoryBuffer()
     
     # Write the signed message into the temporary buffer.
-    s.write(tmp, p7)
+    s.write(tmp, p7, buf)
     
     # Encrypt the temporary buffer.
     p7 = s.encrypt(tmp)
