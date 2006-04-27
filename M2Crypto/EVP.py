@@ -6,7 +6,7 @@ Portions Copyright (c) 2004-2006 Open Source Applications Foundation.
 Author: Heikki Toivonen
 """
 
-from M2Crypto import Err, util, BIO
+from M2Crypto import Err, util, BIO, RSA
 import m2
 
 class MessageDigest:
@@ -222,6 +222,18 @@ class PKey:
         else:
             ret = m2.pkey_set1_rsa(self.pkey, rsa.rsa)
         return ret
+
+    def get_rsa(self):
+        """
+        Return the underlying RSA key if that is what the EVP
+        instance is holding.
+        """
+        rsa_ptr = m2.pkey_get1_rsa(self.pkey)
+        if rsa_ptr is None:
+            raise ValueError("PKey instance is not holding a RSA key")
+        
+        rsa = RSA.RSA(rsa_ptr, 1)
+        return rsa
 
     def save_key(self, file, cipher='aes_128_cbc', callback=util.passphrase_callback):
         """

@@ -160,6 +160,50 @@ class RSA:
     def check_key(self):
         return m2.rsa_check_key(self.rsa)
 
+    def sign(self, digest, algo='sha1'):
+        """
+        Signs a digest with the private key
+
+        @type digest: str
+        @param digest: A digest created by using the digest method
+
+        @type algo: str
+        @param algo: The method that created the digest.
+        Legal values are 'sha1','sha224', 'sha256', 'ripemd160', 
+        and 'md5'.
+        
+        @return a string which is the signature
+        """
+        digest_type = getattr(m2, 'NID_' + algo, None) 
+        if digest_type is None:
+            raise ValueError, ('unknown algorithm', algo)
+        
+        return m2.rsa_sign(self.rsa, digest, digest_type) 
+    
+    def verify(self, data, signature, algo='sha1'):
+        """
+        Verifies the signature with the public key
+
+        @type data: str
+        @param data: Data that has been signed
+
+        @type signature: str
+        @param signature: The signature signed with the private key
+
+        @type algo: str
+        @param algo: The method use to create digest from the data 
+        before it was signed.  Legal values are 'sha1','sha224',
+        'sha256', 'ripemd160', and 'md5'.
+
+        @returns True or False, depending on whether the signature was
+        verified.  
+        """
+        digest_type = getattr(m2, 'NID_' + algo, None)
+        if digest_type is None:
+            raise ValueError, ('unknown algorithm', algo)
+        
+        return m2.rsa_verify(self.rsa, data, signature, digest_type) 
+
 
 class RSA_pub(RSA):
 

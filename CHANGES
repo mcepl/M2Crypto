@@ -8,6 +8,8 @@
   by Matt Rodriguez
 - Added --openssl option to build command which can be used to specify
   where OpenSSL is installed, by Matt Rodriguez
+- Added sign and verify to RSA class, and get_rsa to PKey class,
+  by Matt Rodriguez
 - ECDSA signatures and ECDH key agreement, requires OpenSSL 0.9.8+,
   by Arno Bakker
 - Fix non-hashable type problems in SSL._ctxmap and users,

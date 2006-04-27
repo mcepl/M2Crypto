@@ -5,8 +5,8 @@
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
 import unittest
-import os, sha, tempfile
-from M2Crypto import RSA, BIO, Rand, m2
+import sha, md5
+from M2Crypto import RSA, BIO, Rand, m2, EVP
 
 class RSATestCase(unittest.TestCase):
 
@@ -125,7 +125,90 @@ class RSATestCase(unittest.TestCase):
         assert len(new) == 512
         assert new.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         
+    def check_sign_and_verify(self):
+        """
+        Testing signing and verifying digests
+        """
+        algos = {'sha1':'', 
+                 'sha224':'', 
+                 'sha256':'', 
+                 'sha384':'', 
+                 'sha512':'', 
+                 'ripemd160':'',
+                 'md5':''}
+        message = "This is the message string"
+        digest = sha.sha(message).digest()
+        rsa = RSA.load_key(self.privkey)
+        rsa2 = RSA.load_pub_key(self.pubkey)
+        for algo in algos.keys():
+            signature = rsa.sign(digest, algo)
+            #assert signature == algos[algo], 'mismatched signature with algorithm %s: signature=%s' % (algo, signature)
+            verify = rsa2.verify(digest, signature, algo) 
+            assert verify == 1, 'verification failed with algorithm %s' % algo
+    
+    def check_sign_bad_method(self):
+        """
+        Testing calling sign with an unsupported message digest algorithm
+        """
+        rsa = RSA.load_key(self.privkey)
+        message = "This is the message string"
+        digest = md5.md5(message).digest() 
+        self.assertRaises(ValueError, rsa.sign, 
+                          digest, 'bad_digest_method') 
+    
+    def check_verify_bad_method(self):
+        """
+        Testing calling verify with an unsupported message digest algorithm
+        """
+        rsa = RSA.load_key(self.privkey)
+        message = "This is the message string"
+        digest = md5.md5(message).digest() 
+        signature = rsa.sign(digest, 'sha1')
+        self.assertRaises(ValueError, rsa.verify,
+                          digest, signature, 'bad_digest_method') 
 
+    def check_verify_mismatched_algo(self):
+        """
+        Testing verify to make sure it fails when we use a different
+        message digest algorithm
+        """
+        rsa = RSA.load_key(self.privkey)
+        message = "This is the message string"
+        digest = sha.sha(message).digest() 
+        signature = rsa.sign(digest, 'sha1')
+        rsa2 = RSA.load_pub_key(self.pubkey)
+        self.assertRaises(RSA.RSAError, rsa.verify, 
+                          digest, signature, 'md5')
+    
+    def check_sign_fail(self):
+        """
+        Testing sign to make sure it fails when I give it
+        a bogus digest. Looking at the RSA sign method
+        I discovered that with the digest methods we use
+        it has to be longer than a certain length.
+        """
+        rsa = RSA.load_key(self.privkey)
+        digest = """This string should be long enough to warrant an error in
+        RSA_sign"""
+         
+        self.assertRaises(RSA.RSAError, rsa.sign, digest)
+    
+    def check_verify_bad_signature(self):
+        """
+        Testing verify to make sure it fails when we use a bad signature
+        """
+        rsa = RSA.load_key(self.privkey)
+        message = "This is the message string"
+        digest = sha.sha(message).digest() 
+
+        otherMessage = "Abracadabra"
+        otherDigest = sha.sha(otherMessage).digest() 
+        otherSignature = rsa.sign(otherDigest)
+
+        self.assertRaises(RSA.RSAError, rsa.verify, 
+                          digest, otherSignature)
+    
+        
 def suite():
     return unittest.makeSuite(RSATestCase, 'check')
     
