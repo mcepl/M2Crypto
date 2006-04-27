@@ -141,7 +141,7 @@ class SMIMETestCase(unittest.TestCase):
         s.set_cipher(SMIME.Cipher('des_ede3_cbc'))
         
         tmp = BIO.MemoryBuffer()
-        s.write(tmp, p7, BIO.MemoryBuffer(self.cleartext))
+        s.write(tmp, p7, buf)
 
         p7 = s.encrypt(tmp)
         
@@ -159,7 +159,7 @@ class SMIMETestCase(unittest.TestCase):
             f.close()
             p7, data = SMIME.smime_load_pkcs7('smime_test.txt')
             import os
-            #os.remove('smime_test.txt')
+            os.remove('smime_test.txt')
         else:
 #            f = open('smime_test.txt', 'wb')
 #            f.write(signedEncrypted.read())
@@ -168,7 +168,7 @@ class SMIMETestCase(unittest.TestCase):
 #            
 #            f = open('smime_test.txt', 'rb')
 #            t = f.read()
-#            print t
+#            #print t
 #            signedEncrypted = BIO.MemoryBuffer(t)
 #            f.close()
             # XXX Bug: "not enough data" with straight bio?
