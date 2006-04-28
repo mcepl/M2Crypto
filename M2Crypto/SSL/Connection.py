@@ -79,7 +79,7 @@ class Connection:
         m2.ssl_set_bio(self.ssl, readbio._ptr(), writebio._ptr())
         
     def set_client_CA_list_from_file(self, cafile):
-        m2.ssl_set_client_CA_list(self.ssl, cafile)
+        m2.ssl_set_client_CA_list_from_file(self.ssl, cafile)
 
     def set_client_CA_list_from_context(self):
         m2.ssl_set_client_CA_list_from_context(self.ssl, self.ctx.ctx)
