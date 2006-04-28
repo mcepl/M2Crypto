@@ -40,6 +40,8 @@
   gets deleted
 - It is now possible to set and get non-nid values to X509_Name (previously
   only set worked)
+- SSL.Connection.set_client_CA_list_from_file now uses the actual implementd
+  function instead of raising exception
 - Multithreaded SSL no longer uses the SSL_set/get_app_data to set and
   restore thread state, but uses the standard PyGILState_STATE instead.
 - m2urllib no longer outputs the HTTP headers (there was an erronous call
@@ -48,7 +50,7 @@
 - Memory leak fixes
 - SWIG and compiler warning fixes
 - More and better Epydoc formatted docstrings
-- More tests, also made many demos into tests
+- More than doubled the number of unit tests, also made many demos into tests
 
 0.15
 ----
