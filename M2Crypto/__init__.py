@@ -26,7 +26,6 @@ import Err
 import EVP
 import RSA
 import RC4
-import Rand
 import SMIME
 import SSL
 import X509

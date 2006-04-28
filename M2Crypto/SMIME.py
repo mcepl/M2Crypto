@@ -211,7 +211,7 @@ class SMIME:
         else:
             blob = m2.pkcs7_verify1(p7, self.x509_stack._ptr(), self.x509_store._ptr(), data_bio._ptr(), flags)
         if blob is None:
-                raise SMIME_Error, Err.get_error()
+            raise SMIME_Error, Err.get_error()
         return blob
 
     def write(self, out_bio, pkcs7, data_bio=None, flags=0):
