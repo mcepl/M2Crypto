@@ -4,8 +4,8 @@
 import sys
 
 # M2Crypto
-import Connection, Context
-from M2Crypto import X509, m2
+import Context
+from M2Crypto import m2
 
 def ssl_verify_callback_stub(ssl_ctx_ptr, x509_ptr, errnum, errdepth, ok):
     # Deprecated
