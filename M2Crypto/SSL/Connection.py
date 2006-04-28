@@ -176,10 +176,10 @@ class Connection:
         return self._write_nbio(data)
     sendall = send = write
     
-    def read(self, data):
+    def read(self, size=1024):
         if self.blocking:
-            return self._read_bio(data)
-        return self._read_nbio(data)
+            return self._read_bio(size)
+        return self._read_nbio(size)
     recv = read
 
     def setblocking(self, mode):
