@@ -19,16 +19,10 @@
 %apply Pointer NONNULL { X509_NAME_ENTRY * };
 %apply Pointer NONNULL { EVP_PKEY * };
 
-%{
 #if OPENSSL_VERSION_NUMBER >= 0x0090800fL
-%}
-
 %rename(x509_check_ca) X509_check_ca;
 extern int X509_check_ca(X509 *);
-
-%{
 #endif
-%}
 
 %rename(x509_new) X509_new;
 extern X509 *X509_new( void );

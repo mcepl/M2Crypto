@@ -130,12 +130,15 @@ class RSATestCase(unittest.TestCase):
         Testing signing and verifying digests
         """
         algos = {'sha1':'', 
-                 'sha224':'', 
-                 'sha256':'', 
-                 'sha384':'', 
-                 'sha512':'', 
                  'ripemd160':'',
                  'md5':''}
+
+        if m2.OPENSSL_VERSION_NUMBER >= 0x90800F:
+            algos['sha224'] = ''
+            algos['sha256'] = ''
+            algos['sha384'] = '' 
+            algos['sha512'] = '' 
+
         message = "This is the message string"
         digest = sha.sha(message).digest()
         rsa = RSA.load_key(self.privkey)

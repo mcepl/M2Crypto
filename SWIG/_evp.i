@@ -13,6 +13,7 @@ Author: Heikki Toivonen
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
 #include <openssl/rsa.h>
+#include <openssl/opensslv.h>
 %}
 
 %apply Pointer NONNULL { EVP_MD_CTX * };
@@ -30,6 +31,7 @@ extern const EVP_MD *EVP_sha1(void);
 %rename(ripemd160) EVP_ripemd160;
 extern const EVP_MD *EVP_ripemd160(void);
 
+#if OPENSSL_VERSION_NUMBER >= 0x0090800fL
 %rename(sha224) EVP_sha224;
 extern const EVP_MD *EVP_sha224(void);
 %rename(sha256) EVP_sha256;
@@ -38,6 +40,7 @@ extern const EVP_MD *EVP_sha256(void);
 extern const EVP_MD *EVP_sha384(void);
 %rename(sha512) EVP_sha512;
 extern const EVP_MD *EVP_sha512(void);
+#endif
 
 %rename(digest_init) EVP_DigestInit;
 extern int EVP_DigestInit(EVP_MD_CTX *, const EVP_MD *);
