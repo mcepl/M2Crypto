@@ -105,6 +105,7 @@ m2crypto = Extension(name = '__m2crypto',
                      library_dirs = library_dirs,
                      libraries = libraries,
                      extra_compile_args = ['-DTHREADING'],
+                     extra_link_args = ['-Wl,-search_paths_first'],
                      swig_opts = [swig_opts_str]
                      )
 
