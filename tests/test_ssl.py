@@ -532,6 +532,24 @@ class SSLClientTestCase(unittest.TestCase):
             self.stop_server(pid)
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
+    def test_HTTPS(self):
+        pid = self.start_server(self.args)
+        try:
+            from M2Crypto import httpslib
+            c = httpslib.HTTPS(srv_host, srv_port)
+            c.putrequest('GET', '/')
+            c.putheader('Accept', 'text/html')
+            c.putheader('Accept', 'text/plain')
+            c.endheaders()
+            err, msg, headers = c.getreply()
+            assert err == 200, err
+            f = c.getfile()
+            data = f.read()
+            c.close()
+        finally:
+            self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
     def test_urllib(self):
         pid = self.start_server(self.args)
         try:
