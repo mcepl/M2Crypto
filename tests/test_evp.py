@@ -9,7 +9,7 @@ Author: Heikki Toivonen
 
 import unittest
 import cStringIO, sha
-from M2Crypto import EVP, RSA, util, Rand
+from M2Crypto import EVP, RSA, util, Rand, m2
 
 class EVPTestCase(unittest.TestCase):
     def _gen_callback(self, *args):
