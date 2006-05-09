@@ -697,7 +697,7 @@ if __name__ == '__main__':
     if report_leaks:
         import gc
         gc.enable()
-        gc.set_debug(gc.DEBUG_LEAK)
+        gc.set_debug(gc.DEBUG_LEAK & ~gc.DEBUG_SAVEALL)
     
     try:
         Rand.load_file('../randpool.dat', -1) 
