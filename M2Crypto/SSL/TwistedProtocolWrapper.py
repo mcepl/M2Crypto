@@ -103,6 +103,25 @@ def listenTCP(port, factory, backlog=5, interface='',
     return reactor.listenTCP(port, wrappingFactory, backlog, interface)
 
 
+class _SSLBioProxy:
+    """
+    The purpose of this class is to eliminate the __del__ method from
+    TLSProtocolWrapper, and thus letting it be garbage collected.
+    """
+    
+    m2_bio_free_all = m2.bio_free_all
+
+    def __init__(self, sslBio):
+        self.sslBio = sslBio
+        
+    def _ptr(self):
+        return self.sslBio
+    
+    def __del__(self):
+        if self.sslBio is not None:
+            self.m2_bio_free_all(self.sslBio)
+
+
 class TLSProtocolWrapper(ProtocolWrapper):
     """
     A SSL/TLS protocol wrapper to be used with Twisted. Typically
@@ -162,9 +181,6 @@ class TLSProtocolWrapper(ProtocolWrapper):
         if not startPassThrough:
             self.startTLS(contextFactory.getContext())
             
-    def __del__(self):
-        self.clear()
-
     def clear(self):
         """
         Clear this instance, after which it is ready for reuse.
@@ -172,7 +188,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
         if debug:
             print 'TwistedProtocolWrapper.clear'
         if getattr(self, 'tlsStarted', 0):
-            self.m2_bio_free_all(self.sslBio)
+            del self.sslBio
             self.sslBio = None
             self.internalBio = None
             self.networkBio = None
@@ -207,7 +223,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
         m2.bio_set_write_buf_size(self.networkBio, 0)
         m2.bio_make_bio_pair(self.internalBio, self.networkBio)
 
-        self.sslBio = m2.bio_new(m2.bio_f_ssl())
+        self.sslBio = _SSLBioProxy(m2.bio_new(m2.bio_f_ssl()))
 
         self.ssl = m2.ssl_new(self.ctx.ctx)
 
@@ -217,7 +233,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
             m2.ssl_set_accept_state(self.ssl)
             
         m2.ssl_set_bio(self.ssl, self.internalBio, self.internalBio)
-        m2.bio_set_ssl(self.sslBio, self.ssl, 1)
+        m2.bio_set_ssl(self.sslBio._ptr(), self.ssl, 1)
 
         # Need this for writes that are larger than BIO pair buffers
         mode = m2.ssl_get_mode(self.ssl)
@@ -358,11 +374,11 @@ class TLSProtocolWrapper(ProtocolWrapper):
     def _encrypt(self, data='', clientHello=0):
         # XXX near mirror image of _decrypt - refactor
         self.data += data
-        g = m2.bio_ctrl_get_write_guarantee(self.sslBio)
+        g = m2.bio_ctrl_get_write_guarantee(self.sslBio._ptr())
         if g > 0 and self.data != '' or clientHello:
-            r = m2.bio_write(self.sslBio, self.data)
+            r = m2.bio_write(self.sslBio._ptr(), self.data)
             if r <= 0:
-                assert(m2.bio_should_retry(self.sslBio))
+                assert(m2.bio_should_retry(self.sslBio._ptr()))
             else:
                 assert(self.checked)               
                 self.data = self.data[r:]
@@ -394,13 +410,13 @@ class TLSProtocolWrapper(ProtocolWrapper):
                 
         decryptedData = ''
         while 1:
-            pending = m2.bio_ctrl_pending(self.sslBio)
+            pending = m2.bio_ctrl_pending(self.sslBio._ptr())
             if pending:
-                d = m2.bio_read(self.sslBio, pending)
+                d = m2.bio_read(self.sslBio._ptr(), pending)
                 if d is not None: # This is strange, but d can be None
                     decryptedData += d
                 else:
-                    assert(m2.bio_should_retry(self.sslBio))
+                    assert(m2.bio_should_retry(self.sslBio._ptr()))
             else:
                 break
 
