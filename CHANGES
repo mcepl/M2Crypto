@@ -16,6 +16,7 @@
   by Michael Weiser
 - Fixed SSLServer.handle_error to take the correct number of
   arguments, by Dan Williams
+- Various DSA enhancements by Larry Bugbee
 - Added sha224, sha256, sha384 and sha512, by Larry Bugbee
 - Added serialNumber, SN, surname, GN and givenName fields to X509_Name,
   by Martin Paljak
@@ -47,7 +48,7 @@
 - m2urllib no longer outputs the HTTP headers (there was an erronous call
   to set_debuglevel(1))
 - Removed RCS_id, RCS_ID and _RCS_id from Python files
-- Memory leak fixes
+- All known memory leaks fixed
 - SWIG and compiler warning fixes
 - More and better Epydoc formatted docstrings
 - More than doubled the number of unit tests, also made many demos into tests

@@ -1,6 +1,11 @@
-"""M2Crypto utility routines.
-
-Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
+"""
+    M2Crypto utility routines.
+    
+    Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.
+    
+    Portions created by Open Source Applications Foundation (OSAF) are
+    Copyright (C) 2004 OSAF. All Rights Reserved.
+"""
 
 import sys
 import m2
@@ -42,7 +47,11 @@ def genparam_callback(p, n, out=sys.stdout):
     out.write(ch[p])
     out.flush()
 
-def passphrase_callback(v, prompt1='Enter passphrase:', prompt2='Verify passphrase:'):
+def quiet_genparam_callback(p, n, out):
+    pass
+
+def passphrase_callback(v, prompt1='Enter passphrase:', 
+                           prompt2='Verify passphrase:'):
     from getpass import getpass
     while 1:
         try:

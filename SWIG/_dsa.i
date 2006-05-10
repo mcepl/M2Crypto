@@ -163,11 +163,48 @@ DSA *dsa_read_params(BIO *f, PyObject *pyfunc) {
     return ret;
 }
 
+int dsa_write_params_bio(DSA* dsa, BIO* f) {
+    return PEM_write_bio_DSAparams(f, dsa);
+}
+
+int dsa_write_key_bio(DSA* dsa, BIO* f, EVP_CIPHER *cipher, PyObject *pyfunc) {
+    int ret;
+
+    Py_INCREF(pyfunc);
+    ret = PEM_write_bio_DSAPrivateKey(f, dsa, cipher, NULL, 0,
+                                        passphrase_callback, (void *)pyfunc);
+    Py_DECREF(pyfunc);
+    return ret;
+}
+
+int dsa_write_key_bio_no_cipher(DSA* dsa, BIO* f, PyObject *pyfunc) {
+    int ret;
+
+    Py_INCREF(pyfunc);
+    ret = PEM_write_bio_DSAPrivateKey(f, dsa, NULL, NULL, 0,
+                                        passphrase_callback, (void *)pyfunc);
+    Py_DECREF(pyfunc);
+    return ret;
+}
+
+int dsa_write_pub_key_bio(DSA* dsa, BIO* f) {
+    return PEM_write_bio_DSA_PUBKEY(f, dsa);
+}
+
 DSA *dsa_read_key(BIO *f, PyObject *pyfunc) {
     DSA *ret;
 
     Py_INCREF(pyfunc);
     ret = PEM_read_bio_DSAPrivateKey(f, NULL, passphrase_callback, (void *)pyfunc);
+    Py_DECREF(pyfunc);
+    return ret;
+}
+
+DSA *dsa_read_pub_key(BIO *f, PyObject *pyfunc) {
+    DSA *ret;
+
+    Py_INCREF(pyfunc);
+    ret = PEM_read_bio_DSA_PUBKEY(f, NULL, passphrase_callback, (void *)pyfunc);
     Py_DECREF(pyfunc);
     return ret;
 }
@@ -268,6 +305,10 @@ int dsa_verify_asn1(DSA *dsa, PyObject *value, PyObject *sig) {
 
 int dsa_check_key(DSA *dsa) {
     return (dsa->pub_key) && (dsa->priv_key);
+}
+
+int dsa_check_pub_key(DSA *dsa) {
+    return dsa->pub_key ? 1 : 0;
 }
 
 int dsa_keylen(DSA *dsa) {
