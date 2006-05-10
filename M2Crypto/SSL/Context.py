@@ -57,15 +57,16 @@ class Context:
     def load_cert(self, certfile, keyfile=None, callback=util.passphrase_callback):
         """Load certificate and private key into the context.
         
-        'certfile'  - File object containing the PEM-encoded certificate.
+        @param certfile: File that contains the PEM-encoded certificate.
+        @type certfile:  str
+        @param keyfile:  File that contains the PEM-encoded private key.
+                         Default value of None indicates that the private key
+                         is to be found in 'certfile'.
+        @type keyfile:   str
 
-        'keyfile'   - File object containing the PEM-encoded private key.
-        Default value of None indicates that the private key is to be found
-        in 'certfile'.
-
-        'callback'  - Callable object to be invoked if the private key is
-        passphrase-protected. Default callback provides a simple
-        terminal-style input for the passphrase.
+        @param callback: Callable object to be invoked if the private key is
+                         passphrase-protected. Default callback provides a
+                         simple terminal-style input for the passphrase.
         """
         m2.ssl_ctx_passphrase_callback(self.ctx, callback)
         m2.ssl_ctx_use_cert(self.ctx, certfile)
@@ -78,15 +79,18 @@ class Context:
     def load_cert_chain(self, certchainfile, keyfile=None, callback=util.passphrase_callback):
         """Load certificate chain and private key into the context.
         
-        'certchainfile' - File object containing the PEM-encoded certificate chain.
+        @param certchainfile: File object containing the PEM-encoded
+                              certificate chain.
+        @type  certchainfile: str
+        @param keyfile:       File object containing the PEM-encoded private
+                              key. Default value of None indicates that the
+                              private key is to be found in 'certchainfile'.
+        @type keyfile:        str  
 
-        'keyfile'       - File object containing the PEM-encoded private key.
-        Default value of None indicates that the private key is to be found
-        in 'certchainfile'.
-
-        'callback'      - Callable object to be invoked if the private key is
-        passphrase-protected. Default callback provides a simple
-        terminal-style input for the passphrase.
+        @param callback:      Callable object to be invoked if the private key
+                              is passphrase-protected. Default callback 
+                              provides a simple terminal-style input for the
+                              passphrase.
         """
         m2.ssl_ctx_passphrase_callback(self.ctx, callback)
         m2.ssl_ctx_use_cert_chain(self.ctx, certchainfile)
@@ -100,8 +104,9 @@ class Context:
         """Load CA certs into the context. These CA certs are sent to the
         peer during *SSLv3 certificate request*.
         
-        'cafile'    - File object containing one or more PEM-encoded CA
-        certificates concatenated together.
+        @param cafile: File object containing one or more PEM-encoded CA
+                       certificates concatenated together.
+        @type cafile:  str
         """
         m2.ssl_ctx_set_client_CA_list_from_file(self.ctx, cafile)
 
@@ -112,10 +117,12 @@ class Context:
         """Load CA certs into the context. These CA certs are used during
         verification of the peer's certificate.
 
-        'cafile'    - File containing one or more PEM-encoded CA
-        certificates concatenated together.
-        'capath'    - Directory containing PEM-encoded CA certificates
-        (one certificate per file).
+        @param cafile: File containing one or more PEM-encoded CA certificates
+                       concatenated together.
+        @type cafile:  str
+        @param capath: Directory containing PEM-encoded CA certificates
+                       (one certificate per file).
+        @type capath:  str
         """
         assert not (cafile is None and capath is None), "cafile and capath are None."
         return m2.ssl_ctx_load_verify_locations(self.ctx, cafile, capath)
@@ -132,7 +139,8 @@ class Context:
         """Set the context to accept/reject a peer certificate if the 
         certificate's CA is unknown.
 
-        'ok'        - 'true' to accept, 'false' to reject.
+        @param ok:       True to accept, False to reject.
+        @type ok:        boolean
         """
         self.allow_unknown_ca = ok
 
@@ -142,8 +150,21 @@ class Context:
         """
         return self.allow_unknown_ca
 
-    #def set_verify(self, mode, depth, callback=cb.ssl_verify_callback):
     def set_verify(self, mode, depth, callback=None):
+        """
+        Set verify options. Most applications will need to call this
+        method with the right options to make a secure SSL connection.
+        
+        @param mode:     The verification mode to use. Typically at least
+                         SSL.verify_peer is used. Clients would also typically
+                         add SSL.verify_fail_if_no_peer_cert.
+        @param mode:     int                 
+        @param depth:    The maximum allowed depth of the certificate chain
+                         returned by the peer.
+        @type depth:     int
+        @param callback: Callable that can be used to specify custom
+                         verification checks.
+        """
         if callback is None:
             m2.ssl_ctx_set_verify_default(self.ctx, mode)
         else:
@@ -159,8 +180,9 @@ class Context:
     def set_tmp_dh(self, dhpfile):
         """Load ephemeral DH parameters into the context.
 
-        'dhpfile'   - File object containing the PEM-encoded DH 
-        parameters.
+        @param dhpfile: File object containing the PEM-encoded DH 
+                        parameters.
+        @type dhpfile:  str
         """
         f = BIO.openfile(dhpfile)
         dhp = m2.dh_read_parameters(f.bio_ptr())
@@ -173,7 +195,7 @@ class Context:
     def set_tmp_rsa(self, rsa):
         """Load ephemeral RSA key into the context.
 
-        'rsa'   - M2Crypto.RSA.RSA instance.
+        @param rsa: M2Crypto.RSA.RSA instance.
         """
         if isinstance(rsa, RSA.RSA):
             return m2.ssl_ctx_set_tmp_rsa(self.ctx, rsa.rsa)
