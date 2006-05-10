@@ -89,6 +89,13 @@ class DSA:
             self.__dict__[name] = value
 
     def set_params(self, p, q, g):
+        """
+        Set new parameters.
+        
+        @warning: This does not change the private key, so it may be
+                  unsafe to use this method. It is better to use
+                  gen_params function to create a new DSA object.
+        """
         m2.dsa_set_p(self.dsa, p)
         m2.dsa_set_q(self.dsa, q)
         m2.dsa_set_g(self.dsa, g)
