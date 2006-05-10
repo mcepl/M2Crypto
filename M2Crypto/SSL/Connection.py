@@ -79,9 +79,25 @@ class Connection:
         m2.ssl_set_bio(self.ssl, readbio._ptr(), writebio._ptr())
         
     def set_client_CA_list_from_file(self, cafile):
+        """
+        Set the acceptable client CA list. If the client
+        returns a certificate, it must have been issued by
+        one of the CAs listed in cafile.
+        
+        Makes sense only for servers.
+        
+        @param cafile: Filename from which to load the CA list.
+        """
         m2.ssl_set_client_CA_list_from_file(self.ssl, cafile)
 
     def set_client_CA_list_from_context(self):
+        """
+        Set the acceptable client CA list. If the client
+        returns a certificate, it must have been issued by
+        one of the CAs listed in context.
+        
+        Makes sense only for servers.
+        """
         m2.ssl_set_client_CA_list_from_context(self.ssl, self.ctx.ctx)
 
     def setup_addr(self, addr):
