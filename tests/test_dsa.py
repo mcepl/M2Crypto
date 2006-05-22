@@ -73,6 +73,15 @@ class DSATestCase(unittest.TestCase):
     def check_genparam_setparam_genkey(self):
         dsa = DSA.gen_params(256, self.callback)
         assert len(dsa) == 512
+        p = dsa.p
+        q = dsa.q
+        g = dsa.g
+        dsa2 = DSA.set_params(p,q,g)
+        assert not dsa2.check_key()
+        dsa2.gen_key()
+        assert dsa2.check_key()
+        r,s = dsa2.sign(self.data)
+        assert dsa2.verify(self.data, r, s)
 
 def suite():
     return unittest.makeSuite(DSATestCase, 'check')

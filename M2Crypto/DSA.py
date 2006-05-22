@@ -291,6 +291,25 @@ def gen_params(bits, callback=util.genparam_callback):
         raise DSAError('problem generating DSA parameters')
     return DSA(dsa, 1)
 
+def set_params(p, q, g):
+    """
+    Factory function that instantiates a DSA object with DSA
+    parameters.
+
+    @type  p: str
+    @param p: value of p, a "byte string"
+    @type  q: str
+    @param q: value of q, a "byte string"
+    @type  g: str
+    @param g: value of g, a "byte string"
+    @rtype:   DSA
+    @return:  instance of DSA.
+    """
+    dsa = m2.dsa_new()
+    m2.dsa_set_p(dsa, p)
+    m2.dsa_set_q(dsa, q)
+    m2.dsa_set_g(dsa, g)
+    return DSA(dsa, 1)
 
 def load_params(file, callback=util.passphrase_callback):
     """
