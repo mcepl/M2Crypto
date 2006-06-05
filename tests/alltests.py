@@ -15,6 +15,7 @@ def suite():
         'test_dh',
         'test_dsa',
         'test_evp',
+        'test_rand',
         'test_rsa',
         'test_smime',
         'test_x509']
