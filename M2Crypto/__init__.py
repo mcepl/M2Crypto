@@ -20,7 +20,7 @@ import BN
 import Rand
 import DH
 import DSA
-if m2.OPENSSL_VERSION_NUMBER >= 0x90800F:
+if m2.OPENSSL_VERSION_NUMBER >= 0x90800F and m2.OPENSSL_NO_EC == 0:
     import EC
 import Err
 import EVP
