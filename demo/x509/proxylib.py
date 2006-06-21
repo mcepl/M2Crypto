@@ -1,10 +1,17 @@
 ############################################################################
-# Matt Rodriguez, LBNL  MKRodriguez@lbl.gov
+# Matt Rodriguez, LBNL
+#Copyright (c) 2003, The Regents of the University of California,
+#through Lawrence Berkeley National Laboratory
+#(subject to receipt of any required approvals from the U.S. Dept. of Energy).
+#All rights reserved.
 ############################################################################
 """
 API to generated proxy certificates
 """ 
-import os, time, sys, struct, re
+import os, sys 
+import struct
+import re
+import time, calendar, datetime
 
 import_regex = re.compile(r"\s*libssl.so.0.9.8\s*")
 errstr = "You must have the openssl 0.9.8 libraries in your LD_LIBRARY_PATH"""
@@ -23,6 +30,13 @@ MBSTRING_ASC  = MBSTRING_FLAG | 1
 KEY_USAGE_VALUE = "Digital Signature, Key Encipherment, Data Encipherment"
 PCI_VALUE_FULL = "critical, language:Inherit all"
 PCI_VALUE_LIMITED = "critical, language:1.3.6.1.4.1.3536.1.1.1.9"
+
+
+class ProxyFactoryException(Exception):
+    """
+    Base class for exceptions in the ProxyFactory class
+    """
+
 class Proxy:
     """
     class that holds proxy certificate information,
@@ -93,7 +107,8 @@ class Proxy:
         self._key.save_key_bio(bio, cipher=None) 
         bio.write(self._issuer.as_pem())
         bio.close()
-        os.chmod(proxypath, 0600)
+        os.chmod(proxypath, 0600) 
+        
 
 class ProxyFactory:
     """
@@ -110,8 +125,10 @@ class ProxyFactory:
         
     def generate(self): 
         """
-        generates a new proxy like grid-proxy-init
+        generates a new proxy like grid-proxy-init 
         """ 
+        if not self._check_valid():
+            raise ProxyFactoryException("The issuer cert is expired")
         if self._proxycert is None:
             self._proxycert = X509.X509()        
             key = EVP.PKey()
@@ -201,7 +218,7 @@ class ProxyFactory:
     
     def _add_extensions(self):
         """
-        Internal function that adds the extensions to the certificate
+        Internal method that adds the extensions to the certificate
         """
         key_usage_ext = X509.new_extension("keyUsage", KEY_USAGE_VALUE, 1) 
         self._proxycert.add_ext(key_usage_ext)
@@ -213,7 +230,29 @@ class ProxyFactory:
                                         PCI_VALUE_LIMITED, 1, 0)  
         self._proxycert.add_ext(pci_ext)
  
-
+    def _check_valid(self):
+        """
+        Internal method that ensures the issuer cert has
+        valid, not_before and not_after fields
+        """
+        before_time = self._usercert.get_not_before()
+        after_time = self._usercert.get_not_after()
+        before_tuple = time.strptime(str(before_time), "%b %d %H:%M:%S %Y %Z")
+        after_tuple = time.strptime(str(after_time), "%b %d %H:%M:%S %Y %Z")
+        starts =  datetime.timedelta(seconds=calendar.timegm(before_tuple))
+        expires = datetime.timedelta(seconds=calendar.timegm(after_tuple))
+        now = datetime.timedelta(seconds=time.time())
+        time_delta = expires - now
+        #cert has expired
+        if time_delta.days < 0:
+            return False
+        #cert is not yet valid, not likely but should still return False
+        time_delta = now - starts
+        if time_delta.days < 0:   
+            return False
+        
+        return True
+    
 #Utility Functions
 def get_proxy_filename():  
     """
@@ -244,6 +283,9 @@ def get_usercert(certfile=None):
     """
     function that returns a X509 instance which 
     is the user cert that is expected to be a ~/.globus/usercert.pem
+    
+    A check is performed to ensure the certificate has valid
+    before and after times.
     """
     if certfile is None:
         certfile = open(os.path.join(os.getenv("HOME"),
@@ -251,7 +293,7 @@ def get_usercert(certfile=None):
     else:
         certfile = open(certfile)
     bio = BIO.File(certfile)
-    cert = X509.load_cert_bio(bio)
+    cert = X509.load_cert_bio(bio) 
     return cert
 
 def get_userkey(keyfile=None):
