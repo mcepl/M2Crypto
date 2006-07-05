@@ -1,5 +1,5 @@
 /* Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved. 
- Portions copyright (c) 2005 Vrije Universiteit Amsterdam. All rights reserved.
+ Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam. All rights reserved.
 
  Most code originally from _dsa.i, _rsa.i and _dh.i and adjusted for EC use.
 */

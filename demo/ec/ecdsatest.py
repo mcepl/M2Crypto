@@ -3,7 +3,7 @@
 """ECDSA demonstration.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
-Portions copyright (c) 2005 Vrije Universiteit Amsterdam. All rights reserved.
+Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam. All rights reserved.
 """
 
 from M2Crypto import EC, EVP, Rand
