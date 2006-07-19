@@ -40,8 +40,11 @@ class WrongHost(SSLVerificationError):
         self.fieldName = fieldName
         
     def __str__(self):
-        return 'Peer certificate %s does not match host, expected %s, got %s' \
+        s = 'Peer certificate %s does not match host, expected %s, got %s' \
                % (self.fieldName, self.expectedHost, self.actualHost)
+        if isinstance(s, unicode):
+            s = s.encode('utf8')
+        return s
 
 
 class Checker:

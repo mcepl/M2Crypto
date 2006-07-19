@@ -31,9 +31,13 @@ class SSLError(Exception):
         self.client_addr = client_addr
 
     def __str__(self):
+        if (isinstance(self.client_addr, unicode)):
+            s = self.client_addr.encode('utf8')
+        else:
+            s = self.client_addr
         return "%s: %s: %s" % \
             (m2.err_func_error_string(self.err), \
-            self.client_addr, \
+            s, \
             m2.err_reason_error_string(self.err))
 
 class M2CryptoError(Exception):
