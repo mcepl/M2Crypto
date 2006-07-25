@@ -1,83 +1,44 @@
 <HTML
 ><HEAD
 ><TITLE
->HOWTO: Programming HTTPS in Python with M2Crypto</TITLE
-><META
-NAME="GENERATOR"
-CONTENT="Modular DocBook HTML Stylesheet Version 1.64
-"></HEAD
-><BODY
+>HOWTO: Programming SSL in Python with M2Crypto</TITLE
+>
+
+</HEAD>
+<BODY
 CLASS="ARTICLE"
 BGCOLOR="#FFFFFF"
 TEXT="#000000"
 LINK="#0000FF"
 VLINK="#840084"
 ALINK="#0000FF"
-><DIV
-CLASS="ARTICLE"
-><DIV
+>
+
+<DIV
 CLASS="TITLEPAGE"
 ><H1
 CLASS="TITLE"
 ><A
 NAME="AEN2"
->HOWTO: Programming HTTPS in Python with M2Crypto</A
+>HOWTO: Programming SSL in Python with M2Crypto</A
 ></H1
-><H3
-CLASS="AUTHOR"
-><A
-NAME="AEN4"
->Pheng Siong Ng</A
-></H3
-><DIV
-CLASS="AFFILIATION"
-><DIV
-CLASS="ADDRESS"
-><P
-CLASS="ADDRESS"
->ngps@netmemetic.com</P
-></DIV
-></DIV
+>
+<P>
+Ng Pheng Siong (ngps@netmemetic.com) and Heikki Toivonen (heikki@osafoundation.org)
+</P
 ><P
 CLASS="COPYRIGHT"
 >Copyright &copy; 2001, 2002 by Ng Pheng Siong.</P
-><DIV
-CLASS="REVHISTORY"
-><TABLE
-WIDTH="100%"
-BORDER="0"
-><TR
-><TH
-ALIGN="LEFT"
-VALIGN="TOP"
-COLSPAN="3"
-><B
->Revision History</B
-></TH
-></TR
-><TR
-><TD
-ALIGN="LEFT"
->Revision $Revision: 1.1 $</TD
-><TD
-ALIGN="LEFT"
->$Date: 2003/06/22 16:41:18 $</TD
-><TD
-ALIGN="LEFT"
-></TD
-></TR
-><TR
-><TD
-ALIGN="LEFT"
-COLSPAN="3"
-></TD
-></TR
-></TABLE
-></DIV
-><HR></DIV
-><DIV
+>
+<P
+CLASS="COPYRIGHT"
+>Portions Copyright &copy; 2006 by Open Source Applications Foundation.</P
+>
+</DIV>
+			
+<DIV
 CLASS="SECT1"
-><HR><H1
+><H1
 CLASS="SECT1"
 ><A
 NAME="INTRODUCTION"
@@ -85,7 +46,7 @@ NAME="INTRODUCTION"
 ></H1
 ><P
 ><A
-HREF="http://www.post1.com/home/ngps/m2"
+HREF="http://wiki.osafoundation.org/bin/view/Projects/MeTooCrypto"
 TARGET="_top"
 >M2Crypto</A
 > 
@@ -107,93 +68,12 @@ TARGET="_top"
 >This document demonstrates programming HTTPS with M2Crypto.
     </P
 ></DIV
-><DIV
-CLASS="SECT1"
-><HR><H1
-CLASS="SECT1"
-><A
-NAME="HTTPS"
->Programming HTTPS</A
-></H1
 >
-<P>HTTPS - HTTP over SSL/TLS</P>
-<P>Python has had good HTTP support for several years now. M2Crypto's
-    HTTPS functionality mostly adopts the interfaces in Python's HTTP modules.
-    </P>
-
-    <P>In this HOWTO, we shall begin with writing HTTPS clients. Now, to
-    test the HTTPS clients we write, we need a HTTPS server; conversely, to
-    test our HTTPS servers, we need a HTTPS client. ;-) </P>
-
-    <P> All the programs we write in this HOWTO are found in
-    &lt;m2crypto&gt;/demo/https.howto/. Additionally, a number of programs from
-    &lt;m2crypto&gt;/demo/ssl are also copied into this directory; their names are
-    prefixed by "orig". These "orig" programs shall be our known-working HTTPS
-    clients and servers.  </P>
-</DIV
->
-<DIV
-CLASS="SECT1"
-><HR><H1
-CLASS="SECT1"
-><A
-NAME="SSLDUMP"
->ssldump</A
-></H1
->
-<P>ssldump "is an SSLv3/TLS network protocol analyser. It identifies
-    TCP connections on the chosen network interface and attempts to interpret
-    them as SSLv3/TLS traffic. When it identifies SSLv3/TLS traffic, it
-    decodes the records and displays them in a textual form to stdout. If
-    provided with the appropriate keying material, it will also decrypt the
-    connections and display the application data traffic.  
-    </P>
-    
-    <P>
-    If linked with OpenSSL, ssldump can display certificates in decoded form
-    and decrypt traffic (provided that it has the appropriate keying
-    material)."
-    </P>
-
-    <P>ssldump is written by Eric Rescorla.
-    </P>
-</DIV
->
+	
 
 <DIV
 CLASS="SECT1"
-><HR><H1
-CLASS="SECT1"
-><A
-NAME="orig-https-srv.py"
->orig-https-srv.py</A
-></H1
->
-<P>orig_https_srv.py is an enhanced version of SimpleHTTPServer that
-    features the following: 
-    </P>
-<ul>
-<li>Works over HTTPS.
-<li>Uses one thread per connection.
-<li>Generates directory listings.
-<li>Displays SSL handshaking and SSL session info.
-<li>Performs SSL renegotiation when a magic URL is requested.
-</ul>
-
-<p>Invoke orig_https_srv.py thusly:</p>
-<pre>
-$ python orig_https_srv.py
-</pre>
-
-<p>By default, orig_https_srv.py serves HTTPS on port 9443.</p>
-
-</DIV
->
-
-
-<DIV
-CLASS="SECT1"
-><HR><H1
+><H1
 CLASS="SECT1"
 ><A
 NAME="history"
@@ -234,122 +114,88 @@ NAME="history"
     <tt>M2Crypto.BIO.IOBuffer</tt> object that works over the
     underlying M2Crypto.SSL.Connection directly.  </p>
 
+	<p>Since then M2Crypto has gained a Twisted wrapper that allows securing
+	Twisted SSL connections with M2Crypto.</p>
 </DIV
 >
 
 
+<DIV CLASS="SECT1">
+<H1 CLASS="SECT1">Secure SSL</H1>
+	
+<p>It is recommended that you read the book Network Security with OpenSSL by John Viega, Matt Messier and Pravir Chandra,
+ISBN 059600270X.</p>	
+
+<p>Using M2Crypto does not automatically make an SSL connection secure. There are various steps that need to be made
+before we can make that claim. Let's see how a simple client can establish a secure connection:</p>
+
+<pre>
+ctx = SSL.Context()
+ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, depth=9)
+if ctx.load_verify_locations('ca.pem') != 1: raise Exception('No CA certs')
+s = SSL.Connection(ctx)
+s.connect(server_address)
+# Normal protocol (for example HTTP) commands follow
+</pre>
+
+<p>The first line creates an SSL context. The defaults allow any SSL version (except SSL version 2 which has known
+weaknesses) and sets the allowed ciphers to secure ones.</p>
+	
+<p>The second line tells M2Crypto to perform certificate validation. The flags shown above are typical for clients,
+and requires the server to send a certificate. The depth parameter tells how long certificate chains are allowed -
+9 is pretty common default, although probably too long in practice.</p>
+	
+<p>The third line loads the allowed root (certificate authority) certificates.</p>	
+
+<p>The fourth line creates an SSL connection object with the secure context.</p>
+	
+<p>The fifth line connects to the server. During this time we perform the last security step: just after connection, but before
+exchanging any data, we compare the commonName (or subjectAltName DNS field) field in the certificate the server returned to the 
+server address we tried to connect to. This happens automatically with SSL.Connection and the Twisted wrapper class, and anything
+that uses those. In all other cases you must do the check manually. It is recommended you call the SSL.Checker to do the actual check.</p>
+
+<p>SSL servers are different in that they typically do not require the client to send a certificate, so there is usually no certificate
+checking. Also, it is typically useless to perform host name checking.</p>	
+
+</DIV>
+
+<DIV CLASS="SECT1">
+<H1 CLASS="SECT1">Code Samples</H1>
+
+<p>The best samples of how to use the various SSL objects are in the tests directory, and the test_ssl.py file specifically.
+There are additional samples in the demo directory, but they are not quaranteed to be up to date.</p>
+	
+<p>NOTE: The tests and demos
+may not be secure as is. Use the information above on how to make them secure.</p>
+</DIV>
+	
 <DIV
 CLASS="SECT1"
-><HR><H1
+><H1
 CLASS="SECT1"
 ><A
-NAME="simple-post"
->A simple HTTPS-POST client</A
+NAME="SSLDUMP"
+>ssldump</A
 ></H1
 >
+<P>ssldump "is an SSLv3/TLS network protocol analyser. It identifies
+    TCP connections on the chosen network interface and attempts to interpret
+    them as SSLv3/TLS traffic. When it identifies SSLv3/TLS traffic, it
+    decodes the records and displays them in a textual form to stdout. If
+    provided with the appropriate keying material, it will also decrypt the
+    connections and display the application data traffic.  
+    </P>
+    
+    <P>
+    If linked with OpenSSL, ssldump can display certificates in decoded form
+    and decrypt traffic (provided that it has the appropriate keying
+    material)."
+    </P>
 
-
+    <P>ssldump is written by Eric Rescorla.
+    </P>
 </DIV
 >
 
-
-<DIV
-CLASS="SECT1"
-><HR><H1
-CLASS="SECT1"
-><A
-NAME="threaded-cli"
->A multi-threaded HTTPS client</A
-></H1
->
-</DIV
->
-
-<DIV
-CLASS="SECT1"
-><HR><H1
-CLASS="SECT1"
-><A
-NAME="async-reuse-cli"
->An asynchronous session-reusing client</A
-></H1
->
-</DIV
->
-
-<DIV
-CLASS="SECT1"
-><HR><H1
-CLASS="SECT1"
-><A
-NAME="verify-server-cert"
->Verifying server certificate</A
-></H1
->
-</DIV
->
-
-<DIV
-CLASS="SECT1"
-><HR><H1
-CLASS="SECT1"
-><A
-NAME="using-client-cert"
->Using client certificate</A
-></H1
->
-</DIV
->
-
-<DIV
-CLASS="SECT1"
-><HR><H1
-CLASS="SECT1"
-><A
-NAME="simple-https-server"
->SimpleHTTPSServer</A
-></H1
->
-</DIV
->
-
-<DIV
-CLASS="SECT1"
-><HR><H1
-CLASS="SECT1"
-><A
-NAME="medusa-https-server"
->A Medusa-based HTTPS server</A
-></H1
->
-</DIV
->
-
-<DIV
-CLASS="SECT1"
-><HR><H1
-CLASS="SECT1"
-><A
-NAME="verify-client-cert"
->Client certificate-based authentication</A
-></H1
->
-</DIV
->
-
-<DIV
-CLASS="SECT1"
-><HR><H1
-CLASS="SECT1"
-><A
-NAME="control-session-reuse"
->Controlling session reuse</A
-></H1
->
-</DIV
->
-
-
-</BODY
-></HTML
->
+</BODY>
+</HTML>
