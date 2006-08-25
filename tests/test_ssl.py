@@ -651,6 +651,54 @@ class SSLClientTestCase(unittest.TestCase):
     #def test_urllib_secure_context(self):
     #def test_urllib_secure_context_fail(self):
 
+    # XXX Don't actually know how to use m2urllib safely!
+    #def test_urllib_safe_context(self):
+    #def test_urllib_safe_context_fail(self):
+
+    def test_urllib2(self):
+        pid = self.start_server(self.args)
+        try:
+            from M2Crypto import m2urllib2
+            opener = m2urllib2.build_opener()
+            opener.addheaders = [('Connection', 'close')]
+            u = opener.open('https://%s:%s/' % (srv_host, srv_port))
+            data = u.read()
+            u.close()
+        finally:
+            self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
+    def test_urllib2_secure_context(self):
+        pid = self.start_server(self.args)
+        try:
+            ctx = SSL.Context()
+            ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
+            ctx.load_verify_locations('ca.pem')
+            
+            from M2Crypto import m2urllib2
+            opener = m2urllib2.build_opener(ctx)
+            opener.addheaders = [('Connection', 'close')]           
+            u = opener.open('https://%s:%s/' % (srv_host, srv_port))
+            data = u.read()
+            u.close()
+        finally:
+            self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
+    def test_urllib2_secure_context_fail(self):
+        pid = self.start_server(self.args)
+        try:
+            ctx = SSL.Context()
+            ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
+            ctx.load_verify_locations('server.pem')
+            
+            from M2Crypto import m2urllib2
+            opener = m2urllib2.build_opener(ctx)
+            opener.addheaders = [('Connection', 'close')]
+            self.assertRaises(SSL.SSLError, opener.open, 'https://%s:%s/' % (srv_host, srv_port))
+        finally:
+            self.stop_server(pid)
+
     def test_blocking0(self):
         pid = self.start_server(self.args)
         try:
