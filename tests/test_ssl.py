@@ -686,6 +686,8 @@ class SSLClientTestCase(unittest.TestCase):
             from twisted.internet import reactor
             import M2Crypto.SSL.TwistedProtocolWrapper as wrapper
         except ImportError:
+            import warnings
+            warnings.warn('Skipping twisted wrapper test because twisted not found')
             return
         
         class EchoClient(LineReceiver):
