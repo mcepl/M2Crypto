@@ -124,7 +124,8 @@ class Context:
                        (one certificate per file).
         @type capath:  str
         """
-        assert not (cafile is None and capath is None), "cafile and capath are None."
+        if cafile is None and capath is None:
+            raise ValueError("cafile and capath can not both be None.")
         return m2.ssl_ctx_load_verify_locations(self.ctx, cafile, capath)
 
     # Deprecated.
