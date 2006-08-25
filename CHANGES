@@ -1,5 +1,6 @@
 0.17
 ----
+- Added m2urllib2, by James Bowes
 - SSL.Context.load_verify_locations raises ValueError if cafile and capath
   are both None
 

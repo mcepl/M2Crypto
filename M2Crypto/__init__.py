@@ -33,6 +33,7 @@ import PGP
 import m2urllib
 # Backwards compatibility.
 urllib2 = m2urllib
+import m2urllib2
 import ftpslib
 import httpslib
 import m2xmlrpclib
