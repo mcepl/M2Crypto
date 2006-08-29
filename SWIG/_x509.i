@@ -87,9 +87,9 @@ extern int X509_set_subject_name(X509 *, X509_NAME *);
 %constant int X509_PURPOSE_OCSP_HELPER        = 8;
 
 %rename(x509_check_purpose) X509_check_purpose;
-extern X509_check_purpose(X509 *, int, int);
+extern int X509_check_purpose(X509 *, int, int);
 %rename(x509_check_trust) X509_check_trust;
-extern X509_check_trust(X509 *, int, int);
+extern int X509_check_trust(X509 *, int, int);
 
 %rename(x509_write_pem) PEM_write_bio_X509;
 extern int PEM_write_bio_X509(BIO *, X509 *);

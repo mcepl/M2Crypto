@@ -154,6 +154,11 @@ class X509TestCase(unittest.TestCase):
         
         if m2.OPENSSL_VERSION_NUMBER >= 0x90800f:
             assert not cert.check_ca()
+            assert not cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 1)
+            assert not cert.check_purpose(m2.X509_PURPOSE_NS_SSL_SERVER, 1)
+            assert cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 0)
+            assert cert.check_purpose(m2.X509_PURPOSE_NS_SSL_SERVER, 0)
+            assert cert.check_purpose(m2.X509_PURPOSE_ANY, 0)            
         else:
             self.assertRaises(AttributeError, cert.check_ca)
 
@@ -183,6 +188,9 @@ class X509TestCase(unittest.TestCase):
 
         if m2.OPENSSL_VERSION_NUMBER >= 0x0090800fL:
             assert cert.check_ca()
+            assert cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 1)
+            assert cert.check_purpose(m2.X509_PURPOSE_NS_SSL_SERVER, 1)
+            assert cert.check_purpose(m2.X509_PURPOSE_ANY, 1)
         else:
             self.assertRaises(AttributeError, cert.check_ca)
         
