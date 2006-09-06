@@ -153,26 +153,7 @@ class SMIMETestCase(unittest.TestCase):
     
         s.load_key('recipient_key.pem', 'recipient.pem')
         
-        if 1:
-            f = open('smime_test.txt', 'wb')
-            f.write(signedEncrypted.read())
-            f.close()
-            p7, data = SMIME.smime_load_pkcs7('smime_test.txt')
-            import os
-            os.remove('smime_test.txt')
-        else:
-#            f = open('smime_test.txt', 'wb')
-#            f.write(signedEncrypted.read())
-#            f.close()
-#            p7, data = SMIME.smime_load_pkcs7('smime_test.txt')
-#            
-#            f = open('smime_test.txt', 'rb')
-#            t = f.read()
-#            #print t
-#            signedEncrypted = BIO.MemoryBuffer(t)
-#            f.close()
-            # XXX Bug: "not enough data" with straight bio?
-            p7, data = SMIME.smime_load_pkcs7_bio(signedEncrypted)
+        p7, data = SMIME.smime_load_pkcs7_bio(signedEncrypted)
         
         out = s.decrypt(p7)
         

@@ -4,6 +4,9 @@
 - SSL.Context.load_verify_locations raises ValueError if cafile and capath
   are both None
 - Fixed X509.check_purpose() (was always raising exceptions)
+- smime_read_pkcs7 was changed to automatically call BIO_set_mem_eof_return
+  on memory BIOs because otherwise the read would fail with 
+  "SMIME_Error: not enough data"
 
 0.16
 ----
