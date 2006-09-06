@@ -21,20 +21,20 @@ extern PKCS7 *PKCS7_new(void);
 extern void PKCS7_free(PKCS7 *);
 
 /* S/MIME operation */
-%constant int PKCS7_TEXT	= 0x1;
-%constant int PKCS7_NOCERTS	= 0x2;
-%constant int PKCS7_NOSIGS	= 0x4;
-%constant int PKCS7_NOCHAIN	= 0x8;
-%constant int PKCS7_NOINTERN	= 0x10;
-%constant int PKCS7_NOVERIFY	= 0x20;
-%constant int PKCS7_DETACHED	= 0x40;
-%constant int PKCS7_BINARY	= 0x80;
-%constant int PKCS7_NOATTR	= 0x100;
+%constant int PKCS7_TEXT       = 0x1;
+%constant int PKCS7_NOCERTS    = 0x2;
+%constant int PKCS7_NOSIGS     = 0x4;
+%constant int PKCS7_NOCHAIN    = 0x8;
+%constant int PKCS7_NOINTERN   = 0x10;
+%constant int PKCS7_NOVERIFY   = 0x20;
+%constant int PKCS7_DETACHED   = 0x40;
+%constant int PKCS7_BINARY     = 0x80;
+%constant int PKCS7_NOATTR     = 0x100;
 
-%constant int PKCS7_SIGNED	        = NID_pkcs7_signed;
-%constant int PKCS7_ENVELOPED	        = NID_pkcs7_enveloped;
-%constant int PKCS7_SIGNED_ENVELOPED	= NID_pkcs7_signedAndEnveloped;
-%constant int PKCS7_DATA	        = NID_pkcs7_data;
+%constant int PKCS7_SIGNED            = NID_pkcs7_signed;
+%constant int PKCS7_ENVELOPED         = NID_pkcs7_enveloped;
+%constant int PKCS7_SIGNED_ENVELOPED  = NID_pkcs7_signedAndEnveloped;
+%constant int PKCS7_DATA              = NID_pkcs7_data;
 
 %inline %{
 static PyObject *_pkcs7_err, *_smime_err;
@@ -134,6 +134,14 @@ PyObject *smime_read_pkcs7(BIO *bio) {
     BIO *bcont = NULL;
     PKCS7 *p7;
     PyObject *tuple, *_p7, *_BIO;
+
+    if (BIO_method_type(bio) == BIO_TYPE_MEM) {
+        /* OpenSSL FAQ explains that this is needed for mem BIO to return EOF,
+         * like file BIO does. Might need to do this for more mem BIOs but
+         * not sure if that is safe, so starting with just this single place.
+         */
+        BIO_set_mem_eof_return(bio, 0);
+    }
 
     if (!(p7=SMIME_read_PKCS7(bio, &bcont))) {
         PyErr_SetString(_smime_err, ERR_reason_error_string(ERR_get_error()));
