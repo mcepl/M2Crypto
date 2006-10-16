@@ -61,7 +61,7 @@ def open_https(self, url, data=None, ssl_context=None):
     # Here again!
     resp = h.getresponse()
     fp = resp.fp
-    return urllib.addinfourl(fp, {}, "https:" + url)
+    return urllib.addinfourl(fp, resp.msg, "https:" + url)
     # Stop again.
 
 # Minor brain surgery. 
