@@ -31,6 +31,20 @@ KEY_USAGE_VALUE = "Digital Signature, Key Encipherment, Data Encipherment"
 PCI_VALUE_FULL = "critical, language:Inherit all"
 PCI_VALUE_LIMITED = "critical, language:1.3.6.1.4.1.3536.1.1.1.9"
 
+def create_write_file(fname, perm=0600):
+    """
+    Creates a file to write to while avoiding a possible race condition.
+    This is essential for writing out the proxy file. Need to make sure
+    there is no pre-existing file.
+    """
+    if os.path.exists(fname):
+        os.remove(fname)
+    # Make sure the file doesn't exist. Will throw an exception if
+    # it does. This would only happen if the code is attacked.
+    fd = os.open(fname, os.O_CREAT|os.O_EXCL|os.O_WRONLY, perm)
+    f = os.fdopen(fd, 'w')
+    return f
+
 
 class ProxyFactoryException(Exception):
     """
@@ -101,7 +115,7 @@ class Proxy:
         """
         Writes the proxy information to a file
         """
-        proxyfile = open(proxypath, "w")
+        proxyfile = create_write_file(proxypath)
         bio = BIO.File(proxyfile) 
         bio.write(self._cert.as_pem())
         self._key.save_key_bio(bio, cipher=None) 
