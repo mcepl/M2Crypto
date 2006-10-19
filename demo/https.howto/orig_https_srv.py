@@ -13,12 +13,15 @@ TODO:
 3. Interface ZPublisher.
 
 Copyright (c) 1999-2000 Ng Pheng Siong. All rights reserved.
+
+Portions created by Open Source Applications Foundation (OSAF) are
+Copyright (C) 2006 OSAF. All Rights Reserved.
 """
 
 import os, sys
 from SimpleHTTPServer import SimpleHTTPRequestHandler
 
-from M2Crypto import Rand, SSL
+from M2Crypto import Rand, SSL, threading
 from M2Crypto.SSL.SSLServer import ThreadingSSLServer
 
 try:
@@ -121,7 +124,8 @@ def init_context(protocol, certfile, cafile, verify, verify_depth=10):
     ctx=SSL.Context(protocol)
     ctx.load_cert(certfile)
     ctx.load_client_ca(cafile)
-    ctx.load_verify_info(cafile)
+    if ctx.load_verify_locations(cafile) != 1:
+        raise Exception('CA certificates not loaded')
     ctx.set_verify(verify, verify_depth)
     ctx.set_allow_unknown_ca(1)
     ctx.set_session_id_ctx('https_srv')
@@ -135,6 +139,7 @@ if __name__ == '__main__':
     else:
         wdir = sys.argv[1]
     Rand.load_file('../randpool.dat', -1)
+    threading.init()
     ctx = init_context('sslv23', 'server.pem', 'ca.pem', \
         SSL.verify_none)
         #SSL.verify_peer | SSL.verify_fail_if_no_peer_cert)
@@ -142,6 +147,7 @@ if __name__ == '__main__':
     os.chdir(wdir)
     httpsd = HTTPS_Server(('', 9443), HTTP_Handler, ctx)
     httpsd.serve_forever()
+    threading.cleanup()
     Rand.save_file('../randpool.dat')
 
 
