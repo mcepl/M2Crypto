@@ -726,6 +726,26 @@ class SSLClientTestCase(unittest.TestCase):
             self.stop_server(pid)
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
+    def test_makefile(self):
+        pid = self.start_server(self.args)
+        try:
+            ctx = SSL.Context()
+            s = SSL.Connection(ctx)
+            try:
+                s.connect(self.srv_addr)
+            except SSL.SSLError, e:
+                assert 0, e
+            bio = s.makefile('rw')
+            #s.close()  # XXX bug 6628?
+            bio.write('GET / HTTP/1.0\n\n')
+            bio.flush()
+            data = bio.read()
+            bio.close()
+            s.close()
+        finally:
+            self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
     def test_twisted_wrapper(self):
         # Test only when twisted and ZopeInterfaces are present
         try:
