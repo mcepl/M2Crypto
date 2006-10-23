@@ -36,7 +36,7 @@ def verify_cb_new_function(ok, store):
                        m2.X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY,
                        m2.X509_V_ERR_CERT_UNTRUSTED,
                        m2.X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE]
-        assert store.get_error_depth() == 0 
+        assert store.get_error_depth() == 0
         app_data = m2.x509_store_ctx_get_app_data(store.ctx)
         assert app_data
         x509 = store.get_current_cert()
@@ -47,7 +47,7 @@ def verify_cb_new_function(ok, store):
     except AssertionError, e:
         # If we let exceptions propagate from here the
         # caller may see strange errors. This is cleaner.
-        return 0   
+        return 0
     return 1
 
 class VerifyCB:
@@ -99,7 +99,7 @@ class BaseSSLClientTestCase(unittest.TestCase):
         os.waitpid(pid, 0)
 
     def http_get(self, s):
-        s.send('GET / HTTP/1.0\n\n') 
+        s.send('GET / HTTP/1.0\n\n')
         resp = ''
         while 1:
             try:
@@ -108,7 +108,7 @@ class BaseSSLClientTestCase(unittest.TestCase):
                     break
             except SSL.SSLError: # s_server throws an 'unexpected eof'...
                 break
-            resp = resp + r 
+            resp = resp + r
         return resp
 
     def setUp(self):
@@ -716,7 +716,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             self.stop_server(pid)
 
     def test_verify_cert_mutual_auth(self):
-        self.args.extend(['-Verify', '2', '-CAfile', 'ca.pem'])        
+        self.args.extend(['-Verify', '2', '-CAfile', 'ca.pem'])
         pid = self.start_server(self.args)
         try:
             ctx = SSL.Context()
@@ -754,7 +754,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
     def test_verify_cert_mutual_auth_fail(self):
-        self.args.extend(['-Verify', '2', '-CAfile', 'ca.pem'])        
+        self.args.extend(['-Verify', '2', '-CAfile', 'ca.pem'])
         pid = self.start_server(self.args)
         try:
             ctx = SSL.Context()
@@ -911,7 +911,7 @@ class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
                 
                 from M2Crypto import m2urllib2
                 opener = m2urllib2.build_opener(ctx)
-                opener.addheaders = [('Connection', 'close')]           
+                opener.addheaders = [('Connection', 'close')]
                 u = opener.open('https://%s:%s/' % (srv_host, srv_port))
                 data = u.read()
                 u.close()
@@ -971,6 +971,77 @@ class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
 
 
 class TwistedSSLClientTestCase(BaseSSLClientTestCase):
+
+    def test_timeout(self):
+        pid = self.start_server(self.args)
+        try:
+            ctx = SSL.Context()
+            s = SSL.Connection(ctx)
+            # Just a really small number so we can timeout
+            s.settimeout(0.000000000000000000000000000001)
+            self.assertRaises(SSL.SSLTimeoutError, s.connect, self.srv_addr)
+            s.close()
+        finally:
+            self.stop_server(pid)
+
+    def test_makefile_timeout(self):
+        # httpslib uses makefile to read the response
+        pid = self.start_server(self.args)
+        try:
+            from M2Crypto import httpslib
+            c = httpslib.HTTPS(srv_host, srv_port)
+            c.putrequest('GET', '/')
+            c.putheader('Accept', 'text/html')
+            c.putheader('Accept', 'text/plain')
+            c.endheaders()
+            c._conn.sock.settimeout(100)
+            err, msg, headers = c.getreply()
+            assert err == 200, err
+            f = c.getfile()
+            data = f.read()
+            c.close()
+        finally:
+            self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
+    def test_makefile_timeout_fires(self):
+        # This is convoluted because (openssl s_server -www) starts writing the
+        # response as soon as it receives the first line of the request, so it's
+        # possible for it to send the response before the request is sent and
+        # there would be no timeout.  So, let the server spend time reading from
+        # an empty pipe
+        FIFO_NAME = 'test_makefile_timeout_fires_fifo'
+        os.mkfifo('tests/' + FIFO_NAME)
+        pipe_pid = os.fork()
+        try:
+            if pipe_pid == 0:
+                try:
+                    f = open('tests/' + FIFO_NAME, 'w')
+                    try:
+                        time.sleep(sleepTime + 1)
+                        f.write('Content\n')
+                    finally:
+                        f.close()
+                finally:
+                    os._exit(0)
+            self.args[self.args.index('-www')] = '-WWW'
+            pid = self.start_server(self.args)
+            try:
+                from M2Crypto import httpslib
+                c = httpslib.HTTPS(srv_host, srv_port)
+                c.putrequest('GET', '/' + FIFO_NAME)
+                c.putheader('Accept', 'text/html')
+                c.putheader('Accept', 'text/plain')
+                c.endheaders()
+                c._conn.sock.settimeout(0.0000000001)
+                self.assertRaises(socket.timeout, c.getreply)
+                c.close()
+            finally:
+                self.stop_server(pid)
+        finally:
+            os.kill(pipe_pid, 1)
+            os.waitpid(pipe_pid, 0)
+            os.unlink('tests/' + FIFO_NAME)
 
     def test_twisted_wrapper(self):
         # Test only when twisted and ZopeInterfaces are present
@@ -1067,12 +1138,12 @@ def suite():
         suite.addTest(unittest.makeSuite(TwistedSSLClientTestCase))
     except ImportError:
         pass
-    return suite    
-    
+    return suite
+
 
 def zap_servers():
     s = 's_server'
-    fn = tempfile.mktemp() 
+    fn = tempfile.mktemp()
     cmd = 'ps | egrep %s > %s' % (s, fn)
     os.system(cmd)
     f = open(fn)
@@ -1097,7 +1168,7 @@ if __name__ == '__main__':
         gc.set_debug(gc.DEBUG_LEAK & ~gc.DEBUG_SAVEALL)
     
     try:
-        Rand.load_file('randpool.dat', -1) 
+        Rand.load_file('randpool.dat', -1)
         unittest.TextTestRunner().run(suite())
         Rand.save_file('randpool.dat')
     finally:
