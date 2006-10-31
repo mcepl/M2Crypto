@@ -67,6 +67,45 @@ extern int EC_KEY_check_key(const EC_KEY *);
 %constant int NID_sect571k1 = NID_sect571k1;
 %constant int NID_sect571r1 = NID_sect571r1;
 
+%constant int NID_X9_62_prime192v1 = NID_X9_62_prime192v1;
+%constant int NID_X9_62_prime192v2 = NID_X9_62_prime192v2;
+%constant int NID_X9_62_prime192v3 = NID_X9_62_prime192v3;
+%constant int NID_X9_62_prime239v1 = NID_X9_62_prime239v1;
+%constant int NID_X9_62_prime239v2 = NID_X9_62_prime239v2;
+%constant int NID_X9_62_prime239v3 = NID_X9_62_prime239v3;
+%constant int NID_X9_62_prime256v1 = NID_X9_62_prime256v1;
+%constant int NID_X9_62_c2pnb163v1 = NID_X9_62_c2pnb163v1;
+%constant int NID_X9_62_c2pnb163v2 = NID_X9_62_c2pnb163v2;
+%constant int NID_X9_62_c2pnb163v3 = NID_X9_62_c2pnb163v3;
+%constant int NID_X9_62_c2pnb176v1 = NID_X9_62_c2pnb176v1;
+%constant int NID_X9_62_c2tnb191v1 = NID_X9_62_c2tnb191v1;
+%constant int NID_X9_62_c2tnb191v2 = NID_X9_62_c2tnb191v2;
+%constant int NID_X9_62_c2tnb191v3 = NID_X9_62_c2tnb191v3;
+%constant int NID_X9_62_c2pnb208w1 = NID_X9_62_c2pnb208w1;
+%constant int NID_X9_62_c2tnb239v1 = NID_X9_62_c2tnb239v1;
+%constant int NID_X9_62_c2tnb239v2 = NID_X9_62_c2tnb239v2;
+%constant int NID_X9_62_c2tnb239v3 = NID_X9_62_c2tnb239v3;
+%constant int NID_X9_62_c2pnb272w1 = NID_X9_62_c2pnb272w1;
+%constant int NID_X9_62_c2pnb304w1 = NID_X9_62_c2pnb304w1;
+%constant int NID_X9_62_c2tnb359v1 = NID_X9_62_c2tnb359v1;
+%constant int NID_X9_62_c2pnb368w1 = NID_X9_62_c2pnb368w1;
+%constant int NID_X9_62_c2tnb431r1 = NID_X9_62_c2tnb431r1;
+
+%constant int NID_wap_wsg_idm_ecid_wtls1  = NID_wap_wsg_idm_ecid_wtls1;
+%constant int NID_wap_wsg_idm_ecid_wtls3  = NID_wap_wsg_idm_ecid_wtls3;
+%constant int NID_wap_wsg_idm_ecid_wtls4  = NID_wap_wsg_idm_ecid_wtls4;
+%constant int NID_wap_wsg_idm_ecid_wtls5  = NID_wap_wsg_idm_ecid_wtls5;
+%constant int NID_wap_wsg_idm_ecid_wtls6  = NID_wap_wsg_idm_ecid_wtls6;
+%constant int NID_wap_wsg_idm_ecid_wtls7  = NID_wap_wsg_idm_ecid_wtls7;
+%constant int NID_wap_wsg_idm_ecid_wtls8  = NID_wap_wsg_idm_ecid_wtls8;
+%constant int NID_wap_wsg_idm_ecid_wtls9  = NID_wap_wsg_idm_ecid_wtls9;
+%constant int NID_wap_wsg_idm_ecid_wtls10 = NID_wap_wsg_idm_ecid_wtls10;
+%constant int NID_wap_wsg_idm_ecid_wtls11 = NID_wap_wsg_idm_ecid_wtls11;
+%constant int NID_wap_wsg_idm_ecid_wtls12 = NID_wap_wsg_idm_ecid_wtls12;
+
+%constant int NID_ipsec3 = NID_ipsec3;
+%constant int NID_ipsec4 = NID_ipsec4;
+
 
 %inline %{
 static PyObject *_ec_err;
