@@ -47,6 +47,46 @@ NID_sect409r1 = m2.NID_sect409r1
 NID_sect571k1 = m2.NID_sect571k1
 NID_sect571r1 = m2.NID_sect571r1
 
+NID_X9_62_prime192v1 = m2.NID_X9_62_prime192v1
+NID_X9_62_prime192v2 = m2.NID_X9_62_prime192v2
+NID_X9_62_prime192v3 = m2.NID_X9_62_prime192v3
+NID_X9_62_prime239v1 = m2.NID_X9_62_prime239v1
+NID_X9_62_prime239v2 = m2.NID_X9_62_prime239v2
+NID_X9_62_prime239v3 = m2.NID_X9_62_prime239v3
+NID_X9_62_prime256v1 = m2.NID_X9_62_prime256v1
+NID_X9_62_c2pnb163v1 = m2.NID_X9_62_c2pnb163v1
+NID_X9_62_c2pnb163v2 = m2.NID_X9_62_c2pnb163v2
+NID_X9_62_c2pnb163v3 = m2.NID_X9_62_c2pnb163v3
+NID_X9_62_c2pnb176v1 = m2.NID_X9_62_c2pnb176v1
+NID_X9_62_c2tnb191v1 = m2.NID_X9_62_c2tnb191v1
+NID_X9_62_c2tnb191v2 = m2.NID_X9_62_c2tnb191v2
+NID_X9_62_c2tnb191v3 = m2.NID_X9_62_c2tnb191v3
+NID_X9_62_c2pnb208w1 = m2.NID_X9_62_c2pnb208w1
+NID_X9_62_c2tnb239v1 = m2.NID_X9_62_c2tnb239v1
+NID_X9_62_c2tnb239v2 = m2.NID_X9_62_c2tnb239v2
+NID_X9_62_c2tnb239v3 = m2.NID_X9_62_c2tnb239v3
+NID_X9_62_c2pnb272w1 = m2.NID_X9_62_c2pnb272w1
+NID_X9_62_c2pnb304w1 = m2.NID_X9_62_c2pnb304w1
+NID_X9_62_c2tnb359v1 = m2.NID_X9_62_c2tnb359v1
+NID_X9_62_c2pnb368w1 = m2.NID_X9_62_c2pnb368w1
+NID_X9_62_c2tnb431r1 = m2.NID_X9_62_c2tnb431r1
+
+NID_wap_wsg_idm_ecid_wtls1  = m2.NID_wap_wsg_idm_ecid_wtls1
+NID_wap_wsg_idm_ecid_wtls3  = m2.NID_wap_wsg_idm_ecid_wtls3
+NID_wap_wsg_idm_ecid_wtls4  = m2.NID_wap_wsg_idm_ecid_wtls4
+NID_wap_wsg_idm_ecid_wtls5  = m2.NID_wap_wsg_idm_ecid_wtls5
+NID_wap_wsg_idm_ecid_wtls6  = m2.NID_wap_wsg_idm_ecid_wtls6
+NID_wap_wsg_idm_ecid_wtls7  = m2.NID_wap_wsg_idm_ecid_wtls7
+NID_wap_wsg_idm_ecid_wtls8  = m2.NID_wap_wsg_idm_ecid_wtls8
+NID_wap_wsg_idm_ecid_wtls9  = m2.NID_wap_wsg_idm_ecid_wtls9
+NID_wap_wsg_idm_ecid_wtls10 = m2.NID_wap_wsg_idm_ecid_wtls10
+NID_wap_wsg_idm_ecid_wtls11 = m2.NID_wap_wsg_idm_ecid_wtls11
+NID_wap_wsg_idm_ecid_wtls12 = m2.NID_wap_wsg_idm_ecid_wtls12
+
+NID_ipsec3 = m2.NID_ipsec3
+NID_ipsec4 = m2.NID_ipsec4
+
+
 class EC:
 
     """

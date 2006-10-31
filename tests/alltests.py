@@ -26,6 +26,7 @@ def suite():
     if m2.OPENSSL_VERSION_NUMBER >= 0x90800F and m2.OPENSSL_NO_EC == 0:
         modules_to_test.append('test_ecdh')
         modules_to_test.append('test_ecdsa')
+        modules_to_test.append('test_ec_curves')
     alltests = unittest.TestSuite()
     for module in map(__import__, modules_to_test):
         alltests.addTest(module.suite())
