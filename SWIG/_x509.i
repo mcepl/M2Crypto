@@ -54,6 +54,8 @@ extern int X509_set_issuer_name(X509 *, X509_NAME *);
 extern X509_NAME *X509_get_subject_name(X509 *);
 %rename(x509_set_subject_name) X509_set_subject_name;
 extern int X509_set_subject_name(X509 *, X509_NAME *);
+%rename(x509_cmp_current_time) X509_cmp_current_time;
+extern int X509_cmp_current_time(ASN1_UTCTIME *);
 
                             
 /* From x509.h */
