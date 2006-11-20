@@ -38,6 +38,9 @@ class ECDSATestCase(unittest.TestCase):
         self.assertRaises(EC.ECError, EC.load_pub_key, self.errkey)
 
     def check_sign_dsa(self):
+        ec = EC.gen_params(EC.NID_sect233k1)
+        # ec.gen_key()
+        self.assertRaises(EC.ECError, ec.sign_dsa, self.data)
         ec = EC.load_key(self.privkey)
         r, s = ec.sign_dsa(self.data)
         assert ec.verify_dsa(self.data, r, s)

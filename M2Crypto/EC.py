@@ -127,7 +127,7 @@ class EC:
         Sign the given digest using ECDSA. Returns a tuple (r,s), the two
         ECDSA signature parameters.
         """
-        assert self.check_key(), 'key is not initialised'
+        assert self._check_key_type(), "'ec' type error"
         return m2.ecdsa_sign(self.ec, digest)
     
     def verify_dsa(self, digest, r, s):
@@ -135,15 +135,15 @@ class EC:
         Verify the given digest using ECDSA. r and s are the ECDSA
         signature parameters.
         """
-        assert self.check_key(), 'key is not initialised'
+        assert self._check_key_type(), "'ec' type error"
         return m2.ecdsa_verify(self.ec, digest, r, s)
 
     def sign_dsa_asn1(self, digest):
-        assert self.check_key(), 'key is not initialised'
+        assert self._check_key_type(), "'ec' type error"
         return m2.ecdsa_sign_asn1(self.ec, digest)
     
     def verify_dsa_asn1(self, digest, blob):
-        assert self.check_key(), 'key is not initialised'
+        assert self._check_key_type(), "'ec' type error"
         return m2.ecdsa_verify_asn1(self.ec, digest, blob)
 
     def compute_dh_key(self,pub_key):
@@ -220,6 +220,9 @@ class EC:
         bio = BIO.openfile(file, 'wb')
         return m2.ec_key_write_pubkey(self.ec, bio._ptr())
     
+    def _check_key_type(self):
+        return m2.ec_key_type_check(self.ec)
+
     def check_key(self):
         assert m2.ec_key_type_check(self.ec), "'ec' type error"
         return m2.ec_key_check_key(self.ec)
