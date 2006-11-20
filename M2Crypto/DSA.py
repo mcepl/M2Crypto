@@ -142,7 +142,7 @@ class DSA:
                          to encrypt the private key.
         @return:         1 (true) if successful
         """
-        bio = BIO.openfile(filepath, 'wb')
+        bio = BIO.openfile(filename, 'wb')
         ret = self.save_key_bio(bio, cipher, callback)
         bio.close()
         return ret
@@ -179,7 +179,7 @@ class DSA:
                          to this file.
         @return:         1 (true) if successful
         """
-        bio = BIO.openfile(filepath, 'wb')
+        bio = BIO.openfile(filename, 'wb')
         ret = self.save_pub_key_bio(bio)
         bio.close()
         return ret
