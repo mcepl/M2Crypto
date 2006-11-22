@@ -373,18 +373,20 @@ class TLSProtocolWrapper(ProtocolWrapper):
 
     def _encrypt(self, data='', clientHello=0):
         # XXX near mirror image of _decrypt - refactor
-        self.data += data
-        g = m2.bio_ctrl_get_write_guarantee(self.sslBio._ptr())
-        if g > 0 and self.data != '' or clientHello:
-            r = m2.bio_write(self.sslBio._ptr(), self.data)
-            if r <= 0:
-                assert(m2.bio_should_retry(self.sslBio._ptr()))
-            else:
-                assert(self.checked)               
-                self.data = self.data[r:]
-                
         encryptedData = ''
+        self.data += data
+        
         while 1:
+            g = m2.bio_ctrl_get_write_guarantee(self.sslBio._ptr())
+            if g > 0 and self.data != '' or clientHello:
+                r = m2.bio_write(self.sslBio._ptr(), self.data)
+                #pdb.set_trace()
+                if r <= 0:
+                    assert(m2.bio_should_retry(self.sslBio._ptr()))
+                else:
+                    assert(self.checked)               
+                    self.data = self.data[r:]
+                  
             pending = m2.bio_ctrl_pending(self.networkBio)
             if pending:
                 d = m2.bio_read(self.networkBio, pending)
@@ -394,22 +396,21 @@ class TLSProtocolWrapper(ProtocolWrapper):
                     assert(m2.bio_should_retry(self.networkBio))
             else:
                 break
-
         return encryptedData
 
     def _decrypt(self, data=''):
         # XXX near mirror image of _encrypt - refactor
         self.encrypted += data
-        g = m2.bio_ctrl_get_write_guarantee(self.networkBio)
-        if g > 0 and self.encrypted != '':
-            r = m2.bio_write(self.networkBio, self.encrypted)
-            if r <= 0:
-                assert(m2.bio_should_retry(self.networkBio))
-            else:
-                self.encrypted = self.encrypted[r:]
-                
         decryptedData = ''
         while 1:
+            g = m2.bio_ctrl_get_write_guarantee(self.networkBio)
+            if g > 0 and self.encrypted != '':
+                r = m2.bio_write(self.networkBio, self.encrypted)
+                if r <= 0:
+                    assert(m2.bio_should_retry(self.networkBio))
+                else:
+                    self.encrypted = self.encrypted[r:]
+                              
             pending = m2.bio_ctrl_pending(self.sslBio._ptr())
             if pending:
                 d = m2.bio_read(self.sslBio._ptr(), pending)

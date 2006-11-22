@@ -3,6 +3,7 @@
 - Added m2urllib2, by James Bowes (python 2.4 and later, at least for now)
 - Fixed m2urllib.open_https to return the response headers, otherwise code
   that relied on that would break (for example msnlib-3.5), by Arno bakker
+- Fixed twisted wrapper to work with >16kb BIO buffers, by Martin Paljak
 - Added support for remaining ECs, by Larry Bugbee
 - Fixed DSA.save_key and DSA_.save_pub_key, by Larry Bugbee
 - SSL.Context.load_verify_locations raises ValueError if cafile and capath
