@@ -10,8 +10,8 @@ Author: Heikki Toivonen
 """
 
 import unittest
-import os, time, base64
-from M2Crypto import X509, EVP, RSA, Rand, ASN1, m2
+import os, time, base64, sys
+from M2Crypto import X509, EVP, RSA, Rand, ASN1, m2, util
 
 class X509TestCase(unittest.TestCase):
 
@@ -267,6 +267,19 @@ class X509TestCase(unittest.TestCase):
                                      "critical,language:Inherit all", 1, 0)
         proxycert.add_ext(pci_ext)
         return proxycert
+    
+    def check_fingerprint(self):
+        x509 = X509.load_cert('x509.pem')
+        der = x509.as_der()
+        md = EVP.MessageDigest('sha1')
+        md.update(der)
+        digest = md.final()
+        fp = hex(util.octx_to_num(digest))
+        expected = '0xDE1EE86E98AA192122365180BCC64F88F065C4A7L'
+        if sys.version_info >= (2,5):
+            expected = expected[:-1].lower() + 'L'
+        assert fp == expected, '%s != %s' % (fp, expected)
+
  
  
 class X509_StackTestCase(unittest.TestCase):
