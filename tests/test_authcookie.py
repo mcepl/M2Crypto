@@ -4,13 +4,15 @@
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-import Cookie, binascii, time, unittest
+import Cookie, binascii, time, unittest, sys
 from M2Crypto.AuthCookie import AuthCookie, AuthCookieJar, mix, unmix, unmix3
 from M2Crypto import Rand, EVP
 
 class AuthCookieTestCase(unittest.TestCase):
 
-    _format = 'Set-Cookie: _M2AUTH_="exp=%s&data=%s&digest=%s";'
+    _format = 'Set-Cookie: _M2AUTH_="exp=%s&data=%s&digest=%s"'
+    if sys.version_info < (2,5):
+        _format += ';'
     _token = '_M2AUTH_'
 
     def setUp(self):
