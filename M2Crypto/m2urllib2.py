@@ -6,11 +6,13 @@ Code from urllib2 is Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006
 Python Software Foundation; All Rights Reserved
 
 Summary of changes:
+ * Use an HTTPSProxyConnection if the request is going through a proxy.
  * Add the SSL context to the https connection when performing https_open.
  * Add the M2Crypto HTTPSHandler when building a default opener.
 """
 
 from urllib2 import *
+import urlparse
 
 import SSL
 import httpslib
@@ -39,8 +41,15 @@ class HTTPSHandler(AbstractHTTPHandler):
         if not host:
             raise URLError('no host given')
 
-        # Our change: add the ssl context.
-        h = httpslib.HTTPSConnection(host = host, ssl_context = self.ctx)
+        # Our change: Check to see if we're using a proxy.
+        # Then create an appropriate ssl-aware connection.
+        full_url = req.get_full_url() 
+        target_host = urlparse.urlparse(full_url)[1]
+
+        if (target_host != host):
+            h = httpslib.ProxyHTTPSConnection(host = host, ssl_context = self.ctx)
+        else:
+            h = httpslib.HTTPSConnection(host = host, ssl_context = self.ctx)
         # End our change
         h.set_debuglevel(self._debuglevel)
 
@@ -54,7 +63,7 @@ class HTTPSHandler(AbstractHTTPHandler):
         # request.
         headers["Connection"] = "close"
         try:
-            h.request(req.get_method(), req.get_selector(), req.data, headers)
+            h.request(req.get_method(), req.get_full_url(), req.data, headers)
             r = h.getresponse()
         except socket.error, err: # XXX what error?
             raise URLError(err)

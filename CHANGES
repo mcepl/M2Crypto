@@ -1,6 +1,7 @@
 0.17
 ----
 - Added m2urllib2, by James Bowes (python 2.4 and later, at least for now)
+- Added CONNECT proxy for httpslib and m2urllib2, by James Bowes
 - Fixed m2urllib.open_https to return the response headers, otherwise code
   that relied on that would break (for example msnlib-3.5), by Arno bakker
 - Fixed twisted wrapper to work with >16kb BIO buffers, by Martin Paljak
