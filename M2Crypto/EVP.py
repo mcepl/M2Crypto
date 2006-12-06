@@ -311,6 +311,12 @@ class PKey:
         Return the size of the key in bytes.
         """
         return m2.pkey_size(self.pkey)
+        
+    def get_modulus(self):
+        """
+        Return the modulus in hex format.
+        """
+        return m2.pkey_get_modulus(self.pkey)
    
 
 def load_key(file, callback=util.passphrase_callback):

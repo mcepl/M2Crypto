@@ -357,6 +357,14 @@ int x509_name_add_entry_by_txt(X509_NAME *name, char *field, int type, char *byt
 	return X509_NAME_add_entry_by_txt( name, (unsigned char *)field, type, (char *)bytes, len, loc, set);
 }
 
+PyObject *x509_name_get_der(X509_NAME *name)
+{
+    i2d_X509_NAME(name, 0);
+    return PyString_FromStringAndSize(name->bytes->data,
+				      name->bytes->length);
+}
+
+
 
 /* sk_X509_new_null() is a macro returning "STACK_OF(X509) *". */
 STACK *sk_x509_new_null(void) {

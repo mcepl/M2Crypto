@@ -270,18 +270,13 @@ class X509TestCase(unittest.TestCase):
     
     def check_fingerprint(self):
         x509 = X509.load_cert('x509.pem')
-        der = x509.as_der()
-        md = EVP.MessageDigest('sha1')
-        md.update(der)
-        digest = md.final()
-        fp = hex(util.octx_to_num(digest))
+        fp = x509.get_fingerprint('sha1')
         expected = '0xDE1EE86E98AA192122365180BCC64F88F065C4A7L'
         if sys.version_info >= (2,5):
             expected = expected[:-1].lower() + 'L'
         assert fp == expected, '%s != %s' % (fp, expected)
 
- 
- 
+
 class X509_StackTestCase(unittest.TestCase):
     
     def check_make_stack_from_der(self):

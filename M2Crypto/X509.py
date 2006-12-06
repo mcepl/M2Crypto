@@ -8,7 +8,7 @@ Author: Heikki Toivonen
 """
 
 # M2Crypto
-from M2Crypto import ASN1, BIO, Err, EVP
+from M2Crypto import ASN1, BIO, Err, EVP, util
 import m2
 
 class X509Error(Exception): pass
@@ -266,6 +266,9 @@ class X509_Name:
         m2.x509_name_print_ex(buf.bio_ptr(), self.x509_name, indent, flags)
         return buf.read_all()
 
+    def as_der(self):
+        assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error"
+        return m2.x509_name_get_der(self.x509_name)
 
 class X509:
     """
@@ -507,6 +510,18 @@ class X509:
         """
         return m2.x509_check_purpose(self.x509, id, ca)
 
+    def get_fingerprint(self, md='md5'):
+        """
+        Get the fingerprint of the certificate.
+        
+        @param md: Message digest algorithm to use.
+        @return:   String containing the fingerprint in hex format.
+        """
+        der = self.as_der()
+        md = EVP.MessageDigest(md)
+        md.update(der)
+        digest = md.final()
+        return hex(util.octx_to_num(digest))
 
 def load_cert(file):
     """
