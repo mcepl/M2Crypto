@@ -9,7 +9,7 @@ from M2Crypto import DH, BIO, Rand, m2
 
 class DHTestCase(unittest.TestCase):
 
-    params = 'dhparam.pem'
+    params = 'tests/dhparam.pem'
 
     def genparam_callback(self, *args):
         pass 
@@ -37,11 +37,11 @@ class DHTestCase(unittest.TestCase):
         assert params.find('generator: 2 (0x2)')
 
     def check_load_params(self):
-        a = DH.load_params('dhparams.pem')
+        a = DH.load_params('tests/dhparams.pem')
         assert a.check_params() == 0
 
     def check_compute_key(self):
-        a = DH.load_params('dhparams.pem')
+        a = DH.load_params('tests/dhparams.pem')
         b = DH.set_params(a.p, a.g)
         a.gen_key()
         b.gen_key()

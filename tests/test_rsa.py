@@ -10,10 +10,10 @@ from M2Crypto import RSA, BIO, Rand, m2, EVP
 
 class RSATestCase(unittest.TestCase):
 
-    errkey = 'dsa.priv.pem'
-    privkey = 'rsa.priv.pem'
-    privkey2 = 'rsa.priv2.pem'
-    pubkey = 'rsa.pub.pem'
+    errkey = 'tests/dsa.priv.pem'
+    privkey = 'tests/rsa.priv.pem'
+    privkey2 = 'tests/rsa.priv2.pem'
+    pubkey = 'tests/rsa.pub.pem'
 
     data = sha.sha('The magic words are squeamish ossifrage.').digest()
 
