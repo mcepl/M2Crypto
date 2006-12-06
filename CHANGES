@@ -16,8 +16,8 @@
   on memory BIOs because otherwise the read would fail with 
   "SMIME_Error: not enough data"
 
-0.16
-----
+0.16 - 2006-07-05
+-----------------
 - Minimum requirements updated: Python 2.3+, OpenSSL 0.9.7+, SWIG 1.3.24+
 - Optional features from OpenSSL 0.9.8 and newer
 - Enhancements to EVP and X509 to allow proxy certificate handling,
@@ -71,8 +71,8 @@
 - More and better Epydoc formatted docstrings
 - More than doubled the number of unit tests, also made many demos into tests
 
-0.15
-----
+0.15 - 2005-08-17
+-----------------
 - Support OpenSSL 0.9.8, Python 2.4.1, SWIG 1.3.24
 - Fixed multiple memory leaks
 - Twisted integration
