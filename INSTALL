@@ -27,8 +27,10 @@ Installing on Unix-like systems, including Cygwin
     $ cd m2crypto-0.17
     $ python setup.py build
     $ python setup.py install
-    $ cd tests
-    $ python alltests.py
+
+If you have installed setuptools you can also optionally run tests like this:
+
+    $ python setup.py test
 
 This assumes OpenSSL is installed in /usr. You can provide an alternate
 OpenSSL prefix location with --openssl option to build command. Other
@@ -84,8 +86,6 @@ Build M2Crypto:
 
     python setup.py build -cmingw32
     python setup.py install
-    cd tests
-    python alltests.py
 
 
 BC++
@@ -118,5 +118,3 @@ Then,
 ::
 
     python setup.py install
-    cd tests
-    python alltests.py

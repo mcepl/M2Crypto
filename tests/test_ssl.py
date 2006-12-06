@@ -49,7 +49,14 @@ class SSLClientTestCase(unittest.TestCase):
     def start_server(self, args):
         pid = os.fork()
         if pid == 0:
-            os.execvp('openssl', args)
+            # openssl must be started in the tests directory for it
+            # to find the .pem files
+            os.chdir('tests')
+            try:
+                os.execvp('openssl', args)
+            finally:
+                os.chdir('..')
+                
         else:
             time.sleep(0.5)
             return pid
@@ -102,7 +109,7 @@ class SSLClientTestCase(unittest.TestCase):
         try:
             ctx = SSL.Context()
             ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
-            ctx.load_verify_locations('ca.pem')
+            ctx.load_verify_locations('tests/ca.pem')
             s = SSL.Connection(ctx)
             s.connect(self.srv_addr)
             data = self.http_get(s)
@@ -116,7 +123,7 @@ class SSLClientTestCase(unittest.TestCase):
         try:
             ctx = SSL.Context()
             ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
-            ctx.load_verify_locations('server.pem')
+            ctx.load_verify_locations('tests/server.pem')
             s = SSL.Connection(ctx)
             self.assertRaises(SSL.SSLError, s.connect, self.srv_addr)
             s.close()
@@ -451,7 +458,7 @@ class SSLClientTestCase(unittest.TestCase):
         try:
             ctx = SSL.Context()
             ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
-            ctx.load_verify_locations('ca.pem')
+            ctx.load_verify_locations('tests/ca.pem')
             s = SSL.Connection(ctx)
             try:
                 s.connect(self.srv_addr)
@@ -468,7 +475,7 @@ class SSLClientTestCase(unittest.TestCase):
         try:
             ctx = SSL.Context()
             ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
-            ctx.load_verify_locations('server.pem')
+            ctx.load_verify_locations('tests/server.pem')
             s = SSL.Connection(ctx)
             self.assertRaises(SSL.SSLError, s.connect, self.srv_addr)
             s.close()
@@ -481,8 +488,8 @@ class SSLClientTestCase(unittest.TestCase):
         try:
             ctx = SSL.Context()
             ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
-            ctx.load_verify_locations('ca.pem')
-            ctx.load_cert('x509.pem')
+            ctx.load_verify_locations('tests/ca.pem')
+            ctx.load_cert('tests/x509.pem')
             s = SSL.Connection(ctx)
             try:
                 s.connect(self.srv_addr)
@@ -500,8 +507,8 @@ class SSLClientTestCase(unittest.TestCase):
         try:
             ctx = SSL.Context()
             ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
-            ctx.load_verify_locations('ca.pem')
-            ctx.load_cert('x509.pem')
+            ctx.load_verify_locations('tests/ca.pem')
+            ctx.load_cert('tests/x509.pem')
             s = SSL.Connection(ctx)
             try:
                 s.connect(self.srv_addr)
@@ -519,7 +526,7 @@ class SSLClientTestCase(unittest.TestCase):
         try:
             ctx = SSL.Context()
             ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
-            ctx.load_verify_locations('ca.pem')
+            ctx.load_verify_locations('tests/ca.pem')
             s = SSL.Connection(ctx)
             self.assertRaises(SSL.SSLError, s.connect, self.srv_addr)
             s.close()
@@ -532,7 +539,7 @@ class SSLClientTestCase(unittest.TestCase):
         try:
             ctx = SSL.Context()
             ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
-            ctx.load_verify_locations('ca.pem')
+            ctx.load_verify_locations('tests/ca.pem')
             s = SSL.Connection(ctx)
             self.assertRaises(SSL.SSLError, s.connect, self.srv_addr)
             s.close()
@@ -557,7 +564,7 @@ class SSLClientTestCase(unittest.TestCase):
             from M2Crypto import httpslib
             ctx = SSL.Context()
             ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
-            ctx.load_verify_locations('ca.pem')
+            ctx.load_verify_locations('tests/ca.pem')
             c = httpslib.HTTPSConnection(srv_host, srv_port, ssl_context=ctx)
             c.request('GET', '/')
             data = c.getresponse().read()
@@ -572,7 +579,7 @@ class SSLClientTestCase(unittest.TestCase):
             from M2Crypto import httpslib
             ctx = SSL.Context()
             ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
-            ctx.load_verify_locations('server.pem')
+            ctx.load_verify_locations('tests/server.pem')
             c = httpslib.HTTPSConnection(srv_host, srv_port, ssl_context=ctx)
             self.assertRaises(SSL.SSLError, c.request, 'GET', '/')
             c.close()
@@ -603,7 +610,7 @@ class SSLClientTestCase(unittest.TestCase):
             from M2Crypto import httpslib
             ctx = SSL.Context()
             ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
-            ctx.load_verify_locations('ca.pem')
+            ctx.load_verify_locations('tests/ca.pem')
             c = httpslib.HTTPS(srv_host, srv_port, ssl_context=ctx)
             c.putrequest('GET', '/')
             c.putheader('Accept', 'text/html')
@@ -624,7 +631,7 @@ class SSLClientTestCase(unittest.TestCase):
             from M2Crypto import httpslib
             ctx = SSL.Context()
             ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
-            ctx.load_verify_locations('server.pem')
+            ctx.load_verify_locations('tests/server.pem')
             c = httpslib.HTTPS(srv_host, srv_port, ssl_context=ctx)
             c.putrequest('GET', '/')
             c.putheader('Accept', 'text/html')
@@ -674,7 +681,7 @@ class SSLClientTestCase(unittest.TestCase):
             try:
                 ctx = SSL.Context()
                 ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
-                ctx.load_verify_locations('ca.pem')
+                ctx.load_verify_locations('tests/ca.pem')
                 
                 from M2Crypto import m2urllib2
                 opener = m2urllib2.build_opener(ctx)
@@ -691,7 +698,7 @@ class SSLClientTestCase(unittest.TestCase):
             try:
                 ctx = SSL.Context()
                 ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
-                ctx.load_verify_locations('server.pem')
+                ctx.load_verify_locations('tests/server.pem')
                 
                 from M2Crypto import m2urllib2
                 opener = m2urllib2.build_opener(ctx)
@@ -805,7 +812,7 @@ class CheckerTestCase(unittest.TestCase):
 
         check = Checker.Checker(host=srv_host,
                                 peerCertHash='9594D272A975F58F4430511D15B4B7FF3D778113')
-        x509 = X509.load_cert('server.pem')
+        x509 = X509.load_cert('tests/server.pem')
         assert check(x509, srv_host)
         self.assertRaises(Checker.WrongHost, check, x509, 'example.com')
         
@@ -853,9 +860,9 @@ if __name__ == '__main__':
         gc.set_debug(gc.DEBUG_LEAK & ~gc.DEBUG_SAVEALL)
     
     try:
-        Rand.load_file('../randpool.dat', -1) 
+        Rand.load_file('randpool.dat', -1) 
         unittest.TextTestRunner().run(suite())
-        Rand.save_file('../randpool.dat')
+        Rand.save_file('randpool.dat')
     finally:
         zap_servers()
 

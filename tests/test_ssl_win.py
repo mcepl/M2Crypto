@@ -34,9 +34,15 @@ class SSLWinClientTestCase(test_ssl.SSLClientTestCase):
     openssl = find_openssl()
 
     def start_server(self, args):
-        hproc, hthread, pid, tid = win32process.CreateProcess(self.openssl,
-            string.join(args), None, None, 0, win32process.DETACHED_PROCESS, 
-            None, None, self.startupinfo)
+        # openssl must be started in the tests directory for it
+        # to find the .pem files
+        os.chdir('tests')        
+        try:
+            hproc, hthread, pid, tid = win32process.CreateProcess(self.openssl,
+                string.join(args), None, None, 0, win32process.DETACHED_PROCESS, 
+                None, None, self.startupinfo)
+        finally:
+            os.chdir('..')            
         time.sleep(0.3)
         return hproc
 
@@ -54,9 +60,9 @@ def zap_servers():
 if __name__ == '__main__':
     try:
         if find_openssl() is not None:
-            Rand.load_file('../randpool.dat', -1) 
+            Rand.load_file('randpool.dat', -1) 
             unittest.TextTestRunner().run(suite())
-            Rand.save_file('../randpool.dat')
+            Rand.save_file('randpool.dat')
     finally:
         zap_servers()
 
