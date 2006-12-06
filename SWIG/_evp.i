@@ -443,5 +443,67 @@ PyObject * pkey_as_der(EVP_PKEY *pkey){
     return der;
 }
 
+PyObject *pkey_get_modulus(EVP_PKEY *pkey)
+{
+    RSA *rsa;
+    DSA *dsa;
+    BIO *bio;
+    BUF_MEM *bptr;
+    PyObject *ret;
+
+    switch (pkey->type) {
+        case EVP_PKEY_RSA:
+            rsa = EVP_PKEY_get1_RSA(pkey);
+
+            bio = BIO_new(BIO_s_mem());
+            if (!bio) {
+                PyErr_SetString(PyExc_MemoryError, "pkey_get_modulus");
+                return NULL;
+            }
+            
+            if (!BN_print(bio, rsa->n)) {
+                PyErr_SetString(PyExc_RuntimeError, 
+                      ERR_error_string(ERR_get_error(), NULL));
+                BIO_free(bio);
+                return NULL;
+            }
+            BIO_get_mem_ptr(bio, &bptr);
+            ret = PyString_FromStringAndSize(bptr->data, bptr->length);
+            BIO_set_close(bio, BIO_CLOSE);
+            BIO_free(bio);
+
+            break;
+
+        case EVP_PKEY_DSA:
+            dsa = EVP_PKEY_get1_DSA(pkey);
+
+            bio = BIO_new(BIO_s_mem());
+            if (!bio) {
+                PyErr_SetString(PyExc_MemoryError, "pkey_get_modulus");
+                return NULL;
+            }
+
+            if (!BN_print(bio, dsa->pub_key)) {
+                PyErr_SetString(PyExc_RuntimeError, 
+                      ERR_error_string(ERR_get_error(), NULL));
+                BIO_free(bio);
+                return NULL;
+            }
+            BIO_get_mem_ptr(bio, &bptr);
+            ret = PyString_FromStringAndSize(bptr->data, bptr->length);
+            BIO_set_close(bio, BIO_CLOSE);
+            BIO_free(bio);
+
+            break;
+            
+        default:
+            PyErr_SetString(PyExc_ValueError, "unsupported key type");
+            return NULL;
+    }
+    
+    return ret;
+}
+
+
 %}
 

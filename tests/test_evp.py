@@ -117,6 +117,15 @@ class EVPTestCase(unittest.TestCase):
         pkey = EVP.PKey()
         self.assertRaises(ValueError, pkey.get_rsa)
 
+    def check_get_modulus(self):
+        pkey = EVP.PKey()
+        self.assertRaises(ValueError, pkey.get_modulus)
+
+        rsa = RSA.gen_key(512, 3, callback=self._gen_callback)
+        pkey.assign_rsa(rsa)
+        mod = pkey.get_modulus()
+        assert len(mod) > 0, mod
+        assert len(mod.strip('0123456789ABCDEF')) == 0
 
 class CipherTestCase(unittest.TestCase):
     def cipher_filter(self, cipher, inf, outf):

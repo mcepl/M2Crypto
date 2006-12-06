@@ -302,6 +302,24 @@ BIGNUM *bin_to_bn(PyObject *value) {
     return BN_bin2bn(vbuf, vlen, NULL);
 }
 
+PyObject *bn_to_hex(BIGNUM *bn) {
+    char *hex;
+    PyObject *pyo;  
+    int len;
+
+    hex = BN_bn2hex(bn);
+    if (!hex) {
+        PyErr_SetString(PyExc_RuntimeError, 
+              ERR_error_string(ERR_get_error(), NULL));
+        OPENSSL_free(hex);
+        return NULL;    
+    }
+    len = strlen(hex);
+    pyo=PyString_FromStringAndSize(hex, len);
+    OPENSSL_free(hex);
+    return pyo;
+}
+
 BIGNUM *hex_to_bn(PyObject *value) {
     const void *vbuf;
     int vlen;
