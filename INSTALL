@@ -46,6 +46,10 @@ files are in ``c:\pkg\openssl\include``, and the import libraries
 in ``c:\pkg\openssl\lib``. As with other platforms, you can specify a different
 OpenSSL location with --openssl option.
 
+Using OpenSSL 0.9.8 on Windows requires Python be built with applink.c 
+(add an include statement in python.c).  This is not a requirement for 
+Linux or MacOSX.  (applink.c is provided by OpenSSL.)
+
 
 MSVC++
 ~~~~~~~~
@@ -118,3 +122,33 @@ Then,
 ::
 
     python setup.py install
+
+
+MacOSX
+------
+
+Follow the standard instructions to build and install M2Crypto.  
+However, should you encounter difficulties, you may want to consider 
+the following possibilities.
+
+  - Distutils for Python 2.5 now provides support for universal 
+    builds (ppc and i386) and Distutils requires a recent version 
+    of Xcode.  See http://developer.apple.com/tools/download/
+
+  - OpenSSL 0.9.7l gets installed in /usr with Apple's Security 
+    Update 2006-007.  If you need features in OpenSSL 0.9.8, you 
+    should consider installing 0.9.8 in /usr/local.  The commands 
+    are:
+    
+      OpenSSL:
+        ./config shared --prefix=/usr/local
+        make
+        make test
+        sudo make install     [or... install_sw]
+        
+      M2Crypto:
+        python setup.py build --openssl=/usr/local
+        sudo python setup.py install --openssl=/usr/local
+
+
+
