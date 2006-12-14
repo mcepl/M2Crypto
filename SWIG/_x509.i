@@ -134,6 +134,8 @@ extern int X509_NAME_add_entry_by_NID(X509_NAME *, int, int, unsigned char *, in
 extern int X509_NAME_print_ex(BIO *, X509_NAME *, int, unsigned long);
 %rename(x509_name_print_ex_fp) X509_NAME_print_ex_fp;
 extern int X509_NAME_print_ex_fp(FILE *, X509_NAME *, int, unsigned long);
+%rename(x509_name_hash) X509_NAME_hash;
+extern unsigned long X509_NAME_hash(X509_NAME *);
 
 %rename(x509_name_entry_new) X509_NAME_ENTRY_new;
 extern X509_NAME_ENTRY *X509_NAME_ENTRY_new( void );
