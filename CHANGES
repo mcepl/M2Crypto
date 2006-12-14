@@ -18,6 +18,8 @@
 - smime_read_pkcs7 was changed to automatically call BIO_set_mem_eof_return
   on memory BIOs because otherwise the read would fail with 
   "SMIME_Error: not enough data"
+- X509.new_extension('subjectKeyIdentifier', 'hash') raises ValueError instead
+  of crashing Python
 
 0.16 - 2006-07-05
 -----------------
