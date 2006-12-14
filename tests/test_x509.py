@@ -42,6 +42,10 @@ class X509TestCase(unittest.TestCase):
         assert x.verify(pk2)
         return x, pk
 
+    def check_ext(self):
+        self.assertRaises(ValueError, X509.new_extension,
+                          'subjectKeyIdentifier', 'hash')
+
     def check_extstack(self):
         # new
         ext1 = X509.new_extension('subjectAltName', 'DNS:foobar.example.com')
