@@ -18,7 +18,7 @@ Others:
 """
 
 import os, socket, string, sys, tempfile, thread, time, unittest
-from M2Crypto import Rand, SSL, m2
+from M2Crypto import Rand, SSL, m2, Err
 
 srv_host = 'localhost'
 srv_port = 64000
@@ -750,6 +750,42 @@ class SSLClientTestCase(unittest.TestCase):
             data = bio.read()
             bio.close()
             s.close()
+        finally:
+            self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
+    def test_makefile_err(self):
+        def http_get(s):
+            s.send('GET / HTTP/1.0\n\n') 
+            resp = ''
+            while 1:
+                try:
+                    r = s.recv(4096)
+                    if not r:
+                        break
+                except SSL.SSLError, e: # s_server throws an 'unexpected eof'...
+                    #print e
+                    break
+                resp = resp + r 
+            return resp
+
+        pid = self.start_server(self.args)
+        try:
+            ctx = SSL.Context()
+            s = SSL.Connection(ctx)
+            try:
+                s.connect(self.srv_addr)
+            except SSL.SSLError, e:
+                assert 0, e
+            f = s.makefile()
+            data = http_get(s)
+            s.close()
+            del f
+            f = None
+            del s
+            s = None
+            err = Err.get_error()
+            assert not err, 'Unexpected error: %s' % err
         finally:
             self.stop_server(pid)
         self.failIf(string.find(data, 's_server -quiet -www') == -1)

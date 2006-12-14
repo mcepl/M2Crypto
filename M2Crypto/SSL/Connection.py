@@ -288,7 +288,7 @@ class Connection:
         # XXX Need to dup().
         bio = BIO.BIO(self.sslbio, _close_cb=self.close)
         m2.bio_do_handshake(bio._ptr())
-        return BIO.IOBuffer(bio, m2mode)
+        return BIO.IOBuffer(bio, m2mode, _pyfree=0)
 
     def getsockname(self):
         return self.socket.getsockname()
