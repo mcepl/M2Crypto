@@ -101,10 +101,13 @@ curves   = ['secp112r1',
             'wap_wsg_idm_ecid_wtls12',
            ]
 
-# the following two curves are supported in OpenSSL and 
-# M2Crypto but not for ECDSA use.  (It seems they want an 
-# inverse function.)  The curves may be used for EC encryption 
-# except that OpenSSL does not yet support EC enceyption.
+# The following two curves, according to OpenSSL, have a 
+# "Questionable extension field!" and are not supported by 
+# the OpenSSL inverse function.  ECError: no inverse.
+# As such they cannot be used for signing.  They might, 
+# however, be usable for encryption but that has not 
+# been tested.  Until thir usefulness can be established,
+# they are not supported at this time.
 #
 #      Oakley-EC2N-3: 
 #        IPSec/IKE/Oakley curve #3 over a 155 bit binary field.

@@ -96,15 +96,17 @@ curves = [
     ('wap_wsg_idm_ecid_wtls12', 224),
 ]
 
-# The following two curves are not supported by the 
-# OpenSSL inverse function.  ECError: no inverse.
+# The following two curves, according to OpenSSL, have a 
+# "Questionable extension field!" and are not supported by 
+# the OpenSSL inverse function.  ECError: no inverse.
 # As such they cannot be used for signing.  They might, 
 # however, be usable for encryption but that has not 
-# been tested.
-curves2 = [
-    ('ipsec3', 155),
-    ('ipsec4', 185),
-]
+# been tested.  Until thir usefulness can be established,
+# they are not supported at this time.
+#curves2 = [
+#    ('ipsec3', 155),
+#    ('ipsec4', 185),
+#]
 
 class ECCurveTests(unittest.TestCase):
     #data = sha.sha('Kilroy was here!').digest()     # 160 bits
@@ -120,12 +122,12 @@ class ECCurveTests(unittest.TestCase):
         assert  ec.check_key(), 'check_key() failure for "%s"' % curveName
         return ec
 
-    def check_ec_curves_genkey(self):        
-        for curveName, curveLen in curves2:
-            self.genkey(curveName, curveLen)
-
-        self.assertRaises(AttributeError, self.genkey, 
-                                          'nosuchcurve', 1)
+#    def check_ec_curves_genkey(self):        
+#        for curveName, curveLen in curves2:
+#            self.genkey(curveName, curveLen)
+#
+#        self.assertRaises(AttributeError, self.genkey, 
+#                                          'nosuchcurve', 1)
 
     def sign_verify_ecdsa(self, curveName, curveLen):
         ec = self.genkey(curveName, curveLen)
@@ -140,9 +142,9 @@ class ECCurveTests(unittest.TestCase):
         self.assertRaises(AttributeError, self.sign_verify_ecdsa, 
                                           'nosuchcurve', 1)
 
-        for curveName, curveLen in curves2:
-            self.assertRaises(EC.ECError, self.sign_verify_ecdsa, 
-                              curveName, curveLen)
+#        for curveName, curveLen in curves2:
+#            self.assertRaises(EC.ECError, self.sign_verify_ecdsa, 
+#                              curveName, curveLen)
 
 def suite():
     suite = unittest.TestSuite()
