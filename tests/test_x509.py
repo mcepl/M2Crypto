@@ -271,7 +271,7 @@ class X509TestCase(unittest.TestCase):
     def check_fingerprint(self):
         x509 = X509.load_cert('tests/x509.pem')
         fp = x509.get_fingerprint('sha1')
-        expected = '0xDE1EE86E98AA192122365180BCC64F88F065C4A7L'
+        expected = '0x128858B5222A5C78397530A5706233A9EB470AC4L'
         if sys.version_info >= (2,5):
             expected = expected[:-1].lower() + 'L'
         assert fp == expected, '%s != %s' % (fp, expected)

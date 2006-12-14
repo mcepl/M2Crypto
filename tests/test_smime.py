@@ -192,7 +192,7 @@ class WriteLoadTestCase(unittest.TestCase):
         buf = BIO.MemoryBuffer()
         assert SMIME.load_pkcs7(self.filename).write_der(buf) == 1
         s = buf.read()
-        assert len(s) == 1168, len(s)
+        assert len(s) == 1155, len(s)
         
     def check_load_pkcs7(self):
         assert SMIME.load_pkcs7(self.filename).type() == SMIME.PKCS7_SIGNED
