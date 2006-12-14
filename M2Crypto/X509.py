@@ -524,7 +524,7 @@ class X509:
         md = EVP.MessageDigest(md)
         md.update(der)
         digest = md.final()
-        return hex(util.octx_to_num(digest))
+        return hex(util.octx_to_num(digest))[2:-1].upper()
 
 def load_cert(file):
     """
