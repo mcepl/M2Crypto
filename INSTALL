@@ -23,8 +23,8 @@ Installing on Unix-like systems, including Cygwin
 
 ::
 
-    $ tar zxf m2crypto-0.17.tar.gz
-    $ cd m2crypto-0.17
+    $ tar zxf m2crypto-0.18.tar.gz
+    $ cd m2crypto-0.18
     $ python setup.py build
     $ python setup.py install
 

@@ -8,7 +8,7 @@ Copyright (C) 2004-2006 OSAF. All Rights Reserved.
 
 """
 
-version_info = (0, 17)
+version_info = (0, 18)
 version = '.'.join([str(v) for v in version_info])
 
 import __m2crypto

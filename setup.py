@@ -115,7 +115,7 @@ m2crypto = Extension(name='M2Crypto.__m2crypto',
                      )
 
 setup(name = 'M2Crypto',
-      version = '0.17',
+      version = '0.18',
       description = 'M2Crypto: A Python crypto and SSL toolkit',
       long_description = 'M2Crypto is a wrapper for OpenSSL using SWIG.',
       license = 'BSD-style license',
