@@ -1,3 +1,7 @@
+0.18
+----
+- 
+
 0.17
 ----
 - setup.py has new test command to run unit tests (requires setuptools)
