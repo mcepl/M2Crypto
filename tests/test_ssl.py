@@ -849,7 +849,7 @@ class CheckerTestCase(unittest.TestCase):
         from M2Crypto import X509
 
         check = Checker.Checker(host=srv_host,
-                                peerCertHash='9594D272A975F58F4430511D15B4B7FF3D778113')
+                                peerCertHash='02C0CAD90DE6837700173A839BB8E84BF1F5B820')
         x509 = X509.load_cert('tests/server.pem')
         assert check(x509, srv_host)
         self.assertRaises(Checker.WrongHost, check, x509, 'example.com')
