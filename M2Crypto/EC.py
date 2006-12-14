@@ -83,8 +83,15 @@ NID_wap_wsg_idm_ecid_wtls10 = m2.NID_wap_wsg_idm_ecid_wtls10
 NID_wap_wsg_idm_ecid_wtls11 = m2.NID_wap_wsg_idm_ecid_wtls11
 NID_wap_wsg_idm_ecid_wtls12 = m2.NID_wap_wsg_idm_ecid_wtls12
 
-NID_ipsec3 = m2.NID_ipsec3
-NID_ipsec4 = m2.NID_ipsec4
+# The following two curves, according to OpenSSL, have a 
+# "Questionable extension field!" and are not supported by 
+# the OpenSSL inverse function.  ECError: no inverse.
+# As such they cannot be used for signing.  They might, 
+# however, be usable for encryption but that has not 
+# been tested.  Until thir usefulness can be established,
+# they are not supported at this time.
+# NID_ipsec3 = m2.NID_ipsec3
+# NID_ipsec4 = m2.NID_ipsec4
 
 
 class EC:
