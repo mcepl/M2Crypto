@@ -56,7 +56,7 @@ def dump_garbage():
     
         print 'There were %d leaks.' % len(gc.garbage)
     else:
-        print 'Python garabge collector did not detect any leaks.'
+        print 'Python garbage collector did not detect any leaks.'
         print 'However, it is still possible there are leaks in the C code.'
 
 
