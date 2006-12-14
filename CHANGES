@@ -6,6 +6,7 @@
 - Added PKey.get_modulus, X509.get_fingerprint, X509_Name.as_der and
   m2.bn_to_hex, by Thomas Uram
 - Prevent Connection.makefile from freeing bio redundantly, by Thomas Uram
+- Added Err.peek_error_code, by Thomas Uram
 - Fixed m2urllib.open_https to return the response headers, otherwise code
   that relied on that would break (for example msnlib-3.5), by Arno bakker
 - Fixed twisted wrapper to work with >16kb BIO buffers, by Martin Paljak

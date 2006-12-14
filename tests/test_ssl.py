@@ -784,6 +784,8 @@ class SSLClientTestCase(unittest.TestCase):
             f = None
             del s
             s = None
+            err_code = Err.peek_error_code()
+            assert not err_code, 'Unexpected error: %s' % err_code
             err = Err.get_error()
             assert not err, 'Unexpected error: %s' % err
         finally:
