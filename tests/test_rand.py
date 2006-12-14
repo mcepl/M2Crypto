@@ -24,12 +24,12 @@ class RandTestCase(unittest.TestCase):
         
     def test_load_save(self):
         try:
-            os.remove('randpool.dat')
+            os.remove('tests/randpool.dat')
         except OSError:
             pass
-        assert Rand.load_file('randpool.dat', -1) == 0
-        assert Rand.save_file('randpool.dat') == 1024
-        assert Rand.load_file('randpool.dat', -1) == 1024
+        assert Rand.load_file('tests/randpool.dat', -1) == 0
+        assert Rand.save_file('tests/randpool.dat') == 1024
+        assert Rand.load_file('tests/randpool.dat', -1) == 1024
         
     def test_seed_add(self):
         if sys.version_info >= (2, 4):

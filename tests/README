@@ -1,10 +1,14 @@
 This directory contains unit tests for M2Crypto.
 
-You must first install M2Crypto, then cd into this directory, and 
-run the tests.
+To run all tests, make sure you have installed setuptools and then issue the
+following command from the M2Crypto root directory:
 
-Invoke 'alltests.py' to execute all tests. Each test can also be run
-individually.
+python setup.py test
+
+To run tests in a single file, for example test_ssl.py, do this:
+
+python setup.py test --test-suite=tests.test_ssl
+
 
 Look also in the demo directory for other samples.
 
@@ -27,14 +31,14 @@ field is localhost.
 CA.sh -newreq
 CA.sh -sign
 cp newcert.pem ../server.pem
-openssl rsa <newkey.pem >>server.pem
+openssl rsa <newkey.pem >>../server.pem
 
 Making the x509 certificate and key.
 
 CA.sh -newreq
 CA.sh -sign
 cp newcert.pem ../x509.pem
-openssl rsa <newkey.pem >>x509.pem
+openssl rsa <newkey.pem >>../x509.pem
 
 Making the signer certificate. Make sure the email address is 
 signer@example.com.
@@ -42,7 +46,7 @@ signer@example.com.
 CA.sh -newreq
 CA.sh -sign
 cp newcert.pem ../signer.pem
-openssl rsa <newkey.pem >signer_key.pem
+openssl rsa <newkey.pem >../signer_key.pem
 
 Making the recipient certificate. Make sure the email address is 
 recipient@example.com.
@@ -50,4 +54,4 @@ recipient@example.com.
 CA.sh -newreq
 CA.sh -sign
 cp newcert.pem ../recipient.pem
-openssl rsa <newkey.pem >recipient_key.pem
+openssl rsa <newkey.pem >../recipient_key.pem

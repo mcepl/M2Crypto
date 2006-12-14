@@ -21,6 +21,9 @@ def new_extension(name, value, critical=0, _pyfree=1):
     """
     Create new X509_Extension instance.
     """
+    if name == 'subjectKeyIdentifier' and \
+        value.strip('0123456789abcdefABCDEF:') is not '':
+        raise ValueError('value must be precomputed hash')
     lhash = m2.x509v3_lhash()
     ctx = m2.x509v3_set_conf_lhash(lhash)
     x509_ext_ptr = m2.x509v3_ext_conf(lhash, ctx, name, value)
@@ -521,7 +524,7 @@ class X509:
         md = EVP.MessageDigest(md)
         md.update(der)
         digest = md.final()
-        return hex(util.octx_to_num(digest))
+        return hex(util.octx_to_num(digest))[2:-1].upper()
 
 def load_cert(file):
     """

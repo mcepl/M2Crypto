@@ -441,6 +441,8 @@ extern void ERR_print_errors_fp(FILE *);
 extern void ERR_print_errors(BIO *);
 %rename(err_get_error) ERR_get_error;
 extern unsigned long ERR_get_error(void);
+%rename(err_peek_error) ERR_peek_error;
+extern unsigned long ERR_peek_error(void);
 %rename(err_lib_error_string) ERR_lib_error_string;
 extern const char *ERR_lib_error_string(unsigned long);
 %rename(err_func_error_string) ERR_func_error_string;

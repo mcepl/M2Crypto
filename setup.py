@@ -10,6 +10,12 @@ Copyright (C) 2004-2006 OSAF. All Rights Reserved.
 """
 
 import os, sys
+
+try:
+    import setuptools # Must import setuptools before distutils
+except ImportError:
+    pass # test command not available
+    
 from distutils.core import setup, Extension
 from distutils.command import build_ext 
 
@@ -20,7 +26,7 @@ def parse_args(option_dict):
             option_dict['openssl_prefix'] = arg.split("=")[1]
             sys.argv.remove(arg)
             break
-
+        
 if os.name == 'nt':
     libraries = ['ssleay32', 'libeay32']
     option_dict = {'openssl_prefix': 'c:\\pkg'}
@@ -98,8 +104,7 @@ if sys.version_info < (2,4):
     
     build_ext.build_ext.swig_sources = swig_sources
 
-
-m2crypto = Extension(name = '__m2crypto',
+m2crypto = Extension(name='M2Crypto.__m2crypto',
                      sources = ['SWIG/_m2crypto.i'],
                      include_dirs = include_dirs,
                      library_dirs = library_dirs,
@@ -121,7 +126,6 @@ setup(name = 'M2Crypto',
       maintainer_email = 'heikki@osafoundation.org',
       url = 'http://wiki.osafoundation.org/bin/view/Projects/MeTooCrypto',
       packages = ['M2Crypto', 'M2Crypto.SSL', 'M2Crypto.PGP'],
-      ext_package = 'M2Crypto',
-      ext_modules = [m2crypto]
+      ext_modules = [m2crypto],
+      test_suite='tests.alltests.suite',
       )
-

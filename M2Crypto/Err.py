@@ -13,6 +13,9 @@ def get_error():
 def get_error_code():
     return m2.err_get_error()
 
+def peek_error_code():
+    return m2.err_peek_error()
+
 def get_error_lib(err):
     return m2.err_lib_error_string(err)
 

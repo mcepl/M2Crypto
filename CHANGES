@@ -1,9 +1,12 @@
 0.17
 ----
+- setup.py has new test command to run unit tests (requires setuptools)
 - Added m2urllib2, by James Bowes (python 2.4 and later, at least for now)
 - Added CONNECT proxy for httpslib and m2urllib2, by James Bowes
 - Added PKey.get_modulus, X509.get_fingerprint, X509_Name.as_der and
   m2.bn_to_hex, by Thomas Uram
+- Prevent Connection.makefile from freeing bio redundantly, by Thomas Uram
+- Added Err.peek_error_code, by Thomas Uram
 - Fixed m2urllib.open_https to return the response headers, otherwise code
   that relied on that would break (for example msnlib-3.5), by Arno bakker
 - Fixed twisted wrapper to work with >16kb BIO buffers, by Martin Paljak
@@ -15,9 +18,11 @@
 - smime_read_pkcs7 was changed to automatically call BIO_set_mem_eof_return
   on memory BIOs because otherwise the read would fail with 
   "SMIME_Error: not enough data"
+- X509.new_extension('subjectKeyIdentifier', 'hash') raises ValueError instead
+  of crashing Python
 
-0.16
-----
+0.16 - 2006-07-05
+-----------------
 - Minimum requirements updated: Python 2.3+, OpenSSL 0.9.7+, SWIG 1.3.24+
 - Optional features from OpenSSL 0.9.8 and newer
 - Enhancements to EVP and X509 to allow proxy certificate handling,
@@ -71,8 +76,8 @@
 - More and better Epydoc formatted docstrings
 - More than doubled the number of unit tests, also made many demos into tests
 
-0.15
-----
+0.15 - 2005-08-17
+-----------------
 - Support OpenSSL 0.9.8, Python 2.4.1, SWIG 1.3.24
 - Fixed multiple memory leaks
 - Twisted integration

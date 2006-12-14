@@ -42,6 +42,10 @@ class X509TestCase(unittest.TestCase):
         assert x.verify(pk2)
         return x, pk
 
+    def check_ext(self):
+        self.assertRaises(ValueError, X509.new_extension,
+                          'subjectKeyIdentifier', 'hash')
+
     def check_extstack(self):
         # new
         ext1 = X509.new_extension('subjectAltName', 'DNS:foobar.example.com')
@@ -109,9 +113,9 @@ class X509TestCase(unittest.TestCase):
                            
     def check_mkreq(self):
         (req, _) = self.mkreq(512)
-        req.save_pem('tmp_request.pem')
-        req2 = X509.load_request('tmp_request.pem')
-        os.remove('tmp_request.pem')
+        req.save_pem('tests/tmp_request.pem')
+        req2 = X509.load_request('tests/tmp_request.pem')
+        os.remove('tests/tmp_request.pem')
         assert req.as_pem() == req2.as_pem()
         assert req.as_text() == req2.as_text()
 
@@ -269,18 +273,16 @@ class X509TestCase(unittest.TestCase):
         return proxycert
     
     def check_fingerprint(self):
-        x509 = X509.load_cert('x509.pem')
+        x509 = X509.load_cert('tests/x509.pem')
         fp = x509.get_fingerprint('sha1')
-        expected = '0xDE1EE86E98AA192122365180BCC64F88F065C4A7L'
-        if sys.version_info >= (2,5):
-            expected = expected[:-1].lower() + 'L'
+        expected = '128858B5222A5C78397530A5706233A9EB470AC4'
         assert fp == expected, '%s != %s' % (fp, expected)
 
 
 class X509_StackTestCase(unittest.TestCase):
     
     def check_make_stack_from_der(self):
-        f = open("der_encoded_seq.b64")
+        f = open("tests/der_encoded_seq.b64")
         b64 = f.read(1304)
         seq = base64.decodestring(b64)
         stack = X509.new_stack_from_der(seq)
@@ -290,7 +292,7 @@ class X509_StackTestCase(unittest.TestCase):
         assert str(subject) == "/DC=org/DC=doegrids/OU=Services/CN=host/bosshog.lbl.gov"
     
     def check_make_stack_check_num(self):
-        f = open("der_encoded_seq.b64")
+        f = open("tests/der_encoded_seq.b64")
         b64 = f.read(1304)
         seq = base64.decodestring(b64)
         stack = X509.new_stack_from_der(seq)
@@ -304,8 +306,8 @@ class X509_StackTestCase(unittest.TestCase):
 
     def check_make_stack(self):
         stack = X509.X509_Stack()
-        cert = X509.load_cert("x509.pem")
-        issuer = X509.load_cert("ca.pem")
+        cert = X509.load_cert("tests/x509.pem")
+        issuer = X509.load_cert("tests/ca.pem")
         cert_subject1 = cert.get_subject()
         issuer_subject1 = issuer.get_subject()
         stack.push(cert)
@@ -327,8 +329,8 @@ class X509_StackTestCase(unittest.TestCase):
     
     def check_as_der(self):
         stack = X509.X509_Stack()
-        cert = X509.load_cert("x509.pem")
-        issuer = X509.load_cert("ca.pem")
+        cert = X509.load_cert("tests/x509.pem")
+        issuer = X509.load_cert("tests/ca.pem")
         cert_subject1 = cert.get_subject()
         issuer_subject1 = issuer.get_subject()
         stack.push(cert)

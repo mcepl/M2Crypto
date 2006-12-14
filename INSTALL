@@ -27,8 +27,10 @@ Installing on Unix-like systems, including Cygwin
     $ cd m2crypto-0.17
     $ python setup.py build
     $ python setup.py install
-    $ cd tests
-    $ python alltests.py
+
+If you have installed setuptools you can also optionally run tests like this:
+
+    $ python setup.py test
 
 This assumes OpenSSL is installed in /usr. You can provide an alternate
 OpenSSL prefix location with --openssl option to build command. Other
@@ -43,6 +45,10 @@ import libraries and DLLs. By default setup.py assumes that OpenSSL include
 files are in ``c:\pkg\openssl\include``, and the import libraries 
 in ``c:\pkg\openssl\lib``. As with other platforms, you can specify a different
 OpenSSL location with --openssl option.
+
+Using OpenSSL 0.9.8 on Windows requires Python be built with applink.c 
+(add an include statement in python.c).  This is not a requirement for 
+Linux or MacOSX.  (applink.c is provided by OpenSSL.)
 
 
 MSVC++
@@ -84,8 +90,6 @@ Build M2Crypto:
 
     python setup.py build -cmingw32
     python setup.py install
-    cd tests
-    python alltests.py
 
 
 BC++
@@ -118,5 +122,33 @@ Then,
 ::
 
     python setup.py install
-    cd tests
-    python alltests.py
+
+
+MacOSX
+------
+
+Follow the standard instructions to build and install M2Crypto.  
+However, should you encounter difficulties, you may want to consider 
+the following possibilities.
+
+  - Distutils for Python 2.5 now provides support for universal 
+    builds (ppc and i386) and Distutils requires a recent version 
+    of Xcode.  See http://developer.apple.com/tools/download/
+
+  - OpenSSL 0.9.7l gets installed in /usr with Apple's Security 
+    Update 2006-007.  If you need features in OpenSSL 0.9.8, you 
+    should consider installing 0.9.8 in /usr/local.  The commands 
+    are:
+    
+      OpenSSL:
+        ./config shared --prefix=/usr/local
+        make
+        make test
+        sudo make install     [or... install_sw]
+        
+      M2Crypto:
+        python setup.py build --openssl=/usr/local
+        sudo python setup.py install --openssl=/usr/local
+
+
+

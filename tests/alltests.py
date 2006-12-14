@@ -2,33 +2,43 @@
 
 def suite():
     from M2Crypto import m2
+    import os, sys
+    import unittest
     
+    def my_import(name):
+        # See http://docs.python.org/lib/built-in-funcs.html#l2h-6
+        mod = __import__(name)
+        components = name.split('.')
+        for comp in components[1:]:
+            mod = getattr(mod, comp)
+        return mod
+
     modules_to_test = [
-        'test_asn1',
-        'test_bio',
-        'test_bio_membuf',
-        'test_bio_file',
-        'test_bio_iobuf',
-        'test_bio_ssl',
-        'test_bn',
-        'test_authcookie',
-        'test_dh',
-        'test_dsa',
-        'test_evp',
-        'test_rand',
-        'test_rsa',
-        'test_smime',
-        'test_x509']
+        'tests.test_asn1',
+        'tests.test_bio',
+        'tests.test_bio_membuf',
+        'tests.test_bio_file',
+        'tests.test_bio_iobuf',
+        'tests.test_bio_ssl',
+        'tests.test_bn',
+        'tests.test_authcookie',
+        'tests.test_dh',
+        'tests.test_dsa',
+        'tests.test_evp',
+        'tests.test_rand',
+        'tests.test_rsa',
+        'tests.test_smime',
+        'tests.test_x509']
     if os.name == 'posix':
-        modules_to_test.append('test_ssl')
+        modules_to_test.append('tests.test_ssl')
     elif os.name == 'nt':
-        modules_to_test.append('test_ssl_win')
+        modules_to_test.append('tests.test_ssl_win')
     if m2.OPENSSL_VERSION_NUMBER >= 0x90800F and m2.OPENSSL_NO_EC == 0:
-        modules_to_test.append('test_ecdh')
-        modules_to_test.append('test_ecdsa')
-        modules_to_test.append('test_ec_curves')
+        modules_to_test.append('tests.test_ecdh')
+        modules_to_test.append('tests.test_ecdsa')
+        modules_to_test.append('tests.test_ec_curves')
     alltests = unittest.TestSuite()
-    for module in map(__import__, modules_to_test):
+    for module in map(my_import, modules_to_test):
         alltests.addTest(module.suite())
     return alltests
 
@@ -47,12 +57,12 @@ def dump_garbage():
     
         print 'There were %d leaks.' % len(gc.garbage)
     else:
-        print 'Python garabge collector did not detect any leaks.'
+        print 'Python garbage collector did not detect any leaks.'
         print 'However, it is still possible there are leaks in the C code.'
 
 
-if __name__ == '__main__':
-    report_leaks = 0
+def runall(report_leaks=0):
+    report_leaks = report_leaks
     
     if report_leaks:
         import gc
@@ -63,9 +73,9 @@ if __name__ == '__main__':
     from M2Crypto import Rand
     
     try:
-        Rand.load_file('randpool.dat', -1) 
+        Rand.load_file('tests/randpool.dat', -1) 
         unittest.TextTestRunner().run(suite())
-        Rand.save_file('randpool.dat')
+        Rand.save_file('tests/randpool.dat')
     finally:
         if os.name == 'posix':
             from test_ssl import zap_servers
@@ -73,3 +83,7 @@ if __name__ == '__main__':
 
     if report_leaks:
         dump_garbage()
+    
+
+if __name__ == '__main__':
+    runall()
