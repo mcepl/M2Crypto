@@ -19,33 +19,33 @@ class IOBufferTestCase(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def check_init_empty(self):
+    def test_init_empty(self):
         mb = MemoryBuffer()
         io = IOBuffer(mb)
         out = io.read()
         assert out == ''
 
-    def check_init_something(self):
+    def test_init_something(self):
         mb = MemoryBuffer(self.data)
         io = IOBuffer(mb)
         out = io.read(len(self.data))
         assert out == self.data
 
-    def check_read_less_than(self):
+    def test_read_less_than(self):
         chunk = len(self.data) - 7
         mb = MemoryBuffer(self.data)
         io = IOBuffer(mb)
         out = io.read(chunk)
         assert out == self.data[:chunk]
         
-    def check_read_more_than(self):
+    def test_read_more_than(self):
         chunk = len(self.data) + 8
         mb = MemoryBuffer(self.data)
         io = IOBuffer(mb)
         out = io.read(chunk)
         assert out == self.data
 
-    def check_readline(self):
+    def test_readline(self):
         buf = StringIO()
         mb = MemoryBuffer(self.data)
         io = IOBuffer(mb)
@@ -57,7 +57,7 @@ class IOBufferTestCase(unittest.TestCase):
             assert out == self._data
         assert buf.getvalue() == self.data
 
-    def check_readlines(self):
+    def test_readlines(self):
         buf = StringIO()
         mb = MemoryBuffer(self.data)
         io = IOBuffer(mb)
@@ -67,14 +67,14 @@ class IOBufferTestCase(unittest.TestCase):
             buf.write(line)
         assert buf.getvalue() == self.data
 
-    def check_closed(self):
+    def test_closed(self):
         mb = MemoryBuffer(self.data)
         io = IOBuffer(mb)
         io.close()
         self.assertRaises(IOError, io.write, self.data)
         assert not io.readable() and not io.writeable()
 
-    def check_read_only(self):
+    def test_read_only(self):
         mb = MemoryBuffer(self.data)
         io = IOBuffer(mb, mode='r')
         self.assertRaises(IOError, io.write, self.data)
@@ -82,7 +82,7 @@ class IOBufferTestCase(unittest.TestCase):
 
 
 def suite():
-    return unittest.makeSuite(IOBufferTestCase, 'check_')
+    return unittest.makeSuite(IOBufferTestCase)
     
 
 if __name__ == '__main__':

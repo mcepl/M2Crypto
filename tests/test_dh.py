@@ -17,18 +17,18 @@ class DHTestCase(unittest.TestCase):
     def genparam_callback2(self):
         pass 
 
-    def check_init_junk(self):
+    def test_init_junk(self):
         self.assertRaises(TypeError, DH.DH, 'junk')
 
-    def check_gen_params(self):
+    def test_gen_params(self):
         a = DH.gen_params(128, 2, self.genparam_callback)
         assert a.check_params() == 0
 
-    def check_gen_params_bad_cb(self):
+    def test_gen_params_bad_cb(self):
         a = DH.gen_params(128, 2, self.genparam_callback2)
         assert a.check_params() == 0
 
-    def check_print_params(self):
+    def test_print_params(self):
         a = DH.gen_params(128, 2, self.genparam_callback)
         bio = BIO.MemoryBuffer()
         a.print_params(bio)
@@ -36,11 +36,11 @@ class DHTestCase(unittest.TestCase):
         assert params.find('(128 bit)')
         assert params.find('generator: 2 (0x2)')
 
-    def check_load_params(self):
+    def test_load_params(self):
         a = DH.load_params('tests/dhparams.pem')
         assert a.check_params() == 0
 
-    def check_compute_key(self):
+    def test_compute_key(self):
         a = DH.load_params('tests/dhparams.pem')
         b = DH.set_params(a.p, a.g)
         a.gen_key()
@@ -51,7 +51,7 @@ class DHTestCase(unittest.TestCase):
 
 
 def suite():
-    return unittest.makeSuite(DHTestCase, 'check_')
+    return unittest.makeSuite(DHTestCase)
 
 
 if __name__=='__main__':

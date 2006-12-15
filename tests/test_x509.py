@@ -42,11 +42,11 @@ class X509TestCase(unittest.TestCase):
         assert x.verify(pk2)
         return x, pk
 
-    def check_ext(self):
+    def test_ext(self):
         self.assertRaises(ValueError, X509.new_extension,
                           'subjectKeyIdentifier', 'hash')
 
-    def check_extstack(self):
+    def test_extstack(self):
         # new
         ext1 = X509.new_extension('subjectAltName', 'DNS:foobar.example.com')
         ext2 = X509.new_extension('nsComment', 'Hello there')
@@ -73,7 +73,7 @@ class X509TestCase(unittest.TestCase):
         assert len(extstack) == 2
         assert(extstack[1].get_name() == 'nsComment')
 
-    def check_x509_name(self):
+    def test_x509_name(self):
         n = X509.X509_Name()
         n.C = 'US' # It seems this actually needs to be a real 2 letter country code
         assert n.C == 'US'
@@ -111,7 +111,7 @@ class X509TestCase(unittest.TestCase):
         assert n.foobar == 1, n.foobar
                            
                            
-    def check_mkreq(self):
+    def test_mkreq(self):
         (req, _) = self.mkreq(512)
         req.save_pem('tests/tmp_request.pem')
         req2 = X509.load_request('tests/tmp_request.pem')
@@ -119,7 +119,7 @@ class X509TestCase(unittest.TestCase):
         assert req.as_pem() == req2.as_pem()
         assert req.as_text() == req2.as_text()
 
-    def check_mkcert(self):
+    def test_mkcert(self):
         req, pk = self.mkreq(512)
         pkey = req.get_pubkey()
         assert(req.verify(pkey))
@@ -200,12 +200,12 @@ class X509TestCase(unittest.TestCase):
         
         return cert, pk, pkey
 
-    def check_mkcacert(self): 
+    def test_mkcacert(self): 
         cacert, pk, pkey = self.mkcacert()
         assert cacert.verify(pkey)
         
 
-    def check_mkproxycert(self): 
+    def test_mkproxycert(self): 
         cacert, pk1, pkey = self.mkcacert()
         end_entity_cert_req, pk2 = self.mkreq(512)
         end_entity_cert = self.make_eecert(cacert)
@@ -272,7 +272,7 @@ class X509TestCase(unittest.TestCase):
         proxycert.add_ext(pci_ext)
         return proxycert
     
-    def check_fingerprint(self):
+    def test_fingerprint(self):
         x509 = X509.load_cert('tests/x509.pem')
         fp = x509.get_fingerprint('sha1')
         expected = '128858B5222A5C78397530A5706233A9EB470AC4'
@@ -281,7 +281,7 @@ class X509TestCase(unittest.TestCase):
 
 class X509_StackTestCase(unittest.TestCase):
     
-    def check_make_stack_from_der(self):
+    def test_make_stack_from_der(self):
         f = open("tests/der_encoded_seq.b64")
         b64 = f.read(1304)
         seq = base64.decodestring(b64)
@@ -291,7 +291,7 @@ class X509_StackTestCase(unittest.TestCase):
         subject = cert.get_subject() 
         assert str(subject) == "/DC=org/DC=doegrids/OU=Services/CN=host/bosshog.lbl.gov"
     
-    def check_make_stack_check_num(self):
+    def test_make_stack_check_num(self):
         f = open("tests/der_encoded_seq.b64")
         b64 = f.read(1304)
         seq = base64.decodestring(b64)
@@ -304,7 +304,7 @@ class X509_StackTestCase(unittest.TestCase):
         subject = cert.get_subject() 
         assert str(subject) == "/DC=org/DC=doegrids/OU=Services/CN=host/bosshog.lbl.gov"
 
-    def check_make_stack(self):
+    def test_make_stack(self):
         stack = X509.X509_Stack()
         cert = X509.load_cert("tests/x509.pem")
         issuer = X509.load_cert("tests/ca.pem")
@@ -327,7 +327,7 @@ class X509_StackTestCase(unittest.TestCase):
         assert str(cert_subject1) == str(cert_subject2)
         assert str(issuer_subject1) == str(issuer_subject2)
     
-    def check_as_der(self):
+    def test_as_der(self):
         stack = X509.X509_Stack()
         cert = X509.load_cert("tests/x509.pem")
         issuer = X509.load_cert("tests/ca.pem")
@@ -347,8 +347,8 @@ class X509_StackTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(X509TestCase, 'check'))
-    suite.addTest(unittest.makeSuite(X509_StackTestCase, 'check'))
+    suite.addTest(unittest.makeSuite(X509TestCase))
+    suite.addTest(unittest.makeSuite(X509_StackTestCase))
     return suite
 
 

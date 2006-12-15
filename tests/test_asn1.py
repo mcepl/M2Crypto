@@ -9,13 +9,13 @@ from M2Crypto import ASN1, m2
 
 class ASN1TestCase(unittest.TestCase):
 
-    def check_Integer(self):
+    def test_Integer(self):
         pass # XXX Dunno how to test
 
-    def check_BitSTring(self):
+    def test_BitSTring(self):
         pass # XXX Dunno how to test
 
-    def check_String(self):
+    def test_String(self):
         asn1ptr = m2.asn1_string_new()
         text = 'hello there'
         # In RFC2253 format:
@@ -26,10 +26,10 @@ class ASN1TestCase(unittest.TestCase):
         assert a.as_text() == 'hello there', a.as_text()
         assert a.as_text(flags=m2.ASN1_STRFLGS_RFC2253) == '#040B68656C6C6F207468657265', a.as_text(flags=m2.ASN1_STRFLGS_RFC2253)
 
-    def check_Object(self):
+    def test_Object(self):
         pass # XXX Dunno how to test
 
-    def check_UTCTIME(self):
+    def test_UTCTIME(self):
         asn1 = ASN1.ASN1_UTCTIME()
         assert str(asn1) == 'Bad time value'
         
@@ -57,7 +57,7 @@ class ASN1TestCase(unittest.TestCase):
          
 
 def suite():
-    return unittest.makeSuite(ASN1TestCase, 'check')
+    return unittest.makeSuite(ASN1TestCase)
 
 
 if __name__ == '__main__':

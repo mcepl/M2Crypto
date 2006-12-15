@@ -13,7 +13,7 @@ loops = 16
 
 class BNTestCase(unittest.TestCase):
 
-    def check_rand(self):
+    def test_rand(self):
         # defaults
         for x in range(loops):
             r8 = BN.rand(8)
@@ -43,7 +43,7 @@ class BNTestCase(unittest.TestCase):
             assert r8 < r16 < r32 < r64 < r128 < r256 < r512 < (r512 + 1)
         
 
-    def check_rand_range(self):
+    def test_rand_range(self):
         # small range
         for x in range(loops):
             r = BN.rand_range(1)
@@ -60,7 +60,7 @@ class BNTestCase(unittest.TestCase):
             assert 0 <= r < r512
 
             
-    def check_randfname(self):
+    def test_randfname(self):
         m = re.compile('^[a-zA-Z0-9]{8}$')
         for x in range(loops):
             r = BN.randfname(8)
@@ -68,7 +68,7 @@ class BNTestCase(unittest.TestCase):
         
 
 def suite():
-    return unittest.makeSuite(BNTestCase, 'check')
+    return unittest.makeSuite(BNTestCase)
 
 
 if __name__ == '__main__':

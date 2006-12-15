@@ -36,44 +36,44 @@ class RSATestCase(unittest.TestCase):
         # Misbehaving passphrase callback.
         pass
 
-    def check_loadkey_junk(self):
+    def test_loadkey_junk(self):
         self.assertRaises(RSA.RSAError, RSA.load_key, self.errkey)
 
-    def check_loadkey_pp(self):
+    def test_loadkey_pp(self):
         rsa = RSA.load_key(self.privkey2, self.pp_callback)
         assert len(rsa) == 512
         assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         assert rsa.check_key() == 1
 
-    def check_loadkey_pp_bad_cb(self):
+    def test_loadkey_pp_bad_cb(self):
         self.assertRaises(RSA.RSAError, RSA.load_key, self.privkey2, self.pp2_callback)
 
-    def check_loadkey(self):
+    def test_loadkey(self):
         rsa = RSA.load_key(self.privkey)
         assert len(rsa) == 512
         assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         assert rsa.check_key() == 1
 
-    def check_loadkey_bio(self):
+    def test_loadkey_bio(self):
         keybio = BIO.MemoryBuffer(open(self.privkey).read()) 
         rsa = RSA.load_key_bio(keybio)
         assert len(rsa) == 512
         assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         assert rsa.check_key() == 1
 
-    def check_keygen(self):
+    def test_keygen(self):
         rsa = RSA.gen_key(256, 65537, self.gen_callback)
         assert len(rsa) == 256
         assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         assert rsa.check_key() == 1
 
-    def check_keygen_bad_cb(self):
+    def test_keygen_bad_cb(self):
         rsa = RSA.gen_key(256, 65537, self.gen2_callback)
         assert len(rsa) == 256
         assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         assert rsa.check_key() == 1
 
-    def check_private_encrypt(self):
+    def test_private_encrypt(self):
         priv = RSA.load_key(self.privkey)
         # pkcs1_padding
         for padding in self.s_padding_ok:
@@ -88,7 +88,7 @@ class RSATestCase(unittest.TestCase):
         # Type-check the data to be encrypted.
         self.assertRaises(TypeError, priv.private_encrypt, self.gen_callback, RSA.pkcs1_padding)
 
-    def check_public_encrypt(self):
+    def test_public_encrypt(self):
         priv = RSA.load_key(self.privkey)
         # pkcs1_padding, pkcs1_oaep_padding
         for padding in self.e_padding_ok:
@@ -104,28 +104,28 @@ class RSATestCase(unittest.TestCase):
         # Type-check the data to be encrypted.
         self.assertRaises(TypeError, priv.public_encrypt, self.gen_callback, RSA.pkcs1_padding)
     
-    def check_loadpub(self):
+    def test_loadpub(self):
         rsa = RSA.load_pub_key(self.pubkey)
         assert len(rsa) == 512
         assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         assert rsa.check_key()
 
-    def check_loadpub_bad(self):
+    def test_loadpub_bad(self):
         self.assertRaises(RSA.RSAError, RSA.load_pub_key, self.errkey)
 
-    def check_set_bn(self):
+    def test_set_bn(self):
         rsa = RSA.load_pub_key(self.pubkey)
         assert m2.rsa_set_e(rsa.rsa, '\000\000\000\003\001\000\001') is None
         self.assertRaises(RSA.RSAError, m2.rsa_set_e, rsa.rsa, '\000\000\000\003\001')
 
-    def check_newpub(self):
+    def test_newpub(self):
         old = RSA.load_pub_key(self.pubkey)
         new = RSA.new_pub_key(old.pub())
         assert new.check_key()
         assert len(new) == 512
         assert new.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         
-    def check_sign_and_verify(self):
+    def test_sign_and_verify(self):
         """
         Testing signing and verifying digests
         """
@@ -149,7 +149,7 @@ class RSATestCase(unittest.TestCase):
             verify = rsa2.verify(digest, signature, algo) 
             assert verify == 1, 'verification failed with algorithm %s' % algo
     
-    def check_sign_bad_method(self):
+    def test_sign_bad_method(self):
         """
         Testing calling sign with an unsupported message digest algorithm
         """
@@ -159,7 +159,7 @@ class RSATestCase(unittest.TestCase):
         self.assertRaises(ValueError, rsa.sign, 
                           digest, 'bad_digest_method') 
     
-    def check_verify_bad_method(self):
+    def test_verify_bad_method(self):
         """
         Testing calling verify with an unsupported message digest algorithm
         """
@@ -170,7 +170,7 @@ class RSATestCase(unittest.TestCase):
         self.assertRaises(ValueError, rsa.verify,
                           digest, signature, 'bad_digest_method') 
 
-    def check_verify_mismatched_algo(self):
+    def test_verify_mismatched_algo(self):
         """
         Testing verify to make sure it fails when we use a different
         message digest algorithm
@@ -183,7 +183,7 @@ class RSATestCase(unittest.TestCase):
         self.assertRaises(RSA.RSAError, rsa.verify, 
                           digest, signature, 'md5')
     
-    def check_sign_fail(self):
+    def test_sign_fail(self):
         """
         Testing sign to make sure it fails when I give it
         a bogus digest. Looking at the RSA sign method
@@ -196,7 +196,7 @@ class RSATestCase(unittest.TestCase):
          
         self.assertRaises(RSA.RSAError, rsa.sign, digest)
     
-    def check_verify_bad_signature(self):
+    def test_verify_bad_signature(self):
         """
         Testing verify to make sure it fails when we use a bad signature
         """
@@ -213,7 +213,7 @@ class RSATestCase(unittest.TestCase):
     
         
 def suite():
-    return unittest.makeSuite(RSATestCase, 'check')
+    return unittest.makeSuite(RSATestCase)
     
 
 if __name__ == '__main__':

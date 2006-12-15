@@ -61,12 +61,12 @@ class SSLTestCase(unittest.TestCase):
     def setUp(self):
         self.sslbio = BIO.SSLBio()
     
-    def check_set_ssl(self): 
+    def test_set_ssl(self): 
         ctx = SSL.Context()
         conn = SSL.Connection(ctx)
         self.sslbio.set_ssl(conn)
 
-    def check_do_handshake_fail(self): 
+    def test_do_handshake_fail(self): 
         ctx = SSL.Context()
         conn = SSL.Connection(ctx)
         conn.set_connect_state()
@@ -74,7 +74,7 @@ class SSLTestCase(unittest.TestCase):
         ret = self.sslbio.do_handshake() 
         assert ret == 0 
 
-    def check_should_retry_fail(self):
+    def test_should_retry_fail(self):
         ctx = SSL.Context()
         conn = SSL.Connection(ctx) 
         self.sslbio.set_ssl(conn)
@@ -83,7 +83,7 @@ class SSLTestCase(unittest.TestCase):
         ret = self.sslbio.should_retry() 
         assert ret == 0 
     
-    def check_should_write_fail(self):
+    def test_should_write_fail(self):
         ctx = SSL.Context()
         conn = SSL.Connection(ctx) 
         self.sslbio.set_ssl(conn)
@@ -92,7 +92,7 @@ class SSLTestCase(unittest.TestCase):
         ret = self.sslbio.should_write() 
         assert ret == 0 
     
-    def check_should_read_fail(self):
+    def test_should_read_fail(self):
         ctx = SSL.Context()
         conn = SSL.Connection(ctx)
         self.sslbio.set_ssl(conn)
@@ -101,7 +101,7 @@ class SSLTestCase(unittest.TestCase):
         ret = self.sslbio.should_read() 
         assert ret == 0 
    
-    def check_do_handshake_succeed(self):
+    def test_do_handshake_succeed(self):
         ctx = SSL.Context() 
         ctx.load_cert_chain("tests/server.pem")
         conn = SSL.Connection(ctx) 
@@ -137,7 +137,7 @@ class SSLTestCase(unittest.TestCase):
         new_sock.close() 
 
 def suite(): 
-    return unittest.makeSuite(SSLTestCase, 'check_')
+    return unittest.makeSuite(SSLTestCase)
     
 
 if __name__ == '__main__':

@@ -15,10 +15,10 @@ class ECDHTestCase(unittest.TestCase):
 
     privkey = 'tests/ec.priv.pem'
 
-    def check_init_junk(self):
+    def test_init_junk(self):
         self.assertRaises(TypeError, EC.EC, 'junk')
 
-    def check_compute_key(self):
+    def test_compute_key(self):
         a = EC.load_key(self.privkey)
         b = EC.gen_params(EC.NID_sect233k1)
         b.gen_key()
@@ -26,7 +26,7 @@ class ECDHTestCase(unittest.TestCase):
         bk = b.compute_dh_key(a.pub())
         assert ak == bk
 
-    def check_pubkey_from_der(self):
+    def test_pubkey_from_der(self):
         a = EC.gen_params(EC.NID_sect233k1)
         a.gen_key()
         b = EC.gen_params(EC.NID_sect233k1)
@@ -39,7 +39,7 @@ class ECDHTestCase(unittest.TestCase):
 
 
 def suite():
-    return unittest.makeSuite(ECDHTestCase, 'check_')
+    return unittest.makeSuite(ECDHTestCase)
 
 
 if __name__=='__main__':
