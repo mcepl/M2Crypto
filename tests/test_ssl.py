@@ -43,6 +43,7 @@ class VerifyCB:
     def __call__(self, ok, store):
         return verify_cb_new_function(ok, store)
 
+sleepTime = float(os.getenv('M2CRYPTO_TEST_SSL_SLEEP', 0.5))
 
 class SSLClientTestCase(unittest.TestCase):
 
@@ -58,7 +59,7 @@ class SSLClientTestCase(unittest.TestCase):
                 os.chdir('..')
                 
         else:
-            time.sleep(0.5)
+            time.sleep(sleepTime)
             return pid
 
     def stop_server(self, pid):
