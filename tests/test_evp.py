@@ -24,11 +24,11 @@ class EVPTestCase(unittest.TestCase):
         pkey.assign_rsa(rsa, capture=0) # capture=1 should cause crash
         return rsa
     
-    def check_assign(self):
+    def test_assign(self):
         rsa = self._assign_rsa()
         rsa.check_key()
         
-    def check_pem(self):
+    def test_pem(self):
         rsa = RSA.gen_key(512, 3, callback=self._gen_callback)
         pkey = EVP.PKey()
         pkey.assign_rsa(rsa)
@@ -36,7 +36,7 @@ class EVPTestCase(unittest.TestCase):
         self.assertRaises(ValueError, pkey.as_pem, cipher='noXX$$%%suchcipher',
                           callback=self._pass_callback)
                           
-    def check_as_der(self):
+    def test_as_der(self):
         """
         Test DER encoding the PKey instance after assigning 
         a RSA key to it.
@@ -49,13 +49,13 @@ class EVPTestCase(unittest.TestCase):
         assert len(der_blob) == 92
           
         
-    def check_MessageDigest(self):
+    def test_MessageDigest(self):
         self.assertRaises(ValueError, EVP.MessageDigest, 'sha513')
         md = EVP.MessageDigest('sha1')
         assert md.update('Hello') == 1
         assert util.octx_to_num(md.final()) == 1415821221623963719413415453263690387336440359920
 
-    def check_as_der_capture_key(self):
+    def test_as_der_capture_key(self):
         """
         Test DER encoding the PKey instance after assigning 
         a RSA key to it. Have the PKey instance capture the RSA key.
@@ -67,14 +67,14 @@ class EVPTestCase(unittest.TestCase):
         #A quick but not thorough sanity check
         assert len(der_blob) == 92
 
-    def check_size(self):
+    def test_size(self):
         rsa = RSA.gen_key(512, 3, callback=self._gen_callback)
         pkey = EVP.PKey()
         pkey.assign_rsa(rsa)
         size = pkey.size() 
         assert size == 64
         
-    def check_hmac(self):
+    def test_hmac(self):
         assert util.octx_to_num(EVP.hmac('key', 'data')) == 92800611269186718152770431077867383126636491933, util.octx_to_num(EVP.hmac('key', 'data'))
         assert util.octx_to_num(EVP.hmac('key', 'data', algo='md5')) == 209168838103121722341657216703105225176, util.octx_to_num(EVP.hmac('key', 'data', algo='md5'))
         assert util.octx_to_num(EVP.hmac('key', 'data', algo='ripemd160')) == 1176807136224664126629105846386432860355826868536, util.octx_to_num(EVP.hmac('key', 'data', algo='ripemd160'))
@@ -88,7 +88,7 @@ class EVPTestCase(unittest.TestCase):
         self.assertRaises(ValueError, EVP.hmac, 'key', 'data', algo='sha513')
 
 
-    def check_get_rsa(self):
+    def test_get_rsa(self):
         """
         Testing retrieving the RSA key from the PKey instance.
         """
@@ -109,7 +109,7 @@ class EVPTestCase(unittest.TestCase):
         rsa3 = RSA.gen_key(512, 3, callback=self._gen_callback)
         assert rsa.sign(digest) != rsa3.sign(digest)
     
-    def check_get_rsa_fail(self):
+    def test_get_rsa_fail(self):
         """
         Testing trying to retrieve the RSA key from the PKey instance
         when it is not holding a RSA Key. Should raise a ValueError.
@@ -117,7 +117,7 @@ class EVPTestCase(unittest.TestCase):
         pkey = EVP.PKey()
         self.assertRaises(ValueError, pkey.get_rsa)
 
-    def check_get_modulus(self):
+    def test_get_modulus(self):
         pkey = EVP.PKey()
         self.assertRaises(ValueError, pkey.get_modulus)
 
@@ -158,7 +158,7 @@ class CipherTestCase(unittest.TestCase):
     
         assert otxt == ptxt, '%s algorithm cipher test failed' % algo
         
-    def check_ciphers(self):
+    def test_ciphers(self):
         ciphers=['bf_ecb', 'bf_cbc', 'bf_cfb', 'bf_ofb',\
             #'idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb',\
             'cast5_ecb', 'cast5_cbc', 'cast5_cfb', 'cast5_ofb',\
@@ -177,8 +177,8 @@ class CipherTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(EVPTestCase, 'check'))
-    suite.addTest(unittest.makeSuite(CipherTestCase, 'check'))
+    suite.addTest(unittest.makeSuite(EVPTestCase))
+    suite.addTest(unittest.makeSuite(CipherTestCase))
     return suite    
 
 if __name__ == '__main__':

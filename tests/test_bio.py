@@ -37,7 +37,7 @@ class CipherStreamTestCase(unittest.TestCase):
     
         assert data == data2, '%s algorithm cipher test failed' % algo
         
-    def check_ciphers(self):
+    def test_ciphers(self):
         ciphers=['bf_ecb', 'bf_cbc', 'bf_cfb', 'bf_ofb',\
             #'idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb',\
             'cast5_ecb', 'cast5_cbc', 'cast5_cfb', 'cast5_ofb',\
@@ -56,7 +56,7 @@ class CipherStreamTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(CipherStreamTestCase, 'check'))
+    suite.addTest(unittest.makeSuite(CipherStreamTestCase))
     return suite    
 
 if __name__ == '__main__':

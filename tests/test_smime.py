@@ -13,10 +13,10 @@ class SMIMETestCase(unittest.TestCase):
 
     def setUp(self):
         # XXX Ugly, but not sure what would be better
-        self.signed = self.check_sign()
-        self.encrypted = self.check_encrypt()
+        self.signed = self.test_sign()
+        self.encrypted = self.test_encrypt()
     
-    def check_sign(self):
+    def test_sign(self):
         buf = BIO.MemoryBuffer(self.cleartext)
         s = SMIME.SMIME()
         s.load_key('tests/signer_key.pem', 'tests/signer.pem')
@@ -37,7 +37,7 @@ class SMIMETestCase(unittest.TestCase):
         s.write(out, p7, BIO.MemoryBuffer(self.cleartext))
         return out
             
-    def check_verify(self):
+    def test_verify(self):
         s = SMIME.SMIME()
         
         x509 = X509.load_cert('tests/signer.pem')
@@ -56,7 +56,7 @@ class SMIMETestCase(unittest.TestCase):
         v = s.verify(p7)
         assert v == self.cleartext
     
-    def check_verifyBad(self):
+    def test_verifyBad(self):
         s = SMIME.SMIME()
         
         x509 = X509.load_cert('tests/recipient.pem')
@@ -73,7 +73,7 @@ class SMIMETestCase(unittest.TestCase):
         assert isinstance(p7, SMIME.PKCS7), p7
         self.assertRaises(SMIME.PKCS7_Error, s.verify, p7) # Bad signer
 
-    def check_encrypt(self):
+    def test_encrypt(self):
         buf = BIO.MemoryBuffer(self.cleartext)
         s = SMIME.SMIME()
 
@@ -101,7 +101,7 @@ class SMIMETestCase(unittest.TestCase):
         s.write(out, p7)
         return out
     
-    def check_decrypt(self):
+    def test_decrypt(self):
         s = SMIME.SMIME()
 
         s.load_key('tests/recipient_key.pem', 'tests/recipient.pem')
@@ -113,7 +113,7 @@ class SMIMETestCase(unittest.TestCase):
         out = s.decrypt(p7)
         assert out == self.cleartext
 
-    def check_decryptBad(self):
+    def test_decryptBad(self):
         s = SMIME.SMIME()
 
         s.load_key('tests/signer_key.pem', 'tests/signer.pem')
@@ -125,7 +125,7 @@ class SMIMETestCase(unittest.TestCase):
         # Cannot decrypt: no recipient matches certificate
         self.assertRaises(SMIME.PKCS7_Error, s.decrypt, p7)
 
-    def check_signEncryptDecryptVerify(self):
+    def test_signEncryptDecryptVerify(self):
         # sign
         buf = BIO.MemoryBuffer(self.cleartext)
         s = SMIME.SMIME()    
@@ -188,29 +188,29 @@ class WriteLoadTestCase(unittest.TestCase):
         assert s.write(f, p7, BIO.MemoryBuffer('some text')) == 1
         f.close()
         
-    def check_write_pkcs7_der(self):
+    def test_write_pkcs7_der(self):
         buf = BIO.MemoryBuffer()
         assert SMIME.load_pkcs7(self.filename).write_der(buf) == 1
         s = buf.read()
         assert len(s) == 1155, len(s)
         
-    def check_load_pkcs7(self):
+    def test_load_pkcs7(self):
         assert SMIME.load_pkcs7(self.filename).type() == SMIME.PKCS7_SIGNED
     
-    def check_load_pkcs7_bio(self):
+    def test_load_pkcs7_bio(self):
         f = open(self.filename, 'rb')
         buf = BIO.MemoryBuffer(f.read())
         f.close()
         
         assert SMIME.load_pkcs7_bio(buf).type() == SMIME.PKCS7_SIGNED
 
-    def check_load_smime(self):
+    def test_load_smime(self):
         a, b = SMIME.smime_load_pkcs7(self.filenameSmime)
         assert isinstance(a, SMIME.PKCS7), a
         assert isinstance(b, BIO.BIO), b
         assert a.type() == SMIME.PKCS7_SIGNED
         
-    def check_load_smime_bio(self):
+    def test_load_smime_bio(self):
         f = open(self.filenameSmime, 'rb')
         buf = BIO.MemoryBuffer(f.read())
         f.close()
@@ -223,8 +223,8 @@ class WriteLoadTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(SMIMETestCase, 'check'))
-    suite.addTest(unittest.makeSuite(WriteLoadTestCase, 'check'))
+    suite.addTest(unittest.makeSuite(SMIMETestCase))
+    suite.addTest(unittest.makeSuite(WriteLoadTestCase))
     return suite
 
 

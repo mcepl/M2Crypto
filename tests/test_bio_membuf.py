@@ -16,31 +16,31 @@ class MemoryBufferTestCase(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def check_init_empty(self):
+    def test_init_empty(self):
         mb = MemoryBuffer()
         assert len(mb) == 0
         out = mb.read()
         assert out is None
 
-    def check_init_something(self):
+    def test_init_something(self):
         mb = MemoryBuffer(self.data)
         assert len(mb) == len(self.data)
         out = mb.read()
         assert out == self.data
 
-    def check_read_less_than(self):
+    def test_read_less_than(self):
         chunk = len(self.data) - 7
         mb = MemoryBuffer(self.data)
         out = mb.read(chunk)
         assert out == self.data[:chunk] and len(mb) == (len(self.data) - chunk)
         
-    def check_read_more_than(self):
+    def test_read_more_than(self):
         chunk = len(self.data) + 8
         mb = MemoryBuffer(self.data)
         out = mb.read(chunk)
         assert out == self.data and len(mb) == 0
 
-    def check_write_close(self):
+    def test_write_close(self):
         mb = MemoryBuffer(self.data)
         assert mb.writeable()
         mb.write_close()
@@ -48,7 +48,7 @@ class MemoryBufferTestCase(unittest.TestCase):
         self.assertRaises(IOError, mb.write, self.data)
         assert not mb.writeable()
 
-    def check_closed(self):
+    def test_closed(self):
         mb = MemoryBuffer(self.data)
         mb.close()
         self.assertRaises(IOError, mb.write, self.data)
@@ -56,7 +56,7 @@ class MemoryBufferTestCase(unittest.TestCase):
 
 
 def suite():
-    return unittest.makeSuite(MemoryBufferTestCase, 'check_')
+    return unittest.makeSuite(MemoryBufferTestCase)
     
 
 if __name__ == '__main__':

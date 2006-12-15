@@ -25,7 +25,7 @@ class FileTestCase(unittest.TestCase):
         except OSError:
             pass
 
-    def check_openfile_rb(self):
+    def test_openfile_rb(self):
         # First create the file using Python's open().
         f = open(self.fname, 'wb')
         f.write(self.data)
@@ -35,7 +35,7 @@ class FileTestCase(unittest.TestCase):
         data = f.read(len(self.data))
         assert data == self.data
 
-    def check_openfile_wb(self):
+    def test_openfile_wb(self):
         # First create the file using M2Crypto.BIO.openfile().
         f = openfile(self.fname, 'wb')
         f.write(self.data)
@@ -45,13 +45,13 @@ class FileTestCase(unittest.TestCase):
         data = f.read(len(self.data))
         assert data == self.data
 
-    def check_closed(self):
+    def test_closed(self):
         f = openfile(self.fname, 'wb')
         f.write(self.data)
         f.close()
         self.assertRaises(IOError, f.write, self.data)
 
-    def check_use_pyfile(self):
+    def test_use_pyfile(self):
         # First create the file.
         f = open(self.fname, 'wb')
         f2 = File(f)
@@ -70,7 +70,7 @@ def suite():
         warnings.filterwarnings('ignore')
     except ImportError:
         pass
-    return unittest.makeSuite(FileTestCase, 'check_')
+    return unittest.makeSuite(FileTestCase)
     
 
 if __name__ == '__main__':

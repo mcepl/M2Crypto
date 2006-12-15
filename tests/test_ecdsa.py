@@ -24,20 +24,20 @@ class ECDSATestCase(unittest.TestCase):
     def callback2(self):
         pass
 
-    def check_loadkey_junk(self):
+    def test_loadkey_junk(self):
         self.assertRaises(ValueError, EC.load_key, self.errkey)
 
-    def check_loadkey(self):
+    def test_loadkey(self):
         ec = EC.load_key(self.privkey)
         assert len(ec) == 233
 
-    def check_loadpubkey(self):
+    def test_loadpubkey(self):
         # XXX more work needed
         ec = EC.load_pub_key(self.pubkey)
         assert len(ec) == 233
         self.assertRaises(EC.ECError, EC.load_pub_key, self.errkey)
 
-    def check_sign_dsa(self):
+    def test_sign_dsa(self):
         ec = EC.gen_params(EC.NID_sect233k1)
         # ec.gen_key()
         self.assertRaises(EC.ECError, ec.sign_dsa, self.data)
@@ -46,26 +46,26 @@ class ECDSATestCase(unittest.TestCase):
         assert ec.verify_dsa(self.data, r, s)
         assert not ec.verify_dsa(self.data, s, r)
 
-    def check_sign_dsa_asn1(self):
+    def test_sign_dsa_asn1(self):
         ec = EC.load_key(self.privkey)
         blob = ec.sign_dsa_asn1(self.data)
         assert ec.verify_dsa_asn1(self.data, blob)
         self.assertRaises(EC.ECError, ec.verify_dsa_asn1, blob, self.data)
 
-    def check_verify_dsa(self):
+    def test_verify_dsa(self):
         ec = EC.load_key(self.privkey)
         r, s = ec.sign_dsa(self.data)
         ec2 = EC.load_pub_key(self.pubkey)
         assert ec2.verify_dsa(self.data, r, s)
         assert not ec2.verify_dsa(self.data, s, r)
         
-    def check_genparam(self):
+    def test_genparam(self):
         ec = EC.gen_params(EC.NID_sect233k1)
         assert len(ec) == 233
 
 
 def suite():
-    return unittest.makeSuite(ECDSATestCase, 'check')
+    return unittest.makeSuite(ECDSATestCase)
     
 
 if __name__ == '__main__':

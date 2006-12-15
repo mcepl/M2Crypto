@@ -135,7 +135,7 @@ class ECCurveTests(unittest.TestCase):
         assert ec.verify_dsa(self.data, r, s)
         assert not ec.verify_dsa(self.data, s, r)            
 
-    def check_ec_curves_ECDSA(self):        
+    def test_ec_curves_ECDSA(self):        
         for curveName, curveLen in curves:
             self.sign_verify_ecdsa(curveName, curveLen)
 
@@ -148,7 +148,7 @@ class ECCurveTests(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(ECCurveTests, 'check'))
+    suite.addTest(unittest.makeSuite(ECCurveTests))
     return suite
 
 
