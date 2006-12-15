@@ -1,6 +1,8 @@
 0.18
 ----
-- 
+- M2CRYPTO_TEST_SSL_SLEEP environment variable controls how long to sleep
+  after starting the test SSL server. Default is 0.5, but 0.1 or even 0.05
+  might work with modern computers. Makes tests finish significantly faster.
 
 0.17
 ----
