@@ -79,11 +79,10 @@ class Checker:
         if self.host:
             hostValidationPassed = False
 
-            # XXX subjectAltName might contain multiple fields
-            # subjectAltName=DNS:somehost
+            # subjectAltName=DNS:somehost[, ...]*
             try:
                 subjectAltName = peerCert.get_ext('subjectAltName').get_value()
-                if not self._match(self.host, subjectAltName, True):
+                if not self._splitSubjectAltName(self.host, subjectAltName):
                     raise WrongHost(expectedHost=self.host, 
                                     actualHost=subjectAltName,
                                     fieldName='subjectAltName')
@@ -104,17 +103,37 @@ class Checker:
 
         return True
 
-    def _match(self, host, certHost, subjectAltName=False):
+    def _splitSubjectAltName(self, host, subjectAltName):
         """
         >>> check = Checker()
-        >>> check._match(host='my.example.com', certHost='DNS:my.example.com', subjectAltName=True)
+        >>> check._splitSubjectAltName(host='my.example.com', subjectAltName='DNS:my.example.com')
         True
-        >>> check._match(host='my.example.com', certHost='DNS:*.example.com', subjectAltName=True)
+        >>> check._splitSubjectAltName(host='my.example.com', subjectAltName='DNS:*.example.com')
         True
-        >>> check._match(host='my.example.com', certHost='DNS:m*.example.com', subjectAltName=True)
+        >>> check._splitSubjectAltName(host='my.example.com', subjectAltName='DNS:m*.example.com')
         True
-        >>> check._match(host='my.example.com', certHost='DNS:m*ample.com', subjectAltName=True)
+        >>> check._splitSubjectAltName(host='my.example.com', subjectAltName='DNS:m*ample.com')
         False
+        >>> check._splitSubjectAltName(host='my.example.com', subjectAltName='DNS:m*ample.com, othername:<unsupported>')
+        False
+        >>> check._splitSubjectAltName(host='my.example.com', subjectAltName='DNS:m*ample.com, DNS:my.example.org')
+        False
+        >>> check._splitSubjectAltName(host='my.example.com', subjectAltName='DNS:m*ample.com, DNS:my.example.com')
+        True
+        >>> check._splitSubjectAltName(host='my.example.com', subjectAltName='DNS:my.example.com, DNS:my.example.org')
+        True
+        """
+        for certHost in subjectAltName.split(','):
+            certHost = certHost.lower().strip()
+            if certHost[:4] == 'dns:':
+                if self._match(host, certHost[4:]):
+                    return True
+        return False
+        
+
+    def _match(self, host, certHost):
+        """
+        >>> check = Checker()
         >>> check._match(host='my.example.com', certHost='my.example.com')
         True
         >>> check._match(host='my.example.com', certHost='*.example.com')
@@ -134,17 +153,12 @@ class Checker:
         >>> check._match(host='1234', certHost='1234')
         True
         """
-        # XXX See RFC 2818 and 3280 for matching rules, this is not
-        # XXX yet complete.
+        # XXX See RFC 2818 and 3280 for matching rules, this is may not
+        # XXX yet be complete.
 
         host = host.lower()
         certHost = certHost.lower()
 
-        if subjectAltName:
-            if certHost[:4] != 'dns:':
-                return False
-            certHost = certHost[4:]
-        
         if host == certHost:
             return True
 
