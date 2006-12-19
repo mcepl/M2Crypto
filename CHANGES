@@ -156,7 +156,6 @@
 - Added in long forms of nid's in X509_Name. Thanks to William K Volkman 
   <development@netshark.com> for patch.
 - Updated Mac OS X build instructions. Thanks to Larry Bugbee 
-  <bugbee@seanet.com>.
 
 
  Changes since 0.10
