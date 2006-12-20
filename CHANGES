@@ -1,5 +1,5 @@
-0.17
-----
+0.17 - 2006-12-20
+-----------------
 - setup.py has new test command to run unit tests (requires setuptools)
 - Added m2urllib2, by James Bowes (python 2.4 and later, at least for now)
 - Added CONNECT proxy for httpslib and m2urllib2, by James Bowes
