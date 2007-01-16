@@ -103,6 +103,12 @@ extern int X509_verify(X509 *a, EVP_PKEY *r);
 %rename(x509_get_verify_error) X509_verify_cert_error_string;
 extern const char *X509_verify_cert_error_string(long);
 
+%constant long X509V3_EXT_UNKNOWN_MASK         = (0xfL << 16);
+%constant long X509V3_EXT_DEFAULT              = 0;
+%constant long X509V3_EXT_ERROR_UNKNOWN        = (1L << 16);
+%constant long X509V3_EXT_PARSE_UNKNOWN        = (2L << 16);
+%constant long X509V3_EXT_DUMP_UNKNOWN         = (3L << 16);
+
 %rename(x509_add_ext) X509_add_ext;
 extern int X509_add_ext(X509 *, X509_EXTENSION *, int);
 %rename(x509_get_ext_count) X509_get_ext_count;

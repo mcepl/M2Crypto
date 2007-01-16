@@ -1,5 +1,6 @@
 0.18
 ----
+- X509_Extension.get_value accepts flag and indent parameters.
 - support multiple dNSName fields in subjectAltName
 - M2CRYPTO_TEST_SSL_SLEEP environment variable controls how long to sleep
   after starting the test SSL server. Default is 0.5, but 0.1 or even 0.05

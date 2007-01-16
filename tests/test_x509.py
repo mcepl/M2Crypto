@@ -45,6 +45,10 @@ class X509TestCase(unittest.TestCase):
     def test_ext(self):
         self.assertRaises(ValueError, X509.new_extension,
                           'subjectKeyIdentifier', 'hash')
+        ext = X509.new_extension('subjectAltName', 'DNS:foobar.example.com')
+        assert ext.get_value() == 'DNS:foobar.example.com'
+        assert ext.get_value(indent=2) == '  DNS:foobar.example.com'
+        assert ext.get_value(flag=m2.X509V3_EXT_PARSE_UNKNOWN) == 'DNS:foobar.example.com'
 
     def test_extstack(self):
         # new
