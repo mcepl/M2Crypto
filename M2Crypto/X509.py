@@ -77,12 +77,15 @@ class X509_Extension:
         """
         return m2.x509_extension_get_name(self.x509_ext)
 
-    def get_value(self):
+    def get_value(self, flag=0, indent=0):
         """
         Get the extension value, for example 'DNS:www.example.com'.
+        
+        @param flag:   Flag to control what and how to print.
+        @param indent: How many spaces to print before actual value.
         """
         buf=BIO.MemoryBuffer()
-        m2.x509_ext_print(buf.bio_ptr(), self.x509_ext, 0, 0)
+        m2.x509_ext_print(buf.bio_ptr(), self.x509_ext, flag, indent)
         return buf.read_all()    
 
 
