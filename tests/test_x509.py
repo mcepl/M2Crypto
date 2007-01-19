@@ -199,6 +199,9 @@ class X509TestCase(unittest.TestCase):
             assert cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 1)
             assert cert.check_purpose(m2.X509_PURPOSE_NS_SSL_SERVER, 1)
             assert cert.check_purpose(m2.X509_PURPOSE_ANY, 1)
+            assert cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 0)
+            assert cert.check_purpose(m2.X509_PURPOSE_NS_SSL_SERVER, 0)
+            assert cert.check_purpose(m2.X509_PURPOSE_ANY, 0)
         else:
             self.assertRaises(AttributeError, cert.check_ca)
         
