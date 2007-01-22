@@ -150,5 +150,7 @@ the following possibilities.
         python setup.py build --openssl=/usr/local
         sudo python setup.py install --openssl=/usr/local
 
+To make Universal builds, you will need to uncomment a line in setup.py:
 
+  extra_link_args = ['-Wl,-search_paths_first'],
 
