@@ -590,6 +590,16 @@ class X509_Store_Context:
         Get error depth.
         """
         return m2.x509_store_ctx_get_error_depth(self.ctx)
+    
+    def get1_chain(self):
+        """
+        Get certificate chain.
+        
+        @return: Reference counted (i.e. safe to use even after the store
+                 context goes away) stack of certificates in the chain.
+        @rtype:  X509_Stack
+        """
+        return X509_Stack(m2.x509_store_ctx_get1_chain(self.ctx), 1)
         
 
 class X509_Store:
