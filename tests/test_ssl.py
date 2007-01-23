@@ -27,12 +27,17 @@ def verify_cb_new_function(ok, store):
     try:
         assert not ok
         err = store.get_error()
-        assert err == m2.X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT or \
-               err == m2.X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY or \
-               err == m2.X509_V_ERR_CERT_UNTRUSTED or \
-               err == m2.X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE
+        assert err in [m2.X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT,
+                       m2.X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY,
+                       m2.X509_V_ERR_CERT_UNTRUSTED,
+                       m2.X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE]
         app_data = m2.x509_store_ctx_get_app_data(store.ctx)
         assert app_data
+        x509 = store.get_current_cert()
+        assert x509
+        stack = store.get1_chain()
+        assert len(stack) == 1
+        assert stack[0].as_pem() == x509.as_pem()
     except AssertionError, e:
         # If we let exceptions propagate from here the
         # caller may see strange errors. This is cleaner.

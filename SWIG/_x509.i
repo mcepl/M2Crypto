@@ -195,6 +195,8 @@ extern int X509_STORE_CTX_get_error(X509_STORE_CTX *);
 extern int X509_STORE_CTX_get_error_depth(X509_STORE_CTX *);
 %rename(x509_store_ctx_free) X509_STORE_CTX_free;
 extern void X509_STORE_CTX_free(X509_STORE_CTX *);
+%rename(x509_store_ctx_get1_chain) X509_STORE_CTX_get1_chain;
+extern STACK *X509_STORE_CTX_get1_chain(X509_STORE_CTX *);
 
 %rename(x509_extension_get_critical) X509_EXTENSION_get_critical;
 extern int X509_EXTENSION_get_critical(X509_EXTENSION *);
