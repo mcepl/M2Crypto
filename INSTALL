@@ -153,4 +153,52 @@ the following possibilities.
 To make Universal builds, you will need to uncomment a line in setup.py:
 
   extra_link_args = ['-Wl,-search_paths_first'],
+  
+If that does not work, here is what Marc Hedlund was able to get working:
+
+  First, download OpenSSL 0.9.8d and unpack it.  Edit the OpenSSL Makefiles 
+  per PROBLEMS.  Then:
+
+    ./config no-shared no-asm --prefix=/usr/local
+    make
+    make test
+    sudo make install
+    make clean
+    ./Configure no-shared no-asm --prefix=/usr/local darwin-ppc-cc
+    make build_libs "CC=cc -arch ppc"
+    lipo -info lib*
+    mkdir -p build/ppc
+    mv lib* build/ppc
+    make clean
+    ./Configure no-shared no-asm --prefix=/usr/local darwin-i386-cc
+    make build_libs "CC=cc -arch i386"
+    lipo -info lib*
+    mkdir -p build/i386
+    mv lib* build/i386/
+    /bin/ls -1 build/i386/ > libnames.tmp
+    mkdir universal
+
+  Create a script in the OpenSSL directory called 'make_universal', with these
+  contents:
+
+    #!/bin/sh
+    for lib in `cat libnames.tmp`; do
+     lipo -create build/*/$lib -output universal/$lib
+    done
+    exit 0
+
+  Then:
+
+    sh make_universal
+    lipo -info universal/lib*
+    sudo cp universal/lib* /usr/local/lib
+    lipo -info /usr/local/lib/lib{crypto,ssl}*
+    cd ../m2crypto-0.17
+
+  Then edit the m2crypto setup.py and uncomment the extra_link_args line at 
+  the end.
+
+    python setup.py build --openssl=/usr/local
+    sudo python setup.py install --openssl=/usr/local
+
 
