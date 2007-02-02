@@ -17,6 +17,17 @@ The following software packages are pre-requisites:
 - **OpenSSL 0.9.7 or newer**
 - **SWIG 1.3.24 or newer**
 
+Note about OpenSSL versions early in the 0.9.7 series
+-----------------------------------------------------
+
+Early OpenSSL 0.9.7 versions require the __i386__ symbol to be defined.
+Uncomment this line in setup.py:
+
+  #'-D__i386__', # Uncomment for early OpenSSL 0.9.7 versions
+
+if you get this compile-time error:
+  
+  This openssl-devel package does not work your architecture?
 
 Installing on Unix-like systems, including Cygwin
 -------------------------------------------------
