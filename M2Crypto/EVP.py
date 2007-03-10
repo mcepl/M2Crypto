@@ -2,12 +2,29 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.
 
-Portions Copyright (c) 2004-2006 Open Source Applications Foundation.
+Portions Copyright (c) 2004-2007 Open Source Applications Foundation.
 Author: Heikki Toivonen
 """
 
 from M2Crypto import Err, util, BIO, RSA
 import m2
+
+def pbkdf2(password, salt, iter, keylen):
+    """
+    Derive a key from password using PBKDF2 algorithm specified in RFC 2898.
+    
+    @param password: Derive the key from this password.
+    @type password:  str
+    @param salt:     Salt.
+    @type salt:      str
+    @param iter:     Number of iterations to perform.
+    @type iter:      int 
+    @param keylen:   Length of key to produce.
+    @type keylen:    int
+    @return:         Key.
+    @rtype:          str
+    """
+    return m2.pkcs5_pbkdf2_hmac_sha1(password, salt, iter, keylen)
 
 class MessageDigest:
     """

@@ -2,10 +2,9 @@
 /* 
 Copyright (c) 1999 Ng Pheng Siong. All rights reserved.
 
-Portions Copyright (c) 2004-2006 Open Source Applications Foundation.
+Portions Copyright (c) 2004-2007 Open Source Applications Foundation.
 Author: Heikki Toivonen
 */
-/* $Id$ */
 
 %{
 #include <assert.h>
@@ -151,6 +150,28 @@ static PyObject *_evp_err;
 void evp_init(PyObject *evp_err) {
     Py_INCREF(evp_err);
     _evp_err = evp_err;
+}
+
+PyObject *pkcs5_pbkdf2_hmac_sha1(PyObject *pass,
+                                 PyObject *salt,
+                                 int iter,
+                                 int keylen) {
+    unsigned char key[EVP_MAX_KEY_LENGTH];
+    unsigned char *saltbuf;
+    char *passbuf;
+    PyObject *ret;
+    int passlen, saltlen;
+
+    if (PyObject_AsReadBuffer(pass, &passbuf, &passlen) == -1)
+        return NULL;
+    if (PyObject_AsReadBuffer(salt, &saltbuf, &saltlen) == -1)
+        return NULL;
+
+    PKCS5_PBKDF2_HMAC_SHA1(passbuf, passlen, saltbuf, saltlen, iter,
+                           keylen, key);
+    ret = PyString_FromStringAndSize(key, keylen);
+    OPENSSL_cleanse(key, keylen);
+    return ret;
 }
 
 EVP_MD_CTX *md_ctx_new(void) {
