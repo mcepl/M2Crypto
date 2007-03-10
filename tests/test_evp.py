@@ -175,10 +175,30 @@ class CipherTestCase(unittest.TestCase):
 
         self.assertRaises(ValueError, self.try_algo, 'nosuchalgo4567')
 
+class PBKDF2TestCase(unittest.TestCase):
+    def test_rfc3211_test_vectors(self):
+        from binascii import hexlify, unhexlify
+        
+        password = 'password'
+        salt = unhexlify('12 34 56 78 78 56 34 12'.replace(' ', ''))
+        iter = 5
+        keylen = 8
+        ret = EVP.pbkdf2(password, salt, iter, keylen)
+        self.assertEqual(hexlify(ret), 'D1 DA A7 86 15 F2 87 E6'.replace(' ', '').lower())
+        
+        password = 'All n-entities must communicate with other n-entities via n-1 entiteeheehees'
+        salt = unhexlify('12 34 56 78 78 56 34 12'.replace(' ', ''))
+        iter = 500
+        keylen = 16
+        ret = EVP.pbkdf2(password, salt, iter, keylen)
+        self.assertEqual(hexlify(ret), '6A 89 70 BF 68 C9 2C AE A8 4A 8D F2 85 10 85 86'.replace(' ', '').lower())
+        
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(EVPTestCase))
     suite.addTest(unittest.makeSuite(CipherTestCase))
+    suite.addTest(unittest.makeSuite(PBKDF2TestCase))
     return suite    
 
 if __name__ == '__main__':
