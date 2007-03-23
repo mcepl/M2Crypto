@@ -9,6 +9,7 @@ Author: Heikki Toivonen
 
 import unittest
 import cStringIO, sha
+from binascii import hexlify, unhexlify
 from M2Crypto import EVP, RSA, util, Rand, m2
 
 class EVPTestCase(unittest.TestCase):
@@ -174,6 +175,58 @@ class CipherTestCase(unittest.TestCase):
             self.try_algo(i)
 
         self.assertRaises(ValueError, self.try_algo, 'nosuchalgo4567')
+        
+    def test_AES(self):
+        enc = 1
+        dec = 0
+        tests = [
+            # test vectors from rfc 3602
+            #Case #1: Encrypting 16 bytes (1 block) using AES-CBC with 128-bit key
+            {
+            'KEY': '06a9214036b8a15b512e03d534120006',
+            'IV':  '3dafba429d9eb430b422da802c9fac41',
+            'PT':  'Single block msg',
+            'CT':  'e353779c1079aeb82708942dbe77181a',
+            },
+            
+            #Case #2: Encrypting 32 bytes (2 blocks) using AES-CBC with 128-bit key
+            {
+            'KEY': 'c286696d887c9aa0611bbb3e2025a45a',
+            'IV':  '562e17996d093d28ddb3ba695a2e6f58',
+            'PT':  unhexlify('000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f'),
+            'CT':  'd296cd94c2cccf8a3a863028b5e1dc0a7586602d253cfff91b8266bea6d61ab1',
+            },
+            
+            #Case #3: Encrypting 48 bytes (3 blocks) using AES-CBC with 128-bit key
+            {
+            'KEY': '6c3ea0477630ce21a2ce334aa746c2cd',
+            'IV':  'c782dc4c098c66cbd9cd27d825682c81',
+            'PT':  'This is a 48-byte message (exactly 3 AES blocks)',
+            'CT':  'd0a02b3836451753d493665d33f0e8862dea54cdb293abc7506939276772f8d5021c19216bad525c8579695d83ba2684',
+            },
+        ]
+        
+        for test in tests:
+            # encrypt
+            k=EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=enc)
+            pbuf=cStringIO.StringIO(test['PT'])
+            cbuf=cStringIO.StringIO()
+            ciphertext = hexlify(self.cipher_filter(k, pbuf, cbuf))
+            cipherpadding = ciphertext[len(test['PT']) * 2:]
+            ciphertext = ciphertext[:len(test['PT']) * 2] # Remove the padding from the end
+            pbuf.close()
+            cbuf.close()
+            self.assertEqual(ciphertext, test['CT'])
+
+            # decrypt
+            j=EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=dec)
+            pbuf=cStringIO.StringIO()
+            cbuf=cStringIO.StringIO(unhexlify(test['CT'] + cipherpadding))
+            plaintext=self.cipher_filter(j, cbuf, pbuf)
+            pbuf.close()
+            cbuf.close()
+            self.assertEqual(plaintext, test['PT'])
+
 
 class PBKDF2TestCase(unittest.TestCase):
     def test_rfc3211_test_vectors(self):
