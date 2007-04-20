@@ -375,25 +375,26 @@ class TLSProtocolWrapper(ProtocolWrapper):
         # XXX near mirror image of _decrypt - refactor
         encryptedData = ''
         self.data += data
+        sslBioPtr = self.sslBio._ptr()
+        networkBio = self.networkBio
         
         while 1:
-            g = m2.bio_ctrl_get_write_guarantee(self.sslBio._ptr())
+            g = m2.bio_ctrl_get_write_guarantee(sslBioPtr)
             if g > 0 and self.data != '' or clientHello:
-                r = m2.bio_write(self.sslBio._ptr(), self.data)
-                #pdb.set_trace()
+                r = m2.bio_write(sslBioPtr, self.data)
                 if r <= 0:
-                    assert(m2.bio_should_retry(self.sslBio._ptr()))
+                    assert(m2.bio_should_retry(sslBioPtr))
                 else:
                     assert(self.checked)               
                     self.data = self.data[r:]
                   
-            pending = m2.bio_ctrl_pending(self.networkBio)
+            pending = m2.bio_ctrl_pending(networkBio)
             if pending:
-                d = m2.bio_read(self.networkBio, pending)
+                d = m2.bio_read(networkBio, pending)
                 if d is not None: # This is strange, but d can be None
                     encryptedData += d
                 else:
-                    assert(m2.bio_should_retry(self.networkBio))
+                    assert(m2.bio_should_retry(networkBio))
             else:
                 break
         return encryptedData
@@ -402,22 +403,25 @@ class TLSProtocolWrapper(ProtocolWrapper):
         # XXX near mirror image of _encrypt - refactor
         self.encrypted += data
         decryptedData = ''
+        sslBioPtr = self.sslBio._ptr()
+        networkBio = self.networkBio
+        
         while 1:
-            g = m2.bio_ctrl_get_write_guarantee(self.networkBio)
+            g = m2.bio_ctrl_get_write_guarantee(networkBio)
             if g > 0 and self.encrypted != '':
-                r = m2.bio_write(self.networkBio, self.encrypted)
+                r = m2.bio_write(networkBio, self.encrypted)
                 if r <= 0:
-                    assert(m2.bio_should_retry(self.networkBio))
+                    assert(m2.bio_should_retry(networkBio))
                 else:
                     self.encrypted = self.encrypted[r:]
                               
-            pending = m2.bio_ctrl_pending(self.sslBio._ptr())
+            pending = m2.bio_ctrl_pending(sslBioPtr)
             if pending:
-                d = m2.bio_read(self.sslBio._ptr(), pending)
+                d = m2.bio_read(sslBioPtr, pending)
                 if d is not None: # This is strange, but d can be None
                     decryptedData += d
                 else:
-                    assert(m2.bio_should_retry(self.sslBio._ptr()))
+                    assert(m2.bio_should_retry(sslBioPtr))
             else:
                 break
 
