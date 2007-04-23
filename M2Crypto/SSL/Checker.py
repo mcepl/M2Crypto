@@ -48,11 +48,13 @@ class WrongHost(SSLVerificationError):
 
 
 class Checker:
+    
+    numericIpMatch = re.compile('^[0-9]+(\.[0-9]+)*$')
+    
     def __init__(self, host=None, peerCertHash=None, peerCertDigest='sha1'):
         self.host = host
         self.fingerprint = peerCertHash
         self.digest = peerCertDigest
-        self.numericIpMatch = re.compile('^[0-9]+(\.[0-9]+)*$')
 
     def __call__(self, peerCert, host=None):
         if peerCert is None:

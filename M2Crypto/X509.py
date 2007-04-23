@@ -446,10 +446,15 @@ class X509:
         @param name:   str
         @return:       X509_Extension
         """
-        for i in range(self.get_ext_count()):
-            ext = self.get_ext_at(i)
-            if ext.get_name() == name:
-                return ext
+        # Optimizations to reduce attribute accesses
+        m2x509_get_ext = m2.x509_get_ext
+        m2x509_extension_get_name = m2.x509_extension_get_name
+        x509 = self.x509
+        
+        for i in range(m2.x509_get_ext_count(x509)):
+            extPtr = m2x509_get_ext(x509, i)
+            if m2x509_extension_get_name(extPtr) == name:
+                return X509_Extension(extPtr, _pyfree=0)
 
         raise LookupError
 
