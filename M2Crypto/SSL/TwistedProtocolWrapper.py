@@ -342,11 +342,9 @@ class TLSProtocolWrapper(ProtocolWrapper):
             print 'TwistedProtocolWrapper._check'
         
         if not self.checked and m2.ssl_is_init_finished(self.ssl):
-            x = m2.ssl_get_peer_cert(self.ssl)
-            if x:
-                x509 = X509.X509(x, 1)
-            else:
-                x509 = None
+            x509 = m2.ssl_get_peer_cert(self.ssl)
+            if x509 is not None:
+                x509 = X509.X509(x509, 1)
             if self.isClient:
                 host = self.transport.addr[0]
             else:
@@ -375,26 +373,32 @@ class TLSProtocolWrapper(ProtocolWrapper):
         # XXX near mirror image of _decrypt - refactor
         encryptedData = ''
         self.data += data
+        # Optimizations to reduce attribute accesses
         sslBioPtr = self.sslBio._ptr()
         networkBio = self.networkBio
+        m2bio_ctrl_get_write_guarantee = m2.bio_ctrl_get_write_guarantee
+        m2bio_write = m2.bio_write
+        m2bio_should_retry = m2.bio_should_retry
+        m2bio_ctrl_pending = m2.bio_ctrl_pending
+        m2bio_read = m2.bio_read
         
         while 1:
-            g = m2.bio_ctrl_get_write_guarantee(sslBioPtr)
+            g = m2bio_ctrl_get_write_guarantee(sslBioPtr)
             if g > 0 and self.data != '' or clientHello:
-                r = m2.bio_write(sslBioPtr, self.data)
+                r = m2bio_write(sslBioPtr, self.data)
                 if r <= 0:
-                    assert(m2.bio_should_retry(sslBioPtr))
+                    assert(m2bio_should_retry(sslBioPtr))
                 else:
                     assert(self.checked)               
                     self.data = self.data[r:]
                   
-            pending = m2.bio_ctrl_pending(networkBio)
+            pending = m2bio_ctrl_pending(networkBio)
             if pending:
-                d = m2.bio_read(networkBio, pending)
+                d = m2bio_read(networkBio, pending)
                 if d is not None: # This is strange, but d can be None
                     encryptedData += d
                 else:
-                    assert(m2.bio_should_retry(networkBio))
+                    assert(m2bio_should_retry(networkBio))
             else:
                 break
         return encryptedData
@@ -403,25 +407,31 @@ class TLSProtocolWrapper(ProtocolWrapper):
         # XXX near mirror image of _encrypt - refactor
         self.encrypted += data
         decryptedData = ''
+        # Optimizations to reduce attribute accesses
         sslBioPtr = self.sslBio._ptr()
         networkBio = self.networkBio
+        m2bio_ctrl_get_write_guarantee = m2.bio_ctrl_get_write_guarantee
+        m2bio_write = m2.bio_write
+        m2bio_should_retry = m2.bio_should_retry
+        m2bio_ctrl_pending = m2.bio_ctrl_pending
+        m2bio_read = m2.bio_read
         
         while 1:
-            g = m2.bio_ctrl_get_write_guarantee(networkBio)
+            g = m2bio_ctrl_get_write_guarantee(networkBio)
             if g > 0 and self.encrypted != '':
-                r = m2.bio_write(networkBio, self.encrypted)
+                r = m2bio_write(networkBio, self.encrypted)
                 if r <= 0:
-                    assert(m2.bio_should_retry(networkBio))
+                    assert(m2bio_should_retry(networkBio))
                 else:
                     self.encrypted = self.encrypted[r:]
                               
-            pending = m2.bio_ctrl_pending(sslBioPtr)
+            pending = m2bio_ctrl_pending(sslBioPtr)
             if pending:
-                d = m2.bio_read(sslBioPtr, pending)
+                d = m2bio_read(sslBioPtr, pending)
                 if d is not None: # This is strange, but d can be None
                     decryptedData += d
                 else:
-                    assert(m2.bio_should_retry(sslBioPtr))
+                    assert(m2bio_should_retry(sslBioPtr))
             else:
                 break
 
