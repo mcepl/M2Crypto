@@ -14,7 +14,9 @@ class SSL_Transport(Transport):
 
     user_agent = "M2Crypto_XMLRPC/%s - %s" % (__version__, Transport.user_agent)
 
-    def __init__(self, ssl_context=None):
+    def __init__(self, ssl_context=None, *args, **kw):
+        if getattr(Transport, '__init__', None) is not None:
+            Transport.__init__(self, *args, **kw)
         if ssl_context is None:
             self.ssl_ctx=SSL.Context('sslv23')
         else:
