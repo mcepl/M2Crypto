@@ -25,7 +25,7 @@ PyObject *rc4_set_key(RC4_KEY *key, PyObject *value) {
     const void *vbuf;
     int vlen;
 
-    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
 
     RC4_set_key(key, vlen, vbuf);
@@ -36,7 +36,7 @@ PyObject *rc4_set_key(RC4_KEY *key, PyObject *value) {
 PyObject *rc4_update(RC4_KEY *key, PyObject *in) {
     PyObject *ret;
     const void *buf;
-    int len;
+    Py_ssize_t len;
     void *out;
 
     if (PyObject_AsReadBuffer(in, &buf, &len) == -1)

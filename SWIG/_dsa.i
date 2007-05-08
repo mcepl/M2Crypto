@@ -102,7 +102,7 @@ PyObject *dsa_set_p(DSA *dsa, PyObject *value) {
     const void *vbuf;
     int vlen;
 
-    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
 
     if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
@@ -121,7 +121,7 @@ PyObject *dsa_set_q(DSA *dsa, PyObject *value) {
     const void *vbuf;
     int vlen;
 
-    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
 
     if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
@@ -140,7 +140,7 @@ PyObject *dsa_set_g(DSA *dsa, PyObject *value) {
     const void *vbuf;
     int vlen;
 
-    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
 
     if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
@@ -215,7 +215,7 @@ PyObject *dsa_sign(DSA *dsa, PyObject *value) {
     PyObject *tuple;
     DSA_SIG *sig; 
 
-    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
 
     if (!(sig = DSA_do_sign(vbuf, vlen, dsa))) {
@@ -239,9 +239,9 @@ int dsa_verify(DSA *dsa, PyObject *value, PyObject *r, PyObject *s) {
     DSA_SIG *sig;
     int ret;
 
-    if ((PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
-        || (PyObject_AsReadBuffer(r, &rbuf, &rlen) == -1)
-        || (PyObject_AsReadBuffer(s, &sbuf, &slen) == -1))
+    if ((m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
+        || (m2_PyObject_AsReadBufferInt(r, &rbuf, &rlen) == -1)
+        || (m2_PyObject_AsReadBufferInt(s, &sbuf, &slen) == -1))
         return -1;
 
     if (!(sig = DSA_SIG_new())) {
@@ -269,10 +269,10 @@ PyObject *dsa_sign_asn1(DSA *dsa, PyObject *value) {
     const void *vbuf;
     int vlen;
     void *sigbuf;
-    int siglen;
+    unsigned int siglen;
     PyObject *ret;
 
-    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
 
     if (!(sigbuf = PyMem_Malloc(DSA_size(dsa)))) {
@@ -294,8 +294,9 @@ int dsa_verify_asn1(DSA *dsa, PyObject *value, PyObject *sig) {
     void *sbuf;
     int vlen, slen, ret;
 
-    if ((PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
-        || (PyObject_AsReadBuffer(sig, (const void **)&sbuf, &slen) == -1))
+    if ((m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
+        || (m2_PyObject_AsReadBufferInt(sig, (const void **)&sbuf, &slen)
+        == -1))
         return -1;
 
     if ((ret = DSA_verify(0, vbuf, vlen, sbuf, slen, dsa)) == -1)

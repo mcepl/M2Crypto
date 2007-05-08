@@ -43,7 +43,7 @@ void AES_free(AES_KEY *key) {
 */
 PyObject *AES_set_key(AES_KEY *key, PyObject *value, int bits, int op) { 
     const void *vbuf; 
-    int vlen;
+    Py_ssize_t vlen;
 
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
         return NULL;
@@ -62,7 +62,7 @@ PyObject *AES_set_key(AES_KEY *key, PyObject *value, int bits, int op) {
 */
 PyObject *AES_crypt(const AES_KEY *key, PyObject *in, int outlen, int op) {
     const void *buf;
-    int len;
+    Py_ssize_t len;
     unsigned char *out;
 
     if (PyObject_AsReadBuffer(in, &buf, &len) == -1)

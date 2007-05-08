@@ -178,8 +178,8 @@ extern long SSL_SESSION_get_timeout(CONST SSL_SESSION *);
 %constant int SSL_CB_HANDSHAKE_START          = 0x10;
 %constant int SSL_CB_HANDSHAKE_DONE           = 0x20;
 
-%constant int SSL_SENT_SHUTDOWN	          = 1;
-%constant int SSL_RECEIVED_SHUTDOWN	  = 2;
+%constant int SSL_SENT_SHUTDOWN              = 1;
+%constant int SSL_RECEIVED_SHUTDOWN          = 2;
 
 %constant int SSL_OP_ALL                  = 0x00000FFFL;
 
@@ -268,7 +268,7 @@ int ssl_ctx_set_session_id_context(SSL_CTX *ctx, PyObject *sid_ctx) {
     const void *buf;
     int len;
 
-    if (PyObject_AsReadBuffer(sid_ctx, &buf, &len) == -1)
+    if (m2_PyObject_AsReadBufferInt(sid_ctx, &buf, &len) == -1)
         return -1;
 
     return SSL_CTX_set_session_id_context(ctx, buf, len);
@@ -337,7 +337,7 @@ int ssl_set_session_id_context(SSL *ssl, PyObject *sid_ctx) {
     const void *buf;
     int len;
 
-    if (PyObject_AsReadBuffer(sid_ctx, &buf, &len) == -1)
+    if (m2_PyObject_AsReadBufferInt(sid_ctx, &buf, &len) == -1)
         return -1;
 
     return SSL_set_session_id_context(ssl, buf, len);
@@ -550,7 +550,7 @@ int ssl_write(SSL *ssl, PyObject *blob) {
 
     gilstate = PyGILState_Ensure();
 
-    if (PyObject_AsReadBuffer(blob, &buf, &len) == -1) {
+    if (m2_PyObject_AsReadBufferInt(blob, &buf, &len) == -1) {
         PyGILState_Release(gilstate);
         return -1;
     }
@@ -599,7 +599,7 @@ int ssl_write_nbio(SSL *ssl, PyObject *blob) {
 
     gilstate = PyGILState_Ensure();
 
-    if (PyObject_AsReadBuffer(blob, &buf, &len) == -1) {
+    if (m2_PyObject_AsReadBufferInt(blob, &buf, &len) == -1) {
         PyGILState_Release(gilstate);
         return -1;
     }

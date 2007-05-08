@@ -44,6 +44,48 @@ void blob_free(Blob *blob) {
 }
 
 
+/* Python helpers. */
+
+%}
+%ignore m2_PyObject_AsReadBufferInt;
+%ignore m2_PyString_AsStringAndSizeInt;
+%{
+static int
+m2_PyObject_AsReadBufferInt(PyObject *obj, const void **buffer,
+                int *buffer_len)
+{
+    int ret;
+    Py_ssize_t len;
+
+    ret = PyObject_AsReadBuffer(obj, buffer, &len);
+    if (ret)
+        return ret;
+    if (len > INT_MAX) {
+        PyErr_SetString(PyExc_ValueError, "object too large");
+        return -1;
+    }
+    *buffer_len = len;
+    return 0;
+}
+
+static int
+m2_PyString_AsStringAndSizeInt(PyObject *obj, char **s, int *len)
+{
+    int ret;
+    Py_ssize_t len2;
+
+    ret = PyString_AsStringAndSize(obj, s, &len2);
+    if (ret)
+       return ret;
+    if (len2 > INT_MAX) {
+       PyErr_SetString(PyExc_ValueError, "string too large");
+       return -1;
+    }
+    *len = len2;
+    return 0;
+}
+
+
 /* C callbacks invoked by OpenSSL; these in turn call back into 
 Python. */
 
@@ -60,7 +102,7 @@ int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
     PyGILState_STATE gilstate;
 
     ssl = (SSL *)X509_STORE_CTX_get_app_data(ctx);
-    	
+
     gilstate = PyGILState_Ensure();
 
     if (PyMethod_Check(ssl_verify_cb_func)) {
@@ -215,7 +257,8 @@ void gen_callback(int p, int n, void *arg) {
 }
 
 int passphrase_callback(char *buf, int num, int v, void *arg) {
-    int i, len;
+    int i;
+    Py_ssize_t len;
     char *str;
     PyObject *argv, *ret, *cbfunc;
 
@@ -270,7 +313,7 @@ BIGNUM *mpi_to_bn(PyObject *value) {
     const void *vbuf;
     int vlen;
 
-    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
 
     return BN_mpi2bn(vbuf, vlen, NULL);
@@ -296,7 +339,7 @@ BIGNUM *bin_to_bn(PyObject *value) {
     const void *vbuf;
     int vlen;
 
-    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
 
     return BN_bin2bn(vbuf, vlen, NULL);
@@ -305,7 +348,7 @@ BIGNUM *bin_to_bn(PyObject *value) {
 PyObject *bn_to_hex(BIGNUM *bn) {
     char *hex;
     PyObject *pyo;  
-    int len;
+    Py_ssize_t len;
 
     hex = BN_bn2hex(bn);
     if (!hex) {
@@ -322,7 +365,7 @@ PyObject *bn_to_hex(BIGNUM *bn) {
 
 BIGNUM *hex_to_bn(PyObject *value) {
     const void *vbuf;
-    int vlen;
+    Py_ssize_t vlen;
     BIGNUM *bn;
 
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
@@ -343,7 +386,7 @@ BIGNUM *hex_to_bn(PyObject *value) {
 
 BIGNUM *dec_to_bn(PyObject *value) {
     const void *vbuf;
-    int vlen;
+    Py_ssize_t vlen;
     BIGNUM *bn;
 
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
@@ -367,9 +410,16 @@ BIGNUM *dec_to_bn(PyObject *value) {
 /* Various useful typemaps. */
 
 %typemap(in) Blob * {
+    Py_ssize_t len;
+
     if (!PyString_Check($input)) {
         PyErr_SetString(PyExc_TypeError, "expected PyString");
         return NULL;
+    }
+    len=PyString_Size($input);
+    if (len > INT_MAX) {
+        PyErr_SetString(PyExc_ValueError, "object too large");
+        return -1;
     }
     $1=(Blob *)PyMem_Malloc(sizeof(Blob));
     if (!$1) {
@@ -377,7 +427,7 @@ BIGNUM *dec_to_bn(PyObject *value) {
         return NULL;
     }
     $1->data=(unsigned char *)PyString_AsString($input);
-    $1->len=PyString_Size($input);
+    $1->len=len;
 }
 
 %typemap(out) Blob * {

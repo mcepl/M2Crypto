@@ -216,35 +216,35 @@ extern int X509_EXTENSION_set_critical(X509_EXTENSION *, int);
 %constant int NID_pkcs9_emailAddress          = 48;
 
 /* Cribbed from x509_vfy.h. */
-%constant int		X509_V_OK					= 0;
-%constant int		X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT		= 2;
-%constant int		X509_V_ERR_UNABLE_TO_GET_CRL			= 3;
-%constant int		X509_V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE	= 4;
-%constant int		X509_V_ERR_UNABLE_TO_DECRYPT_CRL_SIGNATURE	= 5;
-%constant int		X509_V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY	= 6;
-%constant int		X509_V_ERR_CERT_SIGNATURE_FAILURE		= 7;
-%constant int		X509_V_ERR_CRL_SIGNATURE_FAILURE		= 8;
-%constant int		X509_V_ERR_CERT_NOT_YET_VALID			= 9;
-%constant int		X509_V_ERR_CERT_HAS_EXPIRED			= 10;
-%constant int		X509_V_ERR_CRL_NOT_YET_VALID			= 11;
-%constant int		X509_V_ERR_CRL_HAS_EXPIRED			= 12;
-%constant int		X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD	= 13;
-%constant int		X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD	= 14;
-%constant int		X509_V_ERR_ERROR_IN_CRL_LAST_UPDATE_FIELD	= 15;
-%constant int		X509_V_ERR_ERROR_IN_CRL_NEXT_UPDATE_FIELD	= 16;
-%constant int		X509_V_ERR_OUT_OF_MEM				= 17;
-%constant int		X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT		= 18;
-%constant int		X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN		= 19;
-%constant int		X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY	= 20;
-%constant int		X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE	= 21;
-%constant int		X509_V_ERR_CERT_CHAIN_TOO_LONG			= 22;
-%constant int		X509_V_ERR_CERT_REVOKED				= 23;
-%constant int		X509_V_ERR_INVALID_CA				= 24;
-%constant int		X509_V_ERR_PATH_LENGTH_EXCEEDED			= 25;
-%constant int		X509_V_ERR_INVALID_PURPOSE			= 26;
-%constant int		X509_V_ERR_CERT_UNTRUSTED			= 27;
-%constant int		X509_V_ERR_CERT_REJECTED			= 28;
-%constant int		X509_V_ERR_APPLICATION_VERIFICATION		= 50;
+%constant int        X509_V_OK                                      = 0;
+%constant int        X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT           = 2;
+%constant int        X509_V_ERR_UNABLE_TO_GET_CRL                   = 3;
+%constant int        X509_V_ERR_UNABLE_TO_DECRYPT_CERT_SIGNATURE    = 4;
+%constant int        X509_V_ERR_UNABLE_TO_DECRYPT_CRL_SIGNATURE     = 5;
+%constant int        X509_V_ERR_UNABLE_TO_DECODE_ISSUER_PUBLIC_KEY  = 6;
+%constant int        X509_V_ERR_CERT_SIGNATURE_FAILURE              = 7;
+%constant int        X509_V_ERR_CRL_SIGNATURE_FAILURE               = 8;
+%constant int        X509_V_ERR_CERT_NOT_YET_VALID                  = 9;
+%constant int        X509_V_ERR_CERT_HAS_EXPIRED                    = 10;
+%constant int        X509_V_ERR_CRL_NOT_YET_VALID                   = 11;
+%constant int        X509_V_ERR_CRL_HAS_EXPIRED                     = 12;
+%constant int        X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD      = 13;
+%constant int        X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD       = 14;
+%constant int        X509_V_ERR_ERROR_IN_CRL_LAST_UPDATE_FIELD      = 15;
+%constant int        X509_V_ERR_ERROR_IN_CRL_NEXT_UPDATE_FIELD      = 16;
+%constant int        X509_V_ERR_OUT_OF_MEM                          = 17;
+%constant int        X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT         = 18;
+%constant int        X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN           = 19;
+%constant int        X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY   = 20;
+%constant int        X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE     = 21;
+%constant int        X509_V_ERR_CERT_CHAIN_TOO_LONG                 = 22;
+%constant int        X509_V_ERR_CERT_REVOKED                        = 23;
+%constant int        X509_V_ERR_INVALID_CA                          = 24;
+%constant int        X509_V_ERR_PATH_LENGTH_EXCEEDED                = 25;
+%constant int        X509_V_ERR_INVALID_PURPOSE                     = 26;
+%constant int        X509_V_ERR_CERT_UNTRUSTED                      = 27;
+%constant int        X509_V_ERR_CERT_REJECTED                       = 28;
+%constant int        X509_V_ERR_APPLICATION_VERIFICATION            = 50;
 
 /* x509.h */
 %constant int XN_FLAG_COMPAT = 0;
@@ -364,17 +364,14 @@ int x509_name_set_by_nid(X509_NAME *name, int nid, PyObject *obj) {
 
 /* x509_name_add_entry_by_txt */
 int x509_name_add_entry_by_txt(X509_NAME *name, char *field, int type, char *bytes, int len, int loc, int set) {
-	return X509_NAME_add_entry_by_txt( name, (unsigned char *)field, type, (char *)bytes, len, loc, set);
+    return X509_NAME_add_entry_by_txt(name, field, type, bytes, len, loc, set);
 }
 
 PyObject *x509_name_get_der(X509_NAME *name)
 {
     i2d_X509_NAME(name, 0);
-    return PyString_FromStringAndSize(name->bytes->data,
-				      name->bytes->length);
+    return PyString_FromStringAndSize(name->bytes->data, name->bytes->length);
 }
-
-
 
 /* sk_X509_new_null() is a macro returning "STACK_OF(X509) *". */
 STACK *sk_x509_new_null(void) {
@@ -425,7 +422,7 @@ int x509_req_add_extensions(X509_REQ *req, STACK *exts) {
 }
 
 X509_NAME_ENTRY *x509_name_entry_create_by_txt( X509_NAME_ENTRY **ne, char *field, int type, unsigned char *bytes, int len) {
-	return X509_NAME_ENTRY_create_by_txt( ne, field, type, bytes, len);
+    return X509_NAME_ENTRY_create_by_txt( ne, field, type, bytes, len);
 }
 
 LHASH * 
@@ -462,8 +459,8 @@ PyObject *x509_extension_get_name(X509_EXTENSION *ext) {
     const char * ext_name_str; 
     ext_name_str = OBJ_nid2sn(OBJ_obj2nid(X509_EXTENSION_get_object(ext)));
     if (!ext_name_str) {
-    	PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
-    	return NULL;
+        PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
     }
     ext_name = PyString_FromStringAndSize(ext_name_str, strlen(ext_name_str));
     return ext_name;
@@ -520,10 +517,14 @@ Used in the wrapping of ASN1_seq_unpack and ASN1_seq_pack functions.
 STACK *
 make_stack_from_der_sequence(PyObject * pyEncodedString){
     STACK_OF(X509) *certs;
-    int encoded_string_len;
+    Py_ssize_t encoded_string_len;
     char *encoded_string;
 
     encoded_string_len = PyString_Size(pyEncodedString);
+    if (encoded_string_len > INT_MAX) {
+        PyErr_SetString(PyExc_ValueError, "object too large");
+        return NULL;
+    }
     encoded_string = PyString_AsString(pyEncodedString);
 
     certs = ASN1_seq_unpack((unsigned char *)encoded_string, encoded_string_len, (D2ITYPE)d2i_X509, (void(*)())X509_free ); 

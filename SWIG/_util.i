@@ -17,12 +17,12 @@ PyObject *util_hex_to_string(PyObject *blob) {
     PyObject *obj;
     const void *buf;
     char *ret;
-    int len;
+    Py_ssize_t len;
 
     if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
         return NULL;
 
-    ret = hex_to_string((unsigned char *)buf, (long)len);
+    ret = hex_to_string((unsigned char *)buf, len);
     if (!ret) {
         PyErr_SetString(_util_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
@@ -36,12 +36,14 @@ PyObject *util_string_to_hex(PyObject *blob) {
     PyObject *obj;
     const void *buf;
     unsigned char *ret;
-    int len;
+    Py_ssize_t len0;
+    long len;
 
-    if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
+    if (PyObject_AsReadBuffer(blob, &buf, &len0) == -1)
         return NULL;
 
-    ret = string_to_hex((char *)buf, (long *)&len);
+    len = len0;
+    ret = string_to_hex((char *)buf, &len);
     if (ret == NULL) {
         PyErr_SetString(_util_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;

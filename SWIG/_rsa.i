@@ -105,7 +105,7 @@ PyObject *rsa_set_e(RSA *rsa, PyObject *value) {
     const void *vbuf;
     int vlen;
 
-    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
 
     if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
@@ -124,7 +124,7 @@ PyObject *rsa_set_n(RSA *rsa, PyObject *value) {
     const void *vbuf;
     int vlen;
 
-    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
 
     if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
@@ -143,7 +143,7 @@ PyObject *rsa_set_e_bin(RSA *rsa, PyObject *value) {
     const void *vbuf;
     int vlen;
 
-    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
 
     if (!(bn = BN_bin2bn((unsigned char *)vbuf, vlen, NULL))) {
@@ -162,7 +162,7 @@ PyObject *rsa_set_n_bin(RSA *rsa, PyObject *value) {
     const void *vbuf;
     int vlen;
 
-    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
 
     if (!(bn = BN_bin2bn((unsigned char *)vbuf, vlen, NULL))) {
@@ -182,7 +182,7 @@ PyObject *rsa_private_encrypt(RSA *rsa, PyObject *from, int padding) {
     int flen, tlen;
     PyObject *ret;
 
-    if (PyObject_AsReadBuffer(from, &fbuf, &flen) == -1)
+    if (m2_PyObject_AsReadBufferInt(from, &fbuf, &flen) == -1)
         return NULL;
 
     if (!(tbuf = PyMem_Malloc(BN_num_bytes(rsa->n)))) {
@@ -207,7 +207,7 @@ PyObject *rsa_public_decrypt(RSA *rsa, PyObject *from, int padding) {
     int flen, tlen;
     PyObject *ret;
 
-    if (PyObject_AsReadBuffer(from, &fbuf, &flen) == -1)
+    if (m2_PyObject_AsReadBufferInt(from, &fbuf, &flen) == -1)
         return NULL;
 
     if (!(tbuf = PyMem_Malloc(BN_num_bytes(rsa->n)))) {
@@ -232,7 +232,7 @@ PyObject *rsa_public_encrypt(RSA *rsa, PyObject *from, int padding) {
     int flen, tlen;
     PyObject *ret;
 
-    if (PyObject_AsReadBuffer(from, &fbuf, &flen) == -1)
+    if (m2_PyObject_AsReadBufferInt(from, &fbuf, &flen) == -1)
         return NULL;
 
     if (!(tbuf = PyMem_Malloc(BN_num_bytes(rsa->n)))) {
@@ -257,7 +257,7 @@ PyObject *rsa_private_decrypt(RSA *rsa, PyObject *from, int padding) {
     int flen, tlen;
     PyObject *ret;
 
-    if (PyObject_AsReadBuffer(from, &fbuf, &flen) == -1)
+    if (m2_PyObject_AsReadBufferInt(from, &fbuf, &flen) == -1)
         return NULL;
 
     if (!(tbuf = PyMem_Malloc(BN_num_bytes(rsa->n)))) {
@@ -285,7 +285,8 @@ PyObject *rsa_sign(RSA *rsa, PyObject *py_digest_string, int method_type) {
     unsigned char * sign_buf = NULL;
     PyObject *signature; 
     
-    ret = PyString_AsStringAndSize(py_digest_string, &digest_string, &digest_len); 
+    ret = m2_PyString_AsStringAndSizeInt(py_digest_string, &digest_string,
+                                         &digest_len); 
     if (ret == -1) {
         /* PyString_AsStringAndSize raises the correct exceptions. */
         return NULL;
@@ -312,13 +313,15 @@ int rsa_verify(RSA *rsa, PyObject *py_verify_string, PyObject* py_sign_string, i
     char * verify_string = NULL;
     int verify_len = 0;
     int sign_len = 0;
-    
-    ret = PyString_AsStringAndSize(py_verify_string, &verify_string, &verify_len); 
+
+    ret = m2_PyString_AsStringAndSizeInt(py_verify_string, &verify_string,
+                                         &verify_len);
     if (ret == -1) {
         /* PyString_AsStringAndSize raises the correct exceptions. */
         return 0;
     }
-    ret = PyString_AsStringAndSize(py_sign_string, &sign_string, &sign_len);
+    ret = m2_PyString_AsStringAndSizeInt(py_sign_string, &sign_string,
+                                         &sign_len);
     if (ret == -1) {
         return 0;
     }
