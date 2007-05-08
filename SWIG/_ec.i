@@ -159,7 +159,8 @@ PyObject *ec_key_get_public_der(EC_KEY *key) {
 
     unsigned char *src=NULL;
     void *dst=NULL;
-    int src_len=0,dst_len=0;
+    int src_len=0;
+    Py_ssize_t dst_len=0;
     PyObject *pyo=NULL;
     int ret=0;
     
@@ -241,7 +242,7 @@ PyObject *ecdsa_sign(EC_KEY *key, PyObject *value) {
     PyObject *tuple;
     ECDSA_SIG *sig; 
 
-    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
 
     if (!(sig = ECDSA_do_sign(vbuf, vlen, key))) {
@@ -265,9 +266,9 @@ int ecdsa_verify(EC_KEY *key, PyObject *value, PyObject *r, PyObject *s) {
     ECDSA_SIG *sig;
     int ret;
 
-    if ((PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
-        || (PyObject_AsReadBuffer(r, &rbuf, &rlen) == -1)
-        || (PyObject_AsReadBuffer(s, &sbuf, &slen) == -1))
+    if ((m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
+        || (m2_PyObject_AsReadBufferInt(r, &rbuf, &rlen) == -1)
+        || (m2_PyObject_AsReadBufferInt(s, &sbuf, &slen) == -1))
         return -1;
 
     if (!(sig = ECDSA_SIG_new())) {
@@ -296,10 +297,10 @@ PyObject *ecdsa_sign_asn1(EC_KEY *key, PyObject *value) {
     const void *vbuf;
     int vlen;
     void *sigbuf;
-    int siglen;
+    unsigned int siglen;
     PyObject *ret;
 
-    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
 
     if (!(sigbuf = PyMem_Malloc(ECDSA_size(key)))) {
@@ -322,8 +323,9 @@ int ecdsa_verify_asn1(EC_KEY *key, PyObject *value, PyObject *sig) {
     void *sbuf;
     int vlen, slen, ret;
 
-    if ((PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
-        || (PyObject_AsReadBuffer(sig, (const void **)&sbuf, &slen) == -1))
+    if ((m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
+        || (m2_PyObject_AsReadBufferInt(sig, (const void **)&sbuf, &slen)
+        == -1))
         return -1;
 
     if ((ret = ECDSA_verify(0, vbuf, vlen, sbuf, slen, key)) == -1)
@@ -366,8 +368,7 @@ PyObject *ecdh_compute_key(EC_KEY *keypairA, EC_KEY *pubkeyB) {
 
 EC_KEY* ec_key_from_pubkey_der(PyObject *pubkey) {
     const void *keypairbuf;
-    int keypairbuflen;
-    long tempLen;
+    Py_ssize_t keypairbuflen;
     const unsigned char *tempBuf;
     EC_KEY *keypair;
 
@@ -377,8 +378,7 @@ EC_KEY* ec_key_from_pubkey_der(PyObject *pubkey) {
     }
 
     tempBuf = (const unsigned char *)keypairbuf;
-    tempLen = (long)keypairbuflen;
-    if ((keypair = d2i_EC_PUBKEY( NULL, &tempBuf, tempLen )) == 0)
+    if ((keypair = d2i_EC_PUBKEY( NULL, &tempBuf, keypairbuflen)) == 0)
     {
         PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;

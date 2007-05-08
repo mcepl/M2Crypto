@@ -122,14 +122,14 @@ int bio_write(BIO *bio, PyObject *from) {
     const void *fbuf;
     int flen, ret;
 
-    if (PyObject_AsReadBuffer(from, &fbuf, &flen) == -1)
+    if (m2_PyObject_AsReadBufferInt(from, &fbuf, &flen) == -1)
         return -1;
 
     Py_BEGIN_ALLOW_THREADS
     ret = BIO_write(bio, fbuf, flen);
     Py_END_ALLOW_THREADS
     if (ret < 0) {
-	if (ERR_peek_error()) {
+        if (ERR_peek_error()) {
             PyErr_SetString(_bio_err, ERR_reason_error_string(ERR_get_error()));
         }
     }
@@ -171,7 +171,7 @@ int bio_get_flags(BIO *bio) {
 
 PyObject *bio_set_cipher(BIO *b, EVP_CIPHER *c, PyObject *key, PyObject *iv, int op) {
     const void *kbuf, *ibuf;
-    int klen, ilen;
+    Py_ssize_t klen, ilen;
 
     if ((PyObject_AsReadBuffer(key, &kbuf, &klen) == -1)
         || (PyObject_AsReadBuffer(iv, &ibuf, &ilen) == -1))

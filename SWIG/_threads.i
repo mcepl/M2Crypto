@@ -51,14 +51,14 @@ void threading_cleanup(void) {
 #ifdef THREADING
     int i;
     if (thread_mode) {
-	    CRYPTO_set_locking_callback(NULL);
-	    for (i=0; i<CRYPTO_NUM_LOCKS; i++) {
-	        lock_count[i]=0;
-	        PyThread_release_lock(lock_cs[i]);
-	        PyThread_free_lock(lock_cs[i]);
-	    }
-	}
-	thread_mode = 0;
+        CRYPTO_set_locking_callback(NULL);
+        for (i=0; i<CRYPTO_NUM_LOCKS; i++) {
+            lock_count[i]=0;
+            PyThread_release_lock(lock_cs[i]);
+            PyThread_free_lock(lock_cs[i]);
+        }
+    }
+    thread_mode = 0;
 #endif
 }
 %}

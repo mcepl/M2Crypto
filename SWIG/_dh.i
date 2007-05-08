@@ -85,7 +85,7 @@ PyObject *dh_compute_key(DH *dh, PyObject *pubkey) {
     BIGNUM *pk;
     PyObject *ret;
 
-    if (PyObject_AsReadBuffer(pubkey, &pkbuf, &pklen) == -1)
+    if (m2_PyObject_AsReadBufferInt(pubkey, &pkbuf, &pklen) == -1)
         return NULL;
 
     if (!(pk = BN_mpi2bn((unsigned char *)pkbuf, pklen, NULL))) {
@@ -146,7 +146,7 @@ PyObject *dh_set_p(DH *dh, PyObject *value) {
     const void *vbuf;
     int vlen;
 
-    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
 
     if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
@@ -165,7 +165,7 @@ PyObject *dh_set_g(DH *dh, PyObject *value) {
     const void *vbuf;
     int vlen;
 
-    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
 
     if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {

@@ -162,9 +162,11 @@ PyObject *pkcs5_pbkdf2_hmac_sha1(PyObject *pass,
     PyObject *ret;
     int passlen, saltlen;
 
-    if (PyObject_AsReadBuffer(pass, &passbuf, &passlen) == -1)
+    if (m2_PyObject_AsReadBufferInt(pass, (const void **)&passbuf,
+                                    &passlen) == -1)
         return NULL;
-    if (PyObject_AsReadBuffer(salt, &saltbuf, &saltlen) == -1)
+    if (m2_PyObject_AsReadBufferInt(salt, (const void **)&saltbuf,
+                                    &saltlen) == -1)
         return NULL;
 
     PKCS5_PBKDF2_HMAC_SHA1(passbuf, passlen, saltbuf, saltlen, iter,
@@ -189,12 +191,12 @@ void md_ctx_free(EVP_MD_CTX *ctx) {
 
 int digest_update(EVP_MD_CTX *ctx, PyObject *blob) {
     const void *buf;
-    int len;
+    Py_ssize_t len;
 
     if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
         return -1;
 
-    return EVP_DigestUpdate(ctx, buf, (unsigned int)len);
+    return EVP_DigestUpdate(ctx, buf, len);
 }
 
 PyObject *digest_final(EVP_MD_CTX *ctx) {
@@ -232,7 +234,7 @@ PyObject *hmac_init(HMAC_CTX *ctx, PyObject *key, const EVP_MD *md) {
     const void *kbuf;
     int klen;
 
-    if (PyObject_AsReadBuffer(key, &kbuf, &klen) == -1)
+    if (m2_PyObject_AsReadBufferInt(key, &kbuf, &klen) == -1)
         return NULL;
 
     HMAC_Init(ctx, kbuf, klen, md);
@@ -242,12 +244,12 @@ PyObject *hmac_init(HMAC_CTX *ctx, PyObject *key, const EVP_MD *md) {
 
 PyObject *hmac_update(HMAC_CTX *ctx, PyObject *blob) {
     const void *buf;
-    int len;
+    Py_ssize_t len;
 
     if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
         return NULL;
 
-    HMAC_Update(ctx, buf, (unsigned int)len);
+    HMAC_Update(ctx, buf, len);
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -270,10 +272,12 @@ PyObject *hmac_final(HMAC_CTX *ctx) {
 PyObject *hmac(PyObject *key, PyObject *data, const EVP_MD *md) {
     const void *kbuf, *dbuf;
     void *blob;
-    int klen, dlen, blen;
+    int klen;
+    unsigned int blen;
+    Py_ssize_t dlen;
     PyObject *ret;
 
-    if ((PyObject_AsReadBuffer(key, &kbuf, &klen) == -1)
+    if ((m2_PyObject_AsReadBufferInt(key, &kbuf, &klen) == -1)
         || (PyObject_AsReadBuffer(data, &dbuf, &dlen) == -1))
         return NULL;
 
@@ -310,10 +314,11 @@ PyObject *bytes_to_key(const EVP_CIPHER *cipher, EVP_MD *md,
                         int iter) {
     unsigned char key[EVP_MAX_KEY_LENGTH];
     const void *dbuf, *sbuf;
-    int dlen, slen, klen;
+    int dlen, klen;
+    Py_ssize_t slen;
     PyObject *ret;
 
-    if ((PyObject_AsReadBuffer(data, &dbuf, &dlen) == -1)
+    if ((m2_PyObject_AsReadBufferInt(data, &dbuf, &dlen) == -1)
         || (PyObject_AsReadBuffer(salt, &sbuf, &slen) == -1))
         return NULL;
 
@@ -328,7 +333,7 @@ PyObject *bytes_to_key(const EVP_CIPHER *cipher, EVP_MD *md,
 PyObject *cipher_init(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher, 
                         PyObject *key, PyObject *iv, int mode) {
     const void *kbuf, *ibuf;
-    int klen, ilen;
+    Py_ssize_t klen, ilen;
 
     if ((PyObject_AsReadBuffer(key, &kbuf, &klen) == -1)
         || (PyObject_AsReadBuffer(iv, &ibuf, &ilen) == -1))
@@ -345,7 +350,7 @@ PyObject *cipher_update(EVP_CIPHER_CTX *ctx, PyObject *blob) {
     void *obuf;
     PyObject *ret;
 
-    if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
+    if (m2_PyObject_AsReadBufferInt(blob, &buf, &len) == -1)
         return NULL;
 
     if (!(obuf = PyMem_Malloc(len + EVP_CIPHER_CTX_block_size(ctx) - 1))) {
@@ -375,7 +380,7 @@ PyObject *cipher_final(EVP_CIPHER_CTX *ctx) {
 
 PyObject *sign_update(EVP_MD_CTX *ctx, PyObject *blob) {
     const void *buf;
-    int len;
+    Py_ssize_t len;
 
     if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
         return NULL;
@@ -386,19 +391,31 @@ PyObject *sign_update(EVP_MD_CTX *ctx, PyObject *blob) {
 }
 
 PyObject *sign_final(EVP_MD_CTX *ctx, EVP_PKEY *pkey) {
-    unsigned char sigbuf[256]; /* XXX fixed length buffer */
-    unsigned int siglen;
+    PyObject *ret;
+    unsigned char *sigbuf;
+    unsigned int siglen = EVP_PKEY_size(pkey);
+
+    sigbuf = (unsigned char*)OPENSSL_malloc(siglen);
+    if (!sigbuf) {
+        PyErr_SetString(PyExc_MemoryError, "sign_final");
+        return NULL;
+    }
 
     if (!EVP_SignFinal(ctx, sigbuf, &siglen, pkey)) {
+        OPENSSL_cleanse(sigbuf, siglen);
+        OPENSSL_free(sigbuf);
         PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
-    return PyString_FromStringAndSize(sigbuf, siglen);
+    ret = PyString_FromStringAndSize(sigbuf, siglen);
+    OPENSSL_cleanse(sigbuf, siglen);
+    OPENSSL_free(sigbuf);
+    return ret;
 }
 
 int verify_update(EVP_MD_CTX *ctx, PyObject *blob) {
     const void *buf;
-    int len;
+    Py_ssize_t len;
 
     if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
         return -1;
@@ -411,7 +428,7 @@ int verify_final(EVP_MD_CTX *ctx, PyObject *blob, EVP_PKEY *pkey) {
     unsigned char *kbuf; 
     int len;
 
-    if (PyObject_AsReadBuffer(blob, (const void **)&kbuf, &len) == -1)
+    if (m2_PyObject_AsReadBufferInt(blob, (const void **)&kbuf, &len) == -1)
         return -1;
 
     return EVP_VerifyFinal(ctx, kbuf, len, pkey);
@@ -459,7 +476,7 @@ PyObject * pkey_as_der(EVP_PKEY *pkey){
         PyErr_SetString(PyExc_ValueError, "EVP_PKEY as DER failed");
         return NULL; 
     }
-    der = PyString_FromStringAndSize(/*(void *)*/ pp, len);
+    der = PyString_FromStringAndSize(pp, len);
     OPENSSL_free(pp);
     return der;
 }

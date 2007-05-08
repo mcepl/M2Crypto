@@ -27,7 +27,7 @@ PyObject *rand_seed(PyObject *seed) {
     const void *buf;
     int len;
 
-    if (PyObject_AsReadBuffer(seed, &buf, &len) == -1)
+    if (m2_PyObject_AsReadBufferInt(seed, &buf, &len) == -1)
         return NULL;
 
     RAND_seed(buf, len);
@@ -39,7 +39,7 @@ PyObject *rand_add(PyObject *blob, double entropy) {
     const void *buf;
     int len;
 
-    if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
+    if (m2_PyObject_AsReadBufferInt(blob, &buf, &len) == -1)
         return NULL;
 
     RAND_add(buf, len, entropy);

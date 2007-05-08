@@ -39,12 +39,18 @@ extern void ASN1_STRING_free( ASN1_STRING *);
 
 %typemap(in) (const void *, int) { 
     if (PyString_Check($input)) {
+        Py_ssize_t len;
+
         $1 = PyString_AsString($input); 
-        $2 = PyString_Size($input);
+        len = PyString_Size($input);
+        if (len > INT_MAX) {
+            PyErr_SetString(PyExc_ValueError, "object too large");
+            return NULL;
+        }
+        $2 = len;
     } else {
-        $1 = NULL;
-        $2 = 0;
         PyErr_SetString(PyExc_TypeError, "expected string");
+        return NULL;
     }
 }
 
