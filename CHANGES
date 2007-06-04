@@ -6,6 +6,7 @@
 - support multiple dNSName fields in subjectAltName
 - m2xmlrpclib.py fixed to work with Python 2.5, by Miloslav Trmac
 - 64-bit correctness fixes, by Miloslav Trmac
+- Added SSL session caching support to HTTPSConnection, by Keith Jackson
 - M2CRYPTO_TEST_SSL_SLEEP environment variable controls how long to sleep
   after starting the test SSL server. Default is 0.5, but 0.1 or even 0.05
   might work with modern computers. Makes tests finish significantly faster.
