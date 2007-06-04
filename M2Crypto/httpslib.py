@@ -20,6 +20,7 @@ class HTTPSConnection(HTTPConnection):
     default_port = HTTPS_PORT
 
     def __init__(self, host, port=None, strict=None, **ssl):
+        self.session = None
         keys = ssl.keys()
         try: 
             keys.remove('key_file')
@@ -44,6 +45,8 @@ class HTTPSConnection(HTTPConnection):
 
     def connect(self):
         self.sock = SSL.Connection(self.ssl_ctx)
+        if self.session:
+            self.sock.set_session(self.session)
         self.sock.connect((self.host, self.port))
 
     def close(self):
@@ -62,7 +65,13 @@ class HTTPSConnection(HTTPConnection):
         # XXX but I've not investigated if the above conditions
         # XXX remain.
         pass
+    
+    def get_session(self):
+        return self.sock.get_session()
 
+    def set_session(self, session):
+        self.session = session
+        
 
 class HTTPS(HTTP):
     
