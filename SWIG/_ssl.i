@@ -181,6 +181,11 @@ extern long SSL_SESSION_get_timeout(CONST SSL_SESSION *);
 %constant int SSL_SENT_SHUTDOWN              = 1;
 %constant int SSL_RECEIVED_SHUTDOWN          = 2;
 
+%constant int SSL_SESS_CACHE_OFF            = 0x000;
+%constant int SSL_SESS_CACHE_CLIENT         = 0x001;
+%constant int SSL_SESS_CACHE_SERVER         = 0x002;
+%constant int SSL_SESS_CACHE_BOTH           = (SSL_SESS_CACHE_CLIENT|SSL_SESS_CACHE_SERVER);
+
 %constant int SSL_OP_ALL                  = 0x00000FFFL;
 
 %constant int SSL_OP_NO_SSLv2             = 0x01000000L;
