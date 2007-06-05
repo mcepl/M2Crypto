@@ -249,11 +249,14 @@ RSA *ssl_set_tmp_rsa_callback(SSL *ssl, int is_export, int keylength) {
 void gen_callback(int p, int n, void *arg) {
     PyObject *argv, *ret, *cbfunc;
  
+    PyGILState_STATE gilstate;
+    gilstate = PyGILState_Ensure();
     cbfunc = (PyObject *)arg;
     argv = Py_BuildValue("(ii)", p, n);
     ret = PyEval_CallObject(cbfunc, argv);
     Py_DECREF(argv);
     Py_XDECREF(ret);
+    PyGILState_Release(gilstate);
 }
 
 int passphrase_callback(char *buf, int num, int v, void *arg) {
@@ -262,6 +265,8 @@ int passphrase_callback(char *buf, int num, int v, void *arg) {
     char *str;
     PyObject *argv, *ret, *cbfunc;
 
+    PyGILState_STATE gilstate;
+    gilstate = PyGILState_Ensure();
     cbfunc = (PyObject *)arg;
     argv = Py_BuildValue("(i)", v);
     ret = PyEval_CallObject(cbfunc, argv);
@@ -279,6 +284,7 @@ int passphrase_callback(char *buf, int num, int v, void *arg) {
     for (i = 0; i < len; i++)
         buf[i] = str[i];
     Py_DECREF(ret);
+    PyGILState_Release(gilstate);
     return len;
 }
 %}
