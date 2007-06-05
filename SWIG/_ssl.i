@@ -356,11 +356,11 @@ int ssl_set_fd(SSL *ssl, int fd) {
 PyObject *ssl_accept(SSL *ssl) {
     PyObject *obj = NULL;
     int r, err;
-    PyGILState_STATE gilstate;
 
+    Py_BEGIN_ALLOW_THREADS
     r = SSL_accept(ssl);
+    Py_END_ALLOW_THREADS
 
-    gilstate = PyGILState_Ensure();
 
     switch (SSL_get_error(ssl, r)) {
         case SSL_ERROR_NONE:
@@ -387,7 +387,6 @@ PyObject *ssl_accept(SSL *ssl) {
             break;
     }
 
-    PyGILState_Release(gilstate);
 
     return obj;
 }
@@ -395,11 +394,11 @@ PyObject *ssl_accept(SSL *ssl) {
 PyObject *ssl_connect(SSL *ssl) {
     PyObject *obj = NULL;
     int r, err;
-    PyGILState_STATE gilstate;
 
+    Py_BEGIN_ALLOW_THREADS
     r = SSL_connect(ssl);
+    Py_END_ALLOW_THREADS
 
-    gilstate = PyGILState_Ensure();
     
     switch (SSL_get_error(ssl, r)) {
         case SSL_ERROR_NONE:
@@ -426,7 +425,6 @@ PyObject *ssl_connect(SSL *ssl) {
             break;
     }
     
-    PyGILState_Release(gilstate);
     
     return obj;
 }
@@ -439,21 +437,17 @@ PyObject *ssl_read(SSL *ssl, int num) {
     PyObject *obj = NULL;
     void *buf;
     int r, err;
-    PyGILState_STATE gilstate;
-
-    gilstate = PyGILState_Ensure();
 
     if (!(buf = PyMem_Malloc(num))) {
         PyErr_SetString(PyExc_MemoryError, "ssl_read");
-        PyGILState_Release(gilstate);
         return NULL;
     }
 
-    PyGILState_Release(gilstate);
 
+    Py_BEGIN_ALLOW_THREADS
     r = SSL_read(ssl, buf, num);
+    Py_END_ALLOW_THREADS
 
-    gilstate = PyGILState_Ensure();
 
     switch (SSL_get_error(ssl, r)) {
         case SSL_ERROR_NONE:
@@ -484,7 +478,6 @@ PyObject *ssl_read(SSL *ssl, int num) {
     }
     PyMem_Free(buf);
 
-    PyGILState_Release(gilstate);
 
     return obj;
 }
@@ -493,21 +486,18 @@ PyObject *ssl_read_nbio(SSL *ssl, int num) {
     PyObject *obj = NULL;
     void *buf;
     int r, err;
-    PyGILState_STATE gilstate;
 
-    gilstate = PyGILState_Ensure();
 
     if (!(buf = PyMem_Malloc(num))) {
         PyErr_SetString(PyExc_MemoryError, "ssl_read");
-        PyGILState_Release(gilstate);
         return NULL;
     }
     
-    PyGILState_Release(gilstate);
     
+    Py_BEGIN_ALLOW_THREADS
     r = SSL_read(ssl, buf, num);
+    Py_END_ALLOW_THREADS
     
-    gilstate = PyGILState_Ensure();
     
     switch (SSL_get_error(ssl, r)) {
         case SSL_ERROR_NONE:
@@ -538,7 +528,6 @@ PyObject *ssl_read_nbio(SSL *ssl, int num) {
     }
     PyMem_Free(buf);
     
-    PyGILState_Release(gilstate);
     
     return obj;
 }
@@ -546,20 +535,17 @@ PyObject *ssl_read_nbio(SSL *ssl, int num) {
 int ssl_write(SSL *ssl, PyObject *blob) {
     const void *buf;
     int len, r, err, ret;
-    PyGILState_STATE gilstate;
 
-    gilstate = PyGILState_Ensure();
 
     if (m2_PyObject_AsReadBufferInt(blob, &buf, &len) == -1) {
-        PyGILState_Release(gilstate);
         return -1;
     }
 
-    PyGILState_Release(gilstate);
     
+    Py_BEGIN_ALLOW_THREADS
     r = SSL_write(ssl, buf, len);
+    Py_END_ALLOW_THREADS
 
-    gilstate = PyGILState_Ensure();
 
     switch (SSL_get_error(ssl, r)) {
         case SSL_ERROR_NONE:
@@ -587,7 +573,6 @@ int ssl_write(SSL *ssl, PyObject *blob) {
             ret = -1;
     }
     
-    PyGILState_Release(gilstate);
     
     return ret;
 }
@@ -595,20 +580,17 @@ int ssl_write(SSL *ssl, PyObject *blob) {
 int ssl_write_nbio(SSL *ssl, PyObject *blob) {
     const void *buf;
     int len, r, err, ret;
-    PyGILState_STATE gilstate;
 
-    gilstate = PyGILState_Ensure();
 
     if (m2_PyObject_AsReadBufferInt(blob, &buf, &len) == -1) {
-        PyGILState_Release(gilstate);
         return -1;
     }
 
-    PyGILState_Release(gilstate);
     
+    Py_BEGIN_ALLOW_THREADS
     r = SSL_write(ssl, buf, len);
+    Py_END_ALLOW_THREADS
     
-    gilstate = PyGILState_Ensure();
     
     switch (SSL_get_error(ssl, r)) {
         case SSL_ERROR_NONE:
@@ -635,7 +617,6 @@ int ssl_write_nbio(SSL *ssl, PyObject *blob) {
             ret = -1;
     }
     
-    PyGILState_Release(gilstate);
     
     return ret;
 }
