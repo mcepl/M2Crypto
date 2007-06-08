@@ -4,7 +4,7 @@ M2Crypto = Python + OpenSSL + SWIG
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.
 
 Portions created by Open Source Applications Foundation (OSAF) are
-Copyright (C) 2004-2006 OSAF. All Rights Reserved.
+Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 
 """
 

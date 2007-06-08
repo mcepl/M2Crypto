@@ -20,7 +20,7 @@ class DSA:
     This class is a context supporting DSA key and parameter
     values, signing and verifying.
     
-    Simple example:
+    Simple example::
     
         from M2Crypto import EVP, DSA, util
         

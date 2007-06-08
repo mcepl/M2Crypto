@@ -1,4 +1,4 @@
-"""M2Crypto.SSL.Context
+"""SSL Context
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
@@ -159,7 +159,7 @@ class Context:
         @param mode:     The verification mode to use. Typically at least
                          SSL.verify_peer is used. Clients would also typically
                          add SSL.verify_fail_if_no_peer_cert.
-        @param mode:     int                 
+        @type mode:      int                 
         @param depth:    The maximum allowed depth of the certificate chain
                          returned by the peer.
         @type depth:     int

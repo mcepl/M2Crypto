@@ -1,4 +1,6 @@
-"""Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
+"""SSL callbacks
+
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
 # Python
 import sys

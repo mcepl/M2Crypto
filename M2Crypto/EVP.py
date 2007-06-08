@@ -364,7 +364,7 @@ def load_key_bio(bio, callback=util.passphrase_callback):
     Load an M2Crypto.EVP.PKey from an M2Crypto.BIO object.
 
     @type bio: M2Crypto.BIO
-    @param file: M2Crypto.BIO object containing the key in PEM format.
+    @param bio: M2Crypto.BIO object containing the key in PEM format.
 
     @type callback: Python callable
     @param callback: A Python callable object that is invoked
@@ -383,7 +383,7 @@ def load_key_string(string, callback=util.passphrase_callback):
     Load an M2Crypto.EVP.PKey from a string.
 
     @type string: string
-    @param file: String containing the key in PEM format.
+    @param string: String containing the key in PEM format.
 
     @type callback: Python callable
     @param callback: A Python callable object that is invoked

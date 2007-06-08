@@ -132,8 +132,8 @@ class RSA:
         """
         Save the key pair to a file in DER format.
 
-        @type bio: M2Crypto.BIO.BIO
-        @param bio: M2Crypto.BIO.BIO object to save key to.
+        @type file: str
+        @param file: Filename to save key to
         """
         bio = BIO.openfile(file, 'wb')
         return self.save_key_der_bio(bio)
@@ -172,7 +172,7 @@ class RSA:
         Legal values are 'sha1','sha224', 'sha256', 'ripemd160', 
         and 'md5'.
         
-        @return a string which is the signature
+        @return: a string which is the signature
         """
         digest_type = getattr(m2, 'NID_' + algo, None) 
         if digest_type is None:
@@ -195,7 +195,7 @@ class RSA:
         before it was signed.  Legal values are 'sha1','sha224',
         'sha256', 'ripemd160', and 'md5'.
 
-        @returns True or False, depending on whether the signature was
+        @return: True or False, depending on whether the signature was
         verified.  
         """
         digest_type = getattr(m2, 'NID_' + algo, None)

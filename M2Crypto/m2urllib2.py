@@ -6,9 +6,9 @@ Code from urllib2 is Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006
 Python Software Foundation; All Rights Reserved
 
 Summary of changes:
- * Use an HTTPSProxyConnection if the request is going through a proxy.
- * Add the SSL context to the https connection when performing https_open.
- * Add the M2Crypto HTTPSHandler when building a default opener.
+ - Use an HTTPSProxyConnection if the request is going through a proxy.
+ - Add the SSL context to the https connection when performing https_open.
+ - Add the M2Crypto HTTPSHandler when building a default opener.
 """
 
 from urllib2 import *

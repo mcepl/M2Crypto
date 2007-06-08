@@ -1,7 +1,7 @@
 """
-M2Crypto.SSL.Checker
+SSL peer certificate checking routines
 
-Copyright (c) 2004-2005 Open Source Applications Foundation.
+Copyright (c) 2004-2007 Open Source Applications Foundation.
 All rights reserved.
 """
 

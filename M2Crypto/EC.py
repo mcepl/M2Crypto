@@ -117,7 +117,7 @@ class EC:
 
     def gen_key(self):
         """
-        Generates the key pair from its parameters. Use
+        Generates the key pair from its parameters. Use::
             keypair = EC.gen_params(curve)
             keypair.gen_key()
         to create an EC key pair.
