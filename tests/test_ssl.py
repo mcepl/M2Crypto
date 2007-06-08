@@ -776,6 +776,22 @@ class SSLClientTestCase(unittest.TestCase):
             finally:
                 self.stop_server(pid)
 
+        def test_z_urllib2_opener(self):
+            pid = self.start_server(self.args)
+            try:
+                ctx = SSL.Context()
+
+                from M2Crypto import m2urllib2
+                opener = m2urllib2.build_opener(ctx)
+                m2urllib2.install_opener(opener)
+                req = m2urllib2.Request('https://%s:%s/' % (srv_host, srv_port))
+                u = m2urllib2.urlopen(req)
+                data = u.read()
+                u.close()
+            finally:
+                self.stop_server(pid)
+            self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
     def test_blocking0(self):
         pid = self.start_server(self.args)
         try:
