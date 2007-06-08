@@ -136,6 +136,36 @@ class SSLClientTestCase(unittest.TestCase):
         finally:
             self.stop_server(pid)
 
+    def test_server_simple_timeouts(self):
+        pid = self.start_server(self.args)
+        try:
+            self.assertRaises(ValueError, SSL.Context, 'tlsv5')
+            ctx = SSL.Context()
+            s = SSL.Connection(ctx)
+            
+            r = s.get_socket_read_timeout()
+            w = s.get_socket_write_timeout()
+            assert r.sec == 0, r.sec
+            assert r.microsec == 0, r.microsec
+            assert w.sec == 0, w.sec
+            assert w.microsec == 0, w.microsec
+
+            s.set_socket_read_timeout(SSL.timeout())
+            s.set_socket_write_timeout(SSL.timeout(909,9))
+            r = s.get_socket_read_timeout()
+            w = s.get_socket_write_timeout()
+            assert r.sec == 600, r.sec
+            assert r.microsec == 0, r.microsec
+            assert w.sec == 909, w.sec
+            #assert w.microsec == 9, w.microsec XXX 4000
+            
+            s.connect(self.srv_addr)
+            data = self.http_get(s)
+            s.close()
+        finally:
+            self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
     def test_tls1_nok(self):
         self.args.append('-no_tls1')
         pid = self.start_server(self.args)
