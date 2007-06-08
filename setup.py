@@ -112,7 +112,7 @@ m2crypto = Extension(name='M2Crypto.__m2crypto',
                      extra_compile_args = ['-DTHREADING'],
                      #extra_link_args = ['-Wl,-search_paths_first'], # Uncomment to build Universal Mac binaries
                      swig_opts = [swig_opts_str,
-                                  -includeall',
+                                  '-includeall',
                                   #'-D__i386__', # Uncomment for early OpenSSL 0.9.7 versions
                                   ]
                      )
