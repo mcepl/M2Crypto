@@ -1,4 +1,4 @@
-"""M2Crypto.SSL.Connection
+"""SSL Connection aka socket
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 

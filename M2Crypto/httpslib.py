@@ -1,4 +1,4 @@
-"""M2Crypto support for Python 1.5.2 and Python 2.x's httplib. 
+"""M2Crypto support for Python's httplib. 
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
