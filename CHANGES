@@ -2,8 +2,10 @@
 ----
 - Added EVP.pbkdf2 to derive key from password
 - X509_Store_Context.get1_chain added
-- Added methods to get X509_Name_Entry objects from X509_Name, which allows
-  for example enumerating through all commonName fields
+- Added X509_Name.__iter__, __getitem__, get_entries_by_nid which allow
+  iterating over all X509_Name_Entries or getting just all commonName entries,
+  for example
+- Added X509_Name_entry.get_object, get_data
 - Added back PKCS7.get0_signers (was removed in 0.16)
 - X509_Extension.get_value accepts flag and indent parameters.
 - support multiple dNSName fields in subjectAltName
