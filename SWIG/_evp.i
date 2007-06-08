@@ -208,7 +208,11 @@ PyObject *digest_final(EVP_MD_CTX *ctx) {
         PyErr_SetString(PyExc_MemoryError, "digest_final");
         return NULL;
     }
-    EVP_DigestFinal(ctx, blob, (unsigned int *)&blen);
+    if (!EVP_DigestFinal(ctx, blob, (unsigned int *)&blen)) {
+        PyMem_Free(blob);
+        PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
     ret = PyString_FromStringAndSize(blob, blen);
     PyMem_Free(blob);
     return ret;
@@ -339,7 +343,11 @@ PyObject *cipher_init(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
         || (PyObject_AsReadBuffer(iv, &ibuf, &ilen) == -1))
         return NULL;
 
-    EVP_CipherInit(ctx, cipher, (unsigned char *)kbuf, (unsigned char *)ibuf, mode);
+    if (!EVP_CipherInit(ctx, cipher, (unsigned char *)kbuf,
+                        (unsigned char *)ibuf, mode)) {
+        PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -357,7 +365,11 @@ PyObject *cipher_update(EVP_CIPHER_CTX *ctx, PyObject *blob) {
         PyErr_SetString(PyExc_MemoryError, "cipher_update");
         return NULL;
     }
-    EVP_CipherUpdate(ctx, obuf, &olen, (unsigned char *)buf, len);
+    if (!EVP_CipherUpdate(ctx, obuf, &olen, (unsigned char *)buf, len)) {
+        PyMem_Free(obuf);
+        PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
     ret = PyString_FromStringAndSize(obuf, olen);
     PyMem_Free(obuf);
     return ret;
@@ -372,7 +384,11 @@ PyObject *cipher_final(EVP_CIPHER_CTX *ctx) {
         PyErr_SetString(PyExc_MemoryError, "cipher_final");
         return NULL;
     }
-    EVP_CipherFinal(ctx, (unsigned char *)obuf, &olen);
+    if (!EVP_CipherFinal(ctx, (unsigned char *)obuf, &olen)) {
+        PyMem_Free(obuf);
+        PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
     ret = PyString_FromStringAndSize(obuf, olen);
     PyMem_Free(obuf);
     return ret;
@@ -385,7 +401,10 @@ PyObject *sign_update(EVP_MD_CTX *ctx, PyObject *blob) {
     if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
         return NULL;
 
-    EVP_SignUpdate(ctx, buf, len);
+    if (!EVP_SignUpdate(ctx, buf, len)) {
+        PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -467,7 +486,7 @@ int pkey_assign_rsa(EVP_PKEY *pkey, RSA *rsa) {
     return EVP_PKEY_assign_RSA(pkey, rsa);
 }
 
-PyObject * pkey_as_der(EVP_PKEY *pkey){
+PyObject *pkey_as_der(EVP_PKEY *pkey) {
     unsigned char * pp = NULL;
     int len;
     PyObject * der;
