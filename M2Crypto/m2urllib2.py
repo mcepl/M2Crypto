@@ -22,6 +22,7 @@ class HTTPSHandler(AbstractHTTPHandler):
         AbstractHTTPHandler.__init__(self)
 
         if ssl_context is not None:
+            assert isinstance(ssl_context, SSL.Context), ssl_context
             self.ctx = ssl_context
         else:
             self.ctx = SSL.Context()

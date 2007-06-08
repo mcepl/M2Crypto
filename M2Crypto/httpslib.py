@@ -38,7 +38,7 @@ class HTTPSConnection(HTTPConnection):
             raise IllegalKeywordArgument()
         try:
             self.ssl_ctx = ssl['ssl_context']
-            assert isinstance(self.ssl_ctx, SSL.Context)
+            assert isinstance(self.ssl_ctx, SSL.Context), self.ssl_ctx
         except KeyError:
             self.ssl_ctx = SSL.Context('sslv23')
         HTTPConnection.__init__(self, host, port, strict)
