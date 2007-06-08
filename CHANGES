@@ -4,6 +4,10 @@
 - X509_Store_Context.get1_chain added
 - X509_Extension.get_value accepts flag and indent parameters.
 - support multiple dNSName fields in subjectAltName
+- Checking for erroneous returns from more OpenSSL EVP_* functions, which
+  means that certain things that used to fail silently will now raise an
+  exception; affected m2 functions are: digest_final, cipher_init,
+  cipher_update, cipher_final and sign_update
 - Fixed threading regressions introduced in 0.16,
   by Aaron Reizes and Keith Jackson
 - m2xmlrpclib.py fixed to work with Python 2.5, by Miloslav Trmac
