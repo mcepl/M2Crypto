@@ -5,7 +5,7 @@ Copyright (c) 2004-2007 Open Source Applications Foundation.
 All rights reserved.
 """
 
-from M2Crypto import util, EVP
+from M2Crypto import util, EVP, m2
 import re
 
 class SSLVerificationError(Exception):
@@ -93,16 +93,28 @@ class Checker:
             except LookupError:
                 pass
 
-            # commonName=somehost
+            # commonName=somehost[, ...]*
             if not self.useSubjectAltNameOnly and not hostValidationPassed:
-                try:
-                    commonName = peerCert.get_subject().CN
-                    if not self._match(self.host, commonName):
-                        raise WrongHost(expectedHost=self.host,
-                                        actualHost=commonName,
-                                        fieldName='commonName')
-                except AttributeError:
+                hasCommonName = False
+                commonNames = ''
+                for entry in peerCert.get_subject().get_entries_by_nid(m2.NID_commonName):
+                    hasCommonName = True
+                    commonName = entry.get_data().as_text()
+                    if not commonNames:
+                        commonNames = commonName
+                    else:
+                        commonNames += ',' + commonName
+                    if self._match(self.host, commonName):
+                        hostValidationPassed = True
+                        break
+
+                if not hasCommonName:
                     raise WrongCertificate('no commonName in peer certificate')
+
+                if not hostValidationPassed:
+                    raise WrongHost(expectedHost=self.host,
+                                    actualHost=commonNames,
+                                    fieldName='commonName')
 
         return True
 

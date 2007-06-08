@@ -3,7 +3,7 @@
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.
 
 Portions created by Open Source Applications Foundation (OSAF) are
-Copyright (C) 2004-2005 OSAF. All Rights Reserved.
+Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 Author: Heikki Toivonen
 """
 
@@ -177,11 +177,19 @@ class X509_Name_Entry:
         return self.x509_name_entry
 
     def set_object(self, asn1obj):
-        return m2.x509_name_entry_set_object( self.x509_name_entry, asn1obj._ptr() )
+        return m2.x509_name_entry_set_object(self.x509_name_entry,
+                                             asn1obj._ptr())
+
+    def get_object(self):
+        return ASN1.ASN1_Object(m2.x509_name_entry_get_object(self.x509_name_entry))
+        
+    def get_data(self):
+        return ASN1.ASN1_String(m2.x509_name_entry_get_data(self.x509_name_entry))
 
     def create_by_txt( self, field, type, entry, len):
-        return m2.x509_name_entry_create_by_txt( self.x509_name_entry._ptr(), field, type, entry, len )
-
+        return m2.x509_name_entry_create_by_txt(self.x509_name_entry._ptr(),
+                                                field, type, entry, len)
+    
 
 class X509_Name:
     """
@@ -247,6 +255,15 @@ class X509_Name:
 
     def __len__(self):
         return m2.x509_name_entry_count(self.x509_name)
+    
+    def __getitem__(self, idx):
+        if not 0 <= idx < self.entry_count():
+            raise IndexError("index out of range")
+        return X509_Name_Entry(m2.x509_name_get_entry(self.x509_name, idx))
+
+    def __iter__(self):
+        for i in xrange(self.entry_count()):
+            yield self[i]
 
     def _ptr(self):
         #assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error" 
@@ -258,6 +275,20 @@ class X509_Name:
 
     def entry_count( self ):
         return m2.x509_name_entry_count( self.x509_name )
+    
+    def get_entries_by_nid(self, nid):
+        ret = []
+        lastpos = -1
+
+        while True:
+            lastpos = m2.x509_name_get_index_by_nid(self.x509_name, nid,
+                                                    lastpos)
+            if lastpos == -1:
+                break
+            
+            ret.append(self[lastpos])
+        
+        return ret
     
     def as_text(self, indent=0, flags=m2.XN_FLAG_COMPAT):
         """
