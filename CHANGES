@@ -2,7 +2,7 @@
 ----
 - Added EVP.pbkdf2 to derive key from password
 - X509_Store_Context.get1_chain added
-- Added back PKCS7.get0_signers
+- Added back PKCS7.get0_signers (was removed in 0.16)
 - X509_Extension.get_value accepts flag and indent parameters.
 - support multiple dNSName fields in subjectAltName
 - Checking for erroneous returns from more OpenSSL EVP_* functions, which
