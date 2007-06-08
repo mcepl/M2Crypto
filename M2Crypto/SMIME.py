@@ -55,6 +55,11 @@ class PKCS7:
     def write_der(self, bio):
         return m2.pkcs7_write_bio_der(self.pkcs7, bio._ptr())
 
+    def get0_signers(self, certs, flags = 0):      
+        return X509.X509_Stack(m2.pkcs7_get0_signers(self.pkcs7,
+                                                     certs.stack, flags), 1)
+
+
 def load_pkcs7(p7file):
     bio = m2.bio_new_file(p7file, 'r')
     if bio is None:
