@@ -9,6 +9,9 @@
   means that certain things that used to fail silently will now raise an
   exception; affected m2 functions are: digest_final, cipher_init,
   cipher_update, cipher_final and sign_update
+- If a subjectAltName extension of type dNSName is present in peer certificate,
+  use only the dNSNames when checking peer certificate hostname, as specified
+  by RFC 2818. If no dNSNames are present, use subject commonName.
 - Fixed threading regressions introduced in 0.16,
   by Aaron Reizes and Keith Jackson
 - m2xmlrpclib.py fixed to work with Python 2.5, by Miloslav Trmac

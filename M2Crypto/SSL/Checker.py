@@ -80,6 +80,7 @@ class Checker:
 
         if self.host:
             hostValidationPassed = False
+            self.useSubjectAltNameOnly = False
 
             # subjectAltName=DNS:somehost[, ...]*
             try:
@@ -93,7 +94,7 @@ class Checker:
                 pass
 
             # commonName=somehost
-            if not hostValidationPassed:
+            if not self.useSubjectAltNameOnly and not hostValidationPassed:
                 try:
                     commonName = peerCert.get_subject().CN
                     if not self._match(self.host, commonName):
@@ -116,6 +117,8 @@ class Checker:
         True
         >>> check._splitSubjectAltName(host='my.example.com', subjectAltName='DNS:m*ample.com')
         False
+        >>> check.useSubjectAltNameOnly
+        True
         >>> check._splitSubjectAltName(host='my.example.com', subjectAltName='DNS:m*ample.com, othername:<unsupported>')
         False
         >>> check._splitSubjectAltName(host='my.example.com', subjectAltName='DNS:m*ample.com, DNS:my.example.org')
@@ -124,10 +127,20 @@ class Checker:
         True
         >>> check._splitSubjectAltName(host='my.example.com', subjectAltName='DNS:my.example.com, DNS:my.example.org')
         True
+        >>> check.useSubjectAltNameOnly
+        True
+        >>> check._splitSubjectAltName(host='my.example.com', subjectAltName='')
+        False
+        >>> check._splitSubjectAltName(host='my.example.com', subjectAltName='othername:<unsupported>')
+        False
+        >>> check.useSubjectAltNameOnly
+        False
         """
+        self.useSubjectAltNameOnly = False
         for certHost in subjectAltName.split(','):
             certHost = certHost.lower().strip()
             if certHost[:4] == 'dns:':
+                self.useSubjectAltNameOnly = True
                 if self._match(host, certHost[4:]):
                     return True
         return False
