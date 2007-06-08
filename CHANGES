@@ -2,9 +2,12 @@
 ----
 - Added EVP.pbkdf2 to derive key from password
 - X509_Store_Context.get1_chain added
+- Added methods to get X509_Name_Entry objects from X509_Name, which allows
+  for example enumerating through all commonName fields
 - Added back PKCS7.get0_signers (was removed in 0.16)
 - X509_Extension.get_value accepts flag and indent parameters.
 - support multiple dNSName fields in subjectAltName
+- support multiple commonName fields for SSL peer hostname checking
 - Checking for erroneous returns from more OpenSSL EVP_* functions, which
   means that certain things that used to fail silently will now raise an
   exception; affected m2 functions are: digest_final, cipher_init,

@@ -108,12 +108,32 @@ class X509TestCase(unittest.TestCase):
         n.add_entry_by_txt(field="CN", type=ASN1.MBSTRING_ASC,
                            entry="Proxy", len=-1, loc=-1, set=0)
         assert len(n) == 12, len(n)
+        assert n.entry_count() == 12, n.entry_count()
         assert n.as_text() == 'C=US, ST=State or Province, L=locality name, O=orhanization name, OU=org unit, CN=common name/emailAddress=bob@example.com/serialNumber=1234, SN=surname, GN=given name, GN=name given, CN=Proxy', '"%s"' % n.as_text()
 
         self.assertRaises(AttributeError, n.__getattr__, 'foobar')
         n.foobar = 1
         assert n.foobar == 1, n.foobar
-                           
+        
+        # X509_Name_Entry tests
+        l = 0
+        for entry in n:
+            assert isinstance(entry, X509.X509_Name_Entry), entry
+            assert isinstance(entry.get_object(), ASN1.ASN1_Object), entry
+            assert isinstance(entry.get_data(), ASN1.ASN1_String), entry
+            l += 1
+        assert l == 12, l
+        
+        l = 0
+        for cn in n.get_entries_by_nid(m2.NID_commonName):
+            assert isinstance(cn, X509.X509_Name_Entry), cn
+            assert isinstance(cn.get_object(), ASN1.ASN1_Object), cn
+            data = cn.get_data()
+            assert isinstance(data, ASN1.ASN1_String), cn
+            t = data.as_text()
+            assert t == "common name" or t == "Proxy", t
+            l += 1
+        assert l == 2, l
                            
     def test_mkreq(self):
         (req, _) = self.mkreq(512)

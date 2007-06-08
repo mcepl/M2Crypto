@@ -142,6 +142,8 @@ extern int X509_NAME_print_ex(BIO *, X509_NAME *, int, unsigned long);
 extern int X509_NAME_print_ex_fp(FILE *, X509_NAME *, int, unsigned long);
 %rename(x509_name_hash) X509_NAME_hash;
 extern unsigned long X509_NAME_hash(X509_NAME *);
+%rename(x509_name_get_index_by_nid) X509_NAME_get_index_by_NID;
+extern int X509_NAME_get_index_by_NID(X509_NAME *, int, int);
 
 %rename(x509_name_entry_new) X509_NAME_ENTRY_new;
 extern X509_NAME_ENTRY *X509_NAME_ENTRY_new( void );
