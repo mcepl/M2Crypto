@@ -56,6 +56,10 @@ class SMIMETestCase(unittest.TestCase):
         v = s.verify(p7)
         assert v == self.cleartext
     
+        t = p7.get0_signers(sk)
+        assert len(t) == 1
+        assert t[0].as_pem() == x509.as_pem(), t[0].as_text()
+
     def test_verifyBad(self):
         s = SMIME.SMIME()
         

@@ -662,7 +662,7 @@ class X509_Stack:
             num = m2.sk_x509_num(self.stack)
             for i in range(num):
                 self.pystack.append(X509(m2.sk_x509_value(self.stack, i),
-                                         _pyfree=_pyfree))
+                                         _pyfree=0))
         else:
             self.stack = m2.sk_x509_new_null()
             self._pyfree = 1
