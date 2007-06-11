@@ -149,16 +149,35 @@ extern int X509_NAME_get_index_by_NID(X509_NAME *, int, int);
 extern X509_NAME_ENTRY *X509_NAME_ENTRY_new( void );
 %rename(x509_name_entry_free) X509_NAME_ENTRY_free;
 extern void X509_NAME_ENTRY_free( X509_NAME_ENTRY *);
+/*XXX This is probably bogus:*/
 %rename(x509_name_entry_create_by_nid) X509_NAME_ENTRY_create_by_NID;
 extern X509_NAME_ENTRY *X509_NAME_ENTRY_create_by_NID( X509_NAME_ENTRY **, int, int, unsigned char *, int);
 %rename(x509_name_entry_set_object) X509_NAME_ENTRY_set_object;
 extern int X509_NAME_ENTRY_set_object( X509_NAME_ENTRY *, ASN1_OBJECT *);
-%rename(x509_name_entry_set_data) X509_NAME_ENTRY_set_data;
-extern int X509_NAME_ENTRY_set_data( X509_NAME_ENTRY *, int, CONST unsigned char *, int);
 %rename(x509_name_entry_get_object) X509_NAME_ENTRY_get_object;
 extern ASN1_OBJECT *X509_NAME_ENTRY_get_object(X509_NAME_ENTRY *);
 %rename(x509_name_entry_get_data) X509_NAME_ENTRY_get_data;
 extern ASN1_STRING *X509_NAME_ENTRY_get_data(X509_NAME_ENTRY *);
+
+%typemap(in) (CONST unsigned char *, int) { 
+    if (PyString_Check($input)) {
+        Py_ssize_t len;
+
+        $1 = PyString_AsString($input); 
+        len = PyString_Size($input);
+        if (len > INT_MAX) {
+            PyErr_SetString(PyExc_ValueError, "object too large");
+            return NULL;
+        }
+        $2 = len;
+    } else {
+        PyErr_SetString(PyExc_TypeError, "expected string");
+        return NULL;
+    }
+}
+%rename(x509_name_entry_set_data) X509_NAME_ENTRY_set_data;
+extern int X509_NAME_ENTRY_set_data( X509_NAME_ENTRY *, int, CONST unsigned char *, int);
+%typemap(in) (CONST unsigned char *, int);
 
 %rename(x509_req_new) X509_REQ_new;
 extern X509_REQ * X509_REQ_new();
