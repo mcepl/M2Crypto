@@ -129,12 +129,15 @@ class X509TestCase(unittest.TestCase):
             assert isinstance(cn, X509.X509_Name_Entry), cn
             assert isinstance(cn.get_object(), ASN1.ASN1_Object), cn
             data = cn.get_data()
-            assert isinstance(data, ASN1.ASN1_String), cn
+            assert isinstance(data, ASN1.ASN1_String), data
             t = data.as_text()
             assert t == "common name" or t == "Proxy", t
             l += 1
         assert l == 2, l
-                           
+
+        cn.set_data("Hello There!")
+        assert cn.get_data().as_text() == "Hello There!", cn.get_data().as_text()
+
     def test_mkreq(self):
         (req, _) = self.mkreq(512)
         req.save_pem('tests/tmp_request.pem')

@@ -180,6 +180,10 @@ class X509_Name_Entry:
         return m2.x509_name_entry_set_object(self.x509_name_entry,
                                              asn1obj._ptr())
 
+    def set_data(self, data, type=ASN1.MBSTRING_ASC):
+        return m2.x509_name_entry_set_data(self.x509_name_entry,
+                                           type, data)
+
     def get_object(self):
         return ASN1.ASN1_Object(m2.x509_name_entry_get_object(self.x509_name_entry))
         
