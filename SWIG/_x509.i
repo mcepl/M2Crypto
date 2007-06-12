@@ -198,8 +198,10 @@ extern int X509_REQ_verify(X509_REQ *, EVP_PKEY *);
 %rename(x509_req_sign) X509_REQ_sign;
 extern int X509_REQ_sign(X509_REQ *, EVP_PKEY *, const EVP_MD *);
 
-%rename(i2d_x509) i2d_X509_bio;
+%rename(i2d_x509_bio) i2d_X509_bio;
 extern int i2d_X509_bio(BIO *, X509 *);
+%rename(i2d_x509_req_bio) i2d_X509_REQ_bio;
+extern int i2d_X509_REQ_bio(BIO *, X509_REQ *);
 
 %rename(x509_store_new) X509_STORE_new;
 extern X509_STORE *X509_STORE_new(void);
@@ -306,6 +308,30 @@ void x509_init(PyObject *x509_err) {
 
 X509 *x509_read_pem(BIO *bio) {
     return PEM_read_bio_X509(bio, NULL, NULL, NULL);
+}
+
+X509 *d2i_x509(BIO *bio) {
+    return d2i_X509_bio(bio, NULL);
+}
+
+X509_REQ *d2i_x509_req(BIO *bio) {
+    return d2i_X509_REQ_bio(bio, NULL);
+}
+
+PyObject *i2d_x509(X509 *x)
+{
+    int len;
+    PyObject *ret = NULL;
+    unsigned char *buf = NULL;
+    len = i2d_X509(x, &buf);
+    if (len < 0) {
+        PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+    }
+    else {     
+        ret = PyString_FromStringAndSize(buf, len);
+        OPENSSL_free(buf);
+    }
+    return ret;
 }
 
 X509_REQ *x509_req_read_pem(BIO *bio) {

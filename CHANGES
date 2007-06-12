@@ -19,9 +19,11 @@
   by RFC 2818. If no dNSNames are present, use subject commonName.
 - Fixed threading regressions introduced in 0.16,
   by Aaron Reizes and Keith Jackson
+- Added SSL session caching support to HTTPSConnection, by Keith Jackson
+- Added the ability to save and load DER formatted X509 certificates and
+  certificate requests, by Keith Jackson
 - m2xmlrpclib.py fixed to work with Python 2.5, by Miloslav Trmac
 - 64-bit correctness fixes, by Miloslav Trmac
-- Added SSL session caching support to HTTPSConnection, by Keith Jackson
 - Fixed build problem affecting certain systems where OpenSSL was built without
   EC support
 - M2CRYPTO_TEST_SSL_SLEEP environment variable controls how long to sleep

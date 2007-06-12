@@ -11,7 +11,7 @@ Author: Heikki Toivonen
 
 import unittest
 import os, time, base64, sys
-from M2Crypto import X509, EVP, RSA, Rand, ASN1, m2, util
+from M2Crypto import X509, EVP, RSA, Rand, ASN1, m2, util, BIO
 
 class X509TestCase(unittest.TestCase):
 
@@ -143,8 +143,23 @@ class X509TestCase(unittest.TestCase):
         req.save_pem('tests/tmp_request.pem')
         req2 = X509.load_request('tests/tmp_request.pem')
         os.remove('tests/tmp_request.pem')
+        req.save('tests/tmp_request.pem')
+        req3 = X509.load_request('tests/tmp_request.pem')
+        os.remove('tests/tmp_request.pem')
+        req.save('tests/tmp_request.der', format=X509.FORMAT_DER)
+        req4 = X509.load_request('tests/tmp_request.der',
+                format=X509.FORMAT_DER)
+        os.remove('tests/tmp_request.der')
         assert req.as_pem() == req2.as_pem()
         assert req.as_text() == req2.as_text()
+        assert req.as_der() == req2.as_der()
+        assert req.as_pem() == req3.as_pem()
+        assert req.as_text() == req3.as_text()
+        assert req.as_der() == req3.as_der()
+        assert req.as_pem() == req4.as_pem()
+        assert req.as_text() == req4.as_text()
+        assert req.as_der() == req4.as_der()
+
 
     def test_mkcert(self):
         req, pk = self.mkreq(512)
@@ -308,6 +323,74 @@ class X509TestCase(unittest.TestCase):
         expected = '128858B5222A5C78397530A5706233A9EB470AC4'
         assert fp == expected, '%s != %s' % (fp, expected)
 
+    def test_load_der_string(self):
+        f = open('tests/x509.der')
+        x509 = X509.load_cert_der_string(''.join(f.readlines()))
+        fp = x509.get_fingerprint('sha1')
+        expected = '128858B5222A5C78397530A5706233A9EB470AC4'
+        assert fp == expected, '%s != %s' % (fp, expected)
+
+    def test_save_der_string(self):
+        x509 = X509.load_cert('tests/x509.pem')
+        s = x509.as_der()
+        f = open('tests/x509.der')
+        s2 = f.read()
+        f.close()
+        assert s == s2, '%s != %s' % (s, s2)
+
+    def test_load(self):
+        x509 = X509.load_cert('tests/x509.pem')
+        x5092 = X509.load_cert('tests/x509.der', format=X509.FORMAT_DER)
+        assert x509.as_text() == x5092.as_text()
+        assert x509.as_pem() == x5092.as_pem()
+        assert x509.as_der() == x5092.as_der()
+        return
+    
+    def test_load_bio(self):
+        bio = BIO.openfile('tests/x509.pem')
+        bio2 = BIO.openfile('tests/x509.der')
+        x509 = X509.load_cert_bio(bio)
+        x5092 = X509.load_cert_bio(bio2, format=X509.FORMAT_DER)
+        assert x509.as_text() == x5092.as_text()
+        assert x509.as_pem() == x5092.as_pem()
+        assert x509.as_der() == x5092.as_der()
+        return
+
+    def test_load_string(self):
+        f = open('tests/x509.pem')
+        s = f.read()
+        f.close()
+        f2 = open('tests/x509.der')
+        s2 = f2.read()
+        f2.close()
+        x509 = X509.load_cert_string(s)
+        x5092 = X509.load_cert_string(s2, X509.FORMAT_DER)
+        assert x509.as_text() == x5092.as_text()
+        assert x509.as_pem() == x5092.as_pem()
+        assert x509.as_der() == x5092.as_der()
+        return
+
+    def test_save(self):
+        x509 = X509.load_cert('tests/x509.pem')
+        f = open('tests/x509.pem', 'r')
+        lTmp = f.readlines()
+        x509_pem = ''.join(lTmp[43:59])
+        f.close()
+        f = open('tests/x509.der', 'rb')
+        x509_der = f.read()
+        f.close()
+        x509.save('tests/tmpcert.pem')
+        f = open('tests/tmpcert.pem')
+        s = f.read()
+        f.close()
+        assert s == x509_pem, '%s != %s' % (s, x509_pem)
+        os.remove('tests/tmpcert.pem')
+        x509.save('tests/tmpcert.der', format=X509.FORMAT_DER)
+        f = open('tests/tmpcert.der', 'rb')
+        s = f.read()
+        f.close()
+        assert s == x509_der, '%s != %s' % (s, x509_der)
+        os.remove('tests/tmpcert.der')
 
 class X509_StackTestCase(unittest.TestCase):
     
