@@ -22,7 +22,7 @@ class ASN1TestCase(unittest.TestCase):
         # #040B68656C6C6F207468657265
         #      h e l l o   t h e r e 
         m2.asn1_string_set(asn1ptr, text)
-        a = ASN1.ASN1_String(asn1ptr)
+        a = ASN1.ASN1_String(asn1ptr, 1)
         assert a.as_text() == 'hello there', a.as_text()
         assert a.as_text(flags=m2.ASN1_STRFLGS_RFC2253) == '#040B68656C6C6F207468657265', a.as_text(flags=m2.ASN1_STRFLGS_RFC2253)
 

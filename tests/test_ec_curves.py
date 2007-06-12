@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+# XXX memory leaks
 """
     Unit tests for M2Crypto.EC, the curves
     
@@ -135,7 +135,7 @@ class ECCurveTests(unittest.TestCase):
         assert ec.verify_dsa(self.data, r, s)
         assert not ec.verify_dsa(self.data, s, r)            
 
-    def test_ec_curves_ECDSA(self):        
+    def test_ec_curves_ECDSA(self): # XXX leaks 5200 bytes
         for curveName, curveLen in curves:
             self.sign_verify_ecdsa(curveName, curveLen)
 
