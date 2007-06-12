@@ -11,6 +11,9 @@ Author: Heikki Toivonen
 from M2Crypto import ASN1, BIO, Err, EVP, util
 import m2
 
+FORMAT_DER = 0
+FORMAT_PEM = 1
+
 class X509Error(Exception): pass
 
 m2.x509_init(X509Error)
@@ -343,9 +346,7 @@ class X509:
 
     def as_der(self):
         assert m2.x509_type_check(self.x509), "'x509' type error"
-        buf=BIO.MemoryBuffer()
-        m2.i2d_x509(buf.bio_ptr(), self.x509)
-        return buf.read_all()
+        return m2.i2d_x509(self.x509)
 
     def as_pem(self):
         buf=BIO.MemoryBuffer()
@@ -358,6 +359,26 @@ class X509:
         """
         bio=BIO.openfile(filename, 'wb')
         return m2.x509_write_pem(bio.bio_ptr(), self.x509)
+
+    def save(self, filename, format=FORMAT_PEM):
+        """
+        Saves X.509 certificate to a file. Default output
+        format is PEM.
+
+        @type filename: string
+        @param filename: Name of the file the cert will be saved to.
+        @type format: int
+        @param format: Controls what output format is used to save the cert.
+        Either FORMAT_PEM or FORMAT_DER to save in PEM or DER format.
+        Raises a ValueError if an unknow format is used.
+        """
+        bio = BIO.openfile(filename, 'wb')
+        if format == FORMAT_PEM:
+            return m2.x509_write_pem(bio.bio_ptr(), self.x509)
+        elif format == FORMAT_DER:
+            return m2.i2d_x509_bio(bio.bio_ptr(), self.x509)
+        else:
+            raise ValueError("Unknown filetype. Must be either FORMAT_PEM or FORMAT_DER")
 
     def set_version(self, version):
         """
@@ -569,28 +590,72 @@ class X509:
         digest = md.final()
         return hex(util.octx_to_num(digest))[2:-1].upper()
 
-def load_cert(file):
+def load_cert(file, format=FORMAT_PEM):
     """
     Load certificate from file.
 
     @type file: string
-    @param file: Name of file containing certificate in PEM format.
+    @param file: Name of file containing certificate in either DER or PEM format.
+    @type format: int, either FORMAT_PEM or FORMAT_DER
+    @param format: Describes the format of the file to be loaded, either PEM or DER.
 
     @rtype: M2Crypto.X509.X509
     @return: M2Crypto.X509.X509 object.
     """
     bio = BIO.openfile(file)
-    return load_cert_bio(bio)
+    if format == FORMAT_PEM:
+        return load_cert_bio(bio)
+    elif format == FORMAT_DER:
+        return X509(m2.d2i_x509(bio._ptr()), _pyfree=1)
+    else:
+        raise ValueError("Unknown format. Must be either FORMAT_DER or FORMAT_PEM")
 
+def load_cert_bio(bio, format=FORMAT_PEM):
+    """
+    Load certificate from a bio.
 
-def load_cert_bio(bio):
-    return X509(m2.x509_read_pem(bio._ptr()), 1)
+    @type bio: M2Crypto.BIO.BIO
+    @param bio: BIO pointing at a certificate in either DER or PEM format.
+    @type format: int, either FORMAT_PEM or FORMAT_DER
+    @param format: Describes the format of the cert to be loaded, either PEM or DER.
 
+    @rtype: M2Crypto.X509.X509
+    @return: M2Crypto.X509.X509 object.
+    """
+    if format == FORMAT_PEM:
+        return X509(m2.x509_read_pem(bio._ptr()), 1)
+    elif format == FORMAT_DER:
+        return X509(m2.d2i_x509(bio._ptr()), _pyfree=1)
+    else:
+        raise ValueError("Unknown format. Must be either FORMAT_DER or FORMAT_PEM")
 
-def load_cert_string(string):
+def load_cert_string(string, format=FORMAT_PEM):
+    """
+    Load certificate from a string.
+
+    @type string: string
+    @param string: String containing a certificate in either DER or PEM format.
+    @type format: int, either FORMAT_PEM or FORMAT_DER
+    @param format: Describes the format of the cert to be loaded, either PEM or DER.
+
+    @rtype: M2Crypto.X509.X509
+    @return: M2Crypto.X509.X509 object.
+    """
     bio = BIO.MemoryBuffer(string)
-    return load_cert_bio(bio)
+    return load_cert_bio(bio, format)
 
+def load_cert_der_string(string):
+    """
+    Load certificate from a string.
+
+    @type string: string
+    @param string: String containing a certificate in DER format.
+
+    @rtype: M2Crypto.X509.X509
+    @return: M2Crypto.X509.X509 object.
+    """
+    bio = BIO.MemoryBuffer(string)
+    return X509(m2.d2i_x509(bio._ptr()), _pyfree=1)
 
 class X509_Store_Context:
     """
@@ -792,9 +857,34 @@ class Request:
         m2.x509_req_write_pem(buf.bio_ptr(), self.req)
         return buf.read_all()
 
+    def as_der(self):
+        buf = BIO.MemoryBuffer()
+        m2.i2d_x509_req_bio(buf.bio_ptr(), self.req)
+        return buf.read_all()
+
     def save_pem(self, filename):
         bio=BIO.openfile(filename, 'wb')
         return m2.x509_req_write_pem(bio.bio_ptr(), self.req)
+    
+    def save(self, filename, format=FORMAT_PEM):
+        """
+        Saves X.509 certificate request to a file. Default output
+        format is PEM.
+
+        @type filename: string
+        @param filename: Name of the file the request will be saved to.
+        @type format: int
+        @param format: Controls what output format is used to save the request.
+        Either FORMAT_PEM or FORMAT_DER to save in PEM or DER format.
+        Raises ValueError if an unknown format is used.
+        """
+        bio = BIO.openfile(filename, 'wb')
+        if format == FORMAT_PEM:
+            return m2.x509_req_write_pem(bio.bio_ptr(), self.req)
+        elif format == FORMAT_DER:
+            return m2.i2d_x509_req_bio(bio.bio_ptr(), self.req)
+        else:
+            raise ValueError("Unknown filetype. Must be either FORMAT_DER or FORMAT_PEM")
 
     def get_pubkey(self):
         """
@@ -868,18 +958,25 @@ class Request:
         return m2.x509_req_sign(self.req, pkey.pkey, mda())
 
 
-def load_request(file):
+def load_request(file, format=FORMAT_PEM):
     """
     Load certificate request from file.
 
     @type file: string
-    @param file: Name of file containing certificate request in PEM format.
+    @param file: Name of file containing certificate request in either PEM or DER format.
+    @type format: int, either FORMAT_PEM or FORMAT_DER
+    @param format: Describes the format of the file to be loaded, either PEM or DER.
 
     @rtype: M2Crypto.X509.Request
     @return: M2Crypto.X509.Request object.
     """
     f=BIO.openfile(file)
-    cptr=m2.x509_req_read_pem(f.bio_ptr())
+    if format == FORMAT_PEM:
+        cptr=m2.x509_req_read_pem(f.bio_ptr())
+    elif format == FORMAT_DER:
+        cptr = m2.d2i_x509_req(f.bio_ptr())
+    else:
+        raise ValueError("Unknown filetype. Must be either FORMAT_PEM or FORMAT_DER")
     f.close()
     if cptr is None:
         raise Err.get_error()
