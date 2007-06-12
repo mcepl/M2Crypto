@@ -17,6 +17,7 @@
 - If a subjectAltName extension of type dNSName is present in peer certificate,
   use only the dNSNames when checking peer certificate hostname, as specified
   by RFC 2818. If no dNSNames are present, use subject commonName.
+- Fixed memory leak in m2.ec_key_new_by_curve_name
 - Fixed threading regressions introduced in 0.16,
   by Aaron Reizes and Keith Jackson
 - Added SSL session caching support to HTTPSConnection, by Keith Jackson

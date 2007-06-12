@@ -143,11 +143,11 @@ EC_KEY* ec_key_new_by_curve_name(int nid)
     EC_GROUP_set_asn1_flag(group, asn1_flag);
     EC_GROUP_set_point_conversion_form(group, form);
     ret = EC_KEY_set_group(key, group);
+    EC_GROUP_free(group);
     if (ret == 0)
     {
         /* EC_KEY_set_group only returns 0 or 1, and does not set error. */
         PyErr_SetString(_ec_err, "cannot set key's group");
-        EC_GROUP_free(group);
         EC_KEY_free(key);
         return NULL;
     }
