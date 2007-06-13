@@ -555,7 +555,7 @@ class X509:
         if pkey:
             return m2.x509_verify(self.x509, pkey.pkey)
         else:
-            return m2.x509_verify(self.x509, m2.x509_get_pubkey(self.x509))
+            return m2.x509_verify(self.x509, self.get_pubkey().pkey)
             
     def check_ca(self):
         """
