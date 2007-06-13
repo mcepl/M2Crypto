@@ -43,8 +43,8 @@ class ECDSATestCase(unittest.TestCase):
         self.assertRaises(EC.ECError, ec.sign_dsa, self.data)
         ec = EC.load_key(self.privkey)
         r, s = ec.sign_dsa(self.data)
-        assert ec.verify_dsa(self.data, r, s)     # XXX leaks 40 bytes
-        assert not ec.verify_dsa(self.data, s, r) # XXX leaks 40 bytes
+        assert ec.verify_dsa(self.data, r, s)
+        assert not ec.verify_dsa(self.data, s, r)
 
     def test_sign_dsa_asn1(self):
         ec = EC.load_key(self.privkey)
@@ -56,8 +56,8 @@ class ECDSATestCase(unittest.TestCase):
         ec = EC.load_key(self.privkey)
         r, s = ec.sign_dsa(self.data)
         ec2 = EC.load_pub_key(self.pubkey)
-        assert ec2.verify_dsa(self.data, r, s)     # XXX leaks 40 bytes
-        assert not ec2.verify_dsa(self.data, s, r) # XXX leaks 40 bytes
+        assert ec2.verify_dsa(self.data, r, s)
+        assert not ec2.verify_dsa(self.data, s, r)
         
     def test_genparam(self):
         ec = EC.gen_params(EC.NID_sect233k1)
