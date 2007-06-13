@@ -275,16 +275,12 @@ int ecdsa_verify(EC_KEY *key, PyObject *value, PyObject *r, PyObject *s) {
         PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
         return -1;
     }
-    RSA_free(sig->r);
-    RSA_free(sig->s);
-    sig->r = NULL;
-    sig->s = NULL;
-    if (!(sig->r = BN_mpi2bn((unsigned char *)rbuf, rlen, NULL))) {
+    if (!BN_mpi2bn((unsigned char *)rbuf, rlen, sig->r)) {
         PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
         ECDSA_SIG_free(sig);
         return -1;
     }
-    if (!(sig->s = BN_mpi2bn((unsigned char *)sbuf, slen, NULL))) {
+    if (!BN_mpi2bn((unsigned char *)sbuf, slen, sig->s)) {
         PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
         ECDSA_SIG_free(sig);
         return -1;
