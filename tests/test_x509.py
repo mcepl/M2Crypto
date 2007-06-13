@@ -313,7 +313,7 @@ class X509TestCase(unittest.TestCase):
 
         proxycert.set_subject_name(subject_name)
         pci_ext = X509.new_extension("proxyCertInfo", 
-                                     "critical,language:Inherit all", 1, 0)
+                                     "critical,language:Inherit all", 1) # XXX leaks 8 bytes
         proxycert.add_ext(pci_ext)
         return proxycert
     
@@ -394,7 +394,7 @@ class X509TestCase(unittest.TestCase):
 
 class X509_StackTestCase(unittest.TestCase):
     
-    def test_make_stack_from_der(self):
+    def test_make_stack_from_der(self): # XXX leaks 92/2518 bytes
         f = open("tests/der_encoded_seq.b64")
         b64 = f.read(1304)
         seq = base64.decodestring(b64)
@@ -404,7 +404,7 @@ class X509_StackTestCase(unittest.TestCase):
         subject = cert.get_subject() 
         assert str(subject) == "/DC=org/DC=doegrids/OU=Services/CN=host/bosshog.lbl.gov"
     
-    def test_make_stack_check_num(self):
+    def test_make_stack_check_num(self): # XXX leaks 92/2518 bytes
         f = open("tests/der_encoded_seq.b64")
         b64 = f.read(1304)
         seq = base64.decodestring(b64)
@@ -440,7 +440,7 @@ class X509_StackTestCase(unittest.TestCase):
         assert str(cert_subject1) == str(cert_subject2)
         assert str(issuer_subject1) == str(issuer_subject2)
     
-    def test_as_der(self):
+    def test_as_der(self): # XXX leaks 184/4199 bytes
         stack = X509.X509_Stack()
         cert = X509.load_cert("tests/x509.pem")
         issuer = X509.load_cert("tests/ca.pem")
