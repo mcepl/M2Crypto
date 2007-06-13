@@ -573,6 +573,9 @@ make_stack_from_der_sequence(PyObject * pyEncodedString){
         return NULL;
     }
     encoded_string = PyString_AsString(pyEncodedString);
+    if (!encoded_string) {
+        return NULL;
+    }
 
     certs = ASN1_seq_unpack((unsigned char *)encoded_string, encoded_string_len, (D2ITYPE)d2i_X509, (void(*)())X509_free ); 
     if (!certs) {
