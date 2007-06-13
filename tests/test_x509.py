@@ -313,7 +313,7 @@ class X509TestCase(unittest.TestCase):
 
         proxycert.set_subject_name(subject_name)
         pci_ext = X509.new_extension("proxyCertInfo", 
-                                     "critical,language:Inherit all", 1) # XXX leaks 8 bytes
+                                     "critical,language:Inherit all", 1) # XXX leaks 8 bytes 
         proxycert.add_ext(pci_ext)
         return proxycert
     
@@ -394,7 +394,7 @@ class X509TestCase(unittest.TestCase):
 
 class X509_StackTestCase(unittest.TestCase):
     
-    def test_make_stack_from_der(self): # XXX leaks 92/2518 bytes
+    def test_make_stack_from_der(self):
         f = open("tests/der_encoded_seq.b64")
         b64 = f.read(1304)
         seq = base64.decodestring(b64)
@@ -403,8 +403,8 @@ class X509_StackTestCase(unittest.TestCase):
         
         subject = cert.get_subject() 
         assert str(subject) == "/DC=org/DC=doegrids/OU=Services/CN=host/bosshog.lbl.gov"
-    
-    def test_make_stack_check_num(self): # XXX leaks 92/2518 bytes
+
+    def test_make_stack_check_num(self):
         f = open("tests/der_encoded_seq.b64")
         b64 = f.read(1304)
         seq = base64.decodestring(b64)
@@ -440,7 +440,7 @@ class X509_StackTestCase(unittest.TestCase):
         assert str(cert_subject1) == str(cert_subject2)
         assert str(issuer_subject1) == str(issuer_subject2)
     
-    def test_as_der(self): # XXX leaks 184/4199 bytes
+    def test_as_der(self):
         stack = X509.X509_Stack()
         cert = X509.load_cert("tests/x509.pem")
         issuer = X509.load_cert("tests/ca.pem")
@@ -458,10 +458,27 @@ class X509_StackTestCase(unittest.TestCase):
         assert str(issuer_subject1) == str(issuer_subject2)
         
 
+class X509_ExtTestCase(unittest.TestCase):
+    
+    def test_ext(self):
+        # With this leaks 8 bytes:
+        name = "proxyCertInfo"
+        value = "critical,language:Inherit all"
+        # With this there are no leaks:
+        #name = "nsComment"
+        #value = "Hello"
+        critical = 1
+        
+        lhash = m2.x509v3_lhash()
+        ctx = m2.x509v3_set_conf_lhash(lhash)
+        x509_ext_ptr = m2.x509v3_ext_conf(lhash, ctx, name, value)
+        x509_ext = X509.X509_Extension(x509_ext_ptr, 1)
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(X509TestCase))
     suite.addTest(unittest.makeSuite(X509_StackTestCase))
+    #suite.addTest(unittest.makeSuite(X509_ExtTestCase))
     return suite
 
 
