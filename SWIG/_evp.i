@@ -514,6 +514,7 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
 
             bio = BIO_new(BIO_s_mem());
             if (!bio) {
+                RSA_free(rsa);
                 PyErr_SetString(PyExc_MemoryError, "pkey_get_modulus");
                 return NULL;
             }
@@ -522,12 +523,14 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
                 PyErr_SetString(PyExc_RuntimeError, 
                       ERR_error_string(ERR_get_error(), NULL));
                 BIO_free(bio);
+                RSA_free(rsa);
                 return NULL;
             }
             BIO_get_mem_ptr(bio, &bptr);
             ret = PyString_FromStringAndSize(bptr->data, bptr->length);
             BIO_set_close(bio, BIO_CLOSE);
             BIO_free(bio);
+            RSA_free(rsa);
 
             break;
 
@@ -536,6 +539,7 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
 
             bio = BIO_new(BIO_s_mem());
             if (!bio) {
+                DSA_free(dsa);
                 PyErr_SetString(PyExc_MemoryError, "pkey_get_modulus");
                 return NULL;
             }
@@ -544,12 +548,14 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
                 PyErr_SetString(PyExc_RuntimeError, 
                       ERR_error_string(ERR_get_error(), NULL));
                 BIO_free(bio);
+                DSA_free(dsa);
                 return NULL;
             }
             BIO_get_mem_ptr(bio, &bptr);
             ret = PyString_FromStringAndSize(bptr->data, bptr->length);
             BIO_set_close(bio, BIO_CLOSE);
             BIO_free(bio);
+            DSA_free(dsa);
 
             break;
             
