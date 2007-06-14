@@ -36,14 +36,15 @@ unsigned long threading_id_callback(void) {
 void threading_init(void) {
 #ifdef THREADING
     int i;
-    thread_mode = 1;
-    /*PyThread_init_thread();*/
-    for (i=0; i<CRYPTO_NUM_LOCKS; i++) {
-        lock_count[i]=0;
-        lock_cs[i]=PyThread_allocate_lock();
+    if (!thread_mode) {
+        for (i=0; i<CRYPTO_NUM_LOCKS; i++) {
+            lock_count[i]=0;
+            lock_cs[i]=PyThread_allocate_lock();
+        }
+        CRYPTO_set_id_callback(threading_id_callback);
+        CRYPTO_set_locking_callback(threading_locking_callback);
     }
-    CRYPTO_set_id_callback(threading_id_callback);
-    CRYPTO_set_locking_callback(threading_locking_callback);
+    thread_mode = 1;
 #endif
 }
 
