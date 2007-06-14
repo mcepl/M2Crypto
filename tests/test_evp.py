@@ -3,7 +3,7 @@
 """
 Unit tests for M2Crypto.EVP.
 
-Copyright (c) 2004-2005 Open Source Applications Foundation
+Copyright (c) 2004-2007 Open Source Applications Foundation
 Author: Heikki Toivonen
 """
 
@@ -127,6 +127,7 @@ class EVPTestCase(unittest.TestCase):
         mod = pkey.get_modulus()
         assert len(mod) > 0, mod
         assert len(mod.strip('0123456789ABCDEF')) == 0
+        
 
 class CipherTestCase(unittest.TestCase):
     def cipher_filter(self, cipher, inf, outf):
@@ -226,6 +227,36 @@ class CipherTestCase(unittest.TestCase):
             pbuf.close()
             cbuf.close()
             self.assertEqual(plaintext, test['PT'])
+
+
+    def test_raises(self):
+        def _cipherFilter(cipher, inf, outf):
+            while 1:
+                buf = inf.read()
+                if not buf:
+                    break
+                outf.write(cipher.update(buf))
+            outf.write(cipher.final())
+            return outf.getvalue()
+
+        def decrypt(ciphertext, key, iv, alg='aes_256_cbc'):
+            cipher = EVP.Cipher(alg=alg, key=key, iv=iv, op=0)
+            pbuf = cStringIO.StringIO()
+            cbuf = cStringIO.StringIO(ciphertext)
+            plaintext = _cipherFilter(cipher, cbuf, pbuf)
+            pbuf.close()
+            cbuf.close()
+            return plaintext
+        
+        self.assertRaises(EVP.EVPError, decrypt,
+                          unhexlify('941d3647a642fab26d9f99a195098b91252c652d07235b9db35758c401627711724637648e45cad0f1121751a1240a4134998cfdf3c4a95c72de2a2444de3f9e40d881d7f205630b0d8ce142fdaebd8d7fbab2aea3dc47f5f29a0e9b55aae59222671d8e2877e1fb5cd8ef1c427027e0'),
+                          unhexlify('5f2cc54067f779f74d3cf1f78c735aec404c8c3a4aaaa02eb1946f595ea4cddb'),
+                          unhexlify('0001efa4bd154ee415b9413a421cedf04359fff945a30e7c115465b1c780a85b65c0e45c'))
+
+        self.assertRaises(EVP.EVPError, decrypt,
+                          unhexlify('a78a510416c1a6f1b48077cc9eeb4287dcf8c5d3179ef80136c18876d774570d'),
+                          unhexlify('5cd148eeaf680d4ff933aed83009cad4110162f53ef89fd44fad09611b0524d4'),
+                          unhexlify(''))
 
 
 class PBKDF2TestCase(unittest.TestCase):
