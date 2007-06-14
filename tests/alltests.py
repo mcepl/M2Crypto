@@ -28,6 +28,7 @@ def suite():
         'tests.test_rand',
         'tests.test_rsa',
         'tests.test_smime',
+        'tests.test_threading',
         'tests.test_x509']
     if os.name == 'posix':
         modules_to_test.append('tests.test_ssl')
