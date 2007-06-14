@@ -704,7 +704,7 @@ class X509_Store_Context:
                  context goes away) stack of certificates in the chain.
         @rtype:  X509_Stack
         """
-        return X509_Stack(m2.x509_store_ctx_get1_chain(self.ctx), 1)
+        return X509_Stack(m2.x509_store_ctx_get1_chain(self.ctx), 1, 1)
         
 
 class X509_Store:
