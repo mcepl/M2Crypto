@@ -9,6 +9,11 @@ Author: Heikki Toivonen
 from M2Crypto import Err, util, BIO, RSA
 import m2
 
+class EVPError(Exception): pass
+
+m2.evp_init(EVPError)
+
+
 def pbkdf2(password, salt, iter, keylen):
     """
     Derive a key from password using PBKDF2 algorithm specified in RFC 2898.

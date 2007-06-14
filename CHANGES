@@ -12,8 +12,9 @@
 - support multiple commonName fields for SSL peer hostname checking
 - Checking for erroneous returns from more OpenSSL EVP_* functions, which
   means that certain things that used to fail silently will now raise an
-  exception; affected m2 functions are: digest_final, cipher_init,
-  cipher_update, cipher_final and sign_update
+  EVP.EVPError; affected m2 functions are: digest_final, cipher_init,
+  cipher_update, cipher_final and sign_update. sign_final will now raise
+  EVP.EVPError instead of SystemError as well.
 - If a subjectAltName extension of type dNSName is present in peer certificate,
   use only the dNSNames when checking peer certificate hostname, as specified
   by RFC 2818. If no dNSNames are present, use subject commonName.
