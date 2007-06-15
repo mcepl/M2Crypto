@@ -982,8 +982,8 @@ def suite():
     suite.addTest(unittest.makeSuite(HttpslibSSLClientTestCase)) # XXX leaks 384/45248 bytes
     suite.addTest(unittest.makeSuite(UrllibSSLClientTestCase))
     suite.addTest(unittest.makeSuite(Urllib2SSLClientTestCase)) # XXX leaks 64/8224 bytes
-    suite.addTest(unittest.makeSuite(MiscSSLClientTestCase)) # XXX leaks 456/26600 bytes
-    suite.addTest(unittest.makeSuite(TwistedSSLClientTestCase)) # XXX leaks 128/17468 bytes
+    suite.addTest(unittest.makeSuite(MiscSSLClientTestCase)) # XXX leaks 192/24672 bytes
+    suite.addTest(unittest.makeSuite(TwistedSSLClientTestCase)) # XXX leaks 128/21564 bytes
     return suite    
     
 
