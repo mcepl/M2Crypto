@@ -122,6 +122,25 @@ class _SSLBioProxy:
             self.m2_bio_free_all(self.sslBio)
 
 
+class _SSLProxy:
+    """
+    The purpose of this class is to eliminate the __del__ method from
+    TLSProtocolWrapper, and thus letting it be garbage collected.
+    """
+    
+    m2_ssl_free = m2.ssl_free
+
+    def __init__(self, ssl):
+        self.ssl = ssl
+        
+    def _ptr(self):
+        return self.ssl
+    
+    def __del__(self):
+        if self.ssl is not None:
+            self.m2_ssl_free(self.ssl)
+
+
 class TLSProtocolWrapper(ProtocolWrapper):
     """
     A SSL/TLS protocol wrapper to be used with Twisted. Typically
@@ -132,8 +151,6 @@ class TLSProtocolWrapper(ProtocolWrapper):
 
     implements(ITLSTransport)
     
-    m2_bio_free_all = m2.bio_free_all
-
     def __init__(self, factory, wrappedProtocol, startPassThrough, client,
                  contextFactory, postConnectionCheck):
         """
@@ -188,8 +205,8 @@ class TLSProtocolWrapper(ProtocolWrapper):
         if debug:
             print 'TwistedProtocolWrapper.clear'
         if getattr(self, 'tlsStarted', 0):
-            del self.sslBio
             self.sslBio = None
+            self.ssl = None
             self.internalBio = None
             self.networkBio = None
         self.data = ''
@@ -225,19 +242,19 @@ class TLSProtocolWrapper(ProtocolWrapper):
 
         self.sslBio = _SSLBioProxy(m2.bio_new(m2.bio_f_ssl()))
 
-        self.ssl = m2.ssl_new(self.ctx.ctx)
+        self.ssl = _SSLProxy(m2.ssl_new(self.ctx.ctx))
 
         if self.isClient:
-            m2.ssl_set_connect_state(self.ssl)
+            m2.ssl_set_connect_state(self.ssl._ptr())
         else:
-            m2.ssl_set_accept_state(self.ssl)
+            m2.ssl_set_accept_state(self.ssl._ptr())
             
-        m2.ssl_set_bio(self.ssl, self.internalBio, self.internalBio)
-        m2.bio_set_ssl(self.sslBio._ptr(), self.ssl, 1)
+        m2.ssl_set_bio(self.ssl._ptr(), self.internalBio, self.internalBio)
+        m2.bio_set_ssl(self.sslBio._ptr(), self.ssl._ptr(), m2.bio_noclose)
 
         # Need this for writes that are larger than BIO pair buffers
-        mode = m2.ssl_get_mode(self.ssl)
-        m2.ssl_set_mode(self.ssl,
+        mode = m2.ssl_get_mode(self.ssl._ptr())
+        m2.ssl_set_mode(self.ssl._ptr(),
                         mode |
                         m2.SSL_MODE_ENABLE_PARTIAL_WRITE |
                         m2.SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER)
@@ -263,7 +280,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
         except M2Crypto.BIO.BIOError, e:
             # See http://www.openssl.org/docs/apps/verify.html#DIAGNOSTICS
             # for the error codes returned by SSL_get_verify_result.
-            e.args = (m2.ssl_get_verify_result(self.ssl), e.args[0])
+            e.args = (m2.ssl_get_verify_result(self.ssl._ptr()), e.args[0])
             raise e
 
     def writeSequence(self, data):
@@ -278,7 +295,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
     def loseConnection(self):
         if debug:
             print 'TwistedProtocolWrapper.loseConnection'
-        # XXX Do we need to do m2.ssl_shutdown(self.ssl)?
+        # XXX Do we need to do m2.ssl_shutdown(self.ssl._ptr())?
         ProtocolWrapper.loseConnection(self)
 
     def registerProducer(self, producer, streaming):
@@ -328,7 +345,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
         except M2Crypto.BIO.BIOError, e:
             # See http://www.openssl.org/docs/apps/verify.html#DIAGNOSTICS
             # for the error codes returned by SSL_get_verify_result.
-            e.args = (m2.ssl_get_verify_result(self.ssl), e.args[0])
+            e.args = (m2.ssl_get_verify_result(self.ssl._ptr()), e.args[0])
             raise e
 
     def connectionLost(self, reason):
@@ -341,8 +358,8 @@ class TLSProtocolWrapper(ProtocolWrapper):
         if debug:
             print 'TwistedProtocolWrapper._check'
         
-        if not self.checked and m2.ssl_is_init_finished(self.ssl):
-            x509 = m2.ssl_get_peer_cert(self.ssl)
+        if not self.checked and m2.ssl_is_init_finished(self.ssl._ptr()):
+            x509 = m2.ssl_get_peer_cert(self.ssl._ptr())
             if x509 is not None:
                 x509 = X509.X509(x509, 1)
             if self.isClient:
@@ -366,7 +383,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
         except M2Crypto.BIO.BIOError, e:
             # See http://www.openssl.org/docs/apps/verify.html#DIAGNOSTICS
             # for the error codes returned by SSL_get_verify_result.
-            e.args = (m2.ssl_get_verify_result(self.ssl), e.args[0])
+            e.args = (m2.ssl_get_verify_result(self.ssl._ptr()), e.args[0])
             raise e
 
     def _encrypt(self, data='', clientHello=0):
