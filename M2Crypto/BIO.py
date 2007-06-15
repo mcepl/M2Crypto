@@ -272,6 +272,8 @@ class SSLBio(BIO):
         """
         self._pyfree = 0 
         m2.bio_set_ssl(self.bio, conn.ssl, close_flag)
+        if close_flag == m2.bio_noclose:
+            conn.set_ssl_close_flag(m2.bio_close)
        
     def do_handshake(self):
         """

@@ -20,8 +20,9 @@
   by RFC 2818. If no dNSNames are present, use subject commonName.
 - Fixed memory leaks in m2 functions ec_key_new_by_curve_name,
   pkey_get_modulus, ecdsa_verify, threading_init and
-  X509.verify, X509_Stack (which manifested for example when
-  calling new_stack_from_der)
+  X509.X509.verify, X509.X509_Stack (which manifested for example when
+  calling X509.new_stack_from_der), SSL.Connection (which manifested with some
+  connection errors or when connect was never called)
 - Fixed threading regressions introduced in 0.16,
   by Aaron Reizes and Keith Jackson
 - Added SSL session caching support to HTTPSConnection, by Keith Jackson

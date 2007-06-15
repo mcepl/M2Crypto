@@ -26,7 +26,8 @@ class Connection:
     serverPostConnectionCheck = _serverPostConnectionCheck
 
     m2_bio_free = m2.bio_free
-
+    m2_ssl_free = m2.ssl_free
+    
     def __init__(self, ctx, sock=None):
         self.ctx = ctx
         self.ssl = m2.ssl_new(self.ctx.ctx)
@@ -39,11 +40,16 @@ class Connection:
         
         self.blocking = self.socket.gettimeout()
         
+        self.ssl_close_flag = m2.bio_noclose
+
+        
     def __del__(self):
         if getattr(self, 'sslbio', None):
             self.m2_bio_free(self.sslbio)
         if getattr(self, 'sockbio', None):
             self.m2_bio_free(self.sockbio)
+        if self.ssl_close_flag == m2.bio_noclose and getattr(self, 'ssl', None):
+            self.m2_ssl_free(self.ssl)
         self.socket.close()
 
     def close(self):
@@ -103,6 +109,15 @@ class Connection:
     def setup_addr(self, addr):
         self.addr = addr
 
+    def set_ssl_close_flag(self, flag):
+        """
+        By default, SSL struct will be freed in __del__. Call with
+        m2.bio_close to override this default.
+        """
+        if flag not in (m2.bio_close, m2.bio_noclose):
+            raise ValueError("flag must be m2.bio_close or m2.bio_noclose")
+        self.ssl_close_flag = flag
+
     def setup_ssl(self):
         # Make a BIO_s_socket.
         self.sockbio = m2.bio_new_socket(self.socket.fileno(), 0)
@@ -111,7 +126,7 @@ class Connection:
         # Make a BIO_f_ssl.
         self.sslbio = m2.bio_new(m2.bio_f_ssl())
         # Link BIO_f_ssl with the SSL struct.
-        m2.bio_set_ssl(self.sslbio, self.ssl, 1)
+        m2.bio_set_ssl(self.sslbio, self.ssl, m2.bio_noclose)
 
     def _setup_ssl(self, addr):
         """Deprecated"""

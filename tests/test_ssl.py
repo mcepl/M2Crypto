@@ -235,6 +235,10 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
 
 
 class MiscSSLClientTestCase(BaseSSLClientTestCase):
+
+    def test_no_connection(self):
+        ctx = SSL.Context()
+        s = SSL.Connection(ctx)
         
     def test_server_simple(self):
         pid = self.start_server(self.args)
