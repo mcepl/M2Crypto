@@ -260,7 +260,6 @@ class Connection:
         c=m2.ssl_get_current_cipher(self.ssl)
         if c is None:
             return None
-        # XXX Need to free the pointer?
         return Cipher(c)
     
     def get_ciphers(self):
@@ -269,7 +268,6 @@ class Connection:
         c=m2.ssl_get_ciphers(self.ssl)
         if c is None:
             return None
-        # XXX Need to free the pointer?
         return Cipher_Stack(c)
 
     def get_cipher_list(self, idx=0):

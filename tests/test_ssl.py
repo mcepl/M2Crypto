@@ -434,6 +434,8 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.connect(self.srv_addr)
             data = self.http_get(s)
             
+            assert s.get_cipher().name() == 'EXP-RC4-MD5', s.get_cipher().name()
+            
             cipher_stack = s.get_ciphers()
             assert cipher_stack[0].name() == 'EXP-RC4-MD5', cipher_stack[0].name()
             self.assertRaises(IndexError, cipher_stack.__getitem__, 2)
