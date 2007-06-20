@@ -128,6 +128,34 @@ class EVPTestCase(unittest.TestCase):
         assert len(mod) > 0, mod
         assert len(mod.strip('0123456789ABCDEF')) == 0
         
+    def test_verify_final(self):
+        from M2Crypto import X509
+        pkey = EVP.load_key('tests/signer_key.pem')
+        pkey.sign_init()
+        pkey.sign_update('test  message')
+        sig = pkey.sign_final()
+        
+        # OK
+        x509 = X509.load_cert('tests/signer.pem')
+        pubkey = x509.get_pubkey()
+        pubkey.verify_init()
+        pubkey.verify_update('test  message')
+        assert pubkey.verify_final(sig) == 1
+        
+        # wrong cert
+        x509 = X509.load_cert('tests/x509.pem')
+        pubkey = x509.get_pubkey()
+        pubkey.verify_init()
+        pubkey.verify_update('test  message')
+        assert pubkey.verify_final(sig) == 0
+        
+        # wrong message
+        x509 = X509.load_cert('tests/signer.pem')
+        pubkey = x509.get_pubkey()
+        pubkey.verify_init()
+        pubkey.verify_update('test  message not')
+        assert pubkey.verify_final(sig) == 0
+
 
 class CipherTestCase(unittest.TestCase):
     def cipher_filter(self, cipher, inf, outf):
