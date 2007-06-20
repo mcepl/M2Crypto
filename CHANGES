@@ -15,6 +15,7 @@
   EVP.EVPError; affected m2 functions are: digest_final, cipher_init,
   cipher_update, cipher_final and sign_update. sign_final will now raise
   EVP.EVPError instead of SystemError as well.
+- Fixed Pkey.verify_final to take a sign parameter
 - If a subjectAltName extension of type dNSName is present in peer certificate,
   use only the dNSNames when checking peer certificate hostname, as specified
   by RFC 2818. If no dNSNames are present, use subject commonName.

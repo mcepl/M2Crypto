@@ -213,14 +213,15 @@ class PKey:
         """
         return m2.verify_update(self.ctx, data)
 
-    def verify_final(self):
+    def verify_final(self, sign):
         """
         Return result of verification.
 
+        @param sign: Signature to use for verification
         @rtype: int
         @return: Result of verification: 1 for success, 0 for failure.
         """
-        return m2.verify_final(self.ctx, None, self.pkey)
+        return m2.verify_final(self.ctx, sign, self.pkey)
 
     def assign_rsa(self, rsa, capture=1):
         """
