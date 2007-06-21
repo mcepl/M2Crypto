@@ -212,7 +212,7 @@ class IOBuffer(BIO):
     def __del__(self):
         if getattr(self, '_pyfree', 0):
             self.m2_bio_pop(self.bio)
-            self.m2_bio_free(self.io)
+        self.m2_bio_free(self.io)
 
     def close(self):
         BIO.close(self)

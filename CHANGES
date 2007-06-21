@@ -23,7 +23,8 @@
   pkey_get_modulus, ecdsa_verify, threading_init and
   X509.X509.verify, X509.X509_Stack (which manifested for example when
   calling X509.new_stack_from_der), SSL.Connection (which manifested with some
-  connection errors or when connect was never called), twisted wrapper
+  connection errors or when connect was never called), twisted wrapper,
+  SSL.Connection.makefile (in BIO.IOBuffer really)
 - Fixed threading regressions introduced in 0.16,
   by Aaron Reizes and Keith Jackson
 - Added SSL session caching support to HTTPSConnection, by Keith Jackson

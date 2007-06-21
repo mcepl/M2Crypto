@@ -775,20 +775,6 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
     def test_makefile_err(self):
-        def http_get(s):
-            s.send('GET / HTTP/1.0\n\n') 
-            resp = ''
-            while 1:
-                try:
-                    r = s.recv(4096)
-                    if not r:
-                        break
-                except SSL.SSLError, e: # s_server throws an 'unexpected eof'...
-                    #print e
-                    break
-                resp = resp + r 
-            return resp
-
         pid = self.start_server(self.args)
         try:
             ctx = SSL.Context()
@@ -798,12 +784,10 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             except SSL.SSLError, e:
                 assert 0, e
             f = s.makefile()
-            data = http_get(s)
+            data = self.http_get(s)
             s.close()
             del f
-            f = None
             del s
-            s = None
             err_code = Err.peek_error_code()
             assert not err_code, 'Unexpected error: %s' % err_code
             err = Err.get_error()
@@ -979,11 +963,11 @@ def suite():
     suite.addTest(unittest.makeSuite(CheckerTestCase))
     suite.addTest(unittest.makeSuite(ContextTestCase))
     suite.addTest(unittest.makeSuite(PassSSLClientTestCase))
-    suite.addTest(unittest.makeSuite(HttpslibSSLClientTestCase)) # XXX leaks 384/45248 bytes
+    suite.addTest(unittest.makeSuite(HttpslibSSLClientTestCase))
     suite.addTest(unittest.makeSuite(UrllibSSLClientTestCase))
-    suite.addTest(unittest.makeSuite(Urllib2SSLClientTestCase)) # XXX leaks 64/8224 bytes
-    suite.addTest(unittest.makeSuite(MiscSSLClientTestCase)) # XXX leaks 192/24672 bytes
-    suite.addTest(unittest.makeSuite(TwistedSSLClientTestCase)) # XXX leaks 128/21564 bytes
+    suite.addTest(unittest.makeSuite(Urllib2SSLClientTestCase))
+    suite.addTest(unittest.makeSuite(MiscSSLClientTestCase))
+    suite.addTest(unittest.makeSuite(TwistedSSLClientTestCase))
     return suite    
     
 
