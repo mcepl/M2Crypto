@@ -103,7 +103,7 @@ def listenTCP(port, factory, backlog=5, interface='',
     return reactor.listenTCP(port, wrappingFactory, backlog, interface)
 
 
-class _SSLBioProxy:
+class _BioProxy:
     """
     The purpose of this class is to eliminate the __del__ method from
     TLSProtocolWrapper, and thus letting it be garbage collected.
@@ -111,15 +111,15 @@ class _SSLBioProxy:
     
     m2_bio_free_all = m2.bio_free_all
 
-    def __init__(self, sslBio):
-        self.sslBio = sslBio
+    def __init__(self, bio):
+        self.bio = bio
         
     def _ptr(self):
-        return self.sslBio
+        return self.bio
     
     def __del__(self):
-        if self.sslBio is not None:
-            self.m2_bio_free_all(self.sslBio)
+        if self.bio is not None:
+            self.m2_bio_free_all(self.bio)
 
 
 class _SSLProxy:
@@ -236,11 +236,11 @@ class TLSProtocolWrapper(ProtocolWrapper):
 
         self.internalBio = m2.bio_new(m2.bio_s_bio())
         m2.bio_set_write_buf_size(self.internalBio, 0)
-        self.networkBio = m2.bio_new(m2.bio_s_bio())
-        m2.bio_set_write_buf_size(self.networkBio, 0)
-        m2.bio_make_bio_pair(self.internalBio, self.networkBio)
+        self.networkBio = _BioProxy(m2.bio_new(m2.bio_s_bio()))
+        m2.bio_set_write_buf_size(self.networkBio._ptr(), 0)
+        m2.bio_make_bio_pair(self.internalBio, self.networkBio._ptr())
 
-        self.sslBio = _SSLBioProxy(m2.bio_new(m2.bio_f_ssl()))
+        self.sslBio = _BioProxy(m2.bio_new(m2.bio_f_ssl()))
 
         self.ssl = _SSLProxy(m2.ssl_new(self.ctx.ctx))
 
@@ -392,7 +392,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
         self.data += data
         # Optimizations to reduce attribute accesses
         sslBioPtr = self.sslBio._ptr()
-        networkBio = self.networkBio
+        networkBio = self.networkBio._ptr()
         m2bio_ctrl_get_write_guarantee = m2.bio_ctrl_get_write_guarantee
         m2bio_write = m2.bio_write
         m2bio_should_retry = m2.bio_should_retry
@@ -426,7 +426,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
         decryptedData = ''
         # Optimizations to reduce attribute accesses
         sslBioPtr = self.sslBio._ptr()
-        networkBio = self.networkBio
+        networkBio = self.networkBio._ptr()
         m2bio_ctrl_get_write_guarantee = m2.bio_ctrl_get_write_guarantee
         m2bio_write = m2.bio_write
         m2bio_should_retry = m2.bio_should_retry
