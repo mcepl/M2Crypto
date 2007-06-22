@@ -10,44 +10,61 @@ Copyright (C) 2004-2006 OSAF. All Rights Reserved.
 """
 
 import os, sys
-
 try:
-    import setuptools # Must import setuptools before distutils
+    from setuptools import setup
+    from setuptools.command import build_ext
 except ImportError:
-    pass # test command not available
-    
-from distutils.core import setup, Extension
-from distutils.command import build_ext 
+    from distutils.core import setup
+    from distutils.command import build_ext
 
-def parse_args(option_dict):
-    args = sys.argv[1:]
-    for arg in args:
-        if arg.startswith("--openssl"):
-            option_dict['openssl_prefix'] = arg.split("=")[1]
-            sys.argv.remove(arg)
-            break
+from distutils.core import Extension
+
+
+class _M2CryptoBuildExt(build_ext.build_ext):
+    '''Specialization of build_ext to enable swig_opts to inherit any 
+    include_dirs settings made at the command line or in a setup.cfg file'''
+    user_options = build_ext.build_ext.user_options + \
+            [('openssl=', 'o', 'Prefix for openssl installation location')]
+
+    def initialize_options(self):
+        '''Overload to enable custom openssl settings to be picked up'''
+
+        build_ext.build_ext.initialize_options(self)
         
-if os.name == 'nt':
-    libraries = ['ssleay32', 'libeay32']
-    option_dict = {'openssl_prefix': 'c:\\pkg'}
-else:
-    libraries = ['ssl', 'crypto']
-    option_dict = {'openssl_prefix': '/usr'}
+        # openssl is the attribute corresponding to openssl directory prefix
+        # command line option
+        if os.name == 'nt':
+            self.libraries = ['ssleay32', 'libeay32']
+            self.openssl = 'c:\\pkg'
+        else:
+            self.libraries = ['ssl', 'crypto']
+            self.openssl = '/foo'
+       
     
-parse_args(option_dict)
-	
-include_dir = os.path.join(option_dict['openssl_prefix'], 'include')
-include_dirs = [os.path.join(os.getcwd(), 'SWIG'), include_dir]
-swig_opts_str = ''.join(('-I', include_dir))
+    def finalize_options(self):
+        '''Overloaded build_ext implementation to append custom openssl
+        include file and library linking options'''
 
-library_dirs = [os.path.join(option_dict['openssl_prefix'], 'lib')]
-if sys.platform == 'cygwin':
-    # Cygwin SHOULD work (there's code in distutils), but
-    # if one first starts a Windows command prompt, then bash,
-    # the distutils code does not seem to work. If you start
-    # Cygwin directly, then it would work even without this change.
-    # Someday distutils will be fixed and this won't be needed.
-    library_dirs += [os.path.join(option_dict['openssl_prefix'], 'bin')]
+        build_ext.build_ext.finalize_options(self)
+
+        opensslIncludeDir = os.path.join(self.openssl, 'include')
+        opensslLibraryDir = os.path.join(self.openssl, 'lib')
+        
+        self.swig_opts = ['-I%s' % i for i in self.include_dirs + \
+                          [opensslIncludeDir]]
+        
+        self.include_dirs += [os.path.join(self.openssl, opensslIncludeDir),
+                              os.path.join(os.getcwd(), 'SWIG')]        
+            
+        if sys.platform == 'cygwin':
+            # Cygwin SHOULD work (there's code in distutils), but
+            # if one first starts a Windows command prompt, then bash,
+            # the distutils code does not seem to work. If you start
+            # Cygwin directly, then it would work even without this change.
+            # Someday distutils will be fixed and this won't be needed.
+            self.library_dirs += [os.path.join(self.openssl, 'bin')]
+               
+        self.library_dirs += [os.path.join(self.openssl, opensslLibraryDir)]
 
 
 if sys.version_info < (2,4):
@@ -104,15 +121,12 @@ if sys.version_info < (2,4):
     
     build_ext.build_ext.swig_sources = swig_sources
 
-m2crypto = Extension(name='M2Crypto.__m2crypto',
+
+m2crypto = Extension(name = 'M2Crypto.__m2crypto',
                      sources = ['SWIG/_m2crypto.i'],
-                     include_dirs = include_dirs,
-                     library_dirs = library_dirs,
-                     libraries = libraries,
                      extra_compile_args = ['-DTHREADING'],
                      #extra_link_args = ['-Wl,-search_paths_first'], # Uncomment to build Universal Mac binaries
-                     swig_opts = [swig_opts_str,
-                                  '-includeall',
+                     swig_opts = ['-includeall',
                                   #'-D__i386__', # Uncomment for early OpenSSL 0.9.7 versions
                                   ]
                      )
@@ -131,4 +145,5 @@ setup(name = 'M2Crypto',
       packages = ['M2Crypto', 'M2Crypto.SSL', 'M2Crypto.PGP'],
       ext_modules = [m2crypto],
       test_suite='tests.alltests.suite',
+      cmdclass = {'build_ext': _M2CryptoBuildExt}
       )
