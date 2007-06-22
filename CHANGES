@@ -32,6 +32,9 @@
   certificate requests, by Keith Jackson
 - m2xmlrpclib.py fixed to work with Python 2.5, by Miloslav Trmac
 - 64-bit correctness fixes, by Miloslav Trmac
+- Moved --openssl option from general setup.py option to build_ext option,
+  meaning you need to do: python setup.py build build_ext --openssl=/path,
+  by Philip Kershaw
 - Fixed build problem affecting certain systems where OpenSSL was built without
   EC support
 - M2CRYPTO_TEST_SSL_SLEEP environment variable controls how long to sleep
