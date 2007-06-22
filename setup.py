@@ -38,7 +38,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
             self.openssl = 'c:\\pkg'
         else:
             self.libraries = ['ssl', 'crypto']
-            self.openssl = '/foo'
+            self.openssl = '/usr'
        
     
     def finalize_options(self):
