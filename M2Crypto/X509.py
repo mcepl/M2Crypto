@@ -314,6 +314,10 @@ class X509_Name:
         assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error"
         return m2.x509_name_get_der(self.x509_name)
 
+    def as_hash(self):
+        assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error"
+        return m2.x509_name_hash(self.x509_name)
+
 class X509:
     """
     X.509 Certificate

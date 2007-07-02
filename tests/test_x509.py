@@ -138,6 +138,8 @@ class X509TestCase(unittest.TestCase):
         cn.set_data("Hello There!")
         assert cn.get_data().as_text() == "Hello There!", cn.get_data().as_text()
 
+        assert n.as_hash() == 1697185131
+
     def test_mkreq(self):
         (req, _) = self.mkreq(512)
         req.save_pem('tests/tmp_request.pem')
