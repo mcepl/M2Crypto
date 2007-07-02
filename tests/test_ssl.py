@@ -957,6 +957,10 @@ class ContextTestCase(unittest.TestCase):
     def test_ctx_load_verify_locations(self):
         ctx = SSL.Context()
         self.assertRaises(ValueError, ctx.load_verify_locations, None, None)
+        
+    def test_map(self):
+        from M2Crypto.SSL.Context import map, _ctxmap
+        assert isinstance(map(), _ctxmap)
 
 def suite():
     suite = unittest.TestSuite()
