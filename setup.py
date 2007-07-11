@@ -110,7 +110,7 @@ if sys.version_info < (2,4):
         if self.swig_cpp:
             swig_cmd.append("-c++")
 
-        swig_cmd.append(swig_opts_str)
+        swig_cmd += self.swig_opts 
 
         for source in swig_sources:
             target = swig_targets[source]
