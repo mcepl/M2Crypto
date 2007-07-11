@@ -7,10 +7,15 @@ def suite():
     
     def my_import(name):
         # See http://docs.python.org/lib/built-in-funcs.html#l2h-6
-        mod = __import__(name)
         components = name.split('.')
-        for comp in components[1:]:
-            mod = getattr(mod, comp)
+        try:
+            # python setup.py test
+            mod = __import__(name)
+            for comp in components[1:]:
+                mod = getattr(mod, comp)
+        except ImportError:
+            # python tests/alltests.py
+            mod = __import__(components[1])
         return mod
 
     modules_to_test = [
