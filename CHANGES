@@ -1,5 +1,5 @@
-0.18
-----
+0.18 - 2007-07-26
+-----------------
 - Added EVP.pbkdf2 to derive key from password
 - X509_Store_Context.get1_chain added
 - Added X509_Name.__iter__, __getitem__, get_entries_by_nid which allow
