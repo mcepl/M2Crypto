@@ -172,6 +172,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
     def _get_connect_msg(self):
         """ Return an HTTP CONNECT request to send to the proxy. """
         msg = "CONNECT %s:%d HTTP/1.1\r\n" % (self._real_host, self._real_port)
+        msg = msg + "Host: %s:%d\r\n" % (self._real_host, self._real_port)
         if self._proxy_auth:
             msg = msg + "%s: %s\r\n" % (self._AUTH_HEADER, self._proxy_auth) 
         msg = msg + "\r\n"

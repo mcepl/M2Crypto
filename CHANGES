@@ -1,3 +1,8 @@
+0.19
+----
+- httpslib.ProxyHTTPSConnection now sends the required Host header,
+  by Karl Grindley
+
 0.18 - 2007-07-26
 -----------------
 - Added EVP.pbkdf2 to derive key from password
