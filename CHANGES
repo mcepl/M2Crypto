@@ -3,6 +3,11 @@
 - httpslib.ProxyHTTPSConnection now sends the required Host header,
   by Karl Grindley
 
+0.18.1 - 2007-10-08
+-------------------
+- Redo build fix when OpenSSL configured without Elliptic Curves (EC), see
+  also INSTALL file
+
 0.18 - 2007-07-26
 -----------------
 - Added EVP.pbkdf2 to derive key from password
