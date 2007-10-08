@@ -3,7 +3,7 @@
 ====================
 
 :Maintainer: Heikki Toivonen
-:Web-Site: http://wiki.osafoundation.org/bin/view/Projects/MeTooCrypto
+:Web-Site: http://chandlerproject.org/Projects/MeTooCrypto
 
 .. contents::
 
@@ -29,13 +29,20 @@ if you get this compile-time error:
   
   This openssl-devel package does not work your architecture?
 
+Note about OpenSSL with Elliptic Curves (EC) Disabled
+-----------------------------------------------------
+
+Fedora Core configures OpenSSL without EC. It has been reported that some
+Fedora Core systems also need to uncomment the -D__i386__ line even though
+the OpenSSL version is 0.9.8 or later.
+
 Installing on Unix-like systems, including Cygwin
 -------------------------------------------------
 
 ::
 
-    $ tar zxf m2crypto-0.18.tar.gz
-    $ cd m2crypto-0.18
+    $ tar zxf m2crypto-<version>.tar.gz
+    $ cd m2crypto-<version>
     $ python setup.py build
     $ python setup.py install
 
@@ -46,6 +53,10 @@ If you have installed setuptools you can also optionally run tests like this:
 This assumes OpenSSL is installed in /usr. You can provide an alternate
 OpenSSL prefix location with --openssl option to build_ext command. Other
 commands accept standard options if you need them.
+
+Some distributions, like Fedora Core, package OpenSSL headers in a different
+location from OpenSSL itself. In that case you need to tell build_ext the
+additional include location with -I option.
 
 Differences when installing on Windows
 --------------------------------------
