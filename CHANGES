@@ -1,3 +1,8 @@
+0.18.2 - 2007-10-12
+-------------------
+- typedef Py_ssize_t was insufficiently guarded, now follows PEP 353. This
+  prevented building on at least Red Hat Linux and Debian Linux (unstable).
+
 0.18.1 - 2007-10-08
 -------------------
 - Redo build fix when OpenSSL configured without Elliptic Curves (EC), see
