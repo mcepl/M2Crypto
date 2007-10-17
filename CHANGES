@@ -2,6 +2,10 @@
 ----
 - httpslib.ProxyHTTPSConnection now sends the required Host header,
   by Karl Grindley
+- X509.load_cert, load_cert_bio, load_cert_der_string, new_stack_from_der,
+  load_request and load_crl now raise X509Error for invalid data. Previously
+  some of these raised a string as an error, some did not raise but caused
+  strange errors later, for example x509.verify() would return -1.
 
 0.18.2 - 2007-10-12
 -------------------

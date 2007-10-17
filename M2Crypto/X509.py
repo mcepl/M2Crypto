@@ -610,7 +610,10 @@ def load_cert(file, format=FORMAT_PEM):
     if format == FORMAT_PEM:
         return load_cert_bio(bio)
     elif format == FORMAT_DER:
-        return X509(m2.d2i_x509(bio._ptr()), _pyfree=1)
+        cptr = m2.d2i_x509(bio._ptr())
+        if cptr is None:
+            raise X509Error(Err.get_error())
+        return X509(cptr, _pyfree=1)
     else:
         raise ValueError("Unknown format. Must be either FORMAT_DER or FORMAT_PEM")
 
@@ -627,11 +630,14 @@ def load_cert_bio(bio, format=FORMAT_PEM):
     @return: M2Crypto.X509.X509 object.
     """
     if format == FORMAT_PEM:
-        return X509(m2.x509_read_pem(bio._ptr()), 1)
+        cptr = m2.x509_read_pem(bio._ptr())
     elif format == FORMAT_DER:
-        return X509(m2.d2i_x509(bio._ptr()), _pyfree=1)
+        cptr = m2.d2i_x509(bio._ptr())
     else:
         raise ValueError("Unknown format. Must be either FORMAT_DER or FORMAT_PEM")
+    if cptr is None:
+        raise X509Error(Err.get_error())
+    return X509(cptr, _pyfree=1)
 
 def load_cert_string(string, format=FORMAT_PEM):
     """
@@ -659,7 +665,10 @@ def load_cert_der_string(string):
     @return: M2Crypto.X509.X509 object.
     """
     bio = BIO.MemoryBuffer(string)
-    return X509(m2.d2i_x509(bio._ptr()), _pyfree=1)
+    cptr = m2.d2i_x509(bio._ptr())
+    if cptr is None:
+        raise X509Error(Err.get_error())
+    return X509(cptr, _pyfree=1)
 
 class X509_Store_Context:
     """
@@ -829,6 +838,8 @@ def new_stack_from_der(der_string):
     @return: X509_Stack
     """
     stack_ptr = m2.make_stack_from_der_sequence(der_string)
+    if stack_ptr is None:
+        raise X509Error(Err.get_error())
     return X509_Stack(stack_ptr, 1, 1)
 
 
@@ -983,7 +994,7 @@ def load_request(file, format=FORMAT_PEM):
         raise ValueError("Unknown filetype. Must be either FORMAT_PEM or FORMAT_DER")
     f.close()
     if cptr is None:
-        raise Err.get_error()
+        raise X509Error(Err.get_error())
     return Request(cptr, 1)
 
 
@@ -1032,7 +1043,7 @@ def load_crl(file):
     cptr=m2.x509_crl_read_pem(f.bio_ptr())
     f.close()
     if cptr is None:
-        raise Err.get_error()
+        raise X509Error(Err.get_error())
     return CRL(cptr, 1)
 
 
