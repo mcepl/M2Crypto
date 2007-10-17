@@ -394,6 +394,14 @@ class X509TestCase(unittest.TestCase):
         assert s == x509_der, '%s != %s' % (s, x509_der)
         os.remove('tests/tmpcert.der')
 
+    def test_malformed_data(self):
+        self.assertRaises(X509.X509Error, X509.load_cert_string, 'Hello')
+        self.assertRaises(X509.X509Error, X509.load_cert_der_string, 'Hello')
+        self.assertRaises(X509.X509Error, X509.new_stack_from_der, 'Hello')
+        self.assertRaises(X509.X509Error, X509.load_cert, 'tests/alltests.py')
+        self.assertRaises(X509.X509Error, X509.load_request, 'tests/alltests.py')
+        self.assertRaises(X509.X509Error, X509.load_crl, 'tests/alltests.py')
+
 class X509_StackTestCase(unittest.TestCase):
     
     def test_make_stack_from_der(self):
