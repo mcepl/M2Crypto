@@ -457,7 +457,7 @@ int pkey_write_pem_no_cipher(EVP_PKEY *pkey, BIO *f, PyObject *pyfunc) {
     int ret;
 
     Py_INCREF(pyfunc);
-    ret = PEM_write_bio_PrivateKey(f, pkey, NULL, NULL, 0,
+    ret = PEM_write_bio_PKCS8PrivateKey(f, pkey, NULL, NULL, 0,
             passphrase_callback, (void *)pyfunc);
     Py_DECREF(pyfunc);
     return ret;
@@ -467,7 +467,7 @@ int pkey_write_pem(EVP_PKEY *pkey, BIO *f, EVP_CIPHER *cipher, PyObject *pyfunc)
     int ret;
 
     Py_INCREF(pyfunc);
-    ret = PEM_write_bio_PrivateKey(f, pkey, cipher, NULL, 0,
+    ret = PEM_write_bio_PKCS8PrivateKey(f, pkey, cipher, NULL, 0,
             passphrase_callback, (void *)pyfunc);
     Py_DECREF(pyfunc);
     return ret;
