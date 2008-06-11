@@ -3,8 +3,7 @@
 - httpslib.ProxyHTTPSConnection now sends the required Host header,
   by Karl Grindley
 - m2.pkey_write_pem[_no_cipher] changed to use the recommended (more secure)
-  PEM_write_bio_PKCS8PrivateKey (used be PEM_write_bio_PrivateKey). This also
-  fixed "key,as_pem(callback) not working under mod_python".
+  PEM_write_bio_PKCS8PrivateKey (used be PEM_write_bio_PrivateKey).
 - X509.load_cert, load_cert_bio, load_cert_der_string, new_stack_from_der,
   load_request and load_crl now raise X509Error for invalid data. Previously
   some of these raised a string as an error, some did not raise but caused
