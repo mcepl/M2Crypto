@@ -11,7 +11,7 @@
   some of these raised a string as an error, some did not raise but caused
   strange errors later, for example x509.verify() would return -1.
 - Fixed SSL.Connection.get_socket_read_timeout and set_socket_read_timeout on
-  64bit platforms by adding SSL.timeout.size() and using it instead of
+  64bit platforms by adding SSL.timeout.struct_size() and using it instead of
   hardcoded size for socket.getsockopt
 
 0.18.2 - 2007-10-12
