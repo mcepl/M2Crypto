@@ -325,10 +325,10 @@ class Connection:
         return m2.ssl_get_default_session_timeout(self.ssl)
 
     def get_socket_read_timeout(self):
-        return timeout.struct_to_timeout(self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, 8))
+        return timeout.struct_to_timeout(self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, timeout.size()))
 
     def get_socket_write_timeout(self):
-        return timeout.struct_to_timeout(self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_SNDTIMEO, 8))
+        return timeout.struct_to_timeout(self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_SNDTIMEO, timeout.size()))
 
     def set_socket_read_timeout(self, timeo):
         assert isinstance(timeo, timeout.timeout)
