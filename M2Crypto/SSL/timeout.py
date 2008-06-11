@@ -21,3 +21,5 @@ def struct_to_timeout(binstr):
     (s, ms) = struct.unpack('ll', binstr)
     return timeout(s, ms)
 
+def size():
+    return struct.calcsize('ll')
