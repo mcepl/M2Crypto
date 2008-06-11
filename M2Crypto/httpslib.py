@@ -103,6 +103,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
 
     _ports = {'http' : 80, 'https' : 443}
     _AUTH_HEADER = "Proxy-Authorization"
+    _UA_HEADER = "User-Agent"
 
     def __init__(self, host, port=None, strict=None, username=None,
         password=None, **ssl):
@@ -116,6 +117,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
         self._username = username
         self._password = password
         self._proxy_auth = None
+        self._proxy_UA = None
 
     def putrequest(self, method, url, skip_host=0, skip_accept_encoding=0):
         #putrequest is called before connect, so can interpret url and get
@@ -139,6 +141,8 @@ class ProxyHTTPSConnection(HTTPSConnection):
 
     def putheader(self, header, value):
         # Store the auth header if passed in.
+        if header.lower() == self._UA_HEADER.lower():
+            self._proxy_UA = value
         if header.lower() == self._AUTH_HEADER.lower():
             self._proxy_auth = value
         else:
@@ -173,6 +177,8 @@ class ProxyHTTPSConnection(HTTPSConnection):
         """ Return an HTTP CONNECT request to send to the proxy. """
         msg = "CONNECT %s:%d HTTP/1.1\r\n" % (self._real_host, self._real_port)
         msg = msg + "Host: %s:%d\r\n" % (self._real_host, self._real_port)
+        if self._proxy_UA:
+            msg = msg + "%s: %s\r\n" % (self._UA_HEADER, self._proxy_UA)
         if self._proxy_auth:
             msg = msg + "%s: %s\r\n" % (self._AUTH_HEADER, self._proxy_auth) 
         msg = msg + "\r\n"
