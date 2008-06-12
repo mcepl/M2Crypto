@@ -2,7 +2,7 @@
 M2Crypto enhancement to Python's urllib2 for handling 
 'https' url's.
 
-Code from urllib2 is Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006
+Code from urllib2 is Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007
 Python Software Foundation; All Rights Reserved
 
 Summary of changes:
@@ -102,6 +102,9 @@ def build_opener(ssl_context = None, *handlers):
     If any of the handlers passed as arguments are subclasses of the
     default handlers, the default handlers will not be used.
     """
+    import types
+    def isclass(obj):
+        return isinstance(obj, types.ClassType) or hasattr(obj, "__bases__")
 
     opener = OpenerDirector()
     default_classes = [ProxyHandler, UnknownHandler, HTTPHandler,
@@ -110,7 +113,7 @@ def build_opener(ssl_context = None, *handlers):
     skip = []
     for klass in default_classes:
         for check in handlers:
-            if inspect.isclass(check):
+            if isclass(check):
                 if issubclass(check, klass):
                     skip.append(klass)
             elif isinstance(check, klass):
@@ -127,7 +130,7 @@ def build_opener(ssl_context = None, *handlers):
 
 
     for h in handlers:
-        if inspect.isclass(h):
+        if isclass(h):
             h = h()
         opener.add_handler(h)
     return opener

@@ -4,6 +4,8 @@
   by Karl Grindley
 - Use the proxied User-Agent value in CONNECT requests, by James Antill and
   Miloslav Trmac
+- Fixed m2urllib.build_opener when optional handlers were in use,
+  affected Python 2.5 and later, by Miloslav Trmac
 - Reverted the incorrect GIL change done in 0.18 to m2.passphrase_callback,
   which caused a deadlock when called from mod_python for example. Thanks to
   Michal Kochel and Keith Jackson.
