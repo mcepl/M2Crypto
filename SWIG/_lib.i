@@ -265,8 +265,13 @@ int passphrase_callback(char *buf, int num, int v, void *arg) {
     char *str;
     PyObject *argv, *ret, *cbfunc;
 
-    PyGILState_STATE gilstate;
-    gilstate = PyGILState_Ensure();
+    /* NOTE: This should not acquire the GIL, as was discovered in bug 11813
+     * by Keith Jackson:
+     * "rsa_write_key in _rsa.i calls PEM_write_bio_RSAPrivateKey which if you
+     * look at the openssl code calls the callback function passed into it. 
+     * We never give up the GIL in rsa_write_key so trying to acquire it again
+     * in the callback is going to result in deadlock"
+     */
     cbfunc = (PyObject *)arg;
     argv = Py_BuildValue("(i)", v);
     ret = PyEval_CallObject(cbfunc, argv);
@@ -284,7 +289,6 @@ int passphrase_callback(char *buf, int num, int v, void *arg) {
     for (i = 0; i < len; i++)
         buf[i] = str[i];
     Py_DECREF(ret);
-    PyGILState_Release(gilstate);
     return len;
 }
 %}
