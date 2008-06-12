@@ -874,7 +874,7 @@ class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
                 ctx = SSL.Context()
 
                 from M2Crypto import m2urllib2
-                opener = m2urllib2.build_opener(ctx)
+                opener = m2urllib2.build_opener(ctx, m2urllib2.HTTPBasicAuthHandler())
                 m2urllib2.install_opener(opener)
                 req = m2urllib2.Request('https://%s:%s/' % (srv_host, srv_port))
                 u = m2urllib2.urlopen(req)
@@ -883,6 +883,13 @@ class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
             finally:
                 self.stop_server(pid)
             self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
+        def test_urllib2_opener_handlers(self):
+            ctx = SSL.Context()
+
+            from M2Crypto import m2urllib2
+            opener = m2urllib2.build_opener(ctx,
+                                            m2urllib2.HTTPBasicAuthHandler())
 
 
 class TwistedSSLClientTestCase(BaseSSLClientTestCase):
