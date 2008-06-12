@@ -4,6 +4,9 @@
   by Karl Grindley
 - Use the proxied User-Agent value in CONNECT requests, by James Antill and
   Miloslav Trmac
+- Reverted the incorrect GIL change done in 0.18 to m2.passphrase_callback,
+  which caused a deadlock when called from mod_python for example. Thanks to
+  Michal Kochel and Keith Jackson.
 - m2.pkey_write_pem[_no_cipher] changed to use the recommended (more secure)
   PEM_write_bio_PKCS8PrivateKey (used be PEM_write_bio_PrivateKey).
 - X509.load_cert, load_cert_bio, load_cert_der_string, new_stack_from_der,
