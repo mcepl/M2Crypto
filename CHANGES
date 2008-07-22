@@ -20,6 +20,8 @@
   hardcoded size for socket.getsockopt
 - X509_Store.load_info now returns the value from the underlying
   m2.x509_store_load_locations call, and in case of error raises X509Error
+- Fixed SMIME.verify to raise the correct PKCS7_Error (used to raise
+  SMIME_Error) when verification fails with Python 2.6
 
 0.18.2 - 2007-10-12
 -------------------

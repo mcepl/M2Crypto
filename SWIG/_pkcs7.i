@@ -102,8 +102,7 @@ PyObject *pkcs7_verify1(PKCS7 *pkcs7, STACK *stack, X509_STORE *store, BIO *data
     if (!PKCS7_verify(pkcs7, (STACK_OF(X509) *)stack, store, data, bio, flags)) {
         PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
         BIO_free(bio);
-        Py_INCREF(Py_None);
-        return Py_None;
+        return NULL;
     }
     outlen = BIO_ctrl_pending(bio);
     if (!(outbuf=(char *)PyMem_Malloc(outlen))) {
