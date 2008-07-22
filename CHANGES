@@ -18,6 +18,8 @@
 - Fixed SSL.Connection.get_socket_read_timeout and set_socket_read_timeout on
   64bit platforms by adding SSL.timeout.struct_size() and using it instead of
   hardcoded size for socket.getsockopt
+- X509_Store.load_info now returns the value from the underlying
+  m2.x509_store_load_locations call, and in case of error raises X509Error
 
 0.18.2 - 2007-10-12
 -------------------

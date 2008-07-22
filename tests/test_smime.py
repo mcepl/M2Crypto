@@ -36,7 +36,12 @@ class SMIMETestCase(unittest.TestCase):
         
         s.write(out, p7, BIO.MemoryBuffer(self.cleartext))
         return out
-            
+
+    def test_store_load_info(self):        
+        st = X509.X509_Store()
+        self.assertRaises(X509.X509Error, st.load_info, 'tests/ca.pem-typoname')
+        self.assertEqual(st.load_info('tests/ca.pem'), 1) 
+
     def test_verify(self):
         s = SMIME.SMIME()
         

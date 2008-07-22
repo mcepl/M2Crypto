@@ -743,7 +743,10 @@ class X509_Store:
         return self.store
 
     def load_info(self, file):
-        m2.x509_store_load_locations(self.store, file)
+        ret = m2.x509_store_load_locations(self.store, file) 
+        if ret < 1:
+            raise X509Error(Err.get_error())
+        return ret
 
     load_locations = load_info
                  
