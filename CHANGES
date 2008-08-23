@@ -1,5 +1,7 @@
 0.19
 ----
+- EVP.PKey.get_rsa() now returns RSA_pub, which fixes segmentation fault
+  when trying to encrypt using public key from X509 certificate, by Ben Timby
 - httpslib.ProxyHTTPSConnection now sends the required Host header,
   by Karl Grindley
 - Use the proxied User-Agent value in CONNECT requests, by James Antill and
