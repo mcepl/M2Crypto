@@ -224,13 +224,21 @@ class RSA_pub(RSA):
     def private_decrypt(self, *argv):
         raise RSAError, 'RSA_pub object has no private key'
 
-    save_key = RSA.save_pub_key
+    def save_key(self, file, *args, **kw):
+        """
+        Save public key to file.
+        """
+        return self.save_pub_key(file)
 
-    save_key_bio = RSA.save_pub_key_bio
+    def save_key_bio(self, bio, *args, **kw):
+        """
+        Save public key to BIO.
+        """
+        return self.save_pub_key_bio(bio)
 
-    #save_key_der = RSA.save_pub_key_der
+    #save_key_der
 
-    #save_key_der_bio = RSA.save_pub_key_der_bio
+    #save_key_der_bio
 
     def check_key(self):
         return m2.rsa_check_pub_key(self.rsa)

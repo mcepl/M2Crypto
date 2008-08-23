@@ -94,14 +94,18 @@ class EVPTestCase(unittest.TestCase):
         Testing retrieving the RSA key from the PKey instance.
         """
         rsa = RSA.gen_key(512, 3, callback=self._gen_callback)
+        assert isinstance(rsa, RSA.RSA)
         pkey = EVP.PKey()
         pkey.assign_rsa(rsa) 
         rsa2 = pkey.get_rsa()
+        assert isinstance(rsa2, RSA.RSA_pub)
         assert rsa.e == rsa2.e
         assert rsa.n == rsa2.n
-        # Not sure why these two are not the same...
-        assert rsa.as_pem(callback=self._pass_callback)
-        assert rsa2.as_pem(callback=self._pass_callback)
+        pem = rsa.as_pem(callback=self._pass_callback)
+        pem2 = rsa2.as_pem()
+        assert pem
+        assert pem2
+        assert pem != pem2
         
         message = "This is the message string"
         digest = sha.sha(message).digest()

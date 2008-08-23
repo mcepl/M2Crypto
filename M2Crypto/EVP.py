@@ -255,7 +255,7 @@ class PKey:
         if rsa_ptr is None:
             raise ValueError("PKey instance is not holding a RSA key")
         
-        rsa = RSA.RSA(rsa_ptr, 1)
+        rsa = RSA.RSA_pub(rsa_ptr, 1)
         return rsa
 
     def save_key(self, file, cipher='aes_128_cbc', callback=util.passphrase_callback):

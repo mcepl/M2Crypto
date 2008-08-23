@@ -5,8 +5,8 @@
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
 import unittest
-import sha, md5
-from M2Crypto import RSA, BIO, Rand, m2, EVP
+import sha, md5, os
+from M2Crypto import RSA, BIO, Rand, m2, EVP, X509
 
 class RSATestCase(unittest.TestCase):
 
@@ -103,7 +103,12 @@ class RSATestCase(unittest.TestCase):
         self.assertRaises(RSA.RSAError, priv.public_encrypt, self.data, RSA.no_padding)
         # Type-check the data to be encrypted.
         self.assertRaises(TypeError, priv.public_encrypt, self.gen_callback, RSA.pkcs1_padding)
-    
+
+    def test_x509_public_encrypt(self):
+        x509 = X509.load_cert("tests/recipient.pem")
+        rsa = x509.get_pubkey().get_rsa()
+        rsa.public_encrypt("data", RSA.pkcs1_padding)
+        
     def test_loadpub(self):
         rsa = RSA.load_pub_key(self.pubkey)
         assert len(rsa) == 512
@@ -112,6 +117,18 @@ class RSATestCase(unittest.TestCase):
 
     def test_loadpub_bad(self):
         self.assertRaises(RSA.RSAError, RSA.load_pub_key, self.errkey)
+
+    def test_savepub(self):
+        rsa = RSA.load_pub_key(self.pubkey)
+        assert rsa.as_pem() # calls save_key_bio
+        f = 'tests/rsa_test.pub'
+        try:
+            self.assertEquals(rsa.save_key(f), 1)
+        finally:
+            try:
+                os.remove(f)
+            except IOError:
+                pass
 
     def test_set_bn(self):
         rsa = RSA.load_pub_key(self.pubkey)
