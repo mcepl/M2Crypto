@@ -35,7 +35,7 @@ class HTTPSConnection(HTTPConnection):
         except ValueError:
             pass
         if keys:
-            raise IllegalKeywordArgument()
+            raise ValueError('unknown keyword argument')
         try:
             self.ssl_ctx = ssl['ssl_context']
             assert isinstance(self.ssl_ctx, SSL.Context), self.ssl_ctx

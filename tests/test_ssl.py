@@ -232,6 +232,11 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             c.close()
         finally:
             self.stop_server(pid)
+            
+    def test_HTTPSConnection_illegalkeywordarg(self):
+        from M2Crypto import httpslib
+        self.assertRaises(ValueError, httpslib.HTTPSConnection, 'example.org',
+                          badKeyword=True)
 
 
 class MiscSSLClientTestCase(BaseSSLClientTestCase):
