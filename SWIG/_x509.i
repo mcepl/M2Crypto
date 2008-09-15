@@ -468,7 +468,7 @@ int x509_req_add_extensions(X509_REQ *req, STACK *exts) {
     return X509_REQ_add_extensions(req, (STACK_OF(X509_EXTENSION) *)exts);
 }
 
-X509_NAME_ENTRY *x509_name_entry_create_by_txt( X509_NAME_ENTRY **ne, char *field, int type, unsigned char *bytes, int len) {
+X509_NAME_ENTRY *x509_name_entry_create_by_txt( X509_NAME_ENTRY **ne, char *field, int type, char *bytes, int len) {
     return X509_NAME_ENTRY_create_by_txt( ne, field, type, bytes, len);
 }
 

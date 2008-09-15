@@ -31,6 +31,7 @@ def suite():
         'tests.test_dsa',
         'tests.test_engine',
         'tests.test_evp',
+        'tests.test_obj',
         'tests.test_rand',
         'tests.test_rsa',
         'tests.test_smime',

@@ -1,5 +1,6 @@
 0.19
 ----
+- OpenSSL OBJ_* functions wrapped by Pavel Shramov
 - OpenSSL ENGINE interface wrapped, providing support for smart cards, by
   Martin Paljak and Pavel Shramov
 - EVP.PKey.get_rsa() now returns RSA_pub, which fixes segmentation fault
