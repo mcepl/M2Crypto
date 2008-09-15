@@ -338,7 +338,7 @@ class X509TestCase(unittest.TestCase):
         f = open('tests/x509.der')
         s2 = f.read()
         f.close()
-        assert s == s2, '%s != %s' % (s, s2)
+        assert s == s2
 
     def test_load(self):
         x509 = X509.load_cert('tests/x509.pem')
