@@ -21,6 +21,7 @@
 %apply Pointer NONNULL { BIO * };
 %apply Pointer NONNULL { DH * };
 %apply Pointer NONNULL { RSA * };
+%apply Pointer NONNULL { EVP_PKEY *};
 %apply Pointer NONNULL { PyObject *pyfunc };
 
 %rename(ssl_get_version) SSL_get_version;
@@ -213,6 +214,17 @@ void ssl_ctx_passphrase_callback(SSL_CTX *ctx, PyObject *pyfunc) {
     Py_INCREF(pyfunc);
 }
 
+int ssl_ctx_use_x509(SSL_CTX *ctx, X509 *x) {
+    int i;
+    
+    if (!(i = SSL_CTX_use_certificate(ctx, x))) {
+        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        return -1;
+    }
+    return i;
+
+}
+
 int ssl_ctx_use_cert(SSL_CTX *ctx, char *file) {
     int i;
     
@@ -243,6 +255,27 @@ int ssl_ctx_use_privkey(SSL_CTX *ctx, char *file) {
     }
     return i;
 }
+
+int ssl_ctx_use_rsa_privkey(SSL_CTX *ctx, RSA *rsakey) {
+    int i;
+
+    if (!(i = SSL_CTX_use_RSAPrivateKey(ctx, rsakey))) {
+        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        return -1;
+    }
+    return i;
+}
+
+int ssl_ctx_use_pkey_privkey(SSL_CTX *ctx, EVP_PKEY *pkey) {
+    int i;
+
+    if (!(i = SSL_CTX_use_PrivateKey(ctx, pkey))) {
+        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        return -1;
+    }
+    return i;
+}
+
 
 int ssl_ctx_check_privkey(SSL_CTX *ctx) {
     int ret;

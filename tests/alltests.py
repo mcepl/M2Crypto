@@ -94,4 +94,4 @@ def runall(report_leaks=0):
     
 
 if __name__ == '__main__':
-    runall()
+    runall(0)
