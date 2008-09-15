@@ -25,13 +25,11 @@ def makePKey(key):
     
 def makeRequest(pkey):
     req = X509.Request()
-    # Seems to default to 0, but we can now set it as well, so just API test
-    req.set_version(req.get_version())
+    req.set_version(2)
     req.set_pubkey(pkey)
-    req.set_pubkey(EVP.PKey(req.get_pubkey()))# Just a test of the API
     name = X509.X509_Name()
     name.CN = 'My CA, Inc.'
-    req.set_subject(name)
+    req.set_subject_name(name)
     ext1 = X509.new_extension('subjectAltName', 'DNS:foobar.example.com')
     ext2 = X509.new_extension('nsComment', 'Hello there')
     extstack = X509.X509_Extension_Stack()
@@ -66,8 +64,7 @@ def makeCert(req, caPkey):
     issuer.CN = 'The Issuer Monkey'
     issuer.O = 'The Organization Otherwise Known as My CA, Inc.'
     cert.set_issuer(issuer)
-    cert.set_pubkey(EVP.PKey(pkey))
-    cert.set_pubkey(EVP.PKey(cert.get_pubkey()))# Just a test of the API
+    cert.set_pubkey(pkey)
     notBefore = m2.x509_get_not_before(cert.x509)
     notAfter  = m2.x509_get_not_after(cert.x509)
     m2.x509_gmtime_adj(notBefore, 0)
