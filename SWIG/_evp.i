@@ -131,6 +131,8 @@ extern EVP_PKEY *EVP_PKEY_new(void);
 extern void EVP_PKEY_free(EVP_PKEY *);
 %rename(pkey_assign) EVP_PKEY_assign;
 extern int EVP_PKEY_assign(EVP_PKEY *, int, char *);
+%rename(pkey_assign_ec) EVP_PKEY_assign_EC_KEY;
+extern int EVP_PKEY_assign_EC_KEY(EVP_PKEY *, EC_KEY *);
 %rename(pkey_set1_rsa) EVP_PKEY_set1_RSA;
 extern int EVP_PKEY_set1_RSA(EVP_PKEY *, RSA *);
 %rename(pkey_get1_rsa) EVP_PKEY_get1_RSA;
