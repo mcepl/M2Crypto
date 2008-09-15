@@ -1,5 +1,7 @@
 0.19
 ----
+- OpenSSL ENGINE interface wrapped, providing support for smart cards, by
+  Martin Paljak and Pavel Shramov
 - EVP.PKey.get_rsa() now returns RSA_pub, which fixes segmentation fault
   when trying to encrypt using public key from X509 certificate, by Ben Timby
 - httpslib.ProxyHTTPSConnection now sends the required Host header,
