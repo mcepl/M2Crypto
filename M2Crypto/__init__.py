@@ -1,4 +1,13 @@
 """
+M2Crypto is the most complete Python wrapper for OpenSSL featuring RSA, DSA,
+DH, EC, HMACs, message digests, symmetric ciphers (including AES); SSL
+functionality to implement clients and servers; HTTPS extensions to
+Python's httplib, urllib, and xmlrpclib; unforgeable HMAC'ing AuthCookies
+for web session management; FTP/TLS client and server; S/MIME; ZServerSSL:
+A HTTPS server for Zope and ZSmime: An S/MIME messenger for Zope.
+M2Crypto can also be used to provide SSL for Twisted. Smartcards supported
+through the Engine interface.
+
 M2Crypto = Python + OpenSSL + SWIG
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.
@@ -6,9 +15,10 @@ Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.
 Portions created by Open Source Applications Foundation (OSAF) are
 Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 
+Copyright 2008 Heikki Toivonen. All rights reserved.
 """
 
-version_info = (0, 19)
+version_info = (0, 20)
 version = '.'.join([str(v) for v in version_info])
 
 import __m2crypto

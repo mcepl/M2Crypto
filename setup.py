@@ -7,6 +7,8 @@ Copyright (c) 1999-2004, Ng Pheng Siong. All rights reserved.
 
 Portions created by Open Source Applications Foundation (OSAF) are
 Copyright (C) 2004-2007 OSAF. All Rights Reserved.
+
+Copyright 2008 Heikki Toivonen. All rights reserved.
 """
 
 import os, sys
@@ -132,7 +134,7 @@ m2crypto = Extension(name = 'M2Crypto.__m2crypto',
                      )
 
 setup(name = 'M2Crypto',
-      version = '0.19',
+      version = '0.20',
       description = 'M2Crypto: A Python crypto and SSL toolkit',
       long_description = 'M2Crypto is a wrapper for OpenSSL using SWIG.',
       license = 'BSD-style license',
