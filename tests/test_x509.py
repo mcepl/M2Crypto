@@ -139,6 +139,9 @@ class X509TestCase(unittest.TestCase):
         assert cn.get_data().as_text() == "Hello There!", cn.get_data().as_text()
 
         assert n.as_hash() == 1697185131
+        
+        self.assertRaises(IndexError, lambda: n[100])
+        self.assertTrue(n[10])
 
     def test_mkreq(self):
         (req, _) = self.mkreq(512)
@@ -190,15 +193,19 @@ class X509TestCase(unittest.TestCase):
         cert.set_pubkey(cert.get_pubkey()) # Make sure get/set work
         ext = X509.new_extension('subjectAltName', 'DNS:foobar.example.com')
         ext.set_critical(0)
+        assert ext.get_critical() == 0
         cert.add_ext(ext)
         cert.sign(pk, 'sha1')
         assert(cert.get_ext('subjectAltName').get_name() == 'subjectAltName')
         assert(cert.get_ext_at(0).get_name() == 'subjectAltName')
         assert(cert.get_ext_at(0).get_value() == 'DNS:foobar.example.com')
         assert cert.get_ext_count() == 1, cert.get_ext_count()
+        self.assertRaises(IndexError, cert.get_ext_at, 1)
         assert cert.verify()
         assert cert.verify(pkey)
         assert cert.verify(cert.get_pubkey())
+        assert cert.get_version() == 2
+        assert cert.get_serial_number() == 1
         
         if m2.OPENSSL_VERSION_NUMBER >= 0x90800f:
             assert not cert.check_ca()
