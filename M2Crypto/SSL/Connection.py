@@ -151,7 +151,7 @@ class Connection:
         ssl.accept_ssl()
         check = getattr(self, 'postConnectionCheck', self.serverPostConnectionCheck)
         if check is not None:
-            if not check(self.get_peer_cert(), ssl.addr[0]):
+            if not check(ssl.get_peer_cert(), ssl.addr[0]):
                 raise Checker.SSLVerificationError, 'post connection check failed'
         return ssl, addr
 

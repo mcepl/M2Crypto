@@ -14,6 +14,8 @@
 - Reverted the incorrect GIL change done in 0.18 to m2.passphrase_callback,
   which caused a deadlock when called from mod_python for example. Thanks to
   Michal Kochel and Keith Jackson.
+- SSL.Connection.accept() passed wrong certificate to postConnectionCheck
+  callback
 - httpslib.HTTPSConnection now raises ValueError for illegal keyword argument
 - m2.pkey_write_pem[_no_cipher] changed to use the recommended (more secure)
   PEM_write_bio_PKCS8PrivateKey (used by PEM_write_bio_PrivateKey).
