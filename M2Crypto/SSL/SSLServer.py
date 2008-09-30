@@ -1,4 +1,8 @@
-"""Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
+"""SSLServer
+
+Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
+
+__all__ = ['SSLServer', 'ForkingSSLServer', 'ThreadingSSLServer']
 
 # Python
 import socket, SocketServer

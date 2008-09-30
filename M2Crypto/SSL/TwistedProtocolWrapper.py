@@ -5,6 +5,9 @@ Copyright (c) 2004-2007 Open Source Applications Foundation.
 All rights reserved.
 """
 
+__all__ = ['connectSSL', 'connectTCP', 'listenSSL', 'listenTCP',
+           'TLSProtocolWrapper']
+
 import twisted.protocols.policies as policies
 import twisted.internet.reactor
 from twisted.protocols.policies import ProtocolWrapper

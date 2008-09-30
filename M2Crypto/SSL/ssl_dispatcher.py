@@ -1,4 +1,8 @@
-"""Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
+"""SSL dispatcher
+
+Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
+
+__all__ = ['ssl_dispatcher']
 
 # Python
 import asyncore, socket

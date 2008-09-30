@@ -3,7 +3,12 @@ SSL peer certificate checking routines
 
 Copyright (c) 2004-2007 Open Source Applications Foundation.
 All rights reserved.
+
+Copyright 2008 Heikki Toivonen. All rights reserved.
 """
+
+__all__ = ['SSLVerificationError', 'NoCertificate', 'WrongCertificate',
+           'WrongHost', 'Checker']
 
 from M2Crypto import util, EVP, m2
 import re

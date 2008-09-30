@@ -1,4 +1,8 @@
-"""Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
+"""SSL Session
+
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
+
+__all__ = ['Session', 'load_session']
 
 from M2Crypto import BIO, Err, m2
 

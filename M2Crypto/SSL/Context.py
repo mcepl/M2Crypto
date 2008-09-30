@@ -2,6 +2,8 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
+__all__ = ['map', 'Context']
+
 from weakref import WeakValueDictionary
 
 # M2Crypto

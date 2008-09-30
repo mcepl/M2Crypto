@@ -1,4 +1,8 @@
-"""Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
+"""SSL Ciphers
+
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
+
+__all__ = ['Cipher', 'Cipher_Stack']
 
 from M2Crypto import m2
 

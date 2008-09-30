@@ -1,6 +1,11 @@
 """Support for SSL socket timeouts.
 
-Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
+
+Copyright 2008 Heikki Toivonen. All rights reserved.
+"""
+
+__all__ = ['DEFAULT_TIMEOUT', 'timeout', 'struct_to_timeout', 'struct_size']
 
 import struct
 from M2Crypto import m2

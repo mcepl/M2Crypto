@@ -1,6 +1,16 @@
 """SSL Connection aka socket
 
-Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.
+
+Portions created by Open Source Applications Foundation (OSAF) are
+Copyright (C) 2004-2007 OSAF. All Rights Reserved.
+
+Copyright 2008 Heikki Toivonen. All rights reserved.
+"""
+
+__all__ = ['Connection',
+           'timeout', # XXX Not really, but for documentation purposes
+           ]
 
 # Python
 import socket
@@ -141,7 +151,7 @@ class Connection:
 
     def accept(self):
         """Accept an SSL connection. The return value is a pair (ssl, addr) where
-        ssl is a new SSL connection object and addr is the address bound to the
+        ssl is a new SSL connection object and addr is the address bound to
         the other end of the SSL connection."""
         sock, addr = self.socket.accept()
         ssl = Connection(self.ctx, sock)
