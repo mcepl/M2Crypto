@@ -11,6 +11,7 @@ import unittest
 import cStringIO, sha
 from binascii import hexlify, unhexlify
 from M2Crypto import EVP, RSA, util, Rand, m2
+from M2Crypto.util import h2b
 
 class EVPTestCase(unittest.TestCase):
     def _gen_callback(self, *args):
@@ -310,11 +311,96 @@ class PBKDF2TestCase(unittest.TestCase):
         self.assertEqual(hexlify(ret), '6A 89 70 BF 68 C9 2C AE A8 4A 8D F2 85 10 85 86'.replace(' ', '').lower())
         
 
+class HMACTestCase(unittest.TestCase):
+    data1=['', 'More text test vectors to stuff up EBCDIC machines :-)', \
+           h2b("e9139d1e6ee064ef8cf514fc7dc83e86")]
+
+    data2=[h2b('0b'*16), "Hi There", \
+           h2b("9294727a3638bb1c13f48ef8158bfc9d")]
+
+    data3=['Jefe', "what do ya want for nothing?", \
+           h2b("750c783e6ab0b503eaa86e310a5db738")]
+
+    data4=[h2b('aa'*16), h2b('dd'*50), \
+           h2b("0x56be34521d144c88dbb8c733f0e8b3f6")]
+
+    data=[data1, data2, data3, data4]
+
+    def test_simple(self):
+        algo = 'md5'
+        for d in self.data:
+            h = EVP.HMAC(d[0], algo)
+            h.update(d[1])
+            ret = h.final()
+            self.assertEqual(ret, d[2])
+
+    def make_chain_HMAC(self, key, start, input, algo='sha1'):
+        chain = []
+        hmac = EVP.HMAC(key, algo)
+        hmac.update(`start`)
+        digest = hmac.final()
+        chain.append((digest, start))
+        for i in input:
+            hmac.reset(digest)
+            hmac.update(`i`)
+            digest = hmac.final()
+            chain.append((digest, i))
+        return chain
+    
+    def make_chain_hmac(self, key, start, input, algo='sha1'):
+        from M2Crypto.EVP import hmac
+        chain = []
+        digest = hmac(key, `start`, algo)
+        chain.append((digest, start))
+        for i in input:
+            digest = hmac(digest, `i`, algo)
+            chain.append((digest, i))
+        return chain
+    
+    def verify_chain_hmac(self, key, start, chain, algo='sha1'):
+        from M2Crypto.EVP import hmac
+        digest = hmac(key, `start`, algo)
+        c = chain[0]
+        if c[0] != digest or c[1] != start:
+            return 0
+        for d, v in chain[1:]:
+            digest = hmac(digest, `v`, algo)
+            if digest != d:
+                return 0
+        return 1
+    
+    def verify_chain_HMAC(self, key, start, chain, algo='sha1'):
+        hmac = EVP.HMAC(key, algo)
+        hmac.update(`start`)
+        digest = hmac.final()
+        c = chain[0]
+        if c[0] != digest or c[1] != start:
+            return 0
+        for d, v in chain[1:]:
+            hmac.reset(digest)
+            hmac.update(`v`)
+            digest = hmac.final()
+            if digest != d:
+                return 0
+        return 1
+    
+    def test_complicated(self):
+        make_chain = self.make_chain_hmac
+        verify_chain = self.verify_chain_hmac
+        key = 'numero uno'
+        start = 'zeroth item'
+        input = ['first item', 'go go go', 'fly fly fly']
+        chain = make_chain(key, start, input)
+        self.assertEquals(verify_chain('some key', start, chain), 0)
+        self.assertEquals(verify_chain(key, start, chain), 1)
+
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(EVPTestCase))
     suite.addTest(unittest.makeSuite(CipherTestCase))
     suite.addTest(unittest.makeSuite(PBKDF2TestCase))
+    suite.addTest(unittest.makeSuite(HMACTestCase))
     return suite    
 
 if __name__ == '__main__':

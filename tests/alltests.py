@@ -2,7 +2,7 @@
 
 def suite():
     from M2Crypto import m2
-    import os, sys
+    import os
     import unittest
     
     def my_import(name):
@@ -32,6 +32,7 @@ def suite():
         'tests.test_engine',
         'tests.test_evp',
         'tests.test_obj',
+        'tests.test_pgp',
         'tests.test_rand',
         'tests.test_rsa',
         'tests.test_smime',

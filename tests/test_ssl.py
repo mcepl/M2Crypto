@@ -974,6 +974,17 @@ class ContextTestCase(unittest.TestCase):
         from M2Crypto.SSL.Context import map, _ctxmap
         assert isinstance(map(), _ctxmap)
 
+    def test_certstore(self):
+        ctx = SSL.Context()
+        ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
+        ctx.load_verify_locations('tests/ca.pem')
+        ctx.load_cert('tests/x509.pem')
+
+        from M2Crypto import X509
+        store = ctx.get_cert_store()
+        assert isinstance(store, X509.X509_Store)
+
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(CheckerTestCase))
