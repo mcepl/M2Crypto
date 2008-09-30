@@ -2,6 +2,9 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
+__all__ = ['unknown_issuer', 'ssl_verify_callback_stub', 'ssl_verify_callback',
+           'ssl_verify_callback_allow_unknown_ca', 'ssl_info_callback']
+
 # Python
 import sys
 

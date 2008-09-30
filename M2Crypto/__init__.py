@@ -8,8 +8,6 @@ A HTTPS server for Zope and ZSmime: An S/MIME messenger for Zope.
 M2Crypto can also be used to provide SSL for Twisted. Smartcards supported
 through the Engine interface.
 
-M2Crypto = Python + OpenSSL + SWIG
-
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.
 
 Portions created by Open Source Applications Foundation (OSAF) are
