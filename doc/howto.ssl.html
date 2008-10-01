@@ -120,7 +120,7 @@ NAME="history"
 >
 
 
-<DIV CLASS="SECT1">
+<DIV CLASS="SECT1" id="secure" name="secure">
 <H1 CLASS="SECT1">Secure SSL</H1>
 	
 <p>It is recommended that you read the book Network Security with OpenSSL by John Viega, Matt Messier and Pravir Chandra,
@@ -145,7 +145,12 @@ weaknesses) and sets the allowed ciphers to secure ones.</p>
 and requires the server to send a certificate. The depth parameter tells how long certificate chains are allowed -
 9 is pretty common default, although probably too long in practice.</p>
 	
-<p>The third line loads the allowed root (certificate authority) certificates.</p>	
+<p>The third line loads the allowed root (certificate authority or CA) certificates.
+Most Linux distributions come with CA certificates in suitable format. You
+could also download the <a href="http://mxr.mozilla.org/seamonkey/source//security/nss/lib/ckfw/builtins/certdata.txt?raw=1">certdata.txt</a>
+file from the <a href="http://www.mozilla.org/projects/security/pki/nss/">NSS</a>
+project and convert it
+with the little M2Crypto utility script <a href="http://svn.osafoundation.org/m2crypto/trunk/demo/x509/certdata2pem.py">demo/x509/certdata2pem.py</a>.</p>	
 
 <p>The fourth line creates an SSL connection object with the secure context.</p>
 	
