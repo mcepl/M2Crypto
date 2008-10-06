@@ -136,15 +136,31 @@ m2crypto = Extension(name = 'M2Crypto.__m2crypto',
 setup(name = 'M2Crypto',
       version = '0.20',
       description = 'M2Crypto: A Python crypto and SSL toolkit',
-      long_description = 'M2Crypto is a wrapper for OpenSSL using SWIG.',
+      long_description = '''\
+M2Crypto is the most complete Python wrapper for OpenSSL featuring RSA, DSA,
+DH, EC, HMACs, message digests, symmetric ciphers (including AES); SSL
+functionality to implement clients and servers; HTTPS extensions to Python's
+httplib, urllib, and xmlrpclib; unforgeable HMAC'ing AuthCookies for web
+session management; FTP/TLS client and server; S/MIME; ZServerSSL: A HTTPS
+server for Zope and ZSmime: An S/MIME messenger for Zope. M2Crypto can also be
+used to provide SSL for Twisted.''',
       license = 'BSD-style license',
       platforms = ['any'],
       author = 'Ng Pheng Siong',
-      author_email = 'ngps@netmemetic.com',
+      author_email = 'ngps at sandbox rulemaker net',
       maintainer = 'Heikki Toivonen',
       maintainer_email = 'heikki@osafoundation.org',
       url = 'http://chandlerproject.org/Projects/MeTooCrypto',
       packages = ['M2Crypto', 'M2Crypto.SSL', 'M2Crypto.PGP'],
+      classifiers = [
+          'Development Status :: 5 - Production/Stable',
+          'Intended Audience :: Developers',
+          'Operating System :: OS Independent',
+          'Programming Language :: C',
+          'Programming Language :: Python',
+          'Topic :: Security :: Cryptography',
+      ],
+
       ext_modules = [m2crypto],
       test_suite='tests.alltests.suite',
       cmdclass = {'build_ext': _M2CryptoBuildExt}
