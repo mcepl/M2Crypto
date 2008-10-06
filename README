@@ -3,7 +3,7 @@
 =========
 
 :Maintainer: Heikki Toivonen
-:Web-Site: http://wiki.osafoundation.org/bin/view/Projects/MeTooCrypto
+:Web-Site: http://chandlerproject.org/Projects/MeTooCrypto
 
 
 M2Crypto = Python + OpenSSL + SWIG
