@@ -1,5 +1,9 @@
-0.19
+0.20
 ----
+- 
+
+0.19 - 2008-10-05
+-----------------
 - OpenSSL OBJ_* functions wrapped by Pavel Shramov
 - OpenSSL ENGINE interface wrapped, providing support for smart cards, by
   Martin Paljak and Pavel Shramov
