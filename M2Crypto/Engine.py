@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # vim: sts=4 sw=4 et
 """
 M2Crypto wrapper for OpenSSL ENGINE API.
