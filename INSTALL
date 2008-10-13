@@ -34,7 +34,8 @@ Note about OpenSSL with Elliptic Curves (EC) Disabled
 
 Fedora Core configures OpenSSL without EC. It has been reported that some
 Fedora Core systems also need to uncomment the -D__i386__ line even though
-the OpenSSL version is 0.9.8 or later.
+the OpenSSL version is 0.9.8 or later. You may also need to define
+SWIG_FEATURES=-cpperraswarn to be able to build.
 
 Installing on Unix-like systems, including Cygwin
 -------------------------------------------------
