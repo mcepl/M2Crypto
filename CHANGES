@@ -2,6 +2,10 @@
 ----
 - 
 
+0.19.1 - 2008-10-12
+-------------------
+- Re-enable building when OpenSSL built without EC support, by Miloslav Trmac
+
 0.19 - 2008-10-05
 -----------------
 - OpenSSL OBJ_* functions wrapped by Pavel Shramov
