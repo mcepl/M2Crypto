@@ -54,6 +54,11 @@ def initLog(filename, prefix='', echo=True, echoErrors=False):
     return result
 
 
+def closeLog():
+    """Need to close log to flush all data."""
+    _logFile.close()
+
+
 def log(msg, error=False, newline='\n'):
     """
     Output log message to an open log file or to StdOut
