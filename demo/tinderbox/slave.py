@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 #
 """
-This is a sample Tinderbox2 buildslave script. Run it from cron,
-or modify the section at the bottom to run in a loop.
+This is a sample Tinderbox2 buildslave script.
 
 NOTE: WAIT at least 6 minutes after the last build before starting
       the next build!
@@ -20,6 +19,7 @@ name = identify your build slave, for example Ubuntu 8.04 32-bit
 ;;svn = svn co http://svn.osafoundation.org/m2crypto/trunk m2crypto
 ;;build = python setup.py clean --all build
 ;;test = python setup.py test
+;;wait = 3600
 
 [email]
 from = your email
@@ -76,13 +76,15 @@ def build(commands, config):
             cmd = cmd.split()
         
         bl.log('*** ' + ' '.join(cmd))
-        if bl.runCommand(cmd, timeout=120):
+        
+        exit_code = bl.runCommand(cmd, timeout=120) 
+        if exit_code:
+            bl.log('*** error exit code = %d' % exit_code)
             if command == 'test':
                 status = 'test_failed'
             else:
                 status = 'build_failed'
             break
-            import sys;sys.exit(1)
         if command == 'svn':
             os.chdir('m2crypto')
         
@@ -128,7 +130,11 @@ tinderbox: END
 if __name__ == '__main__':
     config = load_config()    
     
+    wait_seconds = config.get('wait') or 3600
+    
     commands = ['uname', 'swig', 'cc', 'openssl', 'python', 'svn', 'build', 'test']
 
-    logpath, starttime, timenow, status = build(commands, config)
-    email(logpath, starttime, timenow, status, config)
+    while True:
+        logpath, starttime, timenow, status = build(commands, config)
+        email(logpath, starttime, timenow, status, config)
+        time.sleep(wait_seconds)
