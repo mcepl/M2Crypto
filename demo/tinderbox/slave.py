@@ -18,8 +18,11 @@ name = identify your build slave, for example Ubuntu 8.04 32-bit
 ;;python = python --version
 ;;svn = svn co http://svn.osafoundation.org/m2crypto/trunk m2crypto
 ;;build = python setup.py clean --all build
+;; OR another way to do tests without setuptools:
+;;build = PYTHONPATH=build/lib-something python tests/alltests.py
 ;;test = python setup.py test
 ;;wait = 3600
+;;timeout = 180
 
 [email]
 from = your email
@@ -63,6 +66,7 @@ def build(commands, config):
     status = 'success'
     
     cwd = os.getcwd()
+    timeout = int(config.get('timeout') or 180)
     
     bl.initLog('tbox.log', echo=debug_script)
     
@@ -75,9 +79,9 @@ def build(commands, config):
         else:
             cmd = cmd.split()
         
-        bl.log('*** ' + ' '.join(cmd))
+        bl.log('*** %s, timeout=%ds' % (' '.join(cmd), timeout))
         
-        exit_code = bl.runCommand(cmd, timeout=120) 
+        exit_code = bl.runCommand(cmd, timeout=timeout) 
         if exit_code:
             bl.log('*** error exit code = %d' % exit_code)
             if command == 'test':
@@ -112,9 +116,9 @@ tinderbox: errorparser: unix
 tinderbox: END
 
 """ % {'from': config['from'], 'to': config['to'], 
-           'starttime': starttime, 'timenow': timenow,
-           'status': status,
-           'buildname': config['name']}
+       'starttime': starttime, 'timenow': timenow,
+       'status': status,
+       'buildname': config['name']}
     
     msg += open(logpath).read()
     
@@ -130,7 +134,7 @@ tinderbox: END
 if __name__ == '__main__':
     config = load_config()    
     
-    wait_seconds = config.get('wait') or 3600
+    wait_seconds = int(config.get('wait') or 3600)
     
     commands = ['uname', 'swig', 'cc', 'openssl', 'python', 'svn', 'build', 'test']
 
