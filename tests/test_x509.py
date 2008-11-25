@@ -141,7 +141,7 @@ class X509TestCase(unittest.TestCase):
         assert n.as_hash() == 1697185131
         
         self.assertRaises(IndexError, lambda: n[100])
-        self.assertTrue(n[10])
+        self.assert_(n[10])
 
     def test_mkreq(self):
         (req, _) = self.mkreq(512)
