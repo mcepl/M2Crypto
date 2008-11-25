@@ -1,6 +1,7 @@
 0.20
 ----
-- 
+- Added X509.load_request_bio and load_request_string, by Hartmut Goebel and
+  Pavel Shramov
 
 0.19.1 - 2008-10-12
 -------------------
