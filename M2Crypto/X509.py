@@ -1000,6 +1000,56 @@ def load_request(file, format=FORMAT_PEM):
         raise X509Error(Err.get_error())
     return Request(cptr, 1)
 
+def load_request_bio(bio, format=FORMAT_PEM):
+    """
+    Load certificate request from a bio.
+
+    @type bio: M2Crypto.BIO.BIO
+    @param bio: BIO pointing at a certificate request in either DER or PEM format.
+    @type format: int, either FORMAT_PEM or FORMAT_DER
+    @param format: Describes the format of the request to be loaded, either PEM or DER.
+
+    @rtype: M2Crypto.X509.Request
+    @return: M2Crypto.X509.Request object.
+    """
+    if format == FORMAT_PEM:
+        cptr = m2.x509_req_read_pem(bio._ptr())
+    elif format == FORMAT_DER:
+        cptr = m2.d2i_x509_req(bio._ptr())
+    else:
+        raise ValueError("Unknown format. Must be either FORMAT_DER or FORMAT_PEM")
+    if cptr is None:
+        raise X509Error(Err.get_error())
+    return Request(cptr, _pyfree=1)
+
+def load_request_string(string, format=FORMAT_PEM):
+    """
+    Load certificate request from a string.
+
+    @type string: string
+    @param string: String containing a certificate request in either DER or PEM format.
+    @type format: int, either FORMAT_PEM or FORMAT_DER
+    @param format: Describes the format of the request to be loaded, either PEM or DER.
+
+    @rtype: M2Crypto.X509.Request
+    @return: M2Crypto.X509.Request object.
+    """
+    bio = BIO.MemoryBuffer(string)
+    return load_request_bio(bio, format)
+
+def load_request_der_string(string):
+    """
+    Load certificate request from a string.
+
+    @type string: string
+    @param string: String containing a certificate request in DER format.
+
+    @rtype: M2Crypto.X509.Request
+    @return: M2Crypto.X509.Request object.
+    """
+    bio = BIO.MemoryBuffer(string)
+    return load_request_bio(bio, FORMAT_DER)
+
 
 class CRL:
     """

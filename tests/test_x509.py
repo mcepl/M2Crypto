@@ -378,6 +378,20 @@ class X509TestCase(unittest.TestCase):
         assert x509.as_pem() == x5092.as_pem()
         assert x509.as_der() == x5092.as_der()
         return
+    
+    def test_load_request_bio(self):
+        (req, _) = self.mkreq(512)
+
+        r1 = X509.load_request_der_string(req.as_der())
+        r2 = X509.load_request_string(req.as_der(), X509.FORMAT_DER)
+        r3 = X509.load_request_string(req.as_pem(), X509.FORMAT_PEM)
+
+        r4 = X509.load_request_bio(BIO.MemoryBuffer(req.as_der()), X509.FORMAT_DER)
+        r5 = X509.load_request_bio(BIO.MemoryBuffer(req.as_pem()), X509.FORMAT_PEM)
+
+        for r in [r1, r2, r3, r4, r5]:
+            assert req.as_der() == r.as_der()
+
 
     def test_save(self):
         x509 = X509.load_cert('tests/x509.pem')
@@ -407,6 +421,8 @@ class X509TestCase(unittest.TestCase):
         self.assertRaises(X509.X509Error, X509.new_stack_from_der, 'Hello')
         self.assertRaises(X509.X509Error, X509.load_cert, 'tests/alltests.py')
         self.assertRaises(X509.X509Error, X509.load_request, 'tests/alltests.py')
+        self.assertRaises(X509.X509Error, X509.load_request_string, 'Hello')
+        self.assertRaises(X509.X509Error, X509.load_request_der_string, 'Hello')
         self.assertRaises(X509.X509Error, X509.load_crl, 'tests/alltests.py')
 
 class X509_StackTestCase(unittest.TestCase):
