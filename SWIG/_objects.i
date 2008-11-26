@@ -76,6 +76,19 @@ PyObject *obj_obj2txt(const ASN1_OBJECT *obj, int no_name)
     if (len < 0) {
         PyErr_SetString(PyExc_RuntimeError, ERR_reason_error_string(ERR_get_error()));
         return NULL;
+    } else if (len == 0) {
+        /* XXX: For OpenSSL prior to 0.9.8b.
+
+          Changes between 0.9.8a and 0.9.8b  [04 May 2006]
+          ...
+          *) Several fixes and enhancements to the OID generation code. The old code
+             sometimes allowed invalid OIDs (1.X for X >= 40 for example), couldn't
+             handle numbers larger than ULONG_MAX, truncated printing and had a
+             non standard OBJ_obj2txt() behaviour.
+             [Steve Henson]
+        */
+
+        len = 80;
     }
 
     buf = PyMem_Malloc(len + 1);
