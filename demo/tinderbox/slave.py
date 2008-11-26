@@ -33,7 +33,7 @@ server = smtp server
 port = smtp port
 """
 
-import time, smtplib, os, ConfigParser
+import time, smtplib, os, ConfigParser, tempfile
 import build_lib as bl
 
 # Change to True when you are troubleshooting this build script
@@ -61,6 +61,23 @@ def load_config(cfg='config.ini'):
             config[option] = cp.get(section, option).strip()
     return config
 
+# XXX copied from test_ssl
+def zap_servers():
+    s = 's_server'
+    fn = tempfile.mktemp() 
+    cmd = 'ps | egrep %s > %s' % (s, fn)
+    os.system(cmd)
+    f = open(fn)
+    while 1:
+        ps = f.readline()
+        if not ps:
+            break
+        chunk = string.split(ps)
+        pid, cmd = chunk[0], chunk[4]
+        if cmd == s:
+            os.kill(int(pid), 1)
+    f.close()
+    os.unlink(fn)
 
 def build(commands, config):
     status = 'success'
@@ -86,6 +103,13 @@ def build(commands, config):
             bl.log('*** error exit code = %d' % exit_code)
             if command == 'test':
                 status = 'test_failed'
+                if os.name != 'nt':
+                    try:
+                        # If tests were killed due to timeout, we may have left
+                        # openssl processes running, so try killing
+                        zap_servers()
+                    except Exception, e:
+                        bl.log('*** error: tried to zap_servers: ' + str(e))
             else:
                 status = 'build_failed'
             break
