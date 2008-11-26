@@ -957,6 +957,8 @@ class Request:
         """
         return m2.x509_req_set_subject_name( self.req, name.x509_name )
 
+    set_subject = set_subject_name
+
     def add_extensions(self, ext_stack):
         """
         Add X509 extensions to this request.
