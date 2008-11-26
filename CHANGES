@@ -4,6 +4,8 @@
   Pavel Shramov
 - Added alias X509.Request.set_subject for set_subject_name to match X509.X509,
   by Pavel Shramov
+- OBJ_* wrappers did not work properly with OpenSSL 0.9.8a and earlier, fix by
+  Pavel Shramov
 
 0.19.1 - 2008-10-12
 -------------------
