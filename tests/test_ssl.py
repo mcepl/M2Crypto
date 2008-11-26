@@ -50,9 +50,25 @@ class VerifyCB:
 
 sleepTime = float(os.getenv('M2CRYPTO_TEST_SSL_SLEEP', 0.5))
 
+def find_openssl():
+    plist = os.environ['PATH'].split(os.pathsep)
+    for p in plist:
+        try:
+            dir = os.listdir(p)
+            if 'openssl' in dir:
+                return True
+        except:
+            pass
+    return False
+
 class BaseSSLClientTestCase(unittest.TestCase):
 
+    openssl_in_path = find_openssl()
+
     def start_server(self, args):
+        if not self.openssl_in_path:
+            raise Exception('openssl command not in PATH')
+        
         pid = os.fork()
         if pid == 0:
             # openssl must be started in the tests directory for it
