@@ -51,11 +51,16 @@ class VerifyCB:
 sleepTime = float(os.getenv('M2CRYPTO_TEST_SSL_SLEEP', 0.5))
 
 def find_openssl():
+    if os.name == 'nt' or sys.platform == 'cygwin':
+        openssl = 'openssl.exe'
+    else:
+        openssl = 'openssl'
+
     plist = os.environ['PATH'].split(os.pathsep)
     for p in plist:
         try:
             dir = os.listdir(p)
-            if 'openssl' in dir:
+            if openssl in dir:
                 return True
         except:
             pass
