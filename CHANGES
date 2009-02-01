@@ -6,6 +6,8 @@
   by Pavel Shramov
 - OBJ_* wrappers did not work properly with OpenSSL 0.9.8a and earlier, fix by
   Pavel Shramov
+- Reverted a change done in 0.17 to m2urllib2 which changed urls to include
+  host when it should stay as it was
 
 0.19.1 - 2008-10-12
 -------------------

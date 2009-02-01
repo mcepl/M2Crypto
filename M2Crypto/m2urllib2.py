@@ -64,7 +64,7 @@ class HTTPSHandler(AbstractHTTPHandler):
         # request.
         headers["Connection"] = "close"
         try:
-            h.request(req.get_method(), req.get_full_url(), req.data, headers)
+            h.request(req.get_method(), req.get_selector(), req.data, headers)
             r = h.getresponse()
         except socket.error, err: # XXX what error?
             raise URLError(err)
