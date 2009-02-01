@@ -219,7 +219,8 @@ class PKey:
 
         @param sign: Signature to use for verification
         @rtype: int
-        @return: Result of verification: 1 for success, 0 for failure.
+        @return: Result of verification: 1 for success, 0 for failure, -1 on
+                 other error.
         """
         return m2.verify_final(self.ctx, sign, self.pkey)
 
