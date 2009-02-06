@@ -159,6 +159,7 @@ used to provide SSL for Twisted.''',
           'Programming Language :: C',
           'Programming Language :: Python',
           'Topic :: Security :: Cryptography',
+          'Topic :: Software Development :: Libraries :: Python Modules',
       ],
 
       ext_modules = [m2crypto],
