@@ -1006,10 +1006,17 @@ class ContextTestCase(unittest.TestCase):
         assert isinstance(store, X509.X509_Store)
 
 
+class SessionTestCase(unittest.TestCase):
+    def test_session_load_bad(self):
+        self.assertRaises(SSL.SSLError, SSL.Session.load_session,
+                          'tests/signer.pem')
+
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(CheckerTestCase))
     suite.addTest(unittest.makeSuite(ContextTestCase))
+    suite.addTest(unittest.makeSuite(SessionTestCase))
     suite.addTest(unittest.makeSuite(PassSSLClientTestCase))
     suite.addTest(unittest.makeSuite(HttpslibSSLClientTestCase))
     suite.addTest(unittest.makeSuite(UrllibSSLClientTestCase))

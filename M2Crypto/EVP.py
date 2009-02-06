@@ -359,11 +359,11 @@ def load_key(file, callback=util.passphrase_callback):
     """
     bio = m2.bio_new_file(file, 'r')
     if bio is None:
-        raise Err.get_error()
+        raise BIO.BIOError(Err.get_error())
     cptr = m2.pkey_read_pem(bio, callback)
     m2.bio_free(bio)
     if cptr is None:
-        raise Err.get_error()
+        raise EVPError(Err.get_error())
     return PKey(cptr, 1)
 
 def load_key_bio(bio, callback=util.passphrase_callback):
@@ -382,7 +382,7 @@ def load_key_bio(bio, callback=util.passphrase_callback):
     """
     cptr = m2.pkey_read_pem(bio._ptr(), callback)
     if cptr is None:
-        raise Err.get_error()
+        raise EVPError(Err.get_error())
     return PKey(cptr, 1)
 
 def load_key_string(string, callback=util.passphrase_callback):

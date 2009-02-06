@@ -6,7 +6,7 @@ Copyright (C) 2006 Open Source Applications Foundation. All Rights Reserved.
 """
 
 import unittest
-from M2Crypto import SMIME, BIO, Rand, X509
+from M2Crypto import SMIME, BIO, Rand, X509, EVP
 
 class SMIMETestCase(unittest.TestCase):
     cleartext = 'some text to manipulate'
@@ -16,6 +16,23 @@ class SMIMETestCase(unittest.TestCase):
         self.signed = self.test_sign()
         self.encrypted = self.test_encrypt()
     
+    def test_load_bad(self):
+        s = SMIME.SMIME()
+        self.assertRaises(EVP.EVPError, s.load_key,
+                          'tests/signer.pem',
+                          'tests/signer.pem')
+
+        self.assertRaises(BIO.BIOError, SMIME.load_pkcs7, 'nosuchfile-dfg456')
+        self.assertRaises(SMIME.PKCS7_Error, SMIME.load_pkcs7, 'tests/signer.pem')
+        self.assertRaises(SMIME.PKCS7_Error, SMIME.load_pkcs7_bio, BIO.MemoryBuffer('no pkcs7'))
+
+        self.assertRaises(SMIME.SMIME_Error, SMIME.smime_load_pkcs7, 'tests/signer.pem')
+        self.assertRaises(SMIME.SMIME_Error, SMIME.smime_load_pkcs7_bio, BIO.MemoryBuffer('no pkcs7'))
+
+    def test_crlf(self):
+        self.assertEqual(SMIME.text_crlf('foobar'), 'Content-Type: text/plain\r\n\r\nfoobar')
+        self.assertEqual(SMIME.text_crlf_bio(BIO.MemoryBuffer('foobar')).read(), 'Content-Type: text/plain\r\n\r\nfoobar')
+        
     def test_sign(self):
         buf = BIO.MemoryBuffer(self.cleartext)
         s = SMIME.SMIME()
