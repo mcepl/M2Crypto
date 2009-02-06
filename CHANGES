@@ -8,6 +8,13 @@
   Pavel Shramov
 - Reverted a change done in 0.17 to m2urllib2 which changed urls to include
   host when it should stay as it was
+- SMIME.text_crlf and text_crlf_bio were always raising TypeError; fixed
+- EVP.load_key and load_key_bio fixed to raise EVP.EVPError and BIO.BIOError
+  instead of str (str exceptions not allowed in Python 2.6 and later)
+- SSL.Session.load_session fixed to raise SSL.SSLError instead of str
+- SMIME.load_pkcs7, load_pkcs7_bio, smime_load_pkcs7, smime_load_pkcs7_bio,
+  text_crlf, text_crlf_bio fixed to raise BIO.BIOError, SMIME.PKCS7_Error and
+  SMIME.SMIME_Error as appropriate instead of str
 
 0.19.1 - 2008-10-12
 -------------------

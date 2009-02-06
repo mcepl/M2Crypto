@@ -53,7 +53,6 @@ def load_session(pemfile):
     cptr = m2.ssl_session_read_pem(f.bio_ptr())
     f.close()
     if cptr is None:
-        raise Err.get_error()
+        from M2Crypto.SSL import SSLError
+        raise SSLError(Err.get_error())
     return Session(cptr, 1)
-
-

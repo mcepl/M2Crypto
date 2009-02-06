@@ -10,7 +10,7 @@ Author: Heikki Toivonen
 import unittest
 import cStringIO, sha
 from binascii import hexlify, unhexlify
-from M2Crypto import EVP, RSA, util, Rand, m2
+from M2Crypto import EVP, RSA, util, Rand, m2, BIO
 from M2Crypto.util import h2b
 
 class EVPTestCase(unittest.TestCase):
@@ -161,6 +161,14 @@ class EVPTestCase(unittest.TestCase):
         pubkey.verify_update('test  message not')
         assert pubkey.verify_final(sig) == 0
 
+    def test_load_bad(self):
+        self.assertRaises(BIO.BIOError, EVP.load_key,
+                          'thisdoesnotexist-dfgh56789')
+        self.assertRaises(EVP.EVPError, EVP.load_key,
+                          'tests/signer.pem') # not a key
+        self.assertRaises(EVP.EVPError, EVP.load_key_bio,
+                          BIO.MemoryBuffer('no a key'))
+        
 
 class CipherTestCase(unittest.TestCase):
     def cipher_filter(self, cipher, inf, outf):

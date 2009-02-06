@@ -63,7 +63,7 @@ class PKCS7:
 def load_pkcs7(p7file):
     bio = m2.bio_new_file(p7file, 'r')
     if bio is None:
-        raise Err.get_error()
+        raise BIO.BIOError(Err.get_error())
 
     try:
         p7_ptr = m2.pkcs7_read_bio(bio)
@@ -71,21 +71,21 @@ def load_pkcs7(p7file):
         m2.bio_free(bio)
         
     if p7_ptr is None:
-        raise Err.get_error()
+        raise PKCS7_Error(Err.get_error())
     return PKCS7(p7_ptr, 1)
     
 
 def load_pkcs7_bio(p7_bio):
     p7_ptr = m2.pkcs7_read_bio(p7_bio._ptr())
     if p7_ptr is None:
-        raise Err.get_error()
+        raise PKCS7_Error(Err.get_error())
     return PKCS7(p7_ptr, 1)
     
 
 def smime_load_pkcs7(p7file):
     bio = m2.bio_new_file(p7file, 'r')
     if bio is None:
-        raise Err.get_error()
+        raise BIO.BIOError(Err.get_error())
     
     try:
         p7_ptr, bio_ptr = m2.smime_read_pkcs7(bio)
@@ -93,7 +93,7 @@ def smime_load_pkcs7(p7file):
         m2.bio_free(bio)
     
     if p7_ptr is None:
-        raise Err.get_error()
+        raise SMIME_Error(Err.get_error())
     if bio_ptr is None:
         return PKCS7(p7_ptr, 1), None
     else:
@@ -103,7 +103,7 @@ def smime_load_pkcs7(p7file):
 def smime_load_pkcs7_bio(p7_bio):
     p7_ptr, bio_ptr = m2.smime_read_pkcs7(p7_bio._ptr())
     if p7_ptr is None:
-        raise Err.get_error()
+        raise SMIME_Error(Err.get_error())
     if bio_ptr is None:
         return PKCS7(p7_ptr, 1), None
     else:
@@ -175,7 +175,7 @@ class SMIME:
             raise SMIME_Error, 'no recipient certs: use set_x509_stack()'
         pkcs7 = m2.pkcs7_encrypt(self.x509_stack._ptr(), data_bio._ptr(), self.cipher._ptr(), flags)
         if pkcs7 is None:
-            raise SMIME_Error, Err.get_error()
+            raise SMIME_Error(Err.get_error())
         return PKCS7(pkcs7, 1)
 
     def decrypt(self, pkcs7, flags=0):
@@ -185,7 +185,7 @@ class SMIME:
             raise SMIME_Error, 'no certificate: load_key() used incorrectly?'
         blob = m2.pkcs7_decrypt(pkcs7._ptr(), self.pkey._ptr(), self.x509._ptr(), flags)
         if blob is None:
-            raise SMIME_Error, Err.get_error()
+            raise SMIME_Error(Err.get_error())
         return blob
 
     def sign(self, data_bio, flags=0):
@@ -195,13 +195,13 @@ class SMIME:
             pkcs7 = m2.pkcs7_sign1(self.x509._ptr(), self.pkey._ptr(), 
                 self.x509_stack._ptr(), data_bio._ptr(), flags)
             if pkcs7 is None:
-                raise SMIME_Error, Err.get_error()
+                raise SMIME_Error(Err.get_error())
             return PKCS7(pkcs7, 1)
         else:
             pkcs7 = m2.pkcs7_sign0(self.x509._ptr(), self.pkey._ptr(), 
                 data_bio._ptr(), flags)
             if pkcs7 is None:
-                raise SMIME_Error, Err.get_error()
+                raise SMIME_Error(Err.get_error())
             return PKCS7(pkcs7, 1)
 
     def verify(self, pkcs7, data_bio=None, flags=0):
@@ -216,7 +216,7 @@ class SMIME:
         else:
             blob = m2.pkcs7_verify1(p7, self.x509_stack._ptr(), self.x509_store._ptr(), data_bio._ptr(), flags)
         if blob is None:
-            raise SMIME_Error, Err.get_error()
+            raise SMIME_Error(Err.get_error())
         return blob
 
     def write(self, out_bio, pkcs7, data_bio=None, flags=0):
@@ -230,17 +230,16 @@ class SMIME:
 def text_crlf(text):
     bio_in = BIO.MemoryBuffer(text)
     bio_out = BIO.MemoryBuffer()
-    if m2.smime_crlf_copy(bio_in, bio_out):
+    if m2.smime_crlf_copy(bio_in._ptr(), bio_out._ptr()):
         return bio_out.read()
     else:
-        raise Err.get_error()
+        raise SMIME_Error(Err.get_error())
 
 
 def text_crlf_bio(bio_in):
     bio_out = BIO.MemoryBuffer()
-    m2.smime_crlf_copy(bio_in, bio_out)
-    if m2.smime_crlf_copy(bio_in, bio_out):
+    if m2.smime_crlf_copy(bio_in._ptr(), bio_out._ptr()):
         return bio_out
     else:
-        raise Err.get_error()
+        raise SMIME_Error(Err.get_error())
 
