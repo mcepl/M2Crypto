@@ -11,11 +11,27 @@ Summary of changes:
  - Add the M2Crypto HTTPSHandler when building a default opener.
 """
 
+import socket
 from urllib2 import *
 import urlparse
 
 import SSL
 import httpslib
+
+
+class _closing_fileobject(socket._fileobject):
+    '''socket._fileobject that propagates self.close() to the socket.
+
+    Python 2.5 provides this as socket._fileobject(sock, close=True).
+    '''
+
+    def __init__(self, sock):
+        socket._fileobject.__init__(self, sock)
+
+    def close(self):
+        sock = self._sock
+        socket._fileobject.close(self)
+        sock.close()
 
 class HTTPSHandler(AbstractHTTPHandler):
     def __init__(self, ssl_context = None):
@@ -81,7 +97,7 @@ class HTTPSHandler(AbstractHTTPHandler):
         # out of socket._fileobject() and into a base class.
 
         r.recv = r.read
-        fp = socket._fileobject(r)
+        fp = _closing_fileobject(r)
 
         resp = addinfourl(fp, r.msg, req.get_full_url())
         resp.code = r.status
