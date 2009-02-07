@@ -917,6 +917,19 @@ class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
             opener = m2urllib2.build_opener(ctx,
                                             m2urllib2.HTTPBasicAuthHandler())
 
+        def test_urllib2_leak(self):
+            pid = self.start_server(self.args)
+            try:
+                import gc
+                from M2Crypto import m2urllib2
+                o = m2urllib2.build_opener()
+                r = o.open('https://%s:%s/' % (srv_host, srv_port))
+                s = [r.fp._sock.fp]
+                r.close()
+                self.assertEqual(len(gc.get_referrers(s[0])), 1)
+            finally:
+                self.stop_server(pid)
+
 
 class TwistedSSLClientTestCase(BaseSSLClientTestCase):
 
