@@ -29,13 +29,13 @@ if you get this compile-time error:
   
   This openssl-devel package does not work your architecture?
 
-Note about OpenSSL with Elliptic Curves (EC) Disabled
+Note about Fedora Core -based Distributions
 -----------------------------------------------------
 
-Fedora Core configures OpenSSL without EC. It has been reported that some
-Fedora Core systems also need to uncomment the -D__i386__ line even though
-the OpenSSL version is 0.9.8 or later. You may also need to define
-SWIG_FEATURES=-cpperraswarn to be able to build.
+Fedora Core (and RedHat, CentOS etc.) have made changes to OpenSSL
+configuration compared to many other Linux distributions. If you can not
+build M2Crypto normally, try the fedora_setup.sh script included with
+M2Crypto sources.
 
 Installing on Unix-like systems, including Cygwin
 -------------------------------------------------

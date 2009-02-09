@@ -1,5 +1,7 @@
 0.20
 ----
+- Added fedora_setup.sh to help work around differences on Fedora Core -based
+  distributions (RedHat, CentOS, ...); thanks to Miloslav Trmac
 - Added X509.load_request_bio and load_request_string, by Hartmut Goebel and
   Pavel Shramov
 - Added alias X509.Request.set_subject for set_subject_name to match X509.X509,
