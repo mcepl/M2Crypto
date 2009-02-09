@@ -203,9 +203,7 @@ class CipherTestCase(unittest.TestCase):
         
     def test_ciphers(self):
         ciphers=['bf_ecb', 'bf_cbc', 'bf_cfb', 'bf_ofb',\
-            #'idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb',\
             'cast5_ecb', 'cast5_cbc', 'cast5_cfb', 'cast5_ofb',\
-            #'rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb',\
             'des_ecb', 'des_cbc', 'des_cfb', 'des_ofb',\
             'des_ede_ecb', 'des_ede_cbc', 'des_ede_cfb', 'des_ede_ofb',\
             'des_ede3_ecb', 'des_ede3_cbc', 'des_ede3_cfb', 'des_ede3_ofb',\
@@ -215,6 +213,24 @@ class CipherTestCase(unittest.TestCase):
             'rc4', 'rc2_40_cbc']
         for i in ciphers:
             self.try_algo(i)
+
+        # idea might not be compiled in
+        ciphers=['idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb']
+        try:
+            for i in ciphers:
+                self.try_algo(i)
+        except ValueError, e:
+            if str(e) != "('unknown cipher', 'idea_ecb')":
+                raise 
+
+        # rc5 might not be compiled in
+        ciphers=['rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb']
+        try:
+            for i in ciphers:
+                self.try_algo(i)
+        except ValueError, e:
+            if str(e) != "('unknown cipher', 'rc5_ecb')":
+                raise 
 
         self.assertRaises(ValueError, self.try_algo, 'nosuchalgo4567')
         
