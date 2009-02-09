@@ -16,7 +16,9 @@ name = identify your build slave, for example Ubuntu 8.04 32-bit
 ;;cc = gcc --version
 ;;openssl = openssl version
 ;;python = python --version
+;;clean = rm -fr m2crypto
 ;;svn = svn co http://svn.osafoundation.org/m2crypto/trunk m2crypto
+;;patch = 
 ;;build = python setup.py clean --all build
 ;; OR another way to do tests without setuptools:
 ;;build = PYTHONPATH=build/lib-something python tests/alltests.py
@@ -47,7 +49,9 @@ DEFAULT_COMMANDS = {
   'cc': ['gcc', '--version'],
   'openssl': ['openssl', 'version'],
   'python': ['python', '--version'],
+  'clean': ['rm', '-rf', 'm2crypto'],
   'svn': ['svn', 'co', 'http://svn.osafoundation.org/m2crypto/trunk', 'm2crypto'],
+  'patch': [],
   'build': ['python', 'setup.py', 'clean', '--all', 'build'],
   'test': ['python', 'setup.py', 'test']
 }
@@ -93,6 +97,8 @@ def build(commands, config):
         cmd = config.get(command) 
         if not cmd:
             cmd = DEFAULT_COMMANDS[command]
+            if not cmd:
+                continue
         else:
             cmd = cmd.split()
         
@@ -150,7 +156,8 @@ tinderbox: END
     if debug_script:
         server.set_debuglevel(1)
     server.starttls() # if your server supports STARTTLS
-    server.login(config['user'], config['password'])
+    if config.get('user'):
+        server.login(config['user'], config['password'])
     server.sendmail(config['from'], config['to'], msg)
     server.quit()
 
@@ -158,11 +165,8 @@ tinderbox: END
 if __name__ == '__main__':
     config = load_config()    
     
-    wait_seconds = int(config.get('wait') or 3600)
-    
-    commands = ['uname', 'swig', 'cc', 'openssl', 'python', 'svn', 'build', 'test']
+    commands = ['uname', 'swig', 'cc', 'openssl', 'python', 'clean', 'svn',
+                'patch', 'build', 'test']
 
-    while True:
-        logpath, starttime, timenow, status = build(commands, config)
-        email(logpath, starttime, timenow, status, config)
-        time.sleep(wait_seconds)
+    logpath, starttime, timenow, status = build(commands, config)
+    email(logpath, starttime, timenow, status, config)
