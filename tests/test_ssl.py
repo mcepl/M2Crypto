@@ -1035,7 +1035,11 @@ def suite():
     suite.addTest(unittest.makeSuite(UrllibSSLClientTestCase))
     suite.addTest(unittest.makeSuite(Urllib2SSLClientTestCase))
     suite.addTest(unittest.makeSuite(MiscSSLClientTestCase))
-    suite.addTest(unittest.makeSuite(TwistedSSLClientTestCase))
+    try:
+        import M2Crypto.SSL.TwistedProtocolWrapper as wrapper
+        suite.addTest(unittest.makeSuite(TwistedSSLClientTestCase))
+    except ImportError:
+        pass
     return suite    
     
 
