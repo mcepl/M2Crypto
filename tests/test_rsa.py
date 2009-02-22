@@ -52,6 +52,8 @@ class RSATestCase(unittest.TestCase):
         rsa = RSA.load_key(self.privkey)
         assert len(rsa) == 512
         assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
+        self.assertEqual(rsa.n, '\x00\x00\x00A\x00\xd4\rc\xb4C\xf4\x16\xaba\x1b&1\xac\xcc\xd6\x17{k\xeb\xb7A\xe3\x0f\x15\x94;!\xcf\x81\x9ag\x96\x1e\xfb\xd5?\x86#\xca\xedm\xea\xf0.\xb7\xb9\x8a\x91\xa0\xde)\xb4\xf7\xca!\x95R\x00\x04Q\xa5\x8c^\xa1')
+        self.assertRaises(AttributeError, getattr, rsa, 'nosuchprop')
         assert rsa.check_key() == 1
 
     def test_loadkey_bio(self):
@@ -113,6 +115,9 @@ class RSATestCase(unittest.TestCase):
         rsa = RSA.load_pub_key(self.pubkey)
         assert len(rsa) == 512
         assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
+        self.assertRaises(RSA.RSAError, setattr, rsa, 'e', '\000\000\000\003\001\000\001')
+        self.assertRaises(RSA.RSAError, rsa.private_encrypt, 1)
+        self.assertRaises(RSA.RSAError, rsa.private_decrypt, 1)
         assert rsa.check_key()
 
     def test_loadpub_bad(self):

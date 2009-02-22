@@ -984,6 +984,21 @@ class TwistedSSLClientTestCase(BaseSSLClientTestCase):
 
 twisted_data = ''
 
+
+class XmlRpcLibTestCase(unittest.TestCase):
+    def test_lib(self):
+        from M2Crypto import m2xmlrpclib
+        m2xmlrpclib.SSL_Transport()
+        # XXX need server to test against
+
+
+class FtpsLibTestCase(unittest.TestCase):
+    def test_lib(self):
+        from M2Crypto import ftpslib
+        ftpslib.FTP_TLS()
+        # XXX need server to test against
+
+
 class CheckerTestCase(unittest.TestCase):
     def test_checker(self):
         from M2Crypto.SSL import Checker
@@ -1030,6 +1045,8 @@ def suite():
     suite.addTest(unittest.makeSuite(CheckerTestCase))
     suite.addTest(unittest.makeSuite(ContextTestCase))
     suite.addTest(unittest.makeSuite(SessionTestCase))
+    suite.addTest(unittest.makeSuite(XmlRpcLibTestCase))
+    suite.addTest(unittest.makeSuite(FtpsLibTestCase))
     suite.addTest(unittest.makeSuite(PassSSLClientTestCase))
     suite.addTest(unittest.makeSuite(HttpslibSSLClientTestCase))
     suite.addTest(unittest.makeSuite(UrllibSSLClientTestCase))

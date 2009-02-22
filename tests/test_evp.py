@@ -357,6 +357,7 @@ class HMACTestCase(unittest.TestCase):
             h.update(d[1])
             ret = h.final()
             self.assertEqual(ret, d[2])
+        self.assertRaises(ValueError, EVP.HMAC, d[0], algo='nosuchalgo')
 
     def make_chain_HMAC(self, key, start, input, algo='sha1'):
         chain = []
