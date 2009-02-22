@@ -164,6 +164,7 @@ class X509TestCase(unittest.TestCase):
         assert req.as_pem() == req4.as_pem()
         assert req.as_text() == req4.as_text()
         assert req.as_der() == req4.as_der()
+        self.assertEqual(req.get_version(), 0)
 
 
     def test_mkcert(self):
@@ -196,6 +197,7 @@ class X509TestCase(unittest.TestCase):
         assert ext.get_critical() == 0
         cert.add_ext(ext)
         cert.sign(pk, 'sha1')
+        self.assertRaises(ValueError, cert.sign, pk, 'nosuchalgo')
         assert(cert.get_ext('subjectAltName').get_name() == 'subjectAltName')
         assert(cert.get_ext_at(0).get_name() == 'subjectAltName')
         assert(cert.get_ext_at(0).get_value() == 'DNS:foobar.example.com')

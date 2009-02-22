@@ -34,6 +34,7 @@ class CipherStreamTestCase(unittest.TestCase):
         cf.write_close()
         data2 = cf.read()
         cf.close()
+        assert not cf.readable()
     
         assert data == data2, '%s algorithm cipher test failed' % algo
         
