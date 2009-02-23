@@ -168,7 +168,14 @@ class EVPTestCase(unittest.TestCase):
                           'tests/signer.pem') # not a key
         self.assertRaises(EVP.EVPError, EVP.load_key_bio,
                           BIO.MemoryBuffer('no a key'))
-        
+
+    def test_pad(self):
+        self.assertEqual(util.pkcs5_pad('Hello World'),
+                         'Hello World\x05\x05\x05\x05\x05')
+        self.assertEqual(util.pkcs7_pad('Hello World', 15),
+                         'Hello World\x04\x04\x04\x04')
+        self.assertRaises(ValueError, util.pkcs7_pad, 'Hello', 256)
+
 
 class CipherTestCase(unittest.TestCase):
     def cipher_filter(self, cipher, inf, outf):

@@ -76,6 +76,10 @@ class X509TestCase(unittest.TestCase):
         extstack.push(ext3)
         assert len(extstack) == 2
         assert(extstack[1].get_name() == 'nsComment')
+        
+        assert extstack.pop() is not None
+        assert extstack.pop() is not None
+        assert extstack.pop() is None
 
     def test_x509_name(self):
         n = X509.X509_Name()
@@ -394,6 +398,7 @@ class X509TestCase(unittest.TestCase):
         for r in [r1, r2, r3, r4, r5]:
             assert req.as_der() == r.as_der()
 
+        self.assertRaises(ValueError, X509.load_request_bio, BIO.MemoryBuffer(req.as_pem()), 345678)
 
     def test_save(self):
         x509 = X509.load_cert('tests/x509.pem')
@@ -435,6 +440,10 @@ class X509_StackTestCase(unittest.TestCase):
         seq = base64.decodestring(b64)
         stack = X509.new_stack_from_der(seq)
         cert = stack.pop()
+        assert stack.pop() is None
+        
+        cert.foobar = 1
+        assert cert.foobar == 1
         
         subject = cert.get_subject() 
         assert str(subject) == "/DC=org/DC=doegrids/OU=Services/CN=host/bosshog.lbl.gov"
@@ -496,24 +505,34 @@ class X509_StackTestCase(unittest.TestCase):
 class X509_ExtTestCase(unittest.TestCase):
     
     def test_ext(self):
-        # With this leaks 8 bytes:
-        name = "proxyCertInfo"
-        value = "critical,language:Inherit all"
-        # With this there are no leaks:
-        #name = "nsComment"
-        #value = "Hello"
-        critical = 1
+        if 0: # XXX
+            # With this leaks 8 bytes:
+            name = "proxyCertInfo"
+            value = "critical,language:Inherit all"
+        else:
+            # With this there are no leaks:
+            name = "nsComment"
+            value = "Hello"
         
         lhash = m2.x509v3_lhash()
         ctx = m2.x509v3_set_conf_lhash(lhash)
         x509_ext_ptr = m2.x509v3_ext_conf(lhash, ctx, name, value)
         x509_ext = X509.X509_Extension(x509_ext_ptr, 1)
 
+
+class CRLTestCase(unittest.TestCase):
+    def test_new(self):
+        crl = X509.CRL()
+        self.assertEqual(crl.as_text()[:34],
+                         'Certificate Revocation List (CRL):')
+    
+
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(X509TestCase))
     suite.addTest(unittest.makeSuite(X509_StackTestCase))
-    #suite.addTest(unittest.makeSuite(X509_ExtTestCase))
+    suite.addTest(unittest.makeSuite(X509_ExtTestCase))
+    suite.addTest(unittest.makeSuite(CRLTestCase))
     return suite
 
 

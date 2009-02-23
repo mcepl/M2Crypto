@@ -25,6 +25,7 @@ class ASN1TestCase(unittest.TestCase):
         a = ASN1.ASN1_String(asn1ptr, 1)
         assert a.as_text() == 'hello there', a.as_text()
         assert a.as_text(flags=m2.ASN1_STRFLGS_RFC2253) == '#040B68656C6C6F207468657265', a.as_text(flags=m2.ASN1_STRFLGS_RFC2253)
+        self.assertEqual(a.as_text(), str(a))
 
     def test_Object(self):
         pass # XXX Dunno how to test
