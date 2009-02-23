@@ -826,6 +826,19 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             self.stop_server(pid)
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
+    def test_info_callback(self):
+        pid = self.start_server(self.args)
+        try:
+            ctx = SSL.Context()
+            ctx.set_info_callback()
+            s = SSL.Connection(ctx)
+            s.connect(self.srv_addr)
+            data = self.http_get(s)
+            s.close()
+        finally:
+            self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
 
 class UrllibSSLClientTestCase(BaseSSLClientTestCase):
 
@@ -1026,6 +1039,10 @@ class ContextTestCase(unittest.TestCase):
     def test_map(self):
         from M2Crypto.SSL.Context import map, _ctxmap
         assert isinstance(map(), _ctxmap)
+        ctx = SSL.Context()
+        assert map()
+        ctx.close()
+        assert map() is _ctxmap.singleton
 
     def test_certstore(self):
         ctx = SSL.Context()

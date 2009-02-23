@@ -15,10 +15,13 @@ class EngineTestCase(unittest.TestCase):
 
     def test_by_id_junk(self):
         self.assertRaises(ValueError, Engine.Engine, self.bad_id)
+        self.assertRaises(ValueError, Engine.Engine)
 
     def test_by_id_openssl(self):
         Engine.load_openssl()
-        Engine.Engine('openssl')
+        e = Engine.Engine('openssl')
+        self.assertEqual(e.get_name(), 'Software engine support')
+        self.assertEqual(e.get_id(), 'openssl')
         
     def test_by_id_dynamic(self):
         Engine.load_dynamic()

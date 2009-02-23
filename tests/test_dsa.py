@@ -27,6 +27,9 @@ class DSATestCase(unittest.TestCase):
     def test_loadkey(self):
         dsa = DSA.load_key(self.privkey)
         assert len(dsa) == 512
+        self.assertRaises(AttributeError, getattr, dsa, 'foobar')
+        for k in ('p', 'q', 'g', 'priv', 'pub'):
+            self.assertRaises(DSA.DSAError, setattr, dsa, k, 1)
 
     def test_loadparam(self):
         self.assertRaises(DSA.DSAError, DSA.load_key, self.param)
@@ -57,6 +60,7 @@ class DSATestCase(unittest.TestCase):
         dsapub = DSA.load_pub_key(self.pubkey)
         assert dsapub.check_key()
         assert dsapub.verify(self.data, r, s)
+        self.assertRaises(DSA.DSAError, dsapub.sign)
 
     def test_verify_fail(self):
         dsa = DSA.load_key(self.privkey)
