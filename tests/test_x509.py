@@ -169,6 +169,10 @@ class X509TestCase(unittest.TestCase):
         assert req.as_text() == req4.as_text()
         assert req.as_der() == req4.as_der()
         self.assertEqual(req.get_version(), 0)
+        req.set_version(1)
+        self.assertEqual(req.get_version(), 1)
+        req.set_version(0)
+        self.assertEqual(req.get_version(), 0)
 
 
     def test_mkcert(self):
@@ -212,6 +216,7 @@ class X509TestCase(unittest.TestCase):
         assert cert.verify(cert.get_pubkey())
         assert cert.get_version() == 2
         assert cert.get_serial_number() == 1
+        assert cert.get_issuer().CN == 'The Issuer Monkey' 
         
         if m2.OPENSSL_VERSION_NUMBER >= 0x90800f:
             assert not cert.check_ca()
@@ -366,6 +371,9 @@ class X509TestCase(unittest.TestCase):
         bio2 = BIO.openfile('tests/x509.der')
         x509 = X509.load_cert_bio(bio)
         x5092 = X509.load_cert_bio(bio2, format=X509.FORMAT_DER)
+        
+        self.assertRaises(ValueError, X509.load_cert_bio, bio2, format=45678)
+
         assert x509.as_text() == x5092.as_text()
         assert x509.as_pem() == x5092.as_pem()
         assert x509.as_der() == x5092.as_der()

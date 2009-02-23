@@ -274,6 +274,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             ctx = SSL.Context()
             s = SSL.Connection(ctx)
             s.connect(self.srv_addr)
+            self.assertRaises(ValueError, s.read, 0)
             data = self.http_get(s)
             s.close()
         finally:
@@ -479,8 +480,10 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             for cipher in cipher_stack:
                 i += 1
                 assert cipher.name() == 'EXP-RC4-MD5', '"%s"' % cipher.name()
+                self.assertEqual('EXP-RC4-MD5-40', str(cipher))
             # For some reason there are 2 entries in the stack
             #assert i == 1, i
+            self.assertEqual(i, len(cipher_stack))
             
             s.close()
         finally:

@@ -35,6 +35,10 @@ class CipherStreamTestCase(unittest.TestCase):
         data2 = cf.read()
         cf.close()
         assert not cf.readable()
+        
+        self.assertRaises(IOError, cf.read)
+        self.assertRaises(IOError, cf.readline)
+        self.assertRaises(IOError, cf.readlines)
     
         assert data == data2, '%s algorithm cipher test failed' % algo
         
