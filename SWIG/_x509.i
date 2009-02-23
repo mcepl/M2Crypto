@@ -32,6 +32,8 @@ extern X509 *X509_dup(X509 *);
 extern void X509_free(X509 *);
 %rename(x509_crl_free) X509_CRL_free;
 extern void X509_CRL_free(X509_CRL *);
+%rename(x509_crl_new) X509_CRL_new;
+extern X509_CRL * X509_CRL_new();
 
 %rename(x509_print) X509_print;
 extern int X509_print(BIO *, X509 *);

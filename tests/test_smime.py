@@ -108,6 +108,8 @@ class SMIMETestCase(unittest.TestCase):
         sk.push(x509)
         s.set_x509_stack(sk)
 
+        self.assertRaises(ValueError, SMIME.Cipher, 'nosuchcipher')
+
         s.set_cipher(SMIME.Cipher('des_ede3_cbc'))
         p7 = s.encrypt(buf)
         
