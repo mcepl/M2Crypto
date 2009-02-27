@@ -153,20 +153,22 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             ses = c.get_session()
             t = ses.as_text()
             data = c.getresponse().read()
-            c.close()
+            # Appearently closing connection here screws session; Ali Polatel?
+            # c.close()
             
             ctx2 = SSL.Context()
             ctx2.load_verify_locations(cafile='tests/ca.pem')
             ctx2.load_cert('tests/x509.pem')
             ctx2.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 1)
             ctx2.set_session_cache_mode(m2.SSL_SESS_CACHE_CLIENT)
-            c = httpslib.HTTPSConnection(srv_host, srv_port, ssl_context=ctx2)
-            c.set_session(ses)
-            c.request('GET', '/')
-            ses2 = c.get_session()
+            c2 = httpslib.HTTPSConnection(srv_host, srv_port, ssl_context=ctx2)
+            c2.set_session(ses)
+            c2.request('GET', '/')
+            ses2 = c2.get_session()
             t2 = ses2.as_text()
-            data = c.getresponse().read()
+            data = c2.getresponse().read()
             c.close()
+            c2.close()
             assert t == t2, "Sessions did not match"
         finally:
             self.stop_server(pid)
