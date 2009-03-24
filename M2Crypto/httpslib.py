@@ -137,7 +137,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
                 raise ValueError, "unknown protocol for: %s" % url
         self._real_host = host
         self._real_port = port
-        HTTPSConnection.putrequest(self, method, url, skip_host, skip_accept_encoding)
+        HTTPSConnection.putrequest(self, method, rest, skip_host, skip_accept_encoding)
 
     def putheader(self, header, value):
         # Store the auth header if passed in.

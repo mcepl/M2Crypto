@@ -9,6 +9,8 @@
 - OBJ_* wrappers did not work properly with OpenSSL 0.9.8a and earlier, fix by
   Pavel Shramov
 - m2urllib did not close sockets properly, fix by Miloslav Trmac
+- Fixed httpslib to send only the path+query+fragment part of the URL when
+  using CONNECT proxy, by James Bowes  
 - Reverted a change done in 0.17 to m2urllib2 which changed urls to include
   host when it should stay as it was
 - SMIME.text_crlf and text_crlf_bio were always raising TypeError; fixed
