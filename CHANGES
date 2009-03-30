@@ -8,6 +8,7 @@
   by Pavel Shramov
 - OBJ_* wrappers did not work properly with OpenSSL 0.9.8a and earlier, fix by
   Pavel Shramov
+- Added ASN1_UTCTIME.get_datetime and set_datetime, by Pavel Shramov 
 - m2urllib did not close sockets properly, fix by Miloslav Trmac
 - Fixed httpslib to send only the path+query+fragment part of the URL when
   using CONNECT proxy, by James Bowes  

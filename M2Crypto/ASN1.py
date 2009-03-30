@@ -7,6 +7,8 @@ Portions created by Open Source Applications Foundation (OSAF) are
 Copyright (C) 2005 OSAF. All Rights Reserved.
 """
 
+import time, datetime
+
 import BIO
 import m2
 
@@ -72,8 +74,59 @@ class ASN1_Object:
     def _ptr(self):
         return self.asn1obj
 
+class _UTC(datetime.tzinfo):
+    def tzname(self, dt):
+        return "UTC"
+    
+    def dst(self, dt):
+        return datetime.timedelta(0)
+    
+    def utcoffset(self, dt):
+        return datetime.timedelta(0)
+
+    def __repr__(self):
+        return "<Timezone: %s>" % self.tzname(None)
+UTC = _UTC()
+
+
+class LocalTimezone(datetime.tzinfo):
+    """ Localtimezone from datetime manual """
+    def __init__(self):
+        self._stdoffset = datetime.timedelta(seconds = -time.timezone)
+        if time.daylight:
+            self._dstoffset = datetime.timedelta(seconds = -time.altzone)
+        else:
+            self._dstoffset = self._stdoffset
+        self._dstdiff = self._dstoffset - self._stdoffset
+
+
+    def utcoffset(self, dt):
+        if self._isdst(dt):
+            return self._dstoffset
+        else:
+            return self._stdoffset
+
+    def dst(self, dt):
+        if self._isdst(dt):
+            return self._dstdiff
+        else:
+            return datetime.timedelta(0)
+
+    def tzname(self, dt):
+        return time.tzname[self._isdst(dt)]
+
+    def _isdst(self, dt):
+        tt = (dt.year, dt.month, dt.day,
+              dt.hour, dt.minute, dt.second,
+              dt.weekday(), 0, -1)
+        stamp = time.mktime(tt)
+        tt = time.localtime(stamp)
+        return tt.tm_isdst > 0
+
 
 class ASN1_UTCTIME:
+    _ssl_months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
+                   "Sep", "Oct", "Nov", "Dec"]
     m2_asn1_utctime_free = m2.asn1_utctime_free
 
     def __init__(self, asn1_utctime=None, _pyfree=0):
@@ -113,3 +166,27 @@ class ASN1_UTCTIME:
         assert m2.asn1_utctime_type_check(self.asn1_utctime), "'asn1_utctime' type error'"
         return m2.asn1_utctime_set( self.asn1_utctime, time )
 
+    def get_datetime(self):
+        date = str(self)
+
+        timezone = None
+        if ' ' not in date:
+            raise ValueError("Invalid date: %s" % date)
+        month, rest = date.split(' ', 1)
+        if month not in self._ssl_months:
+            raise ValueError("Invalid date %s: Invalid month: %s" % (date, m))
+        if rest.endswith(' GMT'):
+            timezone = UTC
+            rest = rest[:-4]
+        tm = list(time.strptime(rest, "%d %H:%M:%S %Y"))[:6]
+        tm[1] = self._ssl_months.index(month) + 1
+        tm.append(0)
+        tm.append(timezone)
+        return datetime.datetime(*tm)
+
+    def set_datetime(self, date):
+        local = LocalTimezone()
+        if date.tzinfo is None:
+            date = date.replace(tzinfo=local)
+        date = date.astimezone(local)
+        return self.set_time(int(time.mktime(date.timetuple())))
