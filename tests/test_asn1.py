@@ -4,7 +4,7 @@
 
 Copyright (c) 2005 Open Source Applications Foundation. All rights reserved."""
 
-import unittest, time
+import unittest, time, datetime
 from M2Crypto import ASN1, m2
 
 class ASN1TestCase(unittest.TestCase):
@@ -55,6 +55,31 @@ class ASN1TestCase(unittest.TestCase):
         t1 = time.strftime(format, time.strptime(str(asn1), format))
         t2 = time.strftime(format, time.gmtime(t))
         self.assertEqual(t1, t2)
+
+    def test_UTCTIME_datetime(self):
+        asn1 = ASN1.ASN1_UTCTIME()
+        # Test get_datetime and set_datetime
+        t = time.time()
+        dt = datetime.datetime.fromtimestamp(int(t))
+        udt = dt.replace(tzinfo=ASN1.LocalTimezone()).astimezone(ASN1.UTC)
+        asn1.set_time(int(t))
+        t1 = str(asn1)
+        asn1.set_datetime(dt)
+        t2 = str(asn1)
+        self.assertEqual(t1, t2)
+        self.assertEqual(str(udt), str(asn1.get_datetime()))
+
+        dt = dt.replace(tzinfo=ASN1.LocalTimezone())
+        asn1.set_datetime(dt)
+        t2 = str(asn1)
+        self.assertEqual(t1, t2)
+        self.assertEqual(str(udt), str(asn1.get_datetime()))
+        
+        dt = dt.astimezone(ASN1.UTC)
+        asn1.set_datetime(dt)
+        t2 = str(asn1)
+        self.assertEqual(t1, t2)
+        self.assertEqual(str(udt), str(asn1.get_datetime()))
          
 
 def suite():
@@ -63,4 +88,3 @@ def suite():
 
 if __name__ == '__main__':
     unittest.TextTestRunner().run(suite())
-
