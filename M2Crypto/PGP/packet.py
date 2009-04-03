@@ -35,6 +35,9 @@ _OK_PKC         = ('\001',)
 
 class packet:
     def __init__(self, ctb, body=None):
+        import warnings
+        warnings.warn('Deprecated. No maintainer for PGP. If you use this, please inform M2Crypto maintainer.', DeprecationWarning)
+        
         self.ctb = ctb
         if body is not None:
             self.body = StringIO(body)

@@ -8,6 +8,9 @@ import RSA
 
 class PublicKey:
     def __init__(self, pubkey_pkt):
+        import warnings
+        warnings.warn('Deprecated. No maintainer for PGP. If you use this, please inform M2Crypto maintainer.', DeprecationWarning)
+
         self._pubkey_pkt = pubkey_pkt
         self._pubkey = RSA.new_pub_key((pubkey_pkt._e, pubkey_pkt._n))
         self._userid = {}

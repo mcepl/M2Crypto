@@ -8,6 +8,9 @@ from PublicKey import *
 
 class PublicKeyRing:
     def __init__(self, keyring):
+        import warnings
+        warnings.warn('Deprecated. No maintainer for PGP. If you use this, please inform M2Crypto maintainer.', DeprecationWarning)
+
         self._keyring = keyring
         self._userid = {}
         self._keyid = {}
