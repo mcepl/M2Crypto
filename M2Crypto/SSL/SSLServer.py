@@ -14,17 +14,17 @@ from M2Crypto import m2
 
 
 class SSLServer(SocketServer.TCPServer):
-    def __init__(self, server_address, RequestHandlerClass, ssl_context):
+    def __init__(self, server_address, RequestHandlerClass, ssl_context, bind_and_activate=True):
         """ 
         Superclass says: Constructor. May be extended, do not override.
         This class says: Ho-hum.
         """
-        self.server_address=server_address
-        self.RequestHandlerClass=RequestHandlerClass
+        SocketServer.BaseServer.__init__(self, server_address, RequestHandlerClass)
         self.ssl_ctx=ssl_context
         self.socket=Connection(self.ssl_ctx)
-        self.server_bind()
-        self.server_activate()
+        if bind_and_activate:
+            self.server_bind()
+            self.server_activate()        
 
     def handle_request(self):
         request = None
