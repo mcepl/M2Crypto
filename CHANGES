@@ -26,6 +26,7 @@
 - SMIME.load_pkcs7, load_pkcs7_bio, smime_load_pkcs7, smime_load_pkcs7_bio,
   text_crlf, text_crlf_bio fixed to raise BIO.BIOError, SMIME.PKCS7_Error and
   SMIME.SMIME_Error as appropriate instead of str
+- Unit tests cover 80% of the code
 
 0.19.1 - 2008-10-12
 -------------------
