@@ -64,14 +64,14 @@ class RSATestCase(unittest.TestCase):
         assert rsa.check_key() == 1
 
     def test_keygen(self):
-        rsa = RSA.gen_key(256, 65537, self.gen_callback)
-        assert len(rsa) == 256
+        rsa = RSA.gen_key(512, 65537, self.gen_callback)
+        assert len(rsa) == 512
         assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         assert rsa.check_key() == 1
 
     def test_keygen_bad_cb(self):
-        rsa = RSA.gen_key(256, 65537, self.gen2_callback)
-        assert len(rsa) == 256
+        rsa = RSA.gen_key(512, 65537, self.gen2_callback)
+        assert len(rsa) == 512
         assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         assert rsa.check_key() == 1
 
