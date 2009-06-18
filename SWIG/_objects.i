@@ -42,37 +42,31 @@ extern int OBJ_obj2txt(char *, int, const ASN1_OBJECT *, int);
 
 %inline %{
 /*
-    Following code is working but man page declare that it won't
-    OBJ_obj2txt(3SSL). OpenSSL 0.9.8e
-    BUGS
-       OBJ_obj2txt() is awkward and messy to use: it doesn’t follow the
-       convention of other OpenSSL functions where the buffer can be set
-       to NULL to determine the amount of data that should be written.
-       Instead buf must point to a valid buffer and buf_len should be set
-       to a positive value. A buffer length of 80 should be more than
-       enough to handle any OID encountered in practice.
+   From the manpage for OBJ_obt2txt ():
+   BUGS
+      OBJ_obj2txt() is awkward and messy to use: it doesn’t follow the
+      convention of other OpenSSL functions where the buffer can be set
+      to NULL to determine the amount of data that should be written.
+      Instead buf must point to a valid buffer and buf_len should be set
+      to a positive value. A buffer length of 80 should be more than
+      enough to handle any OID encountered in practice.
 
-    But code (crypto/objects/obj_dat.c near line 438) has only one place
-    where buf is not checked (when object pointer is NULL)
+   The first call to OBJ_obj2txt () therefore passes a non-NULL dummy
+   buffer. This wart is reportedly removed in OpenSSL 0.9.8b, although
+   the manpage has not been updated.
 
-446         if ((a == NULL) || (a->data == NULL)) {
-447                 buf[0]='\0';
-448                 return(0);
-449         }
-
-    Since NULL pointer is guarded by SWIG this condition may not occur.
-
-    OBJ_obj2txt always prints \0 at the end. But return value
-    is amount of "good" bytes written. So memory is allocated for
-    len + 1 bytes but only len bytes are marshalled to python.
- */
+   OBJ_obj2txt always prints \0 at the end. But the return value
+   is the number of "good" bytes written. So memory is allocated for
+   len + 1 bytes but only len bytes are marshalled to python.
+*/
 PyObject *obj_obj2txt(const ASN1_OBJECT *obj, int no_name)
 {
     int len;
     PyObject *ret;
     char *buf;
+    char dummy[1];
 
-    len = OBJ_obj2txt(0, 0, obj, no_name);
+    len = OBJ_obj2txt(dummy, 1, obj, no_name);
     if (len < 0) {
         PyErr_SetString(PyExc_RuntimeError, ERR_reason_error_string(ERR_get_error()));
         return NULL;
