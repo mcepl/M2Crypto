@@ -17,6 +17,7 @@
 - SSLServer.__init__ now takes optional bind_and_activate parameter and
   initializes by calling SocketServer.BaseServer.__init__, which
   are Python 2.6 compatibility fixes, by Christian
+- ftpslib now works with Python 2.6, by Theodore A. Roth
 - Reverted a change done in 0.17 to m2urllib2 which changed urls to include
   host when it should stay as it was
 - SMIME.text_crlf and text_crlf_bio were always raising TypeError; fixed
