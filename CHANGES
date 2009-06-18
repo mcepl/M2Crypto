@@ -10,7 +10,8 @@
   by Pavel Shramov
 - OBJ_* wrappers did not work properly with OpenSSL 0.9.8a and earlier, fix by
   Pavel Shramov
-- Added ASN1_UTCTIME.get_datetime and set_datetime, by Pavel Shramov 
+- Added ASN1_UTCTIME.get_datetime and set_datetime, by Pavel Shramov
+- Fixed obj_obj2txt, which returned nonsense, fix by Barney Stratford
 - m2urllib did not close sockets properly, fix by Miloslav Trmac
 - Allow SSL peer certificate to have subjectAltName without dNSName and use
   commonName for hostname check, fix by Miloslav Trmac
