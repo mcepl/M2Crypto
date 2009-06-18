@@ -90,16 +90,17 @@ class Checker:
             # subjectAltName=DNS:somehost[, ...]*
             try:
                 subjectAltName = peerCert.get_ext('subjectAltName').get_value()
-                if not self._splitSubjectAltName(self.host, subjectAltName):
+                if self._splitSubjectAltName(self.host, subjectAltName):
+                    hostValidationPassed = True
+                elif self.useSubjectAltNameOnly:
                     raise WrongHost(expectedHost=self.host, 
                                     actualHost=subjectAltName,
                                     fieldName='subjectAltName')
-                hostValidationPassed = True
             except LookupError:
                 pass
 
             # commonName=somehost[, ...]*
-            if not self.useSubjectAltNameOnly and not hostValidationPassed:
+            if not hostValidationPassed:
                 hasCommonName = False
                 commonNames = ''
                 for entry in peerCert.get_subject().get_entries_by_nid(m2.NID_commonName):
