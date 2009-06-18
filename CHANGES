@@ -12,6 +12,8 @@
   Pavel Shramov
 - Added ASN1_UTCTIME.get_datetime and set_datetime, by Pavel Shramov 
 - m2urllib did not close sockets properly, fix by Miloslav Trmac
+- Allow SSL peer certificate to have subjectAltName without dNSName and use
+  commonName for hostname check, fix by Miloslav Trmac
 - Fixed httpslib to send only the path+query+fragment part of the URL when
   using CONNECT proxy, by James Bowes  
 - SSLServer.__init__ now takes optional bind_and_activate parameter and
