@@ -1062,6 +1062,13 @@ class SessionTestCase(unittest.TestCase):
         self.assertRaises(SSL.SSLError, SSL.Session.load_session,
                           'tests/signer.pem')
 
+class FtpslibTestCase(unittest.TestCase):
+    def test_26_compat(self):
+        from M2Crypto import ftpslib
+        f = ftpslib.FTP_TLS()
+        # 2.6 used to raise AttributeError:
+        self.assertRaises(socket.gaierror, f.connect, 'no-such-host-dfgHJK56789', 990)
+
 
 def suite():
     suite = unittest.TestSuite()
@@ -1075,6 +1082,7 @@ def suite():
     suite.addTest(unittest.makeSuite(UrllibSSLClientTestCase))
     suite.addTest(unittest.makeSuite(Urllib2SSLClientTestCase))
     suite.addTest(unittest.makeSuite(MiscSSLClientTestCase))
+    suite.addTest(unittest.makeSuite(FtpslibTestCase))
     try:
         import M2Crypto.SSL.TwistedProtocolWrapper as wrapper
         suite.addTest(unittest.makeSuite(TwistedSSLClientTestCase))

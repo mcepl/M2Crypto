@@ -52,8 +52,7 @@ class FTP_TLS(FTP):
             self.ssl_ctx = ssl_ctx
         else:
             self.ssl_ctx = SSL.Context(DEFAULT_PROTOCOL)
-        if host:
-            self.connect(host)
+        FTP.__init__(self, host)
         self.prot = 0
 
     def auth_tls(self):
