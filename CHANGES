@@ -30,6 +30,7 @@
   by Chris Collis
 - Reverted a change done in 0.17 to m2urllib2 which changed urls to include
   host when it should stay as it was
+- httpslib no longer uses urllib; instead it uses urlparse for url parsing
 - SMIME.text_crlf and text_crlf_bio were always raising TypeError; fixed
 - EVP.load_key and load_key_bio fixed to raise EVP.EVPError and BIO.BIOError
   instead of str (str exceptions not allowed in Python 2.6 and later)
