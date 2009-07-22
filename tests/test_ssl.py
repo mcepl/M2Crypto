@@ -20,6 +20,8 @@ Others:
 import os, socket, string, sys, tempfile, thread, time, unittest
 from M2Crypto import Rand, SSL, m2, Err
 
+from fips import fips_mode
+
 srv_host = 'localhost'
 srv_port = 64000
 
@@ -340,6 +342,8 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
     def test_tls1_nok(self):
+        if fips_mode: # TLS is required in FIPS mode
+            return
         self.args.append('-no_tls1')
         pid = self.start_server(self.args)
         try:
@@ -367,6 +371,8 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
     def test_sslv23_no_v2(self):
+        if fips_mode: # TLS is required in FIPS mode
+            return
         self.args.append('-no_tls1')
         pid = self.start_server(self.args)
         try:
@@ -379,6 +385,8 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             self.stop_server(pid)
 
     def test_sslv23_no_v2_no_service(self):
+        if fips_mode: # TLS is required in FIPS mode
+            return
         self.args = self.args + ['-no_tls1', '-no_ssl3']
         pid = self.start_server(self.args)
         try:
@@ -390,6 +398,8 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             self.stop_server(pid)
 
     def test_sslv23_weak_crypto(self):
+        if fips_mode: # TLS is required in FIPS mode
+            return
         self.args = self.args + ['-no_tls1', '-no_ssl3']
         pid = self.start_server(self.args)
         try:
@@ -402,12 +412,12 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             self.stop_server(pid)
 
     def test_cipher_mismatch(self):
-        self.args = self.args + ['-cipher', 'EXP-RC4-MD5']
+        self.args = self.args + ['-cipher', 'AES256-SHA']
         pid = self.start_server(self.args)
         try:
             ctx = SSL.Context()
             s = SSL.Connection(ctx)
-            s.set_cipher_list('EXP-RC2-CBC-MD5')
+            s.set_cipher_list('AES128-SHA')
             try:
                 s.connect(self.srv_addr)
             except SSL.SSLError, e:
@@ -417,7 +427,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             self.stop_server(pid)
         
     def test_no_such_cipher(self):
-        self.args = self.args + ['-cipher', 'EXP-RC4-MD5']
+        self.args = self.args + ['-cipher', 'AES128-SHA']
         pid = self.start_server(self.args)
         try:
             ctx = SSL.Context()
@@ -432,6 +442,8 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             self.stop_server(pid)
         
     def test_no_weak_cipher(self):
+        if fips_mode: # Weak ciphers are prohibited
+            return
         self.args = self.args + ['-cipher', 'EXP']
         pid = self.start_server(self.args)
         try:
@@ -446,6 +458,8 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             self.stop_server(pid)
         
     def test_use_weak_cipher(self):
+        if fips_mode: # Weak ciphers are prohibited
+            return
         self.args = self.args + ['-cipher', 'EXP']
         pid = self.start_server(self.args)
         try:
@@ -459,30 +473,30 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
         
     def test_cipher_ok(self):
-        self.args = self.args + ['-cipher', 'EXP-RC4-MD5']
+        self.args = self.args + ['-cipher', 'AES128-SHA']
         pid = self.start_server(self.args)
         try:
             ctx = SSL.Context()
             s = SSL.Connection(ctx)
-            s.set_cipher_list('EXP-RC4-MD5')
+            s.set_cipher_list('AES128-SHA')
             s.connect(self.srv_addr)
             data = self.http_get(s)
             
-            assert s.get_cipher().name() == 'EXP-RC4-MD5', s.get_cipher().name()
+            assert s.get_cipher().name() == 'AES128-SHA', s.get_cipher().name()
             
             cipher_stack = s.get_ciphers()
-            assert cipher_stack[0].name() == 'EXP-RC4-MD5', cipher_stack[0].name()
+            assert cipher_stack[0].name() == 'AES128-SHA', cipher_stack[0].name()
             self.assertRaises(IndexError, cipher_stack.__getitem__, 2)
             # For some reason there are 2 entries in the stack
             #assert len(cipher_stack) == 1, len(cipher_stack)
-            assert s.get_cipher_list() == 'EXP-RC4-MD5', s.get_cipher_list()
+            assert s.get_cipher_list() == 'AES128-SHA', s.get_cipher_list()
             
             # Test Cipher_Stack iterator
             i = 0
             for cipher in cipher_stack:
                 i += 1
-                assert cipher.name() == 'EXP-RC4-MD5', '"%s"' % cipher.name()
-                self.assertEqual('EXP-RC4-MD5-40', str(cipher))
+                assert cipher.name() == 'AES128-SHA', '"%s"' % cipher.name()
+                self.assertEqual('AES128-SHA-128', str(cipher))
             # For some reason there are 2 entries in the stack
             #assert i == 1, i
             self.assertEqual(i, len(cipher_stack))

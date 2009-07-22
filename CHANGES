@@ -1,7 +1,7 @@
 0.20
 ----
 - Deprecated M2Crypto.PGP subpackage since nobody seems to be using it nor
-  is it being maintained
+  is it being maintained (if you do use it, please let me know)
 - Added fedora_setup.sh to help work around differences on Fedora Core -based
   distributions (RedHat, CentOS, ...); thanks to Miloslav Trmac
 - Added X509.load_request_bio and load_request_string, by Hartmut Goebel and
@@ -38,6 +38,8 @@
 - SMIME.load_pkcs7, load_pkcs7_bio, smime_load_pkcs7, smime_load_pkcs7_bio,
   text_crlf, text_crlf_bio fixed to raise BIO.BIOError, SMIME.PKCS7_Error and
   SMIME.SMIME_Error as appropriate instead of str
+- Added FIPS mode to unit tests, and used FIPS-compliant key sizes in other
+  tests, by Miloslav Trmac. Note that tests run much slower because of this!
 - Unit tests cover 80% of the code
 
 0.19.1 - 2008-10-12
