@@ -127,6 +127,9 @@ extern const EVP_CIPHER *EVP_aes_256_cfb(void);
 %rename(aes_256_ofb) EVP_aes_256_ofb;
 extern const EVP_CIPHER *EVP_aes_256_ofb(void);
 
+%rename(cipher_set_padding) EVP_CIPHER_CTX_set_padding;
+extern int EVP_CIPHER_CTX_set_padding(EVP_CIPHER_CTX *, int);
+
 %rename(pkey_new) EVP_PKEY_new;
 extern EVP_PKEY *EVP_PKEY_new(void);
 %rename(pkey_free) EVP_PKEY_free;

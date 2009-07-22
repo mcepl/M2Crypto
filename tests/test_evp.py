@@ -240,7 +240,7 @@ class CipherTestCase(unittest.TestCase):
                 raise 
 
         self.assertRaises(ValueError, self.try_algo, 'nosuchalgo4567')
-        
+       
     def test_AES(self):
         enc = 1
         dec = 0
@@ -270,7 +270,8 @@ class CipherTestCase(unittest.TestCase):
             'CT':  'd0a02b3836451753d493665d33f0e8862dea54cdb293abc7506939276772f8d5021c19216bad525c8579695d83ba2684',
             },
         ]
-        
+       
+        # Test with padding
         for test in tests:
             # encrypt
             k=EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=enc)
@@ -287,6 +288,26 @@ class CipherTestCase(unittest.TestCase):
             j=EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=dec)
             pbuf=cStringIO.StringIO()
             cbuf=cStringIO.StringIO(unhexlify(test['CT'] + cipherpadding))
+            plaintext=self.cipher_filter(j, cbuf, pbuf)
+            pbuf.close()
+            cbuf.close()
+            self.assertEqual(plaintext, test['PT'])
+
+        # Test without padding
+        for test in tests:
+            # encrypt
+            k=EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=enc, padding=False)
+            pbuf=cStringIO.StringIO(test['PT'])
+            cbuf=cStringIO.StringIO()
+            ciphertext = hexlify(self.cipher_filter(k, pbuf, cbuf))
+            pbuf.close()
+            cbuf.close()
+            self.assertEqual(ciphertext, test['CT'])
+
+            # decrypt
+            j=EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=dec, padding=False)
+            pbuf=cStringIO.StringIO()
+            cbuf=cStringIO.StringIO(unhexlify(test['CT']))
             plaintext=self.cipher_filter(j, cbuf, pbuf)
             pbuf.close()
             cbuf.close()
