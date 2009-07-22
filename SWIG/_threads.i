@@ -14,7 +14,7 @@ static int thread_mode = 0;
 void threading_locking_callback(int mode, int type, const char *file, int line) {
 #ifdef THREADING
         if (mode & CRYPTO_LOCK) {
-                PyThread_acquire_lock(lock_cs[type], 0);
+                PyThread_acquire_lock(lock_cs[type], WAIT_LOCK);
                 lock_count[type]++;
         } else {
                 PyThread_release_lock(lock_cs[type]);
