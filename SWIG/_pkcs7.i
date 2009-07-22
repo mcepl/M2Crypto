@@ -19,6 +19,8 @@
 extern PKCS7 *PKCS7_new(void);
 %rename(pkcs7_free) PKCS7_free;
 extern void PKCS7_free(PKCS7 *);
+%rename(pkcs7_add_certificate) PKCS7_add_certificate;
+extern void PKCS7_add_certificate(PKCS7 *, X509 *);
 
 /* S/MIME operation */
 %constant int PKCS7_TEXT       = 0x1;
