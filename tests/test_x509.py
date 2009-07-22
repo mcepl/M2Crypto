@@ -36,7 +36,7 @@ class X509TestCase(unittest.TestCase):
             extstack.push(ext2)
             x.add_extensions(extstack)
         self.assertRaises(ValueError, x.sign, pk, 'sha513')
-        x.sign(pk,'md5')
+        x.sign(pk,'sha1')
         assert x.verify(pk)
         pk2 = x.get_pubkey()
         assert x.verify(pk2)
@@ -148,7 +148,7 @@ class X509TestCase(unittest.TestCase):
         self.assert_(n[10])
 
     def test_mkreq(self):
-        (req, _) = self.mkreq(512)
+        (req, _) = self.mkreq(1024)
         req.save_pem('tests/tmp_request.pem')
         req2 = X509.load_request('tests/tmp_request.pem')
         os.remove('tests/tmp_request.pem')
@@ -176,7 +176,7 @@ class X509TestCase(unittest.TestCase):
 
 
     def test_mkcert(self):
-        req, pk = self.mkreq(512)
+        req, pk = self.mkreq(1024)
         pkey = req.get_pubkey()
         assert(req.verify(pkey))
         sub = req.get_subject()
@@ -229,7 +229,7 @@ class X509TestCase(unittest.TestCase):
             self.assertRaises(AttributeError, cert.check_ca)
 
     def mkcacert(self):
-        req, pk = self.mkreq(512, ca=1)
+        req, pk = self.mkreq(1024, ca=1)
         pkey = req.get_pubkey()
         sub = req.get_subject()
         cert = X509.X509()
@@ -272,7 +272,7 @@ class X509TestCase(unittest.TestCase):
 
     def test_mkproxycert(self): 
         cacert, pk1, pkey = self.mkcacert()
-        end_entity_cert_req, pk2 = self.mkreq(512)
+        end_entity_cert_req, pk2 = self.mkreq(1024)
         end_entity_cert = self.make_eecert(cacert)
         end_entity_cert.set_subject(end_entity_cert_req.get_subject())
         end_entity_cert.set_pubkey(end_entity_cert_req.get_pubkey())
@@ -303,7 +303,7 @@ class X509TestCase(unittest.TestCase):
     def make_proxycert(self, eecert):
         proxycert = X509.X509()
         pk2 = EVP.PKey()
-        proxykey =  RSA.gen_key(512, 65537, self.callback)
+        proxykey =  RSA.gen_key(1024, 65537, self.callback)
         pk2.assign_rsa(proxykey)
         proxycert.set_pubkey(pk2)
         proxycert.set_version(2)

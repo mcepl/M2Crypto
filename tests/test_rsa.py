@@ -41,7 +41,7 @@ class RSATestCase(unittest.TestCase):
 
     def test_loadkey_pp(self):
         rsa = RSA.load_key(self.privkey2, self.pp_callback)
-        assert len(rsa) == 512
+        assert len(rsa) == 1024
         assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         assert rsa.check_key() == 1
 
@@ -50,28 +50,28 @@ class RSATestCase(unittest.TestCase):
 
     def test_loadkey(self):
         rsa = RSA.load_key(self.privkey)
-        assert len(rsa) == 512
+        assert len(rsa) == 1024
         assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
-        self.assertEqual(rsa.n, '\x00\x00\x00A\x00\xd4\rc\xb4C\xf4\x16\xaba\x1b&1\xac\xcc\xd6\x17{k\xeb\xb7A\xe3\x0f\x15\x94;!\xcf\x81\x9ag\x96\x1e\xfb\xd5?\x86#\xca\xedm\xea\xf0.\xb7\xb9\x8a\x91\xa0\xde)\xb4\xf7\xca!\x95R\x00\x04Q\xa5\x8c^\xa1')
+        self.assertEqual(rsa.n, "\x00\x00\x00\x81\x00\xcde!\x15\xdah\xb5`\xce[\xd6\x17d\xba8\xc1I\xb1\xf1\xber\x86K\xc7\xda\xb3\x98\xd6\xf6\x80\xae\xaa\x8f!\x9a\xefQ\xdeh\xbb\xc5\x99\x01o\xebGO\x8e\x9b\x9a\x18\xfb6\xba\x12\xfc\xf2\x17\r$\x00\xa1\x1a \xfc/\x13iUm\x04\x13\x0f\x91D~\xbf\x08\x19C\x1a\xe2\xa3\x91&\x8f\xcf\xcc\xf3\xa4HRf\xaf\xf2\x19\xbd\x05\xe36\x9a\xbbQ\xc86|(\xad\x83\xf2Eu\xb2EL\xdf\xa4@\x7f\xeel|\xfcU\x03\xdb\x89'")
         self.assertRaises(AttributeError, getattr, rsa, 'nosuchprop')
         assert rsa.check_key() == 1
 
     def test_loadkey_bio(self):
         keybio = BIO.MemoryBuffer(open(self.privkey).read()) 
         rsa = RSA.load_key_bio(keybio)
-        assert len(rsa) == 512
+        assert len(rsa) == 1024
         assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         assert rsa.check_key() == 1
 
     def test_keygen(self):
-        rsa = RSA.gen_key(512, 65537, self.gen_callback)
-        assert len(rsa) == 512
+        rsa = RSA.gen_key(1024, 65537, self.gen_callback)
+        assert len(rsa) == 1024
         assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         assert rsa.check_key() == 1
 
     def test_keygen_bad_cb(self):
-        rsa = RSA.gen_key(512, 65537, self.gen2_callback)
-        assert len(rsa) == 512
+        rsa = RSA.gen_key(1024, 65537, self.gen2_callback)
+        assert len(rsa) == 1024
         assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         assert rsa.check_key() == 1
 
@@ -113,7 +113,7 @@ class RSATestCase(unittest.TestCase):
         
     def test_loadpub(self):
         rsa = RSA.load_pub_key(self.pubkey)
-        assert len(rsa) == 512
+        assert len(rsa) == 1024
         assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         self.assertRaises(RSA.RSAError, setattr, rsa, 'e', '\000\000\000\003\001\000\001')
         self.assertRaises(RSA.RSAError, rsa.private_encrypt, 1)
@@ -144,7 +144,7 @@ class RSATestCase(unittest.TestCase):
         old = RSA.load_pub_key(self.pubkey)
         new = RSA.new_pub_key(old.pub())
         assert new.check_key()
-        assert len(new) == 512
+        assert len(new) == 1024
         assert new.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         
     def test_sign_and_verify(self):
@@ -242,7 +242,7 @@ class RSATestCase(unittest.TestCase):
         """
         rsa = RSA.load_key(self.privkey)
         digest = """This string should be long enough to warrant an error in
-        RSA_sign"""
+        RSA_sign""" * 2
          
         self.assertRaises(RSA.RSAError, rsa.sign, digest)
     

@@ -13,6 +13,8 @@ from binascii import hexlify, unhexlify
 from M2Crypto import EVP, RSA, util, Rand, m2, BIO
 from M2Crypto.util import h2b
 
+from fips import fips_mode
+
 class EVPTestCase(unittest.TestCase):
     def _gen_callback(self, *args):
         pass
@@ -21,7 +23,7 @@ class EVPTestCase(unittest.TestCase):
         return 'foobar'
     
     def _assign_rsa(self):
-        rsa = RSA.gen_key(512, 3, callback=self._gen_callback)
+        rsa = RSA.gen_key(1024, 3, callback=self._gen_callback)
         pkey = EVP.PKey()
         pkey.assign_rsa(rsa, capture=0) # capture=1 should cause crash
         return rsa
@@ -31,7 +33,7 @@ class EVPTestCase(unittest.TestCase):
         rsa.check_key()
         
     def test_pem(self):
-        rsa = RSA.gen_key(512, 3, callback=self._gen_callback)
+        rsa = RSA.gen_key(1024, 3, callback=self._gen_callback)
         pkey = EVP.PKey()
         pkey.assign_rsa(rsa)
         assert pkey.as_pem(callback=self._pass_callback) != pkey.as_pem(cipher=None)
@@ -43,12 +45,12 @@ class EVPTestCase(unittest.TestCase):
         Test DER encoding the PKey instance after assigning 
         a RSA key to it.
         """
-        rsa = RSA.gen_key(512, 3, callback=self._gen_callback)
+        rsa = RSA.gen_key(1024, 3, callback=self._gen_callback)
         pkey = EVP.PKey()
         pkey.assign_rsa(rsa)
         der_blob = pkey.as_der()        
         #A quick but not thorough sanity check
-        assert len(der_blob) == 92
+        assert len(der_blob) == 160
           
         
     def test_MessageDigest(self):
@@ -62,25 +64,26 @@ class EVPTestCase(unittest.TestCase):
         Test DER encoding the PKey instance after assigning 
         a RSA key to it. Have the PKey instance capture the RSA key.
         """
-        rsa = RSA.gen_key(512, 3, callback=self._gen_callback)
+        rsa = RSA.gen_key(1024, 3, callback=self._gen_callback)
         pkey = EVP.PKey()
         pkey.assign_rsa(rsa, 1)
         der_blob = pkey.as_der()
         #A quick but not thorough sanity check
-        assert len(der_blob) == 92
+        assert len(der_blob) == 160
 
     def test_size(self):
-        rsa = RSA.gen_key(512, 3, callback=self._gen_callback)
+        rsa = RSA.gen_key(1024, 3, callback=self._gen_callback)
         pkey = EVP.PKey()
         pkey.assign_rsa(rsa)
         size = pkey.size() 
-        assert size == 64
+        assert size == 128
         
     def test_hmac(self):
         assert util.octx_to_num(EVP.hmac('key', 'data')) == 92800611269186718152770431077867383126636491933, util.octx_to_num(EVP.hmac('key', 'data'))
-        assert util.octx_to_num(EVP.hmac('key', 'data', algo='md5')) == 209168838103121722341657216703105225176, util.octx_to_num(EVP.hmac('key', 'data', algo='md5'))
-        assert util.octx_to_num(EVP.hmac('key', 'data', algo='ripemd160')) == 1176807136224664126629105846386432860355826868536, util.octx_to_num(EVP.hmac('key', 'data', algo='ripemd160'))
-        
+        if not fips_mode: # Disabled algorithms
+            assert util.octx_to_num(EVP.hmac('key', 'data', algo='md5')) == 209168838103121722341657216703105225176, util.octx_to_num(EVP.hmac('key', 'data', algo='md5'))
+            assert util.octx_to_num(EVP.hmac('key', 'data', algo='ripemd160')) == 1176807136224664126629105846386432860355826868536, util.octx_to_num(EVP.hmac('key', 'data', algo='ripemd160'))
+         
         if m2.OPENSSL_VERSION_NUMBER >= 0x90800F:
             assert util.octx_to_num(EVP.hmac('key', 'data', algo='sha224')) == 2660082265842109788381286338540662430962855478412025487066970872635, util.octx_to_num(EVP.hmac('key', 'data', algo='sha224'))
             assert util.octx_to_num(EVP.hmac('key', 'data', algo='sha256')) == 36273358097036101702192658888336808701031275731906771612800928188662823394256, util.octx_to_num(EVP.hmac('key', 'data', algo='sha256'))
@@ -112,7 +115,7 @@ class EVPTestCase(unittest.TestCase):
         digest = sha.sha(message).digest()
         assert rsa.sign(digest) == rsa2.sign(digest)
         
-        rsa3 = RSA.gen_key(512, 3, callback=self._gen_callback)
+        rsa3 = RSA.gen_key(1024, 3, callback=self._gen_callback)
         assert rsa.sign(digest) != rsa3.sign(digest)
     
     def test_get_rsa_fail(self):
@@ -209,15 +212,20 @@ class CipherTestCase(unittest.TestCase):
         assert otxt == ptxt, '%s algorithm cipher test failed' % algo
         
     def test_ciphers(self):
-        ciphers=['bf_ecb', 'bf_cbc', 'bf_cfb', 'bf_ofb',\
-            'cast5_ecb', 'cast5_cbc', 'cast5_cfb', 'cast5_ofb',\
-            'des_ecb', 'des_cbc', 'des_cfb', 'des_ofb',\
-            'des_ede_ecb', 'des_ede_cbc', 'des_ede_cfb', 'des_ede_ofb',\
-            'des_ede3_ecb', 'des_ede3_cbc', 'des_ede3_cfb', 'des_ede3_ofb',\
-            'aes_128_ecb', 'aes_128_cbc', 'aes_128_cfb', 'aes_128_ofb',\
-            'aes_192_ecb', 'aes_192_cbc', 'aes_192_cfb', 'aes_192_ofb',\
-            'aes_256_ecb', 'aes_256_cbc', 'aes_256_cfb', 'aes_256_ofb',\
-            'rc4', 'rc2_40_cbc']
+        ciphers=[
+            'des_ede_ecb', 'des_ede_cbc', 'des_ede_cfb', 'des_ede_ofb',
+            'des_ede3_ecb', 'des_ede3_cbc', 'des_ede3_cfb', 'des_ede3_ofb',
+            'aes_128_ecb', 'aes_128_cbc', 'aes_128_cfb', 'aes_128_ofb',
+            'aes_192_ecb', 'aes_192_cbc', 'aes_192_cfb', 'aes_192_ofb',
+            'aes_256_ecb', 'aes_256_cbc', 'aes_256_cfb', 'aes_256_ofb']
+        nonfips_ciphers=['bf_ecb', 'bf_cbc', 'bf_cfb', 'bf_ofb',
+                         #'idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb',
+                         'cast5_ecb', 'cast5_cbc', 'cast5_cfb', 'cast5_ofb',
+                         #'rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb',
+                         'des_ecb', 'des_cbc', 'des_cfb', 'des_ofb',
+                         'rc4', 'rc2_40_cbc']
+        if not fips_mode: # Disabled algorithms
+            ciphers += nonfips_ciphers
         for i in ciphers:
             self.try_algo(i)
 

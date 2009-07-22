@@ -26,7 +26,7 @@ class DSATestCase(unittest.TestCase):
 
     def test_loadkey(self):
         dsa = DSA.load_key(self.privkey)
-        assert len(dsa) == 512
+        assert len(dsa) == 1024
         self.assertRaises(AttributeError, getattr, dsa, 'foobar')
         for k in ('p', 'q', 'g', 'priv', 'pub'):
             self.assertRaises(DSA.DSAError, setattr, dsa, k, 1)
@@ -35,7 +35,7 @@ class DSATestCase(unittest.TestCase):
         self.assertRaises(DSA.DSAError, DSA.load_key, self.param)
         dsa = DSA.load_params(self.param)
         assert not dsa.check_key()
-        assert len(dsa) == 512
+        assert len(dsa) == 1024
 
     def test_sign(self):
         dsa = DSA.load_key(self.privkey)
@@ -75,8 +75,8 @@ class DSATestCase(unittest.TestCase):
         self.assertRaises(AssertionError, dsa2.verify, self.data, r, s)
 
     def test_genparam_setparam_genkey(self):
-        dsa = DSA.gen_params(256, self.callback)
-        assert len(dsa) == 512
+        dsa = DSA.gen_params(1024, self.callback)
+        assert len(dsa) == 1024
         p = dsa.p
         q = dsa.q
         g = dsa.g

@@ -21,19 +21,19 @@ class DHTestCase(unittest.TestCase):
         self.assertRaises(TypeError, DH.DH, 'junk')
 
     def test_gen_params(self):
-        a = DH.gen_params(128, 2, self.genparam_callback)
+        a = DH.gen_params(1024, 2, self.genparam_callback)
         assert a.check_params() == 0
 
     def test_gen_params_bad_cb(self):
-        a = DH.gen_params(128, 2, self.genparam_callback2)
+        a = DH.gen_params(1024, 2, self.genparam_callback2)
         assert a.check_params() == 0
 
     def test_print_params(self):
-        a = DH.gen_params(128, 2, self.genparam_callback)
+        a = DH.gen_params(1024, 2, self.genparam_callback)
         bio = BIO.MemoryBuffer()
         a.print_params(bio)
         params = bio.read()
-        assert params.find('(128 bit)')
+        assert params.find('(1024 bit)')
         assert params.find('generator: 2 (0x2)')
 
     def test_load_params(self):
@@ -48,7 +48,7 @@ class DHTestCase(unittest.TestCase):
         ak = a.compute_key(b.pub)
         bk = b.compute_key(a.pub)
         assert ak == bk
-        self.assertEqual(len(a), 64)
+        self.assertEqual(len(a), 128)
 
         self.assertRaises(DH.DHError, setattr, a, 'p', 1)
         self.assertRaises(DH.DHError, setattr, a, 'priv', 1)
