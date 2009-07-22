@@ -23,6 +23,7 @@
 - ftpslib now works with Python 2.6, by Theodore A. Roth
 - httpslib.ProxyHTTPSConnection needs to cast port into integer,
   by John M. Schanck
+- Added support for RSASSA-PSS signing and verifying, by Koniosis
 - Reverted a change done in 0.17 to m2urllib2 which changed urls to include
   host when it should stay as it was
 - SMIME.text_crlf and text_crlf_bio were always raising TypeError; fixed

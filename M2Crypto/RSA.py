@@ -160,6 +160,64 @@ class RSA:
     def check_key(self):
         return m2.rsa_check_key(self.rsa)
 
+    def sign_rsassa_pss(self, digest, algo='sha1', salt_length=20):
+        """
+        Signs a digest with the private key using RSASSA-PSS
+
+        @type digest: str
+        @param digest: A digest created by using the digest method
+
+        @type salt_length: int
+        @param salt_length: The length of the salt to use
+        
+        @type algo: str
+        @param algo: The hash algorithm to use
+        Legal values are 'sha1','sha224', 'sha256', 'ripemd160', 
+        and 'md5'.
+
+        @return: a string which is the signature
+        """
+        hash = getattr(m2, algo, None)
+
+        if hash is None:
+            raise RSAError, 'not such hash algorithm %s' % hash_algo 
+
+        signature = m2.rsa_padding_add_pkcs1_pss(self.rsa, digest, hash(), salt_length)
+        
+        return self.private_encrypt(signature, m2.no_padding) 
+
+
+    def verify_rsassa_pss(self, data, signature, algo='sha1', salt_length=20):
+        """
+        Verifies the signature RSASSA-PSS
+
+        @type data: str
+        @param data: Data that has been signed
+
+        @type signature: str
+        @param signature: The signature signed with RSASSA-PSS
+        
+        @type salt_length: int
+        @param salt_length: The length of the salt that was used
+
+        @type algo: str
+        @param algo: The hash algorithm to use
+        Legal values are 'sha1','sha224', 'sha256', 'ripemd160', 
+        and 'md5'.
+
+        @return: True or False, depending on whether the signature was
+        verified.  
+        """
+        hash = getattr(m2, algo, None)
+
+        if hash is None:
+            raise RSAError, 'not such hash algorithm %s' % hash_algo 
+
+        plain_signature = self.public_decrypt(signature, m2.no_padding)
+         
+        return m2.rsa_verify_pkcs1_pss(self.rsa, data, plain_signature, hash(), salt_length)
+
+
     def sign(self, digest, algo='sha1'):
         """
         Signs a digest with the private key

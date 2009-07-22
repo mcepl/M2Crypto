@@ -171,6 +171,34 @@ class RSATestCase(unittest.TestCase):
             verify = rsa2.verify(digest, signature, algo) 
             assert verify == 1, 'verification failed with algorithm %s' % algo
     
+    def test_sign_and_verify_rsassa_pss(self):
+        """
+        Testing signing and verifying using rsassa_pss
+
+        The maximum size of the salt has to decrease as the
+        size of the digest increases because of the size of 
+        our test key limits it.
+        """
+        algos = {'sha1':43, 
+                 'ripemd160':43,
+                 'md5':47}
+
+        if m2.OPENSSL_VERSION_NUMBER >= 0x90800F:
+            algos['sha224'] = 35
+            algos['sha256'] = 31
+            algos['sha384'] = 15
+            algos['sha512'] = 0 
+    
+        message = "This is the message string"
+        digest = sha.sha(message).digest()
+        rsa = RSA.load_key(self.privkey)
+        rsa2 = RSA.load_pub_key(self.pubkey)
+        for algo, salt_max in algos.iteritems():
+            for salt_length in range(0, salt_max):
+                signature = rsa.sign_rsassa_pss(digest, algo, salt_length)
+                verify = rsa2.verify_rsassa_pss(digest, signature, algo, salt_length) 
+                assert verify == 1, 'verification failed with algorithm %s salt length %d' % (algo, salt_length)
+
     def test_sign_bad_method(self):
         """
         Testing calling sign with an unsupported message digest algorithm
