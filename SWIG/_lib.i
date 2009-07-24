@@ -264,23 +264,20 @@ int passphrase_callback(char *buf, int num, int v, void *arg) {
     Py_ssize_t len;
     char *str;
     PyObject *argv, *ret, *cbfunc;
+    PyGILState_STATE gilstate;
 
-    /* NOTE: This should not acquire the GIL, as was discovered in bug 11813
-     * by Keith Jackson:
-     * "rsa_write_key in _rsa.i calls PEM_write_bio_RSAPrivateKey which if you
-     * look at the openssl code calls the callback function passed into it. 
-     * We never give up the GIL in rsa_write_key so trying to acquire it again
-     * in the callback is going to result in deadlock"
-     */
+    gilstate = PyGILState_Ensure();
     cbfunc = (PyObject *)arg;
     argv = Py_BuildValue("(i)", v);
     ret = PyEval_CallObject(cbfunc, argv);
     Py_DECREF(argv);
     if (ret == NULL) {
+        PyGILState_Release(gilstate);
         return -1;
     }
     if (!PyString_Check(ret)) {
         Py_DECREF(ret);
+        PyGILState_Release(gilstate);
         return -1;
     }
     if ((len = PyString_Size(ret)) > num)
@@ -289,6 +286,7 @@ int passphrase_callback(char *buf, int num, int v, void *arg) {
     for (i = 0; i < len; i++)
         buf[i] = str[i];
     Py_DECREF(ret);
+    PyGILState_Release(gilstate);
     return len;
 }
 %}
@@ -496,8 +494,10 @@ BIGNUM *dec_to_bn(PyObject *value) {
 /* A bunch of "straight-thru" functions. */
 
 %rename(err_print_errors_fp) ERR_print_errors_fp;
+%threadallow ERR_print_errors_fp;
 extern void ERR_print_errors_fp(FILE *);
 %rename(err_print_errors) ERR_print_errors;
+%threadallow ERR_print_errors;
 extern void ERR_print_errors(BIO *);
 %rename(err_get_error) ERR_get_error;
 extern unsigned long ERR_get_error(void);

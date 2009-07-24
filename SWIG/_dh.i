@@ -20,6 +20,7 @@ extern int DH_size(const DH *);
 %rename(dh_generate_key) DH_generate_key;
 extern int DH_generate_key(DH *);
 %rename(dhparams_print) DHparams_print;
+%threadallow DHparams_print;
 extern int DHparams_print(BIO *, const DH *);
 
 %constant int dh_check_ok             = 0;
@@ -44,7 +45,10 @@ int dh_type_check(DH *dh) {
     XXX Still need to check the pointer for sanity? */
     return 1;
 }
+%}
 
+%threadallow dh_read_parameters;
+%inline %{
 DH *dh_read_parameters(BIO *bio) {
     return PEM_read_bio_DHparams(bio, NULL, NULL, NULL);
 }

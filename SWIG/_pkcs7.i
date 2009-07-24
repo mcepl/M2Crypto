@@ -50,7 +50,10 @@ void smime_init(PyObject *smime_err) {
     Py_INCREF(smime_err);
     _smime_err = smime_err;
 }
+%}
 
+%threadallow pkcs7_encrypt;
+%inline %{
 PKCS7 *pkcs7_encrypt(STACK *stack, BIO *bio, EVP_CIPHER *cipher, int flags) {
     return PKCS7_encrypt((STACK_OF(X509) *)stack, bio, cipher, flags);
 }
@@ -82,15 +85,24 @@ PyObject *pkcs7_decrypt(PKCS7 *pkcs7, EVP_PKEY *pkey, X509 *cert, int flags) {
     PyMem_Free(outbuf);
     return ret;
 }
+%}
 
+%threadallow pkcs7_sign0;
+%inline %{
 PKCS7 *pkcs7_sign0(X509 *x509, EVP_PKEY *pkey, BIO *bio, int flags) {
     return PKCS7_sign(x509, pkey, NULL, bio, flags);
 }
+%}
 
+%threadallow pkcs7_sign1;
+%inline %{
 PKCS7 *pkcs7_sign1(X509 *x509, EVP_PKEY *pkey, STACK *stack, BIO *bio, int flags) {
     return PKCS7_sign(x509, pkey, (STACK_OF(X509) *)stack, bio, flags);
 }
+%}
 
+%threadallow pkcs7_verify1;
+%inline %{
 PyObject *pkcs7_verify1(PKCS7 *pkcs7, STACK *stack, X509_STORE *store, BIO *data, int flags) {
     int outlen;
     char *outbuf;
@@ -122,11 +134,17 @@ PyObject *pkcs7_verify1(PKCS7 *pkcs7, STACK *stack, X509_STORE *store, BIO *data
 PyObject *pkcs7_verify0(PKCS7 *pkcs7, STACK *stack, X509_STORE *store, int flags) {
     return pkcs7_verify1(pkcs7, stack, store, NULL, flags);
 }
+%}
 
+%threadallow smime_write_pkcs7_multi;
+%inline %{
 int smime_write_pkcs7_multi(BIO *bio, PKCS7 *pkcs7, BIO *data, int flags) {
     return SMIME_write_PKCS7(bio, pkcs7, data, flags | PKCS7_DETACHED);
 }
+%}
 
+%threadallow smime_write_pkcs7;
+%inline %{
 int smime_write_pkcs7(BIO *bio, PKCS7 *pkcs7, int flags) {
     return SMIME_write_PKCS7(bio, pkcs7, NULL, flags);
 }
@@ -144,7 +162,10 @@ PyObject *smime_read_pkcs7(BIO *bio) {
         BIO_set_mem_eof_return(bio, 0);
     }
 
-    if (!(p7=SMIME_read_PKCS7(bio, &bcont))) {
+    Py_BEGIN_ALLOW_THREADS
+    p7=SMIME_read_PKCS7(bio, &bcont);
+    Py_END_ALLOW_THREADS
+    if (!p7) {
         PyErr_SetString(_smime_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
@@ -163,19 +184,31 @@ PyObject *smime_read_pkcs7(BIO *bio) {
     }
     return tuple;
 }
+%}
 
+%threadallow pkcs7_read_bio;
+%inline %{
 PKCS7 *pkcs7_read_bio(BIO *bio) {
     return PEM_read_bio_PKCS7(bio, NULL, NULL, NULL);
 }
+%}
 
+%threadallow pkcs7_read_bio_der;
+%inline %{
 PKCS7 *pkcs7_read_bio_der(BIO *bio) {
     return d2i_PKCS7_bio(bio, NULL);
 }
+%}
 
+%threadallow pkcs7_write_bio;
+%inline %{
 int pkcs7_write_bio(PKCS7 *pkcs7, BIO* bio) {
     return PEM_write_bio_PKCS7(bio, pkcs7);
 }
+%}
 
+%threadallow pkcs7_write_bio_der;
+%inline %{
 int pkcs7_write_bio_der(PKCS7 *pkcs7, BIO *bio) {
     return i2d_PKCS7_bio(bio, pkcs7);
 }
@@ -187,7 +220,10 @@ int pkcs7_type_nid(PKCS7 *pkcs7) {
 const char *pkcs7_type_sn(PKCS7 *pkcs7) {
     return OBJ_nid2sn(OBJ_obj2nid(pkcs7->type));
 }
+%}
 
+%threadallow smime_crlf_copy;
+%inline %{
 int smime_crlf_copy(BIO *in, BIO *out) {
     return SMIME_crlf_copy(in, out, PKCS7_TEXT);
 }

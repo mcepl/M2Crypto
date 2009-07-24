@@ -189,15 +189,24 @@ PyObject *ec_key_get_public_der(EC_KEY *key) {
 
     return pyo;
 }
+%}
 
+%threadallow ec_key_read_pubkey;
+%inline %{
 EC_KEY *ec_key_read_pubkey(BIO *f) {
     return PEM_read_bio_EC_PUBKEY(f, NULL, NULL, NULL);   
 }
+%}
 
+%threadallow ec_key_write_pubkey;
+%inline %{
 int ec_key_write_pubkey(EC_KEY *key, BIO *f) {
     return PEM_write_bio_EC_PUBKEY(f, key );
 }
+%}
 
+%threadallow ec_key_read_bio;
+%inline %{
 EC_KEY *ec_key_read_bio(BIO *f, PyObject *pyfunc) {
     EC_KEY *ret;
 
@@ -206,7 +215,10 @@ EC_KEY *ec_key_read_bio(BIO *f, PyObject *pyfunc) {
     Py_DECREF(pyfunc);
     return ret;
 }
+%}
 
+%threadallow ec_key_write_bio;
+%inline %{
 int ec_key_write_bio(EC_KEY *key, BIO *f, EVP_CIPHER *cipher, PyObject *pyfunc) {
     int ret;
 
@@ -216,7 +228,10 @@ int ec_key_write_bio(EC_KEY *key, BIO *f, EVP_CIPHER *cipher, PyObject *pyfunc) 
     Py_DECREF(pyfunc);
     return ret;
 }
+%}
 
+%threadallow ec_key_write_bio_no_cipher;
+%inline %{
 int ec_key_write_bio_no_cipher(EC_KEY *key, BIO *f, PyObject *pyfunc) {
     int ret;
 

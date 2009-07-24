@@ -46,7 +46,10 @@ void rsa_init(PyObject *rsa_err) {
     Py_INCREF(rsa_err);
     _rsa_err = rsa_err;
 }
+%}
 
+%threadallow rsa_read_key;
+%inline %{
 RSA *rsa_read_key(BIO *f, PyObject *pyfunc) {
     RSA *rsa;
 
@@ -55,7 +58,10 @@ RSA *rsa_read_key(BIO *f, PyObject *pyfunc) {
     Py_DECREF(pyfunc);
     return rsa;
 }
+%}
 
+%threadallow rsa_write_key;
+%inline %{
 int rsa_write_key(RSA *rsa, BIO *f, EVP_CIPHER *cipher, PyObject *pyfunc) {
     int ret;
 
@@ -65,7 +71,10 @@ int rsa_write_key(RSA *rsa, BIO *f, EVP_CIPHER *cipher, PyObject *pyfunc) {
     Py_DECREF(pyfunc);
     return ret;
 }
+%}
 
+%threadallow rsa_write_key_no_cipher;
+%inline %{
 int rsa_write_key_no_cipher(RSA *rsa, BIO *f, PyObject *pyfunc) {
     int ret;
 
@@ -75,11 +84,17 @@ int rsa_write_key_no_cipher(RSA *rsa, BIO *f, PyObject *pyfunc) {
     Py_DECREF(pyfunc);
     return ret;
 }
+%}
 
+%threadallow rsa_read_pub_key;
+%inline %{
 RSA *rsa_read_pub_key(BIO *f) {
     return PEM_read_bio_RSA_PUBKEY(f, NULL, NULL, NULL);   
 }
+%}
 
+%threadallow rsa_write_pub_key;
+%inline %{
 int rsa_write_pub_key(RSA *rsa, BIO *f) {
     return PEM_write_bio_RSA_PUBKEY(f, rsa);
 }
@@ -419,7 +434,10 @@ int rsa_type_check(RSA *rsa) {
 int rsa_check_pub_key(RSA *rsa) {
     return (rsa->e) && (rsa->n);
 }
+%}
 
+%threadallow rsa_write_key_der;
+%inline %{
 int rsa_write_key_der(RSA *rsa, BIO *bio) {
     return i2d_RSAPrivateKey_bio(bio, rsa);
 }

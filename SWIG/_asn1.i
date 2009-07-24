@@ -60,7 +60,9 @@ extern int ASN1_STRING_set( ASN1_STRING *, const void *, int);
 %typemap(in) (const void *, int);
 
 %rename(asn1_string_print) ASN1_STRING_print;
+%threadallow ASN1_STRING_print;
 extern int ASN1_STRING_print(BIO *, ASN1_STRING *);
+%threadallow ASN1_STRING_print_ex;
 %rename(asn1_string_print_ex) ASN1_STRING_print_ex;
 extern int ASN1_STRING_print_ex(BIO *, ASN1_STRING *, unsigned long);
 
@@ -75,6 +77,7 @@ extern ASN1_UTCTIME *ASN1_UTCTIME_set(ASN1_UTCTIME *, long);
 %rename(asn1_utctime_set_string) ASN1_UTCTIME_set_string;
 extern int ASN1_UTCTIME_set_string(ASN1_UTCTIME *, CONST098 char *);
 %rename(asn1_utctime_print) ASN1_UTCTIME_print;
+%threadallow ASN1_UTCTIME_print;
 extern int ASN1_UTCTIME_print(BIO *, ASN1_UTCTIME *);
 
 %rename(asn1_integer_new) ASN1_INTEGER_new;
