@@ -36,8 +36,10 @@ extern void X509_CRL_free(X509_CRL *);
 extern X509_CRL * X509_CRL_new();
 
 %rename(x509_print) X509_print;
+%threadallow X509_print;
 extern int X509_print(BIO *, X509 *);
 %rename(x509_crl_print) X509_CRL_print;
+%threadallow X509_CRL_print;
 extern int X509_CRL_print(BIO *, X509_CRL *);
 
 %rename(x509_get_serial_number) X509_get_serialNumber;
@@ -96,6 +98,7 @@ extern int X509_check_purpose(X509 *, int, int);
 extern int X509_check_trust(X509 *, int, int);
 
 %rename(x509_write_pem) PEM_write_bio_X509;
+%threadallow PEM_write_bio_X509;
 extern int PEM_write_bio_X509(BIO *, X509 *);
 %rename(x509_write_pem_file) PEM_write_X509;
 extern int PEM_write_X509(FILE *, X509 *);
@@ -118,6 +121,7 @@ extern int X509_get_ext_count(X509 *);
 %rename(x509_get_ext) X509_get_ext;
 extern X509_EXTENSION *X509_get_ext(X509 *, int);
 %rename(x509_ext_print) X509V3_EXT_print;
+%threadallow X509V3_EXT_print;
 extern int X509V3_EXT_print(BIO *, X509_EXTENSION *, unsigned long, int);
 
 %rename(x509_name_new) X509_NAME_new;
@@ -125,6 +129,7 @@ extern X509_NAME *X509_NAME_new( void );
 %rename(x509_name_free) X509_NAME_free;
 extern void X509_NAME_free(X509_NAME *);
 %rename(x509_name_print) X509_NAME_print;
+%threadallow X509_NAME_print;
 extern int X509_NAME_print(BIO *, X509_NAME *, int);
 %rename(x509_name_get_entry) X509_NAME_get_entry;
 extern X509_NAME_ENTRY *X509_NAME_get_entry(X509_NAME *, int);
@@ -139,6 +144,7 @@ extern int X509_NAME_add_entry_by_OBJ(X509_NAME *, ASN1_OBJECT *, int, unsigned 
 %rename(x509_name_add_entry_by_nid) X509_NAME_add_entry_by_NID;
 extern int X509_NAME_add_entry_by_NID(X509_NAME *, int, int, unsigned char *, int, int, int );
 %rename(x509_name_print_ex) X509_NAME_print_ex;
+%threadallow X509_NAME_print_ex;
 extern int X509_NAME_print_ex(BIO *, X509_NAME *, int, unsigned long);
 %rename(x509_name_print_ex_fp) X509_NAME_print_ex_fp;
 extern int X509_NAME_print_ex_fp(FILE *, X509_NAME *, int, unsigned long);
@@ -186,6 +192,7 @@ extern X509_REQ * X509_REQ_new();
 %rename(x509_req_free) X509_REQ_free;
 extern void X509_REQ_free(X509_REQ *);
 %rename(x509_req_print) X509_REQ_print;
+%threadallow X509_REQ_print;
 extern int X509_REQ_print(BIO *, X509_REQ *);
 
 %rename(x509_req_get_pubkey) X509_REQ_get_pubkey;
@@ -201,8 +208,10 @@ extern int X509_REQ_verify(X509_REQ *, EVP_PKEY *);
 extern int X509_REQ_sign(X509_REQ *, EVP_PKEY *, const EVP_MD *);
 
 %rename(i2d_x509_bio) i2d_X509_bio;
+%threadallow i2d_X509_bio;
 extern int i2d_X509_bio(BIO *, X509 *);
 %rename(i2d_x509_req_bio) i2d_X509_REQ_bio;
+%threadallow i2d_X509_REQ_bio;
 extern int i2d_X509_REQ_bio(BIO *, X509_REQ *);
 
 %rename(x509_store_new) X509_STORE_new;
@@ -307,15 +316,24 @@ void x509_init(PyObject *x509_err) {
     Py_INCREF(x509_err);
     _x509_err = x509_err;
 }
+%}
 
+%threadallow x509_read_pem;
+%inline %{
 X509 *x509_read_pem(BIO *bio) {
     return PEM_read_bio_X509(bio, NULL, NULL, NULL);
 }
+%}
 
+%threadallow d2i_x509;
+%inline %{
 X509 *d2i_x509(BIO *bio) {
     return d2i_X509_bio(bio, NULL);
 }
+%}
 
+%threadallow d2i_x509_req;
+%inline %{
 X509_REQ *d2i_x509_req(BIO *bio) {
     return d2i_X509_REQ_bio(bio, NULL);
 }
@@ -335,15 +353,24 @@ PyObject *i2d_x509(X509 *x)
     }
     return ret;
 }
+%}
 
+%threadallow x509_req_read_pem;
+%inline %{
 X509_REQ *x509_req_read_pem(BIO *bio) {
     return PEM_read_bio_X509_REQ(bio, NULL, NULL, NULL);
 }
+%}
 
+%threadallow x509_req_write_pem;
+%inline %{
 int x509_req_write_pem(BIO *bio, X509_REQ *x) {
     return PEM_write_bio_X509_REQ(bio, x);
 }
+%}
 
+%threadallow x509_crl_read_pem;
+%inline %{
 X509_CRL *x509_crl_read_pem(BIO *bio) {
     return PEM_read_bio_X509_CRL(bio, NULL, NULL, NULL);
 }

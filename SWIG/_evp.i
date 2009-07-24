@@ -461,7 +461,10 @@ int verify_final(EVP_MD_CTX *ctx, PyObject *blob, EVP_PKEY *pkey) {
 
     return EVP_VerifyFinal(ctx, kbuf, len, pkey);
 }
+%}
 
+%threadallow pkey_write_pem_no_cipher;
+%inline %{
 int pkey_write_pem_no_cipher(EVP_PKEY *pkey, BIO *f, PyObject *pyfunc) {
     int ret;
 
@@ -471,7 +474,10 @@ int pkey_write_pem_no_cipher(EVP_PKEY *pkey, BIO *f, PyObject *pyfunc) {
     Py_DECREF(pyfunc);
     return ret;
 }
+%}
 
+%threadallow pkey_write_pem;
+%inline %{
 int pkey_write_pem(EVP_PKEY *pkey, BIO *f, EVP_CIPHER *cipher, PyObject *pyfunc) {
     int ret;
 
@@ -481,7 +487,10 @@ int pkey_write_pem(EVP_PKEY *pkey, BIO *f, EVP_CIPHER *cipher, PyObject *pyfunc)
     Py_DECREF(pyfunc);
     return ret;
 }
+%}
 
+%threadallow pkey_read_pem;
+%inline %{
 EVP_PKEY *pkey_read_pem(BIO *f, PyObject *pyfunc) {
     EVP_PKEY *pk;
 

@@ -5,7 +5,12 @@
  * Copyright (C) 2004-2006 OSAF. All Rights Reserved.
  */
 
-%module _m2crypto
+%module(threads=1) _m2crypto
+/* We really don't need threadblock (PyGILState_Ensure() etc.) anywhere.
+   Disable threadallow as well, only enable it for operations likely to
+   block. */
+%nothreadblock;
+%nothreadallow;
 
 %{
 #include <openssl/err.h>

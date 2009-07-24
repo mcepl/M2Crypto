@@ -79,6 +79,7 @@ extern BIO *BIO_new_ssl(SSL_CTX *, int);
 %rename(ssl_new) SSL_new;
 extern SSL *SSL_new(SSL_CTX *);
 %rename(ssl_free) SSL_free;
+%threadallow SSL_free;
 extern void SSL_free(SSL *);
 %rename(ssl_dup) SSL_dup;
 extern SSL *SSL_dup(SSL *);
@@ -93,12 +94,15 @@ extern int SSL_get_shutdown(CONST SSL *);
 %rename(ssl_set_shutdown) SSL_set_shutdown;
 extern void SSL_set_shutdown(SSL *, int);
 %rename(ssl_shutdown) SSL_shutdown;
+%threadallow SSL_shutdown;
 extern int SSL_shutdown(SSL *);
 %rename(ssl_clear) SSL_clear;
 extern int SSL_clear(SSL *);
 %rename(ssl_do_handshake) SSL_do_handshake;
+%threadallow SSL_do_handshake;
 extern int SSL_do_handshake(SSL *);
 %rename(ssl_renegotiate) SSL_renegotiate;
+%threadallow SSL_renegotiate;
 extern int SSL_renegotiate(SSL *);
 %rename(ssl_pending) SSL_pending;
 extern int SSL_pending(CONST SSL *);
@@ -137,6 +141,7 @@ extern int SSL_set_session(SSL *, SSL_SESSION *);
 %rename(ssl_session_free) SSL_SESSION_free;
 extern void SSL_SESSION_free(SSL_SESSION *);
 %rename(ssl_session_print) SSL_SESSION_print;
+%threadallow SSL_SESSION_print;
 extern int SSL_SESSION_print(BIO *, CONST SSL_SESSION *);
 %rename(ssl_session_set_timeout) SSL_SESSION_set_timeout;
 extern long SSL_SESSION_set_timeout(SSL_SESSION *, long);
@@ -686,15 +691,24 @@ int sk_x509_num(STACK *stack) {
 X509 *sk_x509_value(STACK *stack, int idx) {
     return (X509 *)sk_value(stack, idx);
 }
+%}
 
+%threadallow i2d_ssl_session;
+%inline %{
 void i2d_ssl_session(BIO *bio, SSL_SESSION *sess) {
     i2d_SSL_SESSION_bio(bio, sess);
 }
+%}
 
+%threadallow ssl_session_read_pem;
+%inline %{
 SSL_SESSION *ssl_session_read_pem(BIO *bio) {
     return PEM_read_bio_SSL_SESSION(bio, NULL, NULL, NULL);
 }
+%}
 
+%threadallow ssl_session_write_pem;
+%inline %{
 int ssl_session_write_pem(SSL_SESSION *sess, BIO *bio) {
     return PEM_write_bio_SSL_SESSION(bio, sess);
 }

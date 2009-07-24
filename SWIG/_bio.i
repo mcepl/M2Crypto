@@ -38,8 +38,10 @@ extern BIO *BIO_new_fp(FILE *, int);
 %rename(bio_new_file) BIO_new_file;
 extern BIO *BIO_new_file(const char *, const char *);
 %rename(bio_free) BIO_free;
+%threadallow BIO_free;
 extern int BIO_free(BIO *);
 %rename(bio_free_all) BIO_free_all;
+%threadallow BIO_free_all;
 extern void BIO_free_all(BIO *);
 %rename(bio_dup_chain) BIO_dup_chain;
 extern BIO *BIO_dup_chain(BIO *);
@@ -152,7 +154,10 @@ int bio_ctrl_get_write_guarantee(BIO *a) {
 int bio_reset(BIO *bio) {
     return (int)BIO_reset(bio);
 }
+%}
 
+%threadallow bio_flush;
+%inline %{
 int bio_flush(BIO *bio) {
     return (int)BIO_flush(bio);
 }
@@ -190,7 +195,10 @@ int bio_set_mem_eof_return(BIO *b, int v) {
 int bio_get_fd(BIO *bio) {
     return BIO_get_fd(bio, NULL);
 }
+%}
 
+%threadallow bio_do_handshake;
+%inline %{
 int bio_do_handshake(BIO *bio) {
     return BIO_do_handshake(bio);
 }

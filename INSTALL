@@ -15,7 +15,7 @@ The following software packages are pre-requisites:
 
 - **Python 2.3 or newer**
 - **OpenSSL 0.9.7 or newer**
-- **SWIG 1.3.24 or newer**
+- **SWIG 1.3.28 or newer**
 
 Note about OpenSSL versions early in the 0.9.7 series
 -----------------------------------------------------

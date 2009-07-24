@@ -17,6 +17,7 @@
   commonName for hostname check, fix by Miloslav Trmac
 - threading_locking_callback did not block on a lock when the lock
   was held by another thread, by Miloslav Trmac
+- Allow more blocking OpenSSL functions to run without GIL, by Miloslav Trmac
 - Fixed httpslib to send only the path+query+fragment part of the URL when
   using CONNECT proxy, by James Bowes  
 - SSLServer.__init__ now takes optional bind_and_activate parameter and

@@ -153,7 +153,10 @@ PyObject *dsa_set_g(DSA *dsa, PyObject *value) {
     Py_INCREF(Py_None);
     return Py_None;
 }
+%}
 
+%threadallow dsa_read_params;
+%inline %{
 DSA *dsa_read_params(BIO *f, PyObject *pyfunc) {
     DSA *ret;
 
@@ -162,11 +165,17 @@ DSA *dsa_read_params(BIO *f, PyObject *pyfunc) {
     Py_DECREF(pyfunc);
     return ret;
 }
+%}
 
+%threadallow dsa_write_params_bio;
+%inline %{
 int dsa_write_params_bio(DSA* dsa, BIO* f) {
     return PEM_write_bio_DSAparams(f, dsa);
 }
+%}
 
+%threadallow dsa_write_key_bio;
+%inline %{
 int dsa_write_key_bio(DSA* dsa, BIO* f, EVP_CIPHER *cipher, PyObject *pyfunc) {
     int ret;
 
@@ -176,7 +185,10 @@ int dsa_write_key_bio(DSA* dsa, BIO* f, EVP_CIPHER *cipher, PyObject *pyfunc) {
     Py_DECREF(pyfunc);
     return ret;
 }
+%}
 
+%threadallow dsa_write_key_bio_no_cipher;
+%inline %{
 int dsa_write_key_bio_no_cipher(DSA* dsa, BIO* f, PyObject *pyfunc) {
     int ret;
 
@@ -186,11 +198,17 @@ int dsa_write_key_bio_no_cipher(DSA* dsa, BIO* f, PyObject *pyfunc) {
     Py_DECREF(pyfunc);
     return ret;
 }
+%}
 
+%threadallow dsa_write_pub_key_bio;
+%inline %{
 int dsa_write_pub_key_bio(DSA* dsa, BIO* f) {
     return PEM_write_bio_DSA_PUBKEY(f, dsa);
 }
+%}
 
+%threadallow dsa_read_key;
+%inline %{
 DSA *dsa_read_key(BIO *f, PyObject *pyfunc) {
     DSA *ret;
 
@@ -199,7 +217,10 @@ DSA *dsa_read_key(BIO *f, PyObject *pyfunc) {
     Py_DECREF(pyfunc);
     return ret;
 }
+%}
 
+%threadallow dsa_read_pub_key;
+%inline %{
 DSA *dsa_read_pub_key(BIO *f, PyObject *pyfunc) {
     DSA *ret;
 
