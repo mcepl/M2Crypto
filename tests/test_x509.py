@@ -439,6 +439,15 @@ class X509TestCase(unittest.TestCase):
         self.assertRaises(X509.X509Error, X509.load_request_string, 'Hello')
         self.assertRaises(X509.X509Error, X509.load_request_der_string, 'Hello')
         self.assertRaises(X509.X509Error, X509.load_crl, 'tests/alltests.py')
+        
+    def test_long_serial(self):
+        from M2Crypto import X509
+        cert = X509.load_cert('tests/long_serial_cert.pem')
+        self.assertEquals(cert.get_serial_number(), 17616841808974579194)
+
+        cert = X509.load_cert('tests/thawte.pem')
+        self.assertEquals(cert.get_serial_number(), 127614157056681299805556476275995414779)
+
 
 class X509_StackTestCase(unittest.TestCase):
     

@@ -81,10 +81,6 @@ extern int ASN1_UTCTIME_print(BIO *, ASN1_UTCTIME *);
 extern ASN1_INTEGER *ASN1_INTEGER_new( void );
 %rename(asn1_integer_free) ASN1_INTEGER_free;
 extern void ASN1_INTEGER_free( ASN1_INTEGER *);
-%rename(asn1_integer_get) ASN1_INTEGER_get;
-extern long ASN1_INTEGER_get(ASN1_INTEGER *);
-%rename(asn1_integer_set) ASN1_INTEGER_set;
-extern int ASN1_INTEGER_set(ASN1_INTEGER *, long);
 %rename(asn1_integer_cmp) ASN1_INTEGER_cmp;
 extern int ASN1_INTEGER_cmp(ASN1_INTEGER *, ASN1_INTEGER *);
 
@@ -105,6 +101,100 @@ extern int ASN1_INTEGER_cmp(ASN1_INTEGER *, ASN1_INTEGER *);
 %inline %{
 /* ASN1_UTCTIME_set_string () is a macro */
 int asn1_utctime_type_check(ASN1_UTCTIME *ASN1_UTCTIME) {
+    return 1;
+}
+
+PyObject *asn1_integer_get(ASN1_INTEGER *asn1) {
+    BIGNUM *bn;
+    PyObject *ret;
+    char *hex;
+
+    if (asn1->length <= (int) sizeof(long))
+        return PyInt_FromLong(ASN1_INTEGER_get(asn1));
+
+    bn = ASN1_INTEGER_to_BN(asn1, NULL);
+
+    if (!bn){
+        PyErr_SetString(
+          PyExc_RuntimeError, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
+
+    hex = BN_bn2hex(bn);
+
+    if (!hex){
+        PyErr_SetString(
+          PyExc_RuntimeError, ERR_reason_error_string(ERR_get_error()));
+        BN_free(bn);
+        return NULL;
+    }
+
+    BN_free(bn);
+
+    ret = PyLong_FromString(hex, NULL, 16);
+
+    OPENSSL_free(hex);
+
+    return ret;
+}
+
+int asn1_integer_set(ASN1_INTEGER *asn1, PyObject *value) {
+    BIGNUM *bn = NULL;
+    PyObject *fmt, *args, *hex;
+
+    if (PyInt_Check(value))
+        return ASN1_INTEGER_set(asn1, PyInt_AS_LONG(value));
+
+    if (!PyLong_Check(value)){
+        PyErr_SetString(PyExc_TypeError, "expected int or long");
+        return 0;
+    }
+
+    fmt = PyString_FromString("%x");
+
+    if (!fmt)
+        return 0;
+
+    args = PyTuple_New(1);
+
+    if (!args){
+        Py_DECREF(fmt);
+        PyErr_SetString(PyExc_RuntimeError, "PyTuple_New() failed");
+        return 0;
+    }
+
+    Py_INCREF(value);
+    PyTuple_SET_ITEM(args, 0, value);
+    hex = PyString_Format(fmt, args);
+
+    if (!hex){
+        PyErr_SetString(PyExc_RuntimeError, "PyString_Format() failed");
+        Py_DECREF(fmt);
+        Py_DECREF(args);
+        return 0;
+    }
+
+    Py_DECREF(fmt);
+    Py_DECREF(args);
+
+    if (BN_hex2bn(&bn, PyString_AsString(hex)) <= 0){
+        PyErr_SetString(
+          PyExc_RuntimeError, ERR_reason_error_string(ERR_get_error()));
+        Py_DECREF(hex);
+        return 0;
+    }
+
+    Py_DECREF(hex);
+
+    if (!BN_to_ASN1_INTEGER(bn, asn1)){
+        PyErr_SetString(
+          PyExc_RuntimeError, ERR_reason_error_string(ERR_get_error()));
+        BN_free(bn); 
+        return 0;
+    }
+
+    BN_free(bn);
+
     return 1;
 }
 
