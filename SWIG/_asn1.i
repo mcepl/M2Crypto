@@ -112,9 +112,6 @@ PyObject *asn1_integer_get(ASN1_INTEGER *asn1) {
     PyObject *ret;
     char *hex;
 
-    if (asn1->length <= (int) sizeof(long))
-        return PyInt_FromLong(ASN1_INTEGER_get(asn1));
-
     bn = ASN1_INTEGER_to_BN(asn1, NULL);
 
     if (!bn){
