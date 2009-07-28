@@ -5,7 +5,7 @@
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
 import unittest
-import sha, md5, os
+import sha, md5, os, sys
 from M2Crypto import RSA, BIO, Rand, m2, EVP, X509
 
 class RSATestCase(unittest.TestCase):
@@ -179,24 +179,35 @@ class RSATestCase(unittest.TestCase):
         size of the digest increases because of the size of 
         our test key limits it.
         """
-        algos = {'sha1':43, 
-                 'ripemd160':43,
-                 'md5':47}
-
-        if m2.OPENSSL_VERSION_NUMBER >= 0x90800F:
-            algos['sha224'] = 35
-            algos['sha256'] = 31
-            algos['sha384'] = 15
-            algos['sha512'] = 0 
-    
         message = "This is the message string"
-        digest = sha.sha(message).digest()
+        if sys.version_info < (2, 5):
+            algos = {'sha1': (43, sha.sha(message).digest()), 
+                     'md5': (47, md5.md5(message).digest())}
+    
+        else:
+            import hashlib
+            algos = {'sha1': 43, 
+                     'ripemd160': 43,
+                     'md5': 47}
+    
+            if m2.OPENSSL_VERSION_NUMBER >= 0x90800F:
+                algos['sha224'] = 35
+                algos['sha256'] = 31
+                algos['sha384'] = 15
+                algos['sha512'] = 0 
+
+            for algo, salt_max in algos.iteritems():
+                h = hashlib.new(algo)
+                h.update(message)
+                digest = h.digest()
+                algos[algo] = (salt_max, digest) 
+
         rsa = RSA.load_key(self.privkey)
         rsa2 = RSA.load_pub_key(self.pubkey)
-        for algo, salt_max in algos.iteritems():
+        for algo, (salt_max, digest) in algos.iteritems():
             for salt_length in range(0, salt_max):
                 signature = rsa.sign_rsassa_pss(digest, algo, salt_length)
-                verify = rsa2.verify_rsassa_pss(digest, signature, algo, salt_length) 
+                verify = rsa2.verify_rsassa_pss(digest, signature, algo, salt_length)
                 assert verify == 1, 'verification failed with algorithm %s salt length %d' % (algo, salt_length)
 
     def test_sign_bad_method(self):

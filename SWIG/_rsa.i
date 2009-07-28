@@ -293,48 +293,50 @@ PyObject *rsa_private_decrypt(RSA *rsa, PyObject *from, int padding) {
 
 PyObject *rsa_padding_add_pkcs1_pss(RSA *rsa, PyObject *digest, EVP_MD *hash, int salt_length) {
     const void *dbuf;
-    void *tbuf;
-
-    int dlen, result;
+    unsigned char *tbuf;
+    int dlen, result, tlen;
     PyObject *ret;
-
-    int tlen = BN_num_bytes(rsa->n);
 
     if (m2_PyObject_AsReadBufferInt(digest, &dbuf, &dlen) == -1)
         return NULL;
 
-    if (!(tbuf = PyMem_Malloc(tlen))) {
+    tlen = RSA_size(rsa); 
+
+    if (!(tbuf = OPENSSL_malloc(tlen))) {
         PyErr_SetString(PyExc_MemoryError, "rsa_padding_add_pkcs1_pss");
         return NULL;
     }
     result = RSA_padding_add_PKCS1_PSS(
         rsa,
-        (unsigned char *)tbuf,
+        tbuf,
         (unsigned char *)dbuf,
         hash,
         salt_length);
 
     if (result == -1) {
-        PyMem_Free(tbuf);
+        OPENSSL_cleanse(tbuf, tlen);
+        OPENSSL_free(tbuf);
         PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
     ret = PyString_FromStringAndSize((const char *)tbuf, tlen);
-    PyMem_Free(tbuf);
+    OPENSSL_cleanse(tbuf, tlen);
+    OPENSSL_free(tbuf);
     return ret;
 }
 
 int rsa_verify_pkcs1_pss(RSA *rsa, PyObject *digest, PyObject *signature, EVP_MD *hash, int salt_length) {
     const void *dbuf;
     const void *sbuf;
-
     int dlen, slen, ret;
 
-    if (m2_PyObject_AsReadBufferInt(digest, &dbuf, &dlen) == -1)
+    if (m2_PyObject_AsReadBufferInt(digest, &dbuf, &dlen) == -1) {
         return 0;
+    }
 
-    if (m2_PyObject_AsReadBufferInt(signature, &sbuf, &slen) == -1)
+    if (m2_PyObject_AsReadBufferInt(signature, &sbuf, &slen) == -1) {
         return 0;
+    }
 
     ret = RSA_verify_PKCS1_PSS(
         rsa,
