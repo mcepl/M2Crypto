@@ -172,20 +172,16 @@ class RSA:
         
         @type algo: str
         @param algo: The hash algorithm to use
-        Legal values are 'sha1','sha224', 'sha256', 'ripemd160', 
-        and 'md5'.
 
         @return: a string which is the signature
         """
         hash = getattr(m2, algo, None)
-
         if hash is None:
-            raise RSAError, 'not such hash algorithm %s' % hash_algo 
+            raise ValueError('not such hash algorithm %s' % hash_algo) 
 
         signature = m2.rsa_padding_add_pkcs1_pss(self.rsa, digest, hash(), salt_length)
         
         return self.private_encrypt(signature, m2.no_padding) 
-
 
     def verify_rsassa_pss(self, data, signature, algo='sha1', salt_length=20):
         """
@@ -202,21 +198,17 @@ class RSA:
 
         @type algo: str
         @param algo: The hash algorithm to use
-        Legal values are 'sha1','sha224', 'sha256', 'ripemd160', 
-        and 'md5'.
 
-        @return: True or False, depending on whether the signature was
-        verified.  
+        @return: 1 or 0, depending on whether the signature was
+        verified or not.  
         """
         hash = getattr(m2, algo, None)
-
         if hash is None:
-            raise RSAError, 'not such hash algorithm %s' % hash_algo 
+            raise ValueError('not such hash algorithm %s' % hash_algo) 
 
         plain_signature = self.public_decrypt(signature, m2.no_padding)
          
         return m2.rsa_verify_pkcs1_pss(self.rsa, data, plain_signature, hash(), salt_length)
-
 
     def sign(self, digest, algo='sha1'):
         """
