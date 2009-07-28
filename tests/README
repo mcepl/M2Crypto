@@ -30,14 +30,14 @@ Making the server certificate and private key. make sure commonName
 field is localhost.
 
 CA.sh -newreq
-CA.sh -sign
+CA.sh -signreq
 cp newcert.pem ../server.pem
 openssl rsa <newkey.pem >>../server.pem
 
 Making the x509 certificate and key.
 
 CA.sh -newreq
-CA.sh -sign
+CA.sh -signreq
 cp newcert.pem ../x509.pem
 openssl rsa <newkey.pem >>../x509.pem
 openssl x509 -in ../x509.pem -out ../x509.der -outform DER
@@ -46,7 +46,7 @@ Making the signer certificate. Make sure the email address is
 signer@example.com.
 
 CA.sh -newreq
-CA.sh -sign
+CA.sh -signreq
 cp newcert.pem ../signer.pem
 openssl rsa <newkey.pem >../signer_key.pem
 
@@ -54,7 +54,7 @@ Making the recipient certificate. Make sure the email address is
 recipient@example.com.
 
 CA.sh -newreq
-CA.sh -sign
+CA.sh -signreq
 cp newcert.pem ../recipient.pem
 openssl rsa <newkey.pem >../recipient_key.pem
 

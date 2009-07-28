@@ -340,14 +340,14 @@ class X509TestCase(unittest.TestCase):
     def test_fingerprint(self):
         x509 = X509.load_cert('tests/x509.pem')
         fp = x509.get_fingerprint('sha1')
-        expected = '128858B5222A5C78397530A5706233A9EB470AC4'
+        expected = '8D2EB9E203B5FFDC7F4FA7DC4103E852A55B808D'
         assert fp == expected, '%s != %s' % (fp, expected)
 
     def test_load_der_string(self):
         f = open('tests/x509.der', 'rb')
         x509 = X509.load_cert_der_string(''.join(f.readlines()))
         fp = x509.get_fingerprint('sha1')
-        expected = '128858B5222A5C78397530A5706233A9EB470AC4'
+        expected = '8D2EB9E203B5FFDC7F4FA7DC4103E852A55B808D'
         assert fp == expected, '%s != %s' % (fp, expected)
 
     def test_save_der_string(self):
@@ -412,7 +412,7 @@ class X509TestCase(unittest.TestCase):
         x509 = X509.load_cert('tests/x509.pem')
         f = open('tests/x509.pem', 'r')
         lTmp = f.readlines()
-        x509_pem = ''.join(lTmp[43:59])
+        x509_pem = ''.join(lTmp[44:60]) # -----BEGIN CERTIFICATE----- : -----END CERTIFICATE-----
         f.close()
         f = open('tests/x509.der', 'rb')
         x509_der = f.read()
@@ -421,13 +421,13 @@ class X509TestCase(unittest.TestCase):
         f = open('tests/tmpcert.pem')
         s = f.read()
         f.close()
-        assert s == x509_pem, '%s != %s' % (s, x509_pem)
+        self.assertEquals(s, x509_pem)
         os.remove('tests/tmpcert.pem')
         x509.save('tests/tmpcert.der', format=X509.FORMAT_DER)
         f = open('tests/tmpcert.der', 'rb')
         s = f.read()
         f.close()
-        assert s == x509_der, '%s != %s' % (s, x509_der)
+        self.assertEquals(s, x509_der)
         os.remove('tests/tmpcert.der')
 
     def test_malformed_data(self):
