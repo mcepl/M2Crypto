@@ -17,7 +17,7 @@ Copyright 2008-2009 Heikki Toivonen. All rights reserved.
 """
 
 version_info = (0, 20)
-version = '.'.join([str(v) for v in version_info])
+version = '.'.join([str(_v) for _v in version_info])
 
 import __m2crypto
 import m2
