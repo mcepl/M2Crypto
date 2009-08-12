@@ -1,5 +1,9 @@
-0.20
-----
+0.20.1
+------
+- Fix regression in httpslib.ProxyHTTPSConnection, by Miloslav Trmac
+
+0.20 - 2009-08-10
+-----------------
 - Deprecated M2Crypto.PGP subpackage since nobody seems to be using it nor
   is it being maintained (if you do use it, please let me know)
 - Added fedora_setup.sh to help work around differences on Fedora Core -based

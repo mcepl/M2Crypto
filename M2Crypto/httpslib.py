@@ -4,7 +4,7 @@ Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
 import string, sys
 import socket
-from urlparse import urlsplit
+from urlparse import urlsplit, urlunsplit
 import base64
 
 from httplib import *
@@ -122,7 +122,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
     def putrequest(self, method, url, skip_host=0, skip_accept_encoding=0):
         #putrequest is called before connect, so can interpret url and get
         #real host/port to be used to make CONNECT request to proxy
-        proto, netloc, path, query, fraqment = urlsplit(url)
+        proto, netloc, path, query, fragment = urlsplit(url)
         if not proto:
             raise ValueError, "unknown URL type: %s" % url
         
@@ -144,6 +144,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
 
         self._real_host = host
         self._real_port = int(port)
+        rest = urlunsplit((None, None, path, query, fragment))
         HTTPSConnection.putrequest(self, method, rest, skip_host, skip_accept_encoding)
 
     def putheader(self, header, value):
