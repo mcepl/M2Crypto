@@ -1,3 +1,7 @@
+0.20.1 - 2009-08-27
+-------------------
+- Fix regression in httpslib.ProxyHTTPSConnection, by Miloslav Trmac
+
 0.20 - 2009-08-10
 -----------------
 - Deprecated M2Crypto.PGP subpackage since nobody seems to be using it nor
