@@ -16,7 +16,7 @@ Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 Copyright 2008-2009 Heikki Toivonen. All rights reserved.
 """
 
-version_info = (0, 20)
+version_info = (0, 21)
 version = '.'.join([str(_v) for _v in version_info])
 
 import __m2crypto
