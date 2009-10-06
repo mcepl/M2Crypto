@@ -163,6 +163,8 @@ class RSA:
     def sign_rsassa_pss(self, digest, algo='sha1', salt_length=20):
         """
         Signs a digest with the private key using RSASSA-PSS
+        
+        @requires: OpenSSL 0.9.7h or later.
 
         @type digest: str
         @param digest: A digest created by using the digest method
@@ -186,6 +188,8 @@ class RSA:
     def verify_rsassa_pss(self, data, signature, algo='sha1', salt_length=20):
         """
         Verifies the signature RSASSA-PSS
+
+        @requires: OpenSSL 0.9.7h or later.
 
         @type data: str
         @param data: Data that has been signed
