@@ -291,6 +291,7 @@ PyObject *rsa_private_decrypt(RSA *rsa, PyObject *from, int padding) {
     return ret;
 }
 
+#if OPENSSL_VERSION_NUMBER >= 0x0090708fL
 PyObject *rsa_padding_add_pkcs1_pss(RSA *rsa, PyObject *digest, EVP_MD *hash, int salt_length) {
     const void *dbuf;
     unsigned char *tbuf;
@@ -347,6 +348,7 @@ int rsa_verify_pkcs1_pss(RSA *rsa, PyObject *digest, PyObject *signature, EVP_MD
 
     return ret;
 }
+#endif
 
 PyObject *rsa_sign(RSA *rsa, PyObject *py_digest_string, int method_type) {
     int digest_len = 0;
