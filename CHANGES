@@ -1,7 +1,7 @@
 0.20.2 - 2009-10-06
 -------------------
 - (Re)Enable configuration and use with OpenSSL 0.9.7g and older by disabling
-  RSA PSS methods when using such old OpenSSL
+  RSA PSS methods when using such old OpenSSL, thanks to Stef Walter
 
 0.20.1 - 2009-08-27
 -------------------
