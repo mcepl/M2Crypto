@@ -84,7 +84,7 @@ def runall(report_leaks=0):
     
     try:
         Rand.load_file('tests/randpool.dat', -1) 
-        unittest.TextTestRunner().run(suite())
+        unittest.TextTestRunner(verbosity=2).run(suite())
         Rand.save_file('tests/randpool.dat')
     finally:
         if os.name == 'posix':
