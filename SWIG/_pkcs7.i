@@ -1,4 +1,6 @@
-/* Copyright (c) 2000 Ng Pheng Siong. All rights reserved. */
+/* Copyright (c) 2000 Ng Pheng Siong. All rights reserved.
+ * Copyright (c) 2009-2010 Heikki Toivonen. All rights reserved.
+*/
 /* $Id$ */
 
 %{
@@ -12,7 +14,7 @@
 %apply Pointer NONNULL { EVP_CIPHER * };
 %apply Pointer NONNULL { EVP_PKEY * };
 %apply Pointer NONNULL { PKCS7 * };
-%apply Pointer NONNULL { STACK * };
+%apply Pointer NONNULL { STACK_OF(X509) * };
 %apply Pointer NONNULL { X509 * };
 
 %rename(pkcs7_new) PKCS7_new;
@@ -54,8 +56,8 @@ void smime_init(PyObject *smime_err) {
 
 %threadallow pkcs7_encrypt;
 %inline %{
-PKCS7 *pkcs7_encrypt(STACK *stack, BIO *bio, EVP_CIPHER *cipher, int flags) {
-    return PKCS7_encrypt((STACK_OF(X509) *)stack, bio, cipher, flags);
+PKCS7 *pkcs7_encrypt(STACK_OF(X509) *stack, BIO *bio, EVP_CIPHER *cipher, int flags) {
+    return PKCS7_encrypt(stack, bio, cipher, flags);
 }
 
 PyObject *pkcs7_decrypt(PKCS7 *pkcs7, EVP_PKEY *pkey, X509 *cert, int flags) {
@@ -96,14 +98,14 @@ PKCS7 *pkcs7_sign0(X509 *x509, EVP_PKEY *pkey, BIO *bio, int flags) {
 
 %threadallow pkcs7_sign1;
 %inline %{
-PKCS7 *pkcs7_sign1(X509 *x509, EVP_PKEY *pkey, STACK *stack, BIO *bio, int flags) {
-    return PKCS7_sign(x509, pkey, (STACK_OF(X509) *)stack, bio, flags);
+PKCS7 *pkcs7_sign1(X509 *x509, EVP_PKEY *pkey, STACK_OF(X509) *stack, BIO *bio, int flags) {
+    return PKCS7_sign(x509, pkey, stack, bio, flags);
 }
 %}
 
 %threadallow pkcs7_verify1;
 %inline %{
-PyObject *pkcs7_verify1(PKCS7 *pkcs7, STACK *stack, X509_STORE *store, BIO *data, int flags) {
+PyObject *pkcs7_verify1(PKCS7 *pkcs7, STACK_OF(X509) *stack, X509_STORE *store, BIO *data, int flags) {
     int outlen;
     char *outbuf;
     BIO *bio;
@@ -113,7 +115,7 @@ PyObject *pkcs7_verify1(PKCS7 *pkcs7, STACK *stack, X509_STORE *store, BIO *data
         PyErr_SetString(PyExc_MemoryError, "pkcs7_verify1");
         return NULL;
     }
-    if (!PKCS7_verify(pkcs7, (STACK_OF(X509) *)stack, store, data, bio, flags)) {
+    if (!PKCS7_verify(pkcs7, stack, store, data, bio, flags)) {
         PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
         BIO_free(bio);
         return NULL;
@@ -131,7 +133,7 @@ PyObject *pkcs7_verify1(PKCS7 *pkcs7, STACK *stack, X509_STORE *store, BIO *data
     return ret;
 }
 
-PyObject *pkcs7_verify0(PKCS7 *pkcs7, STACK *stack, X509_STORE *store, int flags) {
+PyObject *pkcs7_verify0(PKCS7 *pkcs7, STACK_OF(X509) *stack, X509_STORE *store, int flags) {
     return pkcs7_verify1(pkcs7, stack, store, NULL, flags);
 }
 %}
@@ -229,7 +231,7 @@ int smime_crlf_copy(BIO *in, BIO *out) {
 }
 
 /* return STACK_OF(X509)* */     
-STACK *pkcs7_get0_signers(PKCS7 *p7, STACK *certs, int flags) {     
+STACK_OF(X509) *pkcs7_get0_signers(PKCS7 *p7, STACK_OF(X509) *certs, int flags) {     
     return PKCS7_get0_signers(p7, certs, flags);      
 }
 

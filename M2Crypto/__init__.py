@@ -13,7 +13,7 @@ Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.
 Portions created by Open Source Applications Foundation (OSAF) are
 Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 
-Copyright 2008-2009 Heikki Toivonen. All rights reserved.
+Copyright 2008-2010 Heikki Toivonen. All rights reserved.
 """
 
 version_info = (0, 21)

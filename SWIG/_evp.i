@@ -4,6 +4,9 @@ Copyright (c) 1999 Ng Pheng Siong. All rights reserved.
 
 Portions Copyright (c) 2004-2007 Open Source Applications Foundation.
 Author: Heikki Toivonen
+
+Copyright (c) 2009-2010 Heikki Toivonen. All rights reserved.
+
 */
 
 %include <openssl/opensslconf.h>
@@ -180,7 +183,7 @@ PyObject *pkcs5_pbkdf2_hmac_sha1(PyObject *pass,
 
     PKCS5_PBKDF2_HMAC_SHA1(passbuf, passlen, saltbuf, saltlen, iter,
                            keylen, key);
-    ret = PyString_FromStringAndSize(key, keylen);
+    ret = PyString_FromStringAndSize((char*)key, keylen);
     OPENSSL_cleanse(key, keylen);
     return ret;
 }
@@ -339,7 +342,7 @@ PyObject *bytes_to_key(const EVP_CIPHER *cipher, EVP_MD *md,
     klen = EVP_BytesToKey(cipher, md, (unsigned char *)sbuf, 
         (unsigned char *)dbuf, dlen, iter, 
         key, NULL); /* Since we are not returning IV no need to derive it */
-    ret = PyString_FromStringAndSize(key, klen);
+    ret = PyString_FromStringAndSize((char*)key, klen);
     return ret;
 }
 
@@ -435,7 +438,7 @@ PyObject *sign_final(EVP_MD_CTX *ctx, EVP_PKEY *pkey) {
         PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
-    ret = PyString_FromStringAndSize(sigbuf, siglen);
+    ret = PyString_FromStringAndSize((char*)sigbuf, siglen);
     OPENSSL_cleanse(sigbuf, siglen);
     OPENSSL_free(sigbuf);
     return ret;
@@ -513,7 +516,7 @@ PyObject *pkey_as_der(EVP_PKEY *pkey) {
         PyErr_SetString(PyExc_ValueError, "EVP_PKEY as DER failed");
         return NULL; 
     }
-    der = PyString_FromStringAndSize(pp, len);
+    der = PyString_FromStringAndSize((char*)pp, len);
     OPENSSL_free(pp);
     return der;
 }

@@ -3,6 +3,9 @@
 /*
 ** Portions created by Open Source Applications Foundation (OSAF) are
 ** Copyright (C) 2004-2005 OSAF. All Rights Reserved.
+**
+** Copyright (c) 2009-2010 Heikki Toivonen. All rights reserved.
+**
 */
 /* $Id$ */
 
@@ -17,12 +20,16 @@
 %apply Pointer NONNULL { SSL_CTX * };
 %apply Pointer NONNULL { SSL * };
 %apply Pointer NONNULL { SSL_CIPHER * };
-%apply Pointer NONNULL { STACK * };
+%apply Pointer NONNULL { STACK_OF(SSL_CIPHER) * };
+%apply Pointer NONNULL { STACK_OF(X509) * };
 %apply Pointer NONNULL { BIO * };
 %apply Pointer NONNULL { DH * };
 %apply Pointer NONNULL { RSA * };
 %apply Pointer NONNULL { EVP_PKEY *};
 %apply Pointer NONNULL { PyObject *pyfunc };
+
+%rename(ssl_get_ciphers) SSL_get_ciphers;
+extern STACK_OF(SSL_CIPHER) *SSL_get_ciphers(const SSL *ssl);
 
 %rename(ssl_get_version) SSL_get_version;
 extern const char *SSL_get_version(CONST SSL *);
@@ -668,28 +675,24 @@ int ssl_cipher_get_bits(SSL_CIPHER *c) {
     return SSL_CIPHER_get_bits(c, NULL);
 }
 
-STACK *ssl_get_ciphers(SSL *ssl) {
-    return (STACK *)SSL_get_ciphers(ssl);
+int sk_ssl_cipher_num(STACK_OF(SSL_CIPHER) *stack) {
+    return sk_SSL_CIPHER_num(stack);
 }
 
-int sk_ssl_cipher_num(STACK *stack) {
-    return sk_num(stack);
+SSL_CIPHER *sk_ssl_cipher_value(STACK_OF(SSL_CIPHER) *stack, int idx) {
+    return sk_SSL_CIPHER_value(stack, idx);
 }
 
-SSL_CIPHER *sk_ssl_cipher_value(STACK *stack, int idx) {
-    return (SSL_CIPHER *)sk_value(stack, idx);
+STACK_OF(X509) *ssl_get_peer_cert_chain(SSL *ssl) {
+    return SSL_get_peer_cert_chain(ssl);
 }
 
-STACK *ssl_get_peer_cert_chain(SSL *ssl) {
-    return (STACK *)SSL_get_peer_cert_chain(ssl);
+int sk_x509_num(STACK_OF(X509) *stack) {
+    return sk_X509_num(stack);
 }
 
-int sk_x509_num(STACK *stack) {
-    return sk_num(stack);
-}
-
-X509 *sk_x509_value(STACK *stack, int idx) {
-    return (X509 *)sk_value(stack, idx);
+X509 *sk_x509_value(STACK_OF(X509) *stack, int idx) {
+    return sk_X509_value(stack, idx);
 }
 %}
 

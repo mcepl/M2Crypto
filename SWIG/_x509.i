@@ -3,6 +3,9 @@
 /*
 ** Portions created by Open Source Applications Foundation (OSAF) are
 ** Copyright (C) 2004-2005 OSAF. All Rights Reserved.
+**
+** Copyright (c) 2009-2010 Heikki Toivonen. All rights reserved.
+**
 */
 /* $Id$   */
 
@@ -148,8 +151,15 @@ extern int X509_NAME_add_entry_by_NID(X509_NAME *, int, int, unsigned char *, in
 extern int X509_NAME_print_ex(BIO *, X509_NAME *, int, unsigned long);
 %rename(x509_name_print_ex_fp) X509_NAME_print_ex_fp;
 extern int X509_NAME_print_ex_fp(FILE *, X509_NAME *, int, unsigned long);
+
+#if OPENSSL_VERSION_NUMBER >= 0x10000000L
+%rename(x509_name_hash) X509_NAME_hash_old;
+extern unsigned long X509_NAME_hash_old(X509_NAME *);
+#else
 %rename(x509_name_hash) X509_NAME_hash;
 extern unsigned long X509_NAME_hash(X509_NAME *);
+#endif
+
 %rename(x509_name_get_index_by_nid) X509_NAME_get_index_by_NID;
 extern int X509_NAME_get_index_by_NID(X509_NAME *, int, int);
 
@@ -171,7 +181,7 @@ extern ASN1_STRING *X509_NAME_ENTRY_get_data(X509_NAME_ENTRY *);
     if (PyString_Check($input)) {
         Py_ssize_t len;
 
-        $1 = PyString_AsString($input); 
+        $1 = (unsigned char *)PyString_AsString($input); 
         len = PyString_Size($input);
         if (len > INT_MAX) {
             PyErr_SetString(PyExc_ValueError, "object too large");
@@ -184,7 +194,7 @@ extern ASN1_STRING *X509_NAME_ENTRY_get_data(X509_NAME_ENTRY *);
     }
 }
 %rename(x509_name_entry_set_data) X509_NAME_ENTRY_set_data;
-extern int X509_NAME_ENTRY_set_data( X509_NAME_ENTRY *, int, CONST unsigned char *, int);
+extern int X509_NAME_ENTRY_set_data(X509_NAME_ENTRY *, int, CONST unsigned char *, int);
 %typemap(in) (CONST unsigned char *, int);
 
 %rename(x509_req_new) X509_REQ_new;
@@ -230,7 +240,7 @@ extern int X509_STORE_CTX_get_error_depth(X509_STORE_CTX *);
 %rename(x509_store_ctx_free) X509_STORE_CTX_free;
 extern void X509_STORE_CTX_free(X509_STORE_CTX *);
 %rename(x509_store_ctx_get1_chain) X509_STORE_CTX_get1_chain;
-extern STACK *X509_STORE_CTX_get1_chain(X509_STORE_CTX *);
+extern STACK_OF(X509) *X509_STORE_CTX_get1_chain(X509_STORE_CTX *);
 
 %rename(x509_extension_get_critical) X509_EXTENSION_get_critical;
 extern int X509_EXTENSION_get_critical(X509_EXTENSION *);
@@ -348,7 +358,7 @@ PyObject *i2d_x509(X509 *x)
         PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
     }
     else {     
-        ret = PyString_FromStringAndSize(buf, len);
+        ret = PyString_FromStringAndSize((char*)buf, len);
         OPENSSL_free(buf);
     }
     return ret;
@@ -435,12 +445,12 @@ PyObject *x509_name_by_nid(X509_NAME *name, int nid) {
 }
 
 int x509_name_set_by_nid(X509_NAME *name, int nid, PyObject *obj) {
-    return X509_NAME_add_entry_by_NID(name, nid, MBSTRING_ASC, PyString_AsString(obj), -1, -1, 0);
+    return X509_NAME_add_entry_by_NID(name, nid, MBSTRING_ASC, (unsigned char *)PyString_AsString(obj), -1, -1, 0);
 }
 
 /* x509_name_add_entry_by_txt */
 int x509_name_add_entry_by_txt(X509_NAME *name, char *field, int type, char *bytes, int len, int loc, int set) {
-    return X509_NAME_add_entry_by_txt(name, field, type, bytes, len, loc, set);
+    return X509_NAME_add_entry_by_txt(name, field, type, (unsigned char *)bytes, len, loc, set);
 }
 
 PyObject *x509_name_get_der(X509_NAME *name)
@@ -450,23 +460,23 @@ PyObject *x509_name_get_der(X509_NAME *name)
 }
 
 /* sk_X509_new_null() is a macro returning "STACK_OF(X509) *". */
-STACK *sk_x509_new_null(void) {
-    return (STACK *)sk_X509_new_null();
+STACK_OF(X509) *sk_x509_new_null(void) {
+    return sk_X509_new_null();
 }
 
 /* sk_X509_free() is a macro. */
-void sk_x509_free(STACK *stack) {
-    sk_X509_free((STACK_OF(X509) *)stack);
+void sk_x509_free(STACK_OF(X509) *stack) {
+    sk_X509_free(stack);
 }
 
 /* sk_X509_push() is a macro. */
-int sk_x509_push(STACK *stack, X509 *x509) {
-    return sk_X509_push((STACK_OF(X509) *)stack, x509);
+int sk_x509_push(STACK_OF(X509) *stack, X509 *x509) {
+    return sk_X509_push(stack, x509);
 }
 
 /* sk_X509_pop() is a macro. */
-X509 *sk_x509_pop(STACK *stack) {
-    return sk_X509_pop((STACK_OF(X509) *)stack);
+X509 *sk_x509_pop(STACK_OF(X509) *stack) {
+    return sk_X509_pop(stack);
 }
 
 int x509_store_load_locations(X509_STORE *store, const char *file) {
@@ -493,21 +503,29 @@ int x509_req_set_version(X509_REQ *x, long version) {
     return X509_REQ_set_version(x, version);
 }
 
-int x509_req_add_extensions(X509_REQ *req, STACK *exts) {
-    return X509_REQ_add_extensions(req, (STACK_OF(X509_EXTENSION) *)exts);
+int x509_req_add_extensions(X509_REQ *req, STACK_OF(X509_EXTENSION) *exts) {
+    return X509_REQ_add_extensions(req, exts);
 }
 
-X509_NAME_ENTRY *x509_name_entry_create_by_txt( X509_NAME_ENTRY **ne, char *field, int type, char *bytes, int len) {
-    return X509_NAME_ENTRY_create_by_txt( ne, field, type, bytes, len);
+X509_NAME_ENTRY *x509_name_entry_create_by_txt(X509_NAME_ENTRY **ne, char *field, int type, char *bytes, int len) {
+    return X509_NAME_ENTRY_create_by_txt( ne, field, type, (unsigned char *)bytes, len);
 }
 
-LHASH * 
-x509v3_lhash(){ 
-       return lh_new(NULL,NULL);
+#if OPENSSL_VERSION_NUMBER >= 0x10000000L
+LHASH_OF(CONF_VALUE) 
+#else
+LHASH
+#endif
+*x509v3_lhash() { 
+    return lh_new(NULL, NULL); /* Should probably be lh_CONF_VALUE_new but won't compile. */
 }
 
 X509V3_CTX *
-x509v3_set_conf_lhash(LHASH * lhash){
+#if OPENSSL_VERSION_NUMBER >= 0x10000000L
+x509v3_set_conf_lhash(LHASH_OF(CONF_VALUE) * lhash) {
+#else
+x509v3_set_conf_lhash(LHASH                * lhash) {
+#endif
       X509V3_CTX * ctx;
       if (!(ctx=(X509V3_CTX *)PyMem_Malloc(sizeof(X509V3_CTX)))) {
           PyErr_SetString(PyExc_MemoryError, "x509v3_set_conf_lhash");
@@ -517,11 +535,20 @@ x509v3_set_conf_lhash(LHASH * lhash){
       return ctx;
 }
 
-X509_EXTENSION *x509v3_ext_conf(LHASH *conf, X509V3_CTX *ctx, char *name, char *value) {
+X509_EXTENSION *
+#if OPENSSL_VERSION_NUMBER >= 0x10000000L
+x509v3_ext_conf(LHASH_OF(CONF_VALUE) *conf, X509V3_CTX *ctx, char *name, char *value) {
+#else
+x509v3_ext_conf(LHASH                *conf, X509V3_CTX *ctx, char *name, char *value) {
+#endif
       X509_EXTENSION * ext = NULL;
       ext = X509V3_EXT_conf(conf, ctx, name, value); 
       PyMem_Free(ctx); 
+#if OPENSSL_VERSION_NUMBER >= 0x10000000L
+      lh_CONF_VALUE_free(conf);
+#else
       lh_free(conf);
+#endif
       return ext;
 }
 
@@ -543,33 +570,33 @@ PyObject *x509_extension_get_name(X509_EXTENSION *ext) {
 }
 
 /* sk_X509_EXTENSION_new_null is a macro. */
-STACK *sk_x509_extension_new_null(void) {
-    return (STACK *)sk_X509_EXTENSION_new_null();
+STACK_OF(X509_EXTENSION) *sk_x509_extension_new_null(void) {
+    return sk_X509_EXTENSION_new_null();
 }
 
 /* sk_X509_EXTENSION_free() is a macro. */
-void sk_x509_extension_free(STACK *stack) {
-    sk_X509_EXTENSION_free((STACK_OF(X509_EXTENSION) *)stack);
+void sk_x509_extension_free(STACK_OF(X509_EXTENSION) *stack) {
+    sk_X509_EXTENSION_free(stack);
 }
 
 /* sk_X509_EXTENSION_push() is a macro. */
-int sk_x509_extension_push(STACK *stack, X509_EXTENSION *x509_ext) {
-    return sk_X509_EXTENSION_push((STACK_OF(X509_EXTENSION) *)stack, x509_ext);
+int sk_x509_extension_push(STACK_OF(X509_EXTENSION) *stack, X509_EXTENSION *x509_ext) {
+    return sk_X509_EXTENSION_push(stack, x509_ext);
 }
 
 /* sk_X509_EXTENSION_pop() is a macro. */
-X509_EXTENSION *sk_x509_extension_pop(STACK *stack) {
-    return sk_X509_EXTENSION_pop((STACK_OF(X509_EXTENSION) *)stack);
+X509_EXTENSION *sk_x509_extension_pop(STACK_OF(X509_EXTENSION) *stack) {
+    return sk_X509_EXTENSION_pop(stack);
 }
 
 /* sk_X509_EXTENSION_num() is a macro. */
-int sk_x509_extension_num(STACK *stack) {
-    return sk_X509_EXTENSION_num((STACK_OF(X509_EXTENSION) *)stack);
+int sk_x509_extension_num(STACK_OF(X509_EXTENSION) *stack) {
+    return sk_X509_EXTENSION_num(stack);
 }
 
 /* sk_X509_EXTENSION_value() is a macro. */
-X509_EXTENSION *sk_x509_extension_value(STACK *stack, int i) {
-    return sk_X509_EXTENSION_value((STACK_OF(X509_EXTENSION) *)stack, i);
+X509_EXTENSION *sk_x509_extension_value(STACK_OF(X509_EXTENSION) *stack, int i) {
+    return sk_X509_EXTENSION_value(stack, i);
 }
 
 /* X509_STORE_CTX_get_app_data is a macro. */
@@ -590,7 +617,7 @@ Used in the wrapping of ASN1_seq_unpack and ASN1_seq_pack functions.
 #define I2DTYPE int (*)()
 #endif   
 
-STACK *
+STACK_OF(X509) *
 make_stack_from_der_sequence(PyObject * pyEncodedString){
     STACK_OF(X509) *certs;
     Py_ssize_t encoded_string_len;
@@ -606,7 +633,7 @@ make_stack_from_der_sequence(PyObject * pyEncodedString){
         return NULL;
     }
 
-    certs = ASN1_seq_unpack((unsigned char *)encoded_string, encoded_string_len, (D2ITYPE)d2i_X509, (void(*)())X509_free ); 
+    certs = ASN1_seq_unpack_X509((unsigned char *)encoded_string, encoded_string_len, d2i_X509, X509_free ); 
     if (!certs) {
        PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
        return NULL;
@@ -616,13 +643,13 @@ make_stack_from_der_sequence(PyObject * pyEncodedString){
 }
 
 PyObject *
-get_der_encoding_stack(STACK * stack){
+get_der_encoding_stack(STACK_OF(X509) *stack){
     PyObject * encodedString;
     
     unsigned char * encoding;
     int len; 
     
-    encoding = ASN1_seq_pack((STACK_OF(X509)*) stack, (I2DTYPE)i2d_X509, NULL, &len); 
+    encoding = ASN1_seq_pack_X509(stack, i2d_X509, NULL, &len); 
     if (!encoding) {
        PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
        return NULL;

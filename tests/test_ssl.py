@@ -2,7 +2,10 @@
 
 """Unit tests for M2Crypto.SSL.
 
-Copyright (c) 2000-2004 Ng Pheng Siong. All rights reserved."""
+Copyright (c) 2000-2004 Ng Pheng Siong. All rights reserved.
+
+Copyright (c) 2009-2010 Heikki Toivonen. All rights reserved.
+"""
 
 """
 TODO
@@ -405,8 +408,11 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
         try:
             ctx = SSL.Context('sslv23', weak_crypto=1)
             s = SSL.Connection(ctx)
-            s.connect(self.srv_addr)
-            self.failUnlessEqual(s.get_version(), 'SSLv2')
+            if m2.OPENSSL_VERSION_NUMBER < 0x10000000: # SSLv2 ciphers disabled by default in newer OpenSSL
+                s.connect(self.srv_addr)
+                self.failUnlessEqual(s.get_version(), 'SSLv2')
+            else:
+                self.assertRaises(SSL.SSLError, s.connect, self.srv_addr)
             s.close()
         finally:
             self.stop_server(pid)
@@ -1032,45 +1038,6 @@ class FtpsLibTestCase(unittest.TestCase):
         # XXX need server to test against
 
 
-class CheckerTestCase(unittest.TestCase):
-    def test_checker(self):
-        from M2Crypto.SSL import Checker
-        from M2Crypto import X509
-
-        check = Checker.Checker(host=srv_host,
-                                peerCertHash='7B754EFA41A264AAD370D43460BC8229F9354ECE')
-        x509 = X509.load_cert('tests/server.pem')
-        assert check(x509, srv_host)
-        self.assertRaises(Checker.WrongHost, check, x509, 'example.com')
-        
-        import doctest
-        doctest.testmod(Checker)
-        
-    
-class ContextTestCase(unittest.TestCase):
-    def test_ctx_load_verify_locations(self):
-        ctx = SSL.Context()
-        self.assertRaises(ValueError, ctx.load_verify_locations, None, None)
-        
-    def test_map(self):
-        from M2Crypto.SSL.Context import map, _ctxmap
-        assert isinstance(map(), _ctxmap)
-        ctx = SSL.Context()
-        assert map()
-        ctx.close()
-        assert map() is _ctxmap.singleton
-
-    def test_certstore(self):
-        ctx = SSL.Context()
-        ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
-        ctx.load_verify_locations('tests/ca.pem')
-        ctx.load_cert('tests/x509.pem')
-
-        from M2Crypto import X509
-        store = ctx.get_cert_store()
-        assert isinstance(store, X509.X509_Store)
-
-
 class SessionTestCase(unittest.TestCase):
     def test_session_load_bad(self):
         self.assertRaises(SSL.SSLError, SSL.Session.load_session,
@@ -1086,8 +1053,6 @@ class FtpslibTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(CheckerTestCase))
-    suite.addTest(unittest.makeSuite(ContextTestCase))
     suite.addTest(unittest.makeSuite(SessionTestCase))
     suite.addTest(unittest.makeSuite(XmlRpcLibTestCase))
     suite.addTest(unittest.makeSuite(FtpsLibTestCase))

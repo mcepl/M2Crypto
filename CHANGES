@@ -1,9 +1,14 @@
+0.21
+----
+- Support OpenSSL 1.0. Thanks to Miloslav Trmac for figuring out how to fix
+  test_smime.py
+- Rename m2.engine_init to engine_init_error so that
+  ENGINE_init and ENGINE_finish can be exposed, thanks to Erlo
+
 0.20.2 - 2009-10-06
 -------------------
 - (Re)Enable configuration and use with OpenSSL 0.9.7g and older by disabling
   RSA PSS methods when using such old OpenSSL, thanks to Stef Walter
-- Rename m2.engine_init to engine_init_error so that
-  ENGINE_init and ENGINE_finish can be exposed, thanks to Erlo
 
 0.20.1 - 2009-08-27
 -------------------

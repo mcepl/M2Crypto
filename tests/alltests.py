@@ -37,6 +37,7 @@ def suite():
         'tests.test_rc4',
         'tests.test_rsa',
         'tests.test_smime',
+        'tests.test_ssl_offline',
         'tests.test_threading',
         'tests.test_x509']
     if os.name == 'posix':
