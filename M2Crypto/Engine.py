@@ -10,7 +10,7 @@ from M2Crypto import m2, EVP, X509, Err
 
 class EngineError(Exception): pass
 
-m2.engine_init(EngineError)
+m2.engine_init_error(EngineError)
 
 class Engine:
     """Wrapper for ENGINE object."""
@@ -31,6 +31,16 @@ class Engine:
     def __del__(self):
         if getattr(self, '_pyfree', 0):
             self.m2_engine_free(self._ptr)
+
+    def init(self):
+        """Obtain a functional reference to the engine.
+        
+        @return: 0 on error, non-zero on success."""
+        return m2.engine_init(self._ptr)
+        
+    def finish(self):
+        """Release a functional and structural reference to the engine."""
+        return m2.engine_finish(self._ptr)
 
     def ctrl_cmd_string(self, cmd, arg, optional = 0):
         """Call ENGINE_ctrl_cmd_string"""
