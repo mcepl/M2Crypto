@@ -48,39 +48,42 @@ void rsa_init(PyObject *rsa_err) {
 }
 %}
 
-%threadallow rsa_read_key;
 %inline %{
 RSA *rsa_read_key(BIO *f, PyObject *pyfunc) {
     RSA *rsa;
 
     Py_INCREF(pyfunc);
+    Py_BEGIN_ALLOW_THREADS
     rsa = PEM_read_bio_RSAPrivateKey(f, NULL, passphrase_callback, (void *)pyfunc);
+    Py_END_ALLOW_THREADS
     Py_DECREF(pyfunc);
     return rsa;
 }
 %}
 
-%threadallow rsa_write_key;
 %inline %{
 int rsa_write_key(RSA *rsa, BIO *f, EVP_CIPHER *cipher, PyObject *pyfunc) {
     int ret;
 
     Py_INCREF(pyfunc);
+    Py_BEGIN_ALLOW_THREADS
     ret = PEM_write_bio_RSAPrivateKey(f, rsa, cipher, NULL, 0,
         passphrase_callback, (void *)pyfunc);
+    Py_END_ALLOW_THREADS
     Py_DECREF(pyfunc);
     return ret;
 }
 %}
 
-%threadallow rsa_write_key_no_cipher;
 %inline %{
 int rsa_write_key_no_cipher(RSA *rsa, BIO *f, PyObject *pyfunc) {
     int ret;
 
     Py_INCREF(pyfunc);
+    Py_BEGIN_ALLOW_THREADS
     ret = PEM_write_bio_RSAPrivateKey(f, rsa, NULL, NULL, 0, 
                       passphrase_callback, (void *)pyfunc);
+    Py_END_ALLOW_THREADS
     Py_DECREF(pyfunc);
     return ret;
 }

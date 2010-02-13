@@ -205,39 +205,42 @@ int ec_key_write_pubkey(EC_KEY *key, BIO *f) {
 }
 %}
 
-%threadallow ec_key_read_bio;
 %inline %{
 EC_KEY *ec_key_read_bio(BIO *f, PyObject *pyfunc) {
     EC_KEY *ret;
 
     Py_INCREF(pyfunc);
+    Py_BEGIN_ALLOW_THREADS
     ret = PEM_read_bio_ECPrivateKey(f, NULL, passphrase_callback, (void *)pyfunc);
+    Py_END_ALLOW_THREADS
     Py_DECREF(pyfunc);
     return ret;
 }
 %}
 
-%threadallow ec_key_write_bio;
 %inline %{
 int ec_key_write_bio(EC_KEY *key, BIO *f, EVP_CIPHER *cipher, PyObject *pyfunc) {
     int ret;
 
     Py_INCREF(pyfunc);
+    Py_BEGIN_ALLOW_THREADS
     ret = PEM_write_bio_ECPrivateKey(f, key, cipher, NULL, 0,
         passphrase_callback, (void *)pyfunc);
+    Py_END_ALLOW_THREADS
     Py_DECREF(pyfunc);
     return ret;
 }
 %}
 
-%threadallow ec_key_write_bio_no_cipher;
 %inline %{
 int ec_key_write_bio_no_cipher(EC_KEY *key, BIO *f, PyObject *pyfunc) {
     int ret;
 
     Py_INCREF(pyfunc);
+    Py_BEGIN_ALLOW_THREADS
     ret = PEM_write_bio_ECPrivateKey(f, key, NULL, NULL, 0, 
                       passphrase_callback, (void *)pyfunc);
+    Py_END_ALLOW_THREADS
     Py_DECREF(pyfunc);
     return ret;
 }

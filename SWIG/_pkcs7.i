@@ -103,10 +103,9 @@ PKCS7 *pkcs7_sign1(X509 *x509, EVP_PKEY *pkey, STACK_OF(X509) *stack, BIO *bio, 
 }
 %}
 
-%threadallow pkcs7_verify1;
 %inline %{
 PyObject *pkcs7_verify1(PKCS7 *pkcs7, STACK_OF(X509) *stack, X509_STORE *store, BIO *data, int flags) {
-    int outlen;
+    int res, outlen;
     char *outbuf;
     BIO *bio;
     PyObject *ret; 
@@ -115,7 +114,10 @@ PyObject *pkcs7_verify1(PKCS7 *pkcs7, STACK_OF(X509) *stack, X509_STORE *store, 
         PyErr_SetString(PyExc_MemoryError, "pkcs7_verify1");
         return NULL;
     }
-    if (!PKCS7_verify(pkcs7, stack, store, data, bio, flags)) {
+    Py_BEGIN_ALLOW_THREADS
+    res = PKCS7_verify(pkcs7, stack, store, data, bio, flags);
+    Py_END_ALLOW_THREADS
+    if (!res) {
         PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
         BIO_free(bio);
         return NULL;

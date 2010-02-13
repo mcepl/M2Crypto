@@ -155,13 +155,14 @@ PyObject *dsa_set_g(DSA *dsa, PyObject *value) {
 }
 %}
 
-%threadallow dsa_read_params;
 %inline %{
 DSA *dsa_read_params(BIO *f, PyObject *pyfunc) {
     DSA *ret;
 
     Py_INCREF(pyfunc);
+    Py_BEGIN_ALLOW_THREADS
     ret = PEM_read_bio_DSAparams(f, NULL, passphrase_callback, (void *)pyfunc);
+    Py_END_ALLOW_THREADS
     Py_DECREF(pyfunc);
     return ret;
 }
@@ -174,27 +175,29 @@ int dsa_write_params_bio(DSA* dsa, BIO* f) {
 }
 %}
 
-%threadallow dsa_write_key_bio;
 %inline %{
 int dsa_write_key_bio(DSA* dsa, BIO* f, EVP_CIPHER *cipher, PyObject *pyfunc) {
     int ret;
 
     Py_INCREF(pyfunc);
+    Py_BEGIN_ALLOW_THREADS
     ret = PEM_write_bio_DSAPrivateKey(f, dsa, cipher, NULL, 0,
                                         passphrase_callback, (void *)pyfunc);
+    Py_END_ALLOW_THREADS
     Py_DECREF(pyfunc);
     return ret;
 }
 %}
 
-%threadallow dsa_write_key_bio_no_cipher;
 %inline %{
 int dsa_write_key_bio_no_cipher(DSA* dsa, BIO* f, PyObject *pyfunc) {
     int ret;
 
     Py_INCREF(pyfunc);
+    Py_BEGIN_ALLOW_THREADS
     ret = PEM_write_bio_DSAPrivateKey(f, dsa, NULL, NULL, 0,
                                         passphrase_callback, (void *)pyfunc);
+    Py_END_ALLOW_THREADS
     Py_DECREF(pyfunc);
     return ret;
 }
@@ -207,25 +210,27 @@ int dsa_write_pub_key_bio(DSA* dsa, BIO* f) {
 }
 %}
 
-%threadallow dsa_read_key;
 %inline %{
 DSA *dsa_read_key(BIO *f, PyObject *pyfunc) {
     DSA *ret;
 
     Py_INCREF(pyfunc);
+    Py_BEGIN_ALLOW_THREADS
     ret = PEM_read_bio_DSAPrivateKey(f, NULL, passphrase_callback, (void *)pyfunc);
+    Py_END_ALLOW_THREADS
     Py_DECREF(pyfunc);
     return ret;
 }
 %}
 
-%threadallow dsa_read_pub_key;
 %inline %{
 DSA *dsa_read_pub_key(BIO *f, PyObject *pyfunc) {
     DSA *ret;
 
     Py_INCREF(pyfunc);
+    Py_BEGIN_ALLOW_THREADS
     ret = PEM_read_bio_DSA_PUBKEY(f, NULL, passphrase_callback, (void *)pyfunc);
+    Py_END_ALLOW_THREADS
     Py_DECREF(pyfunc);
     return ret;
 }

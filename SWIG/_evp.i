@@ -466,39 +466,42 @@ int verify_final(EVP_MD_CTX *ctx, PyObject *blob, EVP_PKEY *pkey) {
 }
 %}
 
-%threadallow pkey_write_pem_no_cipher;
 %inline %{
 int pkey_write_pem_no_cipher(EVP_PKEY *pkey, BIO *f, PyObject *pyfunc) {
     int ret;
 
     Py_INCREF(pyfunc);
+    Py_BEGIN_ALLOW_THREADS
     ret = PEM_write_bio_PKCS8PrivateKey(f, pkey, NULL, NULL, 0,
             passphrase_callback, (void *)pyfunc);
+    Py_END_ALLOW_THREADS
     Py_DECREF(pyfunc);
     return ret;
 }
 %}
 
-%threadallow pkey_write_pem;
 %inline %{
 int pkey_write_pem(EVP_PKEY *pkey, BIO *f, EVP_CIPHER *cipher, PyObject *pyfunc) {
     int ret;
 
     Py_INCREF(pyfunc);
+    Py_BEGIN_ALLOW_THREADS
     ret = PEM_write_bio_PKCS8PrivateKey(f, pkey, cipher, NULL, 0,
             passphrase_callback, (void *)pyfunc);
+    Py_END_ALLOW_THREADS
     Py_DECREF(pyfunc);
     return ret;
 }
 %}
 
-%threadallow pkey_read_pem;
 %inline %{
 EVP_PKEY *pkey_read_pem(BIO *f, PyObject *pyfunc) {
     EVP_PKEY *pk;
 
     Py_INCREF(pyfunc);
+    Py_BEGIN_ALLOW_THREADS
     pk = PEM_read_bio_PrivateKey(f, NULL, passphrase_callback, (void *)pyfunc);
+    Py_END_ALLOW_THREADS
     Py_DECREF(pyfunc);
     return pk;
 }
