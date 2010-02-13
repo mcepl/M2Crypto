@@ -3,6 +3,9 @@
  *
  * Portions created by Open Source Applications Foundation (OSAF) are
  * Copyright (C) 2004-2006 OSAF. All Rights Reserved.
+ *
+ * Copyright (c) 2009-2010 Heikki Toivonen. All rights reserved.
+ *
  */
 
 %module(threads=1) _m2crypto
@@ -36,6 +39,19 @@ static PyObject *ssl_set_tmp_rsa_cb_func;
 #define CONST098 const
 #else
 #define CONST098
+#endif
+
+/* Bring in STACK_OF macro definition */
+%include <openssl/safestack.h>
+
+/* Bring in LHASH_OF macro definition */
+/* XXX Can't include lhash.h where LHASH_OF is defined, because it includes
+   XXX stdio.h etc. which we fail to include. So we have to (re)define
+   XXX LHASH_OF here instead.
+%include <openssl/lhash.h>
+*/
+#if OPENSSL_VERSION_NUMBER >= 0x10000000L
+#define LHASH_OF(type) struct lhash_st_##type
 #endif
 
 %include constraints.i

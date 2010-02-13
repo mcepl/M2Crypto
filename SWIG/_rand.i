@@ -1,5 +1,7 @@
 /* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
-/* Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved. */
+/* Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.
+ * Copyright (c) 2009-2010 Heikki Toivonen. All rights reserved.
+*/
 /* $Id$ */
 
 %module _rand
@@ -87,7 +89,7 @@ PyObject *rand_pseudo_bytes(int n) {
         Py_INCREF(Py_None);
         return Py_None;
     } else {
-        PyTuple_SET_ITEM(tuple, 0, PyString_FromStringAndSize(blob, n));
+        PyTuple_SET_ITEM(tuple, 0, PyString_FromStringAndSize((char*)blob, n));
         PyMem_Free(blob);
         PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong((long)ret));
         return tuple;

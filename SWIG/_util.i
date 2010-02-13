@@ -1,4 +1,6 @@
-/* Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved. */
+/* Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved.
+ * Copyright (c) 2009-2010 Heikki Toivonen. All rights reserved.
+*/
 /* $Id$ */
 
 %{
@@ -48,7 +50,7 @@ PyObject *util_string_to_hex(PyObject *blob) {
         PyErr_SetString(_util_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
-    obj = PyString_FromStringAndSize(ret, len);
+    obj = PyString_FromStringAndSize((char*)ret, len);
     OPENSSL_free(ret);
     return obj;
 }
