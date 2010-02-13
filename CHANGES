@@ -4,6 +4,7 @@
   test_smime.py
 - Rename m2.engine_init to engine_init_error so that
   ENGINE_init and ENGINE_finish can be exposed, thanks to Erlo
+- Make httpslib.ProxyHTTPSConnection work with Python 2.3
 
 0.20.2 - 2009-10-06
 -------------------
