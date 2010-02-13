@@ -44,6 +44,12 @@ extern ENGINE * ENGINE_by_id(const char *);
 %rename(engine_free) ENGINE_free;
 extern int ENGINE_free(ENGINE *);
 
+%rename(engine_init) ENGINE_init;
+extern int ENGINE_init(ENGINE *);
+
+%rename(engine_finish) ENGINE_finish;
+extern int ENGINE_finish(ENGINE *);
+
 /*
  * Engine id/name functions
  */
@@ -161,7 +167,7 @@ extern EVP_PKEY *ENGINE_load_public_key(ENGINE *e, const char *key_id,
 %inline %{
 static PyObject *_engine_err;
 
-void engine_init(PyObject *engine_err) {
+void engine_init_error(PyObject *engine_err) {
     Py_INCREF(engine_err);
     _engine_err = engine_err;
 }
