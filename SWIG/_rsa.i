@@ -423,15 +423,18 @@ void genrsa_callback(int p, int n, void *arg) {
     Py_XDECREF(ret);
 }
 
-RSA *rsa_generate_key(int bits, unsigned long e, PyObject *pyfunc) {
+PyObject *rsa_generate_key(int bits, unsigned long e, PyObject *pyfunc) {
     RSA *rsa;
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
 
     Py_INCREF(pyfunc);
     rsa = RSA_generate_key(bits, e, genrsa_callback, (void *)pyfunc);
     Py_DECREF(pyfunc);
-    if (!rsa) 
+    if (!rsa) {
         PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
-    return rsa;
+	return NULL;
+    }
+    return SWIG_NewPointerObj((void *)rsa, SWIGTYPE_p_RSA, 0);
 }
 
 int rsa_type_check(RSA *rsa) {

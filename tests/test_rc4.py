@@ -11,8 +11,11 @@ except ImportError:
 from binascii import hexlify
 from M2Crypto import RC4
 
+from fips import fips_mode
+
 class RC4TestCase(unittest.TestCase):
 
+    @unittest.skipIf(fips_mode, "Can't be run in FIPS mode")
     def test_vectors(self):
         """
         Test with test vectors from Wikipedia: http://en.wikipedia.org/wiki/Rc4
@@ -28,6 +31,7 @@ class RC4TestCase(unittest.TestCase):
 
         self.assertEqual(rc4.final(), '')
     
+    @unittest.skipIf(fips_mode, "Can't be run in FIPS mode")
     def test_bad(self):
         rc4 = RC4.RC4('foo')
         self.assertNotEqual(hexlify(rc4.update('bar')).upper(), '45678')

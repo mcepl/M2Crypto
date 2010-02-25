@@ -12,6 +12,8 @@ except ImportError:
 
 from M2Crypto import RSA, BIO, Rand, m2, EVP, X509
 
+from fips import fips_mode
+
 class RSATestCase(unittest.TestCase):
 
     errkey = 'tests/dsa.priv.pem'
@@ -191,9 +193,10 @@ class RSATestCase(unittest.TestCase):
         
             else:
                 import hashlib
-                algos = {'sha1': 43, 
-                         'ripemd160': 43,
-                         'md5': 47}
+                algos = {'sha1': 43}
+                if not fips_mode:
+                    algos['md5'] = 47
+                    algos['ripemd160'] = 43
         
                 if m2.OPENSSL_VERSION_NUMBER >= 0x90800F:
                     algos['sha224'] = 35
@@ -221,7 +224,7 @@ class RSATestCase(unittest.TestCase):
         """
         rsa = RSA.load_key(self.privkey)
         message = "This is the message string"
-        digest = md5.md5(message).digest() 
+        digest = 'a' * 16
         self.assertRaises(ValueError, rsa.sign, 
                           digest, 'bad_digest_method') 
     
@@ -231,7 +234,7 @@ class RSATestCase(unittest.TestCase):
         """
         rsa = RSA.load_key(self.privkey)
         message = "This is the message string"
-        digest = md5.md5(message).digest() 
+        digest = 'a' * 16
         signature = rsa.sign(digest, 'sha1')
         self.assertRaises(ValueError, rsa.verify,
                           digest, signature, 'bad_digest_method') 
