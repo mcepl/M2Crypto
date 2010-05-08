@@ -272,7 +272,12 @@ class Connection:
     
     def get_peer_cert_chain(self):
         """Return the peer certificate chain; if the peer did not provide 
-        a certificate chain, return None."""
+        a certificate chain, return None.
+        
+        @warning: The returned chain will be valid only for as long as the
+        connection object is alive. Once the connection object gets freed,
+        the chain will be freed as well.
+        """
         c=m2.ssl_get_peer_cert_chain(self.ssl)
         if c is None:
             return None
