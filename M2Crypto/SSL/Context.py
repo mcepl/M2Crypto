@@ -36,12 +36,14 @@ class Context:
 
     m2_ssl_ctx_free = m2.ssl_ctx_free
 
-    def __init__(self, protocol='sslv23', weak_crypto=None):
+    def __init__(self, protocol='sslv23', weak_crypto=None,
+                 post_connection_check=None):
         proto = getattr(m2, protocol + '_method', None)
         if proto is None:
             raise ValueError, "no such protocol '%s'" % protocol
         self.ctx = m2.ssl_ctx_new(proto())
         self.allow_unknown_ca = 0
+        self.post_connection_check = post_connection_check
         map()[long(self.ctx)] = self
         m2.ssl_ctx_set_cache_size(self.ctx, 128L)
         if weak_crypto is None:
