@@ -13,10 +13,10 @@ Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.
 Portions created by Open Source Applications Foundation (OSAF) are
 Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 
-Copyright 2008-2010 Heikki Toivonen. All rights reserved.
+Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 """
 
-version_info = (0, 21)
+version_info = (0, 22)
 version = '.'.join([str(_v) for _v in version_info])
 
 import __m2crypto

@@ -1,3 +1,7 @@
+0.22
+----
+- 
+
 0.21 - 2011-01-12
 -----------------
 - Support OpenSSL 1.0. Thanks to Miloslav Trmac for figuring out how to fix
