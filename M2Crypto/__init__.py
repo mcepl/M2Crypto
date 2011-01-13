@@ -28,6 +28,18 @@ from M2Crypto import (ASN1, AuthCookie, BIO, BN, DH, DSA, EVP, Engine, Err,
                       ftpslib, httpslib, m2, m2urllib, m2xmlrpclib,
                       threading, util)
 
+version_info = (0, 22)
+version = '.'.join([str(_v) for _v in version_info])
+
+import __m2crypto
+import m2
+import ASN1
+import AuthCookie
+import BIO
+import BN
+import Rand
+import DH
+import DSA
 if m2.OPENSSL_VERSION_NUMBER >= 0x90800F and m2.OPENSSL_NO_EC == 0:
     from M2Crypto import EC
 # Backwards compatibility.
