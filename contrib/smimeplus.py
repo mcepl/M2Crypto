@@ -64,7 +64,7 @@ class smimeplus(object):
         _sender.load_key_bio(self.__pack(self.key), self.__pack(self.cert),
                 callback=self.__passcallback)
 
-        _signed = _sender.sign(self.__pack(msg))
+        _signed = _sender.sign(self.__pack(msg), M2Crypto.SMIME.PKCS7_DETACHED)
 
         _out = self.__pack(None)
         _sender.write(_out, _signed, self.__pack(msg))
@@ -93,7 +93,7 @@ class smimeplus(object):
         # Load signed message, verify it, and return result
         _p7, _data = M2Crypto.SMIME.smime_load_pkcs7_bio(self.__pack(smsg))
         try:
-            return _sender.verify(_p7, flags=M2Crypto.SMIME.PKCS7_SIGNED)
+            return _sender.verify(_p7, _data, flags=M2Crypto.SMIME.PKCS7_SIGNED)
         except M2Crypto.SMIME.SMIME_Error, _msg:
             return None
 

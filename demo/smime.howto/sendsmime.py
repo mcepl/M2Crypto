@@ -16,7 +16,10 @@ def sendsmime(from_addr, to_addrs, subject, msg, from_key, from_cert=None, to_ce
     s = SMIME.SMIME()
     if sign:
         s.load_key(from_key, from_cert)
-        p7 = s.sign(msg_bio, flags=SMIME.PKCS7_TEXT)
+        if encrypt:
+            p7 = s.sign(msg_bio, flags=SMIME.PKCS7_TEXT)
+        else:
+            p7 = s.sign(msg_bio, flags=SMIME.PKCS7_TEXT|SMIME.PKCS7_DETACHED)
         msg_bio = BIO.MemoryBuffer(msg) # Recreate coz sign() has consumed it.
 
     if encrypt:

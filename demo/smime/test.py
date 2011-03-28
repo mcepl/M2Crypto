@@ -28,7 +28,7 @@ def sign():
     buf = makebuf()
     s = SMIME.SMIME()
     s.load_key('client.pem')
-    p7 = s.sign(buf)
+    p7 = s.sign(buf, SMIME.PKCS7_DETACHED)
     out = BIO.openfile('clear.p7', 'w')
     out.write('To: ngps@post1.com\n')
     out.write('From: ngps@post1.com\n')
@@ -58,7 +58,7 @@ def verify_clear():
     st.load_info('ca.pem')
     s.set_x509_store(st)
     p7, data = SMIME.smime_load_pkcs7('clear.p7')
-    v = s.verify(p7)
+    v = s.verify(p7, data)
     if v:
         print 'ok'
     else:
@@ -105,9 +105,10 @@ def sv():
     s.load_key('client.pem')
 
     # Sign.
-    p7 = s.sign(buf)
+    p7 = s.sign(buf, SMIME.PKCS7_DETACHED)
 
     # Output the stuff.
+    buf = makebuf() # Recreate buf, because sign() has consumed it.
     bio = BIO.MemoryBuffer()
     s.write(bio, p7, buf)
     
@@ -124,7 +125,7 @@ def sv():
 
     # Verify.
     p7, buf = SMIME.smime_load_pkcs7_bio(bio)
-    v = s.verify(p7, flags=SMIME.PKCS7_DETACHED)
+    v = s.verify(p7, buf, flags=SMIME.PKCS7_DETACHED)
     
     if v:
         print 'ok'
