@@ -37,14 +37,14 @@ class Connection:
 
     m2_bio_free = m2.bio_free
     m2_ssl_free = m2.ssl_free
-    
-    def __init__(self, ctx, sock=None):
+
+    def __init__(self, ctx, sock=None, family=socket.AF_INET):
         self.ctx = ctx
         self.ssl = m2.ssl_new(self.ctx.ctx)
         if sock is not None:
             self.socket = sock
         else:
-            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.socket = socket.socket(family, socket.SOCK_STREAM)
             self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._fileno = self.socket.fileno()
 
