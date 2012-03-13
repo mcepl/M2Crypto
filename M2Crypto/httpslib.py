@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-import string, sys
+import sys
 import socket
 from urlparse import urlsplit, urlunsplit
 import base64
