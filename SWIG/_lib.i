@@ -111,7 +111,12 @@ m2_PyString_AsStringAndSizeInt(PyObject *obj, char **s, int *len)
     int ret;
     Py_ssize_t len2;
 
+#if PY_MAJOR_VERSION >= 3
+    ret = PyBytes_AsStringAndSize(obj, s, &len2);
+#else
     ret = PyString_AsStringAndSize(obj, s, &len2);
+#endif // PY_MAJOR_VERSION >= 3
+
     if (ret)
        return ret;
     if (len2 > INT_MAX) {
@@ -170,7 +175,13 @@ int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
     
         _x509_store_ctx_swigptr = SWIG_NewPointerObj((void *)ctx, SWIGTYPE_p_X509_STORE_CTX, 0);
         _x509_store_ctx_obj = Py_BuildValue("(Oi)", _x509_store_ctx_swigptr, 0);
+
+#if PY_MAJOR_VERSION >= 3
+        _x509_store_ctx_inst = PyType_GenericNew(_klass, _x509_store_ctx_obj, NULL);
+#else
         _x509_store_ctx_inst = PyInstance_New(_klass, _x509_store_ctx_obj, NULL);
+#endif // PY_MAJOR_VERSION >= 3
+
         argv = Py_BuildValue("(iO)", ok, _x509_store_ctx_inst);
     } else {
         if (PyErr_Warn(PyExc_DeprecationWarning, "Old style callback, use cb_func(ok, store) instead")) {
@@ -316,6 +327,16 @@ int passphrase_callback(char *buf, int num, int v, void *arg) {
         PyGILState_Release(gilstate);
         return -1;
     }
+
+#if PY_MAJOR_VERSION >= 3
+    if (!PyBytes_Check(ret)) {
+        Py_DECREF(ret);
+        return -1;
+    }
+    if ((len = PyBytes_Size(ret)) > num)
+        len = num;
+    str = PyBytes_AsString(ret); 
+#else
     if (!PyString_Check(ret)) {
         Py_DECREF(ret);
         PyGILState_Release(gilstate);
@@ -324,6 +345,8 @@ int passphrase_callback(char *buf, int num, int v, void *arg) {
     if ((len = PyString_Size(ret)) > num)
         len = num;
     str = PyString_AsString(ret); 
+#endif // PY_MAJOR_VERSION >= 3
+
     for (i = 0; i < len; i++)
         buf[i] = str[i];
     Py_DECREF(ret);
@@ -353,7 +376,13 @@ PyObject *bn_to_mpi(BIGNUM *bn) {
         return NULL;
     }
     len=BN_bn2mpi(bn, mpi);
+
+#if PY_MAJOR_VERSION >= 3
+    pyo=PyBytes_FromStringAndSize((const char *)mpi, len);
+#else
     pyo=PyString_FromStringAndSize((const char *)mpi, len);
+#endif // PY_MAJOR_VERSION >= 3
+
     PyMem_Free(mpi);
     return pyo;
 }
@@ -379,7 +408,13 @@ PyObject *bn_to_bin(BIGNUM *bn) {
       return NULL;
     }
     BN_bn2bin(bn, bin);
+
+#if PY_MAJOR_VERSION >= 3
+    pyo=PyBytes_FromStringAndSize((const char *)bin, len);
+#else
     pyo=PyString_FromStringAndSize((const char *)bin, len);
+#endif // PY_MAJOR_VERSION >= 3
+
     PyMem_Free(bin);
     return pyo;
 }
@@ -407,7 +442,13 @@ PyObject *bn_to_hex(BIGNUM *bn) {
         return NULL;    
     }
     len = strlen(hex);
+
+#if PY_MAJOR_VERSION >= 3
+    pyo=PyBytes_FromStringAndSize(hex, len);
+#else
     pyo=PyString_FromStringAndSize(hex, len);
+#endif // PY_MAJOR_VERSION >= 3
+
     OPENSSL_free(hex);
     return pyo;
 }
@@ -461,11 +502,20 @@ BIGNUM *dec_to_bn(PyObject *value) {
 %typemap(in) Blob * {
     Py_ssize_t len;
 
+#if PY_MAJOR_VERSION >= 3
+    if (!PyBytes_Check($input)) {
+        PyErr_SetString(PyExc_TypeError, "expected PyString");
+        return NULL;
+    }
+    len=PyBytes_Size($input);
+#else
     if (!PyString_Check($input)) {
         PyErr_SetString(PyExc_TypeError, "expected PyString");
         return NULL;
     }
     len=PyString_Size($input);
+#endif // PY_MAJOR_VERSION >= 3
+
     if (len > INT_MAX) {
         PyErr_SetString(PyExc_ValueError, "object too large");
         return -1;
@@ -475,7 +525,13 @@ BIGNUM *dec_to_bn(PyObject *value) {
         PyErr_SetString(PyExc_MemoryError, "malloc Blob");
         return NULL;
     }
+
+#if PY_MAJOR_VERSION >= 3
+    $1->data=(unsigned char *)PyBytes_AsString($input);
+#else
     $1->data=(unsigned char *)PyString_AsString($input);
+#endif // PY_MAJOR_VERSION >= 3
+
     $1->len=len;
 }
 
@@ -484,18 +540,28 @@ BIGNUM *dec_to_bn(PyObject *value) {
         Py_INCREF(Py_None);
         $result=Py_None;
     } else {
+
+#if PY_MAJOR_VERSION >= 3
+        $result=PyBytes_FromStringAndSize((const char *)$1->data, $1->len);
+#else
         $result=PyString_FromStringAndSize((const char *)$1->data, $1->len);
+#endif // PY_MAJOR_VERSION >= 3
+
         PyMem_Free($1->data);
         PyMem_Free($1);
     }
 }
 
 %typemap(in) FILE * {
+#if PY_MAJOR_VERSION >= 3
+    $1=PyObject_AsFileDescriptor($input);
+#else
     if (!PyFile_Check($input)) {
         PyErr_SetString(PyExc_TypeError, "expected PyFile");
         return NULL;
     }
     $1=PyFile_AsFile($input);
+#endif // PY_MAJOR_VERSION >= 3
 }
 
 %typemap(in) PyObject *pyfunc {
@@ -507,7 +573,12 @@ BIGNUM *dec_to_bn(PyObject *value) {
 }
 
 %typemap(in) PyObject *pyblob {
+#if PY_MAJOR_VERSION >= 3
+    if (!PyBytes_Check($input)) {
+#else
     if (!PyString_Check($input)) {
+#endif // PY_MAJOR_VERSION >= 3
+
         PyErr_SetString(PyExc_TypeError, "expected PyString");
         return NULL;
     }

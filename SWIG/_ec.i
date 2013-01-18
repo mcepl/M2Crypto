@@ -174,6 +174,9 @@ PyObject *ec_key_get_public_der(EC_KEY *key) {
     /* Create a PyBuffer containing a copy of the binary,
      * to simplify memory deallocation
      */
+#if PY_MAJOR_VERSION >= 3
+    pyo = PyBytes_FromStringAndSize( src, src_len );
+#else
     pyo = PyBuffer_New( src_len );
     ret = PyObject_AsWriteBuffer( pyo, &dst, &dst_len );
     assert( src_len == dst_len );
@@ -185,6 +188,9 @@ PyObject *ec_key_get_public_der(EC_KEY *key) {
         return NULL;
     }
     memcpy( dst, src, src_len );
+
+#endif // PY_MAJOR_VERSION >= 3
+
     OPENSSL_free(src);
 
     return pyo;
@@ -367,7 +373,12 @@ PyObject *ecdsa_sign_asn1(EC_KEY *key, PyObject *value) {
         PyMem_Free(sigbuf);
         return NULL;
     }
-    ret = PyString_FromStringAndSize(sigbuf, siglen);
+#if PY_MAJOR_VERSION >= 3
+    ret = PyBytes_FromStringAndSize(sigbuf, siglen);
+#else
+	ret = PyString_FromStringAndSize(sigbuf, siglen);
+#endif // PY_MAJOR_VERSION >= 3
+
     PyMem_Free(sigbuf);
     return ret;
 }
@@ -414,7 +425,12 @@ PyObject *ecdh_compute_key(EC_KEY *keypairA, EC_KEY *pubkeyB) {
         return NULL;
     }
 
+#if PY_MAJOR_VERSION >= 3
+    ret = PyBytes_FromStringAndSize((const char *)sharedkey, sharedkeylen);
+#else
     ret = PyString_FromStringAndSize((const char *)sharedkey, sharedkeylen);
+#endif // PY_MAJOR_VERSION >= 3
+
     PyMem_Free(sharedkey);
 
     return ret;

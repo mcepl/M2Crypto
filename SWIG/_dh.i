@@ -107,7 +107,13 @@ PyObject *dh_compute_key(DH *dh, PyObject *pubkey) {
         PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
-    ret = PyString_FromStringAndSize((const char *)key, klen);
+
+#if PY_MAJOR_VERSION >= 3
+    ret = PyBytes_FromStringAndSize((const char *)key, klen);
+#else
+	ret = PyString_FromStringAndSize((const char *)key, klen);
+#endif // PY_MAJOR_VERSION >= 3
+
     BN_free(pk);
     PyMem_Free(key);
     return ret;

@@ -329,7 +329,13 @@ PyObject *dsa_sign_asn1(DSA *dsa, PyObject *value) {
         PyMem_Free(sigbuf);
         return NULL;
     }
-    ret = PyString_FromStringAndSize(sigbuf, siglen);
+
+#if PY_MAJOR_VERSION >= 3
+    ret = PyBytes_FromStringAndSize(sigbuf, siglen);
+#else
+	ret = PyString_FromStringAndSize(sigbuf, siglen);
+#endif // PY_MAJOR_VERSION >= 3
+
     PyMem_Free(sigbuf);
     return ret;
 }

@@ -456,7 +456,11 @@ int x509_name_add_entry_by_txt(X509_NAME *name, char *field, int type, char *byt
 PyObject *x509_name_get_der(X509_NAME *name)
 {
     i2d_X509_NAME(name, 0);
+#if PY_MAJOR_VERSION >= 3 
+    return PyBytes_FromStringAndSize(name->bytes->data, name->bytes->length);
+#else
     return PyString_FromStringAndSize(name->bytes->data, name->bytes->length);
+#endif // PY_MAJOR_VERSION >= 3 
 }
 
 /* sk_X509_new_null() is a macro returning "STACK_OF(X509) *". */
@@ -565,7 +569,11 @@ PyObject *x509_extension_get_name(X509_EXTENSION *ext) {
         PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
+#if PY_MAJOR_VERSION >= 3 
+    ext_name = PyBytes_FromStringAndSize(ext_name_str, strlen(ext_name_str));
+#else
     ext_name = PyString_FromStringAndSize(ext_name_str, strlen(ext_name_str));
+#endif // PY_MAJOR_VERSION >= 3 
     return ext_name;
 }
 
@@ -623,12 +631,23 @@ make_stack_from_der_sequence(PyObject * pyEncodedString){
     Py_ssize_t encoded_string_len;
     char *encoded_string;
 
+#if PY_MAJOR_VERSION >= 3 
+    encoded_string_len = PyBytes_Size(pyEncodedString);
+#else
     encoded_string_len = PyString_Size(pyEncodedString);
+#endif
+
     if (encoded_string_len > INT_MAX) {
         PyErr_SetString(PyExc_ValueError, "object too large");
         return NULL;
     }
+
+#if PY_MAJOR_VERSION >= 3 
+    encoded_string = PyBytes_AsString(pyEncodedString);
+#else
     encoded_string = PyString_AsString(pyEncodedString);
+#endif 
+
     if (!encoded_string) {
         return NULL;
     }
@@ -654,7 +673,13 @@ get_der_encoding_stack(STACK_OF(X509) *stack){
        PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
        return NULL;
     }
+
+#if PY_MAJOR_VERSION >= 3 
+    encodedString = PyBytes_FromStringAndSize((const char *)encoding, len);
+#else
     encodedString = PyString_FromStringAndSize((const char *)encoding, len);
+#endif // PY_MAJOR_VERSION >= 3 
+
     OPENSSL_free(encoding);
     return encodedString; 
 }

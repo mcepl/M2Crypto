@@ -1,0 +1,1210 @@
+Index: M2Crypto/EVP.py
+===================================================================
+--- M2Crypto/EVP.py	(revision 659)
++++ M2Crypto/EVP.py	(working copy)
+@@ -102,7 +102,7 @@
+ 
+     m2_cipher_ctx_free = m2.cipher_ctx_free
+ 
+-    def __init__(self, alg, key, iv, op, key_as_bytes=0, d='md5', salt='12345678', i=1):
++    def __init__(self, alg, key, iv, op, key_as_bytes=0, d='md5', salt='12345678', i=1, padding=True):
+         cipher = getattr(m2, alg, None)
+         if cipher is None:
+             raise ValueError, ('unknown cipher', alg)
+@@ -114,6 +114,7 @@
+             key = m2.bytes_to_key(self.cipher, kmd(), key, salt, iv, i)
+         self.ctx=m2.cipher_ctx_new()
+         m2.cipher_init(self.ctx, self.cipher, key, iv, op)
++        self.set_padding(padding)
+         del key
+         
+     def __del__(self):
+@@ -126,7 +127,13 @@
+     def final(self):
+         return m2.cipher_final(self.ctx)
+ 
++    def set_padding(self, enabled=True):
++        padding = 0
++        if enabled:
++            padding = 1
+ 
++        return m2.cipher_set_padding(self.ctx, padding) 
++
+ class PKey:
+     """
+     Public Key
+Index: M2Crypto/m2.py
+===================================================================
+--- M2Crypto/m2.py	(revision 659)
++++ M2Crypto/m2.py	(working copy)
+@@ -25,7 +25,7 @@
+ Copyright (C) 2004 OSAF. All Rights Reserved.
+ """
+ 
+-from __m2crypto import *
++from m2crypto import *
+ lib_init()
+ 
+ 
+Index: M2Crypto/RSA.py
+===================================================================
+--- M2Crypto/RSA.py	(revision 659)
++++ M2Crypto/RSA.py	(working copy)
+@@ -160,6 +160,64 @@
+     def check_key(self):
+         return m2.rsa_check_key(self.rsa)
+ 
++    def sign_rsassa_pss(self, digest, hash_algo='sha1', salt_length=20):
++        """
++        Signs a digest with the private key using RSASSA-PSS
++
++        @type digest: str
++        @param digest: A digest created by using the digest method
++
++        @type salt_length: int
++        @param salt_length: The length of the salt to use
++        
++        @type hash_algo: str
++        @param hash_algo: The hash algorithm to use
++        Legal values are 'sha1','sha224', 'sha256', 'ripemd160', 
++        and 'md5'.
++
++        @return: a string which is the signature
++        """
++        hash = getattr(m2, hash_algo, None)
++
++        if hash is None:
++            raise RSAError, 'not such hash algorithm %s' % hash_algo 
++
++        signature = m2.rsa_padding_add_pkcs1_pss(self.rsa, digest, hash(), salt_length)
++        
++        return self.private_encrypt(signature, m2.no_padding) 
++
++
++    def verify_rsassa_pss(self, data, signature, hash_algo='sha1', salt_length=20):
++        """
++        Verifies the signature RSASSA-PSS
++
++        @type data: str
++        @param data: Data that has been signed
++
++        @type signature: str
++        @param signature: The signature signed with RSASSA-PSS
++        
++        @type salt_length: int
++        @param salt_length: The length of the salt that was used
++
++        @type hash_algo: str
++        @param hash_algo: The hash algorithm to use
++        Legal values are 'sha1','sha224', 'sha256', 'ripemd160', 
++        and 'md5'.
++
++        @return: True or False, depending on whether the signature was
++        verified.  
++        """
++        hash = getattr(m2, hash_algo, None)
++
++        if hash is None:
++            raise RSAError, 'not such hash algorithm %s' % hash_algo 
++
++        plain_signature = self.public_decrypt(signature, m2.no_padding)
++         
++        return m2.rsa_verify_pkcs1_pss(self.rsa, data, plain_signature, hash(), salt_length)
++
++
+     def sign(self, digest, algo='sha1'):
+         """
+         Signs a digest with the private key
+Index: setup.py
+===================================================================
+--- setup.py	(revision 659)
++++ setup.py	(working copy)
+@@ -37,7 +37,7 @@
+         # command line option
+         if os.name == 'nt':
+             self.libraries = ['ssleay32', 'libeay32']
+-            self.openssl = 'c:\\pkg'
++            self.openssl = 'c:\\\openssl'
+         else:
+             self.libraries = ['ssl', 'crypto']
+             self.openssl = '/usr'
+Index: SWIG/_aes.i
+===================================================================
+--- SWIG/_aes.i	(revision 659)
++++ SWIG/_aes.i	(working copy)
+@@ -76,7 +76,12 @@
+         AES_encrypt((const unsigned char *)in, out, key);
+     else
+         AES_decrypt((const unsigned char *)in, out, key);
+-    return PyString_FromStringAndSize(out, outlen);
++
++#if PY_MAJOR_VERSION >= 3
++    return PyBytes_FromStringAndSize(out, outlen);
++#else
++	return PyString_FromStringAndSize(out, outlen);
++#endif // PY_MAJOR_VERSION >= 3
+ }
+ 
+ int AES_type_check(AES_KEY *key) {
+Index: SWIG/_asn1.i
+===================================================================
+--- SWIG/_asn1.i	(revision 659)
++++ SWIG/_asn1.i	(working copy)
+@@ -38,17 +38,28 @@
+ extern void ASN1_STRING_free( ASN1_STRING *);
+ 
+ %typemap(in) (const void *, int) { 
++#if PY_MAJOR_VERSION >= 3
++    if (PyBytes_Check($input)) {
++        Py_ssize_t len;
++
++        $1 = PyBytes_AsString($input); 
++        len = PyBytes_Size($input);
++#else 
+     if (PyString_Check($input)) {
+         Py_ssize_t len;
+ 
+         $1 = PyString_AsString($input); 
+         len = PyString_Size($input);
++
++#endif // PY_MAJOR_VERSION >= 3
++
+         if (len > INT_MAX) {
+             PyErr_SetString(PyExc_ValueError, "object too large");
+             return NULL;
+         }
+         $2 = len;
+-    } else {
++    } 
++	else {
+         PyErr_SetString(PyExc_TypeError, "expected string");
+         return NULL;
+     }
+Index: SWIG/_bio.i
+===================================================================
+--- SWIG/_bio.i	(revision 659)
++++ SWIG/_bio.i	(working copy)
+@@ -87,7 +87,13 @@
+         Py_INCREF(Py_None);
+         return Py_None;
+     }
++
++#if PY_MAJOR_VERSION >= 3
++    blob = PyBytes_FromStringAndSize(buf, r);
++#else
+     blob = PyString_FromStringAndSize(buf, r);
++#endif // PY_MAJOR_VERSION >= 3
++
+     PyMem_Free(buf);
+     return blob;
+ }
+@@ -113,7 +119,13 @@
+         Py_INCREF(Py_None);
+         return Py_None;
+     }
++
++#if PY_MAJOR_VERSION >= 3
++    blob = PyBytes_FromStringAndSize(buf, r);
++#else
+     blob = PyString_FromStringAndSize(buf, r);
++#endif // PY_MAJOR_VERSION >= 3
++
+     PyMem_Free(buf);
+     return blob;
+ }
+Index: SWIG/_bn.i
+===================================================================
+--- SWIG/_bn.i	(revision 659)
++++ SWIG/_bn.i	(working copy)
+@@ -53,7 +53,12 @@
+     char *randhex, *rangehex;
+     
+     /* Wow, it's a lot of work to convert into a hex string in C! */
+-    format = PyString_FromString("%x");
++#if PY_MAJOR_VERSION >= 3
++    format = PyUnicode_FromString("%x");
++#else
++	format = PyString_FromString("%x");
++#endif // PY_MAJOR_VERSION >= 3
++
+     if (!format) {
+         return NULL;
+     }
+@@ -65,16 +70,27 @@
+     }
+     Py_INCREF(range);
+     PyTuple_SET_ITEM(tuple, 0, range);
++
++#if PY_MAJOR_VERSION >= 3
++    rangePyString = PyUnicode_Format(format, tuple);
++#else
+     rangePyString = PyString_Format(format, tuple);
++#endif // PY_MAJOR_VERSION >= 3
++
+     if (!rangePyString) {
+-        PyErr_SetString(PyExc_Exception, "PyString_Format failed");    
++        PyErr_SetString(PyExc_Exception, "String Format failed");    
+         Py_DECREF(format);
+         Py_DECREF(tuple);
+         return NULL;    
+     }
+     Py_DECREF(format);
+     Py_DECREF(tuple);
++
++#if PY_MAJOR_VERSION >= 3
++    rangehex = PyUnicode_AsUTF8String(rangePyString);
++#else
+     rangehex = PyString_AsString(rangePyString);
++#endif // PY_MAJOR_VERSION >= 3
+     
+     if (!BN_hex2bn(&rng, rangehex)) {
+         /*Custom errors?*/
+Index: SWIG/_dh.i
+===================================================================
+--- SWIG/_dh.i	(revision 659)
++++ SWIG/_dh.i	(working copy)
+@@ -103,7 +103,13 @@
+         PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+         return NULL;
+     }
+-    ret = PyString_FromStringAndSize((const char *)key, klen);
++
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize((const char *)key, klen);
++#else
++	ret = PyString_FromStringAndSize((const char *)key, klen);
++#endif // PY_MAJOR_VERSION >= 3
++
+     BN_free(pk);
+     PyMem_Free(key);
+     return ret;
+Index: SWIG/_dsa.i
+===================================================================
+--- SWIG/_dsa.i	(revision 659)
++++ SWIG/_dsa.i	(working copy)
+@@ -284,7 +284,13 @@
+         PyMem_Free(sigbuf);
+         return NULL;
+     }
+-    ret = PyString_FromStringAndSize(sigbuf, siglen);
++
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize(sigbuf, siglen);
++#else
++	ret = PyString_FromStringAndSize(sigbuf, siglen);
++#endif // PY_MAJOR_VERSION >= 3
++
+     PyMem_Free(sigbuf);
+     return ret;
+ }
+Index: SWIG/_ec.i
+===================================================================
+--- SWIG/_ec.i	(revision 659)
++++ SWIG/_ec.i	(working copy)
+@@ -174,6 +174,9 @@
+     /* Create a PyBuffer containing a copy of the binary,
+      * to simplify memory deallocation
+      */
++#if PY_MAJOR_VERSION >= 3
++    pyo = PyBytes_FromStringAndSize( src, src_len );
++#else
+     pyo = PyBuffer_New( src_len );
+     ret = PyObject_AsWriteBuffer( pyo, &dst, &dst_len );
+     assert( src_len == dst_len );
+@@ -185,6 +188,9 @@
+         return NULL;
+     }
+     memcpy( dst, src, src_len );
++
++#endif // PY_MAJOR_VERSION >= 3
++
+     OPENSSL_free(src);
+ 
+     return pyo;
+@@ -312,7 +318,12 @@
+         PyMem_Free(sigbuf);
+         return NULL;
+     }
+-    ret = PyString_FromStringAndSize(sigbuf, siglen);
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize(sigbuf, siglen);
++#else
++	ret = PyString_FromStringAndSize(sigbuf, siglen);
++#endif // PY_MAJOR_VERSION >= 3
++
+     PyMem_Free(sigbuf);
+     return ret;
+ }
+@@ -359,7 +370,12 @@
+         return NULL;
+     }
+ 
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize((const char *)sharedkey, sharedkeylen);
++#else
+     ret = PyString_FromStringAndSize((const char *)sharedkey, sharedkeylen);
++#endif // PY_MAJOR_VERSION >= 3
++
+     PyMem_Free(sharedkey);
+     
+     return ret;
+Index: SWIG/_evp.i
+===================================================================
+--- SWIG/_evp.i	(revision 659)
++++ SWIG/_evp.i	(working copy)
+@@ -127,6 +127,8 @@
+ %rename(aes_256_ofb) EVP_aes_256_ofb;
+ extern const EVP_CIPHER *EVP_aes_256_ofb(void);
+ 
++%rename(cipher_set_padding) EVP_CIPHER_CTX_set_padding;
++extern int EVP_CIPHER_CTX_set_padding(EVP_CIPHER_CTX *x, int padding);
+ %rename(pkey_new) EVP_PKEY_new;
+ extern EVP_PKEY *EVP_PKEY_new(void);
+ %rename(pkey_free) EVP_PKEY_free;
+@@ -177,7 +179,11 @@
+ 
+     PKCS5_PBKDF2_HMAC_SHA1(passbuf, passlen, saltbuf, saltlen, iter,
+                            keylen, key);
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize(key, keylen);
++#else
+     ret = PyString_FromStringAndSize(key, keylen);
++#endif // PY_MAJOR_VERSION >= 3 
+     OPENSSL_cleanse(key, keylen);
+     return ret;
+ }
+@@ -219,7 +225,13 @@
+         PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
+         return NULL;
+     }
++
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize(blob, blen);
++#else
+     ret = PyString_FromStringAndSize(blob, blen);
++#endif // PY_MAJOR_VERSION >= 3
++
+     PyMem_Free(blob);
+     return ret;
+ }
+@@ -274,7 +286,13 @@
+         return NULL;
+     }
+     HMAC_Final(ctx, blob, (unsigned int *)&blen);
++
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize(blob, blen);
++#else
+     ret = PyString_FromStringAndSize(blob, blen);
++#endif // PY_MAJOR_VERSION >= 3
++
+     PyMem_Free(blob);
+     return ret;
+ }
+@@ -297,7 +315,13 @@
+     }
+     HMAC(md, kbuf, klen, dbuf, dlen, blob, &blen);
+     blob = PyMem_Realloc(blob, blen);
++
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize(blob, blen);
++#else
+     ret = PyString_FromStringAndSize(blob, blen);
++#endif // PY_MAJOR_VERSION >= 3
++
+     PyMem_Free(blob);
+     return ret;
+ }
+@@ -336,7 +360,13 @@
+     klen = EVP_BytesToKey(cipher, md, (unsigned char *)sbuf, 
+         (unsigned char *)dbuf, dlen, iter, 
+         key, NULL); /* Since we are not returning IV no need to derive it */
++
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize(key, klen);
++#else
+     ret = PyString_FromStringAndSize(key, klen);
++#endif // PY_MAJOR_VERSION >= 3
++
+     return ret;
+ }
+ 
+@@ -376,7 +406,13 @@
+         PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
+         return NULL;
+     }
++
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize(obuf, olen);
++#else
+     ret = PyString_FromStringAndSize(obuf, olen);
++#endif // PY_MAJOR_VERSION >= 3
++
+     PyMem_Free(obuf);
+     return ret;
+ }
+@@ -395,7 +431,13 @@
+         PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
+         return NULL;
+     }
++
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize(obuf, olen);
++#else
+     ret = PyString_FromStringAndSize(obuf, olen);
++#endif // PY_MAJOR_VERSION >= 3
++
+     PyMem_Free(obuf);
+     return ret;
+ }
+@@ -432,7 +474,13 @@
+         PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
+         return NULL;
+     }
++
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize(sigbuf, siglen);
++#else
+     ret = PyString_FromStringAndSize(sigbuf, siglen);
++#endif // PY_MAJOR_VERSION >= 3
++
+     OPENSSL_cleanse(sigbuf, siglen);
+     OPENSSL_free(sigbuf);
+     return ret;
+@@ -501,7 +549,13 @@
+         PyErr_SetString(PyExc_ValueError, "EVP_PKEY as DER failed");
+         return NULL; 
+     }
++
++#if PY_MAJOR_VERSION >= 3
++    der = PyBytes_FromStringAndSize(pp, len);
++#else
+     der = PyString_FromStringAndSize(pp, len);
++#endif // PY_MAJOR_VERSION >= 3
++
+     OPENSSL_free(pp);
+     return der;
+ }
+@@ -533,7 +587,13 @@
+                 return NULL;
+             }
+             BIO_get_mem_ptr(bio, &bptr);
++
++#if PY_MAJOR_VERSION >= 3
++            ret = PyBytes_FromStringAndSize(bptr->data, bptr->length);
++#else
+             ret = PyString_FromStringAndSize(bptr->data, bptr->length);
++#endif // PY_MAJOR_VERSION >= 3
++
+             BIO_set_close(bio, BIO_CLOSE);
+             BIO_free(bio);
+             RSA_free(rsa);
+@@ -558,7 +618,13 @@
+                 return NULL;
+             }
+             BIO_get_mem_ptr(bio, &bptr);
++
++#if PY_MAJOR_VERSION >= 3
++            ret = PyBytes_FromStringAndSize(bptr->data, bptr->length);
++#else
+             ret = PyString_FromStringAndSize(bptr->data, bptr->length);
++#endif // PY_MAJOR_VERSION >= 3
++
+             BIO_set_close(bio, BIO_CLOSE);
+             BIO_free(bio);
+             DSA_free(dsa);
+Index: SWIG/_lib.i
+===================================================================
+--- SWIG/_lib.i	(revision 659)
++++ SWIG/_lib.i	(working copy)
+@@ -74,7 +74,12 @@
+     int ret;
+     Py_ssize_t len2;
+ 
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_AsStringAndSize(obj, s, &len2);
++#else
+     ret = PyString_AsStringAndSize(obj, s, &len2);
++#endif // PY_MAJOR_VERSION >= 3
++
+     if (ret)
+        return ret;
+     if (len2 > INT_MAX) {
+@@ -132,7 +137,13 @@
+     
+         _x509_store_ctx_swigptr = SWIG_NewPointerObj((void *)ctx, SWIGTYPE_p_X509_STORE_CTX, 0);
+         _x509_store_ctx_obj = Py_BuildValue("(Oi)", _x509_store_ctx_swigptr, 0);
++
++#if PY_MAJOR_VERSION >= 3
++        _x509_store_ctx_inst = PyType_GenericNew(_klass, _x509_store_ctx_obj, NULL);
++#else
+         _x509_store_ctx_inst = PyInstance_New(_klass, _x509_store_ctx_obj, NULL);
++#endif // PY_MAJOR_VERSION >= 3
++
+         argv = Py_BuildValue("(iO)", ok, _x509_store_ctx_inst);
+     } else {
+         if (PyErr_Warn(PyExc_DeprecationWarning, "Old style callback, use cb_func(ok, store) instead")) {
+@@ -279,6 +290,16 @@
+     if (ret == NULL) {
+         return -1;
+     }
++
++#if PY_MAJOR_VERSION >= 3
++    if (!PyBytes_Check(ret)) {
++        Py_DECREF(ret);
++        return -1;
++    }
++    if ((len = PyBytes_Size(ret)) > num)
++        len = num;
++    str = PyBytes_AsString(ret); 
++#else
+     if (!PyString_Check(ret)) {
+         Py_DECREF(ret);
+         return -1;
+@@ -286,6 +307,8 @@
+     if ((len = PyString_Size(ret)) > num)
+         len = num;
+     str = PyString_AsString(ret); 
++#endif // PY_MAJOR_VERSION >= 3
++
+     for (i = 0; i < len; i++)
+         buf[i] = str[i];
+     Py_DECREF(ret);
+@@ -314,7 +337,13 @@
+         return NULL;
+     }
+     len=BN_bn2mpi(bn, mpi);
++
++#if PY_MAJOR_VERSION >= 3
++    pyo=PyBytes_FromStringAndSize((const char *)mpi, len);
++#else
+     pyo=PyString_FromStringAndSize((const char *)mpi, len);
++#endif // PY_MAJOR_VERSION >= 3
++
+     PyMem_Free(mpi);
+     return pyo;
+ }
+@@ -340,7 +369,13 @@
+       return NULL;
+     }
+     BN_bn2bin(bn, bin);
++
++#if PY_MAJOR_VERSION >= 3
++    pyo=PyBytes_FromStringAndSize((const char *)bin, len);
++#else
+     pyo=PyString_FromStringAndSize((const char *)bin, len);
++#endif // PY_MAJOR_VERSION >= 3
++
+     PyMem_Free(bin);
+     return pyo;
+ }
+@@ -368,7 +403,13 @@
+         return NULL;    
+     }
+     len = strlen(hex);
++
++#if PY_MAJOR_VERSION >= 3
++    pyo=PyBytes_FromStringAndSize(hex, len);
++#else
+     pyo=PyString_FromStringAndSize(hex, len);
++#endif // PY_MAJOR_VERSION >= 3
++
+     OPENSSL_free(hex);
+     return pyo;
+ }
+@@ -422,11 +463,20 @@
+ %typemap(in) Blob * {
+     Py_ssize_t len;
+ 
++#if PY_MAJOR_VERSION >= 3
++    if (!PyBytes_Check($input)) {
++        PyErr_SetString(PyExc_TypeError, "expected PyString");
++        return NULL;
++    }
++    len=PyBytes_Size($input);
++#else
+     if (!PyString_Check($input)) {
+         PyErr_SetString(PyExc_TypeError, "expected PyString");
+         return NULL;
+     }
+     len=PyString_Size($input);
++#endif // PY_MAJOR_VERSION >= 3
++
+     if (len > INT_MAX) {
+         PyErr_SetString(PyExc_ValueError, "object too large");
+         return -1;
+@@ -436,7 +486,13 @@
+         PyErr_SetString(PyExc_MemoryError, "malloc Blob");
+         return NULL;
+     }
++
++#if PY_MAJOR_VERSION >= 3
++    $1->data=(unsigned char *)PyBytes_AsString($input);
++#else
+     $1->data=(unsigned char *)PyString_AsString($input);
++#endif // PY_MAJOR_VERSION >= 3
++
+     $1->len=len;
+ }
+ 
+@@ -445,18 +501,28 @@
+         Py_INCREF(Py_None);
+         $result=Py_None;
+     } else {
++
++#if PY_MAJOR_VERSION >= 3
++        $result=PyBytes_FromStringAndSize((const char *)$1->data, $1->len);
++#else
+         $result=PyString_FromStringAndSize((const char *)$1->data, $1->len);
++#endif // PY_MAJOR_VERSION >= 3
++
+         PyMem_Free($1->data);
+         PyMem_Free($1);
+     }
+ }
+ 
+ %typemap(in) FILE * {
++#if PY_MAJOR_VERSION >= 3
++    $1=PyObject_AsFileDescriptor($input);
++#else
+     if (!PyFile_Check($input)) {
+         PyErr_SetString(PyExc_TypeError, "expected PyFile");
+         return NULL;
+     }
+     $1=PyFile_AsFile($input);
++#endif // PY_MAJOR_VERSION >= 3
+ }
+ 
+ %typemap(in) PyObject *pyfunc {
+@@ -468,7 +534,12 @@
+ }
+ 
+ %typemap(in) PyObject *pyblob {
++#if PY_MAJOR_VERSION >= 3
++    if (!PyBytes_Check($input)) {
++#else
+     if (!PyString_Check($input)) {
++#endif // PY_MAJOR_VERSION >= 3
++
+         PyErr_SetString(PyExc_TypeError, "expected PyString");
+         return NULL;
+     }
+Index: SWIG/_objects.i
+===================================================================
+--- SWIG/_objects.i	(revision 659)
++++ SWIG/_objects.i	(working copy)
+@@ -93,7 +93,13 @@
+ 
+     buf = PyMem_Malloc(len + 1);
+     len = OBJ_obj2txt(buf, len + 1, obj, no_name);
++
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize(buf, len);
++#else
+     ret = PyString_FromStringAndSize(buf, len);
++#endif // PY_MAJOR_VERSION >= 3
++
+     PyMem_Free(buf);
+ 
+     return ret;
+Index: SWIG/_pkcs7.i
+===================================================================
+--- SWIG/_pkcs7.i	(revision 659)
++++ SWIG/_pkcs7.i	(working copy)
+@@ -75,7 +75,13 @@
+         return NULL;
+     }
+     BIO_read(bio, outbuf, outlen);
++
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize(outbuf, outlen);
++#else
+     ret = PyString_FromStringAndSize(outbuf, outlen);
++#endif // PY_MAJOR_VERSION >= 3
++
+     BIO_free(bio);
+     PyMem_Free(outbuf);
+     return ret;
+@@ -111,7 +117,13 @@
+         return NULL;
+     }
+     BIO_read(bio, outbuf, outlen);
++
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize(outbuf, outlen);
++#else
+     ret = PyString_FromStringAndSize(outbuf, outlen);
++#endif // PY_MAJOR_VERSION >= 3
++
+     BIO_free(bio);
+     PyMem_Free(outbuf);
+     return ret;
+Index: SWIG/_rand.i
+===================================================================
+--- SWIG/_rand.i	(revision 659)
++++ SWIG/_rand.i	(working copy)
+@@ -56,7 +56,11 @@
+         return NULL;
+     }
+     if (RAND_bytes(blob, n)) {
++#if PY_MAJOR_VERSION >= 3
++        obj = PyBytes_FromStringAndSize(blob, n);
++#else
+         obj = PyString_FromStringAndSize(blob, n);
++#endif // PY_MAJOR_VERSION >= 3
+         PyMem_Free(blob);
+         return obj;
+     } else {
+@@ -87,7 +91,13 @@
+         Py_INCREF(Py_None);
+         return Py_None;
+     } else {
++
++#if PY_MAJOR_VERSION >= 3
++        PyTuple_SET_ITEM(tuple, 0, PyBytes_FromStringAndSize(blob, n));
++#else
+         PyTuple_SET_ITEM(tuple, 0, PyString_FromStringAndSize(blob, n));
++#endif // PY_MAJOR_VERSION >= 3
++
+         PyMem_Free(blob);
+         PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong((long)ret));
+         return tuple;
+Index: SWIG/_rc4.i
+===================================================================
+--- SWIG/_rc4.i	(revision 659)
++++ SWIG/_rc4.i	(working copy)
+@@ -47,7 +47,13 @@
+         return NULL;
+     }
+     RC4(key, len, buf, out);
++
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize(out, len);
++#else
+     ret = PyString_FromStringAndSize(out, len);
++#endif // PY_MAJOR_VERSION >= 3
++
+     PyMem_Free(out);
+     return ret;
+ }
+Index: SWIG/_rsa.i
+===================================================================
+--- SWIG/_rsa.i	(revision 659)
++++ SWIG/_rsa.i	(working copy)
+@@ -196,7 +196,13 @@
+         PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+         return NULL;
+     }
++
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize((const char *)tbuf, tlen);
++#else
+     ret = PyString_FromStringAndSize((const char *)tbuf, tlen);
++#endif // PY_MAJOR_VERSION >= 3
++
+     PyMem_Free(tbuf);
+     return ret;
+ }
+@@ -221,7 +227,13 @@
+         PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+         return NULL;
+     }
++
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize((const char *)tbuf, tlen);
++#else
+     ret = PyString_FromStringAndSize((const char *)tbuf, tlen);
++#endif // PY_MAJOR_VERSION >= 3
++
+     PyMem_Free(tbuf);
+     return ret;
+ }
+@@ -246,7 +258,13 @@
+         PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+         return NULL;
+     }
++
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize((const char *)tbuf, tlen);
++#else
+     ret = PyString_FromStringAndSize((const char *)tbuf, tlen);
++#endif // PY_MAJOR_VERSION >= 3
++
+     PyMem_Free(tbuf);
+     return ret;
+ }
+@@ -271,11 +289,77 @@
+         PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+         return NULL;
+     }
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize((const char *)tbuf, tlen);
++#else
+     ret = PyString_FromStringAndSize((const char *)tbuf, tlen);
++#endif // PY_MAJOR_VERSION >= 3
++
+     PyMem_Free(tbuf);
+     return ret;
+ }
+ 
++PyObject *rsa_padding_add_pkcs1_pss(RSA *rsa, PyObject *digest, EVP_MD *hash, int salt_lenth) {
++    const void *dbuf;
++    void *tbuf;
++
++    int dlen, result;
++    PyObject *ret;
++
++    int tlen = BN_num_bytes(rsa->n);
++
++    if (m2_PyObject_AsReadBufferInt(digest, &dbuf, &dlen) == -1)
++        return NULL;
++
++    if (!(tbuf = PyMem_Malloc(tlen))) {
++        PyErr_SetString(PyExc_MemoryError, "rsa_padding_add_pkcs1_pss");
++        return NULL;
++    }
++    result = RSA_padding_add_PKCS1_PSS(
++        rsa,
++        (unsigned char *)tbuf,
++        (unsigned char *)dbuf,
++        hash,
++        salt_lenth);
++
++    if (result == -1) {
++        PyMem_Free(tbuf);
++        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
++        return NULL;
++    }
++
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize((const char *)tbuf, tlen);
++#else
++    ret = PyString_FromStringAndSize((const char *)tbuf, tlen);
++#endif // PY_MAJOR_VERSION >= 3
++
++    PyMem_Free(tbuf);
++    return ret;
++}
++
++int rsa_verify_pkcs1_pss(RSA *rsa, PyObject *digest, PyObject *signature, EVP_MD *hash, int salt_lenth) {
++    const void *dbuf;
++    const void *sbuf;
++
++    int dlen, slen, ret;
++
++    if (m2_PyObject_AsReadBufferInt(digest, &dbuf, &dlen) == -1)
++        return 0;
++
++    if (m2_PyObject_AsReadBufferInt(signature, &sbuf, &slen) == -1)
++        return 0;
++
++    ret = RSA_verify_PKCS1_PSS(
++        rsa,
++        (unsigned char *)dbuf,
++        hash,
++        (unsigned char *)sbuf,
++        salt_lenth);
++
++    return ret;
++}
++
+ PyObject *rsa_sign(RSA *rsa, PyObject *py_digest_string, int method_type) {
+     int digest_len = 0;
+     int buf_len = 0;
+@@ -302,7 +386,13 @@
+         PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+         return NULL;
+     }
++
++#if PY_MAJOR_VERSION >= 3
++    signature =  PyBytes_FromStringAndSize((const char*) sign_buf, buf_len);
++#else
+     signature =  PyString_FromStringAndSize((const char*) sign_buf, buf_len);
++#endif
++
+     PyMem_Free(sign_buf);
+     return signature;
+ }     
+Index: SWIG/_ssl.i
+===================================================================
+--- SWIG/_ssl.i	(revision 659)
++++ SWIG/_ssl.i	(working copy)
+@@ -491,7 +491,13 @@
+         case SSL_ERROR_NONE:
+         case SSL_ERROR_ZERO_RETURN:
+             buf = PyMem_Realloc(buf, r);
++
++#if PY_MAJOR_VERSION >= 3
++            obj = PyBytes_FromStringAndSize(buf, r);
++#else
+             obj = PyString_FromStringAndSize(buf, r);
++#endif //PY_MAJOR_VERSION >= 3
++
+             break;
+         case SSL_ERROR_WANT_WRITE:
+         case SSL_ERROR_WANT_READ:
+@@ -541,7 +547,13 @@
+         case SSL_ERROR_NONE:
+         case SSL_ERROR_ZERO_RETURN:
+             buf = PyMem_Realloc(buf, r);
++
++#if PY_MAJOR_VERSION >= 3
++            obj = PyBytes_FromStringAndSize(buf, r);
++#else
+             obj = PyString_FromStringAndSize(buf, r);
++#endif // PY_MAJOR_VERSION >= 3
++
+             break;
+         case SSL_ERROR_WANT_WRITE:
+         case SSL_ERROR_WANT_READ:
+Index: SWIG/_util.i
+===================================================================
+--- SWIG/_util.i	(revision 659)
++++ SWIG/_util.i	(working copy)
+@@ -27,7 +27,13 @@
+         PyErr_SetString(_util_err, ERR_reason_error_string(ERR_get_error()));
+         return NULL;
+     }
++
++#if PY_MAJOR_VERSION >= 3
++    obj = PyBytes_FromString(ret);
++#else
+     obj = PyString_FromString(ret);
++#endif // PY_MAJOR_VERSION >= 3
++
+     OPENSSL_free(ret);
+     return obj;
+ }
+@@ -48,7 +54,13 @@
+         PyErr_SetString(_util_err, ERR_reason_error_string(ERR_get_error()));
+         return NULL;
+     }
++
++#if PY_MAJOR_VERSION >= 3
++    obj = PyBytes_FromStringAndSize(ret, len);
++#else
+     obj = PyString_FromStringAndSize(ret, len);
++#endif // PY_MAJOR_VERSION >= 3
++
+     OPENSSL_free(ret);
+     return obj;
+ }
+Index: SWIG/_x509.i
+===================================================================
+--- SWIG/_x509.i	(revision 659)
++++ SWIG/_x509.i	(working copy)
+@@ -159,12 +159,21 @@
+ %rename(x509_name_entry_get_data) X509_NAME_ENTRY_get_data;
+ extern ASN1_STRING *X509_NAME_ENTRY_get_data(X509_NAME_ENTRY *);
+ 
+-%typemap(in) (CONST unsigned char *, int) { 
++%typemap(in) (CONST unsigned char *, int) {
++#if PY_MAJOR_VERSION >= 3 
++    if (PyBytes_Check($input)) {
++        Py_ssize_t len;
++
++        $1 = PyBytes_AsString($input); 
++        len = PyBytes_Size($input);
++#else
+     if (PyString_Check($input)) {
+         Py_ssize_t len;
+ 
+         $1 = PyString_AsString($input); 
+         len = PyString_Size($input);
++#endif // PY_MAJOR_VERSION >= 3
++
+         if (len > INT_MAX) {
+             PyErr_SetString(PyExc_ValueError, "object too large");
+             return NULL;
+@@ -328,7 +337,13 @@
+         PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+     }
+     else {     
++
++#if PY_MAJOR_VERSION >= 3 
++        ret = PyBytes_FromStringAndSize(buf, len);
++#else
+         ret = PyString_FromStringAndSize(buf, len);
++#endif // PY_MAJOR_VERSION >= 3 
++
+         OPENSSL_free(buf);
+     }
+     return ret;
+@@ -400,13 +415,23 @@
+         return NULL;
+     }
+     xlen = X509_NAME_get_text_by_NID(name, nid, buf, len);
++
++#if PY_MAJOR_VERSION >= 3 
++    ret = PyBytes_FromStringAndSize(buf, xlen);
++#else
+     ret = PyString_FromStringAndSize(buf, xlen);
++#endif // PY_MAJOR_VERSION >= 3 
++
+     PyMem_Free(buf);
+     return ret;
+ }
+ 
+ int x509_name_set_by_nid(X509_NAME *name, int nid, PyObject *obj) {
++#if PY_MAJOR_VERSION >= 3 
++    return X509_NAME_add_entry_by_NID(name, nid, MBSTRING_ASC, PyBytes_AsString(obj), -1, -1, 0);
++#else
+     return X509_NAME_add_entry_by_NID(name, nid, MBSTRING_ASC, PyString_AsString(obj), -1, -1, 0);
++#endif // PY_MAJOR_VERSION >= 3 
+ }
+ 
+ /* x509_name_add_entry_by_txt */
+@@ -417,7 +442,11 @@
+ PyObject *x509_name_get_der(X509_NAME *name)
+ {
+     i2d_X509_NAME(name, 0);
++#if PY_MAJOR_VERSION >= 3 
++    return PyBytes_FromStringAndSize(name->bytes->data, name->bytes->length);
++#else
+     return PyString_FromStringAndSize(name->bytes->data, name->bytes->length);
++#endif // PY_MAJOR_VERSION >= 3 
+ }
+ 
+ /* sk_X509_new_null() is a macro returning "STACK_OF(X509) *". */
+@@ -509,7 +538,11 @@
+         PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+         return NULL;
+     }
++#if PY_MAJOR_VERSION >= 3 
++    ext_name = PyBytes_FromStringAndSize(ext_name_str, strlen(ext_name_str));
++#else
+     ext_name = PyString_FromStringAndSize(ext_name_str, strlen(ext_name_str));
++#endif // PY_MAJOR_VERSION >= 3 
+     return ext_name;
+ }
+ 
+@@ -567,12 +600,23 @@
+     Py_ssize_t encoded_string_len;
+     char *encoded_string;
+ 
++#if PY_MAJOR_VERSION >= 3 
++    encoded_string_len = PyBytes_Size(pyEncodedString);
++#else
+     encoded_string_len = PyString_Size(pyEncodedString);
++#endif
++
+     if (encoded_string_len > INT_MAX) {
+         PyErr_SetString(PyExc_ValueError, "object too large");
+         return NULL;
+     }
++
++#if PY_MAJOR_VERSION >= 3 
++    encoded_string = PyBytes_AsString(pyEncodedString);
++#else
+     encoded_string = PyString_AsString(pyEncodedString);
++#endif 
++
+     if (!encoded_string) {
+         return NULL;
+     }
+@@ -598,7 +642,13 @@
+        PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+     }
++
++#if PY_MAJOR_VERSION >= 3 
++    encodedString = PyBytes_FromStringAndSize((const char *)encoding, len);
++#else
+     encodedString = PyString_FromStringAndSize((const char *)encoding, len);
++#endif // PY_MAJOR_VERSION >= 3 
++
+     OPENSSL_free(encoding);
+     return encodedString; 
+ }
+Index: tests/test_evp.py
+===================================================================
+--- tests/test_evp.py	(revision 659)
++++ tests/test_evp.py	(working copy)
+@@ -209,7 +209,7 @@
+             self.try_algo(i)
+ 
+         self.assertRaises(ValueError, self.try_algo, 'nosuchalgo4567')
+-        
++       
+     def test_AES(self):
+         enc = 1
+         dec = 0
+@@ -239,7 +239,8 @@
+             'CT':  'd0a02b3836451753d493665d33f0e8862dea54cdb293abc7506939276772f8d5021c19216bad525c8579695d83ba2684',
+             },
+         ]
+-        
++       
++        # Test with padding
+         for test in tests:
+             # encrypt
+             k=EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=enc)
+@@ -261,7 +262,27 @@
+             cbuf.close()
+             self.assertEqual(plaintext, test['PT'])
+ 
++        # Test without padding
++        for test in tests:
++            # encrypt
++            k=EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=enc, padding=False)
++            pbuf=cStringIO.StringIO(test['PT'])
++            cbuf=cStringIO.StringIO()
++            ciphertext = hexlify(self.cipher_filter(k, pbuf, cbuf))
++            pbuf.close()
++            cbuf.close()
++            self.assertEqual(ciphertext, test['CT'])
+ 
++            # decrypt
++            j=EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=dec, padding=False)
++            pbuf=cStringIO.StringIO()
++            cbuf=cStringIO.StringIO(unhexlify(test['CT']))
++            plaintext=self.cipher_filter(j, cbuf, pbuf)
++            pbuf.close()
++            cbuf.close()
++            self.assertEqual(plaintext, test['PT'])
++
++
+     def test_raises(self):
+         def _cipherFilter(cipher, inf, outf):
+             while 1:
+Index: tests/test_rsa.py
+===================================================================
+--- tests/test_rsa.py	(revision 659)
++++ tests/test_rsa.py	(working copy)
+@@ -166,6 +166,34 @@
+             verify = rsa2.verify(digest, signature, algo) 
+             assert verify == 1, 'verification failed with algorithm %s' % algo
+     
++    def test_sign_and_verify_rsassa_pss(self):
++        """
++        Testing signing and verifying using rsassa_pss
++
++        The maximum size of the salt has to decrease as the
++        size of the digest increases because of the size of 
++        our test key limits it.
++        """
++        algos = {'sha1':43, 
++                 'ripemd160':43,
++                 'md5':47}
++
++        if m2.OPENSSL_VERSION_NUMBER >= 0x90800F:
++            algos['sha224'] = 35
++            algos['sha256'] = 31
++            algos['sha384'] = 15
++            algos['sha512'] = 0 
++    
++        message = "This is the message string"
++        digest = sha.sha(message).digest()
++        rsa = RSA.load_key(self.privkey)
++        rsa2 = RSA.load_pub_key(self.pubkey)
++        for algo, salt_max in algos.iteritems():
++            for salt_length in range(0, salt_max):
++                signature = rsa.sign_rsassa_pss(digest, algo, salt_length)
++                verify = rsa2.verify_rsassa_pss(digest, signature, algo, salt_length) 
++                assert verify == 1, 'verification failed with algorithm %s salt length %d' % (algo, salt_length)
++
+     def test_sign_bad_method(self):
+         """
+         Testing calling sign with an unsupported message digest algorithm
+
+

@@ -214,7 +214,13 @@ PyObject *rsa_private_encrypt(RSA *rsa, PyObject *from, int padding) {
         PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
+
+#if PY_MAJOR_VERSION >= 3
+    ret = PyBytes_FromStringAndSize((const char *)tbuf, tlen);
+#else
     ret = PyString_FromStringAndSize((const char *)tbuf, tlen);
+#endif // PY_MAJOR_VERSION >= 3
+
     PyMem_Free(tbuf);
     return ret;
 }
@@ -239,7 +245,13 @@ PyObject *rsa_public_decrypt(RSA *rsa, PyObject *from, int padding) {
         PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
+
+#if PY_MAJOR_VERSION >= 3
+    ret = PyBytes_FromStringAndSize((const char *)tbuf, tlen);
+#else
     ret = PyString_FromStringAndSize((const char *)tbuf, tlen);
+#endif // PY_MAJOR_VERSION >= 3
+
     PyMem_Free(tbuf);
     return ret;
 }
@@ -264,7 +276,13 @@ PyObject *rsa_public_encrypt(RSA *rsa, PyObject *from, int padding) {
         PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
+
+#if PY_MAJOR_VERSION >= 3
+    ret = PyBytes_FromStringAndSize((const char *)tbuf, tlen);
+#else
     ret = PyString_FromStringAndSize((const char *)tbuf, tlen);
+#endif // PY_MAJOR_VERSION >= 3
+
     PyMem_Free(tbuf);
     return ret;
 }
@@ -379,7 +397,13 @@ PyObject *rsa_sign(RSA *rsa, PyObject *py_digest_string, int method_type) {
         PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
+
+#if PY_MAJOR_VERSION >= 3
+    signature =  PyBytes_FromStringAndSize((const char*) sign_buf, buf_len);
+#else
     signature =  PyString_FromStringAndSize((const char*) sign_buf, buf_len);
+#endif
+
     PyMem_Free(sign_buf);
     return signature;
 }     

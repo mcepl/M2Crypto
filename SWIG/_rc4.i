@@ -47,7 +47,13 @@ PyObject *rc4_update(RC4_KEY *key, PyObject *in) {
         return NULL;
     }
     RC4(key, len, buf, out);
+
+#if PY_MAJOR_VERSION >= 3
+    ret = PyBytes_FromStringAndSize(out, len);
+#else
     ret = PyString_FromStringAndSize(out, len);
+#endif // PY_MAJOR_VERSION >= 3
+
     PyMem_Free(out);
     return ret;
 }

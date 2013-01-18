@@ -141,6 +141,12 @@ class Cipher:
     def set_padding(self, padding=1):
         return m2.cipher_set_padding(self.ctx, padding)
 
+    def set_padding(self, enabled=True):
+        padding = 0
+        if enabled:
+            padding = 1
+
+        return m2.cipher_set_padding(self.ctx, padding) 
 
 class PKey:
     """

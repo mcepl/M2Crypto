@@ -29,7 +29,13 @@ PyObject *util_hex_to_string(PyObject *blob) {
         PyErr_SetString(_util_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
+
+#if PY_MAJOR_VERSION >= 3
+    obj = PyBytes_FromString(ret);
+#else
     obj = PyString_FromString(ret);
+#endif // PY_MAJOR_VERSION >= 3
+
     OPENSSL_free(ret);
     return obj;
 }
