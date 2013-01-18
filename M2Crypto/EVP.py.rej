@@ -1,0 +1,19 @@
+--- M2Crypto/EVP.py	(revision 659)
++++ M2Crypto/EVP.py	(working copy)
+@@ -102,7 +102,7 @@
+ 
+     m2_cipher_ctx_free = m2.cipher_ctx_free
+ 
+-    def __init__(self, alg, key, iv, op, key_as_bytes=0, d='md5', salt='12345678', i=1):
++    def __init__(self, alg, key, iv, op, key_as_bytes=0, d='md5', salt='12345678', i=1, padding=True):
+         cipher = getattr(m2, alg, None)
+         if cipher is None:
+             raise ValueError, ('unknown cipher', alg)
+@@ -114,6 +114,7 @@
+             key = m2.bytes_to_key(self.cipher, kmd(), key, salt, iv, i)
+         self.ctx=m2.cipher_ctx_new()
+         m2.cipher_init(self.ctx, self.cipher, key, iv, op)
++        self.set_padding(padding)
+         del key
+         
+     def __del__(self):

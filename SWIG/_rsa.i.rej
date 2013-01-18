@@ -1,0 +1,80 @@
+--- SWIG/_rsa.i	(revision 659)
++++ SWIG/_rsa.i	(working copy)
+@@ -289,11 +307,77 @@
+         PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+         return NULL;
+     }
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize((const char *)tbuf, tlen);
++#else
+     ret = PyString_FromStringAndSize((const char *)tbuf, tlen);
++#endif // PY_MAJOR_VERSION >= 3
++
+     PyMem_Free(tbuf);
+     return ret;
+ }
+ 
++PyObject *rsa_padding_add_pkcs1_pss(RSA *rsa, PyObject *digest, EVP_MD *hash, int salt_lenth) {
++    const void *dbuf;
++    void *tbuf;
++
++    int dlen, result;
++    PyObject *ret;
++
++    int tlen = BN_num_bytes(rsa->n);
++
++    if (m2_PyObject_AsReadBufferInt(digest, &dbuf, &dlen) == -1)
++        return NULL;
++
++    if (!(tbuf = PyMem_Malloc(tlen))) {
++        PyErr_SetString(PyExc_MemoryError, "rsa_padding_add_pkcs1_pss");
++        return NULL;
++    }
++    result = RSA_padding_add_PKCS1_PSS(
++        rsa,
++        (unsigned char *)tbuf,
++        (unsigned char *)dbuf,
++        hash,
++        salt_lenth);
++
++    if (result == -1) {
++        PyMem_Free(tbuf);
++        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
++        return NULL;
++    }
++
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize((const char *)tbuf, tlen);
++#else
++    ret = PyString_FromStringAndSize((const char *)tbuf, tlen);
++#endif // PY_MAJOR_VERSION >= 3
++
++    PyMem_Free(tbuf);
++    return ret;
++}
++
++int rsa_verify_pkcs1_pss(RSA *rsa, PyObject *digest, PyObject *signature, EVP_MD *hash, int salt_lenth) {
++    const void *dbuf;
++    const void *sbuf;
++
++    int dlen, slen, ret;
++
++    if (m2_PyObject_AsReadBufferInt(digest, &dbuf, &dlen) == -1)
++        return 0;
++
++    if (m2_PyObject_AsReadBufferInt(signature, &sbuf, &slen) == -1)
++        return 0;
++
++    ret = RSA_verify_PKCS1_PSS(
++        rsa,
++        (unsigned char *)dbuf,
++        hash,
++        (unsigned char *)sbuf,
++        salt_lenth);
++
++    return ret;
++}
++
+ PyObject *rsa_sign(RSA *rsa, PyObject *py_digest_string, int method_type) {
+     int digest_len = 0;
+     int buf_len = 0;

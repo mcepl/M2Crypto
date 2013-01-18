@@ -1,0 +1,16 @@
+--- SWIG/_aes.i	(revision 659)
++++ SWIG/_aes.i	(working copy)
+@@ -76,7 +76,12 @@
+         AES_encrypt((const unsigned char *)in, out, key);
+     else
+         AES_decrypt((const unsigned char *)in, out, key);
+-    return PyString_FromStringAndSize(out, outlen);
++
++#if PY_MAJOR_VERSION >= 3
++    return PyBytes_FromStringAndSize(out, outlen);
++#else
++	return PyString_FromStringAndSize(out, outlen);
++#endif // PY_MAJOR_VERSION >= 3
+ }
+ 
+ int AES_type_check(AES_KEY *key) {

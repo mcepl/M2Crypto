@@ -37,7 +37,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         # command line option
         if os.name == 'nt':
             self.libraries = ['ssleay32', 'libeay32']
-            self.openssl = 'c:\\pkg'
+            self.openssl = 'c:\\\openssl'
         else:
             self.libraries = ['ssl', 'crypto']
             self.openssl = '/usr'

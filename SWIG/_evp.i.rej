@@ -1,0 +1,56 @@
+--- SWIG/_evp.i	(revision 659)
++++ SWIG/_evp.i	(working copy)
+@@ -179,7 +181,11 @@
+ 
+     PKCS5_PBKDF2_HMAC_SHA1(passbuf, passlen, saltbuf, saltlen, iter,
+                            keylen, key);
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize(key, keylen);
++#else
+     ret = PyString_FromStringAndSize(key, keylen);
++#endif // PY_MAJOR_VERSION >= 3 
+     OPENSSL_cleanse(key, keylen);
+     return ret;
+ }
+@@ -356,7 +380,13 @@
+     klen = EVP_BytesToKey(cipher, md, (unsigned char *)sbuf, 
+         (unsigned char *)dbuf, dlen, iter, 
+         key, NULL); /* Since we are not returning IV no need to derive it */
++
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize(key, klen);
++#else
+     ret = PyString_FromStringAndSize(key, klen);
++#endif // PY_MAJOR_VERSION >= 3
++
+     return ret;
+ }
+ 
+@@ -464,7 +506,13 @@
+         PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
+         return NULL;
+     }
++
++#if PY_MAJOR_VERSION >= 3
++    ret = PyBytes_FromStringAndSize(sigbuf, siglen);
++#else
+     ret = PyString_FromStringAndSize(sigbuf, siglen);
++#endif // PY_MAJOR_VERSION >= 3
++
+     OPENSSL_cleanse(sigbuf, siglen);
+     OPENSSL_free(sigbuf);
+     return ret;
+@@ -533,7 +581,13 @@
+         PyErr_SetString(PyExc_ValueError, "EVP_PKEY as DER failed");
+         return NULL; 
+     }
++
++#if PY_MAJOR_VERSION >= 3
++    der = PyBytes_FromStringAndSize(pp, len);
++#else
+     der = PyString_FromStringAndSize(pp, len);
++#endif // PY_MAJOR_VERSION >= 3
++
+     OPENSSL_free(pp);
+     return der;
+ }

@@ -1,0 +1,21 @@
+--- tests/test_evp.py	(revision 659)
++++ tests/test_evp.py	(working copy)
+@@ -209,7 +209,7 @@
+             self.try_algo(i)
+ 
+         self.assertRaises(ValueError, self.try_algo, 'nosuchalgo4567')
+-        
++       
+     def test_AES(self):
+         enc = 1
+         dec = 0
+@@ -239,7 +239,8 @@
+             'CT':  'd0a02b3836451753d493665d33f0e8862dea54cdb293abc7506939276772f8d5021c19216bad525c8579695d83ba2684',
+             },
+         ]
+-        
++       
++        # Test with padding
+         for test in tests:
+             # encrypt
+             k=EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=enc)

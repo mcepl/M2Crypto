@@ -58,11 +58,7 @@ PyObject *rand_bytes(int n) {
         return NULL;
     }
     if (RAND_bytes(blob, n)) {
-#if PY_MAJOR_VERSION >= 3
-        obj = PyBytes_FromStringAndSize(blob, n);
-#else
         obj = PyString_FromStringAndSize(blob, n);
-#endif // PY_MAJOR_VERSION >= 3
         PyMem_Free(blob);
         return obj;
     } else {

@@ -53,7 +53,12 @@ PyObject *bn_rand_range(PyObject *range)
     char *randhex, *rangehex;
     
     /* Wow, it's a lot of work to convert into a hex string in C! */
-    format = PyString_FromString("%x");
+#if PY_MAJOR_VERSION >= 3
+    format = PyUnicode_FromString("%x");
+#else
+	format = PyString_FromString("%x");
+#endif // PY_MAJOR_VERSION >= 3
+
     if (!format) {
         return NULL;
     }
@@ -65,16 +70,27 @@ PyObject *bn_rand_range(PyObject *range)
     }
     Py_INCREF(range);
     PyTuple_SET_ITEM(tuple, 0, range);
+
+#if PY_MAJOR_VERSION >= 3
+    rangePyString = PyUnicode_Format(format, tuple);
+#else
     rangePyString = PyString_Format(format, tuple);
+#endif // PY_MAJOR_VERSION >= 3
+
     if (!rangePyString) {
-        PyErr_SetString(PyExc_Exception, "PyString_Format failed");    
+        PyErr_SetString(PyExc_Exception, "String Format failed");    
         Py_DECREF(format);
         Py_DECREF(tuple);
         return NULL;    
     }
     Py_DECREF(format);
     Py_DECREF(tuple);
+
+#if PY_MAJOR_VERSION >= 3
+    rangehex = PyUnicode_AsUTF8String(rangePyString);
+#else
     rangehex = PyString_AsString(rangePyString);
+#endif // PY_MAJOR_VERSION >= 3
     
     if (!BN_hex2bn(&rng, rangehex)) {
         /*Custom errors?*/
