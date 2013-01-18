@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-"""Demo for client-side ssl_dispatcher usage. Note that connect() 
-is blocking. (Need fix?) 
+"""Demo for client-side ssl_dispatcher usage. Note that connect()
+is blocking. (Need fix?)
 
 This isn't really a HTTPS client; it's just a toy.
 
@@ -62,10 +62,10 @@ class https_client(SSL.ssl_dispatcher):
 
 
 if __name__ == '__main__':
-    Rand.load_file('../randpool.dat', -1) 
+    Rand.load_file('../randpool.dat', -1)
     ctx = SSL.Context()
-    url = ('/jdk118/api/u-names.html', 
-        '/postgresql/xfunc-c.html', 
+    url = ('/jdk118/api/u-names.html',
+        '/postgresql/xfunc-c.html',
         '/python2.1/modindex.html')
     for u in url:
         https_client('localhost', u, ctx)
@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
 
 # Here's a sample output. Server is Apache+mod_ssl on localhost.
-# $ python https_cli_async.py 
+# $ python https_cli_async.py
 # 991501090.682: read   278 from /python2.1/modindex.html
 # 991501090.684: read   278 from /postgresql/xfunc-c.html
 # 991501090.742: read  4096 from /postgresql/xfunc-c.html

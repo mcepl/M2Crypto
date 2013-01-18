@@ -17,7 +17,7 @@ class counter:
 
 	def __init__ (self, initial_value=0):
 		self.value = initial_value
-	
+
 	def increment (self, delta=1):
 		result = self.value
 		try:

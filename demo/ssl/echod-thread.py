@@ -18,13 +18,13 @@ def echo_handler(sslctx, sock, addr):
     sslconn.setup_ssl()
     sslconn.set_accept_state()
     sslconn.accept_ssl()
-    sslconn.write(buffer) 
+    sslconn.write(buffer)
     while 1:
         try:
             buf = sslconn.read()
             if not buf:
                 break
-            sslconn.write(buf) 
+            sslconn.write(buf)
         except SSL.SSLError, what:
             if str(what) == 'unexpected eof':
                 break
@@ -39,8 +39,8 @@ def echo_handler(sslctx, sock, addr):
 
 if __name__=='__main__':
     threading.init()
-    Rand.load_file('../randpool.dat', -1) 
-    ctx=echod_lib.init_context('sslv23', 'server.pem', 'ca.pem', 
+    Rand.load_file('../randpool.dat', -1)
+    ctx=echod_lib.init_context('sslv23', 'server.pem', 'ca.pem',
         SSL.verify_peer | SSL.verify_fail_if_no_peer_cert)
     ctx.set_tmp_dh('dh1024.pem')
     sock = socket(AF_INET, SOCK_STREAM)

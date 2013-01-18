@@ -17,7 +17,7 @@ class BNTestCase(unittest.TestCase):
         # defaults
         for x in range(loops):
             r8 = BN.rand(8)
-        
+
         # top
         for x in range(loops):
             r8 = BN.rand(8, top=0)
@@ -25,7 +25,7 @@ class BNTestCase(unittest.TestCase):
         for x in range(loops):
             r8 = BN.rand(8, top=1)
             assert r8 & 192
-        
+
         # bottom
         for x in range(loops):
             r8 = BN.rand(8, bottom=1)
@@ -41,38 +41,38 @@ class BNTestCase(unittest.TestCase):
             r256 = BN.rand(256, top=0)
             r512 = BN.rand(512, top=0)
             assert r8 < r16 < r32 < r64 < r128 < r256 < r512 < (r512 + 1)
-        
+
 
     def test_rand_range(self):
         # small range
         for x in range(loops):
             r = BN.rand_range(1)
             assert r == 0
-        
+
         for x in range(loops):
             r = BN.rand_range(4)
             assert 0 <= r < 4
-        
+
         # large range
         r512 = BN.rand(512, top=0)
         for x in range(loops):
             r = BN.rand_range(r512)
             assert 0 <= r < r512
 
-            
+
     def test_randfname(self):
         m = re.compile('^[a-zA-Z0-9]{8}$')
         for x in range(loops):
             r = BN.randfname(8)
             assert m.match(r)
-        
+
 
 def suite():
     return unittest.makeSuite(BNTestCase)
 
 
 if __name__ == '__main__':
-    Rand.load_file('randpool.dat', -1) 
+    Rand.load_file('randpool.dat', -1)
     unittest.TextTestRunner().run(suite())
     Rand.save_file('randpool.dat')
 

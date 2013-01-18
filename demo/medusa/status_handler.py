@@ -2,7 +2,7 @@
 
 VERSION_STRING = "$Id$"
 
-#			
+#
 # medusa status extension
 #
 
@@ -95,7 +95,7 @@ class status_extension:
 				'<hr>'
 				'<img src="%s/medusa.gif" align=right width=%d height=%d>' % (
 					self.statusdir,
-					medusa_gif.width, 
+					medusa_gif.width,
 					medusa_gif.height
 					) +
 				'</body></html>'

@@ -39,7 +39,7 @@ s.write(tmp, p7)
 
 # Encrypt the temporary buffer.
 p7 = s.encrypt(tmp)
-    
+
 # Output p7 in mail-friendly format.
 out = BIO.MemoryBuffer()
 out.write('From: sender@example.dom\n')

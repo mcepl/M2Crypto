@@ -6,7 +6,7 @@
 #
 
 # An extensible, configurable, asynchronous FTP server.
-# 
+#
 # All socket I/O is non-blocking, however file I/O is currently
 # blocking.  Eventually file I/O may be made non-blocking, too, if it
 # seems necessary.  Currently the only CPU-intensive operation is
@@ -263,7 +263,7 @@ class ftp_channel (asynchat.async_chat):
 				cdc.set_socket (conn)
 				cdc.connected = 1
 				self.passive_acceptor.close()
-				self.passive_acceptor = None				
+				self.passive_acceptor = None
 			else:
 				# we're still waiting for a connect to the PASV port.
 				cdc = xmit_channel (self)
@@ -292,7 +292,7 @@ class ftp_channel (asynchat.async_chat):
 				cdc.set_socket (conn)
 				cdc.connected = 1
 				self.passive_acceptor.close()
-				self.passive_acceptor = None				
+				self.passive_acceptor = None
 			else:
 				# we're still waiting for a connect to the PASV port.
 				cdc = recv_channel (self, None, fd)
@@ -420,7 +420,7 @@ class ftp_channel (asynchat.async_chat):
 		if self.cwd (line):
 			self.respond ('250 CWD command successful.')
 		else:
-			self.respond ('550 No such directory.')			
+			self.respond ('550 No such directory.')
 
 	def cmd_cdup (self, line):
 		'change to parent of current working directory'
@@ -428,7 +428,7 @@ class ftp_channel (asynchat.async_chat):
 			self.respond ('250 CDUP command successful.')
 		else:
 			self.respond ('550 No such directory.')
-		
+
 	def cmd_pwd (self, line):
 		'print the current working directory'
 		self.respond (
@@ -852,7 +852,7 @@ class xmit_channel (asynchat.async_chat):
 		self.channel = channel
 		self.client_addr = client_addr
 		asynchat.async_chat.__init__ (self)
-		
+
 #	def __del__ (self):
 #		print 'xmit_channel.__del__()'
 
@@ -952,7 +952,7 @@ class dummy_authorizer:
 class anon_authorizer:
 	def __init__ (self, root='/'):
 		self.root = root
-		
+
 	def authorize (self, channel, username, password):
 		if username in ('ftp', 'anonymous'):
 			channel.persona = -1, -1
@@ -1034,7 +1034,7 @@ class file_producer:
 	def __init__ (self, server, dc, fd):
 		self.fd = fd
 		self.done = 0
-		
+
 	def more (self):
 		if self.done:
 			return ''

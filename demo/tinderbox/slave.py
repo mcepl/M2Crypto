@@ -18,7 +18,7 @@ name = identify your build slave, for example Ubuntu 8.04 32-bit
 ;;python = python --version
 ;;clean = rm -fr m2crypto
 ;;svn = svn co http://svn.osafoundation.org/m2crypto/trunk m2crypto
-;;patch = 
+;;patch =
 ;;build = python setup.py clean --all build
 ;; OR another way to do tests without setuptools:
 ;;build = PYTHONPATH=build/lib-something python tests/alltests.py
@@ -68,7 +68,7 @@ def load_config(cfg='config.ini'):
 # XXX copied from test_ssl
 def zap_servers():
     s = 's_server'
-    fn = tempfile.mktemp() 
+    fn = tempfile.mktemp()
     cmd = 'ps | egrep %s > %s' % (s, fn)
     os.system(cmd)
     f = open(fn)
@@ -85,26 +85,26 @@ def zap_servers():
 
 def build(commands, config):
     status = 'success'
-    
+
     cwd = os.getcwd()
     timeout = int(config.get('timeout') or 180)
-    
+
     bl.initLog('tbox.log', echo=debug_script)
-    
+
     starttime = int(time.time())
-    
+
     for command in commands:
-        cmd = config.get(command) 
+        cmd = config.get(command)
         if not cmd:
             cmd = DEFAULT_COMMANDS[command]
             if not cmd:
                 continue
         else:
             cmd = cmd.split()
-        
+
         bl.log('*** %s, timeout=%ds' % (' '.join(cmd), timeout))
-        
-        exit_code = bl.runCommand(cmd, timeout=timeout) 
+
+        exit_code = bl.runCommand(cmd, timeout=timeout)
         if exit_code:
             bl.log('*** error exit code = %d' % exit_code)
             if command == 'test':
@@ -121,11 +121,11 @@ def build(commands, config):
             break
         if command == 'svn':
             os.chdir('m2crypto')
-        
+
     timenow = int(time.time())
-    
+
     bl.closeLog()
-    
+
     os.chdir(cwd)
 
     return 'tbox.log', starttime, timenow, status
@@ -145,13 +145,13 @@ tinderbox: buildname: %(buildname)s
 tinderbox: errorparser: unix
 tinderbox: END
 
-""" % {'from': config['from'], 'to': config['to'], 
+""" % {'from': config['from'], 'to': config['to'],
        'starttime': starttime, 'timenow': timenow,
        'status': status,
        'buildname': config['name']}
-    
+
     msg += open(logpath).read()
-    
+
     server = smtplib.SMTP(host=config['server'], port=int(config['port']))
     if debug_script:
         server.set_debuglevel(1)
@@ -163,8 +163,8 @@ tinderbox: END
 
 
 if __name__ == '__main__':
-    config = load_config()    
-    
+    config = load_config()
+
     commands = ['uname', 'swig', 'cc', 'openssl', 'python', 'clean', 'svn',
                 'patch', 'build', 'test']
 

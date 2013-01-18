@@ -8,15 +8,15 @@
           makenewkey  showdigest  showprofile
           md5  sha1  sha256  sha512
           <key length>
-        
+
     Larry Bugbee
     November 2006
-    
-    
-    Some portions are Copyright (c) 1999-2003 Ng Pheng Siong. 
+
+
+    Some portions are Copyright (c) 1999-2003 Ng Pheng Siong.
     All rights reserved.
 
-    Portions created by Open Source Applications Foundation 
+    Portions created by Open Source Applications Foundation
     (OSAF) are Copyright (C) 2004 OSAF. All Rights Reserved.
 
 """
@@ -33,7 +33,7 @@ showpubkey  = 0     # 1 = show the public key value
 showdigest  = 0     # 1 = show the digest value
 showprofile = 0     # 1 = use the python profiler
 
-hashalgs  = ['md5', 'ripemd160', 'sha1', 
+hashalgs  = ['md5', 'ripemd160', 'sha1',
              'sha224', 'sha256', 'sha384', 'sha512']
 
 # default hashing algorithm
@@ -45,22 +45,22 @@ exponent = 65537
 '''
   There is some temptation to use an RSA exponent of 3
   because 1) it is easy to remember and 2) it minimizes the
-  effort of signature verification.  Unfortunately there 
-  a couple of attacks based on the use of 3.  From a draft 
+  effort of signature verification.  Unfortunately there
+  a couple of attacks based on the use of 3.  From a draft
   RFC (Easklake, Dec 2000):
-    A public exponent of 3 minimizes the effort needed to 
+    A public exponent of 3 minimizes the effort needed to
     verify a signature.  Use of 3 as the public exponent is
-    weak for confidentiality uses since, if the same data 
-    can be collected encrypted under three different keys 
-    with an exponent of 3 then, using the Chinese Remainder 
+    weak for confidentiality uses since, if the same data
+    can be collected encrypted under three different keys
+    with an exponent of 3 then, using the Chinese Remainder
     Theorem [NETSEC], the original plain text can be easily
-    recovered.   
-  This applies to confidentiality so it is not of major 
-  concern here.  The second attack is a protocol implementation 
-  weakness and can be patched, but has the patch been applied?  
-  ...correctly?  It is arguably better to get into the habit 
-  of using a stronger exponent and avoiding these and possible 
-  future attacks based on 3.  I suggest getting in the habit 
+    recovered.
+  This applies to confidentiality so it is not of major
+  concern here.  The second attack is a protocol implementation
+  weakness and can be patched, but has the patch been applied?
+  ...correctly?  It is arguably better to get into the habit
+  of using a stronger exponent and avoiding these and possible
+  future attacks based on 3.  I suggest getting in the habit
   of using something stronger.  Some suggest using 65537.
 '''
 
@@ -100,7 +100,7 @@ def speed():
     for i in range(N2):
         rsa.verify(dgst, sig)
     print '    %d verifications: %8.2fs' % (N2, (time() - t1))
-        
+
 def test_speed(rsa, dgst):
     print '  measuring speed...'
     if showprofile:
@@ -114,12 +114,12 @@ def test_speed(rsa, dgst):
 
 def main(keylen, hashalg):
     global rsa, dgst     # this exists ONLY for speed testing
-    
-    Rand.load_file('randpool.dat', -1) 
-        
+
+    Rand.load_file('randpool.dat', -1)
+
     pvtkeyfilename = 'rsa%dpvtkey.pem' % (keylen)
-    pubkeyfilename = 'rsa%dpubkey.pem' % (keylen)  
-    
+    pubkeyfilename = 'rsa%dpubkey.pem' % (keylen)
+
     if makenewkey:
         print '  making and saving a new key'
         rsa = RSA.gen_key(keylen, exponent)
@@ -129,11 +129,11 @@ def main(keylen, hashalg):
         print '  loading an existing key'
         rsa = RSA.load_key(pvtkeyfilename)
     print '  rsa key length:', len(rsa)
-    
+
     if not rsa.check_key():
         raise 'key is not initialised'
 
-    # since we are testing signing and verification, let's not 
+    # since we are testing signing and verification, let's not
     # be fussy about the digest.  Just make one.
     md = EVP.MessageDigest(hashalg)
     md.update('can you spell subliminal channel?')
@@ -141,7 +141,7 @@ def main(keylen, hashalg):
     print '  hash algorithm: %s' % hashalg
     if showdigest:
         print '  %s digest: \n%s' % (hashalg, base64.encodestring(dgst))
-    
+
     test(rsa, dgst)
 #    test_asn1(rsa, dgst)
     test_speed(rsa, dgst)
@@ -174,7 +174,7 @@ if __name__=='__main__':
         except:
             print '\n  *** argument "%s" not understood ***' % arg
             print_usage()
-        
+
     main(keylen, hashalg)
 
 

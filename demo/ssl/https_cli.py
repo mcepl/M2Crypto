@@ -12,7 +12,7 @@ def test_httpslib():
     ctx = SSL.Context('sslv23')
     ctx.load_cert_chain('client.pem')
     ctx.load_verify_locations('ca.pem', '')
-    ctx.set_verify(SSL.verify_peer, 10)        
+    ctx.set_verify(SSL.verify_peer, 10)
     ctx.set_info_callback()
     h = httpslib.HTTPSConnection('localhost', 19443, ssl_context=ctx)
     h.set_debuglevel(1)
@@ -26,7 +26,7 @@ def test_httpslib():
     c = 0
     while 1:
         # Either of following two works.
-        #data = f.readline(4096)   
+        #data = f.readline(4096)
         data = resp.read(4096)
         if not data: break
         c = c + len(data)
@@ -37,7 +37,7 @@ def test_httpslib():
     h.close()
 
 if __name__=='__main__':
-    Rand.load_file('../randpool.dat', -1) 
+    Rand.load_file('../randpool.dat', -1)
     #threading.init()
     test_httpslib()
     #threading.cleanup()

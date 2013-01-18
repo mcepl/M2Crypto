@@ -19,7 +19,7 @@ class redirecting_handler:
 	def match (self, request):
 		m = self.patref.match (request.uri)
 		return (m and (m.end() == len(request.uri)))
-			
+
 	def handle_request (self, request):
 		self.hits.increment()
 		m = self.patreg.match (request.uri)

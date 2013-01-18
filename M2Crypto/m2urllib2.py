@@ -1,5 +1,5 @@
 """
-M2Crypto enhancement to Python's urllib2 for handling 
+M2Crypto enhancement to Python's urllib2 for handling
 'https' url's.
 
 Code from urllib2 is Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006, 2007
@@ -60,7 +60,7 @@ class HTTPSHandler(AbstractHTTPHandler):
 
         # Our change: Check to see if we're using a proxy.
         # Then create an appropriate ssl-aware connection.
-        full_url = req.get_full_url() 
+        full_url = req.get_full_url()
         target_host = urlparse.urlparse(full_url)[1]
 
         if (target_host != host):
@@ -106,7 +106,7 @@ class HTTPSHandler(AbstractHTTPHandler):
         resp.msg = r.reason
         return resp
 
-        
+
     https_request = AbstractHTTPHandler.do_request_
 
 

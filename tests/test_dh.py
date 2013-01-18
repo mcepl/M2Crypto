@@ -12,10 +12,10 @@ class DHTestCase(unittest.TestCase):
     params = 'tests/dhparam.pem'
 
     def genparam_callback(self, *args):
-        pass 
+        pass
 
     def genparam_callback2(self):
-        pass 
+        pass
 
     def test_init_junk(self):
         self.assertRaises(TypeError, DH.DH, 'junk')
@@ -59,7 +59,7 @@ def suite():
 
 
 if __name__=='__main__':
-    Rand.load_file('randpool.dat', -1) 
+    Rand.load_file('randpool.dat', -1)
     unittest.TextTestRunner().run(suite())
     Rand.save_file('randpool.dat')
 

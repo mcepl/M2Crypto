@@ -34,7 +34,7 @@ def handler(addr, sslctx, host, port, req, sslsess=None):
             break
 
     if addr != ADDR2:
-        thr = Thread(target=handler, 
+        thr = Thread(target=handler,
                     args=(ADDR2, sslctx, host, port, req, sslsess))
         print "Thread =", thr.getName()
         thr.start()
@@ -45,7 +45,7 @@ def handler(addr, sslctx, host, port, req, sslsess=None):
 if __name__ == '__main__':
 
     m2_threading.init()
-    Rand.load_file('../randpool.dat', -1) 
+    Rand.load_file('../randpool.dat', -1)
 
     host = '127.0.0.1'
     port = 443
@@ -59,19 +59,19 @@ if __name__ == '__main__':
             port = int(opt[1])
         elif '-r' in opt:
             req = opt[1]
-    
+
     ctx = SSL.Context('sslv3')
     ctx.load_cert('client.pem')
     ctx.load_verify_info('ca.pem')
     ctx.set_verify(SSL.verify_none, 10)
-    
+
     req = 'GET %s HTTP/1.0\r\n\r\n' % req
 
     start = Thread(target=handler, args=(ADDR1, ctx, host, port, req))
     print "Thread =", start.getName()
     start.start()
     start.join()
-    
+
     m2_threading.cleanup()
     Rand.save_file('../randpool.dat')
 

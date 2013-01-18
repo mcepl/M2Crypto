@@ -1,4 +1,4 @@
-"""M2Crypto support for Python's httplib. 
+"""M2Crypto support for Python's httplib.
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
@@ -22,7 +22,7 @@ class HTTPSConnection(HTTPConnection):
     def __init__(self, host, port=None, strict=None, **ssl):
         self.session = None
         keys = ssl.keys()
-        try: 
+        try:
             keys.remove('key_file')
         except ValueError:
             pass
@@ -79,7 +79,7 @@ class HTTPSConnection(HTTPConnection):
         # object.
         #
         # M2Crypto doesn't close-here-keep-open-there,
-        # so, in effect, we don't close until the whole 
+        # so, in effect, we don't close until the whole
         # business is over and gc kicks in.
         #
         # XXX Long-running callers beware leakage.
@@ -88,16 +88,16 @@ class HTTPSConnection(HTTPConnection):
         # XXX but I've not investigated if the above conditions
         # XXX remain.
         pass
-    
+
     def get_session(self):
         return self.sock.get_session()
 
     def set_session(self, session):
         self.session = session
-        
+
 
 class HTTPS(HTTP):
-    
+
     _connection_class = HTTPSConnection
 
     def __init__(self, host='', port=None, strict=None, **ssl):
@@ -148,7 +148,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
         proto, netloc, path, query, fragment = urlsplit(url)
         if not proto:
             raise ValueError, "unknown URL type: %s" % url
-        
+
         #get host & port
         try:
             username_password, host_port = netloc.split('@')
@@ -198,13 +198,13 @@ class ProxyHTTPSConnection(HTTPSConnection):
         self.sock.sendall(self._get_connect_msg())
         response = HTTPResponse(self.sock)
         response.begin()
-        
+
         code = response.status
         if code != 200:
             #proxy returned and error, abort connection, and raise exception
             self.close()
             raise socket.error, "Proxy connection failed: %d" % code
-       
+
         self._start_ssl()
 
     def _get_connect_msg(self):
@@ -214,7 +214,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
         if self._proxy_UA:
             msg = msg + "%s: %s\r\n" % (self._UA_HEADER, self._proxy_UA)
         if self._proxy_auth:
-            msg = msg + "%s: %s\r\n" % (self._AUTH_HEADER, self._proxy_auth) 
+            msg = msg + "%s: %s\r\n" % (self._AUTH_HEADER, self._proxy_auth)
         msg = msg + "\r\n"
         return msg
 

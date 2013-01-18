@@ -38,7 +38,7 @@ class auth_handler:
 	def match (self, request):
 		# by default, use the given handler's matcher
 		return self.handler.match (request)
-				
+
 	def handle_request (self, request):
 		# authorize a request before handling it...
 		scheme = get_header (AUTHORIZATION, request.header)
@@ -74,7 +74,7 @@ class auth_handler:
 			#request['WWW-Authenticate'] = auth
 			#print 'sending header: %s' % request['WWW-Authenticate']
 			self.handle_unauthorized (request)
-		
+
 	def handle_unauthorized (self, request):
 		# We are now going to receive data that we want to ignore.
 		# to ignore the file data we're not interested in.

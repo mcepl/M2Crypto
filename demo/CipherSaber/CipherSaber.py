@@ -54,7 +54,7 @@ del pp, iv
 
 while 1:
     buf = inf.read()
-    if not buf: 
+    if not buf:
         break
     outf.write(ci.update(buf))
 outf.write(ci.final())

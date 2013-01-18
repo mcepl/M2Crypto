@@ -16,11 +16,11 @@ req_11 = 'GET / HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n'
 
 
 def c_10():
-    c_style(HOST, PORT, req_10) 
+    c_style(HOST, PORT, req_10)
 
 
 def c_11():
-    c_style(HOST, PORT, req_11) 
+    c_style(HOST, PORT, req_11)
 
 
 def c_style(HOST, PORT, req):

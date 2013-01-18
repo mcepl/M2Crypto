@@ -1,8 +1,8 @@
 """
     M2Crypto utility routines.
-    
+
     Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.
-    
+
     Portions created by Open Source Applications Foundation (OSAF) are
     Copyright (C) 2004 OSAF. All Rights Reserved.
 """
@@ -23,7 +23,7 @@ def h2b(s):
     for i in range(start, len(s), 2):
         num=string.atoi("%s"%(s[i:i+2],), 16)
         ar.append(chr(num))
-    return ar.tostring()        
+    return ar.tostring()
 
 def pkcs5_pad(data, blklen=8):
     pad=(8-(len(data)%8))
@@ -50,7 +50,7 @@ def genparam_callback(p, n, out=sys.stdout):
 def quiet_genparam_callback(p, n, out):
     pass
 
-def passphrase_callback(v, prompt1='Enter passphrase:', 
+def passphrase_callback(v, prompt1='Enter passphrase:',
                            prompt2='Verify passphrase:'):
     from getpass import getpass
     while 1:

@@ -37,7 +37,7 @@ class IOBufferTestCase(unittest.TestCase):
         io = IOBuffer(mb)
         out = io.read(chunk)
         assert out == self.data[:chunk]
-        
+
     def test_read_more_than(self):
         chunk = len(self.data) + 8
         mb = MemoryBuffer(self.data)
@@ -83,7 +83,7 @@ class IOBufferTestCase(unittest.TestCase):
 
 def suite():
     return unittest.makeSuite(IOBufferTestCase)
-    
+
 
 if __name__ == '__main__':
     unittest.TextTestRunner().run(suite())

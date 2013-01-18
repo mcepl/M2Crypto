@@ -1,6 +1,6 @@
-"""M2Crypto.SSL.Session client demo: This program requests a URL from 
-a HTTPS server, saves the negotiated SSL session id, parses the HTML 
-returned by the server, then requests each HREF in a separate thread 
+"""M2Crypto.SSL.Session client demo: This program requests a URL from
+a HTTPS server, saves the negotiated SSL session id, parses the HTML
+returned by the server, then requests each HREF in a separate thread
 using the saved SSL session id.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
@@ -46,16 +46,16 @@ def handler(sslctx, host, port, href, recurs=0, sslsess=None):
     if recurs:
         for a in p.anchorlist:
             req = 'GET %s HTTP/1.0\r\n\r\n' % a
-            thr = Thread(target=handler, 
+            thr = Thread(target=handler,
                         args=(sslctx, host, port, req, recurs-1, sslsess))
             print "Thread =", thr.getName()
             thr.start()
-    
+
 
 if __name__ == '__main__':
 
     m2_threading.init()
-    Rand.load_file('../randpool.dat', -1) 
+    Rand.load_file('../randpool.dat', -1)
 
     host = '127.0.0.1'
     port = 9443
@@ -69,20 +69,20 @@ if __name__ == '__main__':
             port = int(opt[1])
         elif '-r' in opt:
             req = opt[1]
-    
+
     ctx = SSL.Context('sslv3')
     ctx.load_cert('client.pem')
     ctx.load_verify_info('ca.pem')
     ctx.load_client_ca('ca.pem')
     ctx.set_verify(SSL.verify_none, 10)
-    
+
     req = 'GET %s HTTP/1.0\r\n\r\n' % req
 
     start = Thread(target=handler, args=(ctx, host, port, req, 1))
     print "Thread =", start.getName()
     start.start()
     start.join()
-    
+
     m2_threading.cleanup()
     Rand.save_file('../randpool.dat')
 

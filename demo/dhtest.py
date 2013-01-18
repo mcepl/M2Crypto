@@ -22,6 +22,6 @@ def test():
     print 'b.key = ', `b.compute_key(a.pub)`
 
 if __name__=='__main__':
-    Rand.load_file('randpool.dat', -1) 
+    Rand.load_file('randpool.dat', -1)
     test()
     Rand.save_file('randpool.dat')

@@ -18,7 +18,7 @@ PKCS7_NOATTR	= m2.PKCS7_NOATTR
 PKCS7_SIGNED	        = m2.PKCS7_SIGNED
 PKCS7_ENVELOPED	        = m2.PKCS7_ENVELOPED
 PKCS7_SIGNED_ENVELOPED	= m2.PKCS7_SIGNED_ENVELOPED # Deprecated
-PKCS7_DATA	        = m2.PKCS7_DATA 
+PKCS7_DATA	        = m2.PKCS7_DATA
 
 class PKCS7_Error(Exception): pass
 
@@ -35,7 +35,7 @@ class PKCS7:
         else:
             self.pkcs7 = m2.pkcs7_new()
             self._pyfree = 1
-            
+
     def __del__(self):
         if getattr(self, '_pyfree', 0):
             self.m2_pkcs7_free(self.pkcs7)
@@ -55,7 +55,7 @@ class PKCS7:
     def write_der(self, bio):
         return m2.pkcs7_write_bio_der(self.pkcs7, bio._ptr())
 
-    def get0_signers(self, certs, flags = 0):      
+    def get0_signers(self, certs, flags = 0):
         return X509.X509_Stack(m2.pkcs7_get0_signers(self.pkcs7,
                                                      certs.stack, flags), 1)
 
@@ -69,36 +69,36 @@ def load_pkcs7(p7file):
         p7_ptr = m2.pkcs7_read_bio(bio)
     finally:
         m2.bio_free(bio)
-        
+
     if p7_ptr is None:
         raise PKCS7_Error(Err.get_error())
     return PKCS7(p7_ptr, 1)
-    
+
 
 def load_pkcs7_bio(p7_bio):
     p7_ptr = m2.pkcs7_read_bio(p7_bio._ptr())
     if p7_ptr is None:
         raise PKCS7_Error(Err.get_error())
     return PKCS7(p7_ptr, 1)
-    
+
 
 def smime_load_pkcs7(p7file):
     bio = m2.bio_new_file(p7file, 'r')
     if bio is None:
         raise BIO.BIOError(Err.get_error())
-    
+
     try:
         p7_ptr, bio_ptr = m2.smime_read_pkcs7(bio)
     finally:
         m2.bio_free(bio)
-    
+
     if p7_ptr is None:
         raise SMIME_Error(Err.get_error())
     if bio_ptr is None:
         return PKCS7(p7_ptr, 1), None
     else:
         return PKCS7(p7_ptr, 1), BIO.BIO(bio_ptr, 1)
-    
+
 
 def smime_load_pkcs7_bio(p7_bio):
     p7_ptr, bio_ptr = m2.smime_read_pkcs7(p7_bio._ptr())
@@ -108,8 +108,8 @@ def smime_load_pkcs7_bio(p7_bio):
         return PKCS7(p7_ptr, 1), None
     else:
         return PKCS7(p7_ptr, 1), BIO.BIO(bio_ptr, 1)
-    
-            
+
+
 class Cipher:
 
     """
@@ -192,13 +192,13 @@ class SMIME:
         if not hasattr(self, 'pkey'):
             raise SMIME_Error, 'no private key: use load_key()'
         if hasattr(self, 'x509_stack'):
-            pkcs7 = m2.pkcs7_sign1(self.x509._ptr(), self.pkey._ptr(), 
+            pkcs7 = m2.pkcs7_sign1(self.x509._ptr(), self.pkey._ptr(),
                 self.x509_stack._ptr(), data_bio._ptr(), flags)
             if pkcs7 is None:
                 raise SMIME_Error(Err.get_error())
             return PKCS7(pkcs7, 1)
         else:
-            pkcs7 = m2.pkcs7_sign0(self.x509._ptr(), self.pkey._ptr(), 
+            pkcs7 = m2.pkcs7_sign0(self.x509._ptr(), self.pkey._ptr(),
                 data_bio._ptr(), flags)
             if pkcs7 is None:
                 raise SMIME_Error(Err.get_error())

@@ -25,9 +25,9 @@ class ssl_echo_channel(asyncore.dispatcher):
 
     def writable(self):
         return self._ssl_accepting or (len(self.buffer) > 0)
- 
+
     def handle_write(self):
-        if self._ssl_accepting: 
+        if self._ssl_accepting:
             s = self.socket.accept_ssl()
             if s:
                 self._ssl_accepting = 0
@@ -62,8 +62,8 @@ class ssl_echo_channel(asyncore.dispatcher):
                     pass
                 elif blob == '':
                     self.handle_close()
-                else: 
-                    self.buffer = self.buffer + blob        
+                else:
+                    self.buffer = self.buffer + blob
             except SSL.SSLError, what:
                 if str(what) == 'unexpected eof':
                     self.handle_close()
@@ -84,7 +84,7 @@ class ssl_echo_server(SSL.ssl_dispatcher):
         self.bind((addr, port))
         self.listen(5)
         self.ssl_ctx=ssl_context
-    
+
     def handle_accept(self):
         try:
             sock, addr = self.socket.accept()
@@ -101,7 +101,7 @@ class ssl_echo_server(SSL.ssl_dispatcher):
 
 
 if __name__=='__main__':
-    Rand.load_file('../randpool.dat', -1) 
+    Rand.load_file('../randpool.dat', -1)
     ctx = echod_lib.init_context('sslv23', 'server.pem', 'ca.pem', \
             #SSL.verify_peer | SSL.verify_fail_if_no_peer_cert)
             SSL.verify_none)

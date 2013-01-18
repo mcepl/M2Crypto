@@ -68,7 +68,7 @@ class buffer_list_producer:
 	"producer for a list of buffers"
 
 	# i.e., data == string.join (buffers, '')
-	
+
 	def __init__ (self, buffers):
 
 		self.index = 0
@@ -116,15 +116,15 @@ class output_producer:
 	"Acts like an output file; suitable for capturing sys.stdout"
 	def __init__ (self):
 		self.data = ''
-			
+
 	def write (self, data):
 		lines = string.splitfields (data, '\n')
 		data = string.join (lines, '\r\n')
 		self.data = self.data + data
-		
+
 	def writeline (self, line):
 		self.data = self.data + line + '\r\n'
-		
+
 	def writelines (self, lines):
 		self.data = self.data + string.joinfields (
 			lines,

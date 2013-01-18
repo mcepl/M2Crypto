@@ -24,7 +24,7 @@ class xmlrpc_handler:
 
 	def handle_request (self, request):
 		[path, params, query, fragment] = request.split_uri()
-		
+
 		if request.command in ('post', 'put'):
 			request.collector = collector (self, request)
 		else:
@@ -89,7 +89,7 @@ class collector:
 if __name__ == '__main__':
 
 	class rpc_demo (xmlrpc_handler):
-		
+
 		def call (self, method, params):
 			print 'method="%s" params=%s' % (method, params)
 			return "Sure, that works"
@@ -100,5 +100,5 @@ if __name__ == '__main__':
 	hs = http_server.http_server ('', 8000)
 	rpc = rpc_demo()
 	hs.install_handler (rpc)
-	
+
 	asyncore.loop()

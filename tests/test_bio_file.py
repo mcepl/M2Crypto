@@ -71,7 +71,7 @@ def suite():
     except ImportError:
         pass
     return unittest.makeSuite(FileTestCase)
-    
+
 
 if __name__ == '__main__':
     unittest.TextTestRunner().run(suite())

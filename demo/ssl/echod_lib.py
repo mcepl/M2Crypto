@@ -9,7 +9,7 @@ def init_context(protocol, certfile, cafile, verify, verify_depth=10):
     ctx = SSL.Context(protocol)
     ctx.load_cert_chain(certfile)
     ctx.load_verify_locations(cafile)
-    ctx.set_client_CA_list_from_file(cafile)    
+    ctx.set_client_CA_list_from_file(cafile)
     ctx.set_verify(verify, verify_depth)
     #ctx.set_allow_unknown_ca(1)
     ctx.set_session_id_ctx('echod')
@@ -32,7 +32,7 @@ class ssl_echo_handler(SocketServer.BaseRequestHandler):
                 buf = self.request.read()
                 if not buf:
                     break
-                self.request.write(buf) 
+                self.request.write(buf)
             except SSL.SSLError, what:
                 if str(what) == 'unexpected eof':
                     break

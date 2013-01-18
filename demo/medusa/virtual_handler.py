@@ -51,7 +51,7 @@ class virtual_handler_with_host:
 			return 1
 		else:
 			return 0
-		
+
 	def handle_request (self, request):
 		return self.handler.handle_request (request)
 

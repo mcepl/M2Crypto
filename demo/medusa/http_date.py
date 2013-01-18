@@ -5,7 +5,7 @@ import string
 import time
 
 def concat (*args):
-	return ''.join (args)	
+	return ''.join (args)
 
 def join (seq, field=' '):
 	return field.join (seq)

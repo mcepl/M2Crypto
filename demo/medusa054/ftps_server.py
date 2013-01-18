@@ -1,4 +1,4 @@
-"""An FTP/TLS server built on Medusa's ftp_server. 
+"""An FTP/TLS server built on Medusa's ftp_server.
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
@@ -15,7 +15,7 @@ from M2Crypto import SSL, version
 VERSION_STRING=version
 
 class ftp_tls_channel(ftp_server.ftp_channel):
-    
+
     """FTP/TLS server channel for Medusa."""
 
     def __init__(self, server, ssl_ctx, conn, addr):
@@ -52,7 +52,7 @@ class ftp_tls_channel(ftp_server.ftp_channel):
                 self._ssl_accepting = 0
         else:
             try:
-                ftp_server.ftp_channel.handle_read(self) 
+                ftp_server.ftp_channel.handle_read(self)
             except SSL.SSLError, what:
                 if str(what) == 'unexpected eof':
                     self.close()
@@ -67,7 +67,7 @@ class ftp_tls_channel(ftp_server.ftp_channel):
                 self._ssl_accepting = 0
         else:
             try:
-                ftp_server.ftp_channel.handle_write(self) 
+                ftp_server.ftp_channel.handle_write(self)
             except SSL.SSLError, what:
                 if str(what) == 'unexpected eof':
                     self.close()
@@ -116,7 +116,7 @@ class ftp_tls_channel(ftp_server.ftp_channel):
         if string.find(command, 'stor') != -1:
             while command and command[0] not in string.letters:
                 command = command[1:]
-        
+
         func_name = 'cmd_%s' % command
         if command != 'pass':
             self.log('<== %s' % repr(self.in_buffer)[1:-1])
@@ -126,8 +126,8 @@ class ftp_tls_channel(ftp_server.ftp_channel):
         self.in_buffer = ''
         if not hasattr(self, func_name):
             self.command_not_understood(line[0])
-            return 
-    
+            return
+
         func = getattr(self, func_name)
         if not self.check_command_authorization(command):
             self.command_not_authorized(command)
@@ -217,7 +217,7 @@ class ftp_tls_channel(ftp_server.ftp_channel):
         else:
             self.respond('234 AUTH TLS successful')
             self._ssl_accepting = 1
-            self.socket = SSL.Connection(self.ssl_ctx, self.socket)    
+            self.socket = SSL.Connection(self.ssl_ctx, self.socket)
             self.socket.setup_addr(self.addr)
             self.socket.setup_ssl()
             self.socket.set_accept_state()
@@ -227,7 +227,7 @@ class ftp_tls_channel(ftp_server.ftp_channel):
 
     def cmd_pbsz(self, line):
         """Negotiate size of buffer for secure data transfer. For
-        FTP/TLS the only valid value for the parameter is '0'; any 
+        FTP/TLS the only valid value for the parameter is '0'; any
         other value is accepted but ignored."""
         if not (self._ssl_accepting or self._ssl_accepted):
             return self.respond('503 AUTH TLS must be issued prior to PBSZ')
@@ -235,21 +235,21 @@ class ftp_tls_channel(ftp_server.ftp_channel):
         self.respond('200 PBSZ=0 successful.')
 
     def cmd_prot(self, line):
-        """Negotiate the security level of the data connection.""" 
+        """Negotiate the security level of the data connection."""
         if self._pbsz is None:
             return self.respond('503 PBSZ must be issued prior to PROT')
         if line[1] == 'C':
             self.respond('200 Protection set to Clear')
             self._pbsz = None
             self._prot = None
-        elif line[1] == 'P': 
+        elif line[1] == 'P':
             self.respond('200 Protection set to Private')
             self._prot = 1
         elif line[1] in ('S', 'E'):
             self.respond('536 PROT %s unsupported' % line[1])
         else:
             self.respond('504 PROT %s unsupported' % line[1])
-            
+
 
 class ftp_tls_server(ftp_server.ftp_server):
 
@@ -334,8 +334,8 @@ class nbio_ftp_tls_actor:
         return self._ssl_handshake_ok
 
     def handle_connect(self):
-        """Handle a data connection that occurs after this instance came 
-        into being. When this handler is triggered, self.socket has been 
+        """Handle a data connection that occurs after this instance came
+        into being. When this handler is triggered, self.socket has been
         created and refers to the underlying connected socket."""
         self.socket = SSL.Connection(self.ssl_ctx, self.socket)
         self.socket.setup_addr(self.client_addr)
@@ -370,7 +370,7 @@ class nbio_ftp_tls_actor:
             self.close()
             self.log_info('recv: closing channel %s %s' % (repr(self), what))
             return ''
- 
+
 
 class tls_xmit_channel(nbio_ftp_tls_actor, ftp_server.xmit_channel):
 
@@ -401,17 +401,17 @@ class tls_xmit_channel(nbio_ftp_tls_actor, ftp_server.xmit_channel):
         """Handle a read event: either continue with TLS negotiation
         or let the application handle this event."""
         if self.tls_neg_ok():
-            ftp_server.xmit_channel.handle_read(self) 
+            ftp_server.xmit_channel.handle_read(self)
 
     def handle_write(self):
         """Handle a write event: either continue with TLS negotiation
         or let the application handle this event."""
         if self.tls_neg_ok():
-            ftp_server.xmit_channel.handle_write(self) 
+            ftp_server.xmit_channel.handle_write(self)
 
 
 class tls_recv_channel(nbio_ftp_tls_actor, ftp_server.recv_channel):
-    
+
     """TLS driver for a receive-only data connection."""
 
     def __init__(self, channel, conn, ssl_ctx, client_addr, fd):
@@ -427,12 +427,12 @@ class tls_recv_channel(nbio_ftp_tls_actor, ftp_server.recv_channel):
         """Handle a read event: either continue with TLS negotiation
         or let the application handle this event."""
         if self.tls_neg_ok():
-            ftp_server.recv_channel.handle_read(self) 
+            ftp_server.recv_channel.handle_read(self)
 
     def handle_write(self):
         """Handle a write event: either continue with TLS negotiation
         or let the application handle this event."""
         if self.tls_neg_ok():
-            ftp_server.recv_channel.handle_write(self) 
+            ftp_server.recv_channel.handle_write(self)
 
 

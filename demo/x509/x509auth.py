@@ -134,7 +134,7 @@ class CertHandler:
         self.CurrentObj['EvpPKey']   = M2Crypto.EVP.PKey ( md='sha1' )
         self.CurrentObj['EvpPKey'].assign_rsa ( self.CurrentObj['RsaPKey'] )
         self.CurrentObj['RsaPubKey'] = M2Crypto.RSA.new_pub_key( self.CurrentObj['RsaPKey'].pub () )
-        
+
     def CertFromPemRepr ( self, ObjName=None, PemCert=None ):
         if self.PemMap.has_key( ObjName ):
             UsedPemCert = self.KeyEnv['X509Cert'][0] + '\n' + string.join( self.PemMap[ObjName]['X509Cert'], '\n' ) + '\n' + self.KeyEnv['X509Cert'][1] + '\n'
@@ -172,7 +172,7 @@ class CertHandler:
         else:
             self.CurrentObj = self.ObjMap[ ObjName ]
         return ObjName
-        
+
 
 
     def ServerCert ( self ):
@@ -225,7 +225,7 @@ class CertHandler:
         self.CurrentObj = self.ObjMap[ObjName]
         if not self.CurrentObj.has_key( 'Subject' ):
             self.CurrentObj['Subject'] = { 'organizationalUnitName' : 'security', 'commonName' : ObjName, 'emailAddress' : 'ioclient@' + ObjName }
-        # new pkey      
+        # new pkey
         self.CreatePKey ()
         # new request
         self.CreateReq ( SignEvpPKey=self.ObjMap['CA']['EvpPKey'] )
@@ -273,7 +273,7 @@ class CertHandler:
         else:
             return False
 
-        
+
 
 
     #--------------------------------
@@ -425,7 +425,7 @@ class CertHandler:
     #--------------------------------
     def ClientInit ( self, ObjName=None ):
         """
-        generating AuthString 
+        generating AuthString
             Nonce     messagedigest 'sha1', encrypted with own instance private key
             Cert      own instance X509 cert, PEM encoded
             any linefeed charaters stripped out of the base64 code
@@ -519,7 +519,7 @@ class CertHandler:
         except:
             return False
 
-        ( NonceServer, NonceBounce, ServerCert ) = re.split(':', PemBaseString )        
+        ( NonceServer, NonceBounce, ServerCert ) = re.split(':', PemBaseString )
         NoncePubServer     = base64.decodestring( NonceServer )             # NonceServer
         NoncePubBounce     = base64.decodestring( NonceBounce )             # NonceBounce
         PemServerCert      = base64.decodestring( ServerCert  )             # PemServerCert
@@ -529,7 +529,7 @@ class CertHandler:
         except:
             return False
 
-        # verify X509 cert 
+        # verify X509 cert
         EvpPKey = self.ObjMap['CA']['EvpPKey']
         if dir(EvpPKey).count('_ptr'):
             Result = X509Cert.verify ( EvpPKey._ptr() )
@@ -556,7 +556,7 @@ class CertHandler:
 
 
 
-    def ReplyInit ( self, ReplyObjName, ReplyBounce ): 
+    def ReplyInit ( self, ReplyObjName, ReplyBounce ):
         NonceDecrypted     = self.CreateNonce ()
         NoncePubInit       = re.sub('\012', '', base64.encodestring( self.NonceEncryptPublic ( NonceDecrypted, RsaPubKey=self.ObjMap[ ReplyObjName ]['RsaPubKey'] )) )
         NoncePubBounce     = re.sub('\012', '', base64.encodestring( self.NonceEncryptPublic ( ReplyBounce,    RsaPubKey=self.ObjMap[ ReplyObjName ]['RsaPubKey'] )) )
@@ -598,7 +598,7 @@ class CertHandler:
 
 
     #-------------------------------------------------------------------------------------------
-    # TEST 
+    # TEST
     #-------------------------------------------------------------------------------------------
     def CreateCAForContainer ( self ):
         self.CreateCert ()
@@ -648,15 +648,15 @@ class CertHandler:
 #-----------------------------------------------------------------------------------------------
 # MAIN
 #
-# x509auth.py --ca              
+# x509auth.py --ca
 # will create a file "PyReprPem.txt" in the current directory
 # append the contents of the file to the CertContainer in this script
 #
-# x509auth.py --cert <ObjName>  
+# x509auth.py --cert <ObjName>
 # creates a file "PyReprPem.txt" in the current directory
 # append the contents of the file to the CertContainer in this script
 #
-# x509auth.py --test            
+# x509auth.py --test
 # running authentification tests with bounced nonce
 #
 #-----------------------------------------------------------------------------------------------

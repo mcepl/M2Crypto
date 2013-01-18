@@ -31,7 +31,7 @@ Options:
 
     This option controls whether a management process will be created
     that restarts Zope after a shutdown or crash.
-    
+
     If the argument to -Z is non-null (e.g. "-Z1" or "-Zyes"), a
     management process will be used.  If the argument to -Z is "-", or
     "0", (e.g. "-Z-" or "-Z0"), a management process will not be used.
@@ -437,7 +437,7 @@ try:
     READ_ONLY=0
     if sys.platform == 'win32':
         USE_DAEMON = 0
-        
+
 
     # Get environment variables
     for a in args:
@@ -653,7 +653,7 @@ try:
     from ZServer import resolver, logger, asyncore
 
     from ZServer import zhttp_server, zhttp_handler
-    from ZServer import zhttps_server, zhttps0_handler, zhttps_handler    
+    from ZServer import zhttps_server, zhttps0_handler, zhttps_handler
     from ZServer.WebDAVSrcHandler import WebDAVSrcHandler
     from ZServer import PCGIServer,FTPServer,FCGIServer
 
@@ -666,21 +666,21 @@ try:
 
     ## In X509_REMOTE_USER mode, we log the client cert's subject DN.
     if X509_REMOTE_USER:
-        
+
         import base64, string, time
 
         def log (self, bytes):
             user_agent=self.get_header('user-agent')
             if not user_agent: user_agent=''
             referer=self.get_header('referer')
-            if not referer: referer=''  
+            if not referer: referer=''
 
             get_peer_cert = getattr(self.channel, 'get_peer_cert', None)
             if get_peer_cert is not None:
                 name = str(get_peer_cert().get_subject())
             else:
                 name = 'Anonymous'
-            auth=self.get_header('Authorization')                
+            auth=self.get_header('Authorization')
             if auth is not None:
                 if string.lower(auth[:6]) == 'basic ':
                     try: decoded=base64.decodestring(auth[6:])
@@ -789,7 +789,7 @@ try:
         else:
             ssl_ctx.set_verify(SSL.verify_none, 10)
         if type(HTTPS_PORT) is type(0): HTTPS_PORT=((IP_ADDRESS, HTTPS_PORT),)
-    
+
         for address, port in HTTPS_PORT:
             hss = zhttps_server(
                 ip=address,
@@ -797,7 +797,7 @@ try:
                 ssl_ctx=ssl_ctx,
                 resolver=rs,
                 logger_object=lg)
-    
+
             try:
                 del HTTPS_ENV['HTTP']
             except KeyError:

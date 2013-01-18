@@ -41,7 +41,7 @@ def config(args):
 
     cfg.protocol=[]
     # First protocol found will be used.
-    # Permutate the following tuple for preference. 
+    # Permutate the following tuple for preference.
     for p in ('tlsv1', 'sslv3', 'sslv2'):
         if hasattr(cfg, p):
             cfg.protocol.append(p)
@@ -122,8 +122,8 @@ class channel(SSL.ssl_dispatcher):
         if blob is None:
             pass
         elif blob=='':
-            self.handle_close() 
-        else: 
+            self.handle_close()
+        else:
             pass
         if self.debug:
             print 'handle_read():', blob

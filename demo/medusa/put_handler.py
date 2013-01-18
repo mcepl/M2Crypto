@@ -61,14 +61,14 @@ class put_handler:
 		except:
 			request.error (405)
 			return
-		
+
 		request.collector = put_collector (output_file, cl, request, is_update)
 
 		# no terminator while receiving PUT data
 		request.channel.set_terminator (None)
 
 		# don't respond yet, wait until we've received the data...
-		
+
 class put_collector:
 	def __init__ (self, file, length, request, is_update):
 		self.file		= file

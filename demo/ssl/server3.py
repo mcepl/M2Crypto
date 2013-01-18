@@ -67,7 +67,7 @@ def do_server_loop(conn):
                 raise
         except:
             break
-            
+
     if conn.get_shutdown():
         return 1
     return 0
@@ -84,7 +84,7 @@ def server_thread(ctx, sock, addr):
     conn.set_accept_state()
     conn.setup_ssl()
     conn.accept_ssl()
-    
+
     post_connection_check(conn)
 
     print 'SSL Connection opened'
@@ -92,12 +92,12 @@ def server_thread(ctx, sock, addr):
         conn.close()
     else:
         conn.clear()
-    print 'SSL Connection closed'        
-    
+    print 'SSL Connection closed'
+
 
 if __name__=='__main__':
     threading.init()
-    Rand.load_file('../randpool.dat', -1) 
+    Rand.load_file('../randpool.dat', -1)
 
     ctx = setup_server_ctx()
 
@@ -116,6 +116,6 @@ if __name__=='__main__':
     while 1:
         conn, addr = sock.accept()
         thread.start_new_thread(server_thread, (ctx, conn, addr))
- 
+
     Rand.save_file('../randpool.dat')
     threading.cleanup()

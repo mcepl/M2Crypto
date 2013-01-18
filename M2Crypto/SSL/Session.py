@@ -14,7 +14,7 @@ class Session:
         assert session is not None
         self.session = session
         self._pyfree = _pyfree
-        
+
     def __del__(self):
         if getattr(self, '_pyfree', 0):
             self.m2_ssl_session_free(self.session)

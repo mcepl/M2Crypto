@@ -17,13 +17,13 @@ class Cert:
 	def __init__ ( self ):
 		self.RsaKey = { 'KeyLength'       : 1024,
 						'PubExponent'     : 0x10001,		# -> 65537
-						'keygen_callback' : self.callback 
+						'keygen_callback' : self.callback
 					  }
 
 		self.KeyPair         = None
 		self.PKey            = None
 
-		self.X509Request     = None 
+		self.X509Request     = None
 		self.X509Certificate = None
 
 	def callback ( self, *args ):
@@ -36,7 +36,7 @@ class Cert:
 		#PubKey = M2Crypto.RSA.new_pub_key( self.KeyPair.pub () )
 
 		self.KeyPair.save_key( 'KeyPair.pem', cipher='des_ede3_cbc', callback=self.callback )
-		
+
 		self.PKey = M2Crypto.EVP.PKey ( md='sha1')
 		self.PKey.assign_rsa ( self.KeyPair )
 
@@ -61,7 +61,7 @@ class Cert:
 		X509Name.add_entry_by_txt ( field='OU',           type=MBSTRING_ASC, entry='it-department',         len=-1, loc=-1, set=0 )    # organizational unit name
 		X509Name.add_entry_by_txt ( field='CN',           type=MBSTRING_ASC, entry='Certificate client',    len=-1, loc=-1, set=0 )    # common name
 		X509Name.add_entry_by_txt ( field='Email',        type=MBSTRING_ASC, entry='user@localhost',        len=-1, loc=-1, set=0 )    # pkcs9 email address
-		X509Name.add_entry_by_txt ( field='emailAddress', type=MBSTRING_ASC, entry='user@localhost',        len=-1, loc=-1, set=0 )    # pkcs9 email address     
+		X509Name.add_entry_by_txt ( field='emailAddress', type=MBSTRING_ASC, entry='user@localhost',        len=-1, loc=-1, set=0 )    # pkcs9 email address
 
 		self.X509Request.set_subject_name( X509Name )
 
@@ -112,7 +112,7 @@ class Cert:
 		#
 
 		self.X509Certificate.set_pubkey ( pkey=self.PKey )
-		
+
 		#
 		# subject
 		#
@@ -137,7 +137,7 @@ class Cert:
 		X509Name.add_entry_by_txt ( field='OU',           type=MBSTRING_ASC, entry='it-department',         len=-1, loc=-1, set=0 )    # organizational unit name
 		X509Name.add_entry_by_txt ( field='CN',           type=MBSTRING_ASC, entry='Certificate Authority', len=-1, loc=-1, set=0 )    # common name
 		X509Name.add_entry_by_txt ( field='Email',        type=MBSTRING_ASC, entry='admin@localhost',       len=-1, loc=-1, set=0 )    # pkcs9 email address
-		X509Name.add_entry_by_txt ( field='emailAddress', type=MBSTRING_ASC, entry='admin@localhost',       len=-1, loc=-1, set=0 )    # pkcs9 email address     
+		X509Name.add_entry_by_txt ( field='emailAddress', type=MBSTRING_ASC, entry='admin@localhost',       len=-1, loc=-1, set=0 )    # pkcs9 email address
 
 		#print X509Name.entry_count ()
 		#print X509Name.as_text ()

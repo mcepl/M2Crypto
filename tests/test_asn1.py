@@ -20,7 +20,7 @@ class ASN1TestCase(unittest.TestCase):
         text = 'hello there'
         # In RFC2253 format:
         # #040B68656C6C6F207468657265
-        #      h e l l o   t h e r e 
+        #      h e l l o   t h e r e
         m2.asn1_string_set(asn1ptr, text)
         a = ASN1.ASN1_String(asn1ptr, 1)
         assert a.as_text() == 'hello there', a.as_text()
@@ -33,7 +33,7 @@ class ASN1TestCase(unittest.TestCase):
     def test_UTCTIME(self):
         asn1 = ASN1.ASN1_UTCTIME()
         assert str(asn1) == 'Bad time value'
-        
+
         format = '%b %d %H:%M:%S %Y GMT'
         utcformat = '%y%m%d%H%M%SZ'
 
@@ -43,13 +43,13 @@ class ASN1TestCase(unittest.TestCase):
         t1 = time.strptime(str(asn1), format)
         t2 = time.strptime(s, utcformat)
         self.assertEqual(t1, t2)
-        
+
         asn1.set_time(500)
         #assert str(asn1) == 'Jan  1 00:08:20 1970 GMT'
         t1 = time.strftime(format, time.strptime(str(asn1), format))
         t2 = time.strftime(format, time.gmtime(500))
         self.assertEqual(t1, t2)
-        
+
         t = long(time.time()) + time.timezone
         asn1.set_time(t)
         t1 = time.strftime(format, time.strptime(str(asn1), format))
@@ -74,13 +74,13 @@ class ASN1TestCase(unittest.TestCase):
         t2 = str(asn1)
         self.assertEqual(t1, t2)
         self.assertEqual(str(udt), str(asn1.get_datetime()))
-        
+
         dt = dt.astimezone(ASN1.UTC)
         asn1.set_datetime(dt)
         t2 = str(asn1)
         self.assertEqual(t1, t2)
         self.assertEqual(str(udt), str(asn1.get_datetime()))
-         
+
 
 def suite():
     return unittest.makeSuite(ASN1TestCase)

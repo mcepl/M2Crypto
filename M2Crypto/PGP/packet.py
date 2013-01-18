@@ -2,8 +2,8 @@
 
 This module implements PGP packets per RFC1991 and various source distributions.
 
-Each packet type is represented by a class; packet classes derive from 
-the abstract 'packet' class. 
+Each packet type is represented by a class; packet classes derive from
+the abstract 'packet' class.
 
 The 'message digest' packet type, mentioned but not documented in RFC1991,
 is not implemented.
@@ -13,7 +13,7 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 # XXX Work-in-progress.
 
 # Be liberal in what you accept.
-# Be conservative in what you send. 
+# Be conservative in what you send.
 # Be lazy in what you eval.
 
 import struct, time
@@ -37,7 +37,7 @@ class packet:
     def __init__(self, ctb, body=None):
         import warnings
         warnings.warn('Deprecated. No maintainer for PGP. If you use this, please inform M2Crypto maintainer.', DeprecationWarning)
-        
+
         self.ctb = ctb
         if body is not None:
             self.body = StringIO(body)
@@ -75,11 +75,11 @@ class packet:
             return None
 
     def _llf(self, lenf):
-        if lenf < 256:  
+        if lenf < 256:
             return (0, chr(lenf))
         elif lenf < 65536:
             return (1, struct.pack('>H', lenf))
-        else: 
+        else:
             assert lenf < 2L**32
             return (2, struct.pack('>L', lenf))
 
@@ -100,7 +100,7 @@ class public_key_packet(packet):
             self._nlen = self.body.read(2)
             nlen = (struct.unpack('>H', self._nlen)[0] + 7) / 8
             self._n = self.body.read(nlen)
-            
+
             self._elen = self.body.read(2)
             elen = (struct.unpack('>H', self._elen)[0] + 7) / 8
             self._e = self.body.read(elen)
@@ -147,7 +147,7 @@ class userid_packet(packet):
             self.body = self.body.getvalue()
         return self.ctb + self.body
 
-    def userid(self):   
+    def userid(self):
         return self._userid
 
 
@@ -217,7 +217,7 @@ class private_key_packet(packet):
             self._nlen = self.body.read(2)
             nlen = (struct.unpack('>H', self._nlen)[0] + 7) / 8
             self._n = self.body.read(nlen)
-            
+
             self._elen = self.body.read(2)
             elen = (struct.unpack('>H', self._elen)[0] + 7) / 8
             self._e = self.body.read(elen)
@@ -227,13 +227,13 @@ class private_key_packet(packet):
                 self._iv = self.body.read(8)
             else:
                 self._iv = None
-    
+
             for param in ['d', 'p', 'q', 'u']:
                 _plen = self.body.read(2)
                 setattr(self, '_'+param+'len', _plen)
                 plen = (struct.unpack('>H', _plen)[0] + 7) / 8
                 setattr(self, '_'+param, self.body.read(plen))
-    
+
             self._cksum = self.body.read(2)
 
     def is_encrypted(self):
@@ -256,7 +256,7 @@ class pke_packet(packet):
             self._version = self.body.read(1)
             self._keyid = self.body.read(8)
             self._pkc = ord(self.body.read(1))
-    
+
             deklen = (struct.unpack('>H', self.body.read(2))[0] + 7 ) / 8
             self._dek = octx_to_num(self.body.read(deklen))
 
@@ -291,7 +291,7 @@ class compressed_packet(packet):
         return stream
 
 
-_FACTORY = { 
+_FACTORY = {
     1 : pke_packet,
     2 : signature_packet,
     #3 : message_digest_packet,     # XXX not implemented
@@ -305,7 +305,7 @@ _FACTORY = {
     14 : comment_packet,
     pke_packet : 1,
     signature_packet : 2,
-    #3 : message_digest_packet,     
+    #3 : message_digest_packet,
     private_key_packet : 5,
     public_key_packet : 6,
     #8 : compressed_packet,
@@ -364,8 +364,8 @@ class packet_stream:
             raise XXXError, 'corrupted packet'
 
         self._count = self.stream.tell()
-        try: 
-            return _FACTORY[ctbt](ctb0, body) 
+        try:
+            return _FACTORY[ctbt](ctb0, body)
         except KeyError:
             return packet(ctb0, body)
 

@@ -5,7 +5,7 @@ import os
 import os.path
 import sys
 
-# Medusa 
+# Medusa
 import asyncore
 import default_handler
 import filesys
@@ -26,7 +26,7 @@ HTTPS_PORT=39443
 
 hs=http_server.http_server('', HTTP_PORT)
 
-Rand.load_file('../randpool.dat', -1) 
+Rand.load_file('../randpool.dat', -1)
 ssl_ctx=SSL.Context('sslv23')
 ssl_ctx.load_cert('server.pem')
 #ssl_ctx.load_verify_location('ca.pem')

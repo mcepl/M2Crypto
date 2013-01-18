@@ -22,5 +22,5 @@ if __name__ == '__main__':
     ctx = init_context('sslv23', 'server.pem', 'ca.pem', SSL.verify_none)
     ctx.set_tmp_dh('dh1024.pem')
     s = SSL.ThreadingSSLServer(('', 9443), xmlrpc_handler, ctx)
-    s.serve_forever()   
+    s.serve_forever()
 

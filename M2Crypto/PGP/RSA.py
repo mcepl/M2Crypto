@@ -25,7 +25,7 @@ def new_pub_key((e, n)):
 
     'n' is the RSA composite of primes; it is a string in OpenSSL's binary format,
     i.e., a number of bytes in big-endian.
-    """ 
+    """
     import warnings
     warnings.warn('Deprecated. No maintainer for PGP. If you use this, please inform M2Crypto maintainer.', DeprecationWarning)
 

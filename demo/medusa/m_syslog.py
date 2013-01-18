@@ -2,9 +2,9 @@
 
 # ======================================================================
 # Copyright 1997 by Sam Rushing
-# 
+#
 #                         All Rights Reserved
-# 
+#
 # Permission to use, copy, modify, and distribute this software and
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
@@ -13,7 +13,7 @@
 # Rushing not be used in advertising or publicity pertaining to
 # distribution of the software without specific, written prior
 # permission.
-# 
+#
 # SAM RUSHING DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
 # INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN
 # NO EVENT SHALL SAM RUSHING BE LIABLE FOR ANY SPECIAL, INDIRECT OR
@@ -65,37 +65,37 @@ Usage:
 #
 # priorities (these are ordered)
 
-LOG_EMERG		= 0		#  system is unusable 
-LOG_ALERT		= 1		#  action must be taken immediately 
-LOG_CRIT		= 2		#  critical conditions 
-LOG_ERR			= 3		#  error conditions 
-LOG_WARNING		= 4		#  warning conditions 
-LOG_NOTICE		= 5		#  normal but significant condition 
-LOG_INFO		= 6		#  informational 
-LOG_DEBUG		= 7		#  debug-level messages 
+LOG_EMERG		= 0		#  system is unusable
+LOG_ALERT		= 1		#  action must be taken immediately
+LOG_CRIT		= 2		#  critical conditions
+LOG_ERR			= 3		#  error conditions
+LOG_WARNING		= 4		#  warning conditions
+LOG_NOTICE		= 5		#  normal but significant condition
+LOG_INFO		= 6		#  informational
+LOG_DEBUG		= 7		#  debug-level messages
 
-#  facility codes 
-LOG_KERN		= 0		#  kernel messages 
-LOG_USER		= 1		#  random user-level messages 
-LOG_MAIL		= 2		#  mail system 
-LOG_DAEMON		= 3		#  system daemons 
-LOG_AUTH		= 4		#  security/authorization messages 
-LOG_SYSLOG		= 5		#  messages generated internally by syslogd 
-LOG_LPR			= 6		#  line printer subsystem 
-LOG_NEWS		= 7		#  network news subsystem 
-LOG_UUCP		= 8		#  UUCP subsystem 
-LOG_CRON		= 9		#  clock daemon 
-LOG_AUTHPRIV	= 10	#  security/authorization messages (private) 
+#  facility codes
+LOG_KERN		= 0		#  kernel messages
+LOG_USER		= 1		#  random user-level messages
+LOG_MAIL		= 2		#  mail system
+LOG_DAEMON		= 3		#  system daemons
+LOG_AUTH		= 4		#  security/authorization messages
+LOG_SYSLOG		= 5		#  messages generated internally by syslogd
+LOG_LPR			= 6		#  line printer subsystem
+LOG_NEWS		= 7		#  network news subsystem
+LOG_UUCP		= 8		#  UUCP subsystem
+LOG_CRON		= 9		#  clock daemon
+LOG_AUTHPRIV	= 10	#  security/authorization messages (private)
 
-#  other codes through 15 reserved for system use 
-LOG_LOCAL0		= 16		#  reserved for local use 
-LOG_LOCAL1		= 17		#  reserved for local use 
-LOG_LOCAL2		= 18		#  reserved for local use 
-LOG_LOCAL3		= 19		#  reserved for local use 
-LOG_LOCAL4		= 20		#  reserved for local use 
-LOG_LOCAL5		= 21		#  reserved for local use 
-LOG_LOCAL6		= 22		#  reserved for local use 
-LOG_LOCAL7		= 23		#  reserved for local use 
+#  other codes through 15 reserved for system use
+LOG_LOCAL0		= 16		#  reserved for local use
+LOG_LOCAL1		= 17		#  reserved for local use
+LOG_LOCAL2		= 18		#  reserved for local use
+LOG_LOCAL3		= 19		#  reserved for local use
+LOG_LOCAL4		= 20		#  reserved for local use
+LOG_LOCAL5		= 21		#  reserved for local use
+LOG_LOCAL6		= 22		#  reserved for local use
+LOG_LOCAL7		= 23		#  reserved for local use
 
 priority_names = {
 	"alert":	LOG_ALERT,
@@ -103,11 +103,11 @@ priority_names = {
 	"debug":	LOG_DEBUG,
 	"emerg":	LOG_EMERG,
 	"err":		LOG_ERR,
-	"error":	LOG_ERR,		#  DEPRECATED 
+	"error":	LOG_ERR,		#  DEPRECATED
 	"info":		LOG_INFO,
 	"notice":	LOG_NOTICE,
-	"panic": 	LOG_EMERG,		#  DEPRECATED 
-	"warn":		LOG_WARNING,		#  DEPRECATED 
+	"panic": 	LOG_EMERG,		#  DEPRECATED
+	"warn":		LOG_WARNING,		#  DEPRECATED
 	"warning":	LOG_WARNING,
 	}
 
@@ -120,7 +120,7 @@ facility_names = {
 	"lpr":		LOG_LPR,
 	"mail":		LOG_MAIL,
 	"news":		LOG_NEWS,
-	"security":	LOG_AUTH,		#  DEPRECATED 
+	"security":	LOG_AUTH,		#  DEPRECATED
 	"syslog":	LOG_SYSLOG,
 	"user":		LOG_USER,
 	"uucp":		LOG_UUCP,
@@ -168,7 +168,7 @@ class syslog_client:
 		if type(facility) == type(''):
 			facility = facility_names[facility]
 		if type(priority) == type(''):
-			priority = priority_names[priority]			
+			priority = priority_names[priority]
 		return (facility<<3) | priority
 
 	def close (self):

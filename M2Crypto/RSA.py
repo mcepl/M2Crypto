@@ -26,7 +26,7 @@ class RSA:
         assert m2.rsa_type_check(rsa), "'rsa' type error"
         self.rsa = rsa
         self._pyfree = _pyfree
-        
+
     def __del__(self):
         if getattr(self, '_pyfree', 0):
             self.m2_rsa_free(self.rsa)
@@ -84,7 +84,7 @@ class RSA:
         else:
             ciph = getattr(m2, cipher, None)
             if ciph is None:
-                raise RSAError, 'not such cipher %s' % cipher 
+                raise RSAError, 'not such cipher %s' % cipher
             else:
                 ciph = ciph()
             return m2.rsa_write_key(self.rsa, bio._ptr(), ciph, callback)
@@ -144,7 +144,7 @@ class RSA:
 
         @type bio: M2Crypto.BIO.BIO
         @param bio: M2Crypto.BIO.BIO object to save key to.
-        """ 
+        """
         return m2.rsa_write_pub_key(self.rsa, bio._ptr())
 
     def save_pub_key(self, file):
@@ -163,7 +163,7 @@ class RSA:
     def sign_rsassa_pss(self, digest, algo='sha1', salt_length=20):
         """
         Signs a digest with the private key using RSASSA-PSS
-        
+
         @requires: OpenSSL 0.9.7h or later.
 
         @type digest: str
@@ -171,7 +171,7 @@ class RSA:
 
         @type salt_length: int
         @param salt_length: The length of the salt to use
-        
+
         @type algo: str
         @param algo: The hash algorithm to use
 
@@ -179,11 +179,11 @@ class RSA:
         """
         hash = getattr(m2, algo, None)
         if hash is None:
-            raise ValueError('not such hash algorithm %s' % hash_algo) 
+            raise ValueError('not such hash algorithm %s' % hash_algo)
 
         signature = m2.rsa_padding_add_pkcs1_pss(self.rsa, digest, hash(), salt_length)
-        
-        return self.private_encrypt(signature, m2.no_padding) 
+
+        return self.private_encrypt(signature, m2.no_padding)
 
     def verify_rsassa_pss(self, data, signature, algo='sha1', salt_length=20):
         """
@@ -196,7 +196,7 @@ class RSA:
 
         @type signature: str
         @param signature: The signature signed with RSASSA-PSS
-        
+
         @type salt_length: int
         @param salt_length: The length of the salt that was used
 
@@ -204,14 +204,14 @@ class RSA:
         @param algo: The hash algorithm to use
 
         @return: 1 or 0, depending on whether the signature was
-        verified or not.  
+        verified or not.
         """
         hash = getattr(m2, algo, None)
         if hash is None:
-            raise ValueError('not such hash algorithm %s' % hash_algo) 
+            raise ValueError('not such hash algorithm %s' % hash_algo)
 
         plain_signature = self.public_decrypt(signature, m2.no_padding)
-         
+
         return m2.rsa_verify_pkcs1_pss(self.rsa, data, plain_signature, hash(), salt_length)
 
     def sign_rsassa_pss(self, digest, hash_algo='sha1', salt_length=20):
@@ -223,10 +223,10 @@ class RSA:
 
         @type salt_length: int
         @param salt_length: The length of the salt to use
-        
+
         @type hash_algo: str
         @param hash_algo: The hash algorithm to use
-        Legal values are 'sha1','sha224', 'sha256', 'ripemd160', 
+        Legal values are 'sha1','sha224', 'sha256', 'ripemd160',
         and 'md5'.
 
         @return: a string which is the signature
@@ -234,11 +234,11 @@ class RSA:
         hash = getattr(m2, hash_algo, None)
 
         if hash is None:
-            raise RSAError, 'not such hash algorithm %s' % hash_algo 
+            raise RSAError, 'not such hash algorithm %s' % hash_algo
 
         signature = m2.rsa_padding_add_pkcs1_pss(self.rsa, digest, hash(), salt_length)
-        
-        return self.private_encrypt(signature, m2.no_padding) 
+
+        return self.private_encrypt(signature, m2.no_padding)
 
 
     def verify_rsassa_pss(self, data, signature, hash_algo='sha1', salt_length=20):
@@ -250,25 +250,25 @@ class RSA:
 
         @type signature: str
         @param signature: The signature signed with RSASSA-PSS
-        
+
         @type salt_length: int
         @param salt_length: The length of the salt that was used
 
         @type hash_algo: str
         @param hash_algo: The hash algorithm to use
-        Legal values are 'sha1','sha224', 'sha256', 'ripemd160', 
+        Legal values are 'sha1','sha224', 'sha256', 'ripemd160',
         and 'md5'.
 
         @return: True or False, depending on whether the signature was
-        verified.  
+        verified.
         """
         hash = getattr(m2, hash_algo, None)
 
         if hash is None:
-            raise RSAError, 'not such hash algorithm %s' % hash_algo 
+            raise RSAError, 'not such hash algorithm %s' % hash_algo
 
         plain_signature = self.public_decrypt(signature, m2.no_padding)
-         
+
         return m2.rsa_verify_pkcs1_pss(self.rsa, data, plain_signature, hash(), salt_length)
 
 
@@ -281,17 +281,17 @@ class RSA:
 
         @type algo: str
         @param algo: The method that created the digest.
-        Legal values are 'sha1','sha224', 'sha256', 'ripemd160', 
+        Legal values are 'sha1','sha224', 'sha256', 'ripemd160',
         and 'md5'.
-        
+
         @return: a string which is the signature
         """
-        digest_type = getattr(m2, 'NID_' + algo, None) 
+        digest_type = getattr(m2, 'NID_' + algo, None)
         if digest_type is None:
             raise ValueError, ('unknown algorithm', algo)
-        
-        return m2.rsa_sign(self.rsa, digest, digest_type) 
-    
+
+        return m2.rsa_sign(self.rsa, digest, digest_type)
+
     def verify(self, data, signature, algo='sha1'):
         """
         Verifies the signature with the public key
@@ -303,18 +303,18 @@ class RSA:
         @param signature: The signature signed with the private key
 
         @type algo: str
-        @param algo: The method use to create digest from the data 
+        @param algo: The method use to create digest from the data
         before it was signed.  Legal values are 'sha1','sha224',
         'sha256', 'ripemd160', and 'md5'.
 
         @return: True or False, depending on whether the signature was
-        verified.  
+        verified.
         """
         digest_type = getattr(m2, 'NID_' + algo, None)
         if digest_type is None:
             raise ValueError, ('unknown algorithm', algo)
-        
-        return m2.rsa_verify(self.rsa, data, signature, digest_type) 
+
+        return m2.rsa_verify(self.rsa, data, signature, digest_type)
 
 
 class RSA_pub(RSA):
@@ -329,7 +329,7 @@ class RSA_pub(RSA):
                 'use factory function new_pub_key() to set (e, n)'
         else:
             self.__dict__[name] = value
-        
+
     def private_encrypt(self, *argv):
         raise RSAError, 'RSA_pub object has no private key'
 
@@ -386,7 +386,7 @@ def gen_key(bits, e, callback=keygen_callback):
 
     @rtype: M2Crypto.RSA.RSA
     @return: M2Crypto.RSA.RSA object.
-    """ 
+    """
     return RSA(m2.rsa_generate_key(bits, e, callback), 1)
 
 
@@ -460,7 +460,7 @@ def load_pub_key(file):
     @rtype: M2Crypto.RSA.RSA_pub
     @return: M2Crypto.RSA.RSA_pub object.
     """
-    bio = BIO.openfile(file) 
+    bio = BIO.openfile(file)
     return load_pub_key_bio(bio)
 
 
@@ -474,7 +474,7 @@ def load_pub_key_bio(bio):
 
     @rtype: M2Crypto.RSA.RSA_pub
     @return: M2Crypto.RSA.RSA_pub object.
-    """ 
+    """
     rsa = m2.rsa_read_pub_key(bio._ptr())
     if rsa is None:
         rsa_error()
@@ -486,18 +486,18 @@ def new_pub_key((e, n)):
     Instantiate an RSA_pub object from an (e, n) tuple.
 
     @type e: string
-    @param e: The RSA public exponent; it is a string in OpenSSL's MPINT 
-    format - 4-byte big-endian bit-count followed by the appropriate 
+    @param e: The RSA public exponent; it is a string in OpenSSL's MPINT
+    format - 4-byte big-endian bit-count followed by the appropriate
     number of bits.
 
     @type n: string
-    @param n: The RSA composite of primes; it is a string in OpenSSL's MPINT 
-    format - 4-byte big-endian bit-count followed by the appropriate 
+    @param n: The RSA composite of primes; it is a string in OpenSSL's MPINT
+    format - 4-byte big-endian bit-count followed by the appropriate
     number of bits.
 
     @rtype: M2Crypto.RSA.RSA_pub
     @return: M2Crypto.RSA.RSA_pub object.
-    """ 
+    """
     rsa = m2.rsa_new()
     m2.rsa_set_e(rsa, e)
     m2.rsa_set_n(rsa, n)

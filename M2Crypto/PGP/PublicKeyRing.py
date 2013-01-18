@@ -23,7 +23,7 @@ class PublicKeyRing:
 
         ps = packet_stream(self._keyring)
         while 1:
-            pkt = ps.read() 
+            pkt = ps.read()
 
             if pkt is None:
                 break
@@ -51,7 +51,7 @@ class PublicKeyRing:
                 self._spurious.append(pkt)
 
         ps.close()
-            
+
     def __getitem__(self, id):
         return self._userid[id][0]
 

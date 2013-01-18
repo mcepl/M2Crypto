@@ -44,7 +44,7 @@ def decrypt_verify(p7file, recip_key, signer_cert, ca_cert):
 
 
 if __name__ == '__main__':
-    Rand.load_file('../randpool.dat', -1) 
+    Rand.load_file('../randpool.dat', -1)
     decrypt_verify(BIO.File(sys.stdin), 'client.pem', 'client2.pem','ca.pem')
     Rand.save_file('../randpool.dat')
 

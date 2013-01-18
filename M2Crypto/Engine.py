@@ -16,7 +16,7 @@ class Engine:
     """Wrapper for ENGINE object."""
 
     m2_engine_free = m2.engine_free
-    
+
     def __init__(self, id = None, _ptr = None, _pyfree = 1):
         """Create new Engine from ENGINE pointer or obtain by id"""
         if not _ptr and not id:
@@ -34,10 +34,10 @@ class Engine:
 
     def init(self):
         """Obtain a functional reference to the engine.
-        
+
         @return: 0 on error, non-zero on success."""
         return m2.engine_init(self._ptr)
-        
+
     def finish(self):
         """Release a functional and structural reference to the engine."""
         return m2.engine_finish(self._ptr)

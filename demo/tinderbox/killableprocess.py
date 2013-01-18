@@ -108,7 +108,7 @@ class Popen(subprocess.Popen):
 
             if None not in (p2cread, c2pwrite, errwrite):
                 startupinfo.dwFlags |= winprocess.STARTF_USESTDHANDLES
-                
+
                 startupinfo.hStdInput = int(p2cread)
                 startupinfo.hStdOutput = int(c2pwrite)
                 startupinfo.hStdError = int(errwrite)
@@ -119,7 +119,7 @@ class Popen(subprocess.Popen):
                 args = comspec + " /c " + args
 
             # We create a new job for this process, so that we can kill
-            # the process and any sub-processes 
+            # the process and any sub-processes
             self._job = winprocess.CreateJobObject()
 
             creationflags |= winprocess.CREATE_SUSPENDED
@@ -132,7 +132,7 @@ class Popen(subprocess.Popen):
                 creationflags,
                 winprocess.EnvironmentBlock(env),
                 cwd, startupinfo)
-            
+
             self._child_created = True
             self._handle = hp
             self._thread = ht
@@ -155,7 +155,7 @@ class Popen(subprocess.Popen):
                 winprocess.TerminateJobObject(self._job, 127)
             else:
                 winprocess.TerminateProcess(self._handle, 127)
-            self.returncode = 127    
+            self.returncode = 127
         else:
             if sys.platform == 'cygwin':
                 cmd = "taskkill /f /pid " + str(self.pid)
@@ -189,7 +189,7 @@ class Popen(subprocess.Popen):
             if timeout == -1:
                 subprocess.Popen.wait(self)
                 return self.returncode
-            
+
             starttime = time.time()
 
             # Make sure there is a signal handler for SIGCHLD installed
@@ -201,7 +201,7 @@ class Popen(subprocess.Popen):
                     self._handle_exitstatus(sts)
                     signal.signal(signal.SIGCHLD, oldsignal)
                     return self.returncode
-                
+
                 # time.sleep is interrupted by signals (good!)
                 newtimeout = timeout - time.time() + starttime
                 time.sleep(newtimeout)

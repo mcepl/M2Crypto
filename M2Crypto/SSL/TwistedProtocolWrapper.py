@@ -29,8 +29,8 @@ def connectSSL(host, port, factory, contextFactory, timeout=30,
                postConnectionCheck=Checker.Checker()):
     """
     A convenience function to start an SSL/TLS connection using Twisted.
-    
-    See IReactorSSL interface in Twisted. 
+
+    See IReactorSSL interface in Twisted.
     """
     wrappingFactory = policies.WrappingFactory(factory)
     wrappingFactory.protocol = lambda factory, wrappedProtocol: \
@@ -41,17 +41,17 @@ def connectSSL(host, port, factory, contextFactory, timeout=30,
                            contextFactory=contextFactory,
                            postConnectionCheck=postConnectionCheck)
     return reactor.connectTCP(host, port, wrappingFactory, timeout, bindAddress)
-        
+
 
 def connectTCP(host, port, factory, timeout=30, bindAddress=None,
                reactor=twisted.internet.reactor,
                postConnectionCheck=Checker.Checker()):
     """
-    A convenience function to start a TCP connection using Twisted. 
+    A convenience function to start a TCP connection using Twisted.
 
     NOTE: You must call startTLS(ctx) to go into SSL/TLS mode.
 
-    See IReactorTCP interface in Twisted. 
+    See IReactorTCP interface in Twisted.
     """
     wrappingFactory = policies.WrappingFactory(factory)
     wrappingFactory.protocol = lambda factory, wrappedProtocol: \
@@ -65,12 +65,12 @@ def connectTCP(host, port, factory, timeout=30, bindAddress=None,
 
 
 def listenSSL(port, factory, contextFactory, backlog=5, interface='',
-              reactor=twisted.internet.reactor,  
+              reactor=twisted.internet.reactor,
               postConnectionCheck=_alwaysSucceedsPostConnectionCheck):
     """
-    A convenience function to listen for SSL/TLS connections using Twisted. 
+    A convenience function to listen for SSL/TLS connections using Twisted.
 
-    See IReactorSSL interface in Twisted. 
+    See IReactorSSL interface in Twisted.
     """
     wrappingFactory = policies.WrappingFactory(factory)
     wrappingFactory.protocol = lambda factory, wrappedProtocol: \
@@ -84,14 +84,14 @@ def listenSSL(port, factory, contextFactory, backlog=5, interface='',
 
 
 def listenTCP(port, factory, backlog=5, interface='',
-              reactor=twisted.internet.reactor,  
+              reactor=twisted.internet.reactor,
               postConnectionCheck=None):
     """
-    A convenience function to listen for TCP connections using Twisted. 
-    
+    A convenience function to listen for TCP connections using Twisted.
+
     NOTE: You must call startTLS(ctx) to go into SSL/TLS mode.
 
-    See IReactorTCP interface in Twisted. 
+    See IReactorTCP interface in Twisted.
     """
     wrappingFactory = policies.WrappingFactory(factory)
     wrappingFactory.protocol = lambda factory, wrappedProtocol: \
@@ -109,15 +109,15 @@ class _BioProxy:
     The purpose of this class is to eliminate the __del__ method from
     TLSProtocolWrapper, and thus letting it be garbage collected.
     """
-    
+
     m2_bio_free_all = m2.bio_free_all
 
     def __init__(self, bio):
         self.bio = bio
-        
+
     def _ptr(self):
         return self.bio
-    
+
     def __del__(self):
         if self.bio is not None:
             self.m2_bio_free_all(self.bio)
@@ -128,15 +128,15 @@ class _SSLProxy:
     The purpose of this class is to eliminate the __del__ method from
     TLSProtocolWrapper, and thus letting it be garbage collected.
     """
-    
+
     m2_ssl_free = m2.ssl_free
 
     def __init__(self, ssl):
         self.ssl = ssl
-        
+
     def _ptr(self):
         return self.ssl
-    
+
     def __del__(self):
         if self.ssl is not None:
             self.m2_ssl_free(self.ssl)
@@ -145,13 +145,13 @@ class _SSLProxy:
 class TLSProtocolWrapper(ProtocolWrapper):
     """
     A SSL/TLS protocol wrapper to be used with Twisted. Typically
-    you would not use this class directly. Use connectTCP, 
+    you would not use this class directly. Use connectTCP,
     connectSSL, listenTCP, listenSSL functions defined above,
     which will hook in this class.
     """
 
     implements(ITLSTransport)
-    
+
     def __init__(self, factory, wrappedProtocol, startPassThrough, client,
                  contextFactory, postConnectionCheck):
         """
@@ -172,13 +172,13 @@ class TLSProtocolWrapper(ProtocolWrapper):
         #ProtocolWrapper.__init__(self, factory, wrappedProtocol)
         #XXX: Twisted 2.0 has a new addition where the wrappingFactory is
         #     set as the factory of the wrappedProtocol. This is an issue
-        #     as the wrap should be transparent. What we want is 
+        #     as the wrap should be transparent. What we want is
         #     the factory of the wrappedProtocol to be the wrappedFactory and
         #     not the outer wrappingFactory. This is how it was implemented in
         #     Twisted 1.3
         self.factory = factory
         self.wrappedProtocol = wrappedProtocol
-        
+
         # wrappedProtocol == client/server instance
         # factory.wrappedFactory == client/server factory
 
@@ -195,7 +195,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
 
         if not startPassThrough:
             self.startTLS(contextFactory.getContext())
-            
+
     def clear(self):
         """
         Clear this instance, after which it is ready for reuse.
@@ -213,7 +213,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
         self.helloDone = 0
         # We can reuse self.ctx and it will be deleted automatically
         # when this instance dies
-        
+
     def startTLS(self, ctx):
         """
         Start SSL/TLS. If this is not called, this instance just passes data
@@ -241,7 +241,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
             m2.ssl_set_connect_state(self.ssl._ptr())
         else:
             m2.ssl_set_accept_state(self.ssl._ptr())
-            
+
         m2.ssl_set_bio(self.ssl._ptr(), self.internalBio, self.internalBio)
         m2.bio_set_ssl(self.sslBio._ptr(), self.ssl._ptr(), m2.bio_noclose)
 
@@ -353,7 +353,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
         m2bio_should_retry = m2.bio_should_retry
         m2bio_ctrl_pending = m2.bio_ctrl_pending
         m2bio_read = m2.bio_read
-        
+
         while 1:
             g = m2bio_ctrl_get_write_guarantee(sslBioPtr)
             if g > 0 and self.data != '' or clientHello:
@@ -361,9 +361,9 @@ class TLSProtocolWrapper(ProtocolWrapper):
                 if r <= 0:
                     assert(m2bio_should_retry(sslBioPtr))
                 else:
-                    assert(self.checked)               
+                    assert(self.checked)
                     self.data = self.data[r:]
-                  
+
             pending = m2bio_ctrl_pending(networkBio)
             if pending:
                 d = m2bio_read(networkBio, pending)
@@ -387,7 +387,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
         m2bio_should_retry = m2.bio_should_retry
         m2bio_ctrl_pending = m2.bio_ctrl_pending
         m2bio_read = m2.bio_read
-        
+
         while 1:
             g = m2bio_ctrl_get_write_guarantee(networkBio)
             if g > 0 and self.encrypted != '':
@@ -396,7 +396,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
                     assert(m2bio_should_retry(networkBio))
                 else:
                     self.encrypted = self.encrypted[r:]
-                              
+
             pending = m2bio_ctrl_pending(sslBioPtr)
             if pending:
                 d = m2bio_read(sslBioPtr, pending)

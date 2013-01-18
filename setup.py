@@ -23,7 +23,7 @@ from distutils.core import Extension
 
 
 class _M2CryptoBuildExt(build_ext.build_ext):
-    '''Specialization of build_ext to enable swig_opts to inherit any 
+    '''Specialization of build_ext to enable swig_opts to inherit any
     include_dirs settings made at the command line or in a setup.cfg file'''
     user_options = build_ext.build_ext.user_options + \
             [('openssl=', 'o', 'Prefix for openssl installation location')]
@@ -32,7 +32,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         '''Overload to enable custom openssl settings to be picked up'''
 
         build_ext.build_ext.initialize_options(self)
-        
+
         # openssl is the attribute corresponding to openssl directory prefix
         # command line option
         if os.name == 'nt':
@@ -41,8 +41,8 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         else:
             self.libraries = ['ssl', 'crypto']
             self.openssl = '/usr'
-       
-    
+
+
     def finalize_options(self):
         '''Overloaded build_ext implementation to append custom openssl
         include file and library linking options'''
@@ -51,16 +51,16 @@ class _M2CryptoBuildExt(build_ext.build_ext):
 
         opensslIncludeDir = os.path.join(self.openssl, 'include')
         opensslLibraryDir = os.path.join(self.openssl, 'lib')
-        
+
         self.swig_opts = ['-I%s' % i for i in self.include_dirs + \
                           [opensslIncludeDir]]
         self.swig_opts.append('-includeall')
         #self.swig_opts.append('-D__i386__') # Uncomment for early OpenSSL 0.9.7 versions, or on Fedora Core if build fails
         #self.swig_opts.append('-DOPENSSL_NO_EC') # Try uncommenting if you can't build with EC disabled
-        
+
         self.include_dirs += [os.path.join(self.openssl, opensslIncludeDir),
-                              os.path.join(os.getcwd(), 'SWIG')]        
-            
+                              os.path.join(os.getcwd(), 'SWIG')]
+
         if sys.platform == 'cygwin':
             # Cygwin SHOULD work (there's code in distutils), but
             # if one first starts a Windows command prompt, then bash,
@@ -68,7 +68,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
             # Cygwin directly, then it would work even without this change.
             # Someday distutils will be fixed and this won't be needed.
             self.library_dirs += [os.path.join(self.openssl, 'bin')]
-               
+
         self.library_dirs += [os.path.join(self.openssl, opensslLibraryDir)]
 
 
@@ -115,7 +115,7 @@ if sys.version_info < (2,4):
         if self.swig_cpp:
             swig_cmd.append("-c++")
 
-        swig_cmd += self.swig_opts 
+        swig_cmd += self.swig_opts
 
         for source in swig_sources:
             target = swig_targets[source]
@@ -123,7 +123,7 @@ if sys.version_info < (2,4):
             self.spawn(swig_cmd + ["-o", target, source])
 
         return new_sources
-    
+
     build_ext.build_ext.swig_sources = swig_sources
 
 

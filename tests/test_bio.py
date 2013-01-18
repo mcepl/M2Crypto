@@ -28,7 +28,7 @@ class CipherStreamTestCase(unittest.TestCase):
         cf.write_close()
         cf.close()
         xxx = mem.read()
-    
+
         # Decrypt.
         mem = BIO.MemoryBuffer(xxx)
         cf = BIO.CipherStream(mem)
@@ -37,13 +37,13 @@ class CipherStreamTestCase(unittest.TestCase):
         data2 = cf.read()
         cf.close()
         assert not cf.readable()
-        
+
         self.assertRaises(IOError, cf.read)
         self.assertRaises(IOError, cf.readline)
         self.assertRaises(IOError, cf.readlines)
-    
+
         assert data == data2, '%s algorithm cipher test failed' % algo
-        
+
     def test_ciphers(self):
         ciphers=[
             'des_ede_ecb', 'des_ede_cbc', 'des_ede_cfb', 'des_ede_ofb',
@@ -51,7 +51,7 @@ class CipherStreamTestCase(unittest.TestCase):
             'aes_128_ecb', 'aes_128_cbc', 'aes_128_cfb', 'aes_128_ofb',
             'aes_192_ecb', 'aes_192_cbc', 'aes_192_cfb', 'aes_192_ofb',
             'aes_256_ecb', 'aes_256_cbc', 'aes_256_cfb', 'aes_256_ofb']
-        nonfips_ciphers=['bf_ecb', 'bf_cbc', 'bf_cfb', 'bf_ofb', 
+        nonfips_ciphers=['bf_ecb', 'bf_cbc', 'bf_cfb', 'bf_ofb',
                          #'idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb',
                          'cast5_ecb', 'cast5_cbc', 'cast5_cfb', 'cast5_ofb',
                          #'rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb',
@@ -67,10 +67,10 @@ class CipherStreamTestCase(unittest.TestCase):
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(CipherStreamTestCase))
-    return suite    
+    return suite
 
 if __name__ == '__main__':
-    Rand.load_file('randpool.dat', -1) 
+    Rand.load_file('randpool.dat', -1)
     unittest.TextTestRunner().run(suite())
     Rand.save_file('randpool.dat')
 

@@ -25,7 +25,7 @@ def test_encrypt(padding):
 def test_sign(padding):
     print 'testing private-key signing:', padding
     padding=eval('RSA.'+padding)
-    ctxt=priv.private_encrypt(dgst, padding)    
+    ctxt=priv.private_encrypt(dgst, padding)
     ptxt=pub.public_decrypt(ctxt, padding)
     if ptxt!=dgst:
         print 'private_decrypt -> public_encrypt: not ok'
@@ -36,7 +36,7 @@ def test0():
     print `priv.e`, `priv.n`
 
 if __name__=='__main__':
-    Rand.load_file('randpool.dat', -1) 
+    Rand.load_file('randpool.dat', -1)
     test_encrypt('pkcs1_padding')
     test_encrypt('pkcs1_oaep_padding')
     #test_encrypt('sslv23_padding')

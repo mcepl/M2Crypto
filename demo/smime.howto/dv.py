@@ -15,7 +15,7 @@ s.load_key('recipient_key.pem', 'recipient.pem')
 # Load the signed/encrypted data.
 p7, data = SMIME.smime_load_pkcs7('se.p7')
 
-# After the above step, 'data' == None.  
+# After the above step, 'data' == None.
 # Decrypt p7. 'out' now contains a PKCS #7 signed blob.
 out = s.decrypt(p7)
 

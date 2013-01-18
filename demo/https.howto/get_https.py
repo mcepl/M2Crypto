@@ -21,12 +21,12 @@ def get_https():
     resp = h.getresponse()
     while 1:
         data = resp.read()
-        if not data: 
+        if not data:
             break
         print data
     h.close()
 
-Rand.load_file('../randpool.dat', -1) 
+Rand.load_file('../randpool.dat', -1)
 get_https()
 Rand.save_file('../randpool.dat')
 

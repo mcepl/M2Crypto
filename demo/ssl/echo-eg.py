@@ -18,7 +18,7 @@ for opt in optlist:
     elif '-p' in opt:
         port = int(opt[1])
 
-Rand.load_file('../randpool.dat', -1) 
+Rand.load_file('../randpool.dat', -1)
 
 ctx = SSL.Context('sslv3')
 ctx.load_cert('client.pem')
@@ -41,7 +41,7 @@ while 1:
     sys.stdout.write(data)
     sys.stdout.flush()
     buf = sys.stdin.readline()
-    if not buf: 
+    if not buf:
         break
     s.send(buf)
 

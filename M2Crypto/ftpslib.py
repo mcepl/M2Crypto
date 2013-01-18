@@ -74,12 +74,12 @@ class FTP_TLS(FTP):
         self.voidcmd('PBSZ 0')
         self.voidcmd('PROT P')
         self.prot = 1
-            
+
     def prot_c(self):
         """Set up data connection in the clear."""
         self.voidcmd('PROT C')
         self.prot = 0
-            
+
     def ntransfercmd(self, cmd, rest=None):
         """Initiate a data transfer."""
         conn, size = FTP.ntransfercmd(self, cmd, rest)
@@ -90,5 +90,5 @@ class FTP_TLS(FTP):
             conn.set_session(self.sock.get_session())
             conn.connect_ssl()
         return conn, size
- 
+
 

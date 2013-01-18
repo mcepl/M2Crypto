@@ -17,7 +17,7 @@ def desc_public_key(pkt):
     print 'e =', `pkt._e`
     print 'n =', `pkt._n`
     print
-    
+
 def desc_trust(pkt):
     print 'packet = trust'
     print 'trustworthiness = <ignored>'

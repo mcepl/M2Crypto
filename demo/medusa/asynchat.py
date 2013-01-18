@@ -4,9 +4,9 @@
 
 # ======================================================================
 # Copyright 1996 by Sam Rushing
-# 
+#
 #                         All Rights Reserved
-# 
+#
 # Permission to use, copy, modify, and distribute this software and
 # its documentation for any purpose and without fee is hereby
 # granted, provided that the above copyright notice appear in all
@@ -15,7 +15,7 @@
 # Rushing not be used in advertising or publicity pertaining to
 # distribution of the software without specific, written prior
 # permission.
-# 
+#
 # SAM RUSHING DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
 # INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN
 # NO EVENT SHALL SAM RUSHING BE LIABLE FOR ANY SPECIAL, INDIRECT OR
@@ -145,7 +145,7 @@ class async_chat (asyncore.dispatcher):
 
 	def handle_write (self):
 		self.initiate_send ()
-		
+
 	def handle_close (self):
 		self.close()
 
@@ -249,7 +249,7 @@ class fifo:
 			self.list = []
 		else:
 			self.list = list
-		
+
 	def __len__ (self):
 		return len(self.list)
 

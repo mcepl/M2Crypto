@@ -42,14 +42,14 @@ class http_request:
 	request_counter = counter()
 
 	# Whether to automatically use chunked encoding when
-	# 
+	#
 	#   HTTP version is 1.1
 	#   Content-Length is not set
 	#   Chunked encoding is not already in effect
 	#
 	# If your clients are having trouble, you might want to disable this.
 	use_chunked = 1
-	
+
 	# by default, this request object ignores user data.
 	collector = None
 
@@ -220,7 +220,7 @@ class http_request:
 			# it's very common for developers to not want to type a version number
 			# when using telnet to debug a server.
 			close_it = 1
-					
+
 		outgoing_header = producers.simple_producer (self.build_reply_header())
 
 		if close_it:
@@ -384,7 +384,7 @@ class http_channel (asynchat.async_chat):
 	# --------------------------------------------------
 	# send/recv overrides, good place for instrumentation.
 	# --------------------------------------------------
-	
+
 	# this information needs to get into the request object,
 	# so that it may log correctly.
 	def send (self, data):
@@ -626,12 +626,12 @@ class http_server (asyncore.dispatcher):
 			return string.join (status_handler.english_bytes (n))
 
 		handler_stats = filter (None, map (maybe_status, self.handlers))
-		
+
 		if self.total_clients:
 			ratio = self.total_requests.as_long() / float(self.total_clients.as_long())
 		else:
 			ratio = 0.0
-		
+
 		return producers.composite_producer (
 			fifo ([producers.lines_producer (
 				['<h2>%s</h2>'							% self.SERVER_IDENT,
@@ -663,7 +663,7 @@ CONNECTION = re.compile ('Connection: (.*)', re.IGNORECASE)
 def join_headers (headers):
 	r = []
 	for i in range(len(headers)):
-		if headers[i][0] in ' \t':	
+		if headers[i][0] in ' \t':
 			r[-1] = r[-1] + headers[i][1:]
 		else:
 			r.append (headers[i])
@@ -702,7 +702,7 @@ class fifo:
 			self.list = []
 		else:
 			self.list = list
-		
+
 	def __len__ (self):
 		return len(self.list)
 

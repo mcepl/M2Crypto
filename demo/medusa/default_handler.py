@@ -114,7 +114,7 @@ class default_handler:
 					found = 1
 					break
 			if not found:
-				request.error (404) # Not Found 
+				request.error (404) # Not Found
 				return
 
 		elif not self.filesystem.isfile (path):

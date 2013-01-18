@@ -5,7 +5,7 @@ Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 # M2Crypto
 import Rand, m2
 
-# Python. Cookie is bundled with Python 2.x. 
+# Python. Cookie is bundled with Python 2.x.
 import Cookie, binascii, re, time
 
 
@@ -38,10 +38,10 @@ class AuthCookieJar:
 
     def __init__(self):
         self._key = Rand.rand_bytes(self._keylen)
-    
+
     def _hmac(self, key, data):
         return binascii.b2a_base64(m2.hmac(key, data, m2.sha1()))[:-1]
-        
+
     def makeCookie(self, expiry, data):
         dough = mix(expiry, data)
         return AuthCookie(expiry, data, dough, self._hmac(self._key, dough))
@@ -57,7 +57,7 @@ class AuthCookieJar:
             and (c.output() == cookie.output())
 
     def isGoodCookieString(self, cookie_str):
-        c = Cookie.SmartCookie()        
+        c = Cookie.SmartCookie()
         c.load(cookie_str)
         if not c.has_key(_TOKEN):
             return 0
@@ -70,7 +70,7 @@ class AuthCookieJar:
 
 
 class AuthCookie:
-    
+
     def __init__(self, expiry, data, dough, mac):
         self._expiry = expiry
         self._data = data
@@ -104,7 +104,7 @@ class AuthCookie:
         """Return 1 if the cookie has expired, 0 otherwise."""
         return (time.time() > self._expiry)
 
-    # XXX Following methods are for WebKit only. These should be pushed 
+    # XXX Following methods are for WebKit only. These should be pushed
     # to WKAuthCookie.
     def name(self):
         return self._name

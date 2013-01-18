@@ -10,7 +10,7 @@ import twisted.protocols.basic as basic
 import twisted.internet.reactor as reactor
 import M2Crypto.SSL.TwistedProtocolWrapper as wrapper
 import M2Crypto.SSL as SSL
-        
+
 class EchoClient(basic.LineReceiver):
     def connectionMade(self):
         self.sendLine('Hello World!')
@@ -18,7 +18,7 @@ class EchoClient(basic.LineReceiver):
     def lineReceived(self, line):
         print 'received: "%s"' % line
         self.transport.loseConnection()
-        
+
 
 class EchoClientFactory(protocol.ClientFactory):
     protocol = EchoClient

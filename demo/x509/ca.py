@@ -22,7 +22,7 @@ def makePKey(key):
     pkey = EVP.PKey()
     pkey.assign_rsa(key)
     return pkey
-    
+
 def makeRequest(pkey):
     req = X509.Request()
     req.set_version(2)
@@ -37,7 +37,7 @@ def makeRequest(pkey):
     extstack.push(ext2)
 
     assert(extstack[1].get_name() == 'nsComment')
-    
+
     req.add_extensions(extstack)
     req.sign(pkey, 'sha1')
     return req
@@ -80,7 +80,7 @@ def makeCert(req, caPkey):
     assert(cert.get_ext('subjectAltName').get_name() == 'subjectAltName')
     assert(cert.get_ext_at(0).get_name() == 'subjectAltName')
     assert(cert.get_ext_at(0).get_value() == 'DNS:foobar.example.com')
-    
+
     return cert
 
 def ca():

@@ -8,23 +8,23 @@
           makenewkey  showpubkey  showdigest  showprofile
           md5  sha1  sha256  sha512
           <key length>
-    
+
     NB:
-      DSA is formally defined with SHA-1 and key length 1024. 
-      The OpenSSL implementation actually supports most any 
+      DSA is formally defined with SHA-1 and key length 1024.
+      The OpenSSL implementation actually supports most any
       hashing algorithm and key length, as long as the key
       length is longer than the digest length.  If not SHA-1
       and 1024, you should be very clear.  The use of "DSA"
       without any qualifiers implies SHA-1 and 1024.
-    
+
     Larry Bugbee
     November 2006
-    
-    
-    Some portions are Copyright (c) 1999-2003 Ng Pheng Siong. 
+
+
+    Some portions are Copyright (c) 1999-2003 Ng Pheng Siong.
     All rights reserved.
 
-    Portions created by Open Source Applications Foundation 
+    Portions created by Open Source Applications Foundation
     (OSAF) are Copyright (C) 2004 OSAF. All Rights Reserved.
 
 """
@@ -41,7 +41,7 @@ showpubkey  = 0     # 1 = show the public key value
 showdigest  = 0     # 1 = show the digest value
 showprofile = 0     # 1 = use the python profiler
 
-hashalgs = ['md5', 'ripemd160', 'sha1', 
+hashalgs = ['md5', 'ripemd160', 'sha1',
             'sha224', 'sha256', 'sha384', 'sha512']
 
 # default hashing algorithm
@@ -87,7 +87,7 @@ def speed():
     for i in range(N2):
         dsa.verify(dgst, r, s)
     print '    %d verifications: %8.2fs' % (N2, (time() - t1))
-        
+
 def test_speed(dsa, dgst):
     print '  measuring speed...'
     if showprofile:
@@ -101,12 +101,12 @@ def test_speed(dsa, dgst):
 
 def main(keylen, hashalg):
     global dsa, dgst     # this exists ONLY for speed testing
-    
-    Rand.load_file('randpool.dat', -1) 
-        
+
+    Rand.load_file('randpool.dat', -1)
+
     pvtkeyfilename = 'DSA%dpvtkey.pem' % (keylen)
-    pubkeyfilename = 'DSA%dpubkey.pem' % (keylen)  
-    
+    pubkeyfilename = 'DSA%dpubkey.pem' % (keylen)
+
     if makenewkey:
         print '  making and saving a new key'
         dsa = DSA.gen_params(keylen)
@@ -117,16 +117,16 @@ def main(keylen, hashalg):
         print '  loading an existing key'
         dsa = DSA.load_key(pvtkeyfilename)
     print '  dsa key length:', len(dsa)
-    
+
     if not dsa.check_key():
         raise 'key is not initialised'
-        
+
     if showpubkey:
         dsa_pub = dsa.pub
         pub_pem = base64.encodestring(dsa_pub)
         print '  PEM public key is: \n',pub_pem
 
-    # since we are testing signing and verification, let's not 
+    # since we are testing signing and verification, let's not
     # be fussy about the digest.  Just make one.
     md = EVP.MessageDigest(hashalg)
     md.update('can you spell subliminal channel?')
@@ -134,7 +134,7 @@ def main(keylen, hashalg):
     print '  hash algorithm: %s' % hashalg
     if showdigest:
         print '  %s digest: \n%s' % (hashalg, base64.encodestring(dgst))
-    
+
     test(dsa, dgst)
 #    test_asn1(dsa, dgst)
     test_speed(dsa, dgst)
@@ -167,7 +167,7 @@ if __name__=='__main__':
         except:
             print '\n  *** argument "%s" not understood ***' % arg
             print_usage()
-        
+
     main(keylen, hashalg)
 
 

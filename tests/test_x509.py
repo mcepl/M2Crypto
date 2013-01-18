@@ -55,20 +55,20 @@ class X509TestCase(unittest.TestCase):
         ext1 = X509.new_extension('subjectAltName', 'DNS:foobar.example.com')
         ext2 = X509.new_extension('nsComment', 'Hello there')
         extstack = X509.X509_Extension_Stack()
-        
+
         # push
         extstack.push(ext1)
         extstack.push(ext2)
         assert(extstack[1].get_name() == 'nsComment')
         assert len(extstack) == 2
-        
+
         # iterator
         i = 0
         for e in extstack:
             i += 1
             assert len(e.get_name()) > 0
         assert i == 2
-        
+
         # pop
         ext3 = extstack.pop()
         assert len(extstack) == 1
@@ -76,7 +76,7 @@ class X509TestCase(unittest.TestCase):
         extstack.push(ext3)
         assert len(extstack) == 2
         assert(extstack[1].get_name() == 'nsComment')
-        
+
         assert extstack.pop() is not None
         assert extstack.pop() is not None
         assert extstack.pop() is None
@@ -118,7 +118,7 @@ class X509TestCase(unittest.TestCase):
         self.assertRaises(AttributeError, n.__getattr__, 'foobar')
         n.foobar = 1
         assert n.foobar == 1, n.foobar
-        
+
         # X509_Name_Entry tests
         l = 0
         for entry in n:
@@ -127,7 +127,7 @@ class X509TestCase(unittest.TestCase):
             assert isinstance(entry.get_data(), ASN1.ASN1_String), entry
             l += 1
         assert l == 12, l
-        
+
         l = 0
         for cn in n.get_entries_by_nid(m2.NID_commonName):
             assert isinstance(cn, X509.X509_Name_Entry), cn
@@ -143,7 +143,7 @@ class X509TestCase(unittest.TestCase):
         assert cn.get_data().as_text() == "Hello There!", cn.get_data().as_text()
 
         assert n.as_hash() == 1697185131
-        
+
         self.assertRaises(IndexError, lambda: n[100])
         self.assert_(n[10])
 
@@ -216,15 +216,15 @@ class X509TestCase(unittest.TestCase):
         assert cert.verify(cert.get_pubkey())
         assert cert.get_version() == 2
         assert cert.get_serial_number() == 1
-        assert cert.get_issuer().CN == 'The Issuer Monkey' 
-        
+        assert cert.get_issuer().CN == 'The Issuer Monkey'
+
         if m2.OPENSSL_VERSION_NUMBER >= 0x90800f:
             assert not cert.check_ca()
             assert not cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 1)
             assert not cert.check_purpose(m2.X509_PURPOSE_NS_SSL_SERVER, 1)
             assert cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 0)
             assert cert.check_purpose(m2.X509_PURPOSE_NS_SSL_SERVER, 0)
-            assert cert.check_purpose(m2.X509_PURPOSE_ANY, 0)            
+            assert cert.check_purpose(m2.X509_PURPOSE_ANY, 0)
         else:
             self.assertRaises(AttributeError, cert.check_ca)
 
@@ -247,7 +247,7 @@ class X509TestCase(unittest.TestCase):
         issuer.C = "UK"
         issuer.CN = "OpenSSL Group"
         cert.set_issuer(issuer)
-        cert.set_pubkey(pkey) 
+        cert.set_pubkey(pkey)
         ext = X509.new_extension('basicConstraints', 'CA:TRUE')
         cert.add_ext(ext)
         cert.sign(pk, 'sha1')
@@ -262,15 +262,15 @@ class X509TestCase(unittest.TestCase):
             assert cert.check_purpose(m2.X509_PURPOSE_ANY, 0)
         else:
             self.assertRaises(AttributeError, cert.check_ca)
-        
+
         return cert, pk, pkey
 
-    def test_mkcacert(self): 
+    def test_mkcacert(self):
         cacert, pk, pkey = self.mkcacert()
         assert cacert.verify(pkey)
-        
 
-    def test_mkproxycert(self): 
+
+    def test_mkproxycert(self):
         cacert, pk1, pkey = self.mkcacert()
         end_entity_cert_req, pk2 = self.mkreq(1024)
         end_entity_cert = self.make_eecert(cacert)
@@ -299,7 +299,7 @@ class X509TestCase(unittest.TestCase):
         eecert.set_not_after(now_plus_year)
         eecert.set_issuer(cacert.get_subject())
         return eecert
-    
+
     def make_proxycert(self, eecert):
         proxycert = X509.X509()
         pk2 = EVP.PKey()
@@ -332,11 +332,11 @@ class X509TestCase(unittest.TestCase):
 
 
         proxycert.set_subject_name(subject_name)
-        pci_ext = X509.new_extension("proxyCertInfo", 
-                                     "critical,language:Inherit all", 1) # XXX leaks 8 bytes 
+        pci_ext = X509.new_extension("proxyCertInfo",
+                                     "critical,language:Inherit all", 1) # XXX leaks 8 bytes
         proxycert.add_ext(pci_ext)
         return proxycert
-    
+
     def test_fingerprint(self):
         x509 = X509.load_cert('tests/x509.pem')
         fp = x509.get_fingerprint('sha1')
@@ -365,13 +365,13 @@ class X509TestCase(unittest.TestCase):
         assert x509.as_pem() == x5092.as_pem()
         assert x509.as_der() == x5092.as_der()
         return
-    
+
     def test_load_bio(self):
         bio = BIO.openfile('tests/x509.pem')
         bio2 = BIO.openfile('tests/x509.der')
         x509 = X509.load_cert_bio(bio)
         x5092 = X509.load_cert_bio(bio2, format=X509.FORMAT_DER)
-        
+
         self.assertRaises(ValueError, X509.load_cert_bio, bio2, format=45678)
 
         assert x509.as_text() == x5092.as_text()
@@ -392,7 +392,7 @@ class X509TestCase(unittest.TestCase):
         assert x509.as_pem() == x5092.as_pem()
         assert x509.as_der() == x5092.as_der()
         return
-    
+
     def test_load_request_bio(self):
         (req, _) = self.mkreq(1024)
 
@@ -439,7 +439,7 @@ class X509TestCase(unittest.TestCase):
         self.assertRaises(X509.X509Error, X509.load_request_string, 'Hello')
         self.assertRaises(X509.X509Error, X509.load_request_der_string, 'Hello')
         self.assertRaises(X509.X509Error, X509.load_crl, 'tests/alltests.py')
-        
+
     def test_long_serial(self):
         from M2Crypto import X509
         cert = X509.load_cert('tests/long_serial_cert.pem')
@@ -450,7 +450,7 @@ class X509TestCase(unittest.TestCase):
 
 
 class X509_StackTestCase(unittest.TestCase):
-    
+
     def test_make_stack_from_der(self):
         f = open("tests/der_encoded_seq.b64")
         b64 = f.read(1304)
@@ -458,11 +458,11 @@ class X509_StackTestCase(unittest.TestCase):
         stack = X509.new_stack_from_der(seq)
         cert = stack.pop()
         assert stack.pop() is None
-        
+
         cert.foobar = 1
         assert cert.foobar == 1
-        
-        subject = cert.get_subject() 
+
+        subject = cert.get_subject()
         assert str(subject) == "/DC=org/DC=doegrids/OU=Services/CN=host/bosshog.lbl.gov"
 
     def test_make_stack_check_num(self):
@@ -471,11 +471,11 @@ class X509_StackTestCase(unittest.TestCase):
         seq = base64.decodestring(b64)
         stack = X509.new_stack_from_der(seq)
         num = len(stack)
-        assert num == 1 
-        cert = stack.pop() 
+        assert num == 1
+        cert = stack.pop()
         num = len(stack)
-        assert num == 0 
-        subject = cert.get_subject() 
+        assert num == 0
+        subject = cert.get_subject()
         assert str(subject) == "/DC=org/DC=doegrids/OU=Services/CN=host/bosshog.lbl.gov"
 
     def test_make_stack(self):
@@ -486,21 +486,21 @@ class X509_StackTestCase(unittest.TestCase):
         issuer_subject1 = issuer.get_subject()
         stack.push(cert)
         stack.push(issuer)
-        
+
         # Test stack iterator
         i = 0
         for c in stack:
             i += 1
             assert len(c.get_subject().CN) > 0
         assert i == 2
-        
-        issuer_pop = stack.pop() 
-        cert_pop = stack.pop() 
-        cert_subject2 = cert_pop.get_subject() 
+
+        issuer_pop = stack.pop()
+        cert_pop = stack.pop()
+        cert_subject2 = cert_pop.get_subject()
         issuer_subject2 = issuer.get_subject()
         assert str(cert_subject1) == str(cert_subject2)
         assert str(issuer_subject1) == str(issuer_subject2)
-    
+
     def test_as_der(self):
         stack = X509.X509_Stack()
         cert = X509.load_cert("tests/x509.pem")
@@ -509,18 +509,18 @@ class X509_StackTestCase(unittest.TestCase):
         issuer_subject1 = issuer.get_subject()
         stack.push(cert)
         stack.push(issuer)
-        der_seq = stack.as_der() 
+        der_seq = stack.as_der()
         stack2 = X509.new_stack_from_der(der_seq)
-        issuer_pop = stack2.pop() 
-        cert_pop = stack2.pop() 
-        cert_subject2 = cert_pop.get_subject() 
+        issuer_pop = stack2.pop()
+        cert_pop = stack2.pop()
+        cert_subject2 = cert_pop.get_subject()
         issuer_subject2 = issuer.get_subject()
         assert str(cert_subject1) == str(cert_subject2)
         assert str(issuer_subject1) == str(issuer_subject2)
-        
+
 
 class X509_ExtTestCase(unittest.TestCase):
-    
+
     def test_ext(self):
         if 0: # XXX
             # With this leaks 8 bytes:
@@ -530,7 +530,7 @@ class X509_ExtTestCase(unittest.TestCase):
             # With this there are no leaks:
             name = "nsComment"
             value = "Hello"
-        
+
         lhash = m2.x509v3_lhash()
         ctx = m2.x509v3_set_conf_lhash(lhash)
         x509_ext_ptr = m2.x509v3_ext_conf(lhash, ctx, name, value)
@@ -542,7 +542,7 @@ class CRLTestCase(unittest.TestCase):
         crl = X509.CRL()
         self.assertEqual(crl.as_text()[:34],
                          'Certificate Revocation List (CRL):')
-    
+
 
 def suite():
     suite = unittest.TestSuite()

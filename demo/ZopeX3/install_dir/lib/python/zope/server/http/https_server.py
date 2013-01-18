@@ -46,7 +46,7 @@ class HTTPS_Server(HTTPServer):
         HTTPServer.__init__(self, ip, port, task_dispatcher, adj, start, hit_log, verbose)
         if ssl_ctx is None:
             self.ssl_ctx = make_ssl_context(os.path.realpath(__file__))
-        else: 
+        else:
             self.ssl_ctx = ssl_ctx
 
     def executeRequest(self, task):

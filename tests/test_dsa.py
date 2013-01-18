@@ -89,10 +89,10 @@ class DSATestCase(unittest.TestCase):
 
 def suite():
     return unittest.makeSuite(DSATestCase)
-    
+
 
 if __name__ == '__main__':
-    Rand.load_file('randpool.dat', -1) 
+    Rand.load_file('randpool.dat', -1)
     unittest.TextTestRunner().run(suite())
     Rand.save_file('randpool.dat')
 

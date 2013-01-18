@@ -19,7 +19,7 @@ changes from Medusa's http_server:
 
     Request Threads -- Requests are processed by threads from a thread
     pool.
-    
+
     Output Handling -- Output is pushed directly into the producer
     fifo by the request-handling thread. The HTTP server does not do
     any post-processing such as chunking.
@@ -43,8 +43,8 @@ changes from Zope's HTTP server:
     REMOTE_USER to the client's subject distinguished name (DN) from
     the certificate. Zope's REMOTE_USER machinery takes care of the
     rest, e.g., in conjunction with the RemoteUserFolder product.
-    
-""" 
+
+"""
 
 import sys, time, types
 
@@ -95,22 +95,22 @@ class zhttps_channel(https_channel):
 
     closed=0
     zombie_timeout=100*60 # 100 minutes
-    
+
     def __init__(self, server, conn, addr):
         https_channel.__init__(self, server, conn, addr)
         self.queue=[]
         self.working=0
         self.peer_found=0
-    
+
     def push(self, producer, send=1):
         # this is thread-safe when send is false
-        # note, that strings are not wrapped in 
+        # note, that strings are not wrapped in
         # producers by default
         if self.closed:
             return
         self.producer_fifo.push(producer)
         if send: self.initiate_send()
-        
+
     push_with_producer=push
 
     def work(self):
@@ -121,7 +121,7 @@ class zhttps_channel(https_channel):
                 try: module_name, request, response=self.queue.pop(0)
                 except: return
                 handle(module_name, request, response)
-        
+
     def close(self):
         self.closed=1
         while self.queue:
@@ -151,11 +151,11 @@ class zhttps_channel(https_channel):
                     channel.close()
 
 
-class zhttps_server(https_server):    
+class zhttps_server(https_server):
     "https server"
-    
+
     SERVER_IDENT='ZServerSSL/%s' % (ZSERVER_SSL_VERSION,)
-    
+
     channel_class = zhttps_channel
     shutup = 0
 
@@ -163,7 +163,7 @@ class zhttps_server(https_server):
         self.shutup = 1
         https_server.__init__(self, ip, port, ssl_ctx, resolver, logger_object)
         self.ssl_ctx = ssl_ctx
-        self.shutup = 0        
+        self.shutup = 0
         self.log_info('(%s) HTTPS server started at %s\n'
                       '\tHostname: %s\n\tPort: %d' % (
                         self.SERVER_IDENT,
@@ -171,7 +171,7 @@ class zhttps_server(https_server):
                         self.server_name,
                         self.server_port
                         ))
-        
+
     def log_info(self, message, type='info'):
         if self.shutup: return
         dispatcher.log_info(self, message, type)

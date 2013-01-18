@@ -404,7 +404,7 @@ def unix_longify (file, stat_info):
 		date,
 		file
 		)
-		
+
 # Emulate the unix 'ls' command's date field.
 # it has two formats - if the date is more than 180
 # days in the past, then it's like this:

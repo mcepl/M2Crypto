@@ -30,7 +30,7 @@ def test_httpslib():
     c = 0
     while 1:
         # Either of following two works.
-        #data = f.readline()   
+        #data = f.readline()
         data = resp.read()
         if not data: break
         c = c + len(data)
@@ -41,7 +41,7 @@ def test_httpslib():
 
 
 if __name__=='__main__':
-    Rand.load_file('../randpool.dat', -1) 
+    Rand.load_file('../randpool.dat', -1)
     #threading.init()
     test_httpslib()
     #threading.cleanup()

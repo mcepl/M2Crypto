@@ -31,18 +31,18 @@ class ssl_echo_handler(SocketServer.BaseRequestHandler):
             buf = self.request.read()
             if not buf:
                 break
-            self.request.write(buf) 
+            self.request.write(buf)
 
     def finish(self):
         self.request.set_shutdown(SSL.SSL_SENT_SHUTDOWN|SSL.SSL_RECEIVED_SHUTDOWN)
         self.request.close()
 
 if __name__ == '__main__':
-    Rand.load_file('randpool.dat', -1) 
+    Rand.load_file('randpool.dat', -1)
     threading.init()
     ctx = init_context('sslv23', 'dh1024.pem', 'server.pem', 'ca.pem', SSL.verify_peer)
     s = SSL.SSLServer(('', 9999), ssl_echo_handler, ctx)
-    s.serve_forever()   
+    s.serve_forever()
     threading.cleanup()
     Rand.save_file('randpool.dat')
 

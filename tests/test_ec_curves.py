@@ -2,20 +2,20 @@
 # XXX memory leaks
 """
     Unit tests for M2Crypto.EC, the curves
-    
+
     There are several ways one could unittest elliptical curves
-    but we are going to only validate that we are using the 
+    but we are going to only validate that we are using the
     OpenSSL curve and that it works with ECDSA.  We will assume
-    OpenSSL has validated the curves themselves.  
-    
-    Also, some curves are shorter than a SHA-1 digest of 160 
+    OpenSSL has validated the curves themselves.
+
+    Also, some curves are shorter than a SHA-1 digest of 160
     bits.  To keep the testing simple, we will take advantage
-    of ECDSA's ability to sign any digest length and create a 
+    of ECDSA's ability to sign any digest length and create a
     digset string of only 48 bits.  Remember we are testing our
     ability to access the curve, not ECDSA itself.
-    
+
     Copyright (c) 2006 Larry Bugbee. All rights reserved.
-    
+
 """
 
 import unittest
@@ -38,7 +38,7 @@ curves = [
     ('secp256k1', 256),
     ('secp384r1', 384),
     ('secp521r1', 521),
-    
+
     ('sect113r1', 113),
     ('sect113r2', 113),
     ('sect131r1', 131),
@@ -57,7 +57,7 @@ curves = [
     ('sect409r1', 409),
     ('sect571k1', 571),
     ('sect571r1', 571),
-    
+
     ('X9_62_prime192v1', 192),
     ('X9_62_prime192v2', 192),
     ('X9_62_prime192v3', 192),
@@ -65,7 +65,7 @@ curves = [
     ('X9_62_prime239v2', 239),
     ('X9_62_prime239v3', 239),
     ('X9_62_prime256v1', 256),
-    
+
     ('X9_62_c2pnb163v1', 163),
     ('X9_62_c2pnb163v2', 163),
     ('X9_62_c2pnb163v3', 163),
@@ -82,7 +82,7 @@ curves = [
     ('X9_62_c2tnb359v1', 359),
     ('X9_62_c2pnb368w1', 368),
     ('X9_62_c2tnb431r1', 431),
-    
+
     ('wap_wsg_idm_ecid_wtls1', 113),
     ('wap_wsg_idm_ecid_wtls3', 163),
     ('wap_wsg_idm_ecid_wtls4', 113),
@@ -96,11 +96,11 @@ curves = [
     ('wap_wsg_idm_ecid_wtls12', 224),
 ]
 
-# The following two curves, according to OpenSSL, have a 
-# "Questionable extension field!" and are not supported by 
+# The following two curves, according to OpenSSL, have a
+# "Questionable extension field!" and are not supported by
 # the OpenSSL inverse function.  ECError: no inverse.
-# As such they cannot be used for signing.  They might, 
-# however, be usable for encryption but that has not 
+# As such they cannot be used for signing.  They might,
+# however, be usable for encryption but that has not
 # been tested.  Until thir usefulness can be established,
 # they are not supported at this time.
 #curves2 = [
@@ -110,8 +110,8 @@ curves = [
 
 class ECCurveTests(unittest.TestCase):
     #data = sha.sha('Kilroy was here!').digest()     # 160 bits
-    data = "digest"     # keep short (48 bits) so lesser curves 
-                        # will work...  ECDSA requires curve be 
+    data = "digest"     # keep short (48 bits) so lesser curves
+                        # will work...  ECDSA requires curve be
                         # equal or longer than digest
 
     def genkey(self, curveName, curveLen):
@@ -122,28 +122,28 @@ class ECCurveTests(unittest.TestCase):
         assert  ec.check_key(), 'check_key() failure for "%s"' % curveName
         return ec
 
-#    def check_ec_curves_genkey(self):        
+#    def check_ec_curves_genkey(self):
 #        for curveName, curveLen in curves2:
 #            self.genkey(curveName, curveLen)
 #
-#        self.assertRaises(AttributeError, self.genkey, 
+#        self.assertRaises(AttributeError, self.genkey,
 #                                          'nosuchcurve', 1)
 
     def sign_verify_ecdsa(self, curveName, curveLen):
         ec = self.genkey(curveName, curveLen)
         r, s = ec.sign_dsa(self.data)
         assert ec.verify_dsa(self.data, r, s)
-        assert not ec.verify_dsa(self.data, s, r)            
+        assert not ec.verify_dsa(self.data, s, r)
 
     def test_ec_curves_ECDSA(self):
         for curveName, curveLen in curves:
             self.sign_verify_ecdsa(curveName, curveLen)
 
-        self.assertRaises(AttributeError, self.sign_verify_ecdsa, 
+        self.assertRaises(AttributeError, self.sign_verify_ecdsa,
                                           'nosuchcurve', 1)
 
 #        for curveName, curveLen in curves2:
-#            self.assertRaises(EC.ECError, self.sign_verify_ecdsa, 
+#            self.assertRaises(EC.ECError, self.sign_verify_ecdsa,
 #                              curveName, curveLen)
 
 def suite():
@@ -153,7 +153,7 @@ def suite():
 
 
 if __name__ == '__main__':
-    Rand.load_file('randpool.dat', -1) 
+    Rand.load_file('randpool.dat', -1)
     unittest.TextTestRunner().run(suite())
     Rand.save_file('randpool.dat')
 

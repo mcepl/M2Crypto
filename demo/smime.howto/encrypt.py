@@ -29,7 +29,7 @@ s.set_cipher(SMIME.Cipher('des_ede3_cbc'))
 
 # Encrypt the buffer.
 p7 = s.encrypt(buf)
-    
+
 # Output p7 in mail-friendly format.
 out = BIO.MemoryBuffer()
 out.write('From: sender@example.dom\n')

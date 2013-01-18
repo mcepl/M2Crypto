@@ -32,7 +32,7 @@ import stat         # v
 #  o	syslog output...
 
 class file_logger:
-			
+
 	# pass this either a path or a file object.
 	def __init__ (self, file, flush=1, mode='a'):
 		if type(file) == type(''):
@@ -51,11 +51,11 @@ class file_logger:
 	def write (self, data):
 		self.file.write (data)
 		self.maybe_flush()
-		
+
 	def writeline (self, line):
 		self.file.writeline (line)
 		self.maybe_flush()
-		
+
 	def writelines (self, lines):
 		self.file.writelines (lines)
 		self.maybe_flush()
@@ -83,7 +83,7 @@ class file_logger:
 # would take time, during which medusa would do nothing else.
 
 class rotating_file_logger (file_logger):
-			
+
 	# If freq is non-None we back up "daily", "weekly", or "monthly".
 	# Else if maxsize is non-None we back up whenever the log gets
 	# to big.  If both are None we never back up.
@@ -184,7 +184,7 @@ class socket_logger (asynchat.async_chat):
 
 		self.connect (address)
 		self.address = address
-		
+
 	def __repr__ (self):
 		return '<socket logger: address=%s>' % (self.address)
 

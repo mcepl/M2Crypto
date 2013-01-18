@@ -1,4 +1,4 @@
-"""M2Crypto support for Python 1.5.2 and Python 2.x's httplib. 
+"""M2Crypto support for Python 1.5.2 and Python 2.x's httplib.
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
@@ -7,7 +7,7 @@ from httplib import *
 import SSL
 
 if sys.version[0] == '2':
-    
+
     if sys.version[:3] in ['2.1', '2.2']:
         # In 2.1 and above, httplib exports "HTTP" only.
         from httplib import HTTPConnection, HTTPS_PORT
@@ -15,16 +15,16 @@ if sys.version[0] == '2':
         from httplib import HTTPResponse,FakeSocket
 
     class HTTPSConnection(HTTPConnection):
-    
+
         """
         This class allows communication via SSL using M2Crypto.
         """
-    
+
         default_port = HTTPS_PORT
-    
+
         def __init__(self, host, port=None, **ssl):
             keys = ssl.keys()
-            try: 
+            try:
                 keys.remove('key_file')
             except ValueError:
                 pass
@@ -44,11 +44,11 @@ if sys.version[0] == '2':
             except KeyError:
                 self.ssl_ctx = SSL.Context('sslv23')
             HTTPConnection.__init__(self, host, port)
-    
+
         def connect(self):
             self.sock = SSL.Connection(self.ssl_ctx)
             self.sock.connect((self.host, self.port))
-    
+
         def close(self):
             # This kludges around line 545 of httplib.py,
             # which closes the connection in this object;
@@ -56,7 +56,7 @@ if sys.version[0] == '2':
             # object.
             #
             # M2Crypto doesn't close-here-keep-open-there,
-            # so, in effect, we don't close until the whole 
+            # so, in effect, we don't close until the whole
             # business is over and gc kicks in.
             #
             # Long-running callers beware leakage.
@@ -68,9 +68,9 @@ if sys.version[0] == '2':
 
 
     class HTTPS(HTTP):
-        
+
         _connection_class = HTTPSConnection
-    
+
         def __init__(self, host='', port=None, **ssl):
             HTTP.__init__(self, host, port)
             try:
@@ -82,7 +82,7 @@ if sys.version[0] == '2':
 elif sys.version[:3] == '1.5':
 
     class HTTPS(HTTP):
-    
+
         def __init__(self, ssl_context, host='', port=None):
             assert isinstance(ssl_context, SSL.Context)
             self.debuglevel=0
@@ -90,7 +90,7 @@ elif sys.version[:3] == '1.5':
             self.ssl_ctx=ssl_context
             if host:
                 self.connect(host, port)
-    
+
         def connect(self, host, port=None):
             # Cribbed from httplib.HTTP.
             if not port:
@@ -110,7 +110,7 @@ elif sys.version[:3] == '1.5':
 class HTTPProxyConnection(HTTPConnection):
     """
     This class provides HTTP access through (authenticated) proxies.
-    
+
     Example:
     If the HTTP proxy address is proxy.your.org:8080, an authenticated proxy
     (one which requires a username/password combination in order to serve
@@ -161,7 +161,7 @@ class HTTPProxyConnection(HTTPConnection):
         HTTPConnection.putrequest(self, method, newurl)
         # Add proxy-specific headers
         self._add_auth_proxy_header()
-        
+
     def _add_auth_proxy_header(self):
         """Adds an HTTP header for authenticated proxies
         """
@@ -177,7 +177,7 @@ class HTTPProxyConnection(HTTPConnection):
 class HTTPSProxyResponse(HTTPResponse):
     """
     Replacement class for HTTPResponse
-    Proxy responses (made through SSL) have to keep the connection open 
+    Proxy responses (made through SSL) have to keep the connection open
     after the initial request, since the connection is tunneled to the SSL
     host with the CONNECT method.
     """
@@ -187,7 +187,7 @@ class HTTPSProxyResponse(HTTPResponse):
 
 class HTTPSProxyConnection(HTTPProxyConnection):
     """This class provides HTTP access through (authenticated) proxies.
-    
+
     Example:
     If the HTTP proxy address is proxy.your.org:8080, an authenticated proxy
     (one which requires a username/password combination in order to serve
@@ -217,12 +217,12 @@ class HTTPSProxyConnection(HTTPProxyConnection):
         HTTPProxyConnection.__init__(self, proxy, host, port, username, password)
 
     def connect(self):
-        """Connect (using SSL) to the host and port specified in __init__ 
+        """Connect (using SSL) to the host and port specified in __init__
         (through a proxy)."""
         import socket
         # Set the connection with the proxy
         HTTPProxyConnection.connect(self)
-        # Use the stock HTTPConnection putrequest 
+        # Use the stock HTTPConnection putrequest
         host = "%s:%s" % (self._host, self._port)
         HTTPConnection.putrequest(self, "CONNECT", host)
         # Add proxy-specific stuff

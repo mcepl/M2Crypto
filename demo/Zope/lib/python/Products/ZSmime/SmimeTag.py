@@ -55,14 +55,14 @@ class SmimeTag:
         # Prepare to S/MIME.
         s = SMIME.SMIME()
 
-        # Render the signer key, load into BIO. 
+        # Render the signer key, load into BIO.
         try:
             signer = Var(self.signer).render(md)
         except ParseError:
             raise SmimeError, ('Invalid parameter "signer".')
         signer_key_bio = BIO.MemoryBuffer(signer)
         signer_cert_bio = BIO.MemoryBuffer(signer) # XXX Kludge.
-        
+
         # Sign the data.
         s.load_key_bio(signer_key_bio, signer_cert_bio)
         p7 = s.sign(data_bio, flags=SMIME.PKCS7_TEXT)

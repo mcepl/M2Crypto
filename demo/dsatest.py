@@ -41,7 +41,7 @@ def speed():
     for i in range(N2):
         d.verify(dgst, r, s)
     print '%d verifications: %8.2fs' % (N2, (time() - t1))
-        
+
 def test_speed():
     print 'measuring speed...'
     import profile
@@ -49,7 +49,7 @@ def test_speed():
 
 
 if __name__=='__main__':
-    Rand.load_file('randpool.dat', -1) 
+    Rand.load_file('randpool.dat', -1)
     test()
     test_asn1()
     #test_speed()

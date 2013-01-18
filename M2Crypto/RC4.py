@@ -14,13 +14,13 @@ class RC4:
         self.cipher = rc4_new()
         if key:
             rc4_set_key(self.cipher, key)
-            
+
     def __del__(self):
-        if getattr(self, 'cipher', None):        
+        if getattr(self, 'cipher', None):
             self.rc4_free(self.cipher)
 
     def set_key(self, key):
-        rc4_set_key(self.cipher, key)   
+        rc4_set_key(self.cipher, key)
 
     def update(self, data):
         return rc4_update(self.cipher, data)
