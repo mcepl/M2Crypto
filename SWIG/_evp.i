@@ -185,7 +185,11 @@ PyObject *pkcs5_pbkdf2_hmac_sha1(PyObject *pass,
 
     PKCS5_PBKDF2_HMAC_SHA1(passbuf, passlen, saltbuf, saltlen, iter,
                            keylen, key);
+#if PY_MAJOR_VERSION >= 3
+    ret = PyBytes_FromStringAndSize((char*)key, keylen);
+#else
     ret = PyString_FromStringAndSize((char*)key, keylen);
+#endif // PY_MAJOR_VERSION >= 3 
     OPENSSL_cleanse(key, keylen);
     return ret;
 }
@@ -372,7 +376,13 @@ PyObject *bytes_to_key(const EVP_CIPHER *cipher, EVP_MD *md,
     klen = EVP_BytesToKey(cipher, md, (unsigned char *)sbuf, 
         (unsigned char *)dbuf, dlen, iter, 
         key, NULL); /* Since we are not returning IV no need to derive it */
+
+#if PY_MAJOR_VERSION >= 3
+    ret = PyBytes_FromStringAndSize((char*)key, klen);
+#else
     ret = PyString_FromStringAndSize((char*)key, klen);
+#endif // PY_MAJOR_VERSION >= 3
+
     return ret;
 }
 
@@ -480,7 +490,13 @@ PyObject *sign_final(EVP_MD_CTX *ctx, EVP_PKEY *pkey) {
         PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
+
+#if PY_MAJOR_VERSION >= 3
+    ret = PyBytes_FromStringAndSize((char*)sigbuf, siglen);
+#else
     ret = PyString_FromStringAndSize((char*)sigbuf, siglen);
+#endif // PY_MAJOR_VERSION >= 3
+
     OPENSSL_cleanse(sigbuf, siglen);
     OPENSSL_free(sigbuf);
     return ret;
@@ -561,7 +577,13 @@ PyObject *pkey_as_der(EVP_PKEY *pkey) {
         PyErr_SetString(PyExc_ValueError, "EVP_PKEY as DER failed");
         return NULL; 
     }
+
+#if PY_MAJOR_VERSION >= 3
+    der = PyBytes_FromStringAndSize((char*)pp, len);
+#else
     der = PyString_FromStringAndSize((char*)pp, len);
+#endif // PY_MAJOR_VERSION >= 3
+
     OPENSSL_free(pp);
     return der;
 }

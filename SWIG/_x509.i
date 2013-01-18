@@ -177,12 +177,21 @@ extern ASN1_OBJECT *X509_NAME_ENTRY_get_object(X509_NAME_ENTRY *);
 %rename(x509_name_entry_get_data) X509_NAME_ENTRY_get_data;
 extern ASN1_STRING *X509_NAME_ENTRY_get_data(X509_NAME_ENTRY *);
 
-%typemap(in) (CONST unsigned char *, int) { 
+%typemap(in) (CONST unsigned char *, int) {
+#if PY_MAJOR_VERSION >= 3 
+    if (PyBytes_Check($input)) {
+        Py_ssize_t len;
+
+        $1 = PyBytes_AsString($input); 
+        len = PyBytes_Size($input);
+#else
     if (PyString_Check($input)) {
         Py_ssize_t len;
 
         $1 = (unsigned char *)PyString_AsString($input); 
         len = PyString_Size($input);
+#endif // PY_MAJOR_VERSION >= 3
+
         if (len > INT_MAX) {
             PyErr_SetString(PyExc_ValueError, "object too large");
             return NULL;
@@ -358,7 +367,13 @@ PyObject *i2d_x509(X509 *x)
         PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
     }
     else {     
+
+#if PY_MAJOR_VERSION >= 3 
+        ret = PyBytes_FromStringAndSize((char*)buf, len);
+#else
         ret = PyString_FromStringAndSize((char*)buf, len);
+#endif // PY_MAJOR_VERSION >= 3 
+
         OPENSSL_free(buf);
     }
     return ret;
@@ -439,13 +454,24 @@ PyObject *x509_name_by_nid(X509_NAME *name, int nid) {
         return NULL;
     }
     xlen = X509_NAME_get_text_by_NID(name, nid, buf, len);
+
+/* FIXME Shouldn’t we have here casting to (char *) as well? */
+#if PY_MAJOR_VERSION >= 3 
+    ret = PyBytes_FromStringAndSize(buf, xlen);
+#else
     ret = PyString_FromStringAndSize(buf, xlen);
+#endif // PY_MAJOR_VERSION >= 3 
+
     PyMem_Free(buf);
     return ret;
 }
 
 int x509_name_set_by_nid(X509_NAME *name, int nid, PyObject *obj) {
+#if PY_MAJOR_VERSION >= 3 
+    return X509_NAME_add_entry_by_NID(name, nid, MBSTRING_ASC, (unsigned char *)PyBytes_AsString(obj), -1, -1, 0);
+#else
     return X509_NAME_add_entry_by_NID(name, nid, MBSTRING_ASC, (unsigned char *)PyString_AsString(obj), -1, -1, 0);
+#endif // PY_MAJOR_VERSION >= 3 
 }
 
 /* x509_name_add_entry_by_txt */

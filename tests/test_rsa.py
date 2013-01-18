@@ -59,7 +59,7 @@ class RSATestCase(unittest.TestCase):
         assert rsa.check_key() == 1
 
     def test_loadkey_bio(self):
-        keybio = BIO.MemoryBuffer(open(self.privkey).read()) 
+        keybio = BIO.MemoryBuffer(open(self.privkey).read())
         rsa = RSA.load_key_bio(keybio)
         assert len(rsa) == 1024
         assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
@@ -112,7 +112,7 @@ class RSATestCase(unittest.TestCase):
         x509 = X509.load_cert("tests/recipient.pem")
         rsa = x509.get_pubkey().get_rsa()
         rsa.public_encrypt("data", RSA.pkcs1_padding)
-        
+
     def test_loadpub(self):
         rsa = RSA.load_pub_key(self.pubkey)
         assert len(rsa) == 1024
@@ -148,20 +148,20 @@ class RSATestCase(unittest.TestCase):
         assert new.check_key()
         assert len(new) == 1024
         assert new.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
-        
+
     def test_sign_and_verify(self):
         """
         Testing signing and verifying digests
         """
-        algos = {'sha1':'', 
+        algos = {'sha1':'',
                  'ripemd160':'',
                  'md5':''}
 
         if m2.OPENSSL_VERSION_NUMBER >= 0x90800F:
             algos['sha224'] = ''
             algos['sha256'] = ''
-            algos['sha384'] = '' 
-            algos['sha512'] = '' 
+            algos['sha384'] = ''
+            algos['sha512'] = ''
 
         message = "This is the message string"
         digest = sha.sha(message).digest()
@@ -170,23 +170,23 @@ class RSATestCase(unittest.TestCase):
         for algo in algos.keys():
             signature = rsa.sign(digest, algo)
             #assert signature == algos[algo], 'mismatched signature with algorithm %s: signature=%s' % (algo, signature)
-            verify = rsa2.verify(digest, signature, algo) 
+            verify = rsa2.verify(digest, signature, algo)
             assert verify == 1, 'verification failed with algorithm %s' % algo
-    
+
     if m2.OPENSSL_VERSION_NUMBER >= 0x90708F:
         def test_sign_and_verify_rsassa_pss(self):
             """
             Testing signing and verifying using rsassa_pss
-    
+
             The maximum size of the salt has to decrease as the
-            size of the digest increases because of the size of 
+            size of the digest increases because of the size of
             our test key limits it.
             """
             message = "This is the message string"
             if sys.version_info < (2, 5):
-                algos = {'sha1': (43, sha.sha(message).digest()), 
+                algos = {'sha1': (43, sha.sha(message).digest()),
                          'md5': (47, md5.md5(message).digest())}
-        
+
             else:
                 import hashlib
                 algos = {'sha1': 43}
@@ -198,14 +198,14 @@ class RSATestCase(unittest.TestCase):
                     algos['sha224'] = 35
                     algos['sha256'] = 31
                     algos['sha384'] = 15
-                    algos['sha512'] = 0 
-    
+                    algos['sha512'] = 0
+
                 for algo, salt_max in algos.iteritems():
                     h = hashlib.new(algo)
                     h.update(message)
                     digest = h.digest()
-                    algos[algo] = (salt_max, digest) 
-    
+                    algos[algo] = (salt_max, digest)
+
             rsa = RSA.load_key(self.privkey)
             rsa2 = RSA.load_pub_key(self.pubkey)
             for algo, (salt_max, digest) in algos.iteritems():
@@ -213,6 +213,34 @@ class RSATestCase(unittest.TestCase):
                     signature = rsa.sign_rsassa_pss(digest, algo, salt_length)
                     verify = rsa2.verify_rsassa_pss(digest, signature, algo, salt_length)
                     assert verify == 1, 'verification failed with algorithm %s salt length %d' % (algo, salt_length)
+
+    def test_sign_and_verify_rsassa_pss(self):
+        """
+        Testing signing and verifying using rsassa_pss
+
+        The maximum size of the salt has to decrease as the
+        size of the digest increases because of the size of
+        our test key limits it.
+        """
+        algos = {'sha1':43,
+                 'ripemd160':43,
+                 'md5':47}
+
+        if m2.OPENSSL_VERSION_NUMBER >= 0x90800F:
+            algos['sha224'] = 35
+            algos['sha256'] = 31
+            algos['sha384'] = 15
+            algos['sha512'] = 0
+
+        message = "This is the message string"
+        digest = sha.sha(message).digest()
+        rsa = RSA.load_key(self.privkey)
+        rsa2 = RSA.load_pub_key(self.pubkey)
+        for algo, salt_max in algos.iteritems():
+            for salt_length in range(0, salt_max):
+                signature = rsa.sign_rsassa_pss(digest, algo, salt_length)
+                verify = rsa2.verify_rsassa_pss(digest, signature, algo, salt_length)
+                assert verify == 1, 'verification failed with algorithm %s salt length %d' % (algo, salt_length)
 
     def test_sign_bad_method(self):
         """
@@ -233,7 +261,7 @@ class RSATestCase(unittest.TestCase):
         digest = 'a' * 16
         signature = rsa.sign(digest, 'sha1')
         self.assertRaises(ValueError, rsa.verify,
-                          digest, signature, 'bad_digest_method') 
+                          digest, signature, 'bad_digest_method')
 
     def test_verify_mismatched_algo(self):
         """
@@ -242,12 +270,12 @@ class RSATestCase(unittest.TestCase):
         """
         rsa = RSA.load_key(self.privkey)
         message = "This is the message string"
-        digest = sha.sha(message).digest() 
+        digest = sha.sha(message).digest()
         signature = rsa.sign(digest, 'sha1')
         rsa2 = RSA.load_pub_key(self.pubkey)
-        self.assertRaises(RSA.RSAError, rsa.verify, 
+        self.assertRaises(RSA.RSAError, rsa.verify,
                           digest, signature, 'md5')
-    
+
     def test_sign_fail(self):
         """
         Testing sign to make sure it fails when I give it
@@ -258,31 +286,30 @@ class RSATestCase(unittest.TestCase):
         rsa = RSA.load_key(self.privkey)
         digest = """This string should be long enough to warrant an error in
         RSA_sign""" * 2
-         
+
         self.assertRaises(RSA.RSAError, rsa.sign, digest)
-    
+
     def test_verify_bad_signature(self):
         """
         Testing verify to make sure it fails when we use a bad signature
         """
         rsa = RSA.load_key(self.privkey)
         message = "This is the message string"
-        digest = sha.sha(message).digest() 
+        digest = sha.sha(message).digest()
 
         otherMessage = "Abracadabra"
-        otherDigest = sha.sha(otherMessage).digest() 
+        otherDigest = sha.sha(otherMessage).digest()
         otherSignature = rsa.sign(otherDigest)
 
-        self.assertRaises(RSA.RSAError, rsa.verify, 
+        self.assertRaises(RSA.RSAError, rsa.verify,
                           digest, otherSignature)
-    
-        
+
+
 def suite():
     return unittest.makeSuite(RSATestCase)
-    
+
 
 if __name__ == '__main__':
-    Rand.load_file('randpool.dat', -1) 
+    Rand.load_file('randpool.dat', -1)
     unittest.TextTestRunner().run(suite())
     Rand.save_file('randpool.dat')
-

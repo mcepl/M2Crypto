@@ -313,6 +313,48 @@ PyObject *rsa_private_decrypt(RSA *rsa, PyObject *from, int padding) {
 }
 
 #if OPENSSL_VERSION_NUMBER >= 0x0090708fL
+/*
+FIXME This is original replacement version.
+
+PyObject *rsa_padding_add_pkcs1_pss(RSA *rsa, PyObject *digest, EVP_MD *hash, int salt_lenth) {
+    const void *dbuf;
+    void *tbuf;
+
+    int dlen, result;
+    PyObject *ret;
+
+    int tlen = BN_num_bytes(rsa->n);
+
+    if (m2_PyObject_AsReadBufferInt(digest, &dbuf, &dlen) == -1)
+        return NULL;
+
+    if (!(tbuf = PyMem_Malloc(tlen))) {
+        PyErr_SetString(PyExc_MemoryError, "rsa_padding_add_pkcs1_pss");
+        return NULL;
+    }
+    result = RSA_padding_add_PKCS1_PSS(
+        rsa,
+        (unsigned char *)tbuf,
+        (unsigned char *)dbuf,
+        hash,
+        salt_lenth);
+
+    if (result == -1) {
+        PyMem_Free(tbuf);
+        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
+
+#if PY_MAJOR_VERSION >= 3
+    ret = PyBytes_FromStringAndSize((const char *)tbuf, tlen);
+#else
+    ret = PyString_FromStringAndSize((const char *)tbuf, tlen);
+#endif // PY_MAJOR_VERSION >= 3
+
+    PyMem_Free(tbuf);
+    return ret;
+}
+ */
 PyObject *rsa_padding_add_pkcs1_pss(RSA *rsa, PyObject *digest, EVP_MD *hash, int salt_length) {
     const void *dbuf;
     unsigned char *tbuf;
