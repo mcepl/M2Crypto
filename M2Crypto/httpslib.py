@@ -22,7 +22,7 @@ class HTTPSConnection(HTTPConnection):
 
     def __init__(self, host, port=None, strict=None, **ssl):
         self.session = None
-        keys = ssl.keys()
+        keys = list(ssl.keys())
         try:
             keys.remove('key_file')
         except ValueError:
@@ -97,22 +97,16 @@ class HTTPSConnection(HTTPConnection):
         self.session = session
 
 
-class HTTPS(HTTP):
-
-    _connection_class = HTTPSConnection
-
-    def __init__(self, host='', port=None, strict=None, **ssl):
-        HTTP.__init__(self, host, port, strict)
-        try:
-            self.ssl_ctx = ssl['ssl_context']
-        except KeyError:
-            self.ssl_ctx = SSL.Context('sslv23')
-        assert isinstance(self._conn, HTTPSConnection)
-        self._conn.ssl_ctx = self.ssl_ctx
+class HTTPS(object):
+    """
+    Class httplib.HTTP has been implemented in python 2.* only for
+    backward compatibility with 1.5.2. 
+    """
+    def __init__(self, *args, **kwargs):
+        raise NotImplementedError('class HTTPS is not implenented.')
 
 
 class ProxyHTTPSConnection(HTTPSConnection):
-
     """
     An HTTPS Connection that uses a proxy and the CONNECT request.
 

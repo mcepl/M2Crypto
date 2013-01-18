@@ -48,9 +48,9 @@ class SSLServer(SocketServer.TCPServer):
         print('-'*40)
 
 
-class ForkingSSLServer(SocketServer.ForkingMixIn, SSLServer):
+class ForkingSSLServer(socketserver.ForkingMixIn, SSLServer):
     pass
 
 
-class ThreadingSSLServer(SocketServer.ThreadingMixIn, SSLServer):
+class ThreadingSSLServer(socketserver.ThreadingMixIn, SSLServer):
     pass

@@ -231,10 +231,10 @@ class RSA:
 
         @type salt_length: int
         @param salt_length: The length of the salt to use
-        
+
         @type hash_algo: str
         @param hash_algo: The hash algorithm to use
-        Legal values are 'sha1','sha224', 'sha256', 'ripemd160', 
+        Legal values are 'sha1','sha224', 'sha256', 'ripemd160',
         and 'md5'.
 
         @return: a string which is the signature
@@ -242,12 +242,11 @@ class RSA:
         hash = getattr(m2, hash_algo, None)
 
         if hash is None:
-            raise RSAError, 'not such hash algorithm %s' % hash_algo 
+            raise RSAError('not such hash algorithm %s' % hash_algo)
 
         signature = m2.rsa_padding_add_pkcs1_pss(self.rsa, digest, hash(), salt_length)
-        
-        return self.private_encrypt(signature, m2.no_padding) 
 
+        return self.private_encrypt(signature, m2.no_padding)
 
     def verify_rsassa_pss(self, data, signature, hash_algo='sha1', salt_length=20):
         """
@@ -258,27 +257,26 @@ class RSA:
 
         @type signature: str
         @param signature: The signature signed with RSASSA-PSS
-        
+
         @type salt_length: int
         @param salt_length: The length of the salt that was used
 
         @type hash_algo: str
         @param hash_algo: The hash algorithm to use
-        Legal values are 'sha1','sha224', 'sha256', 'ripemd160', 
+        Legal values are 'sha1','sha224', 'sha256', 'ripemd160',
         and 'md5'.
 
         @return: True or False, depending on whether the signature was
-        verified.  
+        verified.
         """
         hash = getattr(m2, hash_algo, None)
 
         if hash is None:
-            raise RSAError, 'not such hash algorithm %s' % hash_algo 
+            raise RSAError('not such hash algorithm %s' % hash_algo)
 
         plain_signature = self.public_decrypt(signature, m2.no_padding)
-         
-        return m2.rsa_verify_pkcs1_pss(self.rsa, data, plain_signature, hash(), salt_length)
 
+        return m2.rsa_verify_pkcs1_pss(self.rsa, data, plain_signature, hash(), salt_length)
 
     def sign(self, digest, algo='sha1'):
         """

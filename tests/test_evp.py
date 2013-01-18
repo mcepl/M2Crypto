@@ -459,8 +459,8 @@ class CipherTestCase(unittest.TestCase):
 
         def decrypt(ciphertext, key, iv, alg='aes_256_cbc'):
             cipher = EVP.Cipher(alg=alg, key=key, iv=iv, op=0)
-            pbuf = cStringIO.StringIO()
-            cbuf = cStringIO.StringIO(ciphertext)
+            pbuf = io.StringIO()
+            cbuf = io.StringIO(ciphertext)
             plaintext = _cipherFilter(cipher, cbuf, pbuf)
             pbuf.close()
             cbuf.close()

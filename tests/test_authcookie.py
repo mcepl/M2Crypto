@@ -80,7 +80,7 @@ class AuthCookieTestCase(unittest.TestCase):
 
     def test_mix_unmix3(self):
         c = self.jar.makeCookie(self.exp, self.data)
-        s = Cookie.SmartCookie()
+        s = http.cookies.SmartCookie()
         s.load(c.output())
         exp, data, digest = unmix3(s[self._token].value)
         self.assertEqual(data, self.data)
@@ -95,14 +95,14 @@ class AuthCookieTestCase(unittest.TestCase):
 
     def test_cookie_str2(self):
         c = self.jar.makeCookie(self.exp, self.data)
-        s = Cookie.SmartCookie()
+        s = http.cookies.SmartCookie()
         s.load(c.output())
         self.assertTrue(self.jar.isGoodCookieString(s.output()))
 
     def test_cookie_str_expired(self):
         t = self.exp - 7200
         c = self.jar.makeCookie(t, self.data)
-        s = Cookie.SmartCookie()
+        s = http.cookies.SmartCookie()
         s.load(c.output())
         self.assertFalse(self.jar.isGoodCookieString(s.output()))
 
@@ -110,7 +110,7 @@ class AuthCookieTestCase(unittest.TestCase):
         c = self.jar.makeCookie(self.exp, self.data)
         cout = c.output()
         str = cout[:32] + 'this is bad' + cout[32:]
-        s = Cookie.SmartCookie()
+        s = http.cookies.SmartCookie()
         s.load(str)
         self.assertFalse(self.jar.isGoodCookieString(s.output()))
 

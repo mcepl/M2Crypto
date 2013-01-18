@@ -25,7 +25,7 @@ class PublicKey:
         return self._pubkey.n[-8:]
 
     def add_userid(self, u_pkt):
-        assert isinstance(u_pkt, userid_packet)
+        assert isinstance(u_pkt, packet.userid_packet)
         self._userid[u_pkt.userid()] = u_pkt
 
     def remove_userid(self, userid):

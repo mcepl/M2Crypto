@@ -281,7 +281,7 @@ class X509_Name:  # noqa
         return X509_Name_Entry(m2.x509_name_get_entry(self.x509_name, idx))
 
     def __iter__(self):
-        for i in xrange(self.entry_count()):
+        for i in range(self.entry_count()):
             yield self[i]
 
     def _ptr(self):

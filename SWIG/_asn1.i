@@ -154,7 +154,11 @@ int asn1_integer_set(ASN1_INTEGER *asn1, PyObject *value) {
     PyObject *fmt, *args, *hex;
 
     if (PyInt_Check(value))
+#if PY_MAJOR_VERSION >= 3
+        return ASN1_INTEGER_set(asn1, PyLong_AsLong(value));
+#else
         return ASN1_INTEGER_set(asn1, PyInt_AS_LONG(value));
+#endif // PY_MAJOR_VERSION >= 3
 
     if (!PyLong_Check(value)){
         PyErr_SetString(PyExc_TypeError, "expected int or long");

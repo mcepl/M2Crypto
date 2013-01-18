@@ -11,7 +11,7 @@ import M2Crypto
 from M2Crypto import SSL, httpslib, m2urllib
 from xmlrpclib import *  # noqa
 
-__version__ = M2Crypto.version
+__version__ = _version
 
 class SSL_Transport(Transport):  # noqa
 

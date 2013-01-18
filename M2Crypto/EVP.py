@@ -146,7 +146,8 @@ class Cipher:
         if enabled:
             padding = 1
 
-        return m2.cipher_set_padding(self.ctx, padding) 
+        return m2.cipher_set_padding(self.ctx, padding)
+
 
 class PKey:
     """

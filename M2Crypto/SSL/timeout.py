@@ -8,7 +8,7 @@ Copyright 2008 Heikki Toivonen. All rights reserved.
 __all__ = ['DEFAULT_TIMEOUT', 'timeout', 'struct_to_timeout', 'struct_size']
 
 import struct
-from M2Crypto import m2
+from .. import __m2crypto as m2
 
 DEFAULT_TIMEOUT = 600
 

@@ -552,6 +552,11 @@ BIGNUM *dec_to_bn(PyObject *value) {
     }
 }
 
+/*
+PyFile* is not part of Python3 ... if we’ll ever need it, we have to
+replace it completely.
+http://stackoverflow.com/questions/8195383/pyfile-type-replaced-by
+
 %typemap(in) FILE * {
 #if PY_MAJOR_VERSION >= 3
     $1=PyObject_AsFileDescriptor($input);
@@ -563,6 +568,7 @@ BIGNUM *dec_to_bn(PyObject *value) {
     $1=PyFile_AsFile($input);
 #endif // PY_MAJOR_VERSION >= 3
 }
+*/
 
 %typemap(in) PyObject *pyfunc {
     if (!PyCallable_Check($input)) {

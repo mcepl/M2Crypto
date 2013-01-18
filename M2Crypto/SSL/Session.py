@@ -4,7 +4,7 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
 __all__ = ['Session', 'load_session']
 
-from M2Crypto import BIO, Err, m2
+from .. import BIO, Err, __m2crypto as m2
 
 class Session:
 
@@ -53,6 +53,6 @@ def load_session(pemfile):
     cptr = m2.ssl_session_read_pem(f.bio_ptr())
     f.close()
     if cptr is None:
-        from M2Crypto.SSL import SSLError
+        from . import SSLError
         raise SSLError(Err.get_error())
     return Session(cptr, 1)

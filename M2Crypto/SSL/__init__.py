@@ -7,7 +7,7 @@ Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 import socket
 
 # M2Crypto
-from M2Crypto import m2
+from .. import __m2crypto as m2
 
 class SSLError(Exception):
     pass

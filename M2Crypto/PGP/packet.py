@@ -22,10 +22,7 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 import struct
 import sys
 
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+from io import StringIO
 
 # Python 2 has int() and long().
 # Python 3 and higher only has int().
@@ -355,7 +352,7 @@ class packet_stream:
                 raise XXXError
         ctbt = (ctb & 0x3c) >> 2
 
-        if ctbt == CTB_COMPRESSED_DATA:
+        if ctbt == constants.CTB_COMPRESSED_DATA:
             self.under_current = self.stream
             cp = compressed_packet(ctb0, self.stream)
             self.stream = cp.uncompress()

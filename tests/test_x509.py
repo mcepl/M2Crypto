@@ -248,7 +248,7 @@ class X509TestCase(unittest.TestCase):
         cert.set_serial_number(1)
         cert.set_version(2)
         cert.set_subject(sub)
-        t = long(time.time()) + time.timezone
+        t = int(time.time()) + time.timezone
         now = ASN1.ASN1_UTCTIME()
         now.set_time(t)
         now_plus_year = ASN1.ASN1_UTCTIME()
@@ -313,7 +313,7 @@ class X509TestCase(unittest.TestCase):
         cert.set_serial_number(1)
         cert.set_version(2)
         cert.set_subject(sub)
-        t = long(time.time()) + time.timezone
+        t = int(time.time()) + time.timezone
         now = ASN1.ASN1_UTCTIME()
         now.set_time(t)
         now_plus_year = ASN1.ASN1_UTCTIME()
@@ -379,7 +379,7 @@ class X509TestCase(unittest.TestCase):
         eecert = X509.X509()
         eecert.set_serial_number(2)
         eecert.set_version(2)
-        t = long(time.time()) + time.timezone
+        t = int(time.time()) + time.timezone
         now = ASN1.ASN1_UTCTIME()
         now.set_time(t)
         now_plus_year = ASN1.ASN1_UTCTIME()

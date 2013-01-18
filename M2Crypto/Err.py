@@ -35,7 +35,7 @@ class SSLError(Exception):
         self.client_addr = client_addr
 
     def __str__(self):
-        if (isinstance(self.client_addr, unicode)):
+        if (isinstance(self.client_addr, str)):
             s = self.client_addr.encode('utf8')
         else:
             s = self.client_addr

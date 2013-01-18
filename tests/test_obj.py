@@ -84,7 +84,7 @@ class ObjectsTestCase(unittest.TestCase):
         n.givenName = 'name given'
         self.assertEqual(len(n), 11, len(n))
 
-        tl = map(x509_name_entry2tuple, x509_name2list(n))
+        tl = list(map(x509_name_entry2tuple, x509_name2list(n)))
 
         self.assertEqual(len(tl), len(n), len(tl))
 

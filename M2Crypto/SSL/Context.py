@@ -47,6 +47,8 @@ class Context:
     """'Context' for SSL connections."""
 
     m2_ssl_ctx_free = m2.ssl_ctx_free
+    
+    from . import cb
 
     def __init__(self, protocol='sslv23', weak_crypto=None,
                  post_connection_check=None):
@@ -68,7 +70,7 @@ class Context:
             self.m2_ssl_ctx_free(self.ctx)
 
     def close(self):
-        del map()[long(self.ctx)]
+        del map()[int(self.ctx)]
 
     def load_cert(self, certfile, keyfile=None,
                   callback=util.passphrase_callback):

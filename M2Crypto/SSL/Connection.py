@@ -254,10 +254,10 @@ class Connection:
         return self.socket.fileno()
 
     def getsockopt(self, *args):
-        return apply(self.socket.getsockopt, args)
+        return self.socket.getsockopt(*args)
 
     def setsockopt(self, *args):
-        return apply(self.socket.setsockopt, args)
+        return self.socket.setsockopt(*args)
 
     def get_context(self):
         """Return the SSL.Context object associated with this

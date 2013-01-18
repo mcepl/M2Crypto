@@ -5,7 +5,7 @@ from __future__ import print_function
 """
    Implements a [hopefully] non-blocking SSL dispatcher on top of
    M2Crypto package.
-   
+
    Written by Ilya Etingof <ilya@glas.net>, 05/2001
 """
 import asyncore, socket
@@ -20,7 +20,7 @@ class _nb_connection (SSL.Connection):
     """
     def __init__ (self, ctx, sock):
         SSL.Connection.__init__ (self, ctx, sock)
-        
+
     def connect(self, addr):
         self._setup_ssl(addr)
         return self._check_ssl_return(SSL.m2.ssl_connect(self.ssl))
@@ -28,14 +28,14 @@ class _nb_connection (SSL.Connection):
     def accept(self, addr):
         self._setup_ssl(addr)
         self.accept_ssl()
-                
+
 class dispatcher(asyncore.dispatcher_with_send):
     """A non-blocking SSL dispatcher that mimics the 
        asyncode.dispatcher API.
     """
     def __init__ (self, cert, key, sock=None, serving=None):
         asyncore.dispatcher_with_send.__init__ (self)
-        
+
         self.__serving = serving
 
         # XXX
@@ -44,21 +44,21 @@ class dispatcher(asyncore.dispatcher_with_send):
                 self.set_socket(sock)
         else:
             self.create_socket (socket.AF_INET, socket.SOCK_STREAM)
-            
+
         self.ctx = SSL.Context('sslv23')
         self.ctx.set_verify(SSL.verify_none, 10)
         self.ctx.load_cert(cert, key)
         self.ctx.set_info_callback()
 
         self.ssl = _nb_connection(self.ctx, self.socket)
-        
+
         self.__output = ''
         self.__want_write = 1
 
     #
     # The following are asyncore overloaded methods
     #
-    
+
     def handle_connect (self):
         """Initiate SSL connection negotiation
         """
@@ -66,7 +66,7 @@ class dispatcher(asyncore.dispatcher_with_send):
             self.ssl.accept (self.addr)
 
             self.peer = self.ssl.get_peer_cert()
-        
+
             self.handle_ssl_accept()
 
         else:
@@ -92,14 +92,14 @@ class dispatcher(asyncore.dispatcher_with_send):
         self.__want_write = 0
 
         ret = self.ssl._write_nbio(self.__output)
-        
+
         if ret < 0:
             try:
                 err = SSL.m2.ssl_get_error(self.ssl.ssl, ret)
 
             except SSL.SSLError:
                 return
-            
+
             if err == SSL.m2.ssl_error_want_write:
                 self.__want_write = 1
         else:
@@ -118,7 +118,7 @@ class dispatcher(asyncore.dispatcher_with_send):
         """Shutdown SSL connection.
         """
         self.ssl = None
-        
+
         self.ctx = None
         self.close ()
 
@@ -132,12 +132,12 @@ class dispatcher(asyncore.dispatcher_with_send):
     #
     # The following are ssl.dispatcher API
     #
-    
+
     def ssl_connect(self, server):
         """Initiate SSL connection
         """
         self.connect(server)
-    
+
     def ssl_write(self, data):
         """Write data to SSL connection
         """
@@ -147,7 +147,7 @@ class dispatcher(asyncore.dispatcher_with_send):
         """Close SSL connection
         """
         self.handle_close()
-        
+
     def handle_ssl_connect(self):
         """Invoked on SSL connection establishment (whilst
            in client mode)
@@ -159,7 +159,7 @@ class dispatcher(asyncore.dispatcher_with_send):
            in server mode)
         """
         print('Unhandled handle_ssl_accept()')
-        
+
     def handle_ssl_read(self, data):
         """Invoked on new data arrival to SSL connection
         """
@@ -174,7 +174,7 @@ class dispatcher(asyncore.dispatcher_with_send):
         """Invoked prior to every select() call
         """
         return 0
-    
+
 if __name__=='__main__':
     """Give it a test run
     """
@@ -183,12 +183,12 @@ if __name__=='__main__':
         """
         def __init__ (self, cert, key):
             dispatcher.__init__(self, cert, key)
-            
+
         def handle_ssl_read(self, data):
             print(data)
             self.ssl_write('test write')
 
     ssl = client('test.cert', 'test.key')
     ssl.ssl_connect(('localhost', 7777))
-    
+
     asyncore.loop()

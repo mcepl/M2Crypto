@@ -57,7 +57,7 @@ class HTTPSHandler(AbstractHTTPHandler):
         # Our change: Check to see if we're using a proxy.
         # Then create an appropriate ssl-aware connection.
         full_url = req.get_full_url()
-        target_host = urlparse.urlparse(full_url)[1]
+        target_host = urllib.parse.urlparse(full_url)[1]
 
         if (target_host != host):
             request_uri = urlparse.urldefrag(full_url)[0]
@@ -94,7 +94,7 @@ class HTTPSHandler(AbstractHTTPHandler):
         r.recv = r.read
         fp = socket._fileobject(r, close=True)
 
-        resp = addinfourl(fp, r.msg, req.get_full_url())
+        resp = urllib.request.addinfourl(fp, r.msg, req.get_full_url())
         resp.code = r.status
         resp.msg = r.reason
         return resp
@@ -115,7 +115,7 @@ def build_opener(ssl_context=None, *handlers):
     import types
 
     def isclass(obj):
-        return isinstance(obj, types.ClassType) or hasattr(obj, "__bases__")
+        return isinstance(obj, type) or hasattr(obj, "__bases__")
 
     opener = OpenerDirector()
     default_classes = [ProxyHandler, UnknownHandler, HTTPHandler,
