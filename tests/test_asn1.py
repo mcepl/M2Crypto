@@ -50,7 +50,7 @@ class ASN1TestCase(unittest.TestCase):
         t2 = time.strftime(format, time.gmtime(500))
         self.assertEqual(t1, t2)
 
-        t = long(time.time()) + time.timezone
+        t = int(time.time()) + time.timezone
         asn1.set_time(t)
         t1 = time.strftime(format, time.strptime(str(asn1), format))
         t2 = time.strftime(format, time.gmtime(t))

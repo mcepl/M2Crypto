@@ -8,7 +8,7 @@
 """
 
 import sys
-import util, BIO, m2
+from . import util, BIO, m2
 
 class DSAError(Exception): pass
 

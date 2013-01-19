@@ -7,7 +7,7 @@ __all__ = ['map', 'Context']
 from weakref import WeakValueDictionary
 
 # M2Crypto
-import cb
+from . import cb
 from M2Crypto import util, BIO, Err, RSA, m2, X509
 
 class _ctxmap:
@@ -40,12 +40,12 @@ class Context:
                  post_connection_check=None):
         proto = getattr(m2, protocol + '_method', None)
         if proto is None:
-            raise ValueError, "no such protocol '%s'" % protocol
+            raise ValueError("no such protocol '%s'" % protocol)
         self.ctx = m2.ssl_ctx_new(proto())
         self.allow_unknown_ca = 0
         self.post_connection_check = post_connection_check
         map()[long(self.ctx)] = self
-        m2.ssl_ctx_set_cache_size(self.ctx, 128L)
+        m2.ssl_ctx_set_cache_size(self.ctx, 128)
         if weak_crypto is None:
             if protocol == 'sslv23':
                 self.set_options(m2.SSL_OP_ALL | m2.SSL_OP_NO_SSLv2)
@@ -56,7 +56,7 @@ class Context:
             self.m2_ssl_ctx_free(self.ctx)
 
     def close(self):
-        del map()[long(self.ctx)]
+        del map()[int(self.ctx)]
 
     def load_cert(self, certfile, keyfile=None, callback=util.passphrase_callback):
         """Load certificate and private key into the context.
@@ -78,7 +78,7 @@ class Context:
             keyfile = certfile
         m2.ssl_ctx_use_privkey(self.ctx, keyfile)
         if not m2.ssl_ctx_check_privkey(self.ctx):
-            raise ValueError, 'public/private key mismatch'
+            raise ValueError('public/private key mismatch')
 
     def load_cert_chain(self, certchainfile, keyfile=None, callback=util.passphrase_callback):
         """Load certificate chain and private key into the context.
@@ -102,7 +102,7 @@ class Context:
             keyfile = certchainfile
         m2.ssl_ctx_use_privkey(self.ctx, keyfile)
         if not m2.ssl_ctx_check_privkey(self.ctx):
-            raise ValueError, 'public/private key mismatch'
+            raise ValueError('public/private key mismatch')
 
     def set_client_CA_list_from_file(self, cafile):
         """Load CA certs into the context. These CA certs are sent to the
@@ -205,7 +205,7 @@ class Context:
         if isinstance(rsa, RSA.RSA):
             return m2.ssl_ctx_set_tmp_rsa(self.ctx, rsa.rsa)
         else:
-            raise TypeError, "Expected an instance of RSA.RSA, got %s." % (rsa,)
+            raise TypeError("Expected an instance of RSA.RSA, got %s." % (rsa,))
 
     def set_tmp_rsa_callback(self, callback=None):
         if callback is not None:

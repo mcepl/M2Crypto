@@ -8,7 +8,7 @@
 """
 
 import sys
-import m2
+from . import m2
 
 class UtilError(Exception): pass
 
@@ -31,15 +31,15 @@ def pkcs5_pad(data, blklen=8):
 
 def pkcs7_pad(data, blklen):
     if blklen>255:
-        raise ValueError, 'illegal block size'
+        raise ValueError('illegal block size')
     pad=(blklen-(len(data)%blklen))
     return data+chr(pad)*pad
 
 def octx_to_num(x):
-    v = 0L
+    v = 0
     lx = len(x)
     for i in range(lx):
-        v = v + ord(x[i]) * (256L ** (lx-i-1))
+        v = v + ord(x[i]) * (256 ** (lx-i-1))
     return v
 
 def genparam_callback(p, n, out=sys.stdout):

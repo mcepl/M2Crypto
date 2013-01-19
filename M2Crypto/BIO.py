@@ -2,12 +2,12 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-import m2
+from . import m2
 
 # Deprecated
-from m2 import bio_do_handshake as bio_do_ssl_handshake
+from .m2 import bio_do_handshake as bio_do_ssl_handshake
 
-from cStringIO import StringIO
+from io import StringIO
 
 class BIOError(Exception): pass
 
@@ -44,7 +44,7 @@ class BIO:
 
     def read(self, size=None):
         if not self.readable():
-            raise IOError, 'cannot read'
+            raise IOError('cannot read')
         if size is None:
             buf = StringIO()
             while 1:
@@ -55,19 +55,19 @@ class BIO:
         elif size == 0:
             return ''
         elif size < 0:
-            raise ValueError, 'read count is negative'
+            raise ValueError('read count is negative')
         else:
             return m2.bio_read(self.bio, size)
 
     def readline(self, size=4096):
         if not self.readable():
-            raise IOError, 'cannot read'
+            raise IOError('cannot read')
         buf = m2.bio_gets(self.bio, size)
         return buf
 
     def readlines(self, sizehint='ignored'):
         if not self.readable():
-            raise IOError, 'cannot read'
+            raise IOError('cannot read')
         lines=[]
         while 1:
             buf=m2.bio_gets(self.bio, 4096)
@@ -81,7 +81,7 @@ class BIO:
 
     def write(self, data):
         if not self.writeable():
-            raise IOError, 'cannot write'
+            raise IOError('cannot write')
         return m2.bio_write(self.bio, data)
 
     def write_close(self):
@@ -146,7 +146,7 @@ class MemoryBuffer(BIO):
 
     def read(self, size=0):
         if not self.readable():
-            raise IOError, 'cannot read'
+            raise IOError('cannot read')
         if size:
             return m2.bio_read(self.bio, size)
         else:
@@ -250,7 +250,7 @@ class CipherStream(BIO):
     def set_cipher(self, algo, key, iv, op):
         cipher = getattr(m2, algo, None)
         if cipher is None:
-            raise ValueError, ('unknown cipher', algo)
+            raise ValueError('unknown cipher', algo)
         m2.bio_set_cipher(self.bio, cipher(), key, iv, op)
         m2.bio_push(self.bio, self.obio._ptr())
 

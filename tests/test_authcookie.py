@@ -4,7 +4,7 @@
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-import Cookie, binascii, time, unittest, sys
+import http.cookies, binascii, time, unittest, sys
 from M2Crypto.AuthCookie import AuthCookie, AuthCookieJar, mix, unmix, unmix3
 from M2Crypto import Rand, EVP
 
@@ -77,7 +77,7 @@ class AuthCookieTestCase(unittest.TestCase):
 
     def test_mix_unmix3(self):
         c = self.jar.makeCookie(self.exp, self.data)
-        s = Cookie.SmartCookie()
+        s = http.cookies.SmartCookie()
         s.load(c.output())
         exp, data, digest = unmix3(s[self._token].value)
         self.failUnlessEqual(data, self.data)
@@ -92,14 +92,14 @@ class AuthCookieTestCase(unittest.TestCase):
 
     def test_cookie_str2(self):
         c = self.jar.makeCookie(self.exp, self.data)
-        s = Cookie.SmartCookie()
+        s = http.cookies.SmartCookie()
         s.load(c.output())
         self.failUnless(self.jar.isGoodCookieString(s.output()))
 
     def test_cookie_str_expired(self):
         t = self.exp - 7200
         c = self.jar.makeCookie(t, self.data)
-        s = Cookie.SmartCookie()
+        s = http.cookies.SmartCookie()
         s.load(c.output())
         self.failIf(self.jar.isGoodCookieString(s.output()))
 
@@ -107,7 +107,7 @@ class AuthCookieTestCase(unittest.TestCase):
         c = self.jar.makeCookie(self.exp, self.data)
         cout = c.output()
         str = cout[:32] + 'this is bad' + cout[32:]
-        s = Cookie.SmartCookie()
+        s = http.cookies.SmartCookie()
         s.load(str)
         self.failIf(self.jar.isGoodCookieString(s.output()))
 
@@ -115,7 +115,7 @@ class AuthCookieTestCase(unittest.TestCase):
         c = self.jar.makeCookie(self.exp, self.data)
         cout = c.output()
         str = cout[:26] + '2' + cout[27:]
-        s = Cookie.SmartCookie()
+        s = http.cookies.SmartCookie()
         s.load(str)
         self.failIf(self.jar.isGoodCookieString(s.output()))
 
@@ -123,7 +123,7 @@ class AuthCookieTestCase(unittest.TestCase):
         c = self.jar.makeCookie(self.exp, self.data)
         cout = c.output()
         str = cout[:36] + 'X' + cout[37:]
-        s = Cookie.SmartCookie()
+        s = http.cookies.SmartCookie()
         s.load(str)
         self.failIf(self.jar.isGoodCookieString(s.output()))
 
@@ -131,7 +131,7 @@ class AuthCookieTestCase(unittest.TestCase):
         c = self.jar.makeCookie(self.exp, self.data)
         cout = c.output()
         str = cout[:76] + 'X' + cout[77:]
-        s = Cookie.SmartCookie()
+        s = http.cookies.SmartCookie()
         s.load(str)
         self.failIf(self.jar.isGoodCookieString(s.output()))
 

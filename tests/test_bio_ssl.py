@@ -11,7 +11,7 @@ from M2Crypto import Err
 from M2Crypto import Rand
 from M2Crypto import threading as m2threading
 
-from test_ssl import srv_host, srv_port
+from .test_ssl import srv_host, srv_port
 
 class HandshakeClient(threading.Thread):
 
@@ -40,7 +40,7 @@ class HandshakeClient(threading.Thread):
             if ret <= 0:
                 if not sslbio.should_retry() or not sslbio.should_read():
                     err_string = Err.get_error()
-                    print err_string
+                    print(err_string)
                     sys.exit("unrecoverable error in handshake - client")
                 else:
                      output_token  = writebio.read()

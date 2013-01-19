@@ -12,11 +12,15 @@ Summary of changes:
 """
 
 import socket
-from urllib2 import *
-import urlparse
+import urllib.parse
+from urllib.request import AbstractHTTPHandler, OpenerDirector, \
+    ProxyHandler, UnknownHandler, HTTPHandler, HTTPDefaultErrorHandler, \
+    HTTPRedirectHandler, FTPHandler, FileHandler, HTTPErrorProcessor
 
-import SSL
-import httpslib
+from urllib.error import URLError
+
+from . import SSL
+from . import httpslib
 
 
 class _closing_fileobject(socket._fileobject):
@@ -61,7 +65,7 @@ class HTTPSHandler(AbstractHTTPHandler):
         # Our change: Check to see if we're using a proxy.
         # Then create an appropriate ssl-aware connection.
         full_url = req.get_full_url()
-        target_host = urlparse.urlparse(full_url)[1]
+        target_host = urllib.parse.urlparse(full_url)[1]
 
         if (target_host != host):
             request_uri = urlparse.urldefrag(full_url)[0]
@@ -84,7 +88,7 @@ class HTTPSHandler(AbstractHTTPHandler):
         try:
             h.request(req.get_method(), request_uri, req.data, headers)
             r = h.getresponse()
-        except socket.error, err: # XXX what error?
+        except socket.error as err: # XXX what error?
             raise URLError(err)
 
         # Pick apart the HTTPResponse object to get the addinfourl
@@ -101,7 +105,7 @@ class HTTPSHandler(AbstractHTTPHandler):
         r.recv = r.read
         fp = _closing_fileobject(r)
 
-        resp = addinfourl(fp, r.msg, req.get_full_url())
+        resp = urllib.request.addinfourl(fp, r.msg, req.get_full_url())
         resp.code = r.status
         resp.msg = r.reason
         return resp
@@ -120,9 +124,8 @@ def build_opener(ssl_context = None, *handlers):
     If any of the handlers passed as arguments are subclasses of the
     default handlers, the default handlers will not be used.
     """
-    import types
     def isclass(obj):
-        return isinstance(obj, types.ClassType) or hasattr(obj, "__bases__")
+        return isinstance(obj, type) or hasattr(obj, "__bases__")
 
     opener = OpenerDirector()
     default_classes = [ProxyHandler, UnknownHandler, HTTPHandler,

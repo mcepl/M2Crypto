@@ -167,7 +167,7 @@ class RSATestCase(unittest.TestCase):
         digest = sha.sha(message).digest()
         rsa = RSA.load_key(self.privkey)
         rsa2 = RSA.load_pub_key(self.pubkey)
-        for algo in algos.keys():
+        for algo in list(algos.keys()):
             signature = rsa.sign(digest, algo)
             #assert signature == algos[algo], 'mismatched signature with algorithm %s: signature=%s' % (algo, signature)
             verify = rsa2.verify(digest, signature, algo)
@@ -200,7 +200,7 @@ class RSATestCase(unittest.TestCase):
                     algos['sha384'] = 15
                     algos['sha512'] = 0
 
-                for algo, salt_max in algos.iteritems():
+                for algo, salt_max in algos.items():
                     h = hashlib.new(algo)
                     h.update(message)
                     digest = h.digest()
@@ -208,7 +208,7 @@ class RSATestCase(unittest.TestCase):
 
             rsa = RSA.load_key(self.privkey)
             rsa2 = RSA.load_pub_key(self.pubkey)
-            for algo, (salt_max, digest) in algos.iteritems():
+            for algo, (salt_max, digest) in algos.items():
                 for salt_length in range(0, salt_max):
                     signature = rsa.sign_rsassa_pss(digest, algo, salt_length)
                     verify = rsa2.verify_rsassa_pss(digest, signature, algo, salt_length)
@@ -236,7 +236,7 @@ class RSATestCase(unittest.TestCase):
         digest = sha.sha(message).digest()
         rsa = RSA.load_key(self.privkey)
         rsa2 = RSA.load_pub_key(self.pubkey)
-        for algo, salt_max in algos.iteritems():
+        for algo, salt_max in algos.items():
             for salt_length in range(0, salt_max):
                 signature = rsa.sign_rsassa_pss(digest, algo, salt_length)
                 verify = rsa2.verify_rsassa_pss(digest, signature, algo, salt_length)

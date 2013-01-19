@@ -3,10 +3,10 @@
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
 # M2Crypto
-import Rand, m2
+from . import Rand, m2
 
 # Python. Cookie is bundled with Python 2.x.
-import Cookie, binascii, re, time
+import http.cookies, binascii, re, time
 
 
 _MIX_FORMAT = 'exp=%s&data=%s&digest='
@@ -57,9 +57,9 @@ class AuthCookieJar:
             and (c.output() == cookie.output())
 
     def isGoodCookieString(self, cookie_str):
-        c = Cookie.SmartCookie()
+        c = http.cookies.SmartCookie()
         c.load(cookie_str)
-        if not c.has_key(_TOKEN):
+        if _TOKEN not in c:
             return 0
         undough = unmix3(c[_TOKEN].value)
         if undough is None:
@@ -75,7 +75,7 @@ class AuthCookie:
         self._expiry = expiry
         self._data = data
         self._mac = mac
-        self._cookie = Cookie.SmartCookie()
+        self._cookie = http.cookies.SmartCookie()
         self._cookie[_TOKEN] = '%s%s' % (dough, mac)
         self._name = '%s%s' % (dough, mac)  # XXX WebKit only.
 

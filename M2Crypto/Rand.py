@@ -5,7 +5,7 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 __all__ = ['rand_seed', 'rand_add', 'load_file', 'save_file', 'rand_bytes',
            'rand_pseudo_bytes']
 
-import m2
+from . import m2
 
 rand_seed           = m2.rand_seed
 rand_add            = m2.rand_add

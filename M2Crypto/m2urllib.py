@@ -3,13 +3,12 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-import string, sys, urllib
-from urllib import *
+import string, urllib.request, urllib.parse, urllib.error
 
-import SSL
-import httpslib
+from . import SSL
+from . import httpslib
 
-DEFAULT_PROTOCOL='sslv23'
+DEFAULT_PROTOCOL = 'sslv23'
 
 def open_https(self, url, data=None, ssl_context=None):
     if ssl_context is not None and isinstance(ssl_context, SSL.Context):
@@ -18,29 +17,29 @@ def open_https(self, url, data=None, ssl_context=None):
         self.ctx = SSL.Context(DEFAULT_PROTOCOL)
     user_passwd = None
     if type(url) is type(""):
-        host, selector = splithost(url)
+        host, selector = urllib.parse.splithost(url)
         if host:
-            user_passwd, host = splituser(host)
-            host = unquote(host)
+            user_passwd, host = urllib.parse.splituser(host)
+            host = urllib.parse.unquote(host)
         realhost = host
     else:
         host, selector = url
-        urltype, rest = splittype(selector)
+        urltype, rest = urllib.parse.splittype(selector)
         url = rest
         user_passwd = None
         if string.lower(urltype) != 'http':
             realhost = None
         else:
-            realhost, rest = splithost(rest)
+            realhost, rest = urllib.parse.splithost(rest)
             if realhost:
-                user_passwd, realhost = splituser(realhost)
+                user_passwd, realhost = urllib.parse.splituser(realhost)
             if user_passwd:
                 selector = "%s://%s%s" % (urltype, realhost, rest)
         #print "proxy via http:", host, selector
-    if not host: raise IOError, ('http error', 'no host given')
+    if not host: raise IOError('http error', 'no host given')
     if user_passwd:
         import base64
-        auth = string.strip(base64.encodestring(user_passwd))
+        auth = base64.encodestring(user_passwd).strip()
     else:
         auth = None
     # Start here!
@@ -54,7 +53,7 @@ def open_https(self, url, data=None, ssl_context=None):
     else:
         h.putrequest('GET', selector)
     if auth: h.putheader('Authorization', 'Basic %s' % auth)
-    for args in self.addheaders: apply(h.putheader, args)
+    for args in self.addheaders: h.putheader(*args)
     h.endheaders()
     if data is not None:
         h.send(data + '\r\n')
@@ -65,6 +64,4 @@ def open_https(self, url, data=None, ssl_context=None):
     # Stop again.
 
 # Minor brain surgery.
-URLopener.open_https = open_https
-
-
+urllib.request.URLopener.open_https = open_https

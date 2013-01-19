@@ -32,10 +32,10 @@ drwxr-xr-x  12 0        0             512 May 31 17:08 python2.1
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
 # Python
-from ftplib import *
-from ftplib import parse150, parse227
-from ftplib import error_reply, error_temp, error_perm, error_proto
-import socket, time
+# from ftplib import parse150
+# from ftplib import error_reply, error_temp, error_perm, error_proto
+from ftplib import FTP
+# import socket, time
 
 # M2Crypto
 import SSL
@@ -90,5 +90,3 @@ class FTP_TLS(FTP):
             conn.set_session(self.sock.get_session())
             conn.connect_ssl()
         return conn, size
-
-

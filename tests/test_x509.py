@@ -185,7 +185,7 @@ class X509TestCase(unittest.TestCase):
         cert.set_serial_number(1)
         cert.set_version(2)
         cert.set_subject(sub)
-        t = long(time.time()) + time.timezone
+        t = int(time.time()) + time.timezone
         now = ASN1.ASN1_UTCTIME()
         now.set_time(t)
         nowPlusYear = ASN1.ASN1_UTCTIME()
@@ -236,7 +236,7 @@ class X509TestCase(unittest.TestCase):
         cert.set_serial_number(1)
         cert.set_version(2)
         cert.set_subject(sub)
-        t = long(time.time()) + time.timezone
+        t = int(time.time()) + time.timezone
         now = ASN1.ASN1_UTCTIME()
         now.set_time(t)
         nowPlusYear = ASN1.ASN1_UTCTIME()
@@ -252,7 +252,7 @@ class X509TestCase(unittest.TestCase):
         cert.add_ext(ext)
         cert.sign(pk, 'sha1')
 
-        if m2.OPENSSL_VERSION_NUMBER >= 0x0090800fL:
+        if m2.OPENSSL_VERSION_NUMBER >= 0x0090800f:
             assert cert.check_ca()
             assert cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 1)
             assert cert.check_purpose(m2.X509_PURPOSE_NS_SSL_SERVER, 1)
@@ -290,7 +290,7 @@ class X509TestCase(unittest.TestCase):
         eecert = X509.X509()
         eecert.set_serial_number(2)
         eecert.set_version(2)
-        t = long(time.time()) + time.timezone
+        t = int(time.time()) + time.timezone
         now = ASN1.ASN1_UTCTIME()
         now.set_time(t)
         now_plus_year = ASN1.ASN1_UTCTIME()

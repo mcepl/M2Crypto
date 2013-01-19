@@ -9,7 +9,7 @@ __all__ = ['unknown_issuer', 'ssl_verify_callback_stub', 'ssl_verify_callback',
 import sys
 
 # M2Crypto
-import Context
+from . import Context
 from M2Crypto import m2
 
 def ssl_verify_callback_stub(ssl_ctx_ptr, x509_ptr, errnum, errdepth, ok):
@@ -25,7 +25,7 @@ unknown_issuer = [
 
 def ssl_verify_callback(ssl_ctx_ptr, x509_ptr, errnum, errdepth, ok):
     # Deprecated
-    ssl_ctx = Context.map()[long(ssl_ctx_ptr)]
+    ssl_ctx = Context.map()[int(ssl_ctx_ptr)]
     if errnum in unknown_issuer:
         if ssl_ctx.get_allow_unknown_ca():
             sys.stderr.write("policy: %s: permitted...\n" % (m2.x509_get_verify_error(errnum)))

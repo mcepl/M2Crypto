@@ -8,12 +8,12 @@ Author: Heikki Toivonen
 """
 
 import unittest
-import cStringIO, sha
+import io, sha
 from binascii import hexlify, unhexlify
 from M2Crypto import EVP, RSA, util, Rand, m2, BIO
 from M2Crypto.util import h2b
 
-from fips import fips_mode
+from .fips import fips_mode
 
 class EVPTestCase(unittest.TestCase):
     def _gen_callback(self, *args):
@@ -196,15 +196,15 @@ class CipherTestCase(unittest.TestCase):
         otxt='against stupidity the gods themselves contend in vain'
 
         k=EVP.Cipher(algo, 'goethe','12345678', enc, 1, 'sha1', 'saltsalt', 5)
-        pbuf=cStringIO.StringIO(otxt)
-        cbuf=cStringIO.StringIO()
+        pbuf=io.StringIO(otxt)
+        cbuf=io.StringIO()
         ctxt=self.cipher_filter(k, pbuf, cbuf)
         pbuf.close()
         cbuf.close()
 
         j=EVP.Cipher(algo, 'goethe','12345678', dec, 1, 'sha1', 'saltsalt', 5)
-        pbuf=cStringIO.StringIO()
-        cbuf=cStringIO.StringIO(ctxt)
+        pbuf=io.StringIO()
+        cbuf=io.StringIO(ctxt)
         ptxt=self.cipher_filter(j, cbuf, pbuf)
         pbuf.close()
         cbuf.close()
@@ -234,7 +234,7 @@ class CipherTestCase(unittest.TestCase):
         try:
             for i in ciphers:
                 self.try_algo(i)
-        except ValueError, e:
+        except ValueError as e:
             if str(e) != "('unknown cipher', 'idea_ecb')":
                 raise
 
@@ -243,7 +243,7 @@ class CipherTestCase(unittest.TestCase):
         try:
             for i in ciphers:
                 self.try_algo(i)
-        except ValueError, e:
+        except ValueError as e:
             if str(e) != "('unknown cipher', 'rc5_ecb')":
                 raise
 
@@ -283,8 +283,8 @@ class CipherTestCase(unittest.TestCase):
         for test in tests:
             # encrypt
             k=EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=enc)
-            pbuf=cStringIO.StringIO(test['PT'])
-            cbuf=cStringIO.StringIO()
+            pbuf=io.StringIO(test['PT'])
+            cbuf=io.StringIO()
             ciphertext = hexlify(self.cipher_filter(k, pbuf, cbuf))
             cipherpadding = ciphertext[len(test['PT']) * 2:]
             ciphertext = ciphertext[:len(test['PT']) * 2] # Remove the padding from the end
@@ -294,8 +294,8 @@ class CipherTestCase(unittest.TestCase):
 
             # decrypt
             j=EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=dec)
-            pbuf=cStringIO.StringIO()
-            cbuf=cStringIO.StringIO(unhexlify(test['CT'] + cipherpadding))
+            pbuf=io.StringIO()
+            cbuf=io.StringIO(unhexlify(test['CT'] + cipherpadding))
             plaintext=self.cipher_filter(j, cbuf, pbuf)
             pbuf.close()
             cbuf.close()
@@ -305,8 +305,8 @@ class CipherTestCase(unittest.TestCase):
         for test in tests:
             # encrypt
             k=EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=enc, padding=False)
-            pbuf=cStringIO.StringIO(test['PT'])
-            cbuf=cStringIO.StringIO()
+            pbuf=io.StringIO(test['PT'])
+            cbuf=io.StringIO()
             ciphertext = hexlify(self.cipher_filter(k, pbuf, cbuf))
             pbuf.close()
             cbuf.close()
@@ -314,8 +314,8 @@ class CipherTestCase(unittest.TestCase):
 
             # decrypt
             j=EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=dec, padding=False)
-            pbuf=cStringIO.StringIO()
-            cbuf=cStringIO.StringIO(unhexlify(test['CT']))
+            pbuf=io.StringIO()
+            cbuf=io.StringIO(unhexlify(test['CT']))
             plaintext=self.cipher_filter(j, cbuf, pbuf)
             pbuf.close()
             cbuf.close()
@@ -325,8 +325,8 @@ class CipherTestCase(unittest.TestCase):
         for test in tests:
             # encrypt
             k=EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=enc, padding=False)
-            pbuf=cStringIO.StringIO(test['PT'])
-            cbuf=cStringIO.StringIO()
+            pbuf=io.StringIO(test['PT'])
+            cbuf=io.StringIO()
             ciphertext = hexlify(self.cipher_filter(k, pbuf, cbuf))
             pbuf.close()
             cbuf.close()
@@ -334,8 +334,8 @@ class CipherTestCase(unittest.TestCase):
 
             # decrypt
             j=EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=dec, padding=False)
-            pbuf=cStringIO.StringIO()
-            cbuf=cStringIO.StringIO(unhexlify(test['CT']))
+            pbuf=io.StringIO()
+            cbuf=io.StringIO(unhexlify(test['CT']))
             plaintext=self.cipher_filter(j, cbuf, pbuf)
             pbuf.close()
             cbuf.close()
@@ -354,8 +354,8 @@ class CipherTestCase(unittest.TestCase):
 
         def decrypt(ciphertext, key, iv, alg='aes_256_cbc'):
             cipher = EVP.Cipher(alg=alg, key=key, iv=iv, op=0)
-            pbuf = cStringIO.StringIO()
-            cbuf = cStringIO.StringIO(ciphertext)
+            pbuf = io.StringIO()
+            cbuf = io.StringIO(ciphertext)
             plaintext = _cipherFilter(cipher, cbuf, pbuf)
             pbuf.close()
             cbuf.close()
@@ -418,12 +418,12 @@ class HMACTestCase(unittest.TestCase):
     def make_chain_HMAC(self, key, start, input, algo='sha1'):
         chain = []
         hmac = EVP.HMAC(key, algo)
-        hmac.update(`start`)
+        hmac.update(repr(start))
         digest = hmac.final()
         chain.append((digest, start))
         for i in input:
             hmac.reset(digest)
-            hmac.update(`i`)
+            hmac.update(repr(i))
             digest = hmac.final()
             chain.append((digest, i))
         return chain
@@ -431,35 +431,35 @@ class HMACTestCase(unittest.TestCase):
     def make_chain_hmac(self, key, start, input, algo='sha1'):
         from M2Crypto.EVP import hmac
         chain = []
-        digest = hmac(key, `start`, algo)
+        digest = hmac(key, repr(start), algo)
         chain.append((digest, start))
         for i in input:
-            digest = hmac(digest, `i`, algo)
+            digest = hmac(digest, repr(i), algo)
             chain.append((digest, i))
         return chain
 
     def verify_chain_hmac(self, key, start, chain, algo='sha1'):
         from M2Crypto.EVP import hmac
-        digest = hmac(key, `start`, algo)
+        digest = hmac(key, repr(start), algo)
         c = chain[0]
         if c[0] != digest or c[1] != start:
             return 0
         for d, v in chain[1:]:
-            digest = hmac(digest, `v`, algo)
+            digest = hmac(digest, repr(v), algo)
             if digest != d:
                 return 0
         return 1
 
     def verify_chain_HMAC(self, key, start, chain, algo='sha1'):
         hmac = EVP.HMAC(key, algo)
-        hmac.update(`start`)
+        hmac.update(repr(start))
         digest = hmac.final()
         c = chain[0]
         if c[0] != digest or c[1] != start:
             return 0
         for d, v in chain[1:]:
             hmac.reset(digest)
-            hmac.update(`v`)
+            hmac.update(repr(v))
             digest = hmac.final()
             if digest != d:
                 return 0

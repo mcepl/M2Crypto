@@ -68,7 +68,7 @@ class ObjectsTestCase(unittest.TestCase):
         n.givenName = 'name given'
         assert len(n) == 11, len(n)
 
-        tl = map(x509_name_entry2tuple, x509_name2list(n))
+        tl = list(map(x509_name_entry2tuple, x509_name2list(n)))
 
         assert len(tl) == len(n), len(tl)
 

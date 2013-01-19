@@ -2,14 +2,13 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-import string, sys
+import sys
 import socket
-from urlparse import urlsplit, urlunsplit
+from urllib.parse import urlsplit, urlunsplit
 import base64
 
-from httplib import *
-from httplib import HTTPS_PORT # This is not imported with just '*'
-import SSL
+from http.client import HTTPS_PORT, HTTPConnection, HTTPResponse
+from . import SSL
 
 class HTTPSConnection(HTTPConnection):
 
@@ -21,7 +20,7 @@ class HTTPSConnection(HTTPConnection):
 
     def __init__(self, host, port=None, strict=None, **ssl):
         self.session = None
-        keys = ssl.keys()
+        keys = list(ssl.keys())
         try:
             keys.remove('key_file')
         except ValueError:
@@ -96,22 +95,16 @@ class HTTPSConnection(HTTPConnection):
         self.session = session
 
 
-class HTTPS(HTTP):
-
-    _connection_class = HTTPSConnection
-
-    def __init__(self, host='', port=None, strict=None, **ssl):
-        HTTP.__init__(self, host, port, strict)
-        try:
-            self.ssl_ctx = ssl['ssl_context']
-        except KeyError:
-            self.ssl_ctx = SSL.Context('sslv23')
-        assert isinstance(self._conn, HTTPSConnection)
-        self._conn.ssl_ctx = self.ssl_ctx
+class HTTPS(object):
+    """
+    Class httplib.HTTP has been implemented in python 2.* only for
+    backward compatibility with 1.5.2. 
+    """
+    def __init__(self, *args, **kwargs):
+        raise NotImplementedError('class HTTPS is not implenented.')
 
 
 class ProxyHTTPSConnection(HTTPSConnection):
-
     """
     An HTTPS Connection that uses a proxy and the CONNECT request.
 
@@ -147,7 +140,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
         #real host/port to be used to make CONNECT request to proxy
         proto, netloc, path, query, fragment = urlsplit(url)
         if not proto:
-            raise ValueError, "unknown URL type: %s" % url
+            raise ValueError("unknown URL type: %s" % url)
 
         #get host & port
         try:
@@ -163,7 +156,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
             try:
                 port = self._ports[proto]
             except KeyError:
-                raise ValueError, "unknown protocol for: %s" % url
+                raise ValueError("unknown protocol for: %s" % url)
 
         self._real_host = host
         self._real_port = int(port)
@@ -203,7 +196,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
         if code != 200:
             #proxy returned and error, abort connection, and raise exception
             self.close()
-            raise socket.error, "Proxy connection failed: %d" % code
+            raise socket.error("Proxy connection failed: %d" % code)
 
         self._start_ssl()
 

@@ -9,7 +9,7 @@ import unittest, doctest
 from M2Crypto.SSL import Checker
 from M2Crypto import X509
 from M2Crypto import SSL
-from test_ssl import srv_host
+from .test_ssl import srv_host
 
 
 class CheckerTestCase(unittest.TestCase):
@@ -31,11 +31,11 @@ class ContextTestCase(unittest.TestCase):
 
     def test_map(self):
         from M2Crypto.SSL.Context import map, _ctxmap
-        assert isinstance(map(), _ctxmap)
+        assert isinstance(list(map()), _ctxmap)
         ctx = SSL.Context()
-        assert map()
+        assert list(map())
         ctx.close()
-        assert map() is _ctxmap.singleton
+        assert list(map()) is _ctxmap.singleton
 
     def test_certstore(self):
         ctx = SSL.Context()

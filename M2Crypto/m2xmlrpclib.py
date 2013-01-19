@@ -2,11 +2,11 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-import base64, string, sys
+import base64, string
 
-from xmlrpclib import *
+from xmlrpc.client import Transport, ProtocolError
 import M2Crypto
-import SSL, httpslib, m2urllib
+from . import SSL, httpslib, m2urllib
 
 __version__ = M2Crypto.version
 

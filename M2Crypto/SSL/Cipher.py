@@ -40,5 +40,5 @@ class Cipher_Stack:
         return Cipher(v)
 
     def __iter__(self):
-        for i in xrange(m2.sk_ssl_cipher_num(self.stack)):
+        for i in range(m2.sk_ssl_cipher_num(self.stack)):
             yield self[i]

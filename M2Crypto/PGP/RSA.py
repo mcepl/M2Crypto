@@ -2,7 +2,6 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-import sys
 from M2Crypto import m2, RSA
 _RSA = RSA
 del RSA
@@ -16,7 +15,7 @@ class RSA_pub(_RSA.RSA_pub):
     pass
 
 
-def new_pub_key((e, n)):
+def new_pub_key(conf):
     """
     Factory function that instantiates an RSA_pub object from a (e, n) tuple.
 
@@ -26,6 +25,7 @@ def new_pub_key((e, n)):
     'n' is the RSA composite of primes; it is a string in OpenSSL's binary format,
     i.e., a number of bytes in big-endian.
     """
+    e, n = conf
     import warnings
     warnings.warn('Deprecated. No maintainer for PGP. If you use this, please inform M2Crypto maintainer.', DeprecationWarning)
 

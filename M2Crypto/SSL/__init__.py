@@ -12,12 +12,12 @@ class SSLTimeoutError(SSLError, socket.timeout): pass
 m2.ssl_init(SSLError, SSLTimeoutError)
 
 # M2Crypto.SSL
-from Cipher import Cipher, Cipher_Stack
-from Context import Context
-from Connection import Connection
-from SSLServer import SSLServer, ForkingSSLServer, ThreadingSSLServer
-from ssl_dispatcher import ssl_dispatcher
-from timeout import timeout
+from .Cipher import Cipher, Cipher_Stack
+from .Context import Context
+from .Connection import Connection
+from .SSLServer import SSLServer, ForkingSSLServer, ThreadingSSLServer
+from .ssl_dispatcher import ssl_dispatcher
+from .timeout import timeout
 
 verify_none = m2.SSL_VERIFY_NONE
 verify_peer = m2.SSL_VERIFY_PEER

@@ -2,8 +2,8 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-from util import genparam_callback
-import BIO, Err, m2
+from .util import genparam_callback
+from . import BIO, Err, m2
 
 class DHError(Exception): pass
 
@@ -41,9 +41,9 @@ class DH:
 
     def __setattr__(self, name, value):
         if name in ('p', 'g'):
-            raise DHError, 'set (p, g) via set_params()'
+            raise DHError('set (p, g) via set_params()')
         elif name in ('pub','priv'):
-            raise DHError, 'generate (pub, priv) via gen_key()'
+            raise DHError('generate (pub, priv) via gen_key()')
         else:
             self.__dict__[name] = value
 

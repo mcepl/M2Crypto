@@ -13,5 +13,5 @@ for IFILE in SWIG/_{ec,evp}.i ; do
     sed -i -e "s/opensslconf\./opensslconf-${arch}\./" "$IFILE"
 done
 
-SWIG_FEATURES=-cpperraswarn python3 setup.py $*
+SWIG_FEATURES=-cpperraswarn python3 setup.py "$@"
 

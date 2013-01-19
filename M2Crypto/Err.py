@@ -2,8 +2,8 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-import BIO
-import m2
+from . import BIO
+from . import m2
 
 def get_error():
     err=BIO.MemoryBuffer()
@@ -34,7 +34,7 @@ class SSLError(Exception):
         self.client_addr = client_addr
 
     def __str__(self):
-        if (isinstance(self.client_addr, unicode)):
+        if (isinstance(self.client_addr, str)):
             s = self.client_addr.encode('utf8')
         else:
             s = self.client_addr

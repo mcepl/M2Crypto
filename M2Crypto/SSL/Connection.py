@@ -16,11 +16,11 @@ __all__ = ['Connection',
 import socket
 
 # M2Crypto
-from Cipher import Cipher, Cipher_Stack
-from Session import Session
+from .Cipher import Cipher, Cipher_Stack
+from .Session import Session
 from M2Crypto import BIO, X509, m2
-import timeout
-import Checker
+from . import timeout
+from . import Checker
 
 #SSLError = getattr(__import__('M2Crypto.SSL', globals(), locals(), 'SSLError'), 'SSLError')
 from M2Crypto.SSL import SSLError
@@ -167,7 +167,7 @@ class Connection:
         check = getattr(self, 'postConnectionCheck', self.serverPostConnectionCheck)
         if check is not None:
             if not check(ssl.get_peer_cert(), ssl.addr[0]):
-                raise Checker.SSLVerificationError, 'post connection check failed'
+                raise Checker.SSLVerificationError('post connection check failed')
         return ssl, addr
 
     def set_connect_state(self):
@@ -185,7 +185,7 @@ class Connection:
         check = getattr(self, 'postConnectionCheck', self.clientPostConnectionCheck)
         if check is not None:
             if not check(self.get_peer_cert(), self.addr[0]):
-                raise Checker.SSLVerificationError, 'post connection check failed'
+                raise Checker.SSLVerificationError('post connection check failed')
         return ret
 
     def shutdown(self, how):
@@ -208,12 +208,12 @@ class Connection:
 
     def _read_bio(self, size=1024):
         if size <= 0:
-            raise ValueError, 'size <= 0'
+            raise ValueError('size <= 0')
         return m2.ssl_read(self.ssl, size, self._timeout)
 
     def _read_nbio(self, size=1024):
         if size <= 0:
-            raise ValueError, 'size <= 0'
+            raise ValueError('size <= 0')
         return m2.ssl_read_nbio(self.ssl, size)
 
     def write(self, data):
@@ -247,10 +247,10 @@ class Connection:
         return self.socket.fileno()
 
     def getsockopt(self, *args):
-        return apply(self.socket.getsockopt, args)
+        return self.socket.getsockopt(*args)
 
     def setsockopt(self, *args):
-        return apply(self.socket.setsockopt, args)
+        return self.socket.setsockopt(*args)
 
     def get_context(self):
         """Return the SSL.Context object associated with this

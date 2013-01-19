@@ -7,7 +7,7 @@ Author: Heikki Toivonen
 """
 
 from M2Crypto import Err, util, BIO, RSA
-import m2
+from . import m2
 
 class EVPError(Exception): pass
 
@@ -40,7 +40,7 @@ class MessageDigest:
     def __init__(self, algo):
         md = getattr(m2, algo, None)
         if md is None:
-            raise ValueError, ('unknown algorithm', algo)
+            raise ValueError('unknown algorithm', algo)
         self.md=md()
         self.ctx=m2.md_ctx_new()
         m2.digest_init(self.ctx, self.md)
@@ -71,7 +71,7 @@ class HMAC:
     def __init__(self, key, algo='sha1'):
         md = getattr(m2, algo, None)
         if md is None:
-            raise ValueError, ('unknown algorithm', algo)
+            raise ValueError('unknown algorithm', algo)
         self.md=md()
         self.ctx=m2.hmac_ctx_new()
         m2.hmac_init(self.ctx, key, self.md)
@@ -94,7 +94,7 @@ class HMAC:
 def hmac(key, data, algo='sha1'):
     md = getattr(m2, algo, None)
     if md is None:
-        raise ValueError, ('unknown algorithm', algo)
+        raise ValueError('unknown algorithm', algo)
     return m2.hmac(key, data, md())
 
 
@@ -107,12 +107,12 @@ class Cipher:
     def __init__(self, alg, key, iv, op, key_as_bytes=0, d='md5', salt='12345678', i=1, padding=True):
         cipher = getattr(m2, alg, None)
         if cipher is None:
-            raise ValueError, ('unknown cipher', alg)
+            raise ValueError('unknown cipher', alg)
         self.cipher=cipher()
         if key_as_bytes:
             kmd = getattr(m2, d, None)
             if kmd is None:
-                raise ValueError, ('unknown message digest', d)
+                raise ValueError('unknown message digest', d)
             key = m2.bytes_to_key(self.cipher, kmd(), key, salt, iv, i)
         self.ctx=m2.cipher_ctx_new()
         m2.cipher_init(self.ctx, self.cipher, key, iv, op)
@@ -168,7 +168,7 @@ class PKey:
     def _set_context(self, md):
         mda = getattr(m2, md, None)
         if mda is None:
-            raise ValueError, ('unknown message digest', md)
+            raise ValueError('unknown message digest', md)
         self.md = mda()
         self.ctx = m2.md_ctx_new()
 
@@ -313,7 +313,7 @@ class PKey:
         else:
             proto = getattr(m2, cipher, None)
             if proto is None:
-                raise ValueError, 'no such cipher %s' % cipher
+                raise ValueError('no such cipher %s' % cipher)
             return m2.pkey_write_pem(self.pkey, bio._ptr(), proto(), callback)
 
     def as_pem(self, cipher='aes_128_cbc', callback=util.passphrase_callback):

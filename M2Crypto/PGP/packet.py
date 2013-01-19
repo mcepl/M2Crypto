@@ -16,17 +16,12 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 # Be conservative in what you send.
 # Be lazy in what you eval.
 
-import struct, time
+import struct, constants
 
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+from io import StringIO
 
 from M2Crypto import EVP, RSA
 from M2Crypto.util import octx_to_num
-
-from constants import *
 
 _OK_VERSION     = ('\002', '\003')
 _OK_VALIDITY    = ('\000',)
@@ -48,7 +43,8 @@ class packet:
         return 1
 
     def pack(self):
-        raise NotImplementedError, '%s.pack(): abstract method' % (self.__class__,)
+        raise NotImplementedError('%s.pack(): abstract method' % \
+                (self.__class__,))
 
     def version(self):
         if hasattr(self, '_version'):
@@ -80,7 +76,7 @@ class packet:
         elif lenf < 65536:
             return (1, struct.pack('>H', lenf))
         else:
-            assert lenf < 2L**32
+            assert lenf < 2**32
             return (2, struct.pack('>L', lenf))
 
     def _ctb(self, llf):
@@ -342,7 +338,7 @@ class packet_stream:
                 raise XXXError
         ctbt = (ctb & 0x3c) >> 2
 
-        if ctbt == CTB_COMPRESSED_DATA:
+        if ctbt == constants.CTB_COMPRESSED_DATA:
             self.under_current = self.stream
             cp = compressed_packet(ctb0, self.stream)
             self.stream = cp.uncompress()
@@ -357,11 +353,11 @@ class packet_stream:
         elif llf == 2:
             lenf = struct.unpack('>L', self.stream.read(4))[0]
         else: # llf == 3
-            raise XXXError, 'impossible case'
+            raise XXXError('impossible case')
 
         body = self.stream.read(lenf)
         if not body or (len(body) != lenf):
-            raise XXXError, 'corrupted packet'
+            raise XXXError('corrupted packet')
 
         self._count = self.stream.tell()
         try:

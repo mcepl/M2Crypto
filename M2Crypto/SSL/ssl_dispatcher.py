@@ -8,7 +8,7 @@ __all__ = ['ssl_dispatcher']
 import asyncore, socket
 
 # M2Crypto
-from Connection import Connection
+from .Connection import Connection
 from M2Crypto import Err, m2
 
 

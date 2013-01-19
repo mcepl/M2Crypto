@@ -8,7 +8,7 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
 Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam.
 All rights reserved."""
 
-import util, BIO, m2
+from . import util, BIO, m2
 
 class ECError(Exception): pass
 
@@ -326,7 +326,7 @@ def load_pub_key_bio(bio):
     return EC_pub(ec, 1)
 
 def ec_error():
-    raise ECError, m2.err_reason_error_string(m2.err_get_error())
+    raise ECError(m2.err_reason_error_string(m2.err_get_error()))
 
 def pub_key_from_der(der):
     """

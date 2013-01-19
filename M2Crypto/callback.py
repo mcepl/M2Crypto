@@ -6,4 +6,4 @@ import warnings
 
 warnings.warn('Use the util module instead', DeprecationWarning)
 
-from util import genparam_callback, passphrase_callback
+from .util import genparam_callback, passphrase_callback
