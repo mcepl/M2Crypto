@@ -9,7 +9,7 @@ import asyncore, socket
 
 # M2Crypto
 from .Connection import Connection
-from M2Crypto import Err, m2
+from .. import Err, __m2crypto as m2
 
 
 class ssl_dispatcher(asyncore.dispatcher):

@@ -28,7 +28,7 @@ from . import BN
 from . import Rand
 from . import DH
 from . import DSA
-if m2.OPENSSL_VERSION_NUMBER >= 0x90800F and m2.OPENSSL_NO_EC == 0:
+if __m2crypto.OPENSSL_VERSION_NUMBER >= 0x90800F and __m2crypto.OPENSSL_NO_EC == 0:
     from . import EC
 from . import Err
 from . import Engine
@@ -39,18 +39,18 @@ from . import SMIME
 from . import SSL
 from . import X509
 from . import PGP
-from . import m2urllib
+# FIXME from . import m2urllib
 # Backwards compatibility.
-urllib2 = m2urllib
+# FIXME urllib2 = m2urllib
 
-# import sys
-# if sys.version_info >= (2,4):
-    # from . import m2urllib2
-# del sys
-
+# FIXME import sys
+# FIXME if sys.version_info >= (2,4):
+# FIXME     from . import m2urllib2
+# FIXME del sys
+# FIXME
 from . import ftpslib
-from . import httpslib
-from . import m2xmlrpclib
+# FIXME from . import httpslib
+# FIXME from . import m2xmlrpclib
 from . import threading
 from . import util
 

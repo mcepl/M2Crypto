@@ -38,7 +38,7 @@ from ftplib import FTP
 # import socket, time
 
 # M2Crypto
-import SSL
+from . import SSL
 
 DEFAULT_PROTOCOL='sslv23'
 

@@ -6,8 +6,8 @@ Portions Copyright (c) 2004-2007 Open Source Applications Foundation.
 Author: Heikki Toivonen
 """
 
-from M2Crypto import Err, util, BIO, RSA
-from . import m2
+from . import Err, util, BIO, RSA
+from . import __m2crypto as m2
 
 class EVPError(Exception): pass
 

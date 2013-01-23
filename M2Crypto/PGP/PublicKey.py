@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-import packet, RSA
+from . import packet, RSA
 
 class PublicKey:
     def __init__(self, pubkey_pkt):

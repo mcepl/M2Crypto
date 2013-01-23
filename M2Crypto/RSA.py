@@ -3,7 +3,7 @@
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
 import sys
-import util, BIO, m2
+from . import util, BIO, __m2crypto as m2
 
 class RSAError(ValueError):
     pass

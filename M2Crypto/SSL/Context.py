@@ -7,8 +7,8 @@ __all__ = ['map', 'Context']
 from weakref import WeakValueDictionary
 
 # M2Crypto
-from . import cb
-from M2Crypto import util, BIO, Err, RSA, m2, X509
+from .. import __m2crypto as m2
+from .. import util, BIO, Err, RSA, X509
 
 class _ctxmap:
     singleton = None
@@ -35,6 +35,8 @@ class Context:
     """'Context' for SSL connections."""
 
     m2_ssl_ctx_free = m2.ssl_ctx_free
+    
+    from . import cb
 
     def __init__(self, protocol='sslv23', weak_crypto=None,
                  post_connection_check=None):

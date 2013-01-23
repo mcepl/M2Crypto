@@ -8,8 +8,7 @@ Author: Heikki Toivonen
 """
 
 # M2Crypto
-from M2Crypto import ASN1, BIO, Err, EVP, util
-from . import m2
+from . import ASN1, BIO, Err, EVP, util, __m2crypto as m2
 
 FORMAT_DER = 0
 FORMAT_PEM = 1

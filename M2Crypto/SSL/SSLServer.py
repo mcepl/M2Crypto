@@ -9,8 +9,8 @@ import socket, socketserver
 
 # M2Crypto
 from .Connection import Connection
-from M2Crypto.SSL import SSLError
-from M2Crypto import m2
+from . import SSLError
+from .. import __m2crypto as m2
 
 
 class SSLServer(socketserver.TCPServer):

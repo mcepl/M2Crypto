@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-from M2Crypto import m2, RSA
+from .. import __m2crypto as m2, RSA
 _RSA = RSA
 del RSA
 

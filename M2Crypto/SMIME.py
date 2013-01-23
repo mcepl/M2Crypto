@@ -2,8 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-from . import BIO, EVP, X509, Err, util
-from . import m2
+from . import BIO, EVP, X509, Err, util, __m2crypto as m2
 
 PKCS7_TEXT	= m2.PKCS7_TEXT
 PKCS7_NOCERTS	= m2.PKCS7_NOCERTS

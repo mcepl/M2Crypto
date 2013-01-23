@@ -8,7 +8,7 @@
 """
 
 import sys
-from . import m2
+from . import __m2crypto as m2
 
 class UtilError(Exception): pass
 

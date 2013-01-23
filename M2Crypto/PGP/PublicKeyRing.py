@@ -2,7 +2,7 @@
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-import packet, PublicKey
+from . import packet, PublicKey
 
 class PublicKeyRing:
     def __init__(self, keyring):

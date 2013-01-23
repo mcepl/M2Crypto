@@ -10,7 +10,7 @@ Copyright 2008 Heikki Toivonen. All rights reserved.
 __all__ = ['SSLVerificationError', 'NoCertificate', 'WrongCertificate',
            'WrongHost', 'Checker']
 
-from M2Crypto import util, EVP, m2
+from .. import util, EVP, __m2crypto as m2
 import re
 
 class SSLVerificationError(Exception):

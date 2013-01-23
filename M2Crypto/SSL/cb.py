@@ -9,8 +9,7 @@ __all__ = ['unknown_issuer', 'ssl_verify_callback_stub', 'ssl_verify_callback',
 import sys
 
 # M2Crypto
-from . import Context
-from M2Crypto import m2
+from .. import __m2crypto as m2
 
 def ssl_verify_callback_stub(ssl_ctx_ptr, x509_ptr, errnum, errdepth, ok):
     # Deprecated
@@ -25,6 +24,7 @@ unknown_issuer = [
 
 def ssl_verify_callback(ssl_ctx_ptr, x509_ptr, errnum, errdepth, ok):
     # Deprecated
+    from . import Context
     ssl_ctx = Context.map()[int(ssl_ctx_ptr)]
     if errnum in unknown_issuer:
         if ssl_ctx.get_allow_unknown_ca():

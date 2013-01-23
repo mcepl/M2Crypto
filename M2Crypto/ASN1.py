@@ -10,7 +10,7 @@ Copyright (C) 2005 OSAF. All Rights Reserved.
 import time, datetime
 
 from . import BIO
-from . import m2
+from . import __m2crypto as m2
 
 MBSTRING_FLAG = 0x1000
 MBSTRING_ASC  = MBSTRING_FLAG | 1

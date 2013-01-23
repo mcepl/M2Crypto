@@ -5,10 +5,10 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 import base64, string
 
 from xmlrpc.client import Transport, ProtocolError
-import M2Crypto
+from . import version as _version
 from . import SSL, httpslib, m2urllib
 
-__version__ = M2Crypto.version
+__version__ = _version
 
 class SSL_Transport(Transport):
 

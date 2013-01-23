@@ -6,7 +6,7 @@ Pavel Shramov
 IMEC MSU
 """
 
-from M2Crypto import m2, EVP, X509, Err
+from . import __m2crypto as m2, EVP, X509, Err
 
 class EngineError(Exception): pass
 

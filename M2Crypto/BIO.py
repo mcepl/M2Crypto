@@ -2,10 +2,10 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-from . import m2
+from . import __m2crypto as m2
 
 # Deprecated
-from .m2 import bio_do_handshake as bio_do_ssl_handshake
+from .__m2crypto import bio_do_handshake as bio_do_ssl_handshake
 
 from io import StringIO
 

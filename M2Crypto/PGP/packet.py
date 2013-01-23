@@ -16,12 +16,13 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 # Be conservative in what you send.
 # Be lazy in what you eval.
 
-import struct, constants
+import struct
+from  . import constants, RSA
 
 from io import StringIO
 
-from M2Crypto import EVP, RSA
-from M2Crypto.util import octx_to_num
+from .. import EVP
+from ..util import octx_to_num
 
 _OK_VERSION     = ('\002', '\003')
 _OK_VALIDITY    = ('\000',)

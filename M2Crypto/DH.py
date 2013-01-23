@@ -3,7 +3,7 @@
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
 from .util import genparam_callback
-from . import BIO, Err, m2
+from . import BIO, Err, __m2crypto as m2
 
 class DHError(Exception): pass
 

@@ -1,6 +1,9 @@
 """M2Crypto enhancement to Python's urllib for handling
 'https' url's.
 
+FIXME: it is questionable whether we need this old-style module at all. urllib
+(not urllib2) is in Python 3 support just as a legacy API.
+
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
 import string, urllib.request, urllib.parse, urllib.error

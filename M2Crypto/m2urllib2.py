@@ -13,6 +13,8 @@ Summary of changes:
 
 import socket
 import urllib.parse
+# FIXME This probably should be collection of ALL objects importable from
+# urllib.request to the namespace of this module. 
 from urllib.request import AbstractHTTPHandler, OpenerDirector, \
     ProxyHandler, UnknownHandler, HTTPHandler, HTTPDefaultErrorHandler, \
     HTTPRedirectHandler, FTPHandler, FileHandler, HTTPErrorProcessor

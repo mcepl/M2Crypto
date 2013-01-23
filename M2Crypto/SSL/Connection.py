@@ -18,12 +18,12 @@ import socket
 # M2Crypto
 from .Cipher import Cipher, Cipher_Stack
 from .Session import Session
-from M2Crypto import BIO, X509, m2
+from .. import BIO, X509, __m2crypto as m2
 from . import timeout
 from . import Checker
 
 #SSLError = getattr(__import__('M2Crypto.SSL', globals(), locals(), 'SSLError'), 'SSLError')
-from M2Crypto.SSL import SSLError
+from . import SSLError
 
 def _serverPostConnectionCheck(*args, **kw):
     return 1
