@@ -56,7 +56,11 @@ PyObject *util_string_to_hex(PyObject *blob) {
         PyErr_SetString(_util_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
+#if PY_MAJOR_VERSION >= 3
+    obj = PyBytes_FromStringAndSize((char*)ret, len);
+#else
     obj = PyString_FromStringAndSize((char*)ret, len);
+#endif // PY_MAJOR_VERSION >= 3
     OPENSSL_free(ret);
     return obj;
 }

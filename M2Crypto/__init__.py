@@ -19,7 +19,7 @@ Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 version_info = (0, 22)
 version = '.'.join([str(_v) for _v in version_info])
 
-import __m2crypto
+from . import __m2crypto
 from . import m2
 from . import ASN1
 from . import AuthCookie
@@ -43,10 +43,10 @@ from . import m2urllib
 # Backwards compatibility.
 urllib2 = m2urllib
 
-import sys
-if sys.version_info >= (2,4):
-    from . import m2urllib2
-del sys
+# import sys
+# if sys.version_info >= (2,4):
+    # from . import m2urllib2
+# del sys
 
 from . import ftpslib
 from . import httpslib
