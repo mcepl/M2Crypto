@@ -1,14 +1,18 @@
 #!/usr/bin/env python
 
 def suite():
-    from M2Crypto import m2
-    import os
+    from M2Crypto import __m2crypto as m2
+    import os, sys
     import unittest
 
     def my_import(name):
         # See http://docs.python.org/lib/built-in-funcs.html#l2h-6
         components = name.split('.')
         try:
+            # FIXME for Py3k compatibility:
+            # if sys.version_info.major > 2:
+            #     pass # something for Py3k
+            #
             # python setup.py test
             mod = __import__(name)
             for comp in components[1:]:
