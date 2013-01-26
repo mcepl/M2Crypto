@@ -1,8 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 def suite():
     from M2Crypto import __m2crypto as m2
-    import os, sys
+    import os
     import unittest
 
     def my_import(name):

@@ -13,5 +13,6 @@ for IFILE in SWIG/_{ec,evp}.i ; do
     sed -i -e "s/opensslconf\./opensslconf-${arch}\./" "$IFILE"
 done
 
-SWIG_FEATURES=-cpperraswarn python3 setup.py "$@"
-
+export SWIG_FEATURES="-cpperraswarn -Wall"
+CFLAGS='-O0' python3-debug setup.py "$@"
+unset SWIG_FEATURES

@@ -1,6 +1,1 @@
-M2Crypto.egg-info/
-*.so
-SWIG/_m2crypto.py
-SWIG/_m2crypto_wrap.c
-build/
 __pycache__/

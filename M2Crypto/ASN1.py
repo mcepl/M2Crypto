@@ -32,6 +32,9 @@ class ASN1_Integer:
         if self._pyfree:
             self.m2_asn1_integer_free(self.asn1int)
 
+    @property
+    def int(self):
+        return m2.asn1_integer_get(self.asn1int)
 
 class ASN1_String:
 
@@ -41,10 +44,13 @@ class ASN1_String:
         self.asn1str = asn1str
         self._pyfree = _pyfree
 
-    def __str__(self):
+    def __bytes__(self):
         buf = BIO.MemoryBuffer()
         m2.asn1_string_print( buf.bio_ptr(), self.asn1str )
         return buf.read_all()
+
+    def __str__(self):
+        return bytes(self).decode()
 
     def __del__(self):
         if getattr(self, '_pyfree', 0):
@@ -56,7 +62,7 @@ class ASN1_String:
     def as_text(self, flags=0):
         buf = BIO.MemoryBuffer()
         m2.asn1_string_print_ex( buf.bio_ptr(), self.asn1str, flags)
-        return buf.read_all()
+        return buf.read_all().decode()
 
 
 class ASN1_Object:
@@ -146,7 +152,7 @@ class ASN1_UTCTIME:
         assert m2.asn1_utctime_type_check(self.asn1_utctime), "'asn1_utctime' type error'"
         buf = BIO.MemoryBuffer()
         m2.asn1_utctime_print( buf.bio_ptr(), self.asn1_utctime )
-        return buf.read_all()
+        return buf.read_all().decode()
 
     def _ptr(self):
         assert m2.asn1_utctime_type_check(self.asn1_utctime), "'asn1_utctime' type error'"
@@ -174,7 +180,7 @@ class ASN1_UTCTIME:
             raise ValueError("Invalid date: %s" % date)
         month, rest = date.split(' ', 1)
         if month not in self._ssl_months:
-            raise ValueError("Invalid date %s: Invalid month: %s" % (date, m))
+            raise ValueError("Invalid date %s: Invalid month: %s" % (date, month))
         if rest.endswith(' GMT'):
             timezone = UTC
             rest = rest[:-4]
