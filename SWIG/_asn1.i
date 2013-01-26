@@ -153,10 +153,11 @@ int asn1_integer_set(ASN1_INTEGER *asn1, PyObject *value) {
     BIGNUM *bn = NULL;
     PyObject *fmt, *args, *hex;
 
-    if (PyInt_Check(value))
 #if PY_MAJOR_VERSION >= 3
+    if (PyLong_Check(value))
         return ASN1_INTEGER_set(asn1, PyLong_AsLong(value));
 #else
+    if (PyInt_Check(value))
         return ASN1_INTEGER_set(asn1, PyInt_AS_LONG(value));
 #endif // PY_MAJOR_VERSION >= 3
 

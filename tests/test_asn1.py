@@ -22,7 +22,9 @@ class ASN1TestCase(unittest.TestCase):
 
     def test_String(self):
         asn1ptr = m2.asn1_string_new()
-        text = 'hello there'
+        # FIXME this is probably wrong ... asn1_string_set should have
+        # Python string as its parameter.
+        text = b'hello there'
         # In RFC2253 format:
         # #040B68656C6C6F207468657265
         #      h e l l o   t h e r e
