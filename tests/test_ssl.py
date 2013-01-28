@@ -25,6 +25,9 @@ from M2Crypto import Rand, SSL, m2, Err
 
 from .fips import fips_mode
 
+# FIXME
+# It would be probably better if the port was randomly selected.
+# https://fedorahosted.org/libuser/browser/tests/alloc_port.c
 srv_host = 'localhost'
 srv_port = 64000
 

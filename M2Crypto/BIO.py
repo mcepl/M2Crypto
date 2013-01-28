@@ -3,7 +3,6 @@
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
 from . import __m2crypto as m2
-
 # Deprecated
 from .__m2crypto import bio_do_handshake as bio_do_ssl_handshake
 
@@ -46,18 +45,18 @@ class BIO:
         if not self.readable():
             raise IOError('cannot read')
         if size is None:
-            buf = StringIO()
+            buf = bytearray()
             while 1:
                 data = m2.bio_read(self.bio, 4096)
                 if not data: break
-                buf.write(data)
-            return buf.getvalue()
+                buf += data
+            return bytes(buf)
         elif size == 0:
             return ''
         elif size < 0:
             raise ValueError('read count is negative')
         else:
-            return m2.bio_read(self.bio, size)
+            return bytes(m2.bio_read(self.bio, size))
 
     def readline(self, size=4096):
         if not self.readable():
@@ -82,6 +81,8 @@ class BIO:
     def write(self, data):
         if not self.writeable():
             raise IOError('cannot write')
+        if isinstance(data, str):
+            data = data.encode()
         return m2.bio_write(self.bio, data)
 
     def write_close(self):
@@ -251,7 +252,12 @@ class CipherStream(BIO):
         cipher = getattr(m2, algo, None)
         if cipher is None:
             raise ValueError('unknown cipher', algo)
-        m2.bio_set_cipher(self.bio, cipher(), key, iv, op)
+        else:
+            if isinstance(key, str):
+                key = key.encode()
+            if isinstance(iv, str):
+                iv = iv.encode()
+        m2.bio_set_cipher(self.bio, cipher(), key, iv, int(op))
         m2.bio_push(self.bio, self.obio._ptr())
 
 

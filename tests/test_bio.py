@@ -16,33 +16,33 @@ from .fips import fips_mode
 
 class CipherStreamTestCase(unittest.TestCase):
     def try_algo(self, algo):
-        enc = 1
-        dec = 0
-        data = '123456789012345678901234'
+        data = b'123456789012345678901234'
+        my_key = 3 * 15 * b"key" # DES requires larger key
         # Encrypt.
         mem = BIO.MemoryBuffer()
         cf = BIO.CipherStream(mem)
-        cf.set_cipher(algo, 'key', 'iv', 1)
+        cf.set_cipher(algo, my_key, 'iv', 1)
         cf.write(data)
         cf.flush()
         cf.write_close()
         cf.close()
-        xxx = mem.read()
+        ciphertext = mem.read()
+
 
         # Decrypt.
-        mem = BIO.MemoryBuffer(xxx)
+        mem = BIO.MemoryBuffer(ciphertext)
         cf = BIO.CipherStream(mem)
-        cf.set_cipher(algo, 'key', 'iv', 0)
+        cf.set_cipher(algo, my_key, 'iv', 0)
         cf.write_close()
         data2 = cf.read()
         cf.close()
-        assert not cf.readable()
+        self.assertFalse(cf.readable())
 
         self.assertRaises(IOError, cf.read)
         self.assertRaises(IOError, cf.readline)
         self.assertRaises(IOError, cf.readlines)
 
-        assert data == data2, '%s algorithm cipher test failed' % algo
+        self.assertEqual(data, data2, '%s algorithm cipher test failed' % algo)
 
     def test_ciphers(self):
         ciphers=[
