@@ -44,10 +44,33 @@ class HTTPSConnection(HTTPConnection):
         HTTPConnection.__init__(self, host, port, strict)
 
     def connect(self):
-        self.sock = SSL.Connection(self.ssl_ctx)
-        if self.session:
-            self.sock.set_session(self.session)
-        self.sock.connect((self.host, self.port))
+        error = None
+        # We ignore the returned sockaddr because SSL.Connection.connect needs
+        # a host name.
+        for (family, _, _, _, _) in \
+                socket.getaddrinfo(self.host, self.port, 0, socket.SOCK_STREAM):
+            sock = None
+            try:
+                try:
+                    sock = SSL.Connection(self.ssl_ctx, family=family)
+                    if self.session is not None:
+                        sock.set_session(self.session)
+                    sock.connect((self.host, self.port))
+
+                    self.sock = sock
+                    sock = None
+                    return
+                except socket.error, e:
+                    # Other exception are probably SSL-related, in that case we
+                    # abort and the exception is forwarded to the caller.
+                    error = e
+            finally:
+                if sock is not None:
+                    sock.close()
+
+        if error is None:
+            raise AssertionError("Empty list returned by getaddrinfo")
+        raise error
 
     def close(self):
         # This kludges around line 545 of httplib.py,
