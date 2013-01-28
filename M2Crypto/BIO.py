@@ -50,7 +50,7 @@ class BIO:
         if not self.readable():
             raise IOError('cannot read')
         if size is None:
-            buf = StringIO()
+            buf = bytearray()
             while 1:
                 data = m2.bio_read(self.bio, 4096)
                 if not data:
@@ -62,7 +62,7 @@ class BIO:
         elif size < 0:
             raise ValueError('read count is negative')
         else:
-            return m2.bio_read(self.bio, size)
+            return bytes(m2.bio_read(self.bio, size))
 
     def readline(self, size=4096):
         if not self.readable():
@@ -87,6 +87,8 @@ class BIO:
     def write(self, data):
         if not self.writeable():
             raise IOError('cannot write')
+        if isinstance(data, str):
+            data = data.encode()
         return m2.bio_write(self.bio, data)
 
     def write_close(self):
@@ -136,7 +138,6 @@ class BIO:
 
 
 class MemoryBuffer(BIO):
-
     """
     Object interface to BIO_s_mem.
 
@@ -148,9 +149,12 @@ class MemoryBuffer(BIO):
     """
 
     def __init__(self, data=None):
+        if data is not None and not isinstance(data, bytes):
+            raise TypeError("data must be bytes or None, not %s" % (type(data).__name__, ))
         BIO.__init__(self)
         self.bio = m2.bio_new(m2.bio_s_mem())
         self._pyfree = 1
+        logging.debug("data = %s", data)
         if data is not None:
             m2.bio_write(self.bio, data)
 
@@ -188,7 +192,8 @@ class File(BIO):
         BIO.__init__(self, _pyfree=1)
         self.pyfile = pyfile
         self.close_pyfile = close_pyfile
-        self.bio = m2.bio_new_fp(pyfile, 0)
+        logging.debug("self.pyfile = %s", self.pyfile)
+        self.bio = m2.bio_new_fd(pyfile.fileno(), 0)
 
     def close(self):
         self.closed = 1
@@ -265,7 +270,12 @@ class CipherStream(BIO):
         cipher = getattr(m2, algo, None)
         if cipher is None:
             raise ValueError('unknown cipher', algo)
-        m2.bio_set_cipher(self.bio, cipher(), key, iv, op)
+        else:
+            if isinstance(key, str):
+                key = key.encode()
+            if isinstance(iv, str):
+                iv = iv.encode()
+        m2.bio_set_cipher(self.bio, cipher(), key, iv, int(op))
         m2.bio_push(self.bio, self.obio._ptr())
 
 

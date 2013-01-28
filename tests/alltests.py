@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(format='%(levelname)s:%(funcName)s:%(message)s',
+    level=logging.DEBUG)
 
 from __future__ import absolute_import, print_function
 
@@ -31,31 +32,34 @@ def suite():
         'tests.test_bio',
         'tests.test_bio_membuf',
         'tests.test_bio_file',
-        'tests.test_bio_iobuf',
-        'tests.test_bio_ssl',
-        'tests.test_bn',
-        'tests.test_authcookie',
-        'tests.test_dh',
-        'tests.test_dsa',
-        'tests.test_engine',
-        'tests.test_evp',
-        'tests.test_obj',
-        'tests.test_pgp',
-        'tests.test_rand',
-        'tests.test_rc4',
-        'tests.test_rsa',
-        'tests.test_smime',
-        'tests.test_ssl_offline',
-        'tests.test_threading',
-        'tests.test_x509']
+        #'tests.test_bio_iobuf',
+        #'tests.test_bio_ssl',
+        #'tests.test_bn',
+        #'tests.test_authcookie',
+        #'tests.test_dh',
+        #'tests.test_dsa',
+        #'tests.test_engine',
+        #'tests.test_evp',
+        #'tests.test_obj',
+        #'tests.test_pgp',
+        #'tests.test_rand',
+        #'tests.test_rc4',
+        #'tests.test_rsa',
+        #'tests.test_smime',
+        #'tests.test_ssl_offline',
+        #'tests.test_threading',
+        #'tests.test_x509'
+        ]
     if os.name == 'posix':
-        modules_to_test.append('tests.test_ssl')
+        #modules_to_test.append('tests.test_ssl')
+        pass
     elif os.name == 'nt':
         modules_to_test.append('tests.test_ssl_win')
     if m2.OPENSSL_VERSION_NUMBER >= 0x90800F and m2.OPENSSL_NO_EC == 0:
-        modules_to_test.append('tests.test_ecdh')
-        modules_to_test.append('tests.test_ecdsa')
-        modules_to_test.append('tests.test_ec_curves')
+        #modules_to_test.append('tests.test_ecdh')
+        #modules_to_test.append('tests.test_ecdsa')
+        #modules_to_test.append('tests.test_ec_curves')
+        pass
     alltests = unittest.TestSuite()
     for module in map(my_import, modules_to_test):
         alltests.addTest(module.suite())

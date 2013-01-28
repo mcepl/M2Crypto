@@ -37,6 +37,9 @@ from tests.fips import fips_mode
 
 log = logging.getLogger('test_SSL')
 
+# FIXME
+# It would be probably better if the port was randomly selected.
+# https://fedorahosted.org/libuser/browser/tests/alloc_port.c
 srv_host = 'localhost'
 
 def allocate_srv_port():

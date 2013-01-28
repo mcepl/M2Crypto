@@ -16,12 +16,8 @@ from M2Crypto.BIO import File, openfile
 class FileTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.data = 'abcdef' * 64
-        if sys.platform != 'win32':
-            self.fname = os.tmpnam()
-        else:
-            import tempfile
-            self.fname = tempfile.mktemp()
+        self.data = b'abcdef' * 64
+        self.fname = tempfile.mkstemp()[1]
 
     def tearDown(self):
         try:
@@ -69,12 +65,6 @@ class FileTestCase(unittest.TestCase):
 
 
 def suite():
-    # Python 2.2 warns that os.tmpnam() is unsafe.
-    try:
-        import warnings
-        warnings.filterwarnings('ignore')
-    except ImportError:
-        pass
     return unittest.makeSuite(FileTestCase)
 
 
