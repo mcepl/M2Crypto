@@ -64,8 +64,10 @@ class HTTPSHandler(AbstractHTTPHandler):
         target_host = urlparse.urlparse(full_url)[1]
 
         if (target_host != host):
+            request_uri = urlparse.urldefrag(full_url)[0]
             h = httpslib.ProxyHTTPSConnection(host = host, ssl_context = self.ctx)
         else:
+            request_uri = req.get_selector()
             h = httpslib.HTTPSConnection(host = host, ssl_context = self.ctx)
         # End our change
         h.set_debuglevel(self._debuglevel)
@@ -80,7 +82,7 @@ class HTTPSHandler(AbstractHTTPHandler):
         # request.
         headers["Connection"] = "close"
         try:
-            h.request(req.get_method(), req.get_selector(), req.data, headers)
+            h.request(req.get_method(), request_uri, req.data, headers)
             r = h.getresponse()
         except socket.error, err: # XXX what error?
             raise URLError(err)

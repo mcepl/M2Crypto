@@ -182,14 +182,14 @@ class ProxyHTTPSConnection(HTTPSConnection):
         else:
             HTTPSConnection.putheader(self, header, value)
 
-    def endheaders(self):
+    def endheaders(self, *args, **kwargs):
         # We've recieved all of hte headers. Use the supplied username
         # and password for authorization, possibly overriding the authstring
         # supplied in the headers.
         if not self._proxy_auth:
             self._proxy_auth = self._encode_auth()
 
-        HTTPSConnection.endheaders(self)
+        HTTPSConnection.endheaders(self, *args, **kwargs)
 
     def connect(self):
         HTTPConnection.connect(self)
