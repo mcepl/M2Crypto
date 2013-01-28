@@ -18,7 +18,7 @@ Rand.load_file('randpool.dat', -1)
 # Instantiate an SMIME object; set it up; sign the buffer.
 s = SMIME.SMIME()
 s.load_key('signer_key.pem', 'signer.pem')
-p7 = s.sign(buf)
+p7 = s.sign(buf, SMIME.PKCS7_DETACHED)
 
 # Recreate buf.
 buf = makebuf('a sign of our times')

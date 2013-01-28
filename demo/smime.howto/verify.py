@@ -23,7 +23,7 @@ s.set_x509_store(st)
 
 # Load the data, verify it.
 p7, data = SMIME.smime_load_pkcs7('sign.p7')
-v = s.verify(p7)
+v = s.verify(p7, data)
 print v
 print data
 print data.read()
