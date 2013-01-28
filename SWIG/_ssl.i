@@ -700,12 +700,12 @@ PyObject *ssl_read_nbio(SSL *ssl, int num) {
 }
 
 int ssl_write(SSL *ssl, PyObject *blob, double timeout) {
-    const void *buf;
-    int len, r, ssl_err, ret;
+    Py_buffer buf;
+    int r, ssl_err, ret;
     struct timeval tv;
 
 
-    if (m2_PyObject_AsReadBufferInt(blob, &buf, &len) == -1) {
+    if (m2_PyObject_GetBufferInt(blob, &buf, PyBUF_CONTIG_RO) == -1) {
         return -1;
     }
 
@@ -713,7 +713,7 @@ int ssl_write(SSL *ssl, PyObject *blob, double timeout) {
         gettimeofday(&tv, NULL);
  again:
     Py_BEGIN_ALLOW_THREADS
-    r = SSL_write(ssl, buf, len);
+    r = SSL_write(ssl, buf.buf, buf.len);
     ssl_err = SSL_get_error(ssl, r);
     Py_END_ALLOW_THREADS
 
@@ -741,22 +741,22 @@ int ssl_write(SSL *ssl, PyObject *blob, double timeout) {
             ret = -1;
     }
     
-    
+    m2_PyBuffer_Release(blob, &buf);
     return ret;
 }
 
 int ssl_write_nbio(SSL *ssl, PyObject *blob) {
-    const void *buf;
-    int len, r, err, ret;
+    Py_buffer buf;
+    int r, err, ret;
 
 
-    if (m2_PyObject_AsReadBufferInt(blob, &buf, &len) == -1) {
+    if (m2_PyObject_GetBufferInt(blob, &buf, PyBUF_CONTIG_RO) == -1) {
         return -1;
     }
 
     
     Py_BEGIN_ALLOW_THREADS
-    r = SSL_write(ssl, buf, len);
+    r = SSL_write(ssl, buf.buf, buf.len);
     Py_END_ALLOW_THREADS
     
     
@@ -785,7 +785,7 @@ int ssl_write_nbio(SSL *ssl, PyObject *blob) {
             ret = -1;
     }
     
-    
+    m2_PyBuffer_Release(blob, &buf);
     return ret;
 }
 

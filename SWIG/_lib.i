@@ -47,9 +47,36 @@ void blob_free(Blob *blob) {
 /* Python helpers. */
 
 %}
+%ignore PyObject_CheckBuffer;
+%ignore PyObject_GetBuffer;
+%ignore PyBuffer_Release;
 %ignore m2_PyObject_AsReadBufferInt;
+%ignore m2_PyObject_GetBufferInt;
+%ignore m2_PyBuffer_Release;
 %ignore m2_PyString_AsStringAndSizeInt;
 %{
+
+#if PY_VERSION_HEX < 0x02060000
+static int PyObject_CheckBuffer(PyObject *obj)
+{
+    (void)obj;
+    return 0;
+}
+
+static int PyObject_GetBuffer(PyObject *obj, Py_buffer *view, int flags)
+{
+    (void)obj;
+    (void)view;
+    (void)flags;
+    return -1;
+}
+
+static void PyBuffer_Release(Py_buffer *view)
+{
+    (void)view;
+}
+#endif /* PY_VERSION_HEX < 0x02060000 */
+
 static int
 m2_PyObject_AsReadBufferInt(PyObject *obj, const void **buffer,
                 int *buffer_len)
@@ -66,6 +93,37 @@ m2_PyObject_AsReadBufferInt(PyObject *obj, const void **buffer,
     }
     *buffer_len = len;
     return 0;
+}
+
+static int m2_PyObject_GetBufferInt(PyObject *obj, Py_buffer *view, int flags)
+{
+    int ret;
+
+    if (PyObject_CheckBuffer(obj))
+	ret = PyObject_GetBuffer(obj, view, flags);
+    else {
+	const void *buf;
+
+	ret = PyObject_AsReadBuffer(obj, &buf, &view->len);
+	if (ret == 0)
+	    view->buf = (void *)buf;
+    }
+    if (ret)
+	return ret;
+    if (view->len > INT_MAX) {
+	PyErr_SetString(PyExc_ValueError, "object too large");
+	m2_PyBuffer_Release(obj, view);
+	return -1;
+    }
+
+    return 0;
+}
+
+static void m2_PyBuffer_Release(PyObject *obj, Py_buffer *view)
+{
+    if (PyObject_CheckBuffer(obj))
+	PyBuffer_Release(view);
+    /* else do nothing, view->buf comes from PyObject_AsReadBuffer */
 }
 
 static int
