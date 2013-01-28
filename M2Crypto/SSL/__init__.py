@@ -2,11 +2,14 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
+import socket
+
 # M2Crypto
 from M2Crypto import m2
 
 class SSLError(Exception): pass
-m2.ssl_init(SSLError)
+class SSLTimeoutError(SSLError, socket.timeout): pass
+m2.ssl_init(SSLError, SSLTimeoutError)
 
 # M2Crypto.SSL
 from Cipher import Cipher, Cipher_Stack

@@ -972,6 +972,53 @@ class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
 
 class TwistedSSLClientTestCase(BaseSSLClientTestCase):
 
+    def test_timeout(self):
+        pid = self.start_server(self.args)
+        try:
+            ctx = SSL.Context()
+            s = SSL.Connection(ctx)
+            # Just a really small number so we can timeout
+            s.settimeout(0.000000000000000000000000000001)
+            self.assertRaises(SSL.SSLTimeoutError, s.connect, self.srv_addr)
+            s.close()
+        finally:
+            self.stop_server(pid)
+
+    def test_makefile_timeout(self):
+        # httpslib uses makefile to read the response
+        pid = self.start_server(self.args)
+        try:
+            from M2Crypto import httpslib
+            c = httpslib.HTTPS(srv_host, srv_port)
+            c.putrequest('GET', '/')
+            c.putheader('Accept', 'text/html')
+            c.putheader('Accept', 'text/plain')
+            c.endheaders()
+            c._conn.sock.settimeout(100)
+            err, msg, headers = c.getreply()
+            assert err == 200, err
+            f = c.getfile()
+            data = f.read()
+            c.close()
+        finally:
+            self.stop_server(pid)
+        self.failIf(string.find(data, 's_server -quiet -www') == -1)
+
+    def test_makefile_timeout_fires(self):
+        pid = self.start_server(self.args)
+        try:
+            from M2Crypto import httpslib
+            c = httpslib.HTTPS(srv_host, srv_port)
+            c.putrequest('GET', '/')
+            c.putheader('Accept', 'text/html')
+            c.putheader('Accept', 'text/plain')
+            c.endheaders()
+            c._conn.sock.settimeout(0.0000000001)
+            self.assertRaises(socket.timeout, c.getreply)
+            c.close()
+        finally:
+            self.stop_server(pid)
+
     def test_twisted_wrapper(self):
         # Test only when twisted and ZopeInterfaces are present
         try:
