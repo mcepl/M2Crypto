@@ -97,7 +97,7 @@ class EVPTestCase(unittest.TestCase):
         """
         Testing retrieving the RSA key from the PKey instance.
         """
-        rsa = RSA.gen_key(512, 3, callback=self._gen_callback)
+        rsa = RSA.gen_key(1024, 3, callback=self._gen_callback)
         assert isinstance(rsa, RSA.RSA)
         pkey = EVP.PKey()
         pkey.assign_rsa(rsa) 
@@ -130,7 +130,7 @@ class EVPTestCase(unittest.TestCase):
         pkey = EVP.PKey()
         self.assertRaises(ValueError, pkey.get_modulus)
 
-        rsa = RSA.gen_key(512, 3, callback=self._gen_callback)
+        rsa = RSA.gen_key(1024, 3, callback=self._gen_callback)
         pkey.assign_rsa(rsa)
         mod = pkey.get_modulus()
         assert len(mod) > 0, mod
@@ -373,21 +373,21 @@ class PBKDF2TestCase(unittest.TestCase):
 
 class HMACTestCase(unittest.TestCase):
     data1=['', 'More text test vectors to stuff up EBCDIC machines :-)', \
-           h2b("e9139d1e6ee064ef8cf514fc7dc83e86")]
+           h2b("b760e92d6662d351eb3801057695ac0346295356")]
 
     data2=[h2b('0b'*16), "Hi There", \
-           h2b("9294727a3638bb1c13f48ef8158bfc9d")]
+           h2b("675b0b3a1b4ddf4e124872da6c2f632bfed957e9")]
 
     data3=['Jefe', "what do ya want for nothing?", \
-           h2b("750c783e6ab0b503eaa86e310a5db738")]
+           h2b("effcdf6ae5eb2fa2d27416d5f184df9c259a7c79")]
 
     data4=[h2b('aa'*16), h2b('dd'*50), \
-           h2b("0x56be34521d144c88dbb8c733f0e8b3f6")]
+           h2b("d730594d167e35d5956fd8003d0db3d3f46dc7bb")]
 
     data=[data1, data2, data3, data4]
 
     def test_simple(self):
-        algo = 'md5'
+        algo = 'sha1'
         for d in self.data:
             h = EVP.HMAC(d[0], algo)
             h.update(d[1])

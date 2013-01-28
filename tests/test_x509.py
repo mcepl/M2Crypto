@@ -394,7 +394,7 @@ class X509TestCase(unittest.TestCase):
         return
     
     def test_load_request_bio(self):
-        (req, _) = self.mkreq(512)
+        (req, _) = self.mkreq(1024)
 
         r1 = X509.load_request_der_string(req.as_der())
         r2 = X509.load_request_string(req.as_der(), X509.FORMAT_DER)

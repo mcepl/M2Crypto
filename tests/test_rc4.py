@@ -8,12 +8,16 @@ import unittest
 from binascii import hexlify
 from M2Crypto import RC4
 
+from fips import fips_mode
+
 class RC4TestCase(unittest.TestCase):
 
     def test_vectors(self):
         """
         Test with test vectors from Wikipedia: http://en.wikipedia.org/wiki/Rc4
         """
+        if fips_mode:
+            return
         vectors = (('Key', 'Plaintext', 'BBF316E8D940AF0AD3'),
                    ('Wiki', 'pedia', '1021BF0420'),
                    ('Secret', 'Attack at dawn', '45A01F645FC35B383552544B9BF5'))
@@ -26,6 +30,8 @@ class RC4TestCase(unittest.TestCase):
         self.assertEqual(rc4.final(), '')
     
     def test_bad(self):
+        if fips_mode:
+            return
         rc4 = RC4.RC4('foo')
         self.assertNotEqual(hexlify(rc4.update('bar')).upper(), '45678')
         

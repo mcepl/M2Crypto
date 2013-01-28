@@ -54,7 +54,7 @@ class VerifyCB:
     def __call__(self, ok, store):
         return verify_cb_new_function(ok, store)
 
-sleepTime = float(os.getenv('M2CRYPTO_TEST_SSL_SLEEP', 0.5))
+sleepTime = float(os.getenv('M2CRYPTO_TEST_SSL_SLEEP', 1.5))
 
 def find_openssl():
     if os.name == 'nt' or sys.platform == 'cygwin':

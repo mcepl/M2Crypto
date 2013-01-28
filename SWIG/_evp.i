@@ -253,7 +253,10 @@ PyObject *hmac_init(HMAC_CTX *ctx, PyObject *key, const EVP_MD *md) {
     if (m2_PyObject_AsReadBufferInt(key, &kbuf, &klen) == -1)
         return NULL;
 
-    HMAC_Init(ctx, kbuf, klen, md);
+    if (!HMAC_Init(ctx, kbuf, klen, md)) {
+        PyErr_SetString(_evp_err, "HMAC_Init failed");
+        return NULL;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -265,7 +268,10 @@ PyObject *hmac_update(HMAC_CTX *ctx, PyObject *blob) {
     if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
         return NULL;
 
-    HMAC_Update(ctx, buf, len);
+    if (!HMAC_Update(ctx, buf, len)) {
+        PyErr_SetString(_evp_err, "HMAC_Update failed");
+        return NULL;
+    }
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -279,7 +285,10 @@ PyObject *hmac_final(HMAC_CTX *ctx) {
         PyErr_SetString(PyExc_MemoryError, "hmac_final");
         return NULL;
     }
-    HMAC_Final(ctx, blob, (unsigned int *)&blen);
+    if (!HMAC_Final(ctx, blob, (unsigned int *)&blen)) {
+        PyErr_SetString(_evp_err, "HMAC_Final failed");
+        return NULL;
+    }
     ret = PyString_FromStringAndSize(blob, blen);
     PyMem_Free(blob);
     return ret;
