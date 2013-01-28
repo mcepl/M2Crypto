@@ -54,6 +54,10 @@ class Connection:
 
         self.ssl_close_flag = m2.bio_noclose
 
+        if self.ctx.post_connection_check is not None:
+            self.set_post_connection_check_callback \
+                (self.ctx.post_connection_check)
+
         
     def __del__(self):
         if getattr(self, 'sslbio', None):
