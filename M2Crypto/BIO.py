@@ -2,6 +2,7 @@
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
+import logging
 from . import __m2crypto as m2
 # Deprecated
 from .__m2crypto import bio_do_handshake as bio_do_ssl_handshake
@@ -125,7 +126,6 @@ class BIO:
         return m2.bio_should_write(self.bio)
 
 class MemoryBuffer(BIO):
-
     """
     Object interface to BIO_s_mem.
 
@@ -139,6 +139,7 @@ class MemoryBuffer(BIO):
         BIO.__init__(self)
         self.bio = m2.bio_new(m2.bio_s_mem())
         self._pyfree = 1
+        logging.debug("data = %s", data)
         if data is not None:
             m2.bio_write(self.bio, data)
 
