@@ -7,17 +7,14 @@ Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 import unittest
 import M2Crypto
 from M2Crypto.BIO import File, openfile
-import os, sys
+import os, sys, tempfile
 
 class FileTestCase(unittest.TestCase):
 
     def setUp(self):
         self.data = 'abcdef' * 64
-        if sys.platform != 'win32':
-            self.fname = os.tmpnam()
-        else:
-            import tempfile
-            self.fname = tempfile.mktemp()
+        # Yes, this is insecure. FIXME
+        self.fname = tempfile.mktemp()
 
     def tearDown(self):
         try:
@@ -75,4 +72,3 @@ def suite():
 
 if __name__ == '__main__':
     unittest.TextTestRunner().run(suite())
-

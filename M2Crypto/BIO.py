@@ -177,6 +177,7 @@ class File(BIO):
         BIO.__init__(self, _pyfree=1)
         self.pyfile = pyfile
         self.close_pyfile = close_pyfile
+        logging.debug("self.pyfile = %s", self.pyfile)
         self.bio = m2.bio_new_fp(pyfile, 0)
 
     def close(self):

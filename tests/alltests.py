@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import logging
 logging.basicConfig(format='%(levelname)s:%(funcName)s:%(message)s',
-    level=logging.INFO)
+    level=logging.DEBUG)
 
 def suite():
     from M2Crypto import __m2crypto as m2
@@ -29,7 +29,7 @@ def suite():
         'tests.test_asn1',
         'tests.test_bio',
         'tests.test_bio_membuf',
-        #'tests.test_bio_file',
+        'tests.test_bio_file',
         #'tests.test_bio_iobuf',
         #'tests.test_bio_ssl',
         #'tests.test_bn',
