@@ -13,8 +13,7 @@ class FileTestCase(unittest.TestCase):
 
     def setUp(self):
         self.data = 'abcdef' * 64
-        # Yes, this is insecure. FIXME
-        self.fname = tempfile.mktemp()
+        self.fname = tempfile.mkstemp()[1]
 
     def tearDown(self):
         try:
@@ -61,12 +60,6 @@ class FileTestCase(unittest.TestCase):
 
 
 def suite():
-    # Python 2.2 warns that os.tmpnam() is unsafe.
-    try:
-        import warnings
-        warnings.filterwarnings('ignore')
-    except ImportError:
-        pass
     return unittest.makeSuite(FileTestCase)
 
 
