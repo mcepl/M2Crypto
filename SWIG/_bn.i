@@ -2,11 +2,11 @@
 /* Copyright (c) 2005-2006 Open Source Applications Foundation. All rights reserved. */
 
 /* We are converting between the Python arbitrarily long integer and
- * the BIGNUM arbitrarily long integer by converting to and from
- * a string representation of the number (in hexadecimal).
- * Direct manipulation would be a possibility, but would require
- * tighter integration with the Python and OpenSSL internals.
- */
+* the BIGNUM arbitrarily long integer by converting to and from
+* a string representation of the number (in hexadecimal).
+* Direct manipulation would be a possibility, but would require
+* tighter integration with the Python and OpenSSL internals.
+*/
 
 
 %{
@@ -56,7 +56,7 @@ PyObject *bn_rand_range(PyObject *range)
 #if PY_MAJOR_VERSION >= 3
     format = PyUnicode_FromString("%x");
 #else
-	format = PyString_FromString("%x");
+    format = PyString_FromString("%x");
 #endif // PY_MAJOR_VERSION >= 3
 
     if (!format) {
@@ -100,16 +100,16 @@ PyObject *bn_rand_range(PyObject *range)
     }
 
     Py_DECREF(rangePyString);
-                 
+                
     BN_init(&rnd);
 
-     if (!BN_rand_range(&rnd, rng)) {
+    if (!BN_rand_range(&rnd, rng)) {
         /*Custom errors?*/
         PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
         BN_free(&rnd);
         BN_free(rng);
         return NULL;         
-     }
+    }
 
     BN_free(rng);
 
