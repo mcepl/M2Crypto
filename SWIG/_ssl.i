@@ -48,8 +48,6 @@ extern const char *SSL_alert_desc_string(int);
 %rename(ssl_get_alert_desc_v) SSL_alert_desc_string_long;
 extern const char *SSL_alert_desc_string_long(int);
 
-%rename(sslv2_method) SSLv2_method;
-extern SSL_METHOD *SSLv2_method(void);
 %rename(sslv3_method) SSLv3_method;
 extern SSL_METHOD *SSLv3_method(void);
 %rename(sslv23_method) SSLv23_method;
