@@ -1,0 +1,8 @@
+*.pyc
+*~
+/build
+/dist
+/SWIG/_m2crypto.py
+/SWIG/_m2crypto_wrap.c
+/M2Crypto.egg-info
+/EGG-INFO
