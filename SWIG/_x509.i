@@ -516,7 +516,7 @@ LHASH_OF(CONF_VALUE)
 #else
 LHASH
 #endif
-*x509v3_lhash() { 
+*x509v3_lhash(void) {
     return lh_new(NULL, NULL); /* Should probably be lh_CONF_VALUE_new but won't compile. */
 }
 

@@ -552,7 +552,8 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
             }
             BIO_get_mem_ptr(bio, &bptr);
             ret = PyString_FromStringAndSize(bptr->data, bptr->length);
-            BIO_set_close(bio, BIO_CLOSE);
+            /* BIO_set_close() always returns 1 */
+            (void)BIO_set_close(bio, BIO_CLOSE);
             BIO_free(bio);
             RSA_free(rsa);
 
@@ -577,7 +578,8 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
             }
             BIO_get_mem_ptr(bio, &bptr);
             ret = PyString_FromStringAndSize(bptr->data, bptr->length);
-            BIO_set_close(bio, BIO_CLOSE);
+            /* BIO_set_close() always returns 1 */
+            (void)BIO_set_close(bio, BIO_CLOSE);
             BIO_free(bio);
             DSA_free(dsa);
 
