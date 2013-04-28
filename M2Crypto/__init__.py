@@ -38,7 +38,6 @@ import RC4
 import SMIME
 import SSL
 import X509
-import PGP
 
 import m2urllib
 import m2urllib2

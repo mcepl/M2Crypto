@@ -12,12 +12,9 @@ Copyright 2008-2009 Heikki Toivonen. All rights reserved.
 """
 
 import os, sys
-try:
-    from setuptools import setup
-    from setuptools.command import build_ext
-except ImportError:
-    from distutils.core import setup
-    from distutils.command import build_ext
+
+from setuptools import setup
+from setuptools.command import build_ext
 
 from distutils.core import Extension
 
@@ -26,10 +23,10 @@ class _M2CryptoBuildExt(build_ext.build_ext):
     '''Specialization of build_ext to enable swig_opts to inherit any 
     include_dirs settings made at the command line or in a setup.cfg file'''
     user_options = build_ext.build_ext.user_options + \
-            [('openssl=', 'o', 'Prefix for openssl installation location')]
+            [('openssl=', 'o', 'Prefix for OpenSSL installation location')]
 
     def initialize_options(self):
-        '''Overload to enable custom openssl settings to be picked up'''
+        '''Overload to enable custom OpenSSL settings to be picked up'''
 
         build_ext.build_ext.initialize_options(self)
         
@@ -97,7 +94,7 @@ interface.''',
       maintainer = 'Heikki Toivonen',
       maintainer_email = 'heikki@osafoundation.org',
       url = 'http://chandlerproject.org/Projects/MeTooCrypto',
-      packages = ['M2Crypto', 'M2Crypto.SSL', 'M2Crypto.PGP'],
+      packages = ['M2Crypto', 'M2Crypto.SSL'],
       classifiers = [
           'Development Status :: 5 - Production/Stable',
           'Intended Audience :: Developers',
