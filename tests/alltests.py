@@ -32,7 +32,6 @@ def suite():
         'tests.test_engine',
         'tests.test_evp',
         'tests.test_obj',
-        'tests.test_pgp',
         'tests.test_rand',
         'tests.test_rc4',
         'tests.test_rsa',

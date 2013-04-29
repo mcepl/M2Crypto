@@ -60,3 +60,7 @@ openssl rsa <newkey.pem >../recipient_key.pem
 
 
 Finally run the tests and edit for new values.
+NOTES:
+ - use makecerts.py
+ - edit x509 test for fingerprint test
+ - remove key from signer.pem

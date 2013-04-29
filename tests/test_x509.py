@@ -340,14 +340,14 @@ class X509TestCase(unittest.TestCase):
     def test_fingerprint(self):
         x509 = X509.load_cert('tests/x509.pem')
         fp = x509.get_fingerprint('sha1')
-        expected = '8D2EB9E203B5FFDC7F4FA7DC4103E852A55B808D'
+        expected = '7B8D34D23BF755BE23891AF4CAA0A9868F4C65AD'
         assert fp == expected, '%s != %s' % (fp, expected)
 
     def test_load_der_string(self):
         f = open('tests/x509.der', 'rb')
         x509 = X509.load_cert_der_string(''.join(f.readlines()))
         fp = x509.get_fingerprint('sha1')
-        expected = '8D2EB9E203B5FFDC7F4FA7DC4103E852A55B808D'
+        expected = '7B8D34D23BF755BE23891AF4CAA0A9868F4C65AD'
         assert fp == expected, '%s != %s' % (fp, expected)
 
     def test_save_der_string(self):
@@ -410,10 +410,7 @@ class X509TestCase(unittest.TestCase):
 
     def test_save(self):
         x509 = X509.load_cert('tests/x509.pem')
-        f = open('tests/x509.pem', 'r')
-        lTmp = f.readlines()
-        x509_pem = ''.join(lTmp[44:60]) # -----BEGIN CERTIFICATE----- : -----END CERTIFICATE-----
-        f.close()
+        x509_pem = x509.as_pem()
         f = open('tests/x509.der', 'rb')
         x509_der = f.read()
         f.close()

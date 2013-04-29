@@ -16,7 +16,7 @@ class CheckerTestCase(unittest.TestCase):
     def test_checker(self):
 
         check = Checker.Checker(host=srv_host,
-                                peerCertHash='7B754EFA41A264AAD370D43460BC8229F9354ECE')
+                                peerCertHash='CE15B128975EF740A593C4FD08717681A5229BF6')
         x509 = X509.load_cert('tests/server.pem')
         assert check(x509, srv_host)
         self.assertRaises(Checker.WrongHost, check, x509, 'example.com')
