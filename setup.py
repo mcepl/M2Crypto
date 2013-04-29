@@ -55,7 +55,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         self.swig_opts.append('-modern')
 
         # Fedora does hat tricks.
-        if platform.linux_distribution()[0] in ('Fedora'):
+        if platform.linux_distribution()[0] in ['Fedora', 'CentOS']:
             if platform.architecture()[0] == '64bit':
                 self.swig_opts.append('-D__x86_64__')
             elif platform.architecture()[0] == '32bit':
