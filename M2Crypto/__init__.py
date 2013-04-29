@@ -47,7 +47,4 @@ import m2xmlrpclib
 import threading
 import util
 
-encrypt=1
-decrypt=0
-
 __m2crypto.lib_init()
