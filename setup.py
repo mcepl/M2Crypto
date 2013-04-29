@@ -11,7 +11,7 @@ Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 Copyright 2008-2009 Heikki Toivonen. All rights reserved.
 """
 
-import os, sys
+import os, sys, platform
 
 from setuptools import setup
 from setuptools.command import build_ext
@@ -50,14 +50,20 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         opensslLibraryDir = os.path.join(self.openssl, 'lib')
         
         self.swig_opts = ['-I%s' % i for i in self.include_dirs + \
-                          [opensslIncludeDir]]
+                          [opensslIncludeDir, os.path.join(opensslIncludeDir, "openssl")]]
         self.swig_opts.append('-includeall')
         self.swig_opts.append('-modern')
-        #self.swig_opts.append('-DOPENSSL_NO_EC') # Try uncommenting if you can't build with EC disabled
-        
+
+        # Fedora does hat tricks.
+        if platform.linux_distribution()[0] in ('Fedora'):
+            if platform.architecture()[0] == '64bit':
+                self.swig_opts.append('-D__x86_64__')
+            elif platform.architecture()[0] == '32bit':
+                self.swig_opts.append('-D__i386__')
+
         self.include_dirs += [os.path.join(self.openssl, opensslIncludeDir),
-                              os.path.join(os.getcwd(), 'SWIG')]        
-            
+                              os.path.join(os.getcwd(), 'SWIG')]
+
         if sys.platform == 'cygwin':
             # Cygwin SHOULD work (there's code in distutils), but
             # if one first starts a Windows command prompt, then bash,
