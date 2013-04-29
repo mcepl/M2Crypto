@@ -373,32 +373,6 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             self.stop_server(pid)
         self.failIf(string.find(data, 's_server -quiet -www') == -1)
 
-    def test_sslv23_no_v2(self):
-        if fips_mode: # TLS is required in FIPS mode
-            return
-        self.args.append('-no_tls1')
-        pid = self.start_server(self.args)
-        try:
-            ctx = SSL.Context('sslv23')
-            s = SSL.Connection(ctx)
-            s.connect(self.srv_addr)
-            self.failUnlessEqual(s.get_version(), 'SSLv3')
-            s.close()
-        finally:
-            self.stop_server(pid)
-
-    def test_sslv23_no_v2_no_service(self):
-        if fips_mode: # TLS is required in FIPS mode
-            return
-        self.args = self.args + ['-no_tls1', '-no_ssl3']
-        pid = self.start_server(self.args)
-        try:
-            ctx = SSL.Context('sslv23')
-            s = SSL.Connection(ctx)
-            self.assertRaises(SSL.SSLError, s.connect, self.srv_addr)
-            s.close()
-        finally:
-            self.stop_server(pid)
 
     def test_cipher_mismatch(self):
         self.args = self.args + ['-cipher', 'AES256-SHA']
