@@ -18,7 +18,6 @@
 %{
 #include <openssl/err.h>
 #include <openssl/rand.h>
-#include <_lib.h>
 
 #include "compile.h"
 
@@ -29,17 +28,6 @@ static PyObject *ssl_set_tmp_rsa_cb_func;
 %}
 
 %include <openssl/opensslv.h>
-#if OPENSSL_VERSION_NUMBER >= 0x0090707fL
-#define CONST const
-#else
-#define CONST
-#endif
-
-#if OPENSSL_VERSION_NUMBER >= 0x0090800fL
-#define CONST098 const
-#else
-#define CONST098
-#endif
 
 /* Bring in STACK_OF macro definition */
 %include <openssl/safestack.h>
@@ -74,9 +62,4 @@ static PyObject *ssl_set_tmp_rsa_cb_func;
 %include _ec.i
 %include _engine.i
 %include _objects.i
-
-#ifdef SWIG_VERSION
-%constant int encrypt = 1;
-%constant int decrypt = 0;
-#endif
   

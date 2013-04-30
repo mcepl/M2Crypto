@@ -177,7 +177,7 @@ extern ASN1_OBJECT *X509_NAME_ENTRY_get_object(X509_NAME_ENTRY *);
 %rename(x509_name_entry_get_data) X509_NAME_ENTRY_get_data;
 extern ASN1_STRING *X509_NAME_ENTRY_get_data(X509_NAME_ENTRY *);
 
-%typemap(in) (CONST unsigned char *, int) { 
+%typemap(in) (const unsigned char *, int) { 
     if (PyString_Check($input)) {
         Py_ssize_t len;
 
@@ -194,8 +194,8 @@ extern ASN1_STRING *X509_NAME_ENTRY_get_data(X509_NAME_ENTRY *);
     }
 }
 %rename(x509_name_entry_set_data) X509_NAME_ENTRY_set_data;
-extern int X509_NAME_ENTRY_set_data(X509_NAME_ENTRY *, int, CONST unsigned char *, int);
-%typemap(in) (CONST unsigned char *, int);
+extern int X509_NAME_ENTRY_set_data(X509_NAME_ENTRY *, int, const unsigned char *, int);
+%typemap(in) (const unsigned char *, int);
 
 %rename(x509_req_new) X509_REQ_new;
 extern X509_REQ * X509_REQ_new();

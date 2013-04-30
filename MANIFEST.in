@@ -1,0 +1,2 @@
+include SWIG/*.i
+include SWIG/*.def

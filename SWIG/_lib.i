@@ -10,40 +10,6 @@
 #include <openssl/x509.h>
 #include <ceval.h>
 
-/* Blob interface. Deprecated. */
-
-Blob *blob_new(int len, const char *errmsg) {
-    
-    Blob *blob;
-    if (!(blob=(Blob *)PyMem_Malloc(sizeof(Blob)))){
-        PyErr_SetString(PyExc_MemoryError, errmsg);
-        return NULL;
-    }
-    if (!(blob->data=(unsigned char *)PyMem_Malloc(len))) {
-        PyMem_Free(blob);
-        PyErr_SetString(PyExc_MemoryError, errmsg);
-        return NULL;
-    }
-    blob->len=len;
-    return blob;
-}
-
-Blob *blob_copy(Blob *from, const char *errmsg) {
-    Blob *blob=blob_new(from->len, errmsg);
-    if (!blob) {
-        PyErr_SetString(PyExc_MemoryError, errmsg);
-        return NULL;
-    }
-    memcpy(blob->data, from->data, from->len);
-    return blob;
-}
-
-void blob_free(Blob *blob) {
-    PyMem_Free(blob->data);
-    PyMem_Free(blob);
-}
-
-
 /* Python helpers. */
 
 %}
