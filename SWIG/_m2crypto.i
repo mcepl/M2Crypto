@@ -41,17 +41,6 @@ static PyObject *x509_store_verify_cb_func;
 %}
 
 %include <openssl/opensslv.h>
-#if OPENSSL_VERSION_NUMBER >= 0x0090707fL
-#define CONST const
-#else
-#define CONST
-#endif
-
-#if OPENSSL_VERSION_NUMBER >= 0x0090800fL
-#define CONST098 const
-#else
-#define CONST098
-#endif
 
 /* Bring in STACK_OF macro definition */
 #ifdef _MSC_VER

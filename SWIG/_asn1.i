@@ -25,7 +25,7 @@ extern void ASN1_OBJECT_free( ASN1_OBJECT *);
 %rename(i2d_asn1_object) i2d_ASN1_OBJECT;
 extern int i2d_ASN1_OBJECT( ASN1_OBJECT *, unsigned char **);
 %rename(d2i_asn1_object) d2i_ASN1_OBJECT;
-extern ASN1_OBJECT *d2i_ASN1_OBJECT( ASN1_OBJECT **, CONST098 unsigned char **, long);
+extern ASN1_OBJECT *d2i_ASN1_OBJECT( ASN1_OBJECT **, const unsigned char **, long);
 
 %rename(asn1_bit_string_new) ASN1_BIT_STRING_new;
 extern ASN1_BIT_STRING *ASN1_BIT_STRING_new( void );
@@ -84,7 +84,7 @@ extern int ASN1_TIME_check(ASN1_TIME *);
 %rename(asn1_time_set) ASN1_TIME_set;
 extern ASN1_TIME *ASN1_TIME_set(ASN1_TIME *, long);
 %rename(asn1_time_set_string) ASN1_TIME_set_string;
-extern int ASN1_TIME_set_string(ASN1_TIME *, CONST098 char *);
+extern int ASN1_TIME_set_string(ASN1_TIME *, const char *);
 %rename(asn1_time_print) ASN1_TIME_print;
 %threadallow ASN1_TIME_print;
 extern int ASN1_TIME_print(BIO *, ASN1_TIME *);
