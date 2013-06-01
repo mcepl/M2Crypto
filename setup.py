@@ -75,6 +75,9 @@ class _M2CryptoBuildExt(build_ext.build_ext):
 
         build_ext.build_ext.finalize_options(self)
 
+        if self.swig_opts is None:
+            self.swig_opts = []
+
         _openssl = next((x.split('=')[1] for x in sys.argv
                          if '--openssl=' in x), None)
         if _openssl and os.path.isdir(_openssl):
