@@ -137,7 +137,7 @@ extern const EVP_CIPHER *EVP_aes_256_cfb(void);
 %rename(aes_256_ofb) EVP_aes_256_ofb;
 extern const EVP_CIPHER *EVP_aes_256_ofb(void);
 %rename(aes_256_ctr) EVP_aes_256_ctr;
-extern const EVP_CIPHER *EVP_aes_256_ctr(void);
+extern EVP_CIPHER const *EVP_aes_256_ctr(void);
 
 %rename(cipher_set_padding) EVP_CIPHER_CTX_set_padding;
 extern int EVP_CIPHER_CTX_set_padding(EVP_CIPHER_CTX *, int);
