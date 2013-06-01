@@ -2,10 +2,12 @@
 /* Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.
  * Copyright (c) 2009-2010 Heikki Toivonen. All rights reserved.
 */
-/* $Id$ */
+/* $Id: _rand.i 721 2010-02-13 06:30:33Z heikki $ */
 
 %module _rand
 
+%rename(rand_file_name) RAND_file_name;
+extern const char *RAND_file_name(char *, size_t );
 %rename(rand_load_file) RAND_load_file;
 extern int RAND_load_file(const char *, long);
 %rename(rand_save_file) RAND_write_file;
@@ -96,6 +98,23 @@ PyObject *rand_pseudo_bytes(int n) {
     }
 }
 
+PyObject *rand_file_name() {
+    PyObject *obj;
+    char *str;
+    if ((obj = PyBytes_FromStringAndSize(NULL, BUFSIZ))==NULL) {
+        PyErr_SetString(PyExc_MemoryError, "rand_file_name");
+        return NULL;
+    }
+    str=PyBytes_AS_STRING(obj);
+    if (RAND_file_name(str, BUFSIZ)==NULL) {
+        PyErr_SetString(PyExc_RuntimeError, "rand_file_name");
+        return NULL;
+    }
+    if (_PyBytes_Resize(&obj, (Py_ssize_t)strlen(str))!=0)
+        return NULL; /* mem exception set by _PyBytes_Resize */
+    return obj;
+}
+
 void rand_screen(void) {
 #ifdef __WINDOWS__
     RAND_screen();
@@ -116,7 +135,6 @@ int rand_win32_event(unsigned int imsg, int wparam, long lparam) {
   RAND_egd
   RAND_egd_bytes
   RAND_query_egd_bytes
-  RAND_file_name
 */
 
 

@@ -14,6 +14,7 @@ except ImportError:
 
 from M2Crypto import Rand
 
+
 class RandTestCase(unittest.TestCase):
     def test_bytes(self):
         with self.assertRaises(MemoryError):
@@ -28,6 +29,14 @@ class RandTestCase(unittest.TestCase):
         a, b = Rand.rand_pseudo_bytes(1)
         self.assertEqual(len(a), 1)
         self.assertEqual(b, 1)
+
+    def test_file_name(self):
+        if "RANDFILE" in os.environ:
+            self.assertEqual(Rand.rand_file_name(),
+                             os.environ["RANDFILE"])
+        else:
+            self.assertEqual(Rand.rand_file_name(),
+                             os.path.join(os.environ["HOME"], ".rnd"))
 
     def test_load_save(self):
         try:
