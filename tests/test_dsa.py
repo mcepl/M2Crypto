@@ -19,8 +19,8 @@ class DSATestCase(unittest.TestCase):
     pubkey = 'tests/dsa.pub.pem'
     param = 'tests/dsa.param.pem'
 
-    data = hashlib.sha1('Can you spell subliminal channel?').digest()
-    different_data = hashlib.sha1('I can spell.').digest()
+    data = hashlib.sha1(b'Can you spell subliminal channel?').digest()
+    different_data = hashlib.sha1(b'I can spell.').digest()
 
     def callback(self, *args):
         pass
