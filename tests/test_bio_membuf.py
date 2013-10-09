@@ -104,14 +104,14 @@ class MemoryBufferTestCase(unittest.TestCase):
         timeout_secs = 10
 
         def run_test(*args, **kwargs):
-            with MemoryBuffer('hello\nworld\n') as mb:
+            with MemoryBuffer(b'hello\nworld\n') as mb:
                 self.assertTrue(mb.readable())
-                self.assertEqual(mb.readline().rstrip(), 'hello')
-                self.assertEqual(mb.readline().rstrip(), 'world')
+                self.assertEqual(mb.readline().rstrip(), b'hello')
+                self.assertEqual(mb.readline().rstrip(), b'world')
 
-            with MemoryBuffer('hello\nworld\n') as mb:
+            with MemoryBuffer(b'hello\nworld\n') as mb:
                 self.assertEqual(mb.readlines(),
-                                 ['hello\n', 'world\n'])
+                                 [b'hello\n', b'world\n'])
 
         time_limit(timeout_secs, run_test,
                    'The readline() should not timeout!')

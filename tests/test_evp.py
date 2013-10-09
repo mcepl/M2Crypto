@@ -8,6 +8,7 @@ Copyright (c) 2004-2007 Open Source Applications Foundation
 Author: Heikki Toivonen
 """
 
+import codecs
 import hashlib
 import io
 import logging
@@ -74,7 +75,7 @@ class EVPTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             EVP.MessageDigest('sha513')
         md = EVP.MessageDigest('sha1')
-        self.assertEqual(md.update('Hello'), 1)
+        self.assertEqual(md.update(b'Hello'), 1)
         self.assertEqual(util.octx_to_num(md.final()),
                          1415821221623963719413415453263690387336440359920)
 
@@ -85,7 +86,7 @@ class EVPTestCase(unittest.TestCase):
         # now run the same test again, relying on EVP.MessageDigest() to call
         # get_digestbyname() under the hood
         md = EVP.MessageDigest('sha1')
-        self.assertEqual(md.update('Hello'), 1)
+        self.assertEqual(md.update(b'Hello'), 1)
         self.assertEqual(util.octx_to_num(md.final()),
                          1415821221623963719413415453263690387336440359920)
 
@@ -278,12 +279,11 @@ class EVPTestCase(unittest.TestCase):
             SIGN_PRIVATE.sign_init()
             SIGN_PRIVATE.sign_update(data)
             signed_data = SIGN_PRIVATE.sign_final()
-            signed_data_base64 = signed_data.encode('base64')
-            return signed_data_base64
+            return codecs.encode(signed_data, 'base64')
 
         def verify(response):
             log.debug('response = %s', response)
-            signature = response['sign'].decode('base64')
+            signature = codecs.decode(response['sign'], 'base64')
             log.debug('signature = %s', signature)
             data = response['data']
             verify_evp = EVP.PKey()
@@ -301,7 +301,7 @@ class EVPTestCase(unittest.TestCase):
             log.debug('fin_res = %s', fin_res)
             return fin_res == 1
 
-        data = "test message"
+        data = b"test message"
         signature = sign(data)
         res = {"data": data, "sign": signature}
         self.assertTrue(verify(res))  # works fine
