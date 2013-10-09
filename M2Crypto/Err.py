@@ -8,7 +8,7 @@ from . import m2
 def get_error():
     err=BIO.MemoryBuffer()
     m2.err_print_errors(err.bio_ptr())
-    return err.getvalue()
+    return str(err.getvalue(), 'ascii')
 
 def get_error_code():
     return m2.err_get_error()
