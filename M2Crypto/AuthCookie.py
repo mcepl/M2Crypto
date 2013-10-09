@@ -40,7 +40,11 @@ class AuthCookieJar:
         self._key = Rand.rand_bytes(self._keylen)
 
     def _hmac(self, key, data):
-        return binascii.b2a_base64(m2.hmac(key, data, m2.sha1()))[:-1]
+        return str(
+            binascii.b2a_base64(m2.hmac(key,
+            bytes(data, 'ascii'),
+            m2.sha1()))[:-1],
+            'ascii')
 
     def makeCookie(self, expiry, data):
         dough = mix(expiry, data)
@@ -57,7 +61,7 @@ class AuthCookieJar:
             and (c.output() == cookie.output())
 
     def isGoodCookieString(self, cookie_str):
-        c = http.cookies.SmartCookie()
+        c = http.cookies.SimpleCookie()
         c.load(cookie_str)
         if _TOKEN not in c:
             return 0
@@ -75,7 +79,7 @@ class AuthCookie:
         self._expiry = expiry
         self._data = data
         self._mac = mac
-        self._cookie = http.cookies.SmartCookie()
+        self._cookie = http.cookies.SimpleCookie()
         self._cookie[_TOKEN] = '%s%s' % (dough, mac)
         self._name = '%s%s' % (dough, mac)  # XXX WebKit only.
 
@@ -102,7 +106,7 @@ class AuthCookie:
 
     def isExpired(self):
         """Return 1 if the cookie has expired, 0 otherwise."""
-        return (time.time() > self._expiry)
+        return isinstance(self._expiry, float) and (time.time() > self._expiry)
 
     # XXX Following methods are for WebKit only. These should be pushed
     # to WKAuthCookie.
