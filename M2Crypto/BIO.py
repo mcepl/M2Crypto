@@ -136,6 +136,8 @@ class MemoryBuffer(BIO):
     """
 
     def __init__(self, data=None):
+        if data is not None and not isinstance(data, bytes):
+            raise TypeError("data must be bytes or None, not %s" % (type(data).__name__, ))
         BIO.__init__(self)
         self.bio = m2.bio_new(m2.bio_s_mem())
         self._pyfree = 1

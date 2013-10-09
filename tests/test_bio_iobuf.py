@@ -4,7 +4,7 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-from io import StringIO
+from io import BytesIO
 
 import unittest
 import M2Crypto
@@ -13,7 +13,7 @@ from M2Crypto.BIO import IOBuffer, MemoryBuffer
 class IOBufferTestCase(unittest.TestCase):
 
     def setUp(self):
-        self._data = 'abcdef\n'
+        self._data = bytes('abcdef\n', 'ascii')
         self.data = self._data * 1024
 
     def tearDown(self):
@@ -23,7 +23,7 @@ class IOBufferTestCase(unittest.TestCase):
         mb = MemoryBuffer()
         io = IOBuffer(mb)
         out = io.read()
-        assert out == ''
+        assert out == b''
 
     def test_init_something(self):
         mb = MemoryBuffer(self.data)
@@ -46,7 +46,7 @@ class IOBufferTestCase(unittest.TestCase):
         assert out == self.data
 
     def test_readline(self):
-        buf = StringIO()
+        buf = BytesIO()
         mb = MemoryBuffer(self.data)
         io = IOBuffer(mb)
         while 1:
@@ -58,7 +58,7 @@ class IOBufferTestCase(unittest.TestCase):
         assert buf.getvalue() == self.data
 
     def test_readlines(self):
-        buf = StringIO()
+        buf = BytesIO()
         mb = MemoryBuffer(self.data)
         io = IOBuffer(mb)
         lines = io.readlines()
