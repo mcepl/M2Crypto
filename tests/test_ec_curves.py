@@ -19,7 +19,7 @@
 """
 
 import unittest
-#import sha
+from hashlib import sha1
 from M2Crypto import EC, Rand
 from .test_ecdsa import ECDSATestCase as ECDSATest
 
@@ -109,8 +109,8 @@ curves = [
 #]
 
 class ECCurveTests(unittest.TestCase):
-    #data = sha.sha('Kilroy was here!').digest()     # 160 bits
-    data = "digest"     # keep short (48 bits) so lesser curves
+    data = sha1(bytes('Kilroy was here!', 'ascii')).digest()     # 160 bits
+                        # keep short (48 bits) so lesser curves
                         # will work...  ECDSA requires curve be
                         # equal or longer than digest
 

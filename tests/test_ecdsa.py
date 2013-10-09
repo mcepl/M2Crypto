@@ -7,7 +7,7 @@ Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam. All rights reserv
 """
 
 import unittest
-import sha
+from hashlib import sha1
 from M2Crypto import EC, BIO, Rand, m2
 
 class ECDSATestCase(unittest.TestCase):
@@ -16,7 +16,7 @@ class ECDSATestCase(unittest.TestCase):
     privkey = 'tests/ec.priv.pem'
     pubkey = 'tests/ec.pub.pem'
 
-    data = sha.sha('Can you spell subliminal channel?').digest()
+    data = sha1(bytes('Can you spell subliminal channel?', 'ascii')).digest()
 
     def callback(self, *args):
         pass
