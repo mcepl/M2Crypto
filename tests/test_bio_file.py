@@ -12,7 +12,7 @@ import os, sys, tempfile
 class FileTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.data = 'abcdef' * 64
+        self.data = b'abcdef' * 64
         self.fname = tempfile.mkstemp()[1]
 
     def tearDown(self):
