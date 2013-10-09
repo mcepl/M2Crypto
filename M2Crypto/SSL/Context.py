@@ -46,7 +46,7 @@ class Context:
         self.ctx = m2.ssl_ctx_new(proto())
         self.allow_unknown_ca = 0
         self.post_connection_check = post_connection_check
-        map()[long(self.ctx)] = self
+        map()[int(self.ctx)] = self
         m2.ssl_ctx_set_cache_size(self.ctx, 128)
         if weak_crypto is None:
             if protocol == 'sslv23':
