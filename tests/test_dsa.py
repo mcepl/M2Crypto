@@ -5,7 +5,7 @@
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
 import unittest
-import sha
+from hashlib import sha1
 from M2Crypto import DSA, BIO, Rand, m2
 
 class DSATestCase(unittest.TestCase):
@@ -15,8 +15,8 @@ class DSATestCase(unittest.TestCase):
     pubkey  = 'tests/dsa.pub.pem'
     param   = 'tests/dsa.param.pem'
 
-    data = sha.sha('Can you spell subliminal channel?').digest()
-    different_data = sha.sha('I can spell.').digest()
+    data = sha1(bytes('Can you spell subliminal channel?', 'ascii')).digest()
+    different_data = sha1(bytes('I can spell.', 'ascii')).digest()
 
     def callback(self, *args):
         pass
