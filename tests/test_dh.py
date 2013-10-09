@@ -33,8 +33,8 @@ class DHTestCase(unittest.TestCase):
         bio = BIO.MemoryBuffer()
         a.print_params(bio)
         params = bio.read()
-        assert params.find('(1024 bit)')
-        assert params.find('generator: 2 (0x2)')
+        assert params.find(b'(1024 bit)')
+        assert params.find(b'generator: 2 (0x2)')
 
     def test_load_params(self):
         a = DH.load_params('tests/dhparams.pem')
