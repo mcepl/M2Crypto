@@ -41,7 +41,7 @@ class ContextTestCase(unittest.TestCase):
         from M2Crypto.SSL.Context import map, _ctxmap
         self.assertIsInstance(map(), _ctxmap)
         ctx = SSL.Context()
-        assert list(map())
+        assert map()
         ctx.close()
         self.assertIs(map(), _ctxmap.singleton)
 
