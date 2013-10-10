@@ -133,11 +133,11 @@ extern const EVP_CIPHER *EVP_aes_256_ofb(void);
 %rename(cipher_set_padding) EVP_CIPHER_CTX_set_padding;
 extern int EVP_CIPHER_CTX_set_padding(EVP_CIPHER_CTX *, int);
 
-/*
+
 %rename(cipher_set_padding) EVP_CIPHER_CTX_set_padding;
 extern int EVP_CIPHER_CTX_set_padding(EVP_CIPHER_CTX *x, int padding);
 %rename(pkey_new) EVP_PKEY_new;
-*/
+
 extern EVP_PKEY *EVP_PKEY_new(void);
 %rename(pkey_free) EVP_PKEY_free;
 extern void EVP_PKEY_free(EVP_PKEY *);
@@ -628,6 +628,7 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
             BIO_free(bio);
             RSA_free(rsa);
 
+            return ret;
             break;
 
         case EVP_PKEY_DSA:
@@ -659,6 +660,7 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
             BIO_free(bio);
             DSA_free(dsa);
 
+            return ret;
             break;
             
         default:
@@ -666,7 +668,7 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
             return NULL;
     }
     
-    return ret;
+    return NULL;
 }
 
 

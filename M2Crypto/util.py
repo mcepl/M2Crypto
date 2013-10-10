@@ -15,14 +15,14 @@ class UtilError(Exception): pass
 m2.util_init(UtilError)
 
 def h2b(s):
-    import array, string
-    ar=array.array('c')
+    import array
+    ar=array.array('B')
     start=0
-    if s[:2]=='0x':
+    if s[:2]==b'0x':
         start=2
     for i in range(start, len(s), 2):
-        num=string.atoi("%s"%(s[i:i+2],), 16)
-        ar.append(chr(num))
+        num=int(s[i:i+2], 16)
+        ar.append(num)
     return ar.tostring()
 
 def pkcs5_pad(data, blklen=8):
@@ -36,10 +36,12 @@ def pkcs7_pad(data, blklen):
     return data+chr(pad)*pad
 
 def octx_to_num(x):
+    if not isinstance(x, bytes):
+        raise TypeError("octx_to_num expects bytes, got %s" % (type(x).__name__))
     v = 0
     lx = len(x)
     for i in range(lx):
-        v = v + ord(x[i]) * (256 ** (lx-i-1))
+        v = v + x[i] * (256 ** (lx-i-1))
     return v
 
 def genparam_callback(p, n, out=sys.stdout):
