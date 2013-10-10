@@ -1,0 +1,15 @@
+There are few remaining issues which prevents a succesfull pass of all tests at least.
+
+ * how to replace bio_new_fp? bio_new_fp/bio_new_file fixes/breaks random tests
+   see M2Crypto/BIO.py:183 for details
+
+   This blocks the test_bio_file, test_evp and test_rsa
+
+ * test_evp contains two tests, which hangs an interpreter, fix why
+   see tests/test_evp.py:113 for details
+
+ * test_bn.test_rand_range segfaults interpreter
+ 
+ * rework underlying code of httpclient (HTTPSConnection) - it does use various quirks has
+   been removed in python3
+   BTW: does import ssl means a (re)initialization of OpenSSL? How safe is mix python.ssl with M2Crypto
