@@ -18,13 +18,13 @@ class RandTestCase(unittest.TestCase):
     def test_bytes(self):
         with self.assertRaises(MemoryError):
             Rand.rand_bytes(-1)
-        self.assertEqual(Rand.rand_bytes(0), '')
+        self.assertEqual(Rand.rand_bytes(0), b'')
         self.assertEqual(len(Rand.rand_bytes(1)), 1)
 
     def test_pseudo_bytes(self):
         with self.assertRaises(MemoryError):
             Rand.rand_pseudo_bytes(-1)
-        self.assertEqual(Rand.rand_pseudo_bytes(0), ('', 1))
+        self.assertEqual(Rand.rand_pseudo_bytes(0), (b'', 1))
         a, b = Rand.rand_pseudo_bytes(1)
         self.assertEqual(len(a), 1)
         self.assertEqual(b, 1)
