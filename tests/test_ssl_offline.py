@@ -31,11 +31,12 @@ class ContextTestCase(unittest.TestCase):
 
     def test_map(self):
         from M2Crypto.SSL.Context import map, _ctxmap
-        assert isinstance(list(map()), _ctxmap)
+        lst = list
+        assert isinstance(map(), _ctxmap)
         ctx = SSL.Context()
-        assert list(map())
+        assert map()
         ctx.close()
-        assert list(map()) is _ctxmap.singleton
+        assert map() is _ctxmap.singleton
 
     def test_certstore(self):
         ctx = SSL.Context()
