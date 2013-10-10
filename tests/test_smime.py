@@ -13,7 +13,7 @@ except ImportError:
 from M2Crypto import BIO, EVP, Rand, SMIME, X509
 
 class SMIMETestCase(unittest.TestCase):
-    cleartext = 'some text to manipulate'
+    cleartext = b'some text to manipulate'
 
     def setUp(self):
         # XXX Ugly, but not sure what would be better
@@ -31,16 +31,16 @@ class SMIMETestCase(unittest.TestCase):
         with self.assertRaises(SMIME.PKCS7_Error):
             SMIME.load_pkcs7('tests/signer.pem')
         with self.assertRaises(SMIME.PKCS7_Error):
-            SMIME.load_pkcs7_bio(BIO.MemoryBuffer('no pkcs7'))
+            SMIME.load_pkcs7_bio(BIO.MemoryBuffer(b'no pkcs7'))
 
         with self.assertRaises(SMIME.SMIME_Error):
             SMIME.smime_load_pkcs7('tests/signer.pem')
         with self.assertRaises(SMIME.SMIME_Error):
-            SMIME.smime_load_pkcs7_bio(BIO.MemoryBuffer('no pkcs7'))
+            SMIME.smime_load_pkcs7_bio(BIO.MemoryBuffer(b'no pkcs7'))
 
     def test_crlf(self):
-        self.assertEqual(SMIME.text_crlf('foobar'), 'Content-Type: text/plain\r\n\r\nfoobar')
-        self.assertEqual(SMIME.text_crlf_bio(BIO.MemoryBuffer('foobar')).read(), 'Content-Type: text/plain\r\n\r\nfoobar')
+        self.assertEqual(SMIME.text_crlf(b'foobar'), b'Content-Type: text/plain\r\n\r\nfoobar')
+        self.assertEqual(SMIME.text_crlf_bio(BIO.MemoryBuffer(b'foobar')).read(), b'Content-Type: text/plain\r\n\r\nfoobar')
 
     def test_sign(self):
         buf = BIO.MemoryBuffer(self.cleartext)
@@ -55,14 +55,14 @@ class SMIMETestCase(unittest.TestCase):
 
         buf = out.read()
 
-        self.assertTrue(buf.startswith('-----BEGIN PKCS7-----'),
-                        '-----BEGIN PKCS7-----')
+        self.assertTrue(buf.startswith(b'-----BEGIN PKCS7-----'),
+                        b'-----BEGIN PKCS7-----')
         buf = buf.strip()
-        self.assertTrue(buf.endswith('-----END PKCS7-----'),
-                        buf[-len('-----END PKCS7-----'):])
+        self.assertTrue(buf.endswith(b'-----END PKCS7-----'),
+                        buf[-len(b'-----END PKCS7-----'):])
         self.assertGreater(len(buf),
-                           len('-----END PKCS7-----') +
-                           len('-----BEGIN PKCS7-----'))
+                           len(b'-----END PKCS7-----') +
+                           len(b'-----BEGIN PKCS7-----'))
 
         s.write(out, p7, BIO.MemoryBuffer(self.cleartext))
         return out
@@ -136,12 +136,12 @@ class SMIMETestCase(unittest.TestCase):
 
         buf = out.read()
 
-        self.assertTrue(buf.startswith('-----BEGIN PKCS7-----'))
+        self.assertTrue(buf.startswith(b'-----BEGIN PKCS7-----'))
         buf = buf.strip()
-        self.assertTrue(buf.endswith('-----END PKCS7-----'))
+        self.assertTrue(buf.endswith(b'-----END PKCS7-----'))
         self.assertGreater(len(buf),
-                           len('-----END PKCS7-----') +
-                           len('-----BEGIN PKCS7-----'))
+                           len(b'-----END PKCS7-----') +
+                           len(b'-----BEGIN PKCS7-----'))
 
         s.write(out, p7)
         return out
@@ -225,16 +225,16 @@ class WriteLoadTestCase(unittest.TestCase):
     def setUp(self):
         s = SMIME.SMIME()
         s.load_key('tests/signer_key.pem', 'tests/signer.pem')
-        p7 = s.sign(BIO.MemoryBuffer('some text'))
+        p7 = s.sign(BIO.MemoryBuffer(b'some text'))
         self.filename = 'tests/sig.p7'
         f = BIO.openfile(self.filename, 'wb')
         self.assertEqual(p7.write(f), 1)
         f.close()
 
-        p7 = s.sign(BIO.MemoryBuffer('some text'), SMIME.PKCS7_DETACHED)
+        p7 = s.sign(BIO.MemoryBuffer(b'some text'), SMIME.PKCS7_DETACHED)
         self.filenameSmime = 'tests/sig.p7s'
         f = BIO.openfile(self.filenameSmime, 'wb')
-        self.assertEqual(s.write(f, p7, BIO.MemoryBuffer('some text')), 1)
+        self.assertEqual(s.write(f, p7, BIO.MemoryBuffer(b'some text')), 1)
         f.close()
 
     def test_write_pkcs7_der(self):
