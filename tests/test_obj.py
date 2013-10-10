@@ -18,7 +18,9 @@ def x509_name2list(name):
 def x509_name_entry2tuple(entry):
     bio = BIO.MemoryBuffer()
     m2.asn1_string_print(bio._ptr(), m2.x509_name_entry_get_data(entry._ptr()))
-    return (m2.obj_obj2txt(m2.x509_name_entry_get_object(entry._ptr()), 0), bio.getvalue())
+    return (
+        str(m2.obj_obj2txt(m2.x509_name_entry_get_object(entry._ptr()), 0), "ascii"),
+        str(bio.getvalue(), "ascii"))
 
 def tuple2x509_name_entry(tup):
     obj, data = tup
@@ -33,8 +35,8 @@ class ObjectsTestCase(unittest.TestCase):
         pass
 
     def test_obj2txt(self):
-        assert m2.obj_obj2txt(m2.obj_txt2obj("commonName", 0), 1) == "2.5.4.3", "2.5.4.3"
-        assert m2.obj_obj2txt(m2.obj_txt2obj("commonName", 0), 0) == "commonName", "commonName"
+        assert m2.obj_obj2txt(m2.obj_txt2obj("commonName", 0), 1) == b"2.5.4.3", b"2.5.4.3"
+        assert m2.obj_obj2txt(m2.obj_txt2obj("commonName", 0), 0) == b"commonName", b"commonName"
 
     def test_nid(self):
         assert m2.obj_ln2nid("commonName") == m2.obj_txt2nid("2.5.4.3"), "ln2nid and txt2nid mismatch"
@@ -54,18 +56,18 @@ class ObjectsTestCase(unittest.TestCase):
 
     def test_x509_name(self):
         n = X509.X509_Name()
-        n.C = 'US' # It seems this actually needs to be a real 2 letter country code
-        n.SP = 'State or Province'
-        n.L = 'locality name'
-        n.O = 'orhanization name'
-        n.OU = 'org unit'
-        n.CN = 'common name'
-        n.Email = 'bob@example.com'
-        n.serialNumber = '1234'
-        n.SN = 'surname'
-        n.GN = 'given name'
+        n.C = b'US' # It seems this actually needs to be a real 2 letter country code
+        n.SP = b'State or Province'
+        n.L = b'locality name'
+        n.O = b'orhanization name'
+        n.OU = b'org unit'
+        n.CN = b'common name'
+        n.Email = b'bob@example.com'
+        n.serialNumber = b'1234'
+        n.SN = b'surname'
+        n.GN = b'given name'
 
-        n.givenName = 'name given'
+        n.givenName = b'name given'
         assert len(n) == 11, len(n)
 
         tl = list(map(x509_name_entry2tuple, x509_name2list(n)))
