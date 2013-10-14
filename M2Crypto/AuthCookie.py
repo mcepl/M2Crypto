@@ -106,7 +106,7 @@ class AuthCookie:
 
     def isExpired(self):
         """Return 1 if the cookie has expired, 0 otherwise."""
-        return isinstance(self._expiry, float) and (time.time() > self._expiry)
+        return isinstance(self._expiry, (float, int)) and (time.time() > self._expiry)
 
     # XXX Following methods are for WebKit only. These should be pushed
     # to WKAuthCookie.
