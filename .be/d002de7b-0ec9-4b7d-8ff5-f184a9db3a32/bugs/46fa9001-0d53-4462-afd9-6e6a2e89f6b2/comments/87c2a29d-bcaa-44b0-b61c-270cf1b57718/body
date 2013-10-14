@@ -1,0 +1,7 @@
+MC: OK, this is definitively suspicious: certificate values could
+definitively be non-ASCII. Shouldn't we put below some non-ASCII text
+like Michal Vyskočil or Matěj Cepl? ;) mvyskocil repo owner an hour ago
+
+MV: It can be indeed added, however in this particular case ascii
+(ASN.MBSTRING_ASC) is expected in test. I would rather add this to TODO
+as I have no idea how unicode/utf-8 works in openssl.

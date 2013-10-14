@@ -1,0 +1,50 @@
+{
+
+
+
+
+
+
+    "creator": "Mat\u011bj Cepl <mcepl@redhat.com>", 
+
+
+
+
+
+
+    "reporter": "Mat\u011bj Cepl <mcepl@redhat.com>", 
+
+
+
+
+
+
+    "severity": "minor", 
+
+
+
+
+
+
+    "status": "open", 
+
+
+
+
+
+
+    "summary": "M2Crypto/Err.py, l.11: return str(err.getvalue(), 'ascii')", 
+
+
+
+
+
+
+    "time": "Mon, 14 Oct 2013 10:47:10 +0000"
+
+
+
+
+
+
+}

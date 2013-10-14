@@ -1,0 +1,50 @@
+{
+
+
+
+
+
+
+    "creator": "Mat\u011bj Cepl <mcepl@redhat.com>", 
+
+
+
+
+
+
+    "reporter": "Mat\u011bj Cepl <mcepl@redhat.com>", 
+
+
+
+
+
+
+    "severity": "minor", 
+
+
+
+
+
+
+    "status": "open", 
+
+
+
+
+
+
+    "summary": "rework underlying code of httpclient (HTTPSConnection)", 
+
+
+
+
+
+
+    "time": "Mon, 14 Oct 2013 10:34:39 +0000"
+
+
+
+
+
+
+}
