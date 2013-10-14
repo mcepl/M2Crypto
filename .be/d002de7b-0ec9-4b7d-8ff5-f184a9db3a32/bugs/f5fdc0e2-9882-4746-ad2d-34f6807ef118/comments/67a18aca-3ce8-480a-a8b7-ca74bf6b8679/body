@@ -1,0 +1,5 @@
+bio_new_fp/bio_new_file fixes/breaks random tests
+    see M2Crypto/BIO.py:183 for details
+
+This blocks the test_bio_file, test_evp and test_rsa
+
