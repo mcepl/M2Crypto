@@ -16,7 +16,7 @@ class ECDSATestCase(unittest.TestCase):
     privkey = 'tests/ec.priv.pem'
     pubkey = 'tests/ec.pub.pem'
 
-    data = sha1(bytes('Can you spell subliminal channel?', 'ascii')).digest()
+    data = sha1(b'Can you spell subliminal channel?').digest()
 
     def callback(self, *args):
         pass

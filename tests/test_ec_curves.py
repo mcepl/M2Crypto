@@ -109,7 +109,7 @@ curves = [
 #]
 
 class ECCurveTests(unittest.TestCase):
-    data = sha1(bytes('Kilroy was here!', 'ascii')).digest()     # 160 bits
+    data = sha1(b'Kilroy was here!').digest()     # 160 bits
                         # keep short (48 bits) so lesser curves
                         # will work...  ECDSA requires curve be
                         # equal or longer than digest
