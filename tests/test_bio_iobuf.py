@@ -16,7 +16,7 @@ from M2Crypto.BIO import IOBuffer, MemoryBuffer
 class IOBufferTestCase(unittest.TestCase):
 
     def setUp(self):
-        self._data = bytes('abcdef\n', 'ascii')
+        self._data = b'abcdef\n'
         self.data = self._data * 1024
 
     def tearDown(self):
