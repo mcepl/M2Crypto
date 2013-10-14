@@ -4,7 +4,7 @@ SWIG/_m2crypto.py
 SWIG/_m2crypto_wrap.c
 build/
 /dist
-/M2Crypto/__m2crypto.so
+/M2Crypto/__m2crypto*.so
 /SWIG/_m2crypto.py
 /M2Crypto.egg-info
 /EGG-INFO
