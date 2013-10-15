@@ -87,7 +87,7 @@ PyObject *bn_rand_range(PyObject *range)
     Py_DECREF(tuple);
 
 #if PY_MAJOR_VERSION >= 3
-    rangehex = PyUnicode_AsUTF8String(rangePyString);
+    rangehex = PyUnicode_AsUTF8(rangePyString);
 #else
     rangehex = PyString_AsString(rangePyString);
 #endif // PY_MAJOR_VERSION >= 3
