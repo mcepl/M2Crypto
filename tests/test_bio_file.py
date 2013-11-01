@@ -17,11 +17,23 @@ class FileTestCase(unittest.TestCase):
 
     def setUp(self):
         self.data = b'abcdef' * 64
-        self.fname = tempfile.mkstemp()[1]
+        self.fd, self.fname = tempfile.mkstemp()
+        
+        #mvyskocil: to check leaks of file descriptors
+        self._proc = "/proc/{}/fd/".format(os.getpid())
+        self.max_fd = self.mfd()
+
+    #FIXME: this indeed does work on Linux and probably other *nixes, but definitelly
+    #       not on windows, add a fallback method, like os.fdopen().fileno()-1
+    def mfd(self):
+        return int(os.listdir(self._proc)[-1])
 
     def tearDown(self):
+
+        self.assertEqual(self.max_fd, self.mfd(), "last test did not close all file descriptors properly")
+
         try:
-            os.unlink(self.fname)
+            os.close(self.fd)
         except OSError:
             pass
 
@@ -33,6 +45,7 @@ class FileTestCase(unittest.TestCase):
         # Now open the file using M2Crypto.BIO.openfile().
         f = openfile(self.fname, 'rb')
         data = f.read(len(self.data))
+        f.close()
         self.assertEqual(data, self.data)
 
     def test_openfile_wb(self):
@@ -43,6 +56,7 @@ class FileTestCase(unittest.TestCase):
         # Now open the file using Python's open().
         f = open(self.fname, 'rb')
         data = f.read(len(self.data))
+        f.close()
         self.assertEqual(data, self.data)
 
     def test_closed(self):
@@ -61,6 +75,7 @@ class FileTestCase(unittest.TestCase):
         # Now read the file.
         f = open(self.fname, 'rb')
         data = f.read(len(self.data))
+        f.close()
         self.assertEqual(data, self.data)
 
 

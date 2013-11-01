@@ -178,7 +178,6 @@ class MemoryBuffer(BIO):
 
     close = write_close
 
-
 class File(BIO):
 
     """
@@ -193,12 +192,7 @@ class File(BIO):
         self.pyfile = pyfile
         self.close_pyfile = close_pyfile
         logging.debug("self.pyfile = %s", self.pyfile)
-        #XXX: mvyskocil, this does not work, however not sure why? Are there other _fp functions used?
-        #XXX: to make it more weird, using _new_file all tests checking the output with open(file, 'rb')
-        #     will fail (test_bio_file, part of test_x509)
-        #self.bio = m2.bio_new_fd(pyfile.fileno(), 0)
-        #XXX: however this makes test_evp happy, but breaks test_bio_file and part of test_x509
-        self.bio = m2.bio_new_file(pyfile.name, pyfile.mode)
+        self.bio   = m2.bio_new_fd(pyfile.fileno(), m2.bio_noclose)
 
     def close(self):
         self.closed = 1
