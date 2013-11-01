@@ -5,10 +5,10 @@
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
 import unittest
-import sha, md5, os, sys
+import hashlib, os, sys
 from M2Crypto import RSA, BIO, Rand, m2, EVP, X509
 
-from fips import fips_mode
+from .fips import fips_mode
 
 class RSATestCase(unittest.TestCase):
 
@@ -17,7 +17,7 @@ class RSATestCase(unittest.TestCase):
     privkey2 = 'tests/rsa.priv2.pem'
     pubkey = 'tests/rsa.pub.pem'
 
-    data = sha.sha('The magic words are squeamish ossifrage.').digest()
+    data = hashlib.sha1(b'The magic words are squeamish ossifrage.').digest()
 
     e_padding_ok = ('pkcs1_padding', 'pkcs1_oaep_padding')
 
@@ -42,39 +42,41 @@ class RSATestCase(unittest.TestCase):
         self.assertRaises(RSA.RSAError, RSA.load_key, self.errkey)
 
     def test_loadkey_pp(self):
+        self.fail("test_loadkey_pp hangs under python3 and is not yet fixed")
         rsa = RSA.load_key(self.privkey2, self.pp_callback)
         assert len(rsa) == 1024
         assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         assert rsa.check_key() == 1
 
     def test_loadkey_pp_bad_cb(self):
+        self.fail("test_loadkey_pp_bad_cp hangs under python3 and is not yet fixed")
         self.assertRaises(RSA.RSAError, RSA.load_key, self.privkey2, self.pp2_callback)
 
     def test_loadkey(self):
         rsa = RSA.load_key(self.privkey)
         assert len(rsa) == 1024
-        assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
-        self.assertEqual(rsa.n, "\x00\x00\x00\x81\x00\xcde!\x15\xdah\xb5`\xce[\xd6\x17d\xba8\xc1I\xb1\xf1\xber\x86K\xc7\xda\xb3\x98\xd6\xf6\x80\xae\xaa\x8f!\x9a\xefQ\xdeh\xbb\xc5\x99\x01o\xebGO\x8e\x9b\x9a\x18\xfb6\xba\x12\xfc\xf2\x17\r$\x00\xa1\x1a \xfc/\x13iUm\x04\x13\x0f\x91D~\xbf\x08\x19C\x1a\xe2\xa3\x91&\x8f\xcf\xcc\xf3\xa4HRf\xaf\xf2\x19\xbd\x05\xe36\x9a\xbbQ\xc86|(\xad\x83\xf2Eu\xb2EL\xdf\xa4@\x7f\xeel|\xfcU\x03\xdb\x89'")
+        assert rsa.e == b'\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
+        self.assertEqual(rsa.n, b"\x00\x00\x00\x81\x00\xcde!\x15\xdah\xb5`\xce[\xd6\x17d\xba8\xc1I\xb1\xf1\xber\x86K\xc7\xda\xb3\x98\xd6\xf6\x80\xae\xaa\x8f!\x9a\xefQ\xdeh\xbb\xc5\x99\x01o\xebGO\x8e\x9b\x9a\x18\xfb6\xba\x12\xfc\xf2\x17\r$\x00\xa1\x1a \xfc/\x13iUm\x04\x13\x0f\x91D~\xbf\x08\x19C\x1a\xe2\xa3\x91&\x8f\xcf\xcc\xf3\xa4HRf\xaf\xf2\x19\xbd\x05\xe36\x9a\xbbQ\xc86|(\xad\x83\xf2Eu\xb2EL\xdf\xa4@\x7f\xeel|\xfcU\x03\xdb\x89'")
         self.assertRaises(AttributeError, getattr, rsa, 'nosuchprop')
         assert rsa.check_key() == 1
 
     def test_loadkey_bio(self):
-        keybio = BIO.MemoryBuffer(open(self.privkey).read())
+        keybio = BIO.MemoryBuffer(open(self.privkey, "rb").read())
         rsa = RSA.load_key_bio(keybio)
         assert len(rsa) == 1024
-        assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
+        assert rsa.e == b'\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         assert rsa.check_key() == 1
 
     def test_keygen(self):
         rsa = RSA.gen_key(1024, 65537, self.gen_callback)
         assert len(rsa) == 1024
-        assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
+        assert rsa.e == b'\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         assert rsa.check_key() == 1
 
     def test_keygen_bad_cb(self):
         rsa = RSA.gen_key(1024, 65537, self.gen2_callback)
         assert len(rsa) == 1024
-        assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
+        assert rsa.e == b'\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         assert rsa.check_key() == 1
 
     def test_private_encrypt(self):
@@ -111,12 +113,12 @@ class RSATestCase(unittest.TestCase):
     def test_x509_public_encrypt(self):
         x509 = X509.load_cert("tests/recipient.pem")
         rsa = x509.get_pubkey().get_rsa()
-        rsa.public_encrypt("data", RSA.pkcs1_padding)
+        rsa.public_encrypt(b"data", RSA.pkcs1_padding)
 
     def test_loadpub(self):
         rsa = RSA.load_pub_key(self.pubkey)
         assert len(rsa) == 1024
-        assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
+        assert rsa.e == b'\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
         self.assertRaises(RSA.RSAError, setattr, rsa, 'e', '\000\000\000\003\001\000\001')
         self.assertRaises(RSA.RSAError, rsa.private_encrypt, 1)
         self.assertRaises(RSA.RSAError, rsa.private_decrypt, 1)
@@ -139,15 +141,15 @@ class RSATestCase(unittest.TestCase):
 
     def test_set_bn(self):
         rsa = RSA.load_pub_key(self.pubkey)
-        assert m2.rsa_set_e(rsa.rsa, '\000\000\000\003\001\000\001') is None
-        self.assertRaises(RSA.RSAError, m2.rsa_set_e, rsa.rsa, '\000\000\000\003\001')
+        assert m2.rsa_set_e(rsa.rsa, b'\000\000\000\003\001\000\001') is None
+        self.assertRaises(RSA.RSAError, m2.rsa_set_e, rsa.rsa, b'\000\000\000\003\001')
 
     def test_newpub(self):
         old = RSA.load_pub_key(self.pubkey)
         new = RSA.new_pub_key(old.pub())
         assert new.check_key()
         assert len(new) == 1024
-        assert new.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
+        assert new.e == b'\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
 
     def test_sign_and_verify(self):
         """
@@ -163,8 +165,8 @@ class RSATestCase(unittest.TestCase):
             algos['sha384'] = ''
             algos['sha512'] = ''
 
-        message = "This is the message string"
-        digest = sha.sha(message).digest()
+        message = b"This is the message string"
+        digest = hashlib.sha1(message).digest()
         rsa = RSA.load_key(self.privkey)
         rsa2 = RSA.load_pub_key(self.pubkey)
         for algo in list(algos.keys()):
@@ -182,13 +184,12 @@ class RSATestCase(unittest.TestCase):
             size of the digest increases because of the size of
             our test key limits it.
             """
-            message = "This is the message string"
+            message = b"This is the message string"
             if sys.version_info < (2, 5):
-                algos = {'sha1': (43, sha.sha(message).digest()),
-                         'md5': (47, md5.md5(message).digest())}
+                algos = {'sha1': (43, hashlib.sha1(message).digest()),
+                         'md5': (47, hashlib.md5(message).digest())}
 
             else:
-                import hashlib
                 algos = {'sha1': 43}
                 if not fips_mode:
                     algos['md5'] = 47
@@ -232,8 +233,8 @@ class RSATestCase(unittest.TestCase):
             algos['sha384'] = 15
             algos['sha512'] = 0
 
-        message = "This is the message string"
-        digest = sha.sha(message).digest()
+        message = b"This is the message string"
+        digest = hashlib.sha1(message).digest()
         rsa = RSA.load_key(self.privkey)
         rsa2 = RSA.load_pub_key(self.pubkey)
         for algo, salt_max in algos.items():
@@ -257,8 +258,8 @@ class RSATestCase(unittest.TestCase):
         Testing calling verify with an unsupported message digest algorithm
         """
         rsa = RSA.load_key(self.privkey)
-        message = "This is the message string"
-        digest = 'a' * 16
+        message = b"This is the message string"
+        digest = b'a' * 16
         signature = rsa.sign(digest, 'sha1')
         self.assertRaises(ValueError, rsa.verify,
                           digest, signature, 'bad_digest_method')
@@ -269,8 +270,8 @@ class RSATestCase(unittest.TestCase):
         message digest algorithm
         """
         rsa = RSA.load_key(self.privkey)
-        message = "This is the message string"
-        digest = sha.sha(message).digest()
+        message = b"This is the message string"
+        digest = hashlib.sha1(message).digest()
         signature = rsa.sign(digest, 'sha1')
         rsa2 = RSA.load_pub_key(self.pubkey)
         self.assertRaises(RSA.RSAError, rsa.verify,
@@ -284,7 +285,7 @@ class RSATestCase(unittest.TestCase):
         it has to be longer than a certain length.
         """
         rsa = RSA.load_key(self.privkey)
-        digest = """This string should be long enough to warrant an error in
+        digest = b"""This string should be long enough to warrant an error in
         RSA_sign""" * 2
 
         self.assertRaises(RSA.RSAError, rsa.sign, digest)
@@ -294,11 +295,11 @@ class RSATestCase(unittest.TestCase):
         Testing verify to make sure it fails when we use a bad signature
         """
         rsa = RSA.load_key(self.privkey)
-        message = "This is the message string"
-        digest = sha.sha(message).digest()
+        message = b"This is the message string"
+        digest = hashlib.sha1(message).digest()
 
-        otherMessage = "Abracadabra"
-        otherDigest = sha.sha(otherMessage).digest()
+        otherMessage = b"Abracadabra"
+        otherDigest = hashlib.sha1(otherMessage).digest()
         otherSignature = rsa.sign(otherDigest)
 
         self.assertRaises(RSA.RSAError, rsa.verify,
