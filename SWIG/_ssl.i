@@ -15,6 +15,7 @@
 #include <openssl/bio.h>
 #include <openssl/dh.h>
 #include <openssl/ssl.h>
+#include <openssl/tls1.h>
 #include <openssl/x509.h>
 #include <poll.h>
 #include <sys/time.h>
@@ -398,6 +399,17 @@ long ssl_set_mode(SSL *ssl, long mode) {
 
 long ssl_get_mode(SSL *ssl) {
     return SSL_get_mode(ssl);
+}
+
+int ssl_set_tlsext_host_name(SSL *ssl, const char *name) {
+    long l;
+
+    if (!(l = SSL_set_tlsext_host_name(ssl, name))) {
+        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        return -1;
+    }
+    /* Return an "int" to match the 'typemap(out) int' in _lib.i */
+    return 1;
 }
 
 void ssl_set_client_CA_list_from_file(SSL *ssl, const char *ca_file) {

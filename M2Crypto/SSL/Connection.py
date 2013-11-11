@@ -368,3 +368,7 @@ class Connection:
 
     def set_post_connection_check_callback(self, postConnectionCheck):
         self.postConnectionCheck = postConnectionCheck
+
+    def set_tlsext_host_name(self, name):
+        "Set the requested hostname for the SNI (Server Name Indication) extension"
+        m2.ssl_set_tlsext_host_name(self.ssl, name)
