@@ -1,0 +1,71 @@
+{
+
+
+
+
+
+
+    "creator": "mcepl", 
+
+
+
+
+
+
+    "extra_strings": [
+
+
+
+
+
+
+        "GHBUG:8"
+
+
+
+
+
+
+    ], 
+
+
+
+
+
+
+    "reporter": "mcepl", 
+
+
+
+
+
+
+    "severity": "minor", 
+
+
+
+
+
+
+    "status": "open", 
+
+
+
+
+
+
+    "summary": "M2Crypto/Err.py, l.11: return str(err.getvalue(), 'ascii')", 
+
+
+
+
+
+
+    "time": "Wed, 20 Nov 2013 14:42:34 +0000"
+
+
+
+
+
+
+}

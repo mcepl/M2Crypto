@@ -16,3 +16,9 @@ There are few remaining issues which prevents a succesfull pass of all tests at 
    BTW: does import ssl means a (re)initialization of OpenSSL? How safe is to
    mix python.ssl with M2Crypto
 
+ * plenty of ResourceWarning: unclosed file <_io.BufferedReader ...>
+   warnings
+
+ * all those
+   DEBUG:__init__:data = None
+   makes me a bit nervous
