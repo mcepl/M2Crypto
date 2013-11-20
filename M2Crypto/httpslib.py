@@ -12,6 +12,7 @@ from urlparse import urlsplit, urlunsplit
 from httplib import *  # noqa
 from httplib import HTTPS_PORT  # This is not imported with just '*'
 
+
 class HTTPSConnection(HTTPConnection):
 
     """
@@ -100,7 +101,7 @@ class HTTPSConnection(HTTPConnection):
 class HTTPS(object):
     """
     Class httplib.HTTP has been implemented in python 2.* only for
-    backward compatibility with 1.5.2. 
+    backward compatibility with 1.5.2.
     """
     def __init__(self, *args, **kwargs):
         raise NotImplementedError('class HTTPS is not implenented.')

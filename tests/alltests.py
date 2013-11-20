@@ -33,26 +33,26 @@ def suite():
         'tests.test_bio',
         'tests.test_bio_membuf',
         'tests.test_bio_file',
-        #'tests.test_bio_iobuf',
-        #'tests.test_bio_ssl',
+        'tests.test_bio_iobuf',
+        'tests.test_bio_ssl',
         #'tests.test_bn',
-        #'tests.test_authcookie',
-        #'tests.test_dh',
-        #'tests.test_dsa',
-        #'tests.test_engine',
+        'tests.test_authcookie',
+        'tests.test_dh',
+        'tests.test_dsa',
+        'tests.test_engine',
         #'tests.test_evp',
-        #'tests.test_obj',
-        #'tests.test_pgp',
-        #'tests.test_rand',
-        #'tests.test_rc4',
+        'tests.test_obj',
+        'tests.test_pgp',
+        'tests.test_rand',
+        'tests.test_rc4',
         #'tests.test_rsa',
         #'tests.test_smime',
         #'tests.test_ssl_offline',
-        #'tests.test_threading',
+        'tests.test_threading',
         #'tests.test_x509'
     ]
     if os.name == 'posix':
-        #modules_to_test.append('tests.test_ssl')
+        modules_to_test.append('tests.test_ssl')
         pass
     elif os.name == 'nt':
         modules_to_test.append('tests.test_ssl_win')
