@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import logging
 logging.basicConfig(format='%(levelname)s:%(funcName)s:%(message)s',
-    level=logging.DEBUG)
+                    level=logging.DEBUG)
+
 
 from __future__ import absolute_import, print_function
 
@@ -49,7 +50,7 @@ def suite():
         #'tests.test_ssl_offline',
         #'tests.test_threading',
         #'tests.test_x509'
-        ]
+    ]
     if os.name == 'posix':
         #modules_to_test.append('tests.test_ssl')
         pass
@@ -95,7 +96,8 @@ def runall(report_leaks=0):
         gc.enable()
         gc.set_debug(gc.DEBUG_LEAK & ~gc.DEBUG_SAVEALL)
 
-    import os, unittest
+    import os
+    import unittest
     from M2Crypto import Rand
 
     try:
