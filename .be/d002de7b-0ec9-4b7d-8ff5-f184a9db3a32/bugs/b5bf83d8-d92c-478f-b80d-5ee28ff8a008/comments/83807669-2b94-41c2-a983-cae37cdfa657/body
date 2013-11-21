@@ -1,4 +1,0 @@
-it does use various quirks has been removed in python3
-
-BTW: does import ssl means a (re)initialization of OpenSSL? How safe is
-mix python.ssl with M2Crypto

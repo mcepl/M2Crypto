@@ -6,3 +6,4 @@ M2Crypto/__m2crypto.cpython-33dm.so
 build/
 SWIG/_m2crypto.py
 SWIG/_m2crypto_wrap.c
+tests/randpool.dat

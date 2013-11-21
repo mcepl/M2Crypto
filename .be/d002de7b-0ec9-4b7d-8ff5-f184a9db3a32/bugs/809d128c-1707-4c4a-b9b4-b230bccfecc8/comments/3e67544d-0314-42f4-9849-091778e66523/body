@@ -1,9 +1,0 @@
-MC: Aren't error message localized? Couldn't they be in non-ASCII encoding?
-ERR_print_errors(3) says it returns ASCII text, but I am not sure how
-much literally it has to be taken.
-mvyskocil repo owner 3 hours ago
-
-MV: I made a dump approach - called strings to libssl and libcrypto and try
-to call str(line, 'ascii') on each line and did not find any error. As
-far as I know error messaged of openssl are not localized, so this seems
-to be safe to me.

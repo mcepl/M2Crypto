@@ -11,14 +11,619 @@ There are few remaining issues which prevents a succesfull pass of all tests at 
 
  * test_x509 is unfixed
 
- * rework underlying code of httpclient (HTTPSConnection) - it does use various quirks has
-   been removed in python3
-   BTW: does import ssl means a (re)initialization of OpenSSL? How safe is to
-   mix python.ssl with M2Crypto
+ * Check for X509 non-ASCII attributes
+    Concerning test_obj.py: str/bytes fixes [@l.21]
+    MC: OK, this is definitively suspicious: certificate values could
+    definitively be non-ASCII. Shouldn't we put below some non-ASCII
+    text like Michal Vyskočil or Matěj Cepl? ;)
+    
+    MV: It can be indeed added, however in this particular case ascii
+    (ASN.MBSTRING_ASC) is expected in test. I would rather add this to
+    TODO as I have no idea how unicode/utf-8 works in openssl.' 
+
+ * rework underlying code of httpclient (HTTPSConnection)
+   it does use various quirks has been removed in python3
+   BTW: does import ssl means a (re)initialization of OpenSSL? How safe
+   is to mix python.ssl with M2Crypto?
 
  * plenty of ResourceWarning: unclosed file <_io.BufferedReader ...>
    warnings
 
+ * crash on import
+   traceback in https://luther.ceplovi.cz/bugzilla/show_bug.cgi?id=265
+
  * all those
    DEBUG:__init__:data = None
    makes me a bit nervous
+
+ * M2Crypto/Err.py, l.11: return str(err.getvalue(), 'ascii')
+     MC: Aren't error message localized? Couldn't they be in non-ASCII
+     encoding?  ERR_print_errors(3) says it returns ASCII text, but I am
+     not sure how much literally it has to be taken.
+     
+     MV: I made a dump approach - called strings to libssl and libcrypto
+     and try to call str(line, 'ascii') on each line and did not find
+     any error. As far as I know error messaged of openssl are not
+     localized, so this seems to be safe to me.
+
+ * Additional repos to investigate
+    * https://github.com/abbot/m2crypto
+    * https://github.com/pld-linux/python-M2Crypto (weird, but patches
+      worth of investigaing ... is it just plain Fedora patches or
+      something more? aaah, pld-linux)
+    * https://github.com/tempbottle/M2Crypto/ (two commits worthy of
+      investigation)
+    * https://github.com/ajmirsky/M2Crypto/commit/67161643ce610de7fa50070128030f440949f0ea
+      ... feels highly suspicious
+    * https://github.com/mikedougherty/M2Crypto/commit/c96ae3fedf8c271535ace3855704c78e9383a373
+      ... sounds like having at least some thoughts behind it. Worthy of
+      investigation
+    * https://github.com/gooselinux/m2crypto/commit/564e978f5a0f37b7d0fd5ab22b469add55574405
+      ... feels like just an import of the Fedora src.rpm
+    * https://github.com/boosh/M2Crypto/commit/844cb905db26c6788dc715be0005bd41110fe45f
+      ... what's THAT?
+    * https://github.com/Hypernode/M2Crypto/commit/b432d362223b2e2f5565dfb2eea799d10a419e22
+      ... another set of Debian patches applied, seems like having some
+      merit (of course, we should start with the proper Debian patches).
+    * https://github.com/Hypernode/M2Crypto/commit/53d5ac266cd40aeb45f53e485700409b8ff2191a
+      ... not sure what's that
+    * https://github.com/msabramo/M2Crypto/commit/ca805f533ea5180269398de0bdafcf297aa0b28a
+      ... this could be actually a better solution to the Fedora
+      include files being in "the wrong place" problem (originally
+      from https://bugzilla.osafoundation.org/show_bug.cgi?id=12970)
+
+
+```
+======================================================================
+ERROR: test_HTTPS (tests.test_ssl.HttpslibSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 217, in test_HTTPS
+    c = httpslib.HTTPS(srv_host, srv_port)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/httpslib.py", line 104, in __init__
+    raise NotImplementedError('class HTTPS is not implenented.')
+NotImplementedError: class HTTPS is not implenented.
+
+======================================================================
+ERROR: test_HTTPSConnection (tests.test_ssl.HttpslibSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 144, in test_HTTPSConnection
+    data = c.getresponse().read()
+  File "/usr/lib64/python3.3/http/client.py", line 1141, in getresponse
+    response = self.response_class(self.sock, method=self._method)
+  File "/usr/lib64/python3.3/http/client.py", line 289, in __init__
+    self.fp = sock.makefile("rb")
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 327, in makefile
+    return socket._fileobject(self, mode, bufsize)
+AttributeError: 'module' object has no attribute '_fileobject'
+
+======================================================================
+ERROR: test_HTTPSConnection_resume_session (tests.test_ssl.HttpslibSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 163, in test_HTTPSConnection_resume_session
+    data = c.getresponse().read()
+  File "/usr/lib64/python3.3/http/client.py", line 1141, in getresponse
+    response = self.response_class(self.sock, method=self._method)
+  File "/usr/lib64/python3.3/http/client.py", line 289, in __init__
+    self.fp = sock.makefile("rb")
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 327, in makefile
+    return socket._fileobject(self, mode, bufsize)
+AttributeError: 'module' object has no attribute '_fileobject'
+
+======================================================================
+ERROR: test_HTTPSConnection_secure_context (tests.test_ssl.HttpslibSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 194, in test_HTTPSConnection_secure_context
+    data = c.getresponse().read()
+  File "/usr/lib64/python3.3/http/client.py", line 1141, in getresponse
+    response = self.response_class(self.sock, method=self._method)
+  File "/usr/lib64/python3.3/http/client.py", line 289, in __init__
+    self.fp = sock.makefile("rb")
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 327, in makefile
+    return socket._fileobject(self, mode, bufsize)
+AttributeError: 'module' object has no attribute '_fileobject'
+
+======================================================================
+ERROR: test_HTTPS_secure_context (tests.test_ssl.HttpslibSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 238, in test_HTTPS_secure_context
+    c = httpslib.HTTPS(srv_host, srv_port, ssl_context=ctx)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/httpslib.py", line 104, in __init__
+    raise NotImplementedError('class HTTPS is not implenented.')
+NotImplementedError: class HTTPS is not implenented.
+
+======================================================================
+ERROR: test_HTTPS_secure_context_fail (tests.test_ssl.HttpslibSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 259, in test_HTTPS_secure_context_fail
+    c = httpslib.HTTPS(srv_host, srv_port, ssl_context=ctx)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/httpslib.py", line 104, in __init__
+    raise NotImplementedError('class HTTPS is not implenented.')
+NotImplementedError: class HTTPS is not implenented.
+
+======================================================================
+ERROR: test_urllib (tests.test_ssl.UrllibSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 874, in test_urllib
+    url = m2urllib.FancyURLopener()
+AttributeError: 'module' object has no attribute 'FancyURLopener'
+
+======================================================================
+ERROR: test_urllib2 (tests.test_ssl.Urllib2SSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 898, in test_urllib2
+    from M2Crypto import m2urllib2
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/m2urllib2.py", line 28, in <module>
+    class _closing_fileobject(socket._fileobject):
+AttributeError: 'module' object has no attribute '_fileobject'
+
+======================================================================
+ERROR: test_urllib2_leak (tests.test_ssl.Urllib2SSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 966, in test_urllib2_leak
+    from M2Crypto import m2urllib2
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/m2urllib2.py", line 28, in <module>
+    class _closing_fileobject(socket._fileobject):
+AttributeError: 'module' object has no attribute '_fileobject'
+
+======================================================================
+ERROR: test_urllib2_opener_handlers (tests.test_ssl.Urllib2SSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 958, in test_urllib2_opener_handlers
+    from M2Crypto import m2urllib2
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/m2urllib2.py", line 28, in <module>
+    class _closing_fileobject(socket._fileobject):
+AttributeError: 'module' object has no attribute '_fileobject'
+
+======================================================================
+ERROR: test_urllib2_secure_context (tests.test_ssl.Urllib2SSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 915, in test_urllib2_secure_context
+    from M2Crypto import m2urllib2
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/m2urllib2.py", line 28, in <module>
+    class _closing_fileobject(socket._fileobject):
+AttributeError: 'module' object has no attribute '_fileobject'
+
+======================================================================
+ERROR: test_urllib2_secure_context_fail (tests.test_ssl.Urllib2SSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 932, in test_urllib2_secure_context_fail
+    from M2Crypto import m2urllib2
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/m2urllib2.py", line 28, in <module>
+    class _closing_fileobject(socket._fileobject):
+AttributeError: 'module' object has no attribute '_fileobject'
+
+======================================================================
+ERROR: test_z_urllib2_opener (tests.test_ssl.Urllib2SSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 944, in test_z_urllib2_opener
+    from M2Crypto import m2urllib2
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/m2urllib2.py", line 28, in <module>
+    class _closing_fileobject(socket._fileobject):
+AttributeError: 'module' object has no attribute '_fileobject'
+
+======================================================================
+ERROR: test_blocking1 (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 806, in test_blocking1
+    data = self.http_get(s)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 105, in http_get
+    s.send('GET / HTTP/1.0\n\n')
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 221, in write
+    return self._write_bio(data)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 204, in _write_bio
+    return m2.ssl_write(self.ssl, data, self._timeout)
+TypeError: expected an object with a buffer interface
+
+======================================================================
+ERROR: test_cipher_mismatch (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 431, in test_cipher_mismatch
+    s.connect(self.srv_addr)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 184, in connect
+    ret = self.connect_ssl()
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 177, in connect_ssl
+    return m2.ssl_connect(self.ssl, self._timeout)
+M2Crypto.SSL.SSLError: sslv3 alert handshake failure
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 433, in test_cipher_mismatch
+    self.failUnlessEqual(e[0], 'sslv3 alert handshake failure')
+TypeError: 'SSLError' object does not support indexing
+
+======================================================================
+ERROR: test_cipher_ok (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 492, in test_cipher_ok
+    data = self.http_get(s)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 105, in http_get
+    s.send('GET / HTTP/1.0\n\n')
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 221, in write
+    return self._write_bio(data)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 204, in _write_bio
+    return m2.ssl_write(self.ssl, data, self._timeout)
+TypeError: expected an object with a buffer interface
+
+======================================================================
+ERROR: test_info_callback (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 861, in test_info_callback
+    data = self.http_get(s)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 105, in http_get
+    s.send('GET / HTTP/1.0\n\n')
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 221, in write
+    return self._write_bio(data)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 204, in _write_bio
+    return m2.ssl_write(self.ssl, data, self._timeout)
+TypeError: expected an object with a buffer interface
+
+======================================================================
+ERROR: test_makefile (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 821, in test_makefile
+    bio = s.makefile('rw')
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 327, in makefile
+    return socket._fileobject(self, mode, bufsize)
+AttributeError: 'module' object has no attribute '_fileobject'
+
+======================================================================
+ERROR: test_makefile_err (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 841, in test_makefile_err
+    f = s.makefile()
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 327, in makefile
+    return socket._fileobject(self, mode, bufsize)
+AttributeError: 'module' object has no attribute '_fileobject'
+
+======================================================================
+ERROR: test_no_such_cipher (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 446, in test_no_such_cipher
+    s.connect(self.srv_addr)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 184, in connect
+    ret = self.connect_ssl()
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 177, in connect_ssl
+    return m2.ssl_connect(self.ssl, self._timeout)
+M2Crypto.SSL.SSLError: no ciphers available
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 448, in test_no_such_cipher
+    self.failUnlessEqual(e[0], 'no ciphers available')
+TypeError: 'SSLError' object does not support indexing
+
+======================================================================
+ERROR: test_no_weak_cipher (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 462, in test_no_weak_cipher
+    s.connect(self.srv_addr)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 184, in connect
+    ret = self.connect_ssl()
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 177, in connect_ssl
+    return m2.ssl_connect(self.ssl, self._timeout)
+M2Crypto.SSL.SSLError: sslv3 alert handshake failure
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 464, in test_no_weak_cipher
+    self.failUnlessEqual(e[0], 'sslv3 alert handshake failure')
+TypeError: 'SSLError' object does not support indexing
+
+======================================================================
+ERROR: test_server_simple (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 288, in test_server_simple
+    data = self.http_get(s)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 105, in http_get
+    s.send('GET / HTTP/1.0\n\n')
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 221, in write
+    return self._write_bio(data)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 204, in _write_bio
+    return m2.ssl_write(self.ssl, data, self._timeout)
+TypeError: expected an object with a buffer interface
+
+======================================================================
+ERROR: test_server_simple_secure_context (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 302, in test_server_simple_secure_context
+    data = self.http_get(s)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 105, in http_get
+    s.send('GET / HTTP/1.0\n\n')
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 221, in write
+    return self._write_bio(data)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 204, in _write_bio
+    return m2.ssl_write(self.ssl, data, self._timeout)
+TypeError: expected an object with a buffer interface
+
+======================================================================
+ERROR: test_server_simple_timeouts (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 344, in test_server_simple_timeouts
+    data = self.http_get(s)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 105, in http_get
+    s.send('GET / HTTP/1.0\n\n')
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 221, in write
+    return self._write_bio(data)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 204, in _write_bio
+    return m2.ssl_write(self.ssl, data, self._timeout)
+TypeError: expected an object with a buffer interface
+
+======================================================================
+ERROR: test_tls1_nok (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 359, in test_tls1_nok
+    s.connect(self.srv_addr)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 184, in connect
+    ret = self.connect_ssl()
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 177, in connect_ssl
+    return m2.ssl_connect(self.ssl, self._timeout)
+M2Crypto.SSL.SSLError: wrong version number
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 361, in test_tls1_nok
+    self.failUnlessEqual(e[0], 'wrong version number')
+TypeError: 'SSLError' object does not support indexing
+
+======================================================================
+ERROR: test_tls1_ok (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 373, in test_tls1_ok
+    data = self.http_get(s)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 105, in http_get
+    s.send('GET / HTTP/1.0\n\n')
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 221, in write
+    return self._write_bio(data)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 204, in _write_bio
+    return m2.ssl_write(self.ssl, data, self._timeout)
+TypeError: expected an object with a buffer interface
+
+======================================================================
+ERROR: test_use_weak_cipher (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 477, in test_use_weak_cipher
+    s.connect(self.srv_addr)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 184, in connect
+    ret = self.connect_ssl()
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 177, in connect_ssl
+    return m2.ssl_connect(self.ssl, self._timeout)
+M2Crypto.SSL.SSLError: sslv3 alert handshake failure
+
+======================================================================
+ERROR: test_verify_cb_lambda (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 583, in test_verify_cb_lambda
+    data = self.http_get(s)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 105, in http_get
+    s.send('GET / HTTP/1.0\n\n')
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 221, in write
+    return self._write_bio(data)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 204, in _write_bio
+    return m2.ssl_write(self.ssl, data, self._timeout)
+TypeError: expected an object with a buffer interface
+
+======================================================================
+ERROR: test_verify_cb_old (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 651, in test_verify_cb_old
+    data = self.http_get(s)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 105, in http_get
+    s.send('GET / HTTP/1.0\n\n')
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 221, in write
+    return self._write_bio(data)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 204, in _write_bio
+    return m2.ssl_write(self.ssl, data, self._timeout)
+TypeError: expected an object with a buffer interface
+
+======================================================================
+ERROR: test_verify_cert (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 703, in test_verify_cert
+    data = self.http_get(s)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 105, in http_get
+    s.send('GET / HTTP/1.0\n\n')
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 221, in write
+    return self._write_bio(data)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 204, in _write_bio
+    return m2.ssl_write(self.ssl, data, self._timeout)
+TypeError: expected an object with a buffer interface
+
+======================================================================
+ERROR: test_verify_cert_mutual_auth (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 734, in test_verify_cert_mutual_auth
+    data = self.http_get(s)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 105, in http_get
+    s.send('GET / HTTP/1.0\n\n')
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 221, in write
+    return self._write_bio(data)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 204, in _write_bio
+    return m2.ssl_write(self.ssl, data, self._timeout)
+TypeError: expected an object with a buffer interface
+
+======================================================================
+ERROR: test_verify_cert_mutual_auth_servernbio (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 753, in test_verify_cert_mutual_auth_servernbio
+    data = self.http_get(s)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 105, in http_get
+    s.send('GET / HTTP/1.0\n\n')
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 221, in write
+    return self._write_bio(data)
+  File "/home/matej/archiv/knihovna/repos/m2crypto/M2Crypto/SSL/Connection.py", line 204, in _write_bio
+    return m2.ssl_write(self.ssl, data, self._timeout)
+TypeError: expected an object with a buffer interface
+
+======================================================================
+FAIL: test_verify_allow_unknown_new (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 683, in test_verify_allow_unknown_new
+    s.connect(self.srv_addr)
+M2Crypto.SSL.SSLError: certificate verify failed
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 685, in test_verify_allow_unknown_new
+    assert 0, e
+AssertionError: certificate verify failed
+
+======================================================================
+FAIL: test_verify_allow_unknown_old (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 666, in test_verify_allow_unknown_old
+    s.connect(self.srv_addr)
+M2Crypto.SSL.SSLError: certificate verify failed
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 668, in test_verify_allow_unknown_old
+    assert 0, e
+AssertionError: certificate verify failed
+
+======================================================================
+FAIL: test_verify_cb_new (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 529, in test_verify_cb_new
+    s.connect(self.srv_addr)
+M2Crypto.SSL.SSLError: certificate verify failed
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 531, in test_verify_cb_new
+    assert 0, e
+AssertionError: certificate verify failed
+
+======================================================================
+FAIL: test_verify_cb_new_class (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 546, in test_verify_cb_new_class
+    s.connect(self.srv_addr)
+M2Crypto.SSL.SSLError: certificate verify failed
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 548, in test_verify_cb_new_class
+    assert 0, e
+AssertionError: certificate verify failed
+
+======================================================================
+FAIL: test_verify_cb_new_function (tests.test_ssl.MiscSSLClientTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 563, in test_verify_cb_new_function
+    s.connect(self.srv_addr)
+M2Crypto.SSL.SSLError: certificate verify failed
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/matej/archiv/knihovna/repos/m2crypto/tests/test_ssl.py", line 565, in test_verify_cb_new_function
+    assert 0, e
+AssertionError: certificate verify failed
+
+----------------------------------------------------------------------
+Ran 140 tests in 78.869s
+
+FAILED (failures=5, errors=32, skipped=1)
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa179220>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=16, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa179a70>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=17, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa179760>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=18, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa179d10>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=19, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa179c30>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=20, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa187290>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=21, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa1875a0>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=22, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa187760>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=23, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa187a70>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=24, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa187a00>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=25, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa187fb0>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=26, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3da8bbe220>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=27, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3da8bbe5a0>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=28, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3da8bbe300>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=29, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa18e5a0>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=3, family=10, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa1be370>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=4, family=10, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa1be680>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=5, family=10, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa166d80>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=6, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa166530>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=7, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa1667d0>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=8, family=2, type=1, proto=0>
+ALERT: write: warning: close notify
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa166f40>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=9, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa16c1b0>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=10, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa16c140>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=11, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa16ca70>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=12, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa16c6f0>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=13, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa16cae0>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=14, family=2, type=1, proto=0>
+Exception AttributeError: "'NoneType' object has no attribute 'bio_noclose'" in <bound method Connection.__del__ of <M2Crypto.SSL.Connection.Connection object at 0x7f3daa1790d0>> ignored
+sys:1: ResourceWarning: unclosed <socket.socket object, fd=15, family=2, type=1, proto=0>
+[212090 refs]
+matej@wycliff: m2crypto (python3 %)$
+```
