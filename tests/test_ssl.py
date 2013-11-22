@@ -408,7 +408,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
     def test_sslv23_weak_crypto(self):
         if fips_mode: # TLS is required in FIPS mode
             return
-        self.args = self.args + ['-no_tls1', '-no_ssl3']
+        self.args = self.args + ['-ssl2']
         pid = self.start_server(self.args)
         try:
             ctx = SSL.Context('sslv23', weak_crypto=1)
