@@ -60,8 +60,20 @@ extern SSL_METHOD *SSLv23_method(void);
 %rename(tlsv1_method) TLSv1_method;
 extern SSL_METHOD *TLSv1_method(void);
 
+%typemap(out) SSL_CTX * {
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
+
+    if ($1 != NULL)
+        $result = SWIG_NewPointerObj($1, $1_descriptor, 0);
+    else {
+        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        $result = NULL;
+    }
+}
 %rename(ssl_ctx_new) SSL_CTX_new;
 extern SSL_CTX *SSL_CTX_new(SSL_METHOD *);
+%typemap(out) SSL_CTX *;
+
 %rename(ssl_ctx_free) SSL_CTX_free;
 extern void SSL_CTX_free(SSL_CTX *);
 %rename(ssl_ctx_set_verify_depth) SSL_CTX_set_verify_depth;
