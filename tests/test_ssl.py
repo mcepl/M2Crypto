@@ -477,6 +477,8 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
     # TLS is required in FIPS mode
     @unittest.skipIf(fips_mode, "Can't be run in FIPS mode")
     @unittest.skipIf(plat_debian, "Debian distros don't allow weak ciphers")
+    @unittest.skipIf(plat_fedora,
+                     "Export ciphers are prohibited in recent Fedora releases")
     def test_use_weak_cipher(self):
         self.args = self.args + ['-cipher', 'EXP']
         pid = self.start_server(self.args)
