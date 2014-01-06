@@ -31,7 +31,16 @@ from M2Crypto import Rand, SSL, m2, Err
 from fips import fips_mode
 
 srv_host = 'localhost'
-srv_port = 64000
+
+def allocate_srv_port():
+    s = socket.socket()
+    try:
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s.bind((srv_host, 0))
+        (host, port) = s.getsockname()
+    finally:
+        s.close()
+    return port
 
 def verify_cb_new_function(ok, store):
     try:
@@ -118,16 +127,12 @@ class BaseSSLClientTestCase(unittest.TestCase):
 
     def setUp(self):
         self.srv_host = srv_host
-        self.srv_port = srv_port
-        self.srv_addr = (srv_host, srv_port)
-        self.srv_url = 'https://%s:%s/' % (srv_host, srv_port)
+        self.srv_port = allocate_srv_port()
+        self.srv_addr = (srv_host, self.srv_port)
+        self.srv_url = 'https://%s:%s/' % (srv_host, self.srv_port)
         self.args = ['s_server', '-quiet', '-www',
                      #'-cert', 'server.pem', Implicitly using this
                      '-accept', str(self.srv_port)]
-
-    def tearDown(self):
-        global srv_port
-        srv_port = srv_port - 1
 
 
 class PassSSLClientTestCase(BaseSSLClientTestCase):
@@ -141,7 +146,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
         pid = self.start_server(self.args)
         try:
             from M2Crypto import httpslib
-            c = httpslib.HTTPSConnection(srv_host, srv_port)
+            c = httpslib.HTTPSConnection(srv_host, self.srv_port)
             c.request('GET', '/')
             data = c.getresponse().read()
             c.close()
@@ -158,7 +163,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             ctx.load_cert('tests/x509.pem')
             ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 1)
             ctx.set_session_cache_mode(m2.SSL_SESS_CACHE_CLIENT)
-            c = httpslib.HTTPSConnection(srv_host, srv_port, ssl_context=ctx)
+            c = httpslib.HTTPSConnection(srv_host, self.srv_port, ssl_context=ctx)
             c.request('GET', '/')
             ses = c.get_session()
             t = ses.as_text()
@@ -171,7 +176,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             ctx2.load_cert('tests/x509.pem')
             ctx2.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 1)
             ctx2.set_session_cache_mode(m2.SSL_SESS_CACHE_CLIENT)
-            c2 = httpslib.HTTPSConnection(srv_host, srv_port, ssl_context=ctx2)
+            c2 = httpslib.HTTPSConnection(srv_host, self.srv_port, ssl_context=ctx2)
             c2.set_session(ses)
             c2.request('GET', '/')
             ses2 = c2.get_session()
@@ -191,7 +196,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             ctx = SSL.Context()
             ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
             ctx.load_verify_locations('tests/ca.pem')
-            c = httpslib.HTTPSConnection(srv_host, srv_port, ssl_context=ctx)
+            c = httpslib.HTTPSConnection(srv_host, self.srv_port, ssl_context=ctx)
             c.request('GET', '/')
             data = c.getresponse().read()
             c.close()
@@ -206,7 +211,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             ctx = SSL.Context()
             ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
             ctx.load_verify_locations('tests/server.pem')
-            c = httpslib.HTTPSConnection(srv_host, srv_port, ssl_context=ctx)
+            c = httpslib.HTTPSConnection(srv_host, self.srv_port, ssl_context=ctx)
             self.assertRaises(SSL.SSLError, c.request, 'GET', '/')
             c.close()
         finally:
@@ -216,7 +221,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
         pid = self.start_server(self.args)
         try:
             from M2Crypto import httpslib
-            c = httpslib.HTTPS(srv_host, srv_port)
+            c = httpslib.HTTPS(srv_host, self.srv_port)
             c.putrequest('GET', '/')
             c.putheader('Accept', 'text/html')
             c.putheader('Accept', 'text/plain')
@@ -237,7 +242,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             ctx = SSL.Context()
             ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
             ctx.load_verify_locations('tests/ca.pem')
-            c = httpslib.HTTPS(srv_host, srv_port, ssl_context=ctx)
+            c = httpslib.HTTPS(srv_host, self.srv_port, ssl_context=ctx)
             c.putrequest('GET', '/')
             c.putheader('Accept', 'text/html')
             c.putheader('Accept', 'text/plain')
@@ -258,7 +263,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             ctx = SSL.Context()
             ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
             ctx.load_verify_locations('tests/server.pem')
-            c = httpslib.HTTPS(srv_host, srv_port, ssl_context=ctx)
+            c = httpslib.HTTPS(srv_host, self.srv_port, ssl_context=ctx)
             c.putrequest('GET', '/')
             c.putheader('Accept', 'text/html')
             c.putheader('Accept', 'text/plain')
@@ -875,7 +880,7 @@ class UrllibSSLClientTestCase(BaseSSLClientTestCase):
             from M2Crypto import m2urllib
             url = m2urllib.FancyURLopener()
             url.addheader('Connection', 'close')
-            u = url.open('https://%s:%s/' % (srv_host, srv_port))
+            u = url.open('https://%s:%s/' % (srv_host, self.srv_port))
             data = u.read()
             u.close()
         finally:
@@ -900,7 +905,7 @@ class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
                 from M2Crypto import m2urllib2
                 opener = m2urllib2.build_opener()
                 opener.addheaders = [('Connection', 'close')]
-                u = opener.open('https://%s:%s/' % (srv_host, srv_port))
+                u = opener.open('https://%s:%s/' % (srv_host, self.srv_port))
                 data = u.read()
                 u.close()
             finally:
@@ -917,7 +922,7 @@ class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
                 from M2Crypto import m2urllib2
                 opener = m2urllib2.build_opener(ctx)
                 opener.addheaders = [('Connection', 'close')]
-                u = opener.open('https://%s:%s/' % (srv_host, srv_port))
+                u = opener.open('https://%s:%s/' % (srv_host, self.srv_port))
                 data = u.read()
                 u.close()
             finally:
@@ -934,7 +939,7 @@ class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
                 from M2Crypto import m2urllib2
                 opener = m2urllib2.build_opener(ctx)
                 opener.addheaders = [('Connection', 'close')]
-                self.assertRaises(SSL.SSLError, opener.open, 'https://%s:%s/' % (srv_host, srv_port))
+                self.assertRaises(SSL.SSLError, opener.open, 'https://%s:%s/' % (srv_host, self.srv_port))
             finally:
                 self.stop_server(pid)
 
@@ -946,7 +951,7 @@ class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
                 from M2Crypto import m2urllib2
                 opener = m2urllib2.build_opener(ctx, m2urllib2.HTTPBasicAuthHandler())
                 m2urllib2.install_opener(opener)
-                req = m2urllib2.Request('https://%s:%s/' % (srv_host, srv_port))
+                req = m2urllib2.Request('https://%s:%s/' % (srv_host, self.srv_port))
                 u = m2urllib2.urlopen(req)
                 data = u.read()
                 u.close()
@@ -967,7 +972,7 @@ class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
                 import gc
                 from M2Crypto import m2urllib2
                 o = m2urllib2.build_opener()
-                r = o.open('https://%s:%s/' % (srv_host, srv_port))
+                r = o.open('https://%s:%s/' % (srv_host, self.srv_port))
                 s = [r.fp._sock.fp]
                 r.close()
                 self.assertEqual(len(gc.get_referrers(s[0])), 1)
@@ -994,7 +999,7 @@ class TwistedSSLClientTestCase(BaseSSLClientTestCase):
         pid = self.start_server(self.args)
         try:
             from M2Crypto import httpslib
-            c = httpslib.HTTPS(srv_host, srv_port)
+            c = httpslib.HTTPS(srv_host, self.srv_port)
             c.putrequest('GET', '/')
             c.putheader('Accept', 'text/html')
             c.putheader('Accept', 'text/plain')
@@ -1033,7 +1038,7 @@ class TwistedSSLClientTestCase(BaseSSLClientTestCase):
             pid = self.start_server(self.args)
             try:
                 from M2Crypto import httpslib
-                c = httpslib.HTTPS(srv_host, srv_port)
+                c = httpslib.HTTPS(srv_host, self.srv_port)
                 c.putrequest('GET', '/' + FIFO_NAME)
                 c.putheader('Accept', 'text/html')
                 c.putheader('Accept', 'text/plain')
@@ -1090,7 +1095,7 @@ class TwistedSSLClientTestCase(BaseSSLClientTestCase):
             
             contextFactory = ContextFactory()
             factory = EchoClientFactory()
-            wrapper.connectSSL(srv_host, srv_port, factory, contextFactory)
+            wrapper.connectSSL(srv_host, self.srv_port, factory, contextFactory)
             reactor.run() # This will block until reactor.stop() is called
         finally:
             self.stop_server(pid)

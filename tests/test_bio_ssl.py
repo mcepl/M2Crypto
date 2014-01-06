@@ -15,7 +15,7 @@ from M2Crypto import Err
 from M2Crypto import Rand
 from M2Crypto import threading as m2threading
 
-from test_ssl import srv_host, srv_port
+from test_ssl import srv_host, allocate_srv_port
 
 class HandshakeClient(threading.Thread):
     
@@ -117,6 +117,7 @@ class SSLTestCase(unittest.TestCase):
         conn.set_bio(readbio, writebio)
         conn.set_accept_state()
         handshake_complete = False
+        srv_port = allocate_srv_port()
         sock = socket.socket()
         sock.bind((srv_host, srv_port))
         sock.listen(5)
