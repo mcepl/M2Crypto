@@ -74,15 +74,19 @@ class _M2CryptoBuildExt(build_ext.build_ext):
                
         self.library_dirs += [os.path.join(self.openssl, opensslLibraryDir)]
 
+if sys.platform == 'darwin':
+   my_extra_compile_args = ["-Wno-deprecated-declarations"]
+else:
+   my_extra_compile_args = []
 
 m2crypto = Extension(name = 'M2Crypto.__m2crypto',
                      sources = ['SWIG/_m2crypto.i'],
-                     extra_compile_args = ['-DTHREADING'],
+                     extra_compile_args = ['-DTHREADING'] + my_extra_compile_args,
                      #extra_link_args = ['-Wl,-search_paths_first'], # Uncomment to build Universal Mac binaries
                      )
 
 setup(name = 'M2Crypto',
-      version = '0.22',
+      version = '0.22.3',
       description = 'M2Crypto: A Python crypto and SSL toolkit',
       long_description = '''\
 M2Crypto is the most complete Python wrapper for OpenSSL featuring RSA, DSA,
@@ -97,8 +101,8 @@ interface.''',
       platforms = ['any'],
       author = 'Ng Pheng Siong',
       author_email = 'ngps at sandbox rulemaker net',
-      maintainer = 'Heikki Toivonen',
-      maintainer_email = 'heikki@osafoundation.org',
+      maintainer = 'Martin Paljak',
+      maintainer_email = 'martin@martinpaljak.net',
       url = 'http://chandlerproject.org/Projects/MeTooCrypto',
       packages = ['M2Crypto', 'M2Crypto.SSL'],
       classifiers = [
