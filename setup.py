@@ -17,10 +17,11 @@ from setuptools import setup
 from setuptools.command import build_ext
 
 from distutils.core import Extension
+from distutils.spawn import find_executable
 
 
 class _M2CryptoBuildExt(build_ext.build_ext):
-    '''Specialization of build_ext to enable swig_opts to inherit any 
+    '''Specialization of build_ext to enable swig_opts to inherit any
     include_dirs settings made at the command line or in a setup.cfg file'''
     user_options = build_ext.build_ext.user_options + \
             [('openssl=', 'o', 'Prefix for OpenSSL installation location')]
@@ -29,7 +30,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         '''Overload to enable custom OpenSSL settings to be picked up'''
 
         build_ext.build_ext.initialize_options(self)
-        
+
         # openssl is the attribute corresponding to openssl directory prefix
         # command line option
         if os.name == 'nt':
@@ -38,17 +39,39 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         else:
             self.libraries = ['ssl', 'crypto']
             self.openssl = '/usr'
-       
-    
+
+    def add_multiarch_paths(self):
+        # Debian/Ubuntu multiarch support.
+        # https://wiki.ubuntu.com/MultiarchSpec
+        if not find_executable('dpkg-architecture'):
+            return
+        tmpfile = os.path.join(self.build_temp, 'multiarch')
+        if not os.path.exists(self.build_temp):
+            os.makedirs(self.build_temp)
+        ret = os.system(
+            'dpkg-architecture -qDEB_HOST_MULTIARCH > %s 2> /dev/null' %
+            tmpfile)
+        try:
+            if ret >> 8 == 0:
+                with open(tmpfile) as fp:
+                    multiarch_path_component = fp.readline().strip()
+                self.library_dirs.append(os.path.join('/usr/lib/' + multiarch_path_component))
+                self.include_dirs.append(os.path.join('/usr/include/' + multiarch_path_component))
+        finally:
+            os.unlink(tmpfile)
+
+
     def finalize_options(self):
         '''Overloaded build_ext implementation to append custom openssl
         include file and library linking options'''
 
         build_ext.build_ext.finalize_options(self)
 
+        self.add_multiarch_paths()
+
         opensslIncludeDir = os.path.join(self.openssl, 'include')
         opensslLibraryDir = os.path.join(self.openssl, 'lib')
-        
+
         self.swig_opts = ['-I%s' % i for i in self.include_dirs + \
                           [opensslIncludeDir, os.path.join(opensslIncludeDir, "openssl")]]
         self.swig_opts.append('-includeall')
@@ -71,7 +94,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
             # Cygwin directly, then it would work even without this change.
             # Someday distutils will be fixed and this won't be needed.
             self.library_dirs += [os.path.join(self.openssl, 'bin')]
-               
+
         self.library_dirs += [os.path.join(self.openssl, opensslLibraryDir)]
 
 if sys.platform == 'darwin':
