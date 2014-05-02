@@ -174,7 +174,7 @@ class ASN1_UTCTIME:
             raise ValueError("Invalid date: %s" % date)
         month, rest = date.split(' ', 1)
         if month not in self._ssl_months:
-            raise ValueError("Invalid date %s: Invalid month: %s" % (date, m))
+            raise ValueError("Invalid date %s: Invalid month: %s" % (date, month))
         if rest.endswith(' GMT'):
             timezone = UTC
             rest = rest[:-4]
