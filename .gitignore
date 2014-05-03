@@ -1,0 +1,11 @@
+*.pyc
+*~
+
+M2Crypto.egg-info/
+M2Crypto/__m2crypto*.so
+SWIG/_m2crypto.py
+SWIG/_m2crypto_wrap.c
+build/
+tests/randpool.dat
+tests/sig.p7
+tests/sig.p7s
