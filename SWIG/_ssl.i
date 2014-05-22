@@ -14,6 +14,7 @@
 #include <openssl/bio.h>
 #include <openssl/dh.h>
 #include <openssl/ssl.h>
+#include <openssl/tls1.h>
 #include <openssl/x509.h>
 %}
 
@@ -373,6 +374,10 @@ long ssl_set_mode(SSL *ssl, long mode) {
 
 long ssl_get_mode(SSL *ssl) {
     return SSL_get_mode(ssl);
+}
+
+long ssl_set_tlsext_host_name(SSL *ssl, const char *name) {
+    return SSL_set_tlsext_host_name(ssl, name);
 }
 
 void ssl_set_client_CA_list_from_file(SSL *ssl, const char *ca_file) {
