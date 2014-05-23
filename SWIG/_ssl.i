@@ -11,6 +11,7 @@
 
 %{
 #include <pythread.h>
+#include <openssl/opensslconf.h>
 #include <openssl/bio.h>
 #include <openssl/dh.h>
 #include <openssl/ssl.h>
@@ -48,8 +49,10 @@ extern const char *SSL_alert_desc_string(int);
 %rename(ssl_get_alert_desc_v) SSL_alert_desc_string_long;
 extern const char *SSL_alert_desc_string_long(int);
 
+#ifndef OPENSSL_NO_SSL2
 %rename(sslv2_method) SSLv2_method;
 extern SSL_METHOD *SSLv2_method(void);
+#endif
 %rename(sslv3_method) SSLv3_method;
 extern SSL_METHOD *SSLv3_method(void);
 %rename(sslv23_method) SSLv23_method;
