@@ -146,7 +146,9 @@ class X509TestCase(unittest.TestCase):
         cn.set_data("Hello There!")
         assert cn.get_data().as_text() == "Hello There!", cn.get_data().as_text()
 
-        assert n.as_hash() == 1697185131
+        # OpenSSL 1.0.1h switched from encoding strings as PRINTABLESTRING (the
+        # first hash value) to UTF8STRING (the second one)
+        assert n.as_hash() in (1697185131, 1370641112), n.as_hash()
         
         self.assertRaises(IndexError, lambda: n[100])
         self.assert_(n[10])
