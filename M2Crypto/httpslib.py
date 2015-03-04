@@ -64,6 +64,10 @@ class HTTPSConnection(HTTPConnection):
             sock = None
             try:
                 sock = SSL.Connection(self.ssl_ctx, family=family)
+
+                # set SNI server name since we know it at this point
+                sock.set_tlsext_host_name(self.host)
+
                 if self.session is not None:
                     sock.set_session(self.session)
                 sock.connect((self.host, self.port))
