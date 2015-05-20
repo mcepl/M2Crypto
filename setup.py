@@ -156,6 +156,8 @@ class _M2CryptoBuildExt(build_ext.build_ext):
 
         self.swig_opts.extend(['-I%s' % i for i in self.include_dirs])
         self.swig_opts.append('-includeall')
+        self.swig_opts.extend(['-outdir',
+                              os.path.join(os.getcwd(), 'M2Crypto')])
         self.swig_opts.append('-modern')
         self.swig_opts.append('-builtin')
 
@@ -240,7 +242,7 @@ else:
     lib_sources = ['SWIG/_m2crypto_wrap.c']
 
 
-m2crypto = setuptools.Extension(name='M2Crypto.__m2crypto',
+m2crypto = setuptools.Extension(name='M2Crypto._m2crypto',
                                 sources=lib_sources,
                                 extra_compile_args=['-DTHREADING'],
                                 # Uncomment to build Universal Mac binaries

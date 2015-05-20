@@ -24,7 +24,7 @@ version = __version__  # type: str
 version_info = StrictVersion(__version__).version
 
 from M2Crypto import (ASN1, AuthCookie, BIO, BN, DH, DSA, EVP, Engine, Err,
-                      PGP, RSA, Rand, SMIME, SSL, X509, _m2crypto,
+                      PGP, RSA, Rand, SMIME, SSL, X509, m2crypto,
                       ftpslib, httpslib, m2, m2urllib, m2xmlrpclib,
                       threading, util)
 if util.py27plus:
@@ -40,4 +40,4 @@ urllib2 = m2urllib
 encrypt = 1
 decrypt = 0
 
-_m2crypto.lib_init()
+m2crypto.lib_init()
