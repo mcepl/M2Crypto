@@ -11,6 +11,7 @@ __all__ = ['SSLVerificationError', 'NoCertificate', 'WrongCertificate',
            'WrongHost', 'Checker']
 
 from M2Crypto import util, EVP, m2
+import socket
 import re
 
 class SSLVerificationError(Exception):
@@ -161,6 +162,10 @@ class Checker:
                 self.useSubjectAltNameOnly = True
                 if self._match(host, certHost[4:]):
                     return True
+            elif certHost[:11] == 'ip address:':
+                self.useSubjectAltNameOnly = True
+                if self._matchIPAddress(host, certHost[11:]):
+                    return True
         return False
         
 
@@ -217,6 +222,34 @@ class Checker:
             return True
 
         return False
+
+    def _matchIPAddress(self, host, certHost):
+        """
+        >>> check = Checker()
+        >>> check._matchIPAddress(host='my.example.com', certHost='my.example.com')
+        False
+        >>> check._matchIPAddress(host='1.2.3.4', certHost='1.2.3.4')
+        True
+        >>> check._matchIPAddress(host='1.2.3.4', certHost='*.2.3.4')
+        False
+        >>> check._matchIPAddress(host='1.2.3.4', certHost='1.2.3.40')
+        False
+        >>> check._matchIPAddress(host='::1', certHost='::1')
+        True
+        >>> check._matchIPAddress(host='::1', certHost='0:0:0:0:0:0:0:1')
+        True
+        >>> check._matchIPAddress(host='::1', certHost='::2')
+        False
+        """
+        try:
+            canonical = socket.getaddrinfo(host, 0, 0, socket.SOCK_STREAM, 0,
+                                           socket.AI_NUMERICHOST)
+            certCanonical = socket.getaddrinfo(certHost, 0, 0,
+                                               socket.SOCK_STREAM, 0,
+                                               socket.AI_NUMERICHOST)
+        except:
+            return False
+        return canonical == certCanonical
 
 
 if __name__ == '__main__':
