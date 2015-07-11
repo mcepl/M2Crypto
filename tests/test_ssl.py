@@ -365,7 +365,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             try:
                 s.connect(self.srv_addr)
             except SSL.SSLError, e:
-                self.failUnlessEqual(e[0], 'wrong version number')
+                self.assertIn(e[0], ['wrong version number', 'unexpected eof'])
             s.close()
         finally:
             self.stop_server(pid)
