@@ -158,6 +158,7 @@ int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
     int cret;
     int new_style_callback = 0, warning_raised_exception=0;
     PyGILState_STATE gilstate;
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
 
     ssl = (SSL *)X509_STORE_CTX_get_app_data(ctx);
 
@@ -243,6 +244,7 @@ int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
 void ssl_info_callback(const SSL *s, int where, int ret) {
     PyObject *argv, *retval, *_SSL;
     PyGILState_STATE gilstate;
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
 
     gilstate = PyGILState_Ensure();
 
@@ -262,6 +264,7 @@ DH *ssl_set_tmp_dh_callback(SSL *ssl, int is_export, int keylength) {
     PyObject *argv, *ret, *_ssl;
     DH *dh;
     PyGILState_STATE gilstate;
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
 
     gilstate = PyGILState_Ensure();
 
@@ -285,6 +288,7 @@ RSA *ssl_set_tmp_rsa_callback(SSL *ssl, int is_export, int keylength) {
     PyObject *argv, *ret, *_ssl;
     RSA *rsa;
     PyGILState_STATE gilstate;
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
 
     gilstate = PyGILState_Ensure();
 

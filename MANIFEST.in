@@ -1,0 +1,3 @@
+include SWIG/*.i
+include SWIG/*.def
+exclude M2Crypto/_m2crypto.py

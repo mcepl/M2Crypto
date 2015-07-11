@@ -157,6 +157,7 @@ PyObject *smime_read_pkcs7(BIO *bio) {
     BIO *bcont = NULL;
     PKCS7 *p7;
     PyObject *tuple, *_p7, *_BIO;
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
 
     if (BIO_method_type(bio) == BIO_TYPE_MEM) {
         /* OpenSSL FAQ explains that this is needed for mem BIO to return EOF,
