@@ -1,0 +1,152 @@
+environment:
+  global:
+    # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
+    # /E:ON and /V:ON options are not enabled in the batch script intepreter
+    # See: http://stackoverflow.com/a/13751649/163740
+    CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\appveyor\\run_with_env.cmd"
+    OPENSSL_PATH: "C:\\Program Files\\OpenSSL"
+
+    # PyPI login environment:
+    USER:
+        secure: oqWqarxnd4H23FMywnlQeg==
+    PASS:
+        secure: j/VSxdYJ7mdR44u8OdywLg==
+
+  matrix:
+
+    # Pre-installed Python versions, which Appveyor may upgrade to
+    # a later point release.
+    - PYTHON: "C:\\Python36"
+      PYTHON_VERSION: "3.6.x" # currently 3.6.4
+      PYTHON_ARCH: "32"
+      OPENSSL_PATH: "C:\\OpenSSL-Win32"
+      PYWIN32: "pywin32-222.win32-py3.6.exe"
+      PYWIN32_RELEASE: b222
+
+    - PYTHON: "C:\\Python36"
+      PYTHON_VERSION: "3.6.x" # currently 3.6.4
+      PYTHON_ARCH: "32"
+      OPENSSL_PATH: "C:\\OpenSSL-1-1-Win32"
+      PYWIN32: "pywin32-222.win32-py3.6.exe"
+      PYWIN32_RELEASE: b222
+
+    - PYTHON: "C:\\Python27"
+      PYTHON_VERSION: "2.7.x" # currently 2.7.9
+      PYTHON_ARCH: "32"
+      OPENSSL_PATH: "C:\\OpenSSL-Win32"
+      PYWIN32: "pywin32-222.win32-py2.7.exe"
+      PYWIN32_RELEASE: b222
+
+    - PYTHON: "C:\\Python27"
+      PYTHON_VERSION: "2.7.x" # currently 2.7.9
+      PYTHON_ARCH: "32"
+      OPENSSL_PATH: "C:\\OpenSSL-1-1-Win32"
+      PYWIN32: "pywin32-222.win32-py2.7.exe"
+      PYWIN32_RELEASE: b222
+
+    - PYTHON: "C:\\Python27-x64"
+      PYTHON_VERSION: "2.7.x" # currently 2.7.9
+      PYTHON_ARCH: "64"
+      OPENSSL_PATH: "C:\\OpenSSL-Win64"
+      PYWIN32: "pywin32-222.win-amd64-py2.7.exe"
+      PYWIN32_RELEASE: b222
+
+    - PYTHON: "C:\\Python27-x64"
+      PYTHON_VERSION: "2.7.x" # currently 2.7.9
+      PYTHON_ARCH: "64"
+      OPENSSL_PATH: "C:\\OpenSSL-1-1-Win64"
+      PYWIN32: "pywin32-222.win-amd64-py2.7.exe"
+      PYWIN32_RELEASE: b222
+
+
+    # Also test a Python version not pre-installed
+    # See: https://github.com/ogrisel/python-appveyor-demo/issues/10
+
+    - PYTHON: "C:\\Python26"
+      PYTHON_VERSION: "2.6.6"
+      PYTHON_ARCH: "32"
+      OPENSSL_PATH: "C:\\OpenSSL-Win32"
+      PYWIN32: "pywin32-221.win32-py2.6.exe"
+      PYWIN32_RELEASE: b221
+
+nuget:
+    account_feed: true
+
+install:
+  # Install non-python dependencies using chocolatey package manager
+  - choco install -r -y swig
+
+
+  # Install Python (from the official .msi of http://python.org) and pip when
+  # not already installed.
+  - ps: if (-not(Test-Path($env:PYTHON))) { & appveyor\install.ps1 }
+
+  # Prepend newly installed Python to the PATH of this build (this cannot be
+  # done from inside the powershell script as it would require to restart
+  # the parent CMD process).
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%;%OPENSSL_PATH%\\bin"
+
+  # Check that we have the expected version and architecture for Python
+  - "python --version"
+  - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
+
+  # Install the build dependencies of the project. If some dependencies contain
+  # compiled extensions and are not provided as pre-built wheel packages,
+  # pip will build them from source using the MSVC compiler matching the
+  # target Python version and architecture
+  - "%CMD_IN_ENV% pip install -r dev-requirements.txt"
+
+  - ECHO "Install OpenSSL 1.1.0 32bit"
+  - curl -o Win32OpenSSL-1_1_0g.exe -sSL https://slproweb.com/download/Win32OpenSSL-1_1_0g.exe
+  - "Win32OpenSSL-1_1_0g.exe /silent /verysilent /DIR=C:\\OpenSSL-1-1-Win32"
+
+  - ECHO "Install OpenSSL 1.1.0 64bit"
+  - curl -o Win64OpenSSL-1_1_0g.exe -sSL https://slproweb.com/download/Win64OpenSSL-1_1_0g.exe
+  - "Win64OpenSSL-1_1_0g.exe /silent /verysilent /DIR=C:\\OpenSSL-1-1-Win64"
+
+  # The pypi version will not install on 2.6
+  # - "%CMD_IN_ENV% pip install pypiwin32"
+
+  - ECHO "Install pywin32"
+  - curl -o "%PYWIN32%" -sSL "https://github.com/mhammond/pywin32/releases/download/%PYWIN32_RELEASE%/%PYWIN32%"
+  - "%PYTHON%\\Scripts\\easy_install.exe %PYWIN32%"
+  #- mkdir pywin32
+  #- 7z x "%PYWIN32%" -opywin32
+  #- xcopy /e "pywin32\\PLATLIB" "%PYTHON%\\Lib\\site-packages"
+
+  - ECHO "Filesystem root:"
+  - ps: "ls \"C:/\""
+
+  - ECHO "Installed SDKs:"
+  - ps: "ls \"C:/Program Files/Microsoft SDKs/Windows\""
+
+  - ECHO "Appveyor OpenSSL Version (%OPENSSL_VERSION%)"
+  - "%OPENSSL_PATH%/bin/openssl.exe  version"
+
+  - ECHO "Python OpenSSL Version (%PYTHON%)"
+  - "%PYTHON%\\python.exe -c \"import ssl; print(getattr(ssl, 'OPENSSL_VERSION', None))\""
+
+build_script:
+  - "%CMD_IN_ENV% python setup.py build --openssl=\"%OPENSSL_PATH%\""
+
+test_script:
+  - "%CMD_IN_ENV% python setup.py test"
+
+after_test:
+  # If tests are successful, create a whl package for the project.
+  - "%CMD_IN_ENV% python setup.py bdist_wheel bdist_wininst bdist_msi"
+  - ps: "ls dist"
+
+artifacts:
+  # Archive the generated wheel package in the ci.appveyor.com build report.
+  - path: dist\*
+
+  - path: SWIG/_m2crypto_wrap.c
+    name: _m2crypto_wrap.zip
+    type: zip
+
+after_build:
+  - ps: Get-ChildItem SWIG\_m2crypto_wrap.c | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+
+on_failure:
+  - ps: Get-ChildItem SWIG\_m2crypto_wrap.c | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
