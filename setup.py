@@ -11,10 +11,13 @@ Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 """
 
-import os, sys
+import sys
 requires_list = []
 if sys.version_info <= (2, 6):
     requires_list.append("unittest2")
+
+import os  # noqa
+import platform
 try:
     from setuptools import setup
     from setuptools.command import build_ext
@@ -23,7 +26,6 @@ except ImportError:
     from distutils.command import build_ext
 
 from distutils.core import Extension
-from distutils.spawn import find_executable
 from distutils.file_util import copy_file
 
 

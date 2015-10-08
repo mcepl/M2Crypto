@@ -11,3 +11,5 @@ build/
 tests/randpool.dat
 tests/sig.p7
 tests/sig.p7s
+tests/tmpcert.der
+M2Crypto/_m2crypto.py
