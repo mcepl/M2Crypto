@@ -13,7 +13,7 @@ Pre-requisites
 
 The following software packages are pre-requisites:
 
-- **Python 2.3 or newer**
+- **Python 2.6 or newer**
 - **OpenSSL 0.9.7 or newer**
 - **SWIG 1.3.28 or newer**
 
@@ -153,9 +153,9 @@ Follow the standard instructions to build and install M2Crypto.
 However, should you encounter difficulties, you may want to consider 
 the following possibilities.
 
-  - Distutils for Python 2.5 now provides support for universal 
-    builds (ppc and i386) and Distutils requires a recent version 
-    of Xcode.  See http://developer.apple.com/tools/download/
+  - Distutils from Python 2.5 provides support for universal builds (ppc
+    and i386) and Distutils requires a recent version of Xcode.  See
+    http://developer.apple.com/tools/download/
 
   - OpenSSL 0.9.7l gets installed in /usr with Apple's Security 
     Update 2006-007.  If you need features in OpenSSL 0.9.8, you 
