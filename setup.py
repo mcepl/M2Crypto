@@ -119,7 +119,7 @@ m2crypto = Extension(name='M2Crypto.__m2crypto',
                      )
 
 setup(name='M2Crypto',
-      version='0.21.1',
+      version='0.22.4',
       description='M2Crypto: A Python crypto and SSL toolkit',
       long_description='''\
 M2Crypto is the most complete Python wrapper for OpenSSL featuring RSA, DSA,
@@ -133,9 +133,9 @@ used to provide SSL for Twisted.''',
       platforms=['any'],
       author='Ng Pheng Siong',
       author_email='ngps at sandbox rulemaker net',
-      maintainer='Heikki Toivonen',
-      maintainer_email='heikki@osafoundation.org',
-      url='http://chandlerproject.org/Projects/MeTooCrypto',
+      maintainer='Matej Cepl',
+      maintainer_email='mcepl@cepl.eu',
+      url='https://gitlab.com/m2crypto/m2crypto',
       packages=['M2Crypto', 'M2Crypto.SSL', 'M2Crypto.PGP'],
       classifiers=[
           'Development Status :: 5 - Production/Stable',
@@ -148,7 +148,7 @@ used to provide SSL for Twisted.''',
       ],
 
       ext_modules=[m2crypto],
-      test_suite='tests.alltests.suite',
+      test_suite='unittest.collector',
       install_requires=requires_list,
       cmdclass={'build_ext': _M2CryptoBuildExt}
       )
