@@ -3,7 +3,11 @@
 """Unit tests for M2Crypto.m2 obj_* functions.
 """
 
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
 from M2Crypto import X509, ASN1, BIO, Rand, m2
 
 """

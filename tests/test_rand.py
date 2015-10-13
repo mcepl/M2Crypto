@@ -5,8 +5,12 @@
 Copyright (C) 2006 Open Source Applications Foundation (OSAF). All Rights Reserved.
 """
 
-import unittest
 import os, sys
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
 from M2Crypto import Rand
 
 class RandTestCase(unittest.TestCase):

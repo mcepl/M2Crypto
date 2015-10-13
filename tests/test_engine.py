@@ -2,7 +2,11 @@
 
 """Unit tests for M2Crypto.Engine."""
 
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
 from M2Crypto import Engine, m2
 
 class EngineTestCase(unittest.TestCase):

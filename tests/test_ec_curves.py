@@ -18,8 +18,12 @@
     
 """
 
-import unittest
 #import sha
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
 from M2Crypto import EC, Rand
 from test_ecdsa import ECDSATestCase as ECDSATest
 

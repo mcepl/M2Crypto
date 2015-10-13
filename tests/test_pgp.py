@@ -4,9 +4,13 @@
 
 Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
 
-import unittest
-from M2Crypto import EVP, PGP
 from cStringIO import StringIO
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
+from M2Crypto import EVP, PGP
 
 
 class PGPTestCase(unittest.TestCase):

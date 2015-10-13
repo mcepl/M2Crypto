@@ -12,6 +12,9 @@ Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 """
 
 import os, sys
+requires_list = []
+if sys.version_info <= (2, 6):
+    requires_list.append("unittest2")
 try:
     from setuptools import setup
     from setuptools.command import build_ext
@@ -164,5 +167,6 @@ used to provide SSL for Twisted.''',
 
       ext_modules = [m2crypto],
       test_suite='tests.alltests.suite',
+      install_requires=requires_list,
       cmdclass = {'build_ext': _M2CryptoBuildExt}
       )

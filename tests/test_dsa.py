@@ -4,8 +4,12 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-import unittest
 import sha
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
 from M2Crypto import DSA, BIO, Rand, m2
 
 class DSATestCase(unittest.TestCase):

@@ -7,7 +7,12 @@ on your PATH.
 
 Copyright (c) 2000-2001 Ng Pheng Siong. All rights reserved."""
 
-import os, os.path, string, time, unittest
+import os, os.path, string, time
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
 try:
     import win32process
 except ImportError:

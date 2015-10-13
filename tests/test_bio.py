@@ -8,8 +8,11 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
 Copyright (c) 2006 Open Source Applications Foundation
 Author: Heikki Toivonen
 """
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
-import unittest
 from M2Crypto import BIO, Rand
 
 from fips import fips_mode

@@ -4,7 +4,10 @@
 
 Copyright (c) 2009 Heikki Toivonen. All rights reserved."""
 
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 from binascii import hexlify
 from M2Crypto import RC4
 

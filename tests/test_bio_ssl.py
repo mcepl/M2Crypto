@@ -3,7 +3,11 @@
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-import unittest, threading, sys, socket
+import threading, sys, socket
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
 from M2Crypto import BIO 
 from M2Crypto import SSL 

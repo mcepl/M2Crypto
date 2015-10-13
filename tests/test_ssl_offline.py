@@ -5,7 +5,12 @@ Copyright (C) 2006 Open Source Applications Foundation. All Rights Reserved.
 Copyright (C) 2009-2010 Heikki Toivonen. All Rights Reserved.
 """
 
-import unittest, doctest
+import doctest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
 from M2Crypto.SSL import Checker
 from M2Crypto import X509
 from M2Crypto import SSL

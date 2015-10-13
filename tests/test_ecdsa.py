@@ -5,9 +5,12 @@
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved.
 Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam. All rights reserved.
 """
-
-import unittest
 import sha
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
 from M2Crypto import EC, BIO, Rand, m2
 
 class ECDSATestCase(unittest.TestCase):

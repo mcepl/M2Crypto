@@ -5,7 +5,11 @@
 Copyright (C) 2006 Open Source Applications Foundation. All Rights Reserved.
 """
 
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
 from M2Crypto import SMIME, BIO, Rand, X509, EVP
 
 class SMIMETestCase(unittest.TestCase):

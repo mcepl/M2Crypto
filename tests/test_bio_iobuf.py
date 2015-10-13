@@ -5,8 +5,11 @@
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
 from cStringIO import StringIO
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
-import unittest
 import M2Crypto
 from M2Crypto.BIO import IOBuffer, MemoryBuffer
 

@@ -4,7 +4,12 @@
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-import Cookie, binascii, time, unittest, sys
+import Cookie, binascii, time, sys
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
 from M2Crypto.AuthCookie import AuthCookie, AuthCookieJar, mix, unmix, unmix3
 from M2Crypto import Rand, EVP
 

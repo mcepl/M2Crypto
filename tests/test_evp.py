@@ -7,9 +7,13 @@ Copyright (c) 2004-2007 Open Source Applications Foundation
 Author: Heikki Toivonen
 """
 
-import unittest
 import cStringIO, sha
 from binascii import hexlify, unhexlify
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
 from M2Crypto import EVP, RSA, util, Rand, m2, BIO
 from M2Crypto.util import h2b
 

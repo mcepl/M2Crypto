@@ -9,8 +9,12 @@ Copyright (C) 2004-2005 OSAF. All Rights Reserved.
 Author: Heikki Toivonen
 """
 
-import unittest
 import os, time, base64, sys
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
 from M2Crypto import X509, EVP, RSA, Rand, ASN1, m2, util, BIO
 
 class X509TestCase(unittest.TestCase):

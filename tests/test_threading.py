@@ -4,8 +4,11 @@
 
 Copyright (C) 2007 Open Source Applications Foundation. All Rights Reserved.
 """
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
-import unittest
 from M2Crypto import threading as m2threading, Rand
 
 

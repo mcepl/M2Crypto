@@ -4,7 +4,12 @@
 
 Copyright (c) 2005 Open Source Applications Foundation. All rights reserved."""
 
-import unittest, time, datetime
+import time, datetime
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
+
 from M2Crypto import ASN1, m2
 
 class ASN1TestCase(unittest.TestCase):
