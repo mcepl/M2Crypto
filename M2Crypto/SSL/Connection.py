@@ -9,21 +9,24 @@ Copyright 2008 Heikki Toivonen. All rights reserved.
 """
 
 __all__ = ['Connection',
-           'timeout', # XXX Not really, but for documentation purposes
+           'timeout',  # XXX Not really, but for documentation purposes
            ]
 
 # Python
 import socket
 
 # M2Crypto
-from Cipher import Cipher, Cipher_Stack
-from Session import Session
-from M2Crypto import BIO, X509, m2
-import timeout
 import Checker
 
-#SSLError = getattr(__import__('M2Crypto.SSL', globals(), locals(), 'SSLError'), 'SSLError')
+import timeout
+
+from Cipher import Cipher, Cipher_Stack
+from M2Crypto import X509, m2
 from M2Crypto.SSL import SSLError
+from Session import Session
+
+#SSLError = getattr(__import__('M2Crypto.SSL', globals(), locals(),
+#    'SSLError'), 'SSLError')
 
 def _serverPostConnectionCheck(*args, **kw):
     return 1
@@ -64,7 +67,8 @@ class Connection:
             self.m2_bio_free(self.sslbio)
         if getattr(self, 'sockbio', None):
             self.m2_bio_free(self.sockbio)
-        if self.ssl_close_flag == m2.bio_noclose and getattr(self, 'ssl', None):
+        if self.ssl_close_flag == m2.bio_noclose and \
+                getattr(self, 'ssl', None):
             self.m2_ssl_free(self.ssl)
         self.socket.close()
 
@@ -156,9 +160,9 @@ class Connection:
         return m2.ssl_accept(self.ssl, self._timeout)
 
     def accept(self):
-        """Accept an SSL connection. The return value is a pair (ssl, addr) where
-        ssl is a new SSL connection object and addr is the address bound to
-        the other end of the SSL connection."""
+        """Accept an SSL connection. The return value is a pair (ssl,
+        addr) where ssl is a new SSL connection object and addr is the
+        address bound to the other end of the SSL connection."""
         sock, addr = self.socket.accept()
         ssl = Connection(self.ctx, sock)
         ssl.addr = addr
@@ -222,7 +226,7 @@ class Connection:
             return self._write_bio(data)
         return self._write_nbio(data)
     sendall = send = write
-    
+
     def read(self, size=1024):
         if self._timeout != 0.0:
             return self._read_bio(size)
@@ -278,18 +282,18 @@ class Connection:
         return m2.ssl_get_verify_result(self.ssl)
 
     def get_peer_cert(self):
-        """Return the peer certificate; if the peer did not provide 
+        """Return the peer certificate; if the peer did not provide
         a certificate, return None."""
         c=m2.ssl_get_peer_cert(self.ssl)
         if c is None:
             return None
         # Need to free the pointer coz OpenSSL doesn't.
         return X509.X509(c, 1)
-    
+
     def get_peer_cert_chain(self):
-        """Return the peer certificate chain; if the peer did not provide 
+        """Return the peer certificate chain; if the peer did not provide
         a certificate chain, return None.
-        
+
         @warning: The returned chain will be valid only for as long as the
         connection object is alive. Once the connection object gets freed,
         the chain will be freed as well.
@@ -299,15 +303,15 @@ class Connection:
             return None
         # No need to free the pointer coz OpenSSL does.
         return X509.X509_Stack(c)
-    
+
     def get_cipher(self):
-        """Return an M2Crypto.SSL.Cipher object for this connection; if the 
+        """Return an M2Crypto.SSL.Cipher object for this connection; if the
         connection has not been initialised with a cipher suite, return None."""
         c=m2.ssl_get_current_cipher(self.ssl)
         if c is None:
             return None
         return Cipher(c)
-    
+
     def get_ciphers(self):
         """Return an M2Crypto.SSL.Cipher_Stack object for this connection; if the
         connection has not been initialised with cipher suites, return None."""
