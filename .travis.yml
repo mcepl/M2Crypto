@@ -1,0 +1,22 @@
+language: python
+
+addons:
+  apt:
+    packages:
+    - swig
+    - libssl-dev
+    - libssl1.0.0
+
+sudo: false
+
+python:
+  - 2.6
+  - 2.7
+
+before_script:
+  - '[ "${TRAVIS_PYTHON_VERSION}" = "2.6" ] && pip install --use-mirrors unittest2 || /bin/true'
+
+install:
+  - python setup.py install
+
+script: python setup.py test
