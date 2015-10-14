@@ -148,7 +148,7 @@ used to provide SSL for Twisted.''',
       ],
 
       ext_modules=[m2crypto],
-      test_suite='unittest.collector',
+      test_suite='tests.alltests.suite',
       install_requires=requires_list,
       cmdclass={'build_ext': _M2CryptoBuildExt}
       )
