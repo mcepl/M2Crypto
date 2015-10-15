@@ -157,7 +157,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             c.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_HTTPSConnection_resume_session(self):
         pid = self.start_server(self.args)
@@ -196,7 +196,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             assert t == t2, "Sessions did not match"
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_HTTPSConnection_secure_context(self):
         pid = self.start_server(self.args)
@@ -213,7 +213,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             c.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_HTTPSConnection_secure_context_fail(self):
         pid = self.start_server(self.args)
@@ -246,7 +246,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             c.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_HTTPS_secure_context(self):
         pid = self.start_server(self.args)
@@ -268,7 +268,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             c.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_HTTPS_secure_context_fail(self):
         pid = self.start_server(self.args)
@@ -311,7 +311,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_server_simple_secure_context(self):
         pid = self.start_server(self.args)
@@ -326,7 +326,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_server_simple_secure_context_fail(self):
         pid = self.start_server(self.args)
@@ -369,7 +369,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     # TLS is required in FIPS mode
     @unittest.skipIf(fips_mode, "Can't be run in FIPS mode")
@@ -398,7 +398,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     # TLS is required in FIPS mode
     @unittest.skipIf(fips_mode, "Can't be run in FIPS mode")
@@ -428,7 +428,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             try:
                 s.connect(self.srv_addr)
             except SSL.SSLError, e:
-                self.failUnlessEqual(e[0], 'sslv3 alert handshake failure')
+                self.assertEqual(e[0], 'sslv3 alert handshake failure')
             s.close()
         finally:
             self.stop_server(pid)
@@ -443,7 +443,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             try:
                 s.connect(self.srv_addr)
             except SSL.SSLError, e:
-                self.failUnlessEqual(e[0], 'no ciphers available')
+                self.assertEqual(e[0], 'no ciphers available')
             s.close()
         finally:
             self.stop_server(pid)
@@ -456,12 +456,11 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
         try:
             ctx = SSL.Context()
             s = SSL.Connection(ctx)
-            try:
+            with self.assertRaisesRegexp(SSL.SSLError,
+                                         'sslv3 alert handshake failure'):
                 s.connect(self.srv_addr)
-            except SSL.SSLError, e:
-                self.failUnlessEqual(e[0], 'sslv3 alert handshake failure')
-            s.close()
         finally:
+            s.close()
             self.stop_server(pid)
 
     # TLS is required in FIPS mode
@@ -477,7 +476,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_cipher_ok(self):
         self.args = self.args + ['-cipher', 'AES128-SHA']
@@ -512,7 +511,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def verify_cb_new(self, ok, store):
         return verify_cb_new_function(ok, store)
@@ -532,7 +531,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_verify_cb_new_class(self):
         pid = self.start_server(self.args)
@@ -549,7 +548,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_verify_cb_new_function(self):
         pid = self.start_server(self.args)
@@ -566,7 +565,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_verify_cb_lambda(self):
         pid = self.start_server(self.args)
@@ -583,7 +582,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def verify_cb_exception(self, ok, store):
         self.fail('We should fail verification')
@@ -651,7 +650,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_verify_allow_unknown_old(self):
         pid = self.start_server(self.args)
@@ -669,7 +668,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_verify_allow_unknown_new(self):
         pid = self.start_server(self.args)
@@ -686,7 +685,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_verify_cert(self):
         pid = self.start_server(self.args)
@@ -704,7 +703,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_verify_cert_fail(self):
         pid = self.start_server(self.args)
@@ -737,7 +736,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_verify_cert_mutual_auth_servernbio(self):
         self.args.extend(['-Verify', '2', '-CAfile', 'ca.pem', '-nbio'])
@@ -757,7 +756,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_verify_cert_mutual_auth_fail(self):
         self.args.extend(['-Verify', '2', '-CAfile', 'ca.pem'])
@@ -812,7 +811,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_makefile(self):
         pid = self.start_server(self.args)
@@ -832,7 +831,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_makefile_err(self):
         pid = self.start_server(self.args)
@@ -854,7 +853,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             assert not err, 'Unexpected error: %s' % err
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_info_callback(self):
         pid = self.start_server(self.args)
@@ -867,7 +866,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
 
 class UrllibSSLClientTestCase(BaseSSLClientTestCase):
@@ -883,7 +882,7 @@ class UrllibSSLClientTestCase(BaseSSLClientTestCase):
             u.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     # XXX Don't actually know how to use m2urllib safely!
     #def test_urllib_secure_context(self):
@@ -908,7 +907,7 @@ class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
                 u.close()
             finally:
                 self.stop_server(pid)
-            self.failIf(data.find('s_server -quiet -www') == -1)
+            self.assertIn('s_server -quiet -www', data)
 
         def test_urllib2_secure_context(self):
             pid = self.start_server(self.args)
@@ -926,7 +925,7 @@ class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
                 u.close()
             finally:
                 self.stop_server(pid)
-            self.failIf(data.find('s_server -quiet -www') == -1)
+            self.assertIn('s_server -quiet -www', data)
 
         def test_urllib2_secure_context_fail(self):
             pid = self.start_server(self.args)
@@ -960,7 +959,7 @@ class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
                 u.close()
             finally:
                 self.stop_server(pid)
-            self.failIf(data.find('s_server -quiet -www') == -1)
+            self.assertIn('s_server -quiet -www', data)
 
         def test_urllib2_opener_handlers(self):
             ctx = SSL.Context()
@@ -1014,7 +1013,7 @@ class TwistedSSLClientTestCase(BaseSSLClientTestCase):
             c.close()
         finally:
             self.stop_server(pid)
-        self.failIf(data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', data)
 
     def test_makefile_timeout_fires(self):
         # This is convoluted because (openssl s_server -www) starts
@@ -1104,7 +1103,7 @@ class TwistedSSLClientTestCase(BaseSSLClientTestCase):
             reactor.run()
         finally:
             self.stop_server(pid)
-        self.failIf(twisted_data.find('s_server -quiet -www') == -1)
+        self.assertIn('s_server -quiet -www', twisted_data)
 
 
 twisted_data = ''
