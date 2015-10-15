@@ -32,10 +32,15 @@ except ImportError:
     import unittest
 
 from M2Crypto import Err, Rand, SSL, m2
-
 from fips import fips_mode
+from platform import linux_distribution
 
 srv_host = 'localhost'
+distro_string = linux_distribution(supported_dists=('redhat', 'fedora',
+                                                    'debian'),
+                                   full_distribution_name=False)[0]
+plat_fedora = distro_string in ['redhat', 'fedora']
+plat_debian = distro_string in ['debian']
 
 def allocate_srv_port():
     s = socket.socket()
@@ -402,6 +407,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
 
     # TLS is required in FIPS mode
     @unittest.skipIf(fips_mode, "Can't be run in FIPS mode")
+    @unittest.skipIf(plat_debian, "Debian distros don't allow weak ciphers")
     def test_sslv23_weak_crypto(self):
         self.args = self.args + ['-ssl2']
         pid = self.start_server(self.args)
@@ -409,12 +415,15 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             ctx = SSL.Context('sslv23', weak_crypto=1)
             s = SSL.Connection(ctx)
             # SSLv2 ciphers disabled by default in newer OpenSSL
-            if m2.OPENSSL_VERSION_NUMBER < 0x10000000:
+            if plat_fedora and m2.OPENSSL_VERSION_NUMBER < 0x10000000:
                 s.connect(self.srv_addr)
-                self.failUnlessEqual(s.get_version(), 'SSLv2')
+                self.assertEqual(s.get_version(), 'SSLv2')
             else:
                 self.assertRaises(SSL.SSLError, s.connect, self.srv_addr)
             s.close()
+        except Exception as ex:
+            print('Caught exception %s' % ex)
+            raise
         finally:
             self.stop_server(pid)
 
@@ -465,6 +474,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
 
     # TLS is required in FIPS mode
     @unittest.skipIf(fips_mode, "Can't be run in FIPS mode")
+    @unittest.skipIf(plat_debian, "Debian distros don't allow weak ciphers")
     def test_use_weak_cipher(self):
         self.args = self.args + ['-cipher', 'EXP']
         pid = self.start_server(self.args)
