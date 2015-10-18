@@ -104,6 +104,9 @@ class X509TestCase(unittest.TestCase):
         self.assertEqual(n.SP, 'State or Province')
         n.L = 'locality name'
         self.assertEqual(n.L, 'locality name')
+        # Yes, 'orhanization' is a typo, I know it and you're smart.
+        # However, fixing this typo would break later hashes.
+        # I don't think it is worthy of troubles.
         n.O = 'orhanization name'
         self.assertEqual(n.O, 'orhanization name')
         n.OU = 'org unit'
@@ -175,8 +178,8 @@ class X509TestCase(unittest.TestCase):
             self.assertIn(t, ("common name", "Proxy",))
             l += 1
         self.assertEqual(l, 2,
-                         ('X509_Name has %d commonName entries instead ' +
-                          'of expected 2') % l)
+                         'X509_Name has %d commonName entries instead '
+                         'of expected 2' % l)
 
         # The target list is not deleted when the loop is finished
         # https://docs.python.org/2.7/reference\
