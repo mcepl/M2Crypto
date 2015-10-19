@@ -28,7 +28,8 @@ class ECDSATestCase(unittest.TestCase):
         pass
 
     def test_loadkey_junk(self):
-        self.assertRaises(ValueError, EC.load_key, self.errkey)
+        with self.assertRaises(ValueError):
+            EC.load_key(self.errkey)
 
     def test_loadkey(self):
         ec = EC.load_key(self.privkey)
@@ -38,12 +39,14 @@ class ECDSATestCase(unittest.TestCase):
         # XXX more work needed
         ec = EC.load_pub_key(self.pubkey)
         assert len(ec) == 233
-        self.assertRaises(EC.ECError, EC.load_pub_key, self.errkey)
+        with self.assertRaises(EC.ECError):
+            EC.load_pub_key(self.errkey)
 
     def _test_sign_dsa(self):
         ec = EC.gen_params(EC.NID_sect233k1)
         # ec.gen_key()
-        self.assertRaises(EC.ECError, ec.sign_dsa, self.data)
+        with self.assertRaises(EC.ECError):
+            ec.sign_dsa(self.data)
         ec = EC.load_key(self.privkey)
         r, s = ec.sign_dsa(self.data)
         assert ec.verify_dsa(self.data, r, s)
@@ -53,7 +56,8 @@ class ECDSATestCase(unittest.TestCase):
         ec = EC.load_key(self.privkey)
         blob = ec.sign_dsa_asn1(self.data)
         assert ec.verify_dsa_asn1(self.data, blob)
-        self.assertRaises(EC.ECError, ec.verify_dsa_asn1, blob, self.data)
+        with self.assertRaises(EC.ECError):
+            ec.verify_dsa_asn1(blob, self.data)
 
     def test_verify_dsa(self):
         ec = EC.load_key(self.privkey)

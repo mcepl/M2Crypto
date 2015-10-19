@@ -143,12 +143,12 @@ class ECCurveTests(unittest.TestCase):
         for curveName, curveLen in curves:
             self.sign_verify_ecdsa(curveName, curveLen)
 
-        self.assertRaises(AttributeError, self.sign_verify_ecdsa, 
-                                          'nosuchcurve', 1)
+        with self.assertRaises(AttributeError):
+            self.sign_verify_ecdsa('nosuchcurve', 1)
 
 #        for curveName, curveLen in curves2:
-#            self.assertRaises(EC.ECError, self.sign_verify_ecdsa, 
-#                              curveName, curveLen)
+#            with self.assertRaises(EC.ECError):
+#                self.sign_verify_ecdsa(curveName, curveLen)
 
 def suite():
     suite = unittest.TestSuite()

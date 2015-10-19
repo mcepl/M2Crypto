@@ -26,17 +26,21 @@ class DSATestCase(unittest.TestCase):
         pass
 
     def test_loadkey_junk(self):
-        self.assertRaises(DSA.DSAError, DSA.load_key, self.errkey)
+        with self.assertRaises(DSA.DSAError):
+            DSA.load_key(self.errkey)
 
     def test_loadkey(self):
         dsa = DSA.load_key(self.privkey)
         assert len(dsa) == 1024
-        self.assertRaises(AttributeError, getattr, dsa, 'foobar')
+        with self.assertRaises(AttributeError):
+            getattr(dsa, 'foobar')
         for k in ('p', 'q', 'g', 'priv', 'pub'):
-            self.assertRaises(DSA.DSAError, setattr, dsa, k, 1)
+            with self.assertRaises(DSA.DSAError):
+                setattr(dsa, k, 1)
 
     def test_loadparam(self):
-        self.assertRaises(DSA.DSAError, DSA.load_key, self.param)
+        with self.assertRaises(DSA.DSAError):
+            DSA.load_key(self.param)
         dsa = DSA.load_params(self.param)
         assert not dsa.check_key()
         assert len(dsa) == 1024
@@ -55,8 +59,10 @@ class DSATestCase(unittest.TestCase):
 
     def test_sign_with_params_only(self):
         dsa = DSA.load_params(self.param)
-        self.assertRaises(AssertionError, dsa.sign, self.data)
-        self.assertRaises(AssertionError, dsa.sign_asn1, self.data)
+        with self.assertRaises(AssertionError):
+            dsa.sign(self.data)
+        with self.assertRaises(AssertionError):
+            dsa.sign_asn1(self.data)
 
     def test_pub_verify(self):
         dsa = DSA.load_key(self.privkey)
@@ -64,7 +70,8 @@ class DSATestCase(unittest.TestCase):
         dsapub = DSA.load_pub_key(self.pubkey)
         assert dsapub.check_key()
         assert dsapub.verify(self.data, r, s)
-        self.assertRaises(DSA.DSAError, dsapub.sign)
+        with self.assertRaises(DSA.DSAError):
+            dsapub.sign()
 
     def test_verify_fail(self):
         dsa = DSA.load_key(self.privkey)
@@ -76,7 +83,8 @@ class DSATestCase(unittest.TestCase):
         r, s = dsa.sign(self.data)
         dsa2 = DSA.load_params(self.param)
         assert not dsa2.check_key()
-        self.assertRaises(AssertionError, dsa2.verify, self.data, r, s)
+        with self.assertRaises(AssertionError):
+            dsa2.verify(self.data, r, s)
 
     def test_genparam_setparam_genkey(self):
         dsa = DSA.gen_params(1024, self.callback)

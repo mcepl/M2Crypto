@@ -43,7 +43,8 @@ class RSATestCase(unittest.TestCase):
         pass
 
     def test_loadkey_junk(self):
-        self.assertRaises(RSA.RSAError, RSA.load_key, self.errkey)
+        with self.assertRaises(RSA.RSAError):
+            RSA.load_key(self.errkey)
 
     def test_loadkey_pp(self):
         rsa = RSA.load_key(self.privkey2, self.pp_callback)
@@ -52,14 +53,16 @@ class RSATestCase(unittest.TestCase):
         assert rsa.check_key() == 1
 
     def test_loadkey_pp_bad_cb(self):
-        self.assertRaises(RSA.RSAError, RSA.load_key, self.privkey2, self.pp2_callback)
+        with self.assertRaises(RSA.RSAError):
+            RSA.load_key(self.privkey2, self.pp2_callback)
 
     def test_loadkey(self):
         rsa = RSA.load_key(self.privkey)
         assert len(rsa) == 1024
         assert rsa.e == '\000\000\000\003\001\000\001'  # aka 65537 aka 0xf4
         self.assertEqual(rsa.n, "\x00\x00\x00\x81\x00\xcde!\x15\xdah\xb5`\xce[\xd6\x17d\xba8\xc1I\xb1\xf1\xber\x86K\xc7\xda\xb3\x98\xd6\xf6\x80\xae\xaa\x8f!\x9a\xefQ\xdeh\xbb\xc5\x99\x01o\xebGO\x8e\x9b\x9a\x18\xfb6\xba\x12\xfc\xf2\x17\r$\x00\xa1\x1a \xfc/\x13iUm\x04\x13\x0f\x91D~\xbf\x08\x19C\x1a\xe2\xa3\x91&\x8f\xcf\xcc\xf3\xa4HRf\xaf\xf2\x19\xbd\x05\xe36\x9a\xbbQ\xc86|(\xad\x83\xf2Eu\xb2EL\xdf\xa4@\x7f\xeel|\xfcU\x03\xdb\x89'")
-        self.assertRaises(AttributeError, getattr, rsa, 'nosuchprop')
+        with self.assertRaises(AttributeError):
+            getattr(rsa, 'nosuchprop')
         assert rsa.check_key() == 1
 
     def test_loadkey_bio(self):
@@ -92,9 +95,11 @@ class RSATestCase(unittest.TestCase):
         # The other paddings.
         for padding in self.s_padding_nok:
             p = getattr(RSA, padding)
-            self.assertRaises(RSA.RSAError, priv.private_encrypt, self.data, p)
+            with self.assertRaises(RSA.RSAError):
+                priv.private_encrypt(self.data, p)
         # Type-check the data to be encrypted.
-        self.assertRaises(TypeError, priv.private_encrypt, self.gen_callback, RSA.pkcs1_padding)
+        with self.assertRaises(TypeError):
+            priv.private_encrypt(self.gen_callback, RSA.pkcs1_padding)
 
     def test_public_encrypt(self):
         priv = RSA.load_key(self.privkey)
@@ -103,14 +108,22 @@ class RSATestCase(unittest.TestCase):
             p = getattr(RSA, padding)
             ctxt = priv.public_encrypt(self.data, p)
             ptxt = priv.private_decrypt(ctxt, p)
-            assert ptxt == self.data
+            self.assertEqual(ptxt, self.data)
+
         # sslv23_padding
         ctxt = priv.public_encrypt(self.data, RSA.sslv23_padding)
-        self.assertRaises(RSA.RSAError, priv.private_decrypt, ctxt, RSA.sslv23_padding)
+        with self.assertRaises(RSA.RSAError):
+            priv.private_decrypt(ctxt, RSA.sslv23_padding)
+        with self.assertRaises(RSA.RSAError):
+            priv.private_decrypt(ctxt, RSA.sslv23_padding)
+
         # no_padding
-        self.assertRaises(RSA.RSAError, priv.public_encrypt, self.data, RSA.no_padding)
+        with self.assertRaises(RSA.RSAError):
+            priv.public_encrypt(self.data, RSA.no_padding)
+
         # Type-check the data to be encrypted.
-        self.assertRaises(TypeError, priv.public_encrypt, self.gen_callback, RSA.pkcs1_padding)
+        with self.assertRaises(TypeError):
+            priv.public_encrypt(self.gen_callback, RSA.pkcs1_padding)
 
     def test_x509_public_encrypt(self):
         x509 = X509.load_cert("tests/recipient.pem")
@@ -121,13 +134,17 @@ class RSATestCase(unittest.TestCase):
         rsa = RSA.load_pub_key(self.pubkey)
         assert len(rsa) == 1024
         assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
-        self.assertRaises(RSA.RSAError, setattr, rsa, 'e', '\000\000\000\003\001\000\001')
-        self.assertRaises(RSA.RSAError, rsa.private_encrypt, 1)
-        self.assertRaises(RSA.RSAError, rsa.private_decrypt, 1)
+        with self.assertRaises(RSA.RSAError):
+            setattr(rsa, 'e', '\000\000\000\003\001\000\001')
+        with self.assertRaises(RSA.RSAError):
+            rsa.private_encrypt(1)
+        with self.assertRaises(RSA.RSAError):
+            rsa.private_decrypt(1)
         assert rsa.check_key()
 
     def test_loadpub_bad(self):
-        self.assertRaises(RSA.RSAError, RSA.load_pub_key, self.errkey)
+        with self.assertRaises(RSA.RSAError):
+            RSA.load_pub_key(self.errkey)
 
     def test_savepub(self):
         rsa = RSA.load_pub_key(self.pubkey)
@@ -144,15 +161,17 @@ class RSATestCase(unittest.TestCase):
     def test_set_bn(self):
         rsa = RSA.load_pub_key(self.pubkey)
         assert m2.rsa_set_e(rsa.rsa, '\000\000\000\003\001\000\001') is None
-        self.assertRaises(RSA.RSAError, m2.rsa_set_e, rsa.rsa, '\000\000\000\003\001')
+        with self.assertRaises(RSA.RSAError):
+            m2.rsa_set_e(rsa.rsa, '\000\000\000\003\001')
 
     def test_newpub(self):
         old = RSA.load_pub_key(self.pubkey)
         new = RSA.new_pub_key(old.pub())
-        assert new.check_key()
-        assert len(new) == 1024
-        assert new.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
-        
+        self.assertTrue(new.check_key())
+        self.assertEqual(len(new), 1024)
+        # aka 65537 aka 0xf4
+        self.assertEqual(new.e, '\000\000\000\003\001\000\001')
+
     def test_sign_and_verify(self):
         """
         Testing signing and verifying digests
@@ -230,9 +249,9 @@ class RSATestCase(unittest.TestCase):
         rsa = RSA.load_key(self.privkey)
         #message = "This is the message string"
         digest = 'a' * 16
-        self.assertRaises(ValueError, rsa.sign, 
-                          digest, 'bad_digest_method') 
-    
+        with self.assertRaises(ValueError):
+                rsa.sign(digest, 'bad_digest_method')
+
     def test_verify_bad_method(self):
         """
         Testing calling verify with an unsupported message digest algorithm
@@ -241,8 +260,8 @@ class RSATestCase(unittest.TestCase):
         message = "This is the message string"
         digest = 'a' * 16
         signature = rsa.sign(digest, 'sha1')
-        self.assertRaises(ValueError, rsa.verify,
-                          digest, signature, 'bad_digest_method') 
+        with self.assertRaises(ValueError):
+            rsa.verify(digest, signature, 'bad_digest_method')
 
     def test_verify_mismatched_algo(self):
         """
@@ -254,9 +273,9 @@ class RSATestCase(unittest.TestCase):
         digest = sha.sha(message).digest() 
         signature = rsa.sign(digest, 'sha1')
         rsa2 = RSA.load_pub_key(self.pubkey)
-        self.assertRaises(RSA.RSAError, rsa.verify, 
-                          digest, signature, 'md5')
-    
+        with self.assertRaises(RSA.RSAError):
+            rsa.verify(digest, signature, 'md5')
+
     def test_sign_fail(self):
         """
         Testing sign to make sure it fails when I give it
@@ -268,7 +287,8 @@ class RSATestCase(unittest.TestCase):
         digest = """This string should be long enough to warrant an error in
         RSA_sign""" * 2
 
-        self.assertRaises(RSA.RSAError, rsa.sign, digest)
+        with self.assertRaises(RSA.RSAError):
+            rsa.sign(digest)
 
     def test_verify_bad_signature(self):
         """
@@ -282,10 +302,10 @@ class RSATestCase(unittest.TestCase):
         otherDigest = sha.sha(otherMessage).digest() 
         otherSignature = rsa.sign(otherDigest)
 
-        self.assertRaises(RSA.RSAError, rsa.verify, 
-                          digest, otherSignature)
-    
-        
+        with self.assertRaises(RSA.RSAError):
+            rsa.verify(digest, otherSignature)
+
+
 def suite():
     return unittest.makeSuite(RSATestCase)
 

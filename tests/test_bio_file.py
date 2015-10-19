@@ -53,7 +53,8 @@ class FileTestCase(unittest.TestCase):
         f = openfile(self.fname, 'wb')
         f.write(self.data)
         f.close()
-        self.assertRaises(IOError, f.write, self.data)
+        with self.assertRaises(IOError):
+            f.write(self.data)
 
     def test_use_pyfile(self):
         # First create the file.

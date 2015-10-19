@@ -54,7 +54,8 @@ class ObjectsTestCase(unittest.TestCase):
         assert x509_name_entry2tuple(tuple2x509_name_entry(tup1)) == tup1, tup1
 
     def test_unknown(self):
-        self.assertRaises(ValueError, tuple2x509_name_entry, ("__unknown", "_"))
+        with self.assertRaises(ValueError):
+            tuple2x509_name_entry(("__unknown", "_"))
         
     def test_x509_name(self):
         n = X509.X509_Name()

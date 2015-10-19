@@ -15,12 +15,14 @@ from M2Crypto import Rand
 
 class RandTestCase(unittest.TestCase):
     def test_bytes(self):
-        self.assertRaises(MemoryError, Rand.rand_bytes, -1)
+        with self.assertRaises(MemoryError):
+            Rand.rand_bytes(-1)
         assert Rand.rand_bytes(0) == ''
         assert len(Rand.rand_bytes(1)) == 1
         
     def test_pseudo_bytes(self):
-        self.assertRaises(MemoryError, Rand.rand_pseudo_bytes, -1)
+        with self.assertRaises(MemoryError):
+            Rand.rand_pseudo_bytes(-1)
         assert Rand.rand_pseudo_bytes(0) == ('', 1)
         a, b = Rand.rand_pseudo_bytes(1)
         assert len(a) == 1

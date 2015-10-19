@@ -41,8 +41,9 @@ class EVPTestCase(unittest.TestCase):
         pkey = EVP.PKey()
         pkey.assign_rsa(rsa)
         assert pkey.as_pem(callback=self._pass_callback) != pkey.as_pem(cipher=None)
-        self.assertRaises(ValueError, pkey.as_pem, cipher='noXX$$%%suchcipher',
-                          callback=self._pass_callback)
+        with self.assertRaises(ValueError):
+            pkey.as_pem(cipher='noXX$$%%suchcipher',
+                        callback=self._pass_callback)
                           
     def test_as_der(self):
         """
@@ -58,7 +59,8 @@ class EVPTestCase(unittest.TestCase):
           
         
     def test_MessageDigest(self):
-        self.assertRaises(ValueError, EVP.MessageDigest, 'sha513')
+        with self.assertRaises(ValueError):
+            EVP.MessageDigest('sha513')
         md = EVP.MessageDigest('sha1')
         assert md.update('Hello') == 1
         assert util.octx_to_num(md.final()) == 1415821221623963719413415453263690387336440359920
@@ -94,7 +96,8 @@ class EVPTestCase(unittest.TestCase):
             assert util.octx_to_num(EVP.hmac('key', 'data', algo='sha384')) == 30471069101236165765942696708481556386452105164815350204559050657318908408184002707969468421951222432574647369766282, util.octx_to_num(EVP.hmac('key', 'data', algo='sha384'))
             assert util.octx_to_num(EVP.hmac('key', 'data', algo='sha512')) == 3160730054100700080556942280820129108466291087966635156623014063982211353635774277148932854680195471287740489442390820077884317620321797003323909388868696, util.octx_to_num(EVP.hmac('key', 'data', algo='sha512'))
         
-        self.assertRaises(ValueError, EVP.hmac, 'key', 'data', algo='sha513')
+        with self.assertRaises(ValueError):
+            EVP.hmac('key', 'data', algo='sha513')
 
 
     def test_get_rsa(self):
@@ -128,11 +131,13 @@ class EVPTestCase(unittest.TestCase):
         when it is not holding a RSA Key. Should raise a ValueError.
         """
         pkey = EVP.PKey()
-        self.assertRaises(ValueError, pkey.get_rsa)
+        with self.assertRaises(ValueError):
+            pkey.get_rsa()
 
     def test_get_modulus(self):
         pkey = EVP.PKey()
-        self.assertRaises(ValueError, pkey.get_modulus)
+        with self.assertRaises(ValueError):
+            pkey.get_modulus()
 
         rsa = RSA.gen_key(1024, 3, callback=self._gen_callback)
         pkey.assign_rsa(rsa)
@@ -169,19 +174,20 @@ class EVPTestCase(unittest.TestCase):
         assert pubkey.verify_final(sig) == 0
 
     def test_load_bad(self):
-        self.assertRaises(BIO.BIOError, EVP.load_key,
-                          'thisdoesnotexist-dfgh56789')
-        self.assertRaises(EVP.EVPError, EVP.load_key,
-                          'tests/signer.pem') # not a key
-        self.assertRaises(EVP.EVPError, EVP.load_key_bio,
-                          BIO.MemoryBuffer('no a key'))
+        with self.assertRaises(BIO.BIOError):
+            EVP.load_key('thisdoesnotexist-dfgh56789')
+        with self.assertRaises(EVP.EVPError):
+            EVP.load_key('tests/signer.pem') # not a key
+        with self.assertRaises(EVP.EVPError):
+            EVP.load_key_bio(BIO.MemoryBuffer('no a key'))
 
     def test_pad(self):
         self.assertEqual(util.pkcs5_pad('Hello World'),
                          'Hello World\x05\x05\x05\x05\x05')
         self.assertEqual(util.pkcs7_pad('Hello World', 15),
                          'Hello World\x04\x04\x04\x04')
-        self.assertRaises(ValueError, util.pkcs7_pad, 'Hello', 256)
+        with self.assertRaises(ValueError):
+            util.pkcs7_pad('Hello', 256)
 
 
 class CipherTestCase(unittest.TestCase):
@@ -251,7 +257,8 @@ class CipherTestCase(unittest.TestCase):
             if str(e) != "('unknown cipher', 'rc5_ecb')":
                 raise 
 
-        self.assertRaises(ValueError, self.try_algo, 'nosuchalgo4567')
+        with self.assertRaises(ValueError):
+            self.try_algo('nosuchalgo4567')
        
     def test_AES(self):
         enc = 1
@@ -345,15 +352,17 @@ class CipherTestCase(unittest.TestCase):
             cbuf.close()
             return plaintext
         
-        self.assertRaises(EVP.EVPError, decrypt,
-                          unhexlify('941d3647a642fab26d9f99a195098b91252c652d07235b9db35758c401627711724637648e45cad0f1121751a1240a4134998cfdf3c4a95c72de2a2444de3f9e40d881d7f205630b0d8ce142fdaebd8d7fbab2aea3dc47f5f29a0e9b55aae59222671d8e2877e1fb5cd8ef1c427027e0'),
-                          unhexlify('5f2cc54067f779f74d3cf1f78c735aec404c8c3a4aaaa02eb1946f595ea4cddb'),
-                          unhexlify('0001efa4bd154ee415b9413a421cedf04359fff945a30e7c115465b1c780a85b65c0e45c'))
+        with self.assertRaises(EVP.EVPError):
+            decrypt(
+                unhexlify('941d3647a642fab26d9f99a195098b91252c652d07235b9db35758c401627711724637648e45cad0f1121751a1240a4134998cfdf3c4a95c72de2a2444de3f9e40d881d7f205630b0d8ce142fdaebd8d7fbab2aea3dc47f5f29a0e9b55aae59222671d8e2877e1fb5cd8ef1c427027e0'),
+                unhexlify('5f2cc54067f779f74d3cf1f78c735aec404c8c3a4aaaa02eb1946f595ea4cddb'),
+                unhexlify('0001efa4bd154ee415b9413a421cedf04359fff945a30e7c115465b1c780a85b65c0e45c'))
 
-        self.assertRaises(EVP.EVPError, decrypt,
-                          unhexlify('a78a510416c1a6f1b48077cc9eeb4287dcf8c5d3179ef80136c18876d774570d'),
-                          unhexlify('5cd148eeaf680d4ff933aed83009cad4110162f53ef89fd44fad09611b0524d4'),
-                          unhexlify(''))
+        with self.assertRaises(EVP.EVPError):
+            decrypt(
+                unhexlify('a78a510416c1a6f1b48077cc9eeb4287dcf8c5d3179ef80136c18876d774570d'),
+                unhexlify('5cd148eeaf680d4ff933aed83009cad4110162f53ef89fd44fad09611b0524d4'),
+                unhexlify(''))
 
 
 class PBKDF2TestCase(unittest.TestCase):
@@ -397,7 +406,8 @@ class HMACTestCase(unittest.TestCase):
             h.update(d[1])
             ret = h.final()
             self.assertEqual(ret, d[2])
-        self.assertRaises(ValueError, EVP.HMAC, d[0], algo='nosuchalgo')
+        with self.assertRaises(ValueError):
+            EVP.HMAC(d[0], algo='nosuchalgo')
 
     def make_chain_HMAC(self, key, start, input, algo='sha1'):
         chain = []

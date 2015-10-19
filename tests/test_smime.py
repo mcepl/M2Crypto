@@ -22,16 +22,21 @@ class SMIMETestCase(unittest.TestCase):
     
     def test_load_bad(self):
         s = SMIME.SMIME()
-        self.assertRaises(EVP.EVPError, s.load_key,
-                          'tests/signer.pem',
-                          'tests/signer.pem')
+        with self.assertRaises(EVP.EVPError):
+            s.load_key('tests/signer.pem',
+                       'tests/signer.pem')
 
-        self.assertRaises(BIO.BIOError, SMIME.load_pkcs7, 'nosuchfile-dfg456')
-        self.assertRaises(SMIME.PKCS7_Error, SMIME.load_pkcs7, 'tests/signer.pem')
-        self.assertRaises(SMIME.PKCS7_Error, SMIME.load_pkcs7_bio, BIO.MemoryBuffer('no pkcs7'))
+        with self.assertRaises(BIO.BIOError):
+            SMIME.load_pkcs7('nosuchfile-dfg456')
+        with self.assertRaises(SMIME.PKCS7_Error):
+            SMIME.load_pkcs7('tests/signer.pem')
+        with self.assertRaises(SMIME.PKCS7_Error):
+            SMIME.load_pkcs7_bio(BIO.MemoryBuffer('no pkcs7'))
 
-        self.assertRaises(SMIME.SMIME_Error, SMIME.smime_load_pkcs7, 'tests/signer.pem')
-        self.assertRaises(SMIME.SMIME_Error, SMIME.smime_load_pkcs7_bio, BIO.MemoryBuffer('no pkcs7'))
+        with self.assertRaises(SMIME.SMIME_Error):
+            SMIME.smime_load_pkcs7('tests/signer.pem')
+        with self.assertRaises(SMIME.SMIME_Error):
+            SMIME.smime_load_pkcs7_bio(BIO.MemoryBuffer('no pkcs7'))
 
     def test_crlf(self):
         self.assertEqual(SMIME.text_crlf('foobar'), 'Content-Type: text/plain\r\n\r\nfoobar')
@@ -60,7 +65,8 @@ class SMIMETestCase(unittest.TestCase):
 
     def test_store_load_info(self):        
         st = X509.X509_Store()
-        self.assertRaises(X509.X509Error, st.load_info, 'tests/ca.pem-typoname')
+        with self.assertRaises(X509.X509Error):
+            st.load_info('tests/ca.pem-typoname')
         self.assertEqual(st.load_info('tests/ca.pem'), 1) 
 
     def test_verify(self):
@@ -99,7 +105,8 @@ class SMIMETestCase(unittest.TestCase):
         
         p7, data = SMIME.smime_load_pkcs7_bio(self.signed)
         assert isinstance(p7, SMIME.PKCS7), p7
-        self.assertRaises(SMIME.PKCS7_Error, s.verify, p7) # Bad signer
+        with self.assertRaises(SMIME.PKCS7_Error):
+            s.verify(p7) # Bad signer
 
     def test_encrypt(self):
         buf = BIO.MemoryBuffer(self.cleartext)
@@ -110,7 +117,8 @@ class SMIMETestCase(unittest.TestCase):
         sk.push(x509)
         s.set_x509_stack(sk)
 
-        self.assertRaises(ValueError, SMIME.Cipher, 'nosuchcipher')
+        with self.assertRaises(ValueError):
+            SMIME.Cipher('nosuchcipher')
 
         s.set_cipher(SMIME.Cipher('des_ede3_cbc'))
         p7 = s.encrypt(buf)
@@ -138,7 +146,8 @@ class SMIMETestCase(unittest.TestCase):
         
         p7, data = SMIME.smime_load_pkcs7_bio(self.encrypted)
         assert isinstance(p7, SMIME.PKCS7), p7
-        self.assertRaises(SMIME.SMIME_Error, s.verify, p7) # No signer
+        with self.assertRaises(SMIME.SMIME_Error):
+            s.verify(p7) # No signer
         
         out = s.decrypt(p7)
         assert out == self.cleartext
@@ -150,10 +159,12 @@ class SMIMETestCase(unittest.TestCase):
         
         p7, data = SMIME.smime_load_pkcs7_bio(self.encrypted)
         assert isinstance(p7, SMIME.PKCS7), p7
-        self.assertRaises(SMIME.SMIME_Error, s.verify, p7) # No signer
+        with self.assertRaises(SMIME.SMIME_Error):
+            s.verify(p7) # No signer
 
         # Cannot decrypt: no recipient matches certificate
-        self.assertRaises(SMIME.PKCS7_Error, s.decrypt, p7)
+        with self.assertRaises(SMIME.PKCS7_Error):
+            s.decrypt(p7)
 
     def test_signEncryptDecryptVerify(self):
         # sign

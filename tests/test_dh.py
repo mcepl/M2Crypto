@@ -22,7 +22,8 @@ class DHTestCase(unittest.TestCase):
         pass 
 
     def test_init_junk(self):
-        self.assertRaises(TypeError, DH.DH, 'junk')
+        with self.assertRaises(TypeError):
+            DH.DH('junk')
 
     def test_gen_params(self):
         a = DH.gen_params(1024, 2, self.genparam_callback)
@@ -54,8 +55,10 @@ class DHTestCase(unittest.TestCase):
         assert ak == bk
         self.assertEqual(len(a), 128)
 
-        self.assertRaises(DH.DHError, setattr, a, 'p', 1)
-        self.assertRaises(DH.DHError, setattr, a, 'priv', 1)
+        with self.assertRaises(DH.DHError):
+            setattr(a, 'p', 1)
+        with self.assertRaises(DH.DHError):
+            setattr(a, 'priv', 1)
 
 
 def suite():

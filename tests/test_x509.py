@@ -155,7 +155,8 @@ class X509TestCase(unittest.TestCase):
                          'SN=surname, GN=given name, GN=name given, ' +
                          'CN=Proxy')
 
-        self.assertRaises(AttributeError, n.__getattr__, 'foobar')
+        with self.assertRaises(AttributeError):
+            n.__getattr__('foobar')
         n.foobar = 1
         self.assertEqual(n.foobar, 1)
 

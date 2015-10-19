@@ -41,9 +41,12 @@ class CipherStreamTestCase(unittest.TestCase):
         cf.close()
         assert not cf.readable()
         
-        self.assertRaises(IOError, cf.read)
-        self.assertRaises(IOError, cf.readline)
-        self.assertRaises(IOError, cf.readlines)
+        with self.assertRaises(IOError):
+            cf.read()
+        with self.assertRaises(IOError):
+            cf.readline()
+        with self.assertRaises(IOError):
+            cf.readlines()
     
         assert data == data2, '%s algorithm cipher test failed' % algo
         
@@ -65,7 +68,8 @@ class CipherStreamTestCase(unittest.TestCase):
         for i in ciphers:
             self.try_algo(i)
 
-        self.assertRaises(ValueError, self.try_algo, 'nosuchalgo4567')
+        with self.assertRaises(ValueError):
+            self.try_algo('nosuchalgo4567')
 
 def suite():
     suite = unittest.TestSuite()

@@ -18,8 +18,10 @@ class EngineTestCase(unittest.TestCase):
         Engine.cleanup()
 
     def test_by_id_junk(self):
-        self.assertRaises(ValueError, Engine.Engine, self.bad_id)
-        self.assertRaises(ValueError, Engine.Engine)
+        with self.assertRaises(ValueError):
+            Engine.Engine(self.bad_id)
+        with self.assertRaises(ValueError):
+            Engine.Engine()
 
     def test_by_id_openssl(self):
         Engine.load_openssl()
@@ -41,7 +43,8 @@ class EngineTestCase(unittest.TestCase):
         Engine.load_openssl()
         e = Engine.Engine('openssl')
         e.set_default()
-        self.assertRaises(Engine.EngineError, e.load_certificate, '/dev/null')
+        with self.assertRaises(Engine.EngineError):
+            e.load_certificate('/dev/null')
 
 def suite():
     return unittest.makeSuite(EngineTestCase)

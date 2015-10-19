@@ -49,13 +49,15 @@ class MemoryBufferTestCase(unittest.TestCase):
         assert mb.writeable()
         mb.write_close()
         assert mb.readable()
-        self.assertRaises(IOError, mb.write, self.data)
+        with self.assertRaises(IOError):
+            mb.write(self.data)
         assert not mb.writeable()
 
     def test_closed(self):
         mb = MemoryBuffer(self.data)
         mb.close()
-        self.assertRaises(IOError, mb.write, self.data)
+        with self.assertRaises(IOError):
+            mb.write(self.data)
         assert mb.readable() and not mb.writeable()
 
 

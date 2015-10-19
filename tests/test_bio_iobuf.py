@@ -74,13 +74,15 @@ class IOBufferTestCase(unittest.TestCase):
         mb = MemoryBuffer(self.data)
         io = IOBuffer(mb)
         io.close()
-        self.assertRaises(IOError, io.write, self.data)
+        with self.assertRaises(IOError):
+            io.write(self.data)
         assert not io.readable() and not io.writeable()
 
     def test_read_only(self):
         mb = MemoryBuffer(self.data)
         io = IOBuffer(mb, mode='r')
-        self.assertRaises(IOError, io.write, self.data)
+        with self.assertRaises(IOError):
+            io.write(self.data)
         assert not io.writeable()
 
 
