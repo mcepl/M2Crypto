@@ -12,11 +12,11 @@
         (other curves and hashes are supported, see below)
 
     Larry Bugbee, June 2006
-    
+
     Portions:
       Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
       Copyright (c) 2005 Vrije Universiteit Amsterdam. All rights reserved.
-    
+
 """
 
 from M2Crypto import EC, EVP, Rand
@@ -31,9 +31,9 @@ showpubkey  = 0     # 1 = show the public key value
 showdigest  = 0     # 1 = show the digest value
 showprofile = 0     # 1 = use the python profiler
 
-hashalgs = ['md5', 'ripemd160', 'sha1', 
+hashalgs = ['md5', 'ripemd160', 'sha1',
             'sha224', 'sha256', 'sha384', 'sha512']
-        
+
 curves   = ['secp112r1',
             'secp112r2',
             'secp128r1',
@@ -101,17 +101,17 @@ curves   = ['secp112r1',
             'wap_wsg_idm_ecid_wtls12',
            ]
 
-# The following two curves, according to OpenSSL, have a 
-# "Questionable extension field!" and are not supported by 
+# The following two curves, according to OpenSSL, have a
+# "Questionable extension field!" and are not supported by
 # the OpenSSL inverse function.  ECError: no inverse.
-# As such they cannot be used for signing.  They might, 
-# however, be usable for encryption but that has not 
+# As such they cannot be used for signing.  They might,
+# however, be usable for encryption but that has not
 # been tested.  Until thir usefulness can be established,
 # they are not supported at this time.
 #
-#      Oakley-EC2N-3: 
+#      Oakley-EC2N-3:
 #        IPSec/IKE/Oakley curve #3 over a 155 bit binary field.
-#      Oakley-EC2N-4: 
+#      Oakley-EC2N-4:
 #        IPSec/IKE/Oakley curve #4 over a 185 bit binary field.
 #
 #      aka 'ipsec3' and 'ipsec4'
@@ -147,9 +147,9 @@ curves2  = ['prime192v1',
 hashalg = 'sha1'
 
 # default elliptical curve
-curve   = 'secp160r1'    
+curve   = 'secp160r1'
 
-# for a complete list of supported algorithms and curves, see 
+# for a complete list of supported algorithms and curves, see
 # the bottom of this file
 
 # number of speed test loops
@@ -190,7 +190,7 @@ def speed():
     for i in range(N2):
         ec.verify_dsa(dgst, r, s)
     print '    %d verifications: %8.2fs' % (N2, (time() - t1))
-        
+
 def test_speed(ec, dgst):
     print '  measuring speed...'
     if showprofile:
@@ -204,16 +204,16 @@ def test_speed(ec, dgst):
 
 def main(curve, hashalg):
     global ec, dgst     # this exists ONLY for speed testing
-    
-    Rand.load_file('randpool.dat', -1) 
-    
+
+    Rand.load_file('randpool.dat', -1)
+
     if curve in curves2:
         curve = 'X9_62_' + curve
     ec_curve = eval('EC.NID_%s' % curve)
-    
+
     pvtkeyfilename = '%spvtkey.pem' % (curve)
-    pubkeyfilename = '%spubkey.pem' % (curve)  
-    
+    pubkeyfilename = '%spubkey.pem' % (curve)
+
     if makenewkey:
         print '  making and saving a new key'
         ec = EC.gen_params(ec_curve)
@@ -225,17 +225,17 @@ def main(curve, hashalg):
         ec=EC.load_key(pvtkeyfilename)
     print '  ecdsa key length:', len(ec)
     print '  curve: %s' % curve
-    
+
     if not ec.check_key():
         raise 'key is not initialised'
-        
+
     if showpubkey:
         ec_pub = ec.pub()
         pub_der = ec_pub.get_der()
         pub_pem = base64.encodestring(pub_der)
         print '  PEM public key is: \n',pub_pem
 
-    # since we are testing signing and verification, let's not 
+    # since we are testing signing and verification, let's not
     # be fussy about the digest.  Just make one.
     md = EVP.MessageDigest(hashalg)
     md.update('can you spell subliminal channel?')
@@ -243,7 +243,7 @@ def main(curve, hashalg):
     print '  hash algorithm: %s' % hashalg
     if showdigest:
         print '  %s digest: \n%s' % (base64.encodestring(dgst))
-    
+
     test(ec, dgst)
 #    test_asn1(ec, dgst)
     test_speed(ec, dgst)
@@ -274,10 +274,10 @@ if __name__=='__main__':
         if arg == 'showpubkey':   showpubkey  = 1; continue
         if arg == 'showdigest':   showdigest  = 1; continue
         if arg == 'showprofile':  showprofile = 1; continue
-        
+
         print '\n  *** argument "%s" not understood ***' % arg
         print_usage()
-        
+
     main(curve, hashalg)
 
 
@@ -290,7 +290,7 @@ if __name__=='__main__':
         Elliptical curves supported by OpenSSL
         ======================================
 
-$ openssl ecparam -list_curves                              
+$ openssl ecparam -list_curves
   secp112r1 : SECG/WTLS curve over a 112 bit prime field
   secp112r2 : SECG curve over a 112 bit prime field
   secp128r1 : SECG curve over a 128 bit prime field
@@ -356,11 +356,11 @@ $ openssl ecparam -list_curves
   wap-wsg-idm-ecid-wtls10: NIST/SECG/WTLS curve over a 233 bit binary field
   wap-wsg-idm-ecid-wtls11: NIST/SECG/WTLS curve over a 233 bit binary field
   wap-wsg-idm-ecid-wtls12: WTLS curvs over a 224 bit prime field
-          Oakley-EC2N-3: 
+          Oakley-EC2N-3:
                 IPSec/IKE/Oakley curve #3 over a 155 bit binary field.
                 Not suitable for ECDSA.
                 Questionable extension field!
-          Oakley-EC2N-4: 
+          Oakley-EC2N-4:
                 IPSec/IKE/Oakley curve #4 over a 185 bit binary field.
                 Not suitable for ECDSA.
                 Questionable extension field!

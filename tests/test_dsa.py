@@ -10,14 +10,14 @@ try:
 except ImportError:
     import unittest
 
-from M2Crypto import DSA, BIO, Rand, m2
+from M2Crypto import DSA, Rand
 
 class DSATestCase(unittest.TestCase):
 
-    errkey  = 'tests/rsa.priv.pem'
+    errkey = 'tests/rsa.priv.pem'
     privkey = 'tests/dsa.priv.pem'
-    pubkey  = 'tests/dsa.pub.pem'
-    param   = 'tests/dsa.param.pem'
+    pubkey = 'tests/dsa.pub.pem'
+    param = 'tests/dsa.param.pem'
 
     data = sha.sha('Can you spell subliminal channel?').digest()
     different_data = sha.sha('I can spell.').digest()
@@ -73,7 +73,7 @@ class DSATestCase(unittest.TestCase):
 
     def test_verify_fail2(self):
         dsa = DSA.load_key(self.privkey)
-        r,s = dsa.sign(self.data)
+        r, s = dsa.sign(self.data)
         dsa2 = DSA.load_params(self.param)
         assert not dsa2.check_key()
         self.assertRaises(AssertionError, dsa2.verify, self.data, r, s)
@@ -84,19 +84,18 @@ class DSATestCase(unittest.TestCase):
         p = dsa.p
         q = dsa.q
         g = dsa.g
-        dsa2 = DSA.set_params(p,q,g)
+        dsa2 = DSA.set_params(p, q, g)
         assert not dsa2.check_key()
         dsa2.gen_key()
         assert dsa2.check_key()
-        r,s = dsa2.sign(self.data)
+        r, s = dsa2.sign(self.data)
         assert dsa2.verify(self.data, r, s)
 
 def suite():
     return unittest.makeSuite(DSATestCase)
-    
+
 
 if __name__ == '__main__':
-    Rand.load_file('randpool.dat', -1) 
+    Rand.load_file('randpool.dat', -1)
     unittest.TextTestRunner().run(suite())
     Rand.save_file('randpool.dat')
-
