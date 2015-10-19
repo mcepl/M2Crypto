@@ -8,7 +8,7 @@
 # support for 'basic' authenticaion.
 
 import base64
-import md5
+import hashlib
 import re
 import string
 import time
@@ -97,7 +97,7 @@ class auth_handler:
 
     def apply_hash(self, s):
         "Apply MD5 to a string <s>, then wrap it in base64 encoding."
-        m = md5.new()
+        m = hashlib.new()
         m.update(s)
         d = m.digest()
         # base64.encodestring tacks on an extra linefeed.

@@ -4,7 +4,7 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-import sha
+import hashlib
 try:
     import unittest2 as unittest
 except ImportError:
@@ -19,8 +19,8 @@ class DSATestCase(unittest.TestCase):
     pubkey = 'tests/dsa.pub.pem'
     param = 'tests/dsa.param.pem'
 
-    data = sha.sha('Can you spell subliminal channel?').digest()
-    different_data = sha.sha('I can spell.').digest()
+    data = hashlib.sha1('Can you spell subliminal channel?').digest()
+    different_data = hashlib.sha1('I can spell.').digest()
 
     def callback(self, *args):
         pass

@@ -5,7 +5,7 @@
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved.
 Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam. All rights reserved.
 """
-import sha
+import hashlib
 try:
     import unittest2 as unittest
 except ImportError:
@@ -19,7 +19,7 @@ class ECDSATestCase(unittest.TestCase):
     privkey = 'tests/ec.priv.pem'
     pubkey = 'tests/ec.pub.pem'
 
-    data = sha.sha('Can you spell subliminal channel?').digest()
+    data = hashlib.sha1('Can you spell subliminal channel?').digest()
 
     def callback(self, *args):
         pass

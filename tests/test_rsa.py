@@ -4,7 +4,8 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-import sha, md5, os, sys
+import hashlib
+import os
 try:
     import unittest2 as unittest
 except ImportError:
@@ -21,7 +22,7 @@ class RSATestCase(unittest.TestCase):
     privkey2 = 'tests/rsa.priv2.pem'
     pubkey = 'tests/rsa.pub.pem'
 
-    data = sha.sha('The magic words are squeamish ossifrage.').digest()
+    data = hashlib.sha1('The magic words are squeamish ossifrage.').digest()
 
     e_padding_ok = ('pkcs1_padding', 'pkcs1_oaep_padding')
 
@@ -133,7 +134,7 @@ class RSATestCase(unittest.TestCase):
     def test_loadpub(self):
         rsa = RSA.load_pub_key(self.pubkey)
         assert len(rsa) == 1024
-        assert rsa.e == '\000\000\000\003\001\000\001' # aka 65537 aka 0xf4
+        assert rsa.e == '\000\000\000\003\001\000\001'  # aka 65537 aka 0xf4
         with self.assertRaises(RSA.RSAError):
             setattr(rsa, 'e', '\000\000\000\003\001\000\001')
         with self.assertRaises(RSA.RSAError):
@@ -187,7 +188,7 @@ class RSATestCase(unittest.TestCase):
             algos['sha512'] = ''
 
         message = "This is the message string"
-        digest = sha.sha(message).digest()
+        digest = hashlib.sha1(message).digest()
         rsa = RSA.load_key(self.privkey)
         rsa2 = RSA.load_pub_key(self.pubkey)
         for algo in algos.keys():
@@ -208,28 +209,23 @@ class RSATestCase(unittest.TestCase):
             our test key limits it.
             """
             message = "This is the message string"
-            if sys.version_info < (2, 5):
-                algos = {'sha1': (43, sha.sha(message).digest()), 
-                         'md5': (47, md5.md5(message).digest())}
-        
-            else:
-                import hashlib
-                algos = {'sha1': 43}
-                if not fips_mode:
-                    algos['md5'] = 47
-                    algos['ripemd160'] = 43
+            import hashlib
+            algos = {'sha1': 43}
+            if not fips_mode:
+                algos['md5'] = 47
+                algos['ripemd160'] = 43
 
-                if m2.OPENSSL_VERSION_NUMBER >= 0x90800F:
-                    algos['sha224'] = 35
-                    algos['sha256'] = 31
-                    algos['sha384'] = 15
-                    algos['sha512'] = 0
+            if m2.OPENSSL_VERSION_NUMBER >= 0x90800F:
+                algos['sha224'] = 35
+                algos['sha256'] = 31
+                algos['sha384'] = 15
+                algos['sha512'] = 0
 
-                for algo, salt_max in algos.iteritems():
-                    h = hashlib.new(algo)
-                    h.update(message)
-                    digest = h.digest()
-                    algos[algo] = (salt_max, digest)
+            for algo, salt_max in algos.iteritems():
+                h = hashlib.new(algo)
+                h.update(message)
+                digest = h.digest()
+                algos[algo] = (salt_max, digest)
 
             rsa = RSA.load_key(self.privkey)
             rsa2 = RSA.load_pub_key(self.pubkey)
@@ -257,7 +253,7 @@ class RSATestCase(unittest.TestCase):
         Testing calling verify with an unsupported message digest algorithm
         """
         rsa = RSA.load_key(self.privkey)
-        message = "This is the message string"
+        #message = "This is the message string"
         digest = 'a' * 16
         signature = rsa.sign(digest, 'sha1')
         with self.assertRaises(ValueError):
@@ -270,9 +266,9 @@ class RSATestCase(unittest.TestCase):
         """
         rsa = RSA.load_key(self.privkey)
         message = "This is the message string"
-        digest = sha.sha(message).digest() 
+        digest = hashlib.sha1(message).digest()
         signature = rsa.sign(digest, 'sha1')
-        rsa2 = RSA.load_pub_key(self.pubkey)
+        #rsa2 = RSA.load_pub_key(self.pubkey)
         with self.assertRaises(RSA.RSAError):
             rsa.verify(digest, signature, 'md5')
 
@@ -296,14 +292,14 @@ class RSATestCase(unittest.TestCase):
         """
         rsa = RSA.load_key(self.privkey)
         message = "This is the message string"
-        digest = sha.sha(message).digest() 
+        digest = hashlib.sha1(message).digest()
 
-        otherMessage = "Abracadabra"
-        otherDigest = sha.sha(otherMessage).digest() 
-        otherSignature = rsa.sign(otherDigest)
+        other_message = "Abracadabra"
+        other_digest = hashlib.sha1(other_message).digest()
+        other_signature = rsa.sign(other_digest)
 
         with self.assertRaises(RSA.RSAError):
-            rsa.verify(digest, otherSignature)
+            rsa.verify(digest, other_signature)
 
 
 def suite():
