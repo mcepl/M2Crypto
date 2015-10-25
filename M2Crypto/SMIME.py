@@ -226,20 +226,26 @@ class SMIME:
             raise SMIME_Error(Err.get_error())
         return blob
 
-    def sign(self, data_bio, flags=0):
-        # type: (BIO.BIO, int) -> PKCS7
+    def sign(self, data_bio, flags=0, algo='sha1'):
+        # type: (BIO.BIO, int, Optional[str]) -> PKCS7
         if not hasattr(self, 'pkey'):
             raise SMIME_Error('no private key: use load_key()')
+
+        hash = getattr(m2, algo, None)
+
+        if hash is None:
+            raise SMIME_Error('no such hash algorithm %s' % algo)
+
         if hasattr(self, 'x509_stack'):
             pkcs7 = m2.pkcs7_sign1(self.x509._ptr(), self.pkey._ptr(),
                                    self.x509_stack._ptr(),
-                                   data_bio._ptr(), flags)
+                                   data_bio._ptr(), hash(), flags)
             if pkcs7 is None:
                 raise SMIME_Error(Err.get_error())
             return PKCS7(pkcs7, 1)
         else:
             pkcs7 = m2.pkcs7_sign0(self.x509._ptr(), self.pkey._ptr(),
-                                   data_bio._ptr(), flags)
+                                   data_bio._ptr(), hash(), flags)
             if pkcs7 is None:
                 raise SMIME_Error(Err.get_error())
             return PKCS7(pkcs7, 1)

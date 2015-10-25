@@ -95,17 +95,31 @@ PyObject *pkcs7_decrypt(PKCS7 *pkcs7, EVP_PKEY *pkey, X509 *cert, int flags) {
 }
 %}
 
-%threadallow pkcs7_sign0;
+%threadallow pkcs7_sign1;
 %inline %{
-PKCS7 *pkcs7_sign0(X509 *x509, EVP_PKEY *pkey, BIO *bio, int flags) {
-    return PKCS7_sign(x509, pkey, NULL, bio, flags);
+PKCS7 *pkcs7_sign1(X509 *x509, EVP_PKEY *pkey, STACK_OF(X509) *stack, BIO *bio, EVP_MD *hash, int flags) {
+
+    PKCS7 *p7 = PKCS7_sign(NULL, NULL, stack, bio, flags | PKCS7_STREAM);
+    if (p7 == NULL) {
+        PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
+    if (PKCS7_sign_add_signer(p7, x509, pkey, hash, flags) == NULL) {
+        PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
+    if (PKCS7_final(p7, bio, flags) != 1) {
+        PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
+    return p7;
 }
 %}
 
-%threadallow pkcs7_sign1;
+%threadallow pkcs7_sign0;
 %inline %{
-PKCS7 *pkcs7_sign1(X509 *x509, EVP_PKEY *pkey, STACK_OF(X509) *stack, BIO *bio, int flags) {
-    return PKCS7_sign(x509, pkey, stack, bio, flags);
+PKCS7 *pkcs7_sign0(X509 *x509, EVP_PKEY *pkey, BIO *bio, EVP_MD *hash, int flags) {
+    return pkcs7_sign1(x509, pkey, NULL, bio, hash, flags);
 }
 %}
 

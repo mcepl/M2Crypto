@@ -67,6 +67,31 @@ class SMIMETestCase(unittest.TestCase):
         s.write(out, p7, BIO.MemoryBuffer(self.cleartext))
         return out
 
+    def test_sign_unknown_digest(self):
+        buf = BIO.MemoryBuffer(self.cleartext)
+        s = SMIME.SMIME()
+        s.load_key('tests/signer_key.pem', 'tests/signer.pem')
+        self.assertRaises(SMIME.SMIME_Error, s.sign,
+                          buf, SMIME.PKCS7_DETACHED, 'invalid digest name')
+
+    def test_sign_nondefault_digest(self):
+        buf = BIO.MemoryBuffer(self.cleartext)
+        s = SMIME.SMIME()
+        s.load_key('tests/signer_key.pem', 'tests/signer.pem')
+        p7 = s.sign(buf, flags=SMIME.PKCS7_DETACHED, algo='sha512')
+        self.assertEqual(p7.type(), SMIME.PKCS7_SIGNED)
+
+    def test_sign_with_stack(self):
+        buf = BIO.MemoryBuffer(self.cleartext)
+        s = SMIME.SMIME()
+        s.load_key('tests/signer_key.pem', 'tests/signer.pem')
+        cert = X509.load_cert('tests/server.pem')
+        stack = X509.X509_Stack()
+        stack.push(cert)
+        s.set_x509_stack(stack)
+        p7 = s.sign(buf, flags=SMIME.PKCS7_DETACHED, algo='sha512')
+        self.assertEqual(p7.type(), SMIME.PKCS7_SIGNED)
+
     def test_store_load_info(self):
         st = X509.X509_Store()
         with self.assertRaises(X509.X509Error):
