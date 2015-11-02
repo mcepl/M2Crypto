@@ -168,7 +168,7 @@ PyObject *pkcs5_pbkdf2_hmac_sha1(PyObject *pass,
                                  PyObject *salt,
                                  int iter,
                                  int keylen) {
-    unsigned char key[EVP_MAX_KEY_LENGTH];
+    unsigned char *key;
     unsigned char *saltbuf;
     char *passbuf;
     PyObject *ret;
@@ -181,10 +181,14 @@ PyObject *pkcs5_pbkdf2_hmac_sha1(PyObject *pass,
                                     &saltlen) == -1)
         return NULL;
 
+    key = PyMem_Malloc(keylen);
+    if (key == NULL)
+	return PyErr_NoMemory();
     PKCS5_PBKDF2_HMAC_SHA1(passbuf, passlen, saltbuf, saltlen, iter,
                            keylen, key);
     ret = PyString_FromStringAndSize((char*)key, keylen);
     OPENSSL_cleanse(key, keylen);
+    PyMem_Free(key);
     return ret;
 }
 
