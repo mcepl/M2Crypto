@@ -244,7 +244,7 @@ class CipherTestCase(unittest.TestCase):
         try:
             for i in ciphers:
                 self.try_algo(i)
-        except ValueError, e:
+        except ValueError as e:
             if str(e) != "('unknown cipher', 'idea_ecb')":
                 raise 
 
@@ -253,7 +253,7 @@ class CipherTestCase(unittest.TestCase):
         try:
             for i in ciphers:
                 self.try_algo(i)
-        except ValueError, e:
+        except ValueError as e:
             if str(e) != "('unknown cipher', 'rc5_ecb')":
                 raise 
 

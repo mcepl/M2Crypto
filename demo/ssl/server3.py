@@ -60,7 +60,7 @@ def do_server_loop(conn):
             if not buf:
                 break
             print buf
-        except SSL.SSLError, what:
+        except SSL.SSLError as what:
             if str(what) == 'unexpected eof':
                 break
             else:

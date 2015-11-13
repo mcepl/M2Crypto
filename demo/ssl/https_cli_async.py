@@ -44,7 +44,7 @@ class https_client(SSL.ssl_dispatcher):
                 display = (time.time(), l, self.path)
                 sys.stdout.write('%14.3f: read %5d from %s\n' % display)
                 sys.stdout.flush()
-        except SSL.SSLError, why:
+        except SSL.SSLError as why:
             print 'handle_read:', why
             self.close()
             raise
@@ -56,7 +56,7 @@ class https_client(SSL.ssl_dispatcher):
         try:
             sent = self.send(self.buffer)
             self.buffer = self.buffer[sent:]
-        except SSL.SSLError, why:
+        except SSL.SSLError as why:
             print 'handle_write:', why
             self.close()
 

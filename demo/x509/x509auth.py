@@ -452,7 +452,7 @@ class CertHandler:
         """
         try:
             PemBaseString = base64.decodestring( InitString )
-        except base64.binascii.Error, msg:
+        except base64.binascii.Error as msg:
             raise base64.binascii.Error( msg )
         try:
             ( Base64Nonce, Base64Cert ) = re.split(':', PemBaseString )
@@ -460,11 +460,11 @@ class CertHandler:
             raise AuthError( 'cannot split PemBaseString into parts - abort!' )
         try:
             NoncePrivEncrypted = base64.decodestring( Base64Nonce )
-        except base64.binascii.Error, msg:
+        except base64.binascii.Error as msg:
             raise base64.binascii.Error( msg )
         try:
             PemCert = base64.decodestring( Base64Cert )
-        except base64.binascii.Error, msg:
+        except base64.binascii.Error as msg:
             raise base64.binascii.Error( msg )
         try:
             X509Cert = M2Crypto.X509.load_cert_string( PemCert )
@@ -567,17 +567,17 @@ class CertHandler:
     def ReplyVerify ( self, ReplyString ):
         try:
             PemBaseString = base64.decodestring( ReplyString )
-        except base64.binascii.Error, msg:
+        except base64.binascii.Error as msg:
             raise base64.binascii.Error( msg )
         ( NoncePubInit, NoncePubBounce ) = re.split(':', PemBaseString )
 
         try:
             NoncePubInit = base64.decodestring( NoncePubInit )      # new Nonce from Remote, encrypted with own publickey
-        except base64.binascii.Error, msg:
+        except base64.binascii.Error as msg:
             raise base64.binascii.Error( msg )
         try:
             NoncePubBounce = base64.decodestring( NoncePubBounce )      # bounced Nonce from Remote, encrypted with Remote privatekey
-        except base64.binascii.Error, msg:
+        except base64.binascii.Error as msg:
             raise base64.binascii.Error( msg )
 
         # verify Nonce from Remote encrypted with my own publickey

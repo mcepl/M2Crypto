@@ -94,7 +94,7 @@ class smimeplus(object):
         _p7, _data = M2Crypto.SMIME.smime_load_pkcs7_bio(self.__pack(smsg))
         try:
             return _sender.verify(_p7, _data, flags=M2Crypto.SMIME.PKCS7_SIGNED)
-        except M2Crypto.SMIME.SMIME_Error, _msg:
+        except M2Crypto.SMIME.SMIME_Error as _msg:
             return None
 
     def encrypt(self, rcert, msg):
@@ -136,7 +136,7 @@ class smimeplus(object):
         # Decrypt p7.
         try:
             return _sender.decrypt(_p7)
-        except M2Crypto.SMIME.SMIME_Error, _msg:
+        except M2Crypto.SMIME.SMIME_Error as _msg:
             return None
 
     def addHeader(self, rcert, content, subject=''):
@@ -160,14 +160,14 @@ class X509_Subject(UserDict.UserDict):
         UserDict.UserDict.__init__(self)
         try:
             _data = substr.strip().split('/')
-        except AttributeError, _msg:
+        except AttributeError as _msg:
             pass
         else:
             for _i in _data:
                 try:
                     _k, _v = _i.split('=')
                     self[_k] = _v
-                except ValueError, _msg:
+                except ValueError as _msg:
                     pass
 
 

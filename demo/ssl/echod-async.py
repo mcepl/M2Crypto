@@ -40,7 +40,7 @@ class ssl_echo_channel(asyncore.dispatcher):
                     self.handle_close()
                 else:
                     self.buffer = self.buffer[n:]
-            except SSL.SSLError, what:
+            except SSL.SSLError as what:
                 if str(what) == 'unexpected eof':
                     self.handle_close()
                     return
@@ -64,7 +64,7 @@ class ssl_echo_channel(asyncore.dispatcher):
                     self.handle_close()
                 else: 
                     self.buffer = self.buffer + blob        
-            except SSL.SSLError, what:
+            except SSL.SSLError as what:
                 if str(what) == 'unexpected eof':
                     self.handle_close()
                     return

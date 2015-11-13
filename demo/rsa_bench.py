@@ -74,7 +74,7 @@ def test(rsa, dgst):
     print '  testing signing and verification...',
     try:
         sig = rsa.sign(dgst)
-    except Exception, e:
+    except Exception as e:
         print '\n\n    *** %s *** \n' % e
         sys.exit()
     if not rsa.verify(dgst, sig):

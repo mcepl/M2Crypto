@@ -18,7 +18,7 @@ errstr = "You must have the openssl 0.9.8 libraries in your LD_LIBRARY_PATH"""
 
 try:
     from M2Crypto import BIO, X509, RSA, EVP, ASN1
-except ImportError, ex: 
+except ImportError as ex:
     if import_regex.match(str(ex)):
         print errstr 
         sys.exit(-1)

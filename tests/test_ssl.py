@@ -386,7 +386,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s = SSL.Connection(ctx)
             try:
                 s.connect(self.srv_addr)
-            except SSL.SSLError, e:
+            except SSL.SSLError as e:
                 self.assertIn(e[0], ['wrong version number', 'unexpected eof'])
             s.close()
         finally:
@@ -436,7 +436,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.set_cipher_list('AES128-SHA')
             try:
                 s.connect(self.srv_addr)
-            except SSL.SSLError, e:
+            except SSL.SSLError as e:
                 self.assertEqual(e[0], 'sslv3 alert handshake failure')
             s.close()
         finally:
@@ -451,7 +451,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.set_cipher_list('EXP-RC2-MD5')
             try:
                 s.connect(self.srv_addr)
-            except SSL.SSLError, e:
+            except SSL.SSLError as e:
                 self.assertEqual(e[0], 'no ciphers available')
             s.close()
         finally:
@@ -535,7 +535,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s = SSL.Connection(ctx)
             try:
                 s.connect(self.srv_addr)
-            except SSL.SSLError, e:
+            except SSL.SSLError as e:
                 assert 0, e
             data = self.http_get(s)
             s.close()
@@ -552,7 +552,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s = SSL.Connection(ctx)
             try:
                 s.connect(self.srv_addr)
-            except SSL.SSLError, e:
+            except SSL.SSLError as e:
                 assert 0, e
             data = self.http_get(s)
             s.close()
@@ -569,7 +569,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s = SSL.Connection(ctx)
             try:
                 s.connect(self.srv_addr)
-            except SSL.SSLError, e:
+            except SSL.SSLError as e:
                 assert 0, e
             data = self.http_get(s)
             s.close()
@@ -586,7 +586,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s = SSL.Connection(ctx)
             try:
                 s.connect(self.srv_addr)
-            except SSL.SSLError, e:
+            except SSL.SSLError as e:
                 assert 0, e
             data = self.http_get(s)
             s.close()
@@ -654,7 +654,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s = SSL.Connection(ctx)
             try:
                 s.connect(self.srv_addr)
-            except SSL.SSLError, e:
+            except SSL.SSLError as e:
                 assert 0, e
             data = self.http_get(s)
             s.close()
@@ -672,7 +672,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s = SSL.Connection(ctx)
             try:
                 s.connect(self.srv_addr)
-            except SSL.SSLError, e:
+            except SSL.SSLError as e:
                 assert 0, e
             data = self.http_get(s)
             s.close()
@@ -689,7 +689,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s = SSL.Connection(ctx)
             try:
                 s.connect(self.srv_addr)
-            except SSL.SSLError, e:
+            except SSL.SSLError as e:
                 assert 0, e
             data = self.http_get(s)
             s.close()
@@ -707,7 +707,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s = SSL.Connection(ctx)
             try:
                 s.connect(self.srv_addr)
-            except SSL.SSLError, e:
+            except SSL.SSLError as e:
                 assert 0, e
             data = self.http_get(s)
             s.close()
@@ -740,7 +740,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s = SSL.Connection(ctx)
             try:
                 s.connect(self.srv_addr)
-            except SSL.SSLError, e:
+            except SSL.SSLError as e:
                 assert 0, e
             data = self.http_get(s)
             s.close()
@@ -760,7 +760,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s = SSL.Connection(ctx)
             try:
                 s.connect(self.srv_addr)
-            except SSL.SSLError, e:
+            except SSL.SSLError as e:
                 assert 0, e
             data = self.http_get(s)
             s.close()
@@ -815,7 +815,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.setblocking(1)
             try:
                 s.connect(self.srv_addr)
-            except SSL.SSLError, e:
+            except SSL.SSLError as e:
                 assert 0, e
             data = self.http_get(s)
             s.close()
@@ -830,7 +830,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s = SSL.Connection(ctx)
             try:
                 s.connect(self.srv_addr)
-            except SSL.SSLError, e:
+            except SSL.SSLError as e:
                 assert 0, e
             bio = s.makefile('rw')
             #s.close()  # XXX bug 6628?
@@ -850,7 +850,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s = SSL.Connection(ctx)
             try:
                 s.connect(self.srv_addr)
-            except SSL.SSLError, e:
+            except SSL.SSLError as e:
                 assert 0, e
             f = s.makefile()
             data = self.http_get(s)

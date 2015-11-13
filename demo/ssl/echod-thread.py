@@ -25,7 +25,7 @@ def echo_handler(sslctx, sock, addr):
             if not buf:
                 break
             sslconn.write(buf) 
-        except SSL.SSLError, what:
+        except SSL.SSLError as what:
             if str(what) == 'unexpected eof':
                 break
             else:

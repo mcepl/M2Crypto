@@ -114,7 +114,7 @@ def build(commands, config):
                         # If tests were killed due to timeout, we may have left
                         # openssl processes running, so try killing
                         zap_servers()
-                    except Exception, e:
+                    except Exception as e:
                         bl.log('*** error: tried to zap_servers: ' + str(e))
             else:
                 status = 'build_failed'

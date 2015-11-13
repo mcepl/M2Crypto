@@ -164,7 +164,7 @@ def test(ec, dgst):
 #        ec = EC.gen_params(EC.NID_secp160r1)
 #        ec.gen_key()
         r,s = ec.sign_dsa(dgst)
-    except Exception, e:
+    except Exception as e:
         print '\n\n    *** %s *** \n' % e
         sys.exit()
     if not ec.verify_dsa(dgst, r, s):

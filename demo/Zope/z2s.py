@@ -749,7 +749,7 @@ try:
                     port=port,
                     resolver=rs,
                     logger_object=lg)
-            except socket.error, why:
+            except socket.error as why:
                 if why[0] == 98: # address in use
                     raise port_err % {'port':port,
                                       'socktype':'TCP',
@@ -822,7 +822,7 @@ try:
                     port=port,
                     resolver=rs,
                     logger_object=lg)
-            except socket.error, why:
+            except socket.error as why:
                 if why[0] == 98: # address in use
                     raise port_err % {'port':port,
                                       'socktype':'TCP',
@@ -893,7 +893,7 @@ try:
                    port=port,
                    resolver=rs,
                    logger_object=lg)
-            except socket.error, why:
+            except socket.error as why:
                 if why[0] == 98: # address in use
                     raise port_err % {'port':port,
                                       'socktype':'TCP',
@@ -928,7 +928,7 @@ try:
                                socket_file=fcgiPath,
                                resolver=rs,
                                logger_object=lg)
-        except socket.error, why:
+        except socket.error as why:
             if why[0] == 98: # address in use
                 raise port_err % {'port':fcgiPort,
                                   'socktype':'TCP',
@@ -955,7 +955,7 @@ try:
                         password=pw,
                         hostname=address,
                         port=port)
-                except socket.error, why:
+                except socket.error as why:
                     if why[0] == 98: # address in use
                         raise port_err % {'port':port,
                                           'socktype':'TCP',
@@ -969,7 +969,7 @@ try:
         for address, port in ICP_PORT:
             try:
                 ICPServer(address,port)
-            except socket.error, why:
+            except socket.error as why:
                 if why[0] == 98: # address in use
                     raise port_err % {'port':port,
                                       'socktype':'UDP',

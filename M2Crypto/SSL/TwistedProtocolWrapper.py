@@ -263,7 +263,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
             encryptedData = self._encrypt(data)
             ProtocolWrapper.write(self, encryptedData)
             self.helloDone = 1
-        except M2Crypto.BIO.BIOError, e:
+        except M2Crypto.BIO.BIOError as e:
             # See http://www.openssl.org/docs/apps/verify.html#DIAGNOSTICS
             # for the error codes returned by SSL_get_verify_result.
             e.args = (m2.ssl_get_verify_result(self.ssl._ptr()), e.args[0])
@@ -305,7 +305,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
 
                 if decryptedData == '' and encryptedData == '':
                     break
-        except M2Crypto.BIO.BIOError, e:
+        except M2Crypto.BIO.BIOError as e:
             # See http://www.openssl.org/docs/apps/verify.html#DIAGNOSTICS
             # for the error codes returned by SSL_get_verify_result.
             e.args = (m2.ssl_get_verify_result(self.ssl._ptr()), e.args[0])
@@ -335,7 +335,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
             encryptedData = self._encrypt(clientHello=1)
             ProtocolWrapper.write(self, encryptedData)
             self.helloDone = 1
-        except M2Crypto.BIO.BIOError, e:
+        except M2Crypto.BIO.BIOError as e:
             # See http://www.openssl.org/docs/apps/verify.html#DIAGNOSTICS
             # for the error codes returned by SSL_get_verify_result.
             e.args = (m2.ssl_get_verify_result(self.ssl._ptr()), e.args[0])

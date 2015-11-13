@@ -31,7 +31,7 @@ class HTTPS_ServerChannel(HTTPServerChannel):
             else:
                 #self.server.bytes_out.increment(result)
                 return result
-        except SSL.SSLError, why:
+        except SSL.SSLError as why:
             self.close()
             self.log_info('send: closing channel %s %s' % (repr(self), why), 'warning')
             return 0
@@ -47,7 +47,7 @@ class HTTPS_ServerChannel(HTTPServerChannel):
             else:
                 #self.server.bytes_in.increment(len(result))
                 return result
-        except SSL.SSLError, why:
+        except SSL.SSLError as why:
             self.close()
             self.log_info('recv: closing channel %s %s' % (repr(self), why), 'warning')
             return ''
