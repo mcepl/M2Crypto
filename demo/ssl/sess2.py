@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 """M2Crypto.SSL.Session client demo2: This program creates two sockets, each
 bound to a different local address. The first creates an SSL connection, the
 second then creates another SSL connection using the first's SSL session id.
@@ -36,7 +38,7 @@ def handler(addr, sslctx, host, port, req, sslsess=None):
     if addr != ADDR2:
         thr = Thread(target=handler, 
                     args=(ADDR2, sslctx, host, port, req, sslsess))
-        print "Thread =", thr.getName()
+        print("Thread =", thr.getName())
         thr.start()
 
     s.close()
@@ -68,7 +70,7 @@ if __name__ == '__main__':
     req = 'GET %s HTTP/1.0\r\n\r\n' % req
 
     start = Thread(target=handler, args=(ADDR1, ctx, host, port, req))
-    print "Thread =", start.getName()
+    print("Thread =", start.getName())
     start.start()
     start.join()
     

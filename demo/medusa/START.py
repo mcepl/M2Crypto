@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 # Standard Python library
 import os
 import os.path
@@ -49,7 +51,7 @@ hss.install_handler(dh)
 
 #class rpc_demo (xmlrpc_handler.xmlrpc_handler):
 #    def call (self, method, params):
-#        print 'method="%s" params=%s' % (method, params)
+#        print('method="%s" params=%s' % (method, params))
 #        return "Sure, that works"
 #rpch = rpc_demo()
 #hs.install_handler(rpch)

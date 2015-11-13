@@ -5,6 +5,8 @@
 
 # Based on "xmlrpcserver.py" by Fredrik Lundh (fredrik@pythonware.com)
 
+from __future__ import print_function
+
 VERSION = "$Id$"
 
 import http_server
@@ -91,7 +93,7 @@ if __name__ == '__main__':
 	class rpc_demo (xmlrpc_handler):
 		
 		def call (self, method, params):
-			print 'method="%s" params=%s' % (method, params)
+			print('method="%s" params=%s' % (method, params))
 			return "Sure, that works"
 
 	import asyncore

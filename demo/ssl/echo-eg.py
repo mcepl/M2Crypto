@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """Demo SSL client #1 for the HOWTO.
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
@@ -28,11 +30,11 @@ ctx.set_info_callback()
 
 s = SSL.Connection(ctx)
 s.connect((host, port))
-print 'Host =', gethostname()
-print 'Cipher =', s.get_cipher().name()
+print('Host =', gethostname())
+print('Cipher =', s.get_cipher().name())
 
 peer = s.get_peer_cert()
-print 'Server =', peer.get_subject().CN
+print('Server =', peer.get_subject().CN)
 
 while 1:
     data = s.recv()

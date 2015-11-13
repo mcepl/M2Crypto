@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """An M2Crypto implementation of OpenSSL's s_server.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
@@ -94,9 +96,9 @@ class channel(SSL.ssl_dispatcher):
 
     def handle_error(self, exc_type, exc_value, exc_traceback):
         if self.debug:
-            print 'handle_error()'
-        #print exc_type, exc_value, exc_traceback
-        print Err.get_error()
+            print('handle_error()')
+        #print(exc_type, exc_value, exc_traceback)
+        print(Err.get_error())
         self.handle_close()
 
 
@@ -112,7 +114,7 @@ class channel(SSL.ssl_dispatcher):
         else:
             self.buffer=self.buffer[n:]
         if self.debug:
-            print 'handle_write():', n
+            print('handle_write():', n)
 
     def readable(self):
         return 1
@@ -126,7 +128,7 @@ class channel(SSL.ssl_dispatcher):
         else: 
             pass
         if self.debug:
-            print 'handle_read():', blob
+            print('handle_read():', blob)
 
 
 class server(SSL.ssl_dispatcher):
@@ -146,11 +148,11 @@ class server(SSL.ssl_dispatcher):
 
     def handle_accept(self):
         sock, addr=self.accept()
-        print self.ssl_ctx.get_verify_mode()
+        print(self.ssl_ctx.get_verify_mode())
         if (self.ssl_ctx.get_verify_mode() is SSL.verify_none) or sock.verify_ok():
             self.channel_class(sock, self.debug)
         else:
-            print 'client verification failed'
+            print('client verification failed')
             sock.close()
 
     def writeable(self):

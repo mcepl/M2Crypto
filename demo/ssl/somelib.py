@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 """
 Sample 3rd party lib to use with socklib and myapp.
 
@@ -17,5 +19,5 @@ class HttpsGetSlash(object):
         self.socket.connect((host, port))
         ssl_sock = socket.ssl(self.socket)
         ssl_sock.write('GET / HTTP/1.0\n\n')
-        print ssl_sock.read()
+        print(ssl_sock.read())
         self.socket.close()

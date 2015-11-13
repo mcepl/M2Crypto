@@ -2,6 +2,7 @@
 #
 #vim: ts=4 sw=4 nowrap
 #
+from __future__ import print_function
 
 """PKI demo by Peter Teniz <peter.teniz@inverisa.net>"""
 
@@ -71,7 +72,7 @@ class Cert:
 
 		self.X509Request.set_pubkey ( pkey=self.PKey )
 		self.X509Request.sign ( pkey=self.PKey, md='sha1' )
-		#print X509Request.as_text ()
+		#print(X509Request.as_text ())
 
 
 
@@ -119,8 +120,8 @@ class Cert:
 
 		X509Name = self.X509Request.get_subject ()
 
-		#print X509Name.entry_count ()
-		#print X509Name.as_text ()
+		#print(X509Name.entry_count ())
+		#print(X509Name.as_text ())
 
 		self.X509Certificate.set_subject_name( X509Name )
 
@@ -139,8 +140,8 @@ class Cert:
 		X509Name.add_entry_by_txt ( field='Email',        type=MBSTRING_ASC, entry='admin@localhost',       len=-1, loc=-1, set=0 )    # pkcs9 email address
 		X509Name.add_entry_by_txt ( field='emailAddress', type=MBSTRING_ASC, entry='admin@localhost',       len=-1, loc=-1, set=0 )    # pkcs9 email address     
 
-		#print X509Name.entry_count ()
-		#print X509Name.as_text ()
+		#print(X509Name.entry_count ())
+		#print(X509Name.as_text ())
 
 		self.X509Certificate.set_issuer_name( X509Name )
 
@@ -149,7 +150,7 @@ class Cert:
 		#
 
 		self.X509Certificate.sign( pkey=self.PKey, md='sha1' )
-		print self.X509Certificate.as_text ()
+		print(self.X509Certificate.as_text ())
 
 
 

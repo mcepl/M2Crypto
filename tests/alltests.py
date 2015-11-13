@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 def suite():
     from M2Crypto import m2
     import os
@@ -56,20 +58,20 @@ def suite():
 
 def dump_garbage():
     import gc
-    print '\nGarbage:'
+    print('\nGarbage:')
     gc.collect()
     if len(gc.garbage):
     
-        print '\nLeaked objects:'
+        print('\nLeaked objects:')
         for x in gc.garbage:
             s = str(x)
             if len(s) > 77: s = s[:73]+'...'
-            print type(x), '\n  ', s
+            print(type(x), '\n  ', s)
     
-        print 'There were %d leaks.' % len(gc.garbage)
+        print('There were %d leaks.' % len(gc.garbage))
     else:
-        print 'Python garbage collector did not detect any leaks.'
-        print 'However, it is still possible there are leaks in the C code.'
+        print('Python garbage collector did not detect any leaks.')
+        print('However, it is still possible there are leaks in the C code.')
 
 
 def runall(report_leaks=0):

@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """S/MIME demo.
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
@@ -40,7 +42,7 @@ def decrypt_verify(p7file, recip_key, signer_cert, ca_cert):
         # M2Crypto's sendsmime.py opaque-signs, when also encrypting.
         data = s.verify(p7)
 
-    print data
+    print(data)
 
 
 if __name__ == '__main__':

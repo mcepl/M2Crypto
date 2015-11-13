@@ -5,6 +5,8 @@
 #						 All Rights Reserved.
 #
 
+from __future__ import print_function
+
 import re
 import string
 
@@ -87,7 +89,7 @@ class put_collector:
 			self.file.close()
 
 			if chunk != ld:
-				print 'orphaned %d bytes: <%s>' % (ld - chunk, repr(data[chunk:]))
+				print('orphaned %d bytes: <%s>' % (ld - chunk, repr(data[chunk:])))
 
 			# do some housekeeping
 			r = self.request

@@ -14,6 +14,8 @@
 
 # Trimmed down for M2Crypto build purposes
 
+from __future__ import print_function
+
 import os, sys
 import glob
 import fnmatch
@@ -96,7 +98,7 @@ def runCommand(cmd, env=None, timeout=-1, logger=log, ignorepreexec=False):
 
         Interleaved stdout and stderr messages:
 
-        >>> runCommand(['python', '-c', r'print 1;import sys;sys.stdout.flush();print >>sys.stderr, 2;print 3'])
+        >>> runCommand(['python', '-c', r'print(1);import sys;sys.stdout.flush();print(2, file=sys.stderr);print(3)'])
         1
         2
         3
@@ -104,7 +106,7 @@ def runCommand(cmd, env=None, timeout=-1, logger=log, ignorepreexec=False):
 
         Now with timeout:
 
-        >>> runCommand(['python', '-c', r'print 1;import sys;sys.stdout.flush();print >>sys.stderr, 2;print 3'], timeout=5)
+        >>> runCommand(['python', '-c', r'print(1);import sys;sys.stdout.flush();print(2, file=sys.stderr);print(3)'], timeout=5)
         1
         2
         3
@@ -112,7 +114,7 @@ def runCommand(cmd, env=None, timeout=-1, logger=log, ignorepreexec=False):
 
         Setting environment variable:
 
-        >>> runCommand(['python', '-c', 'import os;print os.getenv("ENVTEST")'], env={'ENVTEST': '42'})
+        >>> runCommand(['python', '-c', 'import os;print(os.getenv("ENVTEST")'], env={'ENVTEST': '42'}))
         42
         0
 

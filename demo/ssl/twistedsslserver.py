@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+
+from __future__ import print_function
+
 """
 Demonstrates M2Crypto.SSL.TwistedProtocolWrapper
 
@@ -15,11 +18,11 @@ import twisted.python.log as log
 
 class Echo(protocol.Protocol):
     def dataReceived(self, data):
-        print 'received: "%s"' % data
+        print('received: "%s"' % data)
         self.transport.write(data)
 
     def connectionMade(self):
-        print 'connection made'
+        print('connection made')
 
 
 class ContextFactory:

@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """DSA demonstration.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
@@ -13,21 +15,21 @@ dgst=md.digest()
 d=DSA.load_key('dsatest.pem')
 
 def test():
-    print 'testing signing...',
+    print('testing signing...', end=' ')
     r,s=d.sign(dgst)
     if not d.verify(dgst, r, s):
-        print 'not ok'
+        print('not ok')
     else:
-        print 'ok'
+        print('ok')
 
 def test_asn1():
     # XXX Randomly fails: bug in there somewhere... (0.9.4)
-    print 'testing asn1 signing...',
+    print('testing asn1 signing...', end=' ')
     blob=d.sign_asn1(dgst)
     if not d.verify_asn1(dgst, blob):
-        print 'not ok'
+        print('not ok')
     else:
-        print 'ok'
+        print('ok')
 
 def speed():
     from time import time
@@ -36,14 +38,14 @@ def speed():
     t1 = time()
     for i in range(N1):
         r,s = d.sign(dgst)
-    print '%d signings: %8.2fs' % (N1, (time() - t1))
+    print('%d signings: %8.2fs' % (N1, (time() - t1)))
     t1 = time()
     for i in range(N2):
         d.verify(dgst, r, s)
-    print '%d verifications: %8.2fs' % (N2, (time() - t1))
+    print('%d verifications: %8.2fs' % (N2, (time() - t1)))
         
 def test_speed():
-    print 'measuring speed...'
+    print('measuring speed...')
     import profile
     profile.run('speed()')
 

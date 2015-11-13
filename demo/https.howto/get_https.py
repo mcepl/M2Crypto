@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+
+from __future__ import print_function
+
 """Demonstrations of M2Crypto.httpslib.
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved.
@@ -23,7 +26,7 @@ def get_https():
         data = resp.read()
         if not data: 
             break
-        print data
+        print(data)
     h.close()
 
 Rand.load_file('../randpool.dat', -1) 

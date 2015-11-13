@@ -1,4 +1,7 @@
 #!/usr/local/bin/python -O
+
+from __future__ import print_function
+
 """
    Implements a [hopefully] non-blocking SSL dispatcher on top of
    M2Crypto package.
@@ -149,18 +152,18 @@ class dispatcher(asyncore.dispatcher_with_send):
         """Invoked on SSL connection establishment (whilst
            in client mode)
         """
-        print 'Unhandled handle_ssl_connect()'
+        print('Unhandled handle_ssl_connect()')
 
     def handle_ssl_accept(self):
         """Invoked on SSL connection establishment (whilst
            in server mode)
         """
-        print 'Unhandled handle_ssl_accept()'
+        print('Unhandled handle_ssl_accept()')
         
     def handle_ssl_read(self, data):
         """Invoked on new data arrival to SSL connection
         """
-        print 'Unhandled handle_ssl_read event'
+        print('Unhandled handle_ssl_read event')
 
     def handle_ssl_close(self):
         """Invoked on SSL connection termination
@@ -182,7 +185,7 @@ if __name__=='__main__':
             dispatcher.__init__(self, cert, key)
             
         def handle_ssl_read(self, data):
-            print data            
+            print(data)
             self.ssl_write('test write')
 
     ssl = client('test.cert', 'test.key')

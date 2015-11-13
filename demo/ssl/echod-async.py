@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """An asyncore-based SSL 'echo' server.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
@@ -90,10 +92,10 @@ class ssl_echo_server(SSL.ssl_dispatcher):
             sock, addr = self.socket.accept()
             self.channel_class(sock)
         except:
-            print '-'*40
+            print('-' * 40)
             import traceback
             traceback.print_exc()
-            print '-'*40
+            print('-' * 40)
             return
 
     def writable(self):

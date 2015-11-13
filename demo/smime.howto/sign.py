@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """S/MIME HOWTO demo program.
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
@@ -30,7 +32,7 @@ out.write('To: recipient@example.dom\n')
 out.write('Subject: M2Crypto S/MIME testing\n')
 s.write(out, p7, buf)
 
-print out.read()
+print(out.read())
 
 # Save the PRNG's state.
 Rand.save_file('randpool.dat')

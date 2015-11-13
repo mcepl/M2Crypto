@@ -14,6 +14,8 @@
 # opening files for reading, and listing directories, should
 # return a producer.
 
+from __future__ import print_function
+
 class abstract_filesystem:
 	def __init__ (self):
 		pass
@@ -273,7 +275,7 @@ if os.name == 'posix':
 # 				return list_producer (os.listdir (p), 0, None)
 # 			else:
 # 				command = '/bin/ls -l %s' % p
-# 				print 'opening pipe to "%s"' % command
+# 				print('opening pipe to "%s"' % command)
 # 				fd = os.popen (command, 'rt')
 # 				return pipe_channel (fd)
 #
@@ -290,14 +292,14 @@ if os.name == 'posix':
 # 		def handle_read (self):
 # 			if len (self.data) < self.buffer_size:
 # 				self.data = self.data + self.fd.read (self.buffer_size)
-# 			#print '%s.handle_read() => len(self.data) == %d' % (self, len(self.data))
+# 			#print('%s.handle_read() => len(self.data) == %d' % (self, len(self.data)))
 #
 # 		def handle_expt (self):
-# 			#print '%s.handle_expt()' % self
+# 			#print('%s.handle_expt()' % self)
 # 			self.done = 1
 #
 # 		def ready (self):
-# 			#print '%s.ready() => %d' % (self, len(self.data))
+# 			#print('%s.ready() => %d' % (self, len(self.data)))
 # 			return ((len (self.data) > 0) or self.done)
 #
 # 		def more (self):
@@ -310,7 +312,7 @@ if os.name == 'posix':
 # 				r = ''
 # 			else:
 # 				r = None
-# 			#print '%s.more() => %s' % (self, (r and len(r)))
+# 			#print('%s.more() => %s' % (self, (r and len(r))))
 # 			return r
 
 # For the 'real' root, we could obtain a list of drives, and then

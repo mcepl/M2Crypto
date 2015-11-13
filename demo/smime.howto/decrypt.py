@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """S/MIME HOWTO demo program.
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
@@ -18,5 +20,5 @@ p7, data = SMIME.smime_load_pkcs7('encrypt.p7')
 # Decrypt p7.
 out = s.decrypt(p7)
     
-print out
+print(out)
 

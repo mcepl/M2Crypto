@@ -6,6 +6,9 @@
 # XXX license TBD; should be Zope 3's ZPL, I just haven't read thru that.
 #
 ##############################################################################
+
+from __future__ import print_function
+
 """HTTPS Server that uses the Zope Publisher for executing a task.
 
 $Id$
@@ -76,8 +79,8 @@ class PMDBHTTPS_Server(PublisherHTTPS_Server):
             publish(request, handle_errors=False)
         except:
             import sys, pdb
-            print "%s:" % sys.exc_info()[0]
-            print sys.exc_info()[1]
+            print("%s:" % sys.exc_info()[0])
+            print(sys.exc_info()[1])
             pdb.post_mortem(sys.exc_info()[2])
             raise
 

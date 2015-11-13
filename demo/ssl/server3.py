@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+
+from __future__ import print_function
+
 """
 server3 from the book 'Network Security with OpenSSL', but modified to
 Python/M2Crypto from the original C implementation.
@@ -14,7 +17,7 @@ verbose_debug = 1
 
 def verify_callback(ok, store):
     if not ok:
-        print "***Verify Not ok"
+        print("***Verify Not ok")
     return ok
 
 dh1024 = None
@@ -32,9 +35,9 @@ def tmp_dh_callback(ssl, is_export, keylength):
 def setup_server_ctx():
     ctx = SSL.Context('sslv23')
     if ctx.load_verify_locations('ca.pem') != 1:
-        print "***No CA file"
+        print("***No CA file")
     #if ctx.set_default_verify_paths() != 1:
-    #    print "***No default verify paths"
+    #    print("***No default verify paths")
     ctx.load_cert_chain('server.pem')
     ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert,
                    10, verify_callback)
@@ -42,14 +45,14 @@ def setup_server_ctx():
     ctx.set_tmp_dh_callback(tmp_dh_callback)
     #ctx.set_tmp_dh('dh1024.pem')
     if ctx.set_cipher_list('ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH') != 1:
-        print "***No valid ciphers"
+        print("***No valid ciphers")
     if verbose_debug:
         ctx.set_info_callback()
     return ctx
 
 def post_connection_check(peerX509, expectedHost):
     if peerX509 is None:
-        print "***No peer certificate"
+        print("***No peer certificate")
     # Not sure if we can do any other checks
     return 1
 
@@ -59,7 +62,7 @@ def do_server_loop(conn):
             buf = conn.read()
             if not buf:
                 break
-            print buf
+            print(buf)
         except SSL.SSLError as what:
             if str(what) == 'unexpected eof':
                 break
@@ -87,12 +90,12 @@ def server_thread(ctx, sock, addr):
     
     post_connection_check(conn)
 
-    print 'SSL Connection opened'
+    print('SSL Connection opened')
     if do_server_loop(conn):
         conn.close()
     else:
         conn.clear()
-    print 'SSL Connection closed'        
+    print('SSL Connection closed')
     
 
 if __name__=='__main__':

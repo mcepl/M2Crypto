@@ -12,6 +12,8 @@
 #   ReadEvent
 #   WriteEvent
 #
+from __future__ import print_function
+
 import sys, re, time, thread, os
 import getopt
 import exceptions
@@ -188,7 +190,7 @@ class CertHandler:
         self.CurrentObj['RsaPKey'] = M2Crypto.RSA.gen_key( RsaKeyParams['KeyLength'], RsaKeyParams['PubExponent'], RsaKeyParams['keygen_callback'] )
         self.CurrentObj['EvpPKey'] = M2Crypto.EVP.PKey ( md=self.Params['Digest'] )
         self.CurrentObj['EvpPKey'].assign_rsa ( self.CurrentObj['RsaPKey'] )
-        #print self.EvpPKey
+        #print(self.EvpPKey)
 
 
     def CreateCert ( self, SignEvpPKey=None ):
@@ -231,7 +233,7 @@ class CertHandler:
         self.CreateReq ( SignEvpPKey=self.ObjMap['CA']['EvpPKey'] )
         # new certification
         if not self.Req2Cert ( SignEvpPKey=self.ObjMap['CA']['EvpPKey'] ):
-            print "300 error occured while verifying - abort!"
+            print("300 error occured while verifying - abort!")
         # shipout x509 certification
         self.DumpOutInternalPemRepr( ObjName=ObjName )
 
@@ -311,7 +313,7 @@ class CertHandler:
 
     def ShowX509CertIssuer ( self, File=None ):
         IssuerName = self.CurrentObj['X509Cert'].get_issuer ()
-        print IssuerName.print_ex ()
+        print(IssuerName.print_ex ())
 
     def ShowX509CertSubject ( self, File=None ):
         Subject = self.CurrentObj['X509Cert'].get_subject ()
@@ -343,7 +345,7 @@ class CertHandler:
 
     def X509Cert2PemRepr ( self, File=None ):
         PemCert = self.CurrentObj['X509Cert'].repr_cert_pem ()
-        #print PemCert
+        #print(PemCert)
         PemCertList = re.split('[\n\r]', PemCert)
         if File:
             open( File, 'a').write("\t\t\t\t\t\t\t\t'X509Cert'  : %s\n" % ( repr(PemCertList[1:-2]) ))
@@ -622,23 +624,23 @@ class CertHandler:
         ( ServerInitNonce, ServerInitString ) = self.ServerInit ( ClientObjName=ClientObjName, ClientNonce=ClientSendNonce )
         ( ServerSendNonce, ClientBounceNonce, ServerObjName )    = self.ServerInitVerify ( InitString=ServerInitString )
         if ClientInitNonce == ClientBounceNonce :
-            print '100 Test  Nonce bounced True'
+            print('100 Test  Nonce bounced True')
         else:
-            print '100 Test  Nonce bounced False - abort!'
+            print('100 Test  Nonce bounced False - abort!')
 
         ( ReplyInitNonce, ReplyInitString )   = self.ReplyInit ( ReplyObjName=ClientObjName, ReplyBounce=ServerSendNonce )
         ( ReplySendNonce, NonceBounced )      = self.ReplyVerify ( ReplyString=ReplyInitString )
         if ServerInitNonce == NonceBounced :
-            print '100 Test  Nonce bounced True'
+            print('100 Test  Nonce bounced True')
         else:
-            print '100 Test  Nonce bounced False - abort!'
+            print('100 Test  Nonce bounced False - abort!')
 
         ( Reply2InitNonce, Reply2InitString )   = self.ReplyInit ( ReplyObjName=ClientObjName, ReplyBounce=ServerSendNonce )
         ( Reply2SendNonce, Nonce2Bounced )      = self.ReplyVerify ( ReplyString=Reply2InitString )
         if ServerInitNonce == Nonce2Bounced :
-            print '100 Test  Nonce bounced True'
+            print('100 Test  Nonce bounced True')
         else:
-            print '100 Test  Nonce bounced False - abort!'
+            print('100 Test  Nonce bounced False - abort!')
 
         #self.NonceEncryptPrivate ()
         #self.NonceDecryptPublic ()

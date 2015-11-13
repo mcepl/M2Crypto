@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 """M2Crypto support for Python 1.5.2 and Python 2.x's httplib. 
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
@@ -102,7 +104,7 @@ elif sys.version[:3] == '1.5':
                         raise socket.error("nonnumeric port")
             if not port: port = HTTPS_PORT
             self.sock = SSL.Connection(self.ssl_ctx)
-            if self.debuglevel > 0: print 'connect:', (host, port)
+            if self.debuglevel > 0: print('connect:', (host, port))
             self.sock.connect((host, port))
 
 # ISS Added.
@@ -257,7 +259,7 @@ class HTTPSProxyConnection(HTTPProxyConnection):
            # Fake the socket
            ssl = socket.ssl(self.sock, self.key_file, self.cert_file)
            self.sock = FakeSocket(self.sock, ssl)
-        if self.debuglevel > 0: print 'socket type:', self.sock
+        if self.debuglevel > 0: print('socket type:', self.sock)
 
     def putrequest(self, method, url):
         """Send a request to the server.

@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """ECDH demonstration.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
@@ -10,19 +12,19 @@ All rights reserved."""
 from M2Crypto import EC,Rand
 
 def test():
-    print 'generating ec keys:'
+    print('generating ec keys:')
     a=EC.gen_params(EC.NID_sect233k1)
     a.gen_key()
     b=EC.gen_params(EC.NID_sect233k1)
     b.gen_key()
     a_shared_key = a.compute_dh_key(b.pub())
     b_shared_key = b.compute_dh_key(a.pub())
-    print 'shared key according to a = ', `a_shared_key`
-    print 'shared key according to b = ', `b_shared_key`
+    print('shared key according to a = ', `a_shared_key`)
+    print('shared key according to b = ', `b_shared_key`)
     if a_shared_key == b_shared_key:
-        print 'ok'
+        print('ok')
     else:
-        print 'not ok'
+        print('not ok')
 
 
 if __name__=='__main__':

@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """
     RSA signing demo and benchmark.
 
@@ -20,7 +22,6 @@
     (OSAF) are Copyright (C) 2004 OSAF. All Rights Reserved.
 
 """
-
 from M2Crypto import RSA, EVP, Rand
 from M2Crypto.EVP import MessageDigest
 import sys, base64
@@ -71,44 +72,44 @@ N1 = N2  = 100
 # functions
 
 def test(rsa, dgst):
-    print '  testing signing and verification...',
+    print('  testing signing and verification...', end=' ')
     try:
         sig = rsa.sign(dgst)
     except Exception as e:
-        print '\n\n    *** %s *** \n' % e
+        print('\n\n    *** %s *** \n' % e)
         sys.exit()
     if not rsa.verify(dgst, sig):
-        print 'not ok'
+        print('not ok')
     else:
-        print 'ok'
+        print('ok')
 
 def test_asn1(rsa, dgst):
-    print '  testing asn1 signing and verification...',
+    print('  testing asn1 signing and verification...', end=' ')
     blob = rsa.sign_asn1(dgst)
     if not rsa.verify_asn1(dgst, blob):
-        print 'not ok'
+        print('not ok')
     else:
-        print 'ok'
+        print('ok')
 
 def speed():
     from time import time
     t1 = time()
     for i in range(N1):
         sig = rsa.sign(dgst)
-    print '    %d signings:      %8.2fs' % (N1, (time() - t1))
+    print('    %d signings:      %8.2fs' % (N1, (time() - t1)))
     t1 = time()
     for i in range(N2):
         rsa.verify(dgst, sig)
-    print '    %d verifications: %8.2fs' % (N2, (time() - t1))
+    print('    %d verifications: %8.2fs' % (N2, (time() - t1)))
         
 def test_speed(rsa, dgst):
-    print '  measuring speed...'
+    print('  measuring speed...')
     if showprofile:
         import profile
         profile.run('speed()')
     else:
         speed()
-        print
+        print()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -121,14 +122,14 @@ def main(keylen, hashalg):
     pubkeyfilename = 'rsa%dpubkey.pem' % (keylen)  
     
     if makenewkey:
-        print '  making and saving a new key'
+        print('  making and saving a new key')
         rsa = RSA.gen_key(keylen, exponent)
         rsa.save_key(pvtkeyfilename, None )  # no pswd callback
         rsa.save_pub_key(pubkeyfilename)
     else:
-        print '  loading an existing key'
+        print('  loading an existing key')
         rsa = RSA.load_key(pvtkeyfilename)
-    print '  rsa key length:', len(rsa)
+    print('  rsa key length:', len(rsa))
     
     if not rsa.check_key():
         raise 'key is not initialised'
@@ -138,9 +139,9 @@ def main(keylen, hashalg):
     md = EVP.MessageDigest(hashalg)
     md.update('can you spell subliminal channel?')
     dgst = md.digest()
-    print '  hash algorithm: %s' % hashalg
+    print('  hash algorithm: %s' % hashalg)
     if showdigest:
-        print '  %s digest: \n%s' % (hashalg, base64.encodestring(dgst))
+        print('  %s digest: \n%s' % (hashalg, base64.encodestring(dgst)))
     
     test(rsa, dgst)
 #    test_asn1(rsa, dgst)
@@ -150,13 +151,13 @@ def main(keylen, hashalg):
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def print_usage():
-    print """
+    print("""
   Usage:  python -O %s [option option option ...]
     where options may include:
       makenewkey  showdigest  showprofile
       md5  sha1  sha256  sha512
       <key length>
-""" % sys.argv[0]
+""" % sys.argv[0])
     sys.exit()
 
 # --------------------------------------------------------------
@@ -172,7 +173,7 @@ if __name__=='__main__':
         try:
             keylen = int(arg)
         except:
-            print '\n  *** argument "%s" not understood ***' % arg
+            print('\n  *** argument "%s" not understood ***' % arg)
             print_usage()
         
     main(keylen, hashalg)

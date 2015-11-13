@@ -224,7 +224,7 @@ header: Content-Length: 535
 &gt;&gt;&gt; while 1:
 ...     data = u.read()
 ...     if not data: break
-...     print data
+...     print(data)
 ... 
 </pre>
 <pre class="literal-block">
@@ -255,7 +255,7 @@ header: Content-Length: 535
 <pre class="doctest-block">
 &gt;&gt;&gt; from M2Crypto.m2xmlrpclib import Server, SSL_Transport
 &gt;&gt;&gt; zs = Server('https://127.0.0.1:9443/', SSL_Transport())
-&gt;&gt;&gt; print zs.propertyMap()
+&gt;&gt;&gt; print(zs.propertyMap())
 [{'type': 'string', 'id': 'title', 'mode': 'w'}]
 &gt;&gt;&gt; 
 </pre>

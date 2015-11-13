@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """Unit tests for M2Crypto.SSL.
 
 Copyright (c) 2000-2004 Ng Pheng Siong. All rights reserved.
@@ -422,7 +424,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
                 self.assertRaises(SSL.SSLError, s.connect, self.srv_addr)
             s.close()
         except Exception as ex:
-            print('Caught exception %s' % ex)
+            print(('Caught exception %s' % ex))
             raise
         finally:
             self.stop_server(pid)

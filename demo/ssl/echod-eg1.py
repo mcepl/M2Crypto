@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """Demo SSL server #1 for the HOWTO.
 
 Copyright (c) 1999-2001 Ng Pheng Siong. All rights reserved."""
@@ -24,8 +26,8 @@ class ssl_echo_handler(SocketServer.BaseRequestHandler):
     def handle(self):
         peer = self.request.get_peer_cert()
         if peer is not None:
-            print 'Client CA        =', peer.get_issuer().O
-            print 'Client Subject   =', peer.get_subject().CN
+            print('Client CA        =', peer.get_issuer().O)
+            print('Client Subject   =', peer.get_subject().CN)
         self.request.write(self.buffer)
         while 1:
             buf = self.request.read()

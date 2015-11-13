@@ -6,6 +6,9 @@
 # XXX license TBD; should be Zope 3's ZPL, I just haven't read thru that.
 #
 ##############################################################################
+
+from __future__ import print_function
+
 """HTTPS Server
 
 This is a HTTPS version of HTTPServer.
@@ -100,5 +103,5 @@ if __name__ == '__main__':
             asyncore.poll(5)
 
     except KeyboardInterrupt:
-        print 'shutting down...'
+        print('shutting down...')
         td.shutdown()

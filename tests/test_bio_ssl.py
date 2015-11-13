@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import print_function
+
 """Unit tests for M2Crypto.BIO.File.
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
@@ -44,7 +46,7 @@ class HandshakeClient(threading.Thread):
             if ret <= 0: 
                 if not sslbio.should_retry() or not sslbio.should_read():
                     err_string = Err.get_error() 
-                    print err_string
+                    print(err_string)
                     sys.exit("unrecoverable error in handshake - client")
                 else:
                      output_token  = writebio.read()

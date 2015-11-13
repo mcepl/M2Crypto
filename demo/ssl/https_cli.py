@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """Demonstrations of M2Crypto.httpslib.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
@@ -30,7 +32,7 @@ def test_httpslib():
         data = resp.read(4096)
         if not data: break
         c = c + len(data)
-        #print data
+        #print(data)
         sys.stdout.write(data)
         sys.stdout.flush()
     f.close()

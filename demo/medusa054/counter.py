@@ -6,11 +6,13 @@
 # user.  Note that the __str__ method can be relied on for printing out
 # the value of a counter:
 #
-# >>> print 'Total Client: %s' % self.total_clients
+# >>> print('Total Client: %s' % self.total_clients)
 #
 # If you need to do arithmetic with the value, then use the 'as_long'
 # method, the use of long arithmetic is a reminder that the counter
 # will overflow.
+
+from __future__ import print_function
 
 class counter:
     "general-purpose counter"

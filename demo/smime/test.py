@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """S/MIME demo.
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
@@ -24,7 +26,7 @@ def makebuf():
     return buf
 
 def sign():
-    print 'test sign & save...',
+    print('test sign & save...', end=' ')
     buf = makebuf()
     s = SMIME.SMIME()
     s.load_key('client.pem')
@@ -45,10 +47,10 @@ def sign():
     out.write('Subject: testing\n')
     s.write(out, p7)
     out.close()
-    print 'ok'
+    print('ok')
 
 def verify_clear():
-    print 'test load & verify clear...',
+    print('test load & verify clear...', end=' ')
     s = SMIME.SMIME()
     x509 = X509.load_cert('client.pem')
     sk = X509.X509_Stack()
@@ -60,12 +62,12 @@ def verify_clear():
     p7, data = SMIME.smime_load_pkcs7('clear.p7')
     v = s.verify(p7, data)
     if v:
-        print 'ok'
+        print('ok')
     else:
-        print 'not ok'
+        print('not ok')
     
 def verify_opaque():
-    print 'test load & verify opaque...',
+    print('test load & verify opaque...', end=' ')
     s = SMIME.SMIME()
     x509 = X509.load_cert('client.pem')
     sk = X509.X509_Stack()
@@ -77,12 +79,12 @@ def verify_opaque():
     p7, data = SMIME.smime_load_pkcs7('opaque.p7')
     v = s.verify(p7, data)
     if v:
-        print 'ok'
+        print('ok')
     else:
-        print 'not ok'
+        print('not ok')
     
 def verify_netscape():
-    print 'test load & verify netscape messager output...',
+    print('test load & verify netscape messager output...', end=' ')
     s = SMIME.SMIME()
     #x509 = X509.load_cert('client.pem')
     sk = X509.X509_Stack()
@@ -93,11 +95,11 @@ def verify_netscape():
     s.set_x509_store(st)
     p7, data = SMIME.smime_load_pkcs7('ns.p7')
     v = s.verify(p7, data)
-    print '\n', v, '\n...ok'
+    print('\n', v, '\n...ok')
 
     
 def sv():
-    print 'test sign/verify...',
+    print('test sign/verify...', end=' ')
     buf = makebuf()
     s = SMIME.SMIME()
 
@@ -128,12 +130,12 @@ def sv():
     v = s.verify(p7, buf, flags=SMIME.PKCS7_DETACHED)
     
     if v:
-        print 'ok'
+        print('ok')
     else:
-        print 'not ok'
+        print('not ok')
 
 def ed():
-    print 'test encrypt/decrypt...',
+    print('test encrypt/decrypt...', end=' ')
     buf = makebuf()
     s = SMIME.SMIME()
 
@@ -156,13 +158,13 @@ def ed():
     data = s.decrypt(p7)
     
     if data:
-        print 'ok'
+        print('ok')
     else:
-        print 'not ok'
+        print('not ok')
 
 
 def zope_test():
-    print 'test zophistry...'
+    print('test zophistry...')
     f = open('client.pem')
     cert_str = f.read()
     key_bio = BIO.MemoryBuffer(cert_str)    

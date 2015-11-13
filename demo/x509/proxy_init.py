@@ -2,6 +2,9 @@
 ############################################################################
 # Matt Rodriguez, LBNL  MKRodriguez@lbl.gov 
 ############################################################################ 
+
+from __future__ import print_function
+
 """
 script that generates a proxy certificate
 """
@@ -37,7 +40,7 @@ def main():
     try:
         proxy_factory = proxylib.ProxyFactory(kw)
     except IOError:
-        print "Can't find usercert or userkey. Use the -c or -k arguments"
+        print("Can't find usercert or userkey. Use the -c or -k arguments")
         sys.exit(0)
     proxy_factory.generate()
     proxy_cert = proxy_factory.getproxy()

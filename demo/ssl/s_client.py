@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """An M2Crypto implementation of OpenSSL's s_client.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
@@ -87,19 +89,19 @@ def s_client(config):
     s=SSL.Connection(ctx)
     s.connect(config.connect)
     if config.verify != SSL.verify_none and not s.verify_ok():
-        print 'peer verification failed'
+        print('peer verification failed')
         peer=s.get_peer_cert()
         if peer is None:
-            print 'unable to get peer certificate'
+            print('unable to get peer certificate')
         else:
-            print 'peer.as_text()'
+            print('peer.as_text()')
         raise SystemExit
     s.send(REQ)
     while 1:
         data=s.recv()
         if not data:
             break
-        print data
+        print(data)
     s.close()
 
 if __name__=='__main__':

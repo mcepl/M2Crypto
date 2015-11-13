@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """
     ECDSA demo and benchmark.
 
@@ -159,46 +161,46 @@ N1 = N2 = 100
 # functions
 
 def test(ec, dgst):
-    print '  testing signing and verification...',
+    print('  testing signing and verification...', end=' ')
     try:
 #        ec = EC.gen_params(EC.NID_secp160r1)
 #        ec.gen_key()
         r,s = ec.sign_dsa(dgst)
     except Exception as e:
-        print '\n\n    *** %s *** \n' % e
+        print('\n\n    *** %s *** \n' % e)
         sys.exit()
     if not ec.verify_dsa(dgst, r, s):
-        print 'not ok'
+        print('not ok')
     else:
-        print 'ok'
+        print('ok')
 
 def test_asn1(ec, dgst):
-    print '  testing asn1 signing and verification...',
+    print('  testing asn1 signing and verification...', end=' ')
     blob = ec.sign_dsa_asn1(dgst)
     if not ec.verify_dsa_asn1(dgst, blob):
-        print 'not ok'
+        print('not ok')
     else:
-        print 'ok'
+        print('ok')
 
 def speed():
     from time import time
     t1 = time()
     for i in range(N1):
         r,s = ec.sign_dsa(dgst)
-    print '    %d signings:      %8.2fs' % (N1, (time() - t1))
+    print('    %d signings:      %8.2fs' % (N1, (time() - t1)))
     t1 = time()
     for i in range(N2):
         ec.verify_dsa(dgst, r, s)
-    print '    %d verifications: %8.2fs' % (N2, (time() - t1))
+    print('    %d verifications: %8.2fs' % (N2, (time() - t1)))
 
 def test_speed(ec, dgst):
-    print '  measuring speed...'
+    print('  measuring speed...')
     if showprofile:
         import profile
         profile.run('speed()')
     else:
         speed()
-        print
+        print()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -215,16 +217,16 @@ def main(curve, hashalg):
     pubkeyfilename = '%spubkey.pem' % (curve)
 
     if makenewkey:
-        print '  making and saving a new key'
+        print('  making and saving a new key')
         ec = EC.gen_params(ec_curve)
         ec.gen_key()
         ec.save_key(pvtkeyfilename, None )
         ec.save_pub_key(pubkeyfilename)
     else:
-        print '  loading an existing key'
+        print('  loading an existing key')
         ec=EC.load_key(pvtkeyfilename)
-    print '  ecdsa key length:', len(ec)
-    print '  curve: %s' % curve
+    print('  ecdsa key length:', len(ec))
+    print('  curve: %s' % curve)
 
     if not ec.check_key():
         raise 'key is not initialised'
@@ -233,16 +235,16 @@ def main(curve, hashalg):
         ec_pub = ec.pub()
         pub_der = ec_pub.get_der()
         pub_pem = base64.encodestring(pub_der)
-        print '  PEM public key is: \n',pub_pem
+        print('  PEM public key is: \n',pub_pem)
 
     # since we are testing signing and verification, let's not
     # be fussy about the digest.  Just make one.
     md = EVP.MessageDigest(hashalg)
     md.update('can you spell subliminal channel?')
     dgst = md.digest()
-    print '  hash algorithm: %s' % hashalg
+    print('  hash algorithm: %s' % hashalg)
     if showdigest:
-        print '  %s digest: \n%s' % (base64.encodestring(dgst))
+        print('  %s digest: \n%s' % (base64.encodestring(dgst)))
 
     test(ec, dgst)
 #    test_asn1(ec, dgst)
@@ -252,7 +254,7 @@ def main(curve, hashalg):
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def print_usage():
-    print """
+    print("""
   Usage:  python -O %s [option option option ...]
     where options may include:
       makenewkey  showpubkey  showdigest  showprofile
@@ -260,7 +262,7 @@ def print_usage():
       secp160r1  secp224r1  secp192k1  sect283r1
       sect283k1  secp256k1  secp384r1  secp521r1
     (other curves and hashes are supported, check pgm src)
-""" % sys.argv[0]
+""" % sys.argv[0])
     sys.exit()
 
 # --------------------------------------------------------------
@@ -275,7 +277,7 @@ if __name__=='__main__':
         if arg == 'showdigest':   showdigest  = 1; continue
         if arg == 'showprofile':  showprofile = 1; continue
 
-        print '\n  *** argument "%s" not understood ***' % arg
+        print('\n  *** argument "%s" not understood ***' % arg)
         print_usage()
 
     main(curve, hashalg)

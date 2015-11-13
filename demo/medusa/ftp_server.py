@@ -17,6 +17,8 @@
 # vestigial anyway.  I've attempted to include the most commonly-used
 # commands, using the feature set of wu-ftpd as a guide.
 
+from __future__ import print_function
+
 import asyncore
 import asynchat
 
@@ -99,7 +101,7 @@ class ftp_channel (asynchat.async_chat):
 			)
 
 #	def __del__ (self):
-#		print 'ftp_channel.__del__()'
+#		print('ftp_channel.__del__()')
 
 	# --------------------------------------------------
 	# async-library methods
@@ -821,7 +823,7 @@ class passive_acceptor (asyncore.dispatcher):
 		self.listen (1)
 
 #	def __del__ (self):
-#		print 'passive_acceptor.__del__()'
+#		print('passive_acceptor.__del__()')
 
 	def log (self, *ignore):
 		pass
@@ -854,7 +856,7 @@ class xmit_channel (asynchat.async_chat):
 		asynchat.async_chat.__init__ (self)
 		
 #	def __del__ (self):
-#		print 'xmit_channel.__del__()'
+#		print('xmit_channel.__del__()')
 
 	def log (*args):
 		pass
@@ -1124,4 +1126,4 @@ def get_vm_size ():
 	return string.atoi (string.split(open ('/proc/self/stat').readline())[22])
 
 def print_vm():
-	print 'vm: %8dk' % (get_vm_size()/1024)
+	print('vm: %8dk' % (get_vm_size()/1024))

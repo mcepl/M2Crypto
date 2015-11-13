@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 """
     M2Crypto wrapper for OpenSSL DSA API.
 
@@ -34,9 +36,9 @@ class DSA:
         r, s = dsa.sign(digest)
         good = dsa.verify(digest, r, s)
         if good:
-            print '  ** success **'
+            print('  ** success **')
         else:
-            print '  ** verification failed **'
+            print('  ** verification failed **')
     """
 
     m2_dsa_free = m2.dsa_free

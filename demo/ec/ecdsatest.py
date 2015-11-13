@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """ECDSA demonstration.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
@@ -19,26 +21,26 @@ ec=EC.load_key('ecdsatest.pem')
 ec_pub = ec.pub()
 pub_der = ec_pub.get_der()
 pub_pem = base64.encodestring(pub_der)
-print 'PEM public key is',pub_pem
+print('PEM public key is',pub_pem)
 ec.save_key( 'ecdsatest.pem', None )
 
 
 def test():
-    print 'testing signing...',
+    print('testing signing...', end=' ')
     r,s=ec.sign_dsa(dgst)
     if not ec.verify_dsa(dgst, r, s):
-        print 'not ok'
+        print('not ok')
     else:
-        print 'ok'
+        print('ok')
 
 def test_asn1():
     # XXX Randomly fails: bug in there somewhere... (0.9.4)
-    print 'testing asn1 signing...',
+    print('testing asn1 signing...', end=' ')
     blob=ec.sign_dsa_asn1(dgst)
     if not ec.verify_dsa_asn1(dgst, blob):
-        print 'not ok'
+        print('not ok')
     else:
-        print 'ok'
+        print('ok')
 
 def speed():
     from time import time
@@ -47,14 +49,14 @@ def speed():
     t1 = time()
     for i in range(N1):
         r,s = ec.sign(dgst)
-    print '%d signings: %8.2fs' % (N1, (time() - t1))
+    print('%d signings: %8.2fs' % (N1, (time() - t1)))
     t1 = time()
     for i in range(N2):
         ec.verify(dgst, r, s)
-    print '%d verifications: %8.2fs' % (N2, (time() - t1))
+    print('%d verifications: %8.2fs' % (N2, (time() - t1)))
         
 def test_speed():
-    print 'measuring speed...'
+    print('measuring speed...')
     import profile
     profile.run('speed()')
 

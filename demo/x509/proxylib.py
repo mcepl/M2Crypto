@@ -5,6 +5,9 @@
 #(subject to receipt of any required approvals from the U.S. Dept. of Energy).
 #All rights reserved.
 ############################################################################
+
+from __future__ import print_function
+
 """
 API to generated proxy certificates
 """ 
@@ -20,7 +23,7 @@ try:
     from M2Crypto import BIO, X509, RSA, EVP, ASN1
 except ImportError as ex:
     if import_regex.match(str(ex)):
-        print errstr 
+        print(errstr)
         sys.exit(-1)
     else:
         raise ex 

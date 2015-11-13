@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """
 How to create a CA certificate with Python.
 
@@ -95,10 +97,10 @@ if __name__ == '__main__':
     rsa = generateRSAKey()
     pkey = makePKey(rsa)
     req = makeRequest(pkey)
-    print req.as_text()
+    print(req.as_text())
     cert = makeCert(req, pkey)
-    print cert.as_text()
-    print cert.as_pem()
+    print(cert.as_text())
+    print(cert.as_pem())
     cert.save_pem('my_ca_cert.pem')
     rsa.save_key('my_key.pem', 'aes_256_cbc')
     Rand.save_file('../randpool.dat')

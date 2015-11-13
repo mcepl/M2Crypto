@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+
+from __future__ import print_function
+
 """
 Demonstrates M2Crypto.SSL.TwistedProtocolWrapper
 
@@ -16,7 +19,7 @@ class EchoClient(basic.LineReceiver):
         self.sendLine('Hello World!')
 
     def lineReceived(self, line):
-        print 'received: "%s"' % line
+        print('received: "%s"' % line)
         self.transport.loseConnection()
         
 
@@ -24,11 +27,11 @@ class EchoClientFactory(protocol.ClientFactory):
     protocol = EchoClient
 
     def clientConnectionFailed(self, connector, reason):
-        print 'connection failed'
+        print('connection failed')
         reactor.stop()
 
     def clientConnectionLost(self, connector, reason):
-        print 'connection lost'
+        print('connection lost')
         reactor.stop()
 
 

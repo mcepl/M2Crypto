@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """
     DSA demo and benchmark.
 
@@ -57,45 +59,45 @@ N1 = N2 = 100
 # functions
 
 def test(dsa, dgst):
-    print '  testing signing and verification...',
+    print('  testing signing and verification...', end=' ')
     try:
         r,s = dsa.sign(dgst)
     except Exception as e:
-        print '\n\n    *** %s *** \n' % e
+        print('\n\n    *** %s *** \n' % e)
         sys.exit()
     if not dsa.verify(dgst, r, s):
-        print 'not ok'
+        print('not ok')
     else:
-        print 'ok'
+        print('ok')
 
 def test_asn1(dsa, dgst):
     # XXX Randomly fails: bug in there somewhere... (0.9.4)
-    print '  testing asn1 signing and verification...',
+    print('  testing asn1 signing and verification...', end=' ')
     blob = dsa.sign_asn1(dgst)
     if not dsa.verify_asn1(dgst, blob):
-        print 'not ok'
+        print('not ok')
     else:
-        print 'ok'
+        print('ok')
 
 def speed():
     from time import time
     t1 = time()
     for i in range(N1):
         r,s = dsa.sign(dgst)
-    print '    %d signings:      %8.2fs' % (N1, (time() - t1))
+    print('    %d signings:      %8.2fs' % (N1, (time() - t1)))
     t1 = time()
     for i in range(N2):
         dsa.verify(dgst, r, s)
-    print '    %d verifications: %8.2fs' % (N2, (time() - t1))
+    print('    %d verifications: %8.2fs' % (N2, (time() - t1)))
         
 def test_speed(dsa, dgst):
-    print '  measuring speed...'
+    print('  measuring speed...')
     if showprofile:
         import profile
         profile.run('speed()')
     else:
         speed()
-        print
+        print()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -108,15 +110,15 @@ def main(keylen, hashalg):
     pubkeyfilename = 'DSA%dpubkey.pem' % (keylen)  
     
     if makenewkey:
-        print '  making and saving a new key'
+        print('  making and saving a new key')
         dsa = DSA.gen_params(keylen)
         dsa.gen_key()
         dsa.save_key(pvtkeyfilename, None )  # no pswd callback
         dsa.save_pub_key(pubkeyfilename)
     else:
-        print '  loading an existing key'
+        print('  loading an existing key')
         dsa = DSA.load_key(pvtkeyfilename)
-    print '  dsa key length:', len(dsa)
+    print('  dsa key length:', len(dsa))
     
     if not dsa.check_key():
         raise 'key is not initialised'
@@ -124,16 +126,16 @@ def main(keylen, hashalg):
     if showpubkey:
         dsa_pub = dsa.pub
         pub_pem = base64.encodestring(dsa_pub)
-        print '  PEM public key is: \n',pub_pem
+        print('  PEM public key is: \n',pub_pem)
 
     # since we are testing signing and verification, let's not 
     # be fussy about the digest.  Just make one.
     md = EVP.MessageDigest(hashalg)
     md.update('can you spell subliminal channel?')
     dgst = md.digest()
-    print '  hash algorithm: %s' % hashalg
+    print('  hash algorithm: %s' % hashalg)
     if showdigest:
-        print '  %s digest: \n%s' % (hashalg, base64.encodestring(dgst))
+        print('  %s digest: \n%s' % (hashalg, base64.encodestring(dgst)))
     
     test(dsa, dgst)
 #    test_asn1(dsa, dgst)
@@ -143,13 +145,13 @@ def main(keylen, hashalg):
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def print_usage():
-    print """
+    print("""
   Usage:  python -O %s [option option option ...]
     where options may include:
       makenewkey  showpubkey  showdigest  showprofile
       md5  sha1  sha256  sha512
       <key length>
-""" % sys.argv[0]
+""" % sys.argv[0])
     sys.exit()
 
 # --------------------------------------------------------------
@@ -165,7 +167,7 @@ if __name__=='__main__':
         try:
             keylen = int(arg)
         except:
-            print '\n  *** argument "%s" not understood ***' % arg
+            print('\n  *** argument "%s" not understood ***' % arg)
             print_usage()
         
     main(keylen, hashalg)

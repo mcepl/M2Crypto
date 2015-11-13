@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 """SSLServer
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
@@ -37,10 +39,10 @@ class SSLServer(SocketServer.TCPServer):
             self.handle_error(request, client_address)
 
     def handle_error(self, request, client_address):
-        print '-'*40
+        print('-'*40)
         import traceback
         traceback.print_exc()
-        print '-'*40
+        print('-'*40)
 
 
 class ForkingSSLServer(SocketServer.ForkingMixIn, SSLServer):

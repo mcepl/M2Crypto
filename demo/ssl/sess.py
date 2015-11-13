@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 """M2Crypto.SSL.Session client demo: This program requests a URL from 
 a HTTPS server, saves the negotiated SSL session id, parses the HTML 
 returned by the server, then requests each HREF in a separate thread 
@@ -22,7 +24,7 @@ def handler(sslctx, host, port, href, recurs=0, sslsess=None):
     else:
         s.connect((host, port))
         sslsess = s.get_session()
-    #print sslsess.as_text()
+    #print(sslsess.as_text())
 
     if recurs:
         p = htmllib.HTMLParser(formatter.NullFormatter())
@@ -48,7 +50,7 @@ def handler(sslctx, host, port, href, recurs=0, sslsess=None):
             req = 'GET %s HTTP/1.0\r\n\r\n' % a
             thr = Thread(target=handler, 
                         args=(sslctx, host, port, req, recurs-1, sslsess))
-            print "Thread =", thr.getName()
+            print("Thread =", thr.getName())
             thr.start()
     
 
@@ -79,7 +81,7 @@ if __name__ == '__main__':
     req = 'GET %s HTTP/1.0\r\n\r\n' % req
 
     start = Thread(target=handler, args=(ctx, host, port, req, 1))
-    print "Thread =", start.getName()
+    print("Thread =", start.getName())
     start.start()
     start.join()
     

@@ -1,5 +1,7 @@
 #!/usr/bin/env python2.0
 
+from __future__ import print_function
+
 """Demonstrates the use of m2.bio_set_mem_eof_return().
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
@@ -23,7 +25,7 @@ m2.bio_free(filt)
 if use_mem:
     m2.bio_set_mem_eof_return(bio, 0)
     xxx = m2.bio_read(bio, 100)
-    print `xxx`, len(xxx)
+    print(`xxx`, len(xxx))
 m2.bio_free(bio)
 
 if use_mem:
@@ -37,7 +39,7 @@ filt = m2.bio_new(m2.bio_f_cipher())
 m2.bio_set_cipher(filt, ciph, 'key', 'iv', 0)
 m2.bio_push(filt, bio)
 yyy = m2.bio_read(filt, 100)
-print `yyy`
+print(`yyy`)
 m2.bio_pop(filt)
 m2.bio_free(filt)
 m2.bio_free(bio)

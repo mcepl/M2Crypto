@@ -6,6 +6,8 @@
 #                                                All Rights Reserved.
 #
 
+from __future__ import print_function
+
 # python modules
 import os
 import re
@@ -711,7 +713,7 @@ def crack_request (r):
 if __name__ == '__main__':
     import sys
     if len(sys.argv) < 2:
-        print 'usage: %s <root> <port>' % (sys.argv[0])
+        print('usage: %s <root> <port>' % (sys.argv[0]))
     else:
         import monitor
         import filesys

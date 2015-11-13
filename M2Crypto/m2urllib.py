@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 """M2Crypto enhancement to Python's urllib for handling 
 'https' url's.
 
@@ -36,7 +38,7 @@ def open_https(self, url, data=None, ssl_context=None):
                 user_passwd, realhost = splituser(realhost)
             if user_passwd:
                 selector = "%s://%s%s" % (urltype, realhost, rest)
-        #print "proxy via http:", host, selector
+        #print("proxy via http:", host, selector)
     if not host: raise IOError('http error', 'no host given')
     if user_passwd:
         import base64

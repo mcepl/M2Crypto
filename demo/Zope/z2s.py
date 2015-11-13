@@ -10,6 +10,9 @@
 # FOR A PARTICULAR PURPOSE
 #
 ##############################################################################
+
+from __future__ import print_function
+
 """Zope 2 ZServer start-up file
 
 Usage: %(program)s [options] [environment settings]
@@ -256,7 +259,6 @@ Environment settings are of the form: NAME=VALUE.
 
 Note: you *must* use Python 2.1 or later!
 """
-
 
 # This is required path hackery for the win32 binary distribution
 # that ensures that the bundled python libraries are used. In a
@@ -511,7 +513,7 @@ try:
             if v=='-': v=''
             PCGI_FILE=v
         elif o=='-h':
-            print __doc__ % vars()
+            print(__doc__ % vars())
             sys.exit(0)
         elif o=='-2': MODULE='Main'
         elif o=='-l': LOG_FILE=v
@@ -525,10 +527,10 @@ try:
 
 except SystemExit: sys.exit(0)
 except:
-    print __doc__ % vars()
-    print
-    print 'Error:'
-    print "%s: %s" % (sys.exc_type, sys.exc_value)
+    print(__doc__ % vars())
+    print()
+    print('Error:')
+    print("%s: %s" % (sys.exc_type, sys.exc_value))
     sys.exit(1)
 
 #

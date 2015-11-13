@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """Demo for client-side ssl_dispatcher usage. Note that connect() 
 is blocking. (Need fix?) 
 
@@ -38,14 +40,14 @@ class https_client(SSL.ssl_dispatcher):
                 sys.stdout.flush()
                 self.close()
             else:
-                #print result
+                #print(result)
                 l = len(result)
                 self._count = self._count + l
                 display = (time.time(), l, self.path)
                 sys.stdout.write('%14.3f: read %5d from %s\n' % display)
                 sys.stdout.flush()
         except SSL.SSLError as why:
-            print 'handle_read:', why
+            print('handle_read:', why)
             self.close()
             raise
 
@@ -57,7 +59,7 @@ class https_client(SSL.ssl_dispatcher):
             sent = self.send(self.buffer)
             self.buffer = self.buffer[sent:]
         except SSL.SSLError as why:
-            print 'handle_write:', why
+            print('handle_write:', why)
             self.close()
 
 

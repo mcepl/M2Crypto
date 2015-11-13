@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """A simple SSL 'echo' client.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
@@ -30,8 +32,8 @@ ctx.set_info_callback()
 
 s = SSL.Connection(ctx)
 s.connect((host, port))
-print 'Host =', gethostname()
-print 'Cipher =', s.get_cipher().name()
+print('Host =', gethostname())
+print('Cipher =', s.get_cipher().name())
 
 ## 2003-06-28, ngps: Depends on ctx.set_verify() above, RTFM for details.
 ## v = s.get_verify_result()
@@ -40,7 +42,7 @@ print 'Cipher =', s.get_cipher().name()
 ##     raise SystemExit, 'Server verification failed'
 
 peer = s.get_peer_cert()
-print 'Server =', str(peer.get_subject())
+print('Server =', str(peer.get_subject()))
 
 while 1:
     data = s.recv()

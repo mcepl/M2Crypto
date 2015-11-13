@@ -25,6 +25,8 @@
 # CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 # ======================================================================
 
+from __future__ import print_function
+
 """Basic infrastructure for asynchronous socket service clients and servers.
 
 There are only two ways to have a program on a single processor do "more
@@ -45,7 +47,6 @@ control than multi-threaded programming. The module documented here solves
 many of the difficult problems for you, making the task of building
 sophisticated high-performance network servers and clients a snap. 
 """
-
 import exceptions
 import select
 import socket
@@ -87,7 +88,7 @@ def poll (timeout=0.0, map=None):
 		r,w,e = select.select (r,w,e, timeout)
 
 		if DEBUG:
-			print r,w,e
+			print(r,w,e)
 
 		for fd in r:
 			try:
@@ -367,7 +368,7 @@ class dispatcher:
 
 	def log_info (self, message, type='info'):
 		if __debug__ or type != 'info':
-			print '%s: %s' % (type, message)
+			print('%s: %s' % (type, message))
 
 	def handle_read_event (self):
 		if self.accepting:

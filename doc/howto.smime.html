@@ -688,7 +688,7 @@ CLASS="PROGRAMLISTING"
     out.write('Subject: M2Crypto S/MIME testing\n')
     s.write(out, p7, buf)
 
-    print out.read()
+    print(out.read())
 
     # Save the PRNG's state.
     Rand.save_file('randpool.dat')
@@ -781,9 +781,9 @@ CLASS="PROGRAMLISTING"
     # Load the data, verify it.
     p7, data = SMIME.smime_load_pkcs7('sign.p7')
     v = s.verify(p7, data)
-    print v
-    print data
-    print data.read()
+    print(v)
+    print(data)
+    print(data.read())
     </PRE
 ><P
 >Here's the output of the above program:
@@ -878,7 +878,7 @@ CLASS="PROGRAMLISTING"
     out.write('Subject: M2Crypto S/MIME testing\n')
     s.write(out, p7)
     
-    print out.read()
+    print(out.read())
 
     # Save the PRNG's state.
     Rand.save_file('randpool.dat')
@@ -937,7 +937,7 @@ CLASS="PROGRAMLISTING"
     # Decrypt p7.
     out = s.decrypt(p7)
         
-    print out
+    print(out)
     </PRE
 ><P
 >Here's the output:
@@ -1003,7 +1003,7 @@ CLASS="PROGRAMLISTING"
     out.write('Subject: M2Crypto S/MIME testing\n')
     s.write(out, p7)
     
-    print out.read()
+    print(out.read())
     
     # Save the PRNG's state.
     Rand.save_file('randpool.dat')
@@ -1121,7 +1121,7 @@ CLASS="PROGRAMLISTING"
     p7, data = SMIME.smime_load_pkcs7_bio(p7_bio)
     v = s.verify(p7)
     
-    print v
+    print(v)
     </PRE
 ><P
 >The output is as follows:

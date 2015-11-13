@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+
+from __future__ import print_function
+
 """
 Small utility to convert the Mozilla-format certificates
 (/mozilla/security/nss/lib/ckfw/builtins/certdata.txt in the Mozilla CVS)
@@ -34,10 +37,10 @@ for line in open('certdata.txt'):
     elif value is not None and line == 'END':
         assert name is not None
 
-        print 'Writing ' + name
+        print('Writing ' + name)
         x509 = X509.load_cert_string(value.tostring(), X509.FORMAT_DER)
         if not x509.verify():
-            print '  Skipping ' + name + ' since it does not verify'
+            print('  Skipping ' + name + ' since it does not verify')
             name = None
             value = None
             continue
@@ -61,4 +64,4 @@ for line in open('certdata.txt'):
 
             value.append(chr(int(number, 8)))
 
-print 'Wrote %d certificates' % counter
+print('Wrote %d certificates' % counter)

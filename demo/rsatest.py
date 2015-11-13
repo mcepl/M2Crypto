@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 """RSA demonstration.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
@@ -15,25 +17,25 @@ priv=RSA.load_key('rsa.priv.pem')
 pub=RSA.load_pub_key('rsa.pub.pem')
 
 def test_encrypt(padding):
-    print 'testing public-key encryption:', padding
+    print('testing public-key encryption:', padding)
     padding=eval('RSA.'+padding)
     ctxt=pub.public_encrypt(dgst, padding)
     ptxt=priv.private_decrypt(ctxt, padding)
     if ptxt!=dgst:
-        print 'public_encrypt -> private_decrypt: not ok'
+        print('public_encrypt -> private_decrypt: not ok')
 
 def test_sign(padding):
-    print 'testing private-key signing:', padding
+    print('testing private-key signing:', padding)
     padding=eval('RSA.'+padding)
     ctxt=priv.private_encrypt(dgst, padding)    
     ptxt=pub.public_decrypt(ctxt, padding)
     if ptxt!=dgst:
-        print 'private_decrypt -> public_encrypt: not ok'
+        print('private_decrypt -> public_encrypt: not ok')
 
 def test0():
-    print 'testing misc.'
-    print `pub.e`, `pub.n`
-    print `priv.e`, `priv.n`
+    print('testing misc.')
+    print(`pub.e`, `pub.n`)
+    print(`priv.e`, `priv.n`)
 
 if __name__=='__main__':
     Rand.load_file('randpool.dat', -1) 

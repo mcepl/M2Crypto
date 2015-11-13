@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 """Server demonstration of M2Crypto.xmlrpclib2.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
@@ -11,7 +13,7 @@ from xmlrpcserver import RequestHandler
 
 class xmlrpc_handler(RequestHandler):
     def call(self, method, params):
-        print "XMLRPC call:", method, params
+        print("XMLRPC call:", method, params)
         return params
 
     def finish(self):

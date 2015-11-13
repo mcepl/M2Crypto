@@ -7,6 +7,8 @@
 
 # support for 'basic' authenticaion.
 
+from __future__ import print_function
+
 import base64
 import hashlib
 import re
@@ -52,7 +54,7 @@ class auth_handler:
                 try:
                     decoded = base64.decodestring(cookie)
                 except:
-                    print 'malformed authorization info <%s>' % cookie
+                    print('malformed authorization info <%s>' % cookie)
                     request.error(400)
                     return
                 auth_info = string.split(decoded, ':')
@@ -63,9 +65,9 @@ class auth_handler:
                 else:
                     self.handle_unauthorized(request)
             #elif scheme == 'digest':
-            #    print 'digest: ',AUTHORIZATION.group(2)
+            #    print('digest: ',AUTHORIZATION.group(2))
             else:
-                print 'unknown/unsupported auth method: %s' % scheme
+                print('unknown/unsupported auth method: %s' % scheme)
                 self.handle_unauthorized()
         else:
             # list both?  prefer one or the other?
@@ -75,7 +77,7 @@ class auth_handler:
             #nonce = self.make_nonce (request)
             #auth = 'Digest realm="%s" nonce="%s"' % (self.realm, nonce)
             #request['WWW-Authenticate'] = auth
-            #print 'sending header: %s' % request['WWW-Authenticate']
+            #print('sending header: %s' % request['WWW-Authenticate'])
             self.handle_unauthorized(request)
 
     def handle_unauthorized(self, request):
