@@ -99,7 +99,7 @@ elif sys.version[:3] == '1.5':
                     host, port = host[:i], host[i+1:]
                     try: port = string.atoi(port)
                     except string.atoi_error:
-                        raise socket.error, "nonnumeric port"
+                        raise socket.error("nonnumeric port")
             if not port: port = HTTPS_PORT
             self.sock = SSL.Connection(self.ssl_ctx)
             if self.debuglevel > 0: print 'connect:', (host, port)

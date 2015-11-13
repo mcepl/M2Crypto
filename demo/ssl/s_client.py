@@ -31,7 +31,7 @@ def config(args):
         setattr(cfg, opt[0][2:], opt[1])
     for x in (('tlsv1','no_tlsv1'),('sslv3','no_sslv3'),('sslv2','no_sslv2')):
         if hasattr(cfg, x[0]) and hasattr(cfg, x[1]):
-                raise ValueError, 'mutually exclusive: %s and %s' % x
+                raise ValueError('mutually exclusive: %s and %s' % x)
 
     if hasattr(cfg, 'connect'):
         (host, port)=string.split(cfg.connect, ':')

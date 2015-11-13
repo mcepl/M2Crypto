@@ -306,7 +306,7 @@ class dispatcher:
 			if why[0] in (EINPROGRESS, EALREADY, EWOULDBLOCK):
 				return
 			else:
-				raise socket.error, why
+				raise socket.error(why[0])
 		self.connected = 1
 		self.handle_connect()
 
@@ -318,7 +318,7 @@ class dispatcher:
 			if why[0] == EWOULDBLOCK:
 				pass
 			else:
-				raise socket.error, why
+				raise socket.error(why[0])
 
 	def send (self, data):
 		try:
@@ -328,7 +328,7 @@ class dispatcher:
 			if why[0] == EWOULDBLOCK:
 				return 0
 			else:
-				raise socket.error, why
+				raise socket.error(why[0])
 			return 0
 
 	def recv (self, buffer_size):
@@ -347,7 +347,7 @@ class dispatcher:
 				self.handle_close()
 				return ''
 			else:
-				raise socket.error, why
+				raise socket.error(why[0])
 
 	def close (self):
 		self.del_channel()

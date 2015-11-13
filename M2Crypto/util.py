@@ -31,7 +31,7 @@ def pkcs5_pad(data, blklen=8):
 
 def pkcs7_pad(data, blklen):
     if blklen>255:
-        raise ValueError, 'illegal block size'
+        raise ValueError('illegal block size')
     pad=(blklen-(len(data)%blklen))
     return data+chr(pad)*pad
 

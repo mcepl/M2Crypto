@@ -172,7 +172,7 @@ class Connection:
         check = getattr(self, 'postConnectionCheck', self.serverPostConnectionCheck)
         if check is not None:
             if not check(ssl.get_peer_cert(), ssl.addr[0]):
-                raise Checker.SSLVerificationError, 'post connection check failed'
+                raise Checker.SSLVerificationError('post connection check failed')
         return ssl, addr
 
     def set_connect_state(self):
@@ -190,7 +190,7 @@ class Connection:
         check = getattr(self, 'postConnectionCheck', self.clientPostConnectionCheck)
         if check is not None:
             if not check(self.get_peer_cert(), self.addr[0]):
-                raise Checker.SSLVerificationError, 'post connection check failed'
+                raise Checker.SSLVerificationError('post connection check failed')
         return ret
 
     def shutdown(self, how):
@@ -213,12 +213,12 @@ class Connection:
 
     def _read_bio(self, size=1024):
         if size <= 0:
-            raise ValueError, 'size <= 0'
+            raise ValueError('size <= 0')
         return m2.ssl_read(self.ssl, size, self._timeout)
 
     def _read_nbio(self, size=1024):
         if size <= 0:
-            raise ValueError, 'size <= 0'
+            raise ValueError('size <= 0')
         return m2.ssl_read_nbio(self.ssl, size)
 
     def write(self, data):
