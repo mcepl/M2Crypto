@@ -34,9 +34,9 @@ for opt in optlist:
         else:
             outf = open(o, 'wb')
 if cmd < 0:
-    raise argerr, "either -d or -e"
+    raise argerr("either -d or -e")
 if cmd > 1:
-    raise argerr, "either -d or -e, not both"
+    raise argerr("either -d or -e, not both")
 
 if cmd == 0:
     iv = inf.read(10)
@@ -47,7 +47,7 @@ else:
     pp = getpass.getpass('Enter encryption passphrase: ')
     pp2 = getpass.getpass('Enter passphrase again: ')
     if pp != pp2:
-        raise SystemExit, 'passphrase mismatch, I\'m outta here...'
+        raise SystemExit('passphrase mismatch, I\'m outta here...')
 
 ci = RC4.RC4(pp + iv)
 del pp, iv

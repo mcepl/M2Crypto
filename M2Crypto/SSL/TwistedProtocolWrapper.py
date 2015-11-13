@@ -223,7 +223,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
         #       expects transports to have. This will be called automatically
         #       by Twisted in STARTTLS situations, for example with SMTP.
         if self.tlsStarted:
-            raise Exception, 'TLS already started'
+            raise Exception('TLS already started')
 
         self.ctx = ctx
 
@@ -325,7 +325,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
             else:
                 host = self.transport.getPeer().host
             if not self.postConnectionCheck(x509, host):
-                raise Checker.SSLVerificationError, 'post connection check'
+                raise Checker.SSLVerificationError('post connection check')
             self.checked = 1
 
     def _clientHello(self):

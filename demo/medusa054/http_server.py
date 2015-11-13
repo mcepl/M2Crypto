@@ -102,7 +102,7 @@ class http_request:
         if self._split_uri is None:
             m = self.path_regex.match (self.uri)
             if m.end() != len(self.uri):
-                raise ValueError, "Broken URI"
+                raise ValueError("Broken URI")
             else:
                 self._split_uri = m.groups()
         return self._split_uri
@@ -422,7 +422,7 @@ class http_channel (asynchat.async_chat):
     def handle_error (self):
         t, v = sys.exc_info()[:2]
         if t is SystemExit:
-            raise t, v
+            raise t(v)
         else:
             asynchat.async_chat.handle_error (self)
 

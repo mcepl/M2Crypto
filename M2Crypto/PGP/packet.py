@@ -48,7 +48,7 @@ class packet:
         return 1
 
     def pack(self):
-        raise NotImplementedError, '%s.pack(): abstract method' % (self.__class__,)
+        raise NotImplementedError('%s.pack(): abstract method' % (self.__class__,))
 
     def version(self):
         if hasattr(self, '_version'):
@@ -357,11 +357,11 @@ class packet_stream:
         elif llf == 2:
             lenf = struct.unpack('>L', self.stream.read(4))[0]
         else: # llf == 3
-            raise XXXError, 'impossible case'
+            raise XXXError('impossible case')
 
         body = self.stream.read(lenf)
         if not body or (len(body) != lenf):
-            raise XXXError, 'corrupted packet'
+            raise XXXError('corrupted packet')
 
         self._count = self.stream.tell()
         try: 

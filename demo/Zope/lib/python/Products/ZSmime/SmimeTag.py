@@ -33,18 +33,18 @@ class SmimeTag:
             try:
                 Call(self.signer)
             except ParseError:
-                raise SmimeError, ('Invalid parameter "signer".')
+                raise SmimeError('Invalid parameter "signer".')
         else:
-            raise SmimeError, ('The parameter "signer" was not specified in tag.')
+            raise SmimeError('The parameter "signer" was not specified in tag.')
 
         if has_key('recipients'):
             self.recipients = args['recipients']
             try:
                 Call(self.recipients)
             except ParseError:
-                raise SmimeError, ('Invalid parameter "recipients".')
+                raise SmimeError('Invalid parameter "recipients".')
         else:
-            raise SmimeError, ('The parameter "recipients" was not specified in tag.')
+            raise SmimeError('The parameter "recipients" was not specified in tag.')
 
 
     def render(self, md):
@@ -59,7 +59,7 @@ class SmimeTag:
         try:
             signer = Var(self.signer).render(md)
         except ParseError:
-            raise SmimeError, ('Invalid parameter "signer".')
+            raise SmimeError('Invalid parameter "signer".')
         signer_key_bio = BIO.MemoryBuffer(signer)
         signer_cert_bio = BIO.MemoryBuffer(signer) # XXX Kludge.
         
@@ -75,7 +75,7 @@ class SmimeTag:
         try:
             recip = Var(self.recipients).render(md)
         except ParseError:
-            raise SmimeError, ('Invalid parameter "recipients".')
+            raise SmimeError('Invalid parameter "recipients".')
         recip_bio = BIO.MemoryBuffer(recip)
 
         # Load recipient certificates.

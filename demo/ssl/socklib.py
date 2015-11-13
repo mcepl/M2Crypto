@@ -38,7 +38,7 @@ def ssl(sock):
     check = getattr(sock.conn, 'postConnectionCheck', sock.conn.clientPostConnectionCheck)
     if check is not None:
         if not check(sock.conn.get_peer_cert(), sock.conn.addr[0]):
-            raise Checker.SSLVerificationError, 'post connection check failed'
+            raise Checker.SSLVerificationError('post connection check failed')
     return sock.conn
 
 socket.socket = ssl_socket

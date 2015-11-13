@@ -119,7 +119,7 @@ class Cipher:
     def __init__(self, algo):
         cipher = getattr(m2, algo, None)
         if cipher is None:
-            raise ValueError, ('unknown cipher', algo)
+            raise ValueError('unknown cipher', algo)
         self.cipher = cipher()
 
     def _ptr(self):
@@ -170,9 +170,9 @@ class SMIME:
 
     def encrypt(self, data_bio, flags=0):
         if not hasattr(self, 'cipher'):
-            raise SMIME_Error, 'no cipher: use set_cipher()'
+            raise SMIME_Error('no cipher: use set_cipher()')
         if not hasattr(self, 'x509_stack'):
-            raise SMIME_Error, 'no recipient certs: use set_x509_stack()'
+            raise SMIME_Error('no recipient certs: use set_x509_stack()')
         pkcs7 = m2.pkcs7_encrypt(self.x509_stack._ptr(), data_bio._ptr(), self.cipher._ptr(), flags)
         if pkcs7 is None:
             raise SMIME_Error(Err.get_error())
@@ -180,9 +180,9 @@ class SMIME:
 
     def decrypt(self, pkcs7, flags=0):
         if not hasattr(self, 'pkey'):
-            raise SMIME_Error, 'no private key: use load_key()'
+            raise SMIME_Error('no private key: use load_key()')
         if not hasattr(self, 'x509'):
-            raise SMIME_Error, 'no certificate: load_key() used incorrectly?'
+            raise SMIME_Error('no certificate: load_key() used incorrectly?')
         blob = m2.pkcs7_decrypt(pkcs7._ptr(), self.pkey._ptr(), self.x509._ptr(), flags)
         if blob is None:
             raise SMIME_Error(Err.get_error())
@@ -190,7 +190,7 @@ class SMIME:
 
     def sign(self, data_bio, flags=0):
         if not hasattr(self, 'pkey'):
-            raise SMIME_Error, 'no private key: use load_key()'
+            raise SMIME_Error('no private key: use load_key()')
         if hasattr(self, 'x509_stack'):
             pkcs7 = m2.pkcs7_sign1(self.x509._ptr(), self.pkey._ptr(), 
                 self.x509_stack._ptr(), data_bio._ptr(), flags)
@@ -206,9 +206,9 @@ class SMIME:
 
     def verify(self, pkcs7, data_bio=None, flags=0):
         if not hasattr(self, 'x509_stack'):
-            raise SMIME_Error, 'no signer certs: use set_x509_stack()'
+            raise SMIME_Error('no signer certs: use set_x509_stack()')
         if not hasattr(self, 'x509_store'):
-            raise SMIME_Error, 'no x509 cert store: use set_x509_store()'
+            raise SMIME_Error('no x509 cert store: use set_x509_store()')
         assert isinstance(pkcs7, PKCS7), 'pkcs7 not an instance of PKCS7'
         p7 = pkcs7._ptr()
         if data_bio is None:

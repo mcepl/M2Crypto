@@ -60,7 +60,7 @@ for opt in optlist:
         subject_dn = opt[1]
 
 if username is None:
-    raise argerr, '\n' + __doc__
+    raise argerr('\n' + __doc__)
 
 db = anydbm.open(x509_db, 'cw')
 if subject_dn is None:

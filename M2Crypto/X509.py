@@ -251,7 +251,7 @@ class X509_Name:
         if attr in self.__dict__:
             return self.__dict__[attr]
 
-        raise AttributeError, (self, attr)
+        raise AttributeError(self, attr)
 
     def __setattr__(self, attr, value):
         if attr in self.nid:
@@ -551,7 +551,7 @@ class X509:
         assert m2.x509_type_check(self.x509), "'x509' type error"
         mda = getattr(m2, md, None)
         if mda is None:
-            raise ValueError, ('unknown message digest', md)
+            raise ValueError('unknown message digest', md)
         return m2.x509_sign(self.x509, pkey.pkey, mda())
 
     def verify(self, pkey=None):
@@ -974,7 +974,7 @@ class Request:
     def sign(self, pkey, md):
         mda = getattr(m2, md, None)
         if mda is None:
-            raise ValueError, ('unknown message digest', md)
+            raise ValueError('unknown message digest', md)
         return m2.x509_req_sign(self.req, pkey.pkey, mda())
 
 

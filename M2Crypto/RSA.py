@@ -84,7 +84,7 @@ class RSA:
         else:
             ciph = getattr(m2, cipher, None)
             if ciph is None:
-                raise RSAError, 'not such cipher %s' % cipher 
+                raise RSAError('not such cipher %s' % cipher)
             else:
                 ciph = ciph()
             return m2.rsa_write_key(self.rsa, bio._ptr(), ciph, callback)
@@ -230,7 +230,7 @@ class RSA:
         """
         digest_type = getattr(m2, 'NID_' + algo, None) 
         if digest_type is None:
-            raise ValueError, ('unknown algorithm', algo)
+            raise ValueError('unknown algorithm', algo)
         
         return m2.rsa_sign(self.rsa, digest, digest_type) 
     
@@ -254,7 +254,7 @@ class RSA:
         """
         digest_type = getattr(m2, 'NID_' + algo, None)
         if digest_type is None:
-            raise ValueError, ('unknown algorithm', algo)
+            raise ValueError('unknown algorithm', algo)
         
         return m2.rsa_verify(self.rsa, data, signature, digest_type) 
 
@@ -267,16 +267,15 @@ class RSA_pub(RSA):
 
     def __setattr__(self, name, value):
         if name in ['e', 'n']:
-            raise RSAError, \
-                'use factory function new_pub_key() to set (e, n)'
+            raise RSAError('use factory function new_pub_key() to set (e, n)')
         else:
             self.__dict__[name] = value
         
     def private_encrypt(self, *argv):
-        raise RSAError, 'RSA_pub object has no private key'
+        raise RSAError('RSA_pub object has no private key')
 
     def private_decrypt(self, *argv):
-        raise RSAError, 'RSA_pub object has no private key'
+        raise RSAError('RSA_pub object has no private key')
 
     def save_key(self, file, *args, **kw):
         """
@@ -299,7 +298,7 @@ class RSA_pub(RSA):
 
 
 def rsa_error():
-    raise RSAError, m2.err_reason_error_string(m2.err_get_error())
+    raise RSAError(m2.err_reason_error_string(m2.err_get_error()))
 
 
 def keygen_callback(p, n, out=sys.stdout):

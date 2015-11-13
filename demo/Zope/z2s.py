@@ -553,20 +553,18 @@ def set_locale(val):
     try:
         import locale
     except:
-        raise SystemExit, (
+        raise SystemExit(
             'The locale module could not be imported.\n'
             'To use localization options, you must ensure\n'
             'that the locale module is compiled into your\n'
-            'Python installation.'
-            )
+            'Python installation.')
     try:
         locale.setlocale(locale.LC_ALL, val)
     except:
-        raise SystemExit, (
+        raise SystemExit(
             'The specified locale is not supported by your system.\n'
             'See your operating system documentation for more\n'
-            'information on locale support.'
-            )
+            'information on locale support.')
 if LOCALE_ID is not None:
     set_locale(LOCALE_ID)
 
@@ -1000,9 +998,9 @@ try:
             try:
                 import initgroups
             except:
-                raise SystemExit, 'initgroups is required to safely setuid'
+                raise SystemExit('initgroups is required to safely setuid')
             if UID == None:
-                raise SystemExit, ('A user was not specified to setuid '
+                raise SystemExit('A user was not specified to setuid '
                                    'to; fix this to start as root (see '
                                    'doc/SETUID.txt)')
             import stat
@@ -1016,7 +1014,7 @@ try:
                 client_home_faults.append('fix this to start as root (see '
                                           'doc/SETUID.txt)')
                 err = '%s %s' % (CLIENT_HOME, ', '.join(client_home_faults))
-                raise SystemExit, err
+                raise SystemExit(err)
 
             try:
                 try:    UID = string.atoi(UID)

@@ -146,7 +146,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
         #real host/port to be used to make CONNECT request to proxy
         proto, netloc, path, query, fragment = urlsplit(url)
         if not proto:
-            raise ValueError, "unknown URL type: %s" % url
+            raise ValueError("unknown URL type: %s" % url)
 
         #get host & port
         try:
@@ -162,7 +162,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
             try:
                 port = self._ports[proto]
             except KeyError:
-                raise ValueError, "unknown protocol for: %s" % url
+                raise ValueError("unknown protocol for: %s" % url)
 
         self._real_host = host
         self._real_port = int(port)
@@ -202,7 +202,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
         if code != 200:
             #proxy returned and error, abort connection, and raise exception
             self.close()
-            raise socket.error, "Proxy connection failed: %d" % code
+            raise socket.error("Proxy connection failed: %d" % code)
 
         self._start_ssl()
 
