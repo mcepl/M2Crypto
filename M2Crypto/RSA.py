@@ -422,7 +422,7 @@ def load_pub_key_bio(bio):
     return RSA_pub(rsa, 1)
 
 
-def new_pub_key((e, n)):
+def new_pub_key(e_n):
     """
     Instantiate an RSA_pub object from an (e, n) tuple.
 
@@ -439,6 +439,7 @@ def new_pub_key((e, n)):
     @rtype: M2Crypto.RSA.RSA_pub
     @return: M2Crypto.RSA.RSA_pub object.
     """ 
+    (e, n) = e_n
     rsa = m2.rsa_new()
     m2.rsa_set_e(rsa, e)
     m2.rsa_set_n(rsa, n)
