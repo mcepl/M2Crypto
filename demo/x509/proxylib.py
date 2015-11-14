@@ -31,7 +31,7 @@ KEY_USAGE_VALUE = "Digital Signature, Key Encipherment, Data Encipherment"
 PCI_VALUE_FULL = "critical, language:Inherit all"
 PCI_VALUE_LIMITED = "critical, language:1.3.6.1.4.1.3536.1.1.1.9"
 
-def create_write_file(fname, perm=0600):
+def create_write_file(fname, perm=0o600):
     """
     Creates a file to write to while avoiding a possible race condition.
     This is essential for writing out the proxy file. Need to make sure
@@ -121,7 +121,7 @@ class Proxy:
         self._key.save_key_bio(bio, cipher=None) 
         bio.write(self._issuer.as_pem())
         bio.close()
-        os.chmod(proxypath, 0600) 
+        os.chmod(proxypath, 0o600)
         
 
 class ProxyFactory:
