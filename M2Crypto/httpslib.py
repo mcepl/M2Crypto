@@ -167,10 +167,8 @@ class ProxyHTTPSConnection(HTTPSConnection):
         self._real_host = host
         self._real_port = int(port)
         rest = urlunsplit((None, None, path, query, fragment))
-        if sys.version_info < (2,4):
-            HTTPSConnection.putrequest(self, method, rest, skip_host)
-        else:
-            HTTPSConnection.putrequest(self, method, rest, skip_host, skip_accept_encoding)
+        HTTPSConnection.putrequest(self, method, rest, skip_host,
+                                   skip_accept_encoding)
 
     def putheader(self, header, value):
         # Store the auth header if passed in.

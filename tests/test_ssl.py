@@ -907,90 +907,89 @@ class UrllibSSLClientTestCase(BaseSSLClientTestCase):
 
 class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
 
-    if sys.version_info >= (2, 4):
-        def test_urllib2(self):
-            pid = self.start_server(self.args)
-            try:
-                from M2Crypto import m2urllib2
-                opener = m2urllib2.build_opener()
-                opener.addheaders = [('Connection', 'close')]
-                u = opener.open('https://%s:%s/' % (srv_host, self.srv_port))
-                data = u.read()
-                u.close()
-            finally:
-                self.stop_server(pid)
-            self.assertIn('s_server -quiet -www', data)
+    def test_urllib2(self):
+        pid = self.start_server(self.args)
+        try:
+            from M2Crypto import m2urllib2
+            opener = m2urllib2.build_opener()
+            opener.addheaders = [('Connection', 'close')]
+            u = opener.open('https://%s:%s/' % (srv_host, self.srv_port))
+            data = u.read()
+            u.close()
+        finally:
+            self.stop_server(pid)
+        self.assertIn('s_server -quiet -www', data)
 
-        def test_urllib2_secure_context(self):
-            pid = self.start_server(self.args)
-            try:
-                ctx = SSL.Context()
-                ctx.set_verify(
-                    SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
-                ctx.load_verify_locations('tests/ca.pem')
+    def test_urllib2_secure_context(self):
+        pid = self.start_server(self.args)
+        try:
+            ctx = SSL.Context()
+            ctx.set_verify(
+                SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
+            ctx.load_verify_locations('tests/ca.pem')
 
-                from M2Crypto import m2urllib2
-                opener = m2urllib2.build_opener(ctx)
-                opener.addheaders = [('Connection', 'close')]
-                u = opener.open('https://%s:%s/' % (srv_host, self.srv_port))
-                data = u.read()
-                u.close()
-            finally:
-                self.stop_server(pid)
-            self.assertIn('s_server -quiet -www', data)
+            from M2Crypto import m2urllib2
+            opener = m2urllib2.build_opener(ctx)
+            opener.addheaders = [('Connection', 'close')]
+            u = opener.open('https://%s:%s/' % (srv_host, self.srv_port))
+            data = u.read()
+            u.close()
+        finally:
+            self.stop_server(pid)
+        self.assertIn('s_server -quiet -www', data)
 
-        def test_urllib2_secure_context_fail(self):
-            pid = self.start_server(self.args)
-            try:
-                ctx = SSL.Context()
-                ctx.set_verify(
-                    SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
-                ctx.load_verify_locations('tests/server.pem')
+    def test_urllib2_secure_context_fail(self):
+        pid = self.start_server(self.args)
+        try:
+            ctx = SSL.Context()
+            ctx.set_verify(
+                SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
+            ctx.load_verify_locations('tests/server.pem')
 
-                from M2Crypto import m2urllib2
-                opener = m2urllib2.build_opener(ctx)
-                opener.addheaders = [('Connection', 'close')]
-                self.assertRaises(SSL.SSLError, opener.open,
-                                  'https://%s:%s/' % (srv_host, self.srv_port))
-            finally:
-                self.stop_server(pid)
+            from M2Crypto import m2urllib2
+            opener = m2urllib2.build_opener(ctx)
+            opener.addheaders = [('Connection', 'close')]
+            self.assertRaises(SSL.SSLError, opener.open,
+                              'https://%s:%s/' % (srv_host, self.srv_port))
+        finally:
+            self.stop_server(pid)
 
-        def test_z_urllib2_opener(self):
-            pid = self.start_server(self.args)
-            try:
-                ctx = SSL.Context()
-
-                from M2Crypto import m2urllib2
-                opener = m2urllib2.build_opener(
-                    ctx, m2urllib2.HTTPBasicAuthHandler())
-                m2urllib2.install_opener(opener)
-                req = m2urllib2.Request('https://%s:%s/' %
-                                        (srv_host, self.srv_port))
-                u = m2urllib2.urlopen(req)
-                data = u.read()
-                u.close()
-            finally:
-                self.stop_server(pid)
-            self.assertIn('s_server -quiet -www', data)
-
-        def test_urllib2_opener_handlers(self):
+    def test_z_urllib2_opener(self):
+        pid = self.start_server(self.args)
+        try:
             ctx = SSL.Context()
 
             from M2Crypto import m2urllib2
-            m2urllib2.build_opener(ctx, m2urllib2.HTTPBasicAuthHandler())
+            opener = m2urllib2.build_opener(
+                ctx, m2urllib2.HTTPBasicAuthHandler())
+            m2urllib2.install_opener(opener)
+            req = m2urllib2.Request('https://%s:%s/' %
+                                    (srv_host, self.srv_port))
+            u = m2urllib2.urlopen(req)
+            data = u.read()
+            u.close()
+        finally:
+            self.stop_server(pid)
+        self.assertIn('s_server -quiet -www', data)
 
-        def test_urllib2_leak(self):
-            pid = self.start_server(self.args)
-            try:
-                import gc
-                from M2Crypto import m2urllib2
-                o = m2urllib2.build_opener()
-                r = o.open('https://%s:%s/' % (srv_host, self.srv_port))
-                s = [r.fp._sock.fp]
-                r.close()
-                self.assertEqual(len(gc.get_referrers(s[0])), 1)
-            finally:
-                self.stop_server(pid)
+    def test_urllib2_opener_handlers(self):
+        ctx = SSL.Context()
+
+        from M2Crypto import m2urllib2
+        m2urllib2.build_opener(ctx, m2urllib2.HTTPBasicAuthHandler())
+
+    def test_urllib2_leak(self):
+        pid = self.start_server(self.args)
+        try:
+            import gc
+            from M2Crypto import m2urllib2
+            o = m2urllib2.build_opener()
+            r = o.open('https://%s:%s/' % (srv_host, self.srv_port))
+            s = [r.fp._sock.fp]
+            r.close()
+            self.assertEqual(len(gc.get_referrers(s[0])), 1)
+        finally:
+            self.stop_server(pid)
 
 
 class TwistedSSLClientTestCase(BaseSSLClientTestCase):
