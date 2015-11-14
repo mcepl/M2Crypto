@@ -7,9 +7,16 @@ __all__ = ['map', 'Context']
 
 # M2Crypto
 import cb
+import sys
 
 from M2Crypto import BIO, Err, RSA, X509, m2, util
 from weakref import WeakValueDictionary
+
+# Python 2 has int() and long().
+# Python 3 and higher only has int().
+# Work around this.
+if sys.version_info > (3,):
+   long = int
 
 class _ctxmap:  # noqa
     singleton = None
@@ -47,7 +54,7 @@ class Context:
         self.allow_unknown_ca = 0
         self.post_connection_check = post_connection_check
         map()[long(self.ctx)] = self
-        m2.ssl_ctx_set_cache_size(self.ctx, 128L)
+        m2.ssl_ctx_set_cache_size(self.ctx, long(128))
         if weak_crypto is None:
             if protocol == 'sslv23':
                 self.set_options(m2.SSL_OP_ALL | m2.SSL_OP_NO_SSLv2)

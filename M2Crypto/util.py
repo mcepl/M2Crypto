@@ -10,6 +10,12 @@
 import sys
 import m2
 
+# Python 2 has int() and long().
+# Python 3 and higher only has int().
+# Work around this.
+if sys.version_info > (3,):
+   long = int
+
 class UtilError(Exception): pass
 
 m2.util_init(UtilError)
@@ -36,10 +42,10 @@ def pkcs7_pad(data, blklen):
     return data+chr(pad)*pad
 
 def octx_to_num(x):
-    v = 0L
+    v = long(0)
     lx = len(x)
     for i in range(lx):
-        v = v + ord(x[i]) * (256L ** (lx-i-1))
+        v = v + ord(x[i]) * (long(256) ** (lx-i-1))
     return v
 
 def genparam_callback(p, n, out=sys.stdout):

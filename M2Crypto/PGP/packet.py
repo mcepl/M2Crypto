@@ -16,12 +16,20 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 # Be conservative in what you send. 
 # Be lazy in what you eval.
 
-import struct, time
+import struct
+import sys
+import time
 
 try:
     from cStringIO import StringIO
 except ImportError:
     from StringIO import StringIO
+
+# Python 2 has int() and long().
+# Python 3 and higher only has int().
+# Work around this.
+if sys.version_info > (3,):
+   long = int
 
 from M2Crypto import EVP, RSA
 from M2Crypto.util import octx_to_num
@@ -80,7 +88,7 @@ class packet:
         elif lenf < 65536:
             return (1, struct.pack('>H', lenf))
         else: 
-            assert lenf < 2L**32
+            assert lenf < long(2)**32
             return (2, struct.pack('>L', lenf))
 
     def _ctb(self, llf):

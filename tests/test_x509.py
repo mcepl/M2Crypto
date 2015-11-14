@@ -11,11 +11,18 @@ Author: Heikki Toivonen
 
 import base64
 import os
+import sys
 import time
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
+
+# Python 2 has int() and long().
+# Python 3 and higher only has int().
+# Work around this.
+if sys.version_info > (3,):
+   long = int
 
 from M2Crypto import ASN1, BIO, EVP, RSA, Rand, X509, m2
 
@@ -282,7 +289,7 @@ class X509TestCase(unittest.TestCase):
         self.assertEqual(cert.get_serial_number(), 1)
         self.assertEqual(cert.get_issuer().CN, 'The Issuer Monkey')
 
-        if m2.OPENSSL_VERSION_NUMBER >= 0x90800f:
+        if m2.OPENSSL_VERSION_NUMBER >= long(0x90800f):
             self.assertFalse(cert.check_ca())
             self.assertFalse(cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 1))
             self.assertFalse(cert.check_purpose(m2.X509_PURPOSE_NS_SSL_SERVER,
@@ -319,7 +326,7 @@ class X509TestCase(unittest.TestCase):
         cert.add_ext(ext)
         cert.sign(pk, 'sha1')
 
-        if m2.OPENSSL_VERSION_NUMBER >= 0x0090800fL:
+        if m2.OPENSSL_VERSION_NUMBER >= 0x0090800f:
             self.assertTrue(cert.check_ca())
             self.assertTrue(cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER,
                                                1))
