@@ -302,7 +302,7 @@ class dispatcher:
 		self.connected = 0
 		try:
 			self.socket.connect (address)
-		except socket.error, why:
+		except socket.error as why:
 			if why[0] in (EINPROGRESS, EALREADY, EWOULDBLOCK):
 				return
 			else:
@@ -314,7 +314,7 @@ class dispatcher:
 		try:
 			conn, addr = self.socket.accept()
 			return conn, addr
-		except socket.error, why:
+		except socket.error as why:
 			if why[0] == EWOULDBLOCK:
 				pass
 			else:
@@ -324,7 +324,7 @@ class dispatcher:
 		try:
 			result = self.socket.send (data)
 			return result
-		except socket.error, why:
+		except socket.error as why:
 			if why[0] == EWOULDBLOCK:
 				return 0
 			else:
@@ -341,7 +341,7 @@ class dispatcher:
 				return ''
 			else:
 				return data
-		except socket.error, why:
+		except socket.error as why:
 			# winsock sometimes throws ENOTCONN
 			if why[0] in [ECONNRESET, ENOTCONN, ESHUTDOWN]:
 				self.handle_close()

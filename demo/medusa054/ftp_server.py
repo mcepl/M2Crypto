@@ -277,7 +277,7 @@ class ftp_channel (asynchat.async_chat):
                 cdc.bind (('', self.server.port - 1))
             try:
                 cdc.connect ((ip, port))
-            except socket.error, why:
+            except socket.error as why:
                 self.respond ("425 Can't build data connection")
         self.client_dc = cdc
 
@@ -304,7 +304,7 @@ class ftp_channel (asynchat.async_chat):
             cdc.create_socket (socket.AF_INET, socket.SOCK_STREAM)
             try:
                 cdc.connect ((ip, port))
-            except socket.error, why:
+            except socket.error as why:
                 self.respond ("425 Can't build data connection")
         self.client_dc = cdc
 
@@ -388,7 +388,7 @@ class ftp_channel (asynchat.async_chat):
             line.remove ('-FC')
         try:
             dir_list_producer = self.get_dir_list (line, 0)
-        except os.error, why:
+        except os.error as why:
             self.respond ('550 Could not list directory: %s' % why)
             return
         self.respond (
@@ -404,7 +404,7 @@ class ftp_channel (asynchat.async_chat):
         'give a list of files in a directory'
         try:
             dir_list_producer = self.get_dir_list (line, 1)
-        except os.error, why:
+        except os.error as why:
             self.respond ('550 Could not list directory: %s' % why)
             return
         self.respond (
@@ -487,7 +487,7 @@ class ftp_channel (asynchat.async_chat):
                     # FIXME: for some reason, 'rt' isn't working on win95
                     mode = 'r'+self.type_mode_map[self.current_mode]
                     fd = self.open (file, mode)
-                except IOError, why:
+                except IOError as why:
                     self.respond ('553 could not open file for reading: %s' % (repr(why)))
                     return
                 self.respond (
@@ -526,7 +526,7 @@ class ftp_channel (asynchat.async_chat):
             # todo: handle that type flag
             try:
                 fd = self.open (file, mode)
-            except IOError, why:
+            except IOError as why:
                 self.respond ('553 could not open file for writing: %s' % (repr(why)))
                 return
             self.respond (

@@ -33,7 +33,7 @@ class ssl_echo_handler(SocketServer.BaseRequestHandler):
                 if not buf:
                     break
                 self.request.write(buf) 
-            except SSL.SSLError, what:
+            except SSL.SSLError as what:
                 if str(what) == 'unexpected eof':
                     break
                 else:

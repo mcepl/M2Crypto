@@ -60,7 +60,7 @@ def test(dsa, dgst):
     print '  testing signing and verification...',
     try:
         r,s = dsa.sign(dgst)
-    except Exception, e:
+    except Exception as e:
         print '\n\n    *** %s *** \n' % e
         sys.exit()
     if not dsa.verify(dgst, r, s):

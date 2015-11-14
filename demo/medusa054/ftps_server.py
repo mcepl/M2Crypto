@@ -53,7 +53,7 @@ class ftp_tls_channel(ftp_server.ftp_channel):
         else:
             try:
                 ftp_server.ftp_channel.handle_read(self) 
-            except SSL.SSLError, what:
+            except SSL.SSLError as what:
                 if str(what) == 'unexpected eof':
                     self.close()
                 else:
@@ -68,7 +68,7 @@ class ftp_tls_channel(ftp_server.ftp_channel):
         else:
             try:
                 ftp_server.ftp_channel.handle_write(self) 
-            except SSL.SSLError, what:
+            except SSL.SSLError as what:
                 if str(what) == 'unexpected eof':
                     self.close()
                 else:
@@ -82,7 +82,7 @@ class ftp_tls_channel(ftp_server.ftp_channel):
                 return 0
             else:
                 return result
-        except SSL.SSLError, what:
+        except SSL.SSLError as what:
             self.close()
             self.log_info('send: closing channel %s %s' % (repr(self), what))
             return 0
@@ -95,7 +95,7 @@ class ftp_tls_channel(ftp_server.ftp_channel):
                 return ''
             else:
                 return result
-        except SSL.SSLError, what:
+        except SSL.SSLError as what:
             self.close()
             self.log_info('recv: closing channel %s %s' % (repr(self), what))
             return ''
@@ -174,7 +174,7 @@ class ftp_tls_channel(ftp_server.ftp_channel):
                 cdc.bind(('', self.server.port - 1))
             try:
                 cdc.connect(self.client_addr)
-            except socket.error, what:
+            except socket.error as what:
                 self.respond('425 Cannot build data connection')
         self.client_dc = cdc
 
@@ -205,7 +205,7 @@ class ftp_tls_channel(ftp_server.ftp_channel):
             cdc.create_socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
                 cdc.connect(self.client_addr)
-            except socket.error, what:
+            except socket.error as what:
                 self.respond('425 Cannot build data connection')
         self.client_dc = cdc
 
@@ -353,7 +353,7 @@ class nbio_ftp_tls_actor:
                 return 0
             else:
                 return result
-        except SSL.SSLError, what:
+        except SSL.SSLError as what:
             self.close()
             self.log_info('send: closing channel %s %s' % (repr(self), what))
             return 0
@@ -366,7 +366,7 @@ class nbio_ftp_tls_actor:
                 return ''
             else:
                 return result
-        except SSL.SSLError, what:
+        except SSL.SSLError as what:
             self.close()
             self.log_info('recv: closing channel %s %s' % (repr(self), what))
             return ''

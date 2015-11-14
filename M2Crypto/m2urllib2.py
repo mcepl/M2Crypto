@@ -84,7 +84,7 @@ class HTTPSHandler(AbstractHTTPHandler):
         try:
             h.request(req.get_method(), request_uri, req.data, headers)
             r = h.getresponse()
-        except socket.error, err: # XXX what error?
+        except socket.error as err: # XXX what error?
             raise URLError(err)
 
         # Pick apart the HTTPResponse object to get the addinfourl

@@ -81,7 +81,7 @@ class HTTPS_Server(HTTPServer):
             ssl_conn._setup_ssl(addr)
             ssl_conn.accept_ssl()
             self.channel_class(self, ssl_conn, addr, self.adj)
-        except SSL.SSLError, why:
+        except SSL.SSLError as why:
             self.log_info('accept: cannot make SSL connection %s' % (why,), 'warning')
             pass
 

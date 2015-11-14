@@ -59,7 +59,7 @@ class HTTPSConnection(HTTPConnection):
                 self.sock = sock
                 sock = None
                 return
-            except socket.error, e:
+            except socket.error as e:
                 # Other exception are probably SSL-related, in that case we
                 # abort and the exception is forwarded to the caller.
                 error = e
