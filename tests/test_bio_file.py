@@ -37,7 +37,7 @@ class FileTestCase(unittest.TestCase):
         # Now open the file using M2Crypto.BIO.openfile().
         f = openfile(self.fname, 'rb')
         data = f.read(len(self.data))
-        assert data == self.data
+        self.assertEqual(data, self.data)
 
     def test_openfile_wb(self):
         # First create the file using M2Crypto.BIO.openfile().
@@ -47,7 +47,7 @@ class FileTestCase(unittest.TestCase):
         # Now open the file using Python's open().
         f = open(self.fname, 'rb')
         data = f.read(len(self.data))
-        assert data == self.data
+        self.assertEqual(data, self.data)
 
     def test_closed(self):
         f = openfile(self.fname, 'wb')
@@ -65,7 +65,7 @@ class FileTestCase(unittest.TestCase):
         # Now read the file.
         f = open(self.fname, 'rb')
         data = f.read(len(self.data))
-        assert data == self.data
+        self.assertEqual(data, self.data)
 
 
 def suite():

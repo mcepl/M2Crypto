@@ -26,27 +26,27 @@ class IOBufferTestCase(unittest.TestCase):
         mb = MemoryBuffer()
         io = IOBuffer(mb)
         out = io.read()
-        assert out == ''
+        self.assertEqual(out, '')
 
     def test_init_something(self):
         mb = MemoryBuffer(self.data)
         io = IOBuffer(mb)
         out = io.read(len(self.data))
-        assert out == self.data
+        self.assertEqual(out, self.data)
 
     def test_read_less_than(self):
         chunk = len(self.data) - 7
         mb = MemoryBuffer(self.data)
         io = IOBuffer(mb)
         out = io.read(chunk)
-        assert out == self.data[:chunk]
+        self.assertEqual(out, self.data[:chunk])
         
     def test_read_more_than(self):
         chunk = len(self.data) + 8
         mb = MemoryBuffer(self.data)
         io = IOBuffer(mb)
         out = io.read(chunk)
-        assert out == self.data
+        self.assertEqual(out, self.data)
 
     def test_readline(self):
         buf = StringIO()
@@ -57,8 +57,8 @@ class IOBufferTestCase(unittest.TestCase):
             if not out:
                 break
             buf.write(out)
-            assert out == self._data
-        assert buf.getvalue() == self.data
+            self.assertEqual(out, self._data)
+        self.assertEqual(buf.getvalue(), self.data)
 
     def test_readlines(self):
         buf = StringIO()
@@ -66,9 +66,9 @@ class IOBufferTestCase(unittest.TestCase):
         io = IOBuffer(mb)
         lines = io.readlines()
         for line in lines:
-            assert line == self._data
+            self.assertEqual(line, self._data)
             buf.write(line)
-        assert buf.getvalue() == self.data
+        self.assertEqual(buf.getvalue(), self.data)
 
     def test_closed(self):
         mb = MemoryBuffer(self.data)

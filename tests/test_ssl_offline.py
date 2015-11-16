@@ -38,11 +38,11 @@ class ContextTestCase(unittest.TestCase):
         
     def test_map(self):
         from M2Crypto.SSL.Context import map, _ctxmap
-        assert isinstance(map(), _ctxmap)
+        self.assertIsInstance(map(), _ctxmap)
         ctx = SSL.Context()
         assert map()
         ctx.close()
-        assert map() is _ctxmap.singleton
+        self.assertIs(map(), _ctxmap.singleton)
 
     def test_certstore(self):
         ctx = SSL.Context()
@@ -51,7 +51,7 @@ class ContextTestCase(unittest.TestCase):
         ctx.load_cert('tests/x509.pem')
 
         store = ctx.get_cert_store()
-        assert isinstance(store, X509.X509_Store)
+        self.assertIsInstance(store, X509.X509_Store)
 
 
 def suite():

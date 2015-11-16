@@ -121,9 +121,10 @@ class ECCurveTests(unittest.TestCase):
     def genkey(self, curveName, curveLen):
         curve = getattr(EC, 'NID_'+curveName)
         ec = EC.gen_params(curve)
-        assert len(ec) == curveLen
+        self.assertEqual(len(ec), curveLen)
         ec.gen_key()
-        assert  ec.check_key(), 'check_key() failure for "%s"' % curveName
+        self.assertTrue(ec.check_key(),
+                        'check_key() failure for "%s"' % curveName)
         return ec
 
 #    def check_ec_curves_genkey(self):        
@@ -136,8 +137,8 @@ class ECCurveTests(unittest.TestCase):
     def sign_verify_ecdsa(self, curveName, curveLen):
         ec = self.genkey(curveName, curveLen)
         r, s = ec.sign_dsa(self.data)
-        assert ec.verify_dsa(self.data, r, s)
-        assert not ec.verify_dsa(self.data, s, r)            
+        self.assertTrue(ec.verify_dsa(self.data, r, s))
+        self.assertFalse(ec.verify_dsa(self.data, s, r))
 
     def test_ec_curves_ECDSA(self):
         for curveName, curveLen in curves:
@@ -160,4 +161,3 @@ if __name__ == '__main__':
     Rand.load_file('randpool.dat', -1) 
     unittest.TextTestRunner().run(suite())
     Rand.save_file('randpool.dat')
-

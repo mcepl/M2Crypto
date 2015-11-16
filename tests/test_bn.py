@@ -52,7 +52,7 @@ class BNTestCase(unittest.TestCase):
         # small range
         for x in range(loops):
             r = BN.rand_range(1)
-            assert r == 0
+            self.assertEqual(r, 0)
         
         for x in range(loops):
             r = BN.rand_range(4)

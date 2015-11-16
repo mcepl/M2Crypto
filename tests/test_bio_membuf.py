@@ -22,27 +22,29 @@ class MemoryBufferTestCase(unittest.TestCase):
 
     def test_init_empty(self):
         mb = MemoryBuffer()
-        assert len(mb) == 0
+        self.assertEqual(len(mb), 0)
         out = mb.read()
         assert out is None
 
     def test_init_something(self):
         mb = MemoryBuffer(self.data)
-        assert len(mb) == len(self.data)
+        self.assertEqual(len(mb), len(self.data))
         out = mb.read()
-        assert out == self.data
+        self.assertEqual(out, self.data)
 
     def test_read_less_than(self):
         chunk = len(self.data) - 7
         mb = MemoryBuffer(self.data)
         out = mb.read(chunk)
-        assert out == self.data[:chunk] and len(mb) == (len(self.data) - chunk)
+        self.assertEqual(out, self.data[:chunk])
+        self.assertEqual(len(mb), (len(self.data)) - chunk)
         
     def test_read_more_than(self):
         chunk = len(self.data) + 8
         mb = MemoryBuffer(self.data)
         out = mb.read(chunk)
-        assert out == self.data and len(mb) == 0
+        self.assertEqual(out, self.data)
+        self.assertEqual(len(mb), 0)
 
     def test_write_close(self):
         mb = MemoryBuffer(self.data)

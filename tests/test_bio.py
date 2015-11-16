@@ -39,7 +39,7 @@ class CipherStreamTestCase(unittest.TestCase):
         cf.write_close()
         data2 = cf.read()
         cf.close()
-        assert not cf.readable()
+        self.assertFalse(cf.readable())
         
         with self.assertRaises(IOError):
             cf.read()
@@ -48,7 +48,8 @@ class CipherStreamTestCase(unittest.TestCase):
         with self.assertRaises(IOError):
             cf.readlines()
     
-        assert data == data2, '%s algorithm cipher test failed' % algo
+        self.assertEqual(data, data2,
+                         '%s algorithm cipher test failed' % algo)
         
     def test_ciphers(self):
         ciphers=[

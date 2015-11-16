@@ -105,9 +105,9 @@ class SSLTestCase(unittest.TestCase):
         conn = SSL.Connection(ctx)
         self.sslbio.set_ssl(conn)
         ret = self.sslbio.do_handshake()
-        assert ret == -1
+        self.assertEqual(ret, -1)
         ret = self.sslbio.should_read()
-        assert ret == 0
+        self.assertEqual(ret, 0)
 
     def test_do_handshake_succeed(self): # XXX leaks 196/26586 bytes
         ctx = SSL.Context()

@@ -33,12 +33,12 @@ class ECDSATestCase(unittest.TestCase):
 
     def test_loadkey(self):
         ec = EC.load_key(self.privkey)
-        assert len(ec) == 233
+        self.assertEqual(len(ec), 233)
 
     def test_loadpubkey(self):
         # XXX more work needed
         ec = EC.load_pub_key(self.pubkey)
-        assert len(ec) == 233
+        self.assertEqual(len(ec), 233)
         with self.assertRaises(EC.ECError):
             EC.load_pub_key(self.errkey)
 
@@ -68,7 +68,7 @@ class ECDSATestCase(unittest.TestCase):
         
     def test_genparam(self):
         ec = EC.gen_params(EC.NID_sect233k1)
-        assert len(ec) == 233
+        self.assertEqual(len(ec), 233)
 
 
 def suite():

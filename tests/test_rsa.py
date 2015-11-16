@@ -49,9 +49,10 @@ class RSATestCase(unittest.TestCase):
 
     def test_loadkey_pp(self):
         rsa = RSA.load_key(self.privkey2, self.pp_callback)
-        assert len(rsa) == 1024
-        assert rsa.e == '\000\000\000\003\001\000\001'  # aka 65537 aka 0xf4
-        assert rsa.check_key() == 1
+        self.assertEqual(len(rsa), 1024)
+        self.assertEqual(rsa.e,
+                         '\000\000\000\003\001\000\001')  # aka 65537 aka 0xf4
+        self.assertEqual(rsa.check_key(), 1)
 
     def test_loadkey_pp_bad_cb(self):
         with self.assertRaises(RSA.RSAError):
@@ -59,31 +60,35 @@ class RSATestCase(unittest.TestCase):
 
     def test_loadkey(self):
         rsa = RSA.load_key(self.privkey)
-        assert len(rsa) == 1024
-        assert rsa.e == '\000\000\000\003\001\000\001'  # aka 65537 aka 0xf4
+        self.assertEqual(len(rsa), 1024)
+        self.assertEqual(rsa.e,
+                         '\000\000\000\003\001\000\001')  # aka 65537 aka 0xf4
         self.assertEqual(rsa.n, "\x00\x00\x00\x81\x00\xcde!\x15\xdah\xb5`\xce[\xd6\x17d\xba8\xc1I\xb1\xf1\xber\x86K\xc7\xda\xb3\x98\xd6\xf6\x80\xae\xaa\x8f!\x9a\xefQ\xdeh\xbb\xc5\x99\x01o\xebGO\x8e\x9b\x9a\x18\xfb6\xba\x12\xfc\xf2\x17\r$\x00\xa1\x1a \xfc/\x13iUm\x04\x13\x0f\x91D~\xbf\x08\x19C\x1a\xe2\xa3\x91&\x8f\xcf\xcc\xf3\xa4HRf\xaf\xf2\x19\xbd\x05\xe36\x9a\xbbQ\xc86|(\xad\x83\xf2Eu\xb2EL\xdf\xa4@\x7f\xeel|\xfcU\x03\xdb\x89'")
         with self.assertRaises(AttributeError):
             getattr(rsa, 'nosuchprop')
-        assert rsa.check_key() == 1
+        self.assertEqual(rsa.check_key(), 1)
 
     def test_loadkey_bio(self):
         keybio = BIO.MemoryBuffer(open(self.privkey).read())
         rsa = RSA.load_key_bio(keybio)
-        assert len(rsa) == 1024
-        assert rsa.e == '\000\000\000\003\001\000\001'  # aka 65537 aka 0xf4
-        assert rsa.check_key() == 1
+        self.assertEqual(len(rsa), 1024)
+        self.assertEqual(rsa.e,
+                         '\000\000\000\003\001\000\001')  # aka 65537 aka 0xf4
+        self.assertEqual(rsa.check_key(), 1)
 
     def test_keygen(self):
         rsa = RSA.gen_key(1024, 65537, self.gen_callback)
-        assert len(rsa) == 1024
-        assert rsa.e == '\000\000\000\003\001\000\001'  # aka 65537 aka 0xf4
-        assert rsa.check_key() == 1
+        self.assertEqual(len(rsa), 1024)
+        self.assertEqual(rsa.e,
+                         '\000\000\000\003\001\000\001')  # aka 65537 aka 0xf4
+        self.assertEqual(rsa.check_key(), 1)
 
     def test_keygen_bad_cb(self):
         rsa = RSA.gen_key(1024, 65537, self.gen2_callback)
-        assert len(rsa) == 1024
-        assert rsa.e == '\000\000\000\003\001\000\001'  # aka 65537 aka 0xf4
-        assert rsa.check_key() == 1
+        self.assertEqual(len(rsa), 1024)
+        self.assertEqual(rsa.e,
+                         '\000\000\000\003\001\000\001')  # aka 65537 aka 0xf4
+        self.assertEqual(rsa.check_key(), 1)
 
     def test_private_encrypt(self):
         priv = RSA.load_key(self.privkey)
@@ -92,7 +97,7 @@ class RSATestCase(unittest.TestCase):
             p = getattr(RSA, padding)
             ctxt = priv.private_encrypt(self.data, p)
             ptxt = priv.public_decrypt(ctxt, p)
-            assert ptxt == self.data
+            self.assertEqual(ptxt, self.data)
         # The other paddings.
         for padding in self.s_padding_nok:
             p = getattr(RSA, padding)
@@ -133,8 +138,9 @@ class RSATestCase(unittest.TestCase):
 
     def test_loadpub(self):
         rsa = RSA.load_pub_key(self.pubkey)
-        assert len(rsa) == 1024
-        assert rsa.e == '\000\000\000\003\001\000\001'  # aka 65537 aka 0xf4
+        self.assertEqual(len(rsa), 1024)
+        self.assertEqual(rsa.e,
+                         '\000\000\000\003\001\000\001')  # aka 65537 aka 0xf4
         with self.assertRaises(RSA.RSAError):
             setattr(rsa, 'e', '\000\000\000\003\001\000\001')
         with self.assertRaises(RSA.RSAError):
@@ -161,7 +167,8 @@ class RSATestCase(unittest.TestCase):
 
     def test_set_bn(self):
         rsa = RSA.load_pub_key(self.pubkey)
-        assert m2.rsa_set_e(rsa.rsa, '\000\000\000\003\001\000\001') is None
+        self.assertIsNone(m2.rsa_set_e(rsa.rsa,
+                          '\000\000\000\003\001\000\001'))
         with self.assertRaises(RSA.RSAError):
             m2.rsa_set_e(rsa.rsa, '\000\000\000\003\001')
 
@@ -197,7 +204,8 @@ class RSATestCase(unittest.TestCase):
             #     'mismatched signature with algorithm %s:
             #     signature=%s' % (algo, signature)
             verify = rsa2.verify(digest, signature, algo)
-            assert verify == 1, 'verification failed with algorithm %s' % algo
+            self.assertEqual(verify, 1,
+                             'verification failed with algorithm %s' % algo)
 
     if m2.OPENSSL_VERSION_NUMBER >= 0x90708F:
         def test_sign_and_verify_rsassa_pss(self):

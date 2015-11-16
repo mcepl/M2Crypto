@@ -40,7 +40,8 @@ class EVPTestCase(unittest.TestCase):
         rsa = RSA.gen_key(1024, 3, callback=self._gen_callback)
         pkey = EVP.PKey()
         pkey.assign_rsa(rsa)
-        assert pkey.as_pem(callback=self._pass_callback) != pkey.as_pem(cipher=None)
+        self.assertNotEqual(pkey.as_pem(callback=self._pass_callback),
+                            pkey.as_pem(cipher=None))
         with self.assertRaises(ValueError):
             pkey.as_pem(cipher='noXX$$%%suchcipher',
                         callback=self._pass_callback)
@@ -55,15 +56,15 @@ class EVPTestCase(unittest.TestCase):
         pkey.assign_rsa(rsa)
         der_blob = pkey.as_der()        
         #A quick but not thorough sanity check
-        assert len(der_blob) == 160
+        self.assertEqual(len(der_blob), 160)
           
         
     def test_MessageDigest(self):
         with self.assertRaises(ValueError):
             EVP.MessageDigest('sha513')
         md = EVP.MessageDigest('sha1')
-        assert md.update('Hello') == 1
-        assert util.octx_to_num(md.final()) == 1415821221623963719413415453263690387336440359920
+        self.assertEqual(md.update('Hello'), 1)
+        self.assertEqual(util.octx_to_num(md.final()), 1415821221623963719413415453263690387336440359920)
 
     def test_as_der_capture_key(self):
         """
@@ -75,26 +76,40 @@ class EVPTestCase(unittest.TestCase):
         pkey.assign_rsa(rsa, 1)
         der_blob = pkey.as_der()
         #A quick but not thorough sanity check
-        assert len(der_blob) == 160
+        self.assertEqual(len(der_blob), 160)
 
     def test_size(self):
         rsa = RSA.gen_key(1024, 3, callback=self._gen_callback)
         pkey = EVP.PKey()
         pkey.assign_rsa(rsa)
         size = pkey.size() 
-        assert size == 128
+        self.assertEqual(size, 128)
         
     def test_hmac(self):
-        assert util.octx_to_num(EVP.hmac('key', 'data')) == 92800611269186718152770431077867383126636491933, util.octx_to_num(EVP.hmac('key', 'data'))
+        self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data')),
+                         92800611269186718152770431077867383126636491933,
+                         util.octx_to_num(EVP.hmac('key', 'data')))
         if not fips_mode: # Disabled algorithms
-            assert util.octx_to_num(EVP.hmac('key', 'data', algo='md5')) == 209168838103121722341657216703105225176, util.octx_to_num(EVP.hmac('key', 'data', algo='md5'))
-            assert util.octx_to_num(EVP.hmac('key', 'data', algo='ripemd160')) == 1176807136224664126629105846386432860355826868536, util.octx_to_num(EVP.hmac('key', 'data', algo='ripemd160'))
+            self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data', algo='md5')),
+                209168838103121722341657216703105225176,
+                util.octx_to_num(EVP.hmac('key', 'data', algo='md5')))
+            self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data', algo='ripemd160')),
+                1176807136224664126629105846386432860355826868536,
+                util.octx_to_num(EVP.hmac('key', 'data', algo='ripemd160')))
          
         if m2.OPENSSL_VERSION_NUMBER >= 0x90800F:
-            assert util.octx_to_num(EVP.hmac('key', 'data', algo='sha224')) == 2660082265842109788381286338540662430962855478412025487066970872635, util.octx_to_num(EVP.hmac('key', 'data', algo='sha224'))
-            assert util.octx_to_num(EVP.hmac('key', 'data', algo='sha256')) == 36273358097036101702192658888336808701031275731906771612800928188662823394256, util.octx_to_num(EVP.hmac('key', 'data', algo='sha256'))
-            assert util.octx_to_num(EVP.hmac('key', 'data', algo='sha384')) == 30471069101236165765942696708481556386452105164815350204559050657318908408184002707969468421951222432574647369766282, util.octx_to_num(EVP.hmac('key', 'data', algo='sha384'))
-            assert util.octx_to_num(EVP.hmac('key', 'data', algo='sha512')) == 3160730054100700080556942280820129108466291087966635156623014063982211353635774277148932854680195471287740489442390820077884317620321797003323909388868696, util.octx_to_num(EVP.hmac('key', 'data', algo='sha512'))
+            self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data', algo='sha224')),
+                             2660082265842109788381286338540662430962855478412025487066970872635,
+                             util.octx_to_num(EVP.hmac('key', 'data', algo='sha224')))
+            self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data', algo='sha256')),
+                             36273358097036101702192658888336808701031275731906771612800928188662823394256,
+                             util.octx_to_num(EVP.hmac('key', 'data', algo='sha256')))
+            self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data', algo='sha384')),
+                             30471069101236165765942696708481556386452105164815350204559050657318908408184002707969468421951222432574647369766282,
+                             util.octx_to_num(EVP.hmac('key', 'data', algo='sha384')))
+            self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data', algo='sha512')),
+                             3160730054100700080556942280820129108466291087966635156623014063982211353635774277148932854680195471287740489442390820077884317620321797003323909388868696,
+                             util.octx_to_num(EVP.hmac('key', 'data', algo='sha512')))
         
         with self.assertRaises(ValueError):
             EVP.hmac('key', 'data', algo='sha513')
@@ -105,25 +120,25 @@ class EVPTestCase(unittest.TestCase):
         Testing retrieving the RSA key from the PKey instance.
         """
         rsa = RSA.gen_key(1024, 3, callback=self._gen_callback)
-        assert isinstance(rsa, RSA.RSA)
+        self.assertIsInstance(rsa, RSA.RSA)
         pkey = EVP.PKey()
         pkey.assign_rsa(rsa) 
         rsa2 = pkey.get_rsa()
-        assert isinstance(rsa2, RSA.RSA_pub)
-        assert rsa.e == rsa2.e
-        assert rsa.n == rsa2.n
+        self.assertIsInstance(rsa2, RSA.RSA_pub)
+        self.assertEqual(rsa.e, rsa2.e)
+        self.assertEqual(rsa.n, rsa2.n)
         pem = rsa.as_pem(callback=self._pass_callback)
         pem2 = rsa2.as_pem()
         assert pem
         assert pem2
-        assert pem != pem2
+        self.assertNotEqual(pem, pem2)
         
         message = "This is the message string"
         digest = sha.sha(message).digest()
-        assert rsa.sign(digest) == rsa2.sign(digest)
+        self.assertEqual(rsa.sign(digest), rsa2.sign(digest))
         
         rsa3 = RSA.gen_key(1024, 3, callback=self._gen_callback)
-        assert rsa.sign(digest) != rsa3.sign(digest)
+        self.assertNotEqual(rsa.sign(digest), rsa3.sign(digest))
     
     def test_get_rsa_fail(self):
         """
@@ -142,8 +157,8 @@ class EVPTestCase(unittest.TestCase):
         rsa = RSA.gen_key(1024, 3, callback=self._gen_callback)
         pkey.assign_rsa(rsa)
         mod = pkey.get_modulus()
-        assert len(mod) > 0, mod
-        assert len(mod.strip('0123456789ABCDEF')) == 0
+        self.assertGreater(len(mod), 0, mod)
+        self.assertEqual(len(mod.strip('0123456789ABCDEF')), 0)
         
     def test_verify_final(self):
         from M2Crypto import X509
@@ -157,21 +172,21 @@ class EVPTestCase(unittest.TestCase):
         pubkey = x509.get_pubkey()
         pubkey.verify_init()
         pubkey.verify_update('test  message')
-        assert pubkey.verify_final(sig) == 1
+        self.assertEqual(pubkey.verify_final(sig), 1)
         
         # wrong cert
         x509 = X509.load_cert('tests/x509.pem')
         pubkey = x509.get_pubkey()
         pubkey.verify_init()
         pubkey.verify_update('test  message')
-        assert pubkey.verify_final(sig) == 0
+        self.assertEqual(pubkey.verify_final(sig), 0)
         
         # wrong message
         x509 = X509.load_cert('tests/signer.pem')
         pubkey = x509.get_pubkey()
         pubkey.verify_init()
         pubkey.verify_update('test  message not')
-        assert pubkey.verify_final(sig) == 0
+        self.assertEqual(pubkey.verify_final(sig), 0)
 
     def test_load_bad(self):
         with self.assertRaises(BIO.BIOError):
@@ -219,7 +234,7 @@ class CipherTestCase(unittest.TestCase):
         pbuf.close()
         cbuf.close()
     
-        assert otxt == ptxt, '%s algorithm cipher test failed' % algo
+        self.assertEqual(otxt, ptxt, '%s algorithm cipher test failed' % algo)
         
     def test_ciphers(self):
         ciphers=[

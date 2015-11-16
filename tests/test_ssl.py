@@ -200,7 +200,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             data = c2.getresponse().read()
             c.close()
             c2.close()
-            assert t == t2, "Sessions did not match"
+            self.assertEqual(t, t2, "Sessions did not match")
         finally:
             self.stop_server(pid)
         self.assertIn('s_server -quiet -www', data)
@@ -247,7 +247,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             c.putheader('Accept', 'text/plain')
             c.endheaders()
             err, msg, headers = c.getreply()
-            assert err == 200, err
+            self.assertEqual(err, 200, err)
             f = c.getfile()
             data = f.read()
             c.close()
@@ -269,7 +269,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             c.putheader('Accept', 'text/plain')
             c.endheaders()
             err, msg, headers = c.getreply()
-            assert err == 200, err
+            self.assertEqual(err, 200, err)
             f = c.getfile()
             data = f.read()
             c.close()
@@ -357,19 +357,19 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
 
             r = s.get_socket_read_timeout()
             w = s.get_socket_write_timeout()
-            assert r.sec == 0, r.sec
-            assert r.microsec == 0, r.microsec
-            assert w.sec == 0, w.sec
-            assert w.microsec == 0, w.microsec
+            self.assertEqual(r.sec, 0, r.sec)
+            self.assertEqual(r.microsec, 0, r.microsec)
+            self.assertEqual(w.sec, 0, w.sec)
+            self.assertEqual(w.microsec, 0, w.microsec)
 
             s.set_socket_read_timeout(SSL.timeout())
             s.set_socket_write_timeout(SSL.timeout(909, 9))
             r = s.get_socket_read_timeout()
             w = s.get_socket_write_timeout()
-            assert r.sec == 600, r.sec
-            assert r.microsec == 0, r.microsec
-            assert w.sec == 909, w.sec
-            #assert w.microsec == 9, w.microsec XXX 4000
+            self.assertEqual(r.sec, 600, r.sec)
+            self.assertEqual(r.microsec, 0, r.microsec)
+            self.assertEqual(w.sec, 909, w.sec)
+            #self.assertEqual(w.microsec, 9, w.microsec) XXX 4000
 
             s.connect(self.srv_addr)
             data = self.http_get(s)
@@ -500,24 +500,28 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.connect(self.srv_addr)
             data = self.http_get(s)
 
-            assert s.get_cipher().name() == 'AES128-SHA', s.get_cipher().name()
+            self.assertEqual(s.get_cipher().name(), 'AES128-SHA',
+                             s.get_cipher().name())
 
             cipher_stack = s.get_ciphers()
-            assert cipher_stack[0].name() == 'AES128-SHA', \
-                cipher_stack[0].name()
-            self.assertRaises(IndexError, cipher_stack.__getitem__, 2)
+            self.assertEqual(cipher_stack[0].name(), 'AES128-SHA',
+                             cipher_stack[0].name())
+            with self.assertRaises(IndexError):
+                cipher_stack.__getitem__(2)
             # For some reason there are 2 entries in the stack
-            #assert len(cipher_stack) == 1, len(cipher_stack)
-            assert s.get_cipher_list() == 'AES128-SHA', s.get_cipher_list()
+            #self.assertEqual(len(cipher_stack), 1, len(cipher_stack))
+            self.assertEqual(s.get_cipher_list(), 'AES128-SHA',
+                             s.get_cipher_list())
 
             # Test Cipher_Stack iterator
             i = 0
             for cipher in cipher_stack:
                 i += 1
-                assert cipher.name() == 'AES128-SHA', '"%s"' % cipher.name()
+                self.assertEqual(cipher.name(), 'AES128-SHA',
+                                 '"%s"' % cipher.name())
                 self.assertEqual('AES128-SHA-128', str(cipher))
             # For some reason there are 2 entries in the stack
-            #assert i == 1, i
+            #self.assertEqual(i, 1, i)
             self.assertEqual(i, len(cipher_stack))
 
             s.close()
@@ -639,8 +643,8 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
                err == m2.X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY or \
                err == m2.X509_V_ERR_CERT_UNTRUSTED or \
                err == m2.X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE
-            assert m2.ssl_ctx_get_cert_store(ctx_ptr)
-            assert X509.X509(x509_ptr).as_pem()
+            self.assertTrue(m2.ssl_ctx_get_cert_store(ctx_ptr))
+            self.assertTrue(X509.X509(x509_ptr).as_pem())
         except AssertionError:
             # If we let exceptions propagate from here the
             # caller may see strange errors. This is cleaner.
@@ -1018,7 +1022,7 @@ class TwistedSSLClientTestCase(BaseSSLClientTestCase):
             c.endheaders()
             c._conn.sock.settimeout(100)
             err, msg, headers = c.getreply()
-            assert err == 200, err
+            self.assertEqual(err, 200, err)
             f = c.getfile()
             data = f.read()
             c.close()
