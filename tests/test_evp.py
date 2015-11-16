@@ -412,12 +412,12 @@ class HMACTestCase(unittest.TestCase):
     def make_chain_HMAC(self, key, start, input, algo='sha1'):
         chain = []
         hmac = EVP.HMAC(key, algo)
-        hmac.update(`start`)
+        hmac.update(repr(start))
         digest = hmac.final()
         chain.append((digest, start))
         for i in input:
             hmac.reset(digest)
-            hmac.update(`i`)
+            hmac.update(repr(i))
             digest = hmac.final()
             chain.append((digest, i))
         return chain
@@ -425,35 +425,35 @@ class HMACTestCase(unittest.TestCase):
     def make_chain_hmac(self, key, start, input, algo='sha1'):
         from M2Crypto.EVP import hmac
         chain = []
-        digest = hmac(key, `start`, algo)
+        digest = hmac(key, repr(start), algo)
         chain.append((digest, start))
         for i in input:
-            digest = hmac(digest, `i`, algo)
+            digest = hmac(digest, repr(i), algo)
             chain.append((digest, i))
         return chain
     
     def verify_chain_hmac(self, key, start, chain, algo='sha1'):
         from M2Crypto.EVP import hmac
-        digest = hmac(key, `start`, algo)
+        digest = hmac(key, repr(start), algo)
         c = chain[0]
         if c[0] != digest or c[1] != start:
             return 0
         for d, v in chain[1:]:
-            digest = hmac(digest, `v`, algo)
+            digest = hmac(digest, repr(v), algo)
             if digest != d:
                 return 0
         return 1
     
     def verify_chain_HMAC(self, key, start, chain, algo='sha1'):
         hmac = EVP.HMAC(key, algo)
-        hmac.update(`start`)
+        hmac.update(repr(start))
         digest = hmac.final()
         c = chain[0]
         if c[0] != digest or c[1] != start:
             return 0
         for d, v in chain[1:]:
             hmac.reset(digest)
-            hmac.update(`v`)
+            hmac.update(repr(v))
             digest = hmac.final()
             if digest != d:
                 return 0

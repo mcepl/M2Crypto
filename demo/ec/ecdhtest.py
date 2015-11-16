@@ -19,8 +19,8 @@ def test():
     b.gen_key()
     a_shared_key = a.compute_dh_key(b.pub())
     b_shared_key = b.compute_dh_key(a.pub())
-    print('shared key according to a = ', `a_shared_key`)
-    print('shared key according to b = ', `b_shared_key`)
+    print('shared key according to a = ', repr(a_shared_key))
+    print('shared key according to b = ', repr(b_shared_key))
     if a_shared_key == b_shared_key:
         print('ok')
     else:

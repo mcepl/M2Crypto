@@ -17,13 +17,13 @@ def demo1():
     der1 = cert1.as_der()
     dgst1 = MessageDigest('sha1')
     dgst1.update(der1)
-    print('Using M2Crypto:\n', `dgst1.final()`, '\n')
+    print('Using M2Crypto:\n', repr(dgst1.final()), '\n')
 
     cert2 = os.popen('openssl x509 -inform pem -outform der -in server.pem')
     der2 = cert2.read()
     dgst2 = MessageDigest('sha1')
     dgst2.update(der2)
-    print('Openssl command line:\n', `dgst2.final()`, '\n')
+    print('Openssl command line:\n', repr(dgst2.final()), '\n')
 
 
 def demo2():
@@ -35,13 +35,13 @@ def demo2():
     print('not after   ', cert.get_not_after())
     issuer = cert.get_issuer()
     #print('issuer      ', issuer)
-    print('issuer.C    ', `issuer.C`)
-    print('issuer.SP   ', `issuer.SP`)
-    print('issuer.L    ', `issuer.L`)
-    print('issuer.O    ', `issuer.O`)
-    print('issuer.OU   ', `issuer.OU`)
-    print('issuer.CN   ', `issuer.CN`)
-    print('issuer.Email', `issuer.Email`)
+    print('issuer.C    ', repr(issuer.C))
+    print('issuer.SP   ', repr(issuer.SP))
+    print('issuer.L    ', repr(issuer.L))
+    print('issuer.O    ', repr(issuer.O))
+    print('issuer.OU   ', repr(issuer.OU))
+    print('issuer.CN   ', repr(issuer.CN))
+    print('issuer.Email', repr(issuer.Email))
     print('subject     ', cert.get_subject())
     #print(cert.as_text(), '\n')
 

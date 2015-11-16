@@ -34,8 +34,8 @@ def test_sign(padding):
 
 def test0():
     print('testing misc.')
-    print(`pub.e`, `pub.n`)
-    print(`priv.e`, `priv.n`)
+    print(repr(pub.e), repr(pub.n))
+    print(repr(priv.e), repr(priv.n))
 
 if __name__=='__main__':
     Rand.load_file('randpool.dat', -1) 

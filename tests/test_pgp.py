@@ -21,14 +21,14 @@ class PGPTestCase(unittest.TestCase):
         daft_pkt = daft._pubkey_pkt.pack()
         s1 = EVP.MessageDigest('sha1')
         s1.update(daft_pkt)
-        s1f = `s1.final()`
+        s1f = repr(s1.final())
     
         buf = StringIO(daft_pkt)
         ps = PGP.packet_stream(buf)
         dift_pkt = ps.read()
         s2 = EVP.MessageDigest('sha1')
         s2.update(dift_pkt.pack())
-        s2f = `s2.final()`
+        s2f = repr(s2.final())
 
         self.assertEqual(s1f, s2f)
 
