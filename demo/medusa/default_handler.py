@@ -171,7 +171,7 @@ class default_handler:
 
 	def set_content_type (self, path, request):
 		ext = string.lower (get_extension (path))
-		if mime_type_table.content_type_map.has_key (ext):
+		if ext in mime_type_table.content_type_map:
 			request['Content-Type'] = mime_type_table.content_type_map[ext]
 		else:
 			# TODO: test a chunk off the front of the file for 8-bit

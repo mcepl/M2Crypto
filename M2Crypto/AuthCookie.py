@@ -59,7 +59,7 @@ class AuthCookieJar:
     def isGoodCookieString(self, cookie_str):
         c = Cookie.SmartCookie()        
         c.load(cookie_str)
-        if not c.has_key(_TOKEN):
+        if _TOKEN not in c:
             return 0
         undough = unmix3(c[_TOKEN].value)
         if undough is None:

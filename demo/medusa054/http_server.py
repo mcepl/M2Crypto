@@ -79,7 +79,7 @@ class http_request:
         return self.reply_headers[key]
 
     def has_key (self, key):
-        return self.reply_headers.has_key (key)
+        return key in self.reply_headers
 
     def build_reply_header (self):
         return string.join (
@@ -119,7 +119,7 @@ class http_request:
     def get_header (self, header):
         header = string.lower (header)
         hc = self._header_cache
-        if not hc.has_key (header):
+        if header not in hc:
             h = header + ': '
             hl = len(h)
             for line in self.header:
@@ -197,7 +197,7 @@ class http_request:
 
         if self.version == '1.0':
             if connection == 'keep-alive':
-                if not self.has_key ('Content-Length'):
+                if 'Content-Length' not in self:
                     close_it = 1
                 else:
                     self['Connection'] = 'Keep-Alive'
@@ -206,8 +206,8 @@ class http_request:
         elif self.version == '1.1':
             if connection == 'close':
                 close_it = 1
-            elif not self.has_key ('Content-Length'):
-                if self.has_key ('Transfer-Encoding'):
+            elif 'Content-Length' not in self:
+                if 'Transfer-Encoding' in self:
                     if not self['Transfer-Encoding'] == 'chunked':
                         close_it = 1
                 elif self.use_chunked:

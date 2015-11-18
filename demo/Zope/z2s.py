@@ -716,15 +716,15 @@ try:
     if READ_ONLY:
         lg = logger.file_logger('-') # log to stdout
         zLOG.LOG('z2', zLOG.BLATHER, 'Logging access log to stdout')
-    elif os.environ.has_key('ZSYSLOG_ACCESS'):
-        if os.environ.has_key("ZSYSLOG_ACCESS_FACILITY"):
+    elif 'ZSYSLOG_ACCESS' in os.environ:
+        if "ZSYSLOG_ACCESS_FACILITY" in os.environ:
             lg = logger.syslog_logger(
                 os.environ['ZSYSLOG_ACCESS'],
                 facility=os.environ['ZSYSLOG_ACCESS_FACILITY'])
         else:
             lg = logger.syslog_logger(os.environ['ZSYSLOG_ACCESS'])
         zLOG.LOG('z2', zLOG.BLATHER, 'Using local syslog access log')
-    elif os.environ.has_key('ZSYSLOG_ACCESS_SERVER'):
+    elif 'ZSYSLOG_ACCESS_SERVER' in os.environ:
         (addr, port) = os.environ['ZSYSLOG_ACCESS_SERVER'].split( ':')
         lg = logger.syslog_logger((addr, int(port)))
         zLOG.LOG('z2', zLOG.BLATHER, 'Using remote syslog access log')

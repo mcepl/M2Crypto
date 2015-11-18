@@ -118,14 +118,14 @@ class CertHandler:
         self.CurrentObj = self.ObjMap[ObjName]
 
     def ObjFromContainer (self, ObjName='CA' ):
-        if not self.ObjMap.has_key( ObjName ):
+        if ObjName not in self.ObjMap:
             self.CreateObj ( ObjName=ObjName )
             self.PKeyFromPemRepr ( ObjName=ObjName )
             self.CertFromPemRepr ( ObjName=ObjName )
 
     def PKeyFromPemRepr ( self, ObjName=None, PemPKey=None ):
         def callback (): return ''
-        if self.PemMap.has_key( ObjName ):
+        if ObjName in self.PemMap:
             UsedPemPKey = self.KeyEnv['RsaPKey'][0] + '\n' + string.join( self.PemMap[ObjName]['RsaPKey'], '\n' ) + '\n' + self.KeyEnv['RsaPKey'][1] + '\n'
         else:
             if not PemPKey:
@@ -138,7 +138,7 @@ class CertHandler:
         self.CurrentObj['RsaPubKey'] = M2Crypto.RSA.new_pub_key( self.CurrentObj['RsaPKey'].pub () )
         
     def CertFromPemRepr ( self, ObjName=None, PemCert=None ):
-        if self.PemMap.has_key( ObjName ):
+        if ObjName in self.PemMap:
             UsedPemCert = self.KeyEnv['X509Cert'][0] + '\n' + string.join( self.PemMap[ObjName]['X509Cert'], '\n' ) + '\n' + self.KeyEnv['X509Cert'][1] + '\n'
         else:
             UsedPemCert = PemCert
@@ -158,14 +158,14 @@ class CertHandler:
         SubjectMap = {}
         for Entry in SubjectTxtList:
             ( Key, Value ) = re.split('=', Entry)
-            if self.ObjNames.has_key( Key ):
+            if Key in self.ObjNames:
                 SubjectMap[ self.ObjNames[Key] ] = Value
             else:
                 SubjectMap[ Key ] = Value
-        if not SubjectMap.has_key( 'commonName' ):
+        if 'commonName' not in SubjectMap:
             return False
         ObjName = SubjectMap['commonName']
-        if not self.ObjMap.has_key( ObjName ):
+        if ObjName not in self.ObjMap:
             self.CreateObj( ObjName=ObjName )
             self.CurrentObj = self.ObjMap[ObjName]
             self.CurrentObj['X509Cert']  = X509Cert
@@ -222,10 +222,10 @@ class CertHandler:
         ObjName    the primary key to identify key-pair
         """
         # new obj
-        if not self.ObjMap.has_key( ObjName ):
+        if ObjName not in self.ObjMap:
             self.ObjMap[ObjName] = {}
         self.CurrentObj = self.ObjMap[ObjName]
-        if not self.CurrentObj.has_key( 'Subject' ):
+        if 'Subject' not in self.CurrentObj:
             self.CurrentObj['Subject'] = { 'organizationalUnitName' : 'security', 'commonName' : ObjName, 'emailAddress' : 'ioclient@' + ObjName }
         # new pkey      
         self.CreatePKey ()
@@ -322,7 +322,7 @@ class CertHandler:
         SubjectMap = {}
         for Entry in SubjectTxtList:
             ( Key, Value ) = re.split('=', Entry)
-            if self.ObjNames.has_key( Key ):
+            if Key in self.ObjNames:
                 SubjectMap[ self.ObjNames[Key] ] = Value
             else:
                 SubjectMap[ Key ] = Value
@@ -434,7 +434,7 @@ class CertHandler:
         return generated Nonce and AuthString
         """
         if ObjName:
-            if self.PemMap.has_key( ObjName ):
+            if ObjName in self.PemMap:
                 UsedObjName = ObjName
             else:
                 UsedObjName = self.ServerName
@@ -496,8 +496,8 @@ class CertHandler:
         NonceBounce       the authrequest nonce encrypted with server privatekey and base64 encoded
         PemServerCert     server X509 certification PEM encoded and base64 encoded
         """
-        if not self.ObjMap.has_key( ClientObjName ):
-            if not self.PemMap.has_key( ClientObjName ):
+        if ClientObjName not in self.ObjMap:
+            if ClientObjName not in self.PemMap:
                 raise AuthError( 'cannot find ClientObjName - abort!' )
             else:
                 self.ObjFromContainer( ObjName=ClientObjName )

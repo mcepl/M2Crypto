@@ -241,7 +241,7 @@ class dispatcher:
 		fd = self._fileno
 		if map is None:
 			map=socket_map
-		if map.has_key (fd):
+		if fd in map:
 			#self.log_info ('closing channel %d:%s' % (fd, self))
 			del map [fd]
 
