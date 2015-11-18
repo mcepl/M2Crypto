@@ -408,32 +408,11 @@ def server_info(old, v, offset=0):
 
 
 try:
-    python_version = sys.version.split()[0]
-    if python_version < '2.1':
-        raise 'Invalid python version', python_version
-    if python_version[:3] == '2.1':
-        if python_version[4:5] < '3':
-            import warnings
-            err = ('You are running Python version %s.  This Python version '
-                   'has known bugs that may cause Zope to run improperly. '
-                   'Consider upgrading to a Python in the 2.1 series '
-                   'with at least version number 2.1.3.  (Note that Zope does '
-                   'not yet run under any Python 2.2 version).' %
-                   python_version)
-            warnings.warn(err)
-    if python_version[:3] == '2.2':
-        import warnings
-        err = ('You are running Python version %s.  This Python version '
-               'has not yet been tested with Zope and you may experience '
-               'operational problems as a result.  Consider using '
-               'Python 2.1.3 instead.' % python_version)
-        warnings.warn(err)
-
-
-    opts, args = getopt.getopt(sys.argv[1:],
-                               'hz:Z:t:i:a:d:u:w:W:y:Y:x:f:p:m:Sl:2DP:rF:L:XM:C',
-                               ['icp=', 'force-http-connection-close'
-                               ])
+    opts, args = getopt.getopt(
+        sys.argv[1:],
+        'hz:Z:t:i:a:d:u:w:W:y:Y:x:f:p:m:Sl:2DP:rF:L:XM:C',
+        ['icp=', 'force-http-connection-close'
+    ])
 
     DEBUG=0
     READ_ONLY=0

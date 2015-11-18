@@ -1,13 +1,10 @@
-import sys, os, tempfile
 import UserDict
-from email import Message
+import os
+import tempfile
+
 import M2Crypto
 
-if not (sys.version_info[0] >= 2 and sys.version_info[1] >= 2):
-    class object:
-        pass
-    True=1
-    False=0
+from email import Message
 
 
 class smimeplus(object):
