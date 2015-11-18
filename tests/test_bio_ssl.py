@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 """Unit tests for M2Crypto.BIO.File.
 
@@ -17,7 +17,7 @@ from M2Crypto import Err
 from M2Crypto import Rand
 from M2Crypto import threading as m2threading
 
-from test_ssl import srv_host, allocate_srv_port
+from .test_ssl import srv_host, allocate_srv_port
 
 class HandshakeClient(threading.Thread):
 

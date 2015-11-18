@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 """
 M2Crypto wrapper for OpenSSL ECDH/ECDSA API.
 
@@ -8,7 +10,7 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
 Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam.
 All rights reserved."""
 
-import util, BIO, m2
+from . import util, BIO, m2
 
 class ECError(Exception): pass
 

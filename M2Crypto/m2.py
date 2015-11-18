@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 """M2Crypto low level OpenSSL wrapper functions.
 
 m2 is the low level wrapper for OpenSSL functions. Typically you would not
@@ -25,5 +27,5 @@ Portions created by Open Source Applications Foundation (OSAF) are
 Copyright (C) 2004 OSAF. All Rights Reserved.
 """
 
-from _m2crypto import *
+from ._m2crypto import *
 lib_init()

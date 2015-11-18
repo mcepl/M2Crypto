@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import absolute_import
 
 """
 Unit tests for M2Crypto.EVP.
@@ -17,7 +18,7 @@ except ImportError:
 from M2Crypto import EVP, RSA, util, Rand, m2, BIO
 from M2Crypto.util import h2b
 
-from fips import fips_mode
+from .fips import fips_mode
 
 class EVPTestCase(unittest.TestCase):
     def _gen_callback(self, *args):

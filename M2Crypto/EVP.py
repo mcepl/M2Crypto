@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 """M2Crypto wrapper for OpenSSL EVP API.
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.
@@ -7,7 +9,7 @@ Author: Heikki Toivonen
 """
 
 from M2Crypto import Err, util, BIO, RSA
-import m2
+from . import m2
 
 class EVPError(Exception): pass
 

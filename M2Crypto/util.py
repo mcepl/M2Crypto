@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 """
     M2Crypto utility routines.
 
@@ -8,7 +10,7 @@
 """
 
 import sys
-import m2
+from . import m2
 
 # Python 2 has int() and long().
 # Python 3 and higher only has int().

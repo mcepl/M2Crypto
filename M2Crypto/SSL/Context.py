@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 """SSL Context
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
@@ -6,7 +8,7 @@ __all__ = ['map', 'Context']
 
 
 # M2Crypto
-import cb
+from . import cb
 import sys
 
 from M2Crypto import BIO, Err, RSA, X509, m2, util

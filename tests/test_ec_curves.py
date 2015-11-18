@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # XXX memory leaks
+from __future__ import absolute_import
+
 """
     Unit tests for M2Crypto.EC, the curves
 

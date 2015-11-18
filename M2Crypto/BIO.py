@@ -1,12 +1,14 @@
+from __future__ import absolute_import
+
 """M2Crypto wrapper for OpenSSL BIO API.
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-import m2
+from . import m2
 
 from cStringIO import StringIO
 # Deprecated
-from m2 import bio_do_handshake as bio_do_ssl_handshake  # noqa
+from .m2 import bio_do_handshake as bio_do_ssl_handshake
 
 
 class BIOError(Exception):

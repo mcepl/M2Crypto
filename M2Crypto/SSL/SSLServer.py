@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 """SSLServer
 
@@ -10,7 +10,7 @@ __all__ = ['SSLServer', 'ForkingSSLServer', 'ThreadingSSLServer']
 import socket, SocketServer
 
 # M2Crypto
-from Connection import Connection
+from .Connection import Connection
 from M2Crypto.SSL import SSLError
 from M2Crypto import m2
 

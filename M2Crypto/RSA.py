@@ -1,9 +1,11 @@
+from __future__ import absolute_import
+
 """M2Crypto wrapper for OpenSSL RSA API.
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
 import sys
-import util, BIO, Err, m2
+from . import util, BIO, Err, m2
 
 class RSAError(Exception): pass
 

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 """
 M2Crypto enhancement to Python's urllib2 for handling
 'https' url's.
@@ -14,7 +16,15 @@ Summary of changes:
 import socket
 import urlparse
 
-import SSL
+from . import SSL
+from . import httpslib
+
+
+class _closing_fileobject(socket._fileobject):
+    '''socket._fileobject that propagates self.close() to the socket.
+
+    Python 2.5 provides this as socket._fileobject(sock, close=True).
+    '''
 
 import httpslib
 from urllib2 import *  # noqa

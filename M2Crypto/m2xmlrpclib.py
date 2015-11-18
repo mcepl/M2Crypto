@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 """M2Crypto enhancement to xmlrpclib.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
@@ -6,7 +8,7 @@ import base64, string, sys
 
 from xmlrpclib import *
 import M2Crypto
-import SSL, httpslib, m2urllib
+from . import SSL, httpslib, m2urllib
 
 __version__ = M2Crypto.version
 

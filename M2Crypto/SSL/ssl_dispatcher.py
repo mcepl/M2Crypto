@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 """SSL dispatcher
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
@@ -8,7 +10,7 @@ __all__ = ['ssl_dispatcher']
 import asyncore, socket
 
 # M2Crypto
-from Connection import Connection
+from .Connection import Connection
 from M2Crypto import Err, m2
 
 

@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 """
 M2Crypto wrapper for OpenSSL ASN1 API.
 
@@ -9,8 +11,8 @@ Copyright (C) 2005 OSAF. All Rights Reserved.
 
 import time, datetime
 
-import BIO
-import m2
+from . import BIO
+from . import m2
 
 MBSTRING_FLAG = 0x1000
 MBSTRING_ASC = MBSTRING_FLAG | 1

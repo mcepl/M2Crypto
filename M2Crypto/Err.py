@@ -1,9 +1,11 @@
+from __future__ import absolute_import
+
 """M2Crypto wrapper for OpenSSL Error API.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-import BIO
-import m2
+from . import BIO
+from . import m2
 
 def get_error():
     err = BIO.MemoryBuffer()

@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 """M2Crypto enhancement to Python's urllib for handling
 'https' url's.
@@ -8,8 +8,8 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 import string, sys, urllib
 from urllib import *
 
-import SSL
-import httpslib
+from . import SSL
+from . import httpslib
 
 DEFAULT_PROTOCOL = 'sslv23'
 

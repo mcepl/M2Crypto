@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 """Unit tests for M2Crypto.SSL offline parts
 
 Copyright (C) 2006 Open Source Applications Foundation. All Rights Reserved.
@@ -12,7 +14,7 @@ except ImportError:
     import unittest
 
 from M2Crypto import Rand, SSL, X509
-from test_ssl import srv_host
+from .test_ssl import srv_host
 
 
 class CheckerTestCase(unittest.TestCase):

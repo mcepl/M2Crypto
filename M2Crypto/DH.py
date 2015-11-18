@@ -1,9 +1,11 @@
+from __future__ import absolute_import
+
 """M2Crypto wrapper for OpenSSL DH API.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-from util import genparam_callback
-import BIO, Err, m2
+from .util import genparam_callback
+from . import BIO, Err, m2
 
 class DHError(Exception): pass
 

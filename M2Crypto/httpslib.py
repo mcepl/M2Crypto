@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 """M2Crypto support for Python's httplib.
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
@@ -8,8 +10,8 @@ from urlparse import urlsplit, urlunsplit
 import base64
 
 from httplib import *
-from httplib import HTTPS_PORT  # This is not imported with just '*'
-import SSL
+from httplib import HTTPS_PORT # This is not imported with just '*'
+from . import SSL
 
 class HTTPSConnection(HTTPConnection):
 

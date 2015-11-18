@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 def suite():
     from M2Crypto import m2
@@ -94,7 +94,7 @@ def runall(report_leaks=0):
         Rand.save_file('tests/randpool.dat')
     finally:
         if os.name == 'posix':
-            from test_ssl import zap_servers
+            from .test_ssl import zap_servers
             zap_servers()
 
     if report_leaks:

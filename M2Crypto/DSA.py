@@ -1,4 +1,4 @@
-from __future__ import print_function
+from __future__ import absolute_import, print_function
 
 """
     M2Crypto wrapper for OpenSSL DSA API.
@@ -10,7 +10,7 @@ from __future__ import print_function
 """
 
 import sys
-import util, BIO, m2
+from . import util, BIO, m2
 
 class DSAError(Exception): pass
 

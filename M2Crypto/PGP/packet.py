@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 """M2Crypto PGP2.
 
 This module implements PGP packets per RFC1991 and various source distributions.
@@ -34,7 +36,7 @@ if sys.version_info > (3,):
 from M2Crypto import EVP, RSA
 from M2Crypto.util import octx_to_num
 
-from constants import *
+from .constants import *
 
 _OK_VERSION     = ('\002', '\003')
 _OK_VALIDITY    = ('\000',)

@@ -1,9 +1,11 @@
+from __future__ import absolute_import
+
 """M2Crypto wrapper for OpenSSL S/MIME API.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-import BIO, EVP, X509, Err, util
-import m2
+from . import BIO, EVP, X509, Err, util
+from . import m2
 
 PKCS7_TEXT = m2.PKCS7_TEXT
 PKCS7_NOCERTS = m2.PKCS7_NOCERTS

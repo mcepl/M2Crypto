@@ -1,10 +1,12 @@
+from __future__ import absolute_import
+
 """M2Crypto PGP2.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-from constants import *
-from packet import *
-from PublicKey import *
+from .constants import *
+from .packet import *
+from .PublicKey import *
 
 class PublicKeyRing:
     def __init__(self, keyring):
