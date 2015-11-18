@@ -2,28 +2,6 @@ image: python:2.7
 
 test:
   script:
-    - apt-get -y swig libssl-dev libssl1.0.0
+    - apt-get update -q -y
+    - apt-get install -y swig libssl-dev libssl1.0.0
     - python setup.py test
-
-# language: python
-# 
-# addons:
-#   apt:
-#     packages:
-#     - swig
-#     - libssl-dev
-#     - libssl1.0.0
-# 
-# sudo: false
-# 
-# python:
-#   - 2.6
-#   - 2.7
-# 
-# before_script:
-#   - '[ "${TRAVIS_PYTHON_VERSION}" = "2.6" ] && pip install --use-mirrors unittest2 || /bin/true'
-# 
-# install:
-#   - python setup.py install
-# 
-# script: python setup.py test
