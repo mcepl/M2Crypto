@@ -4,4 +4,5 @@ test:
   script:
     - apt-get update -q -y
     - apt-get install -y swig libssl-dev libssl1.0.0
+    - python setup.py build
     - python setup.py test
