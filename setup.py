@@ -12,6 +12,7 @@ Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 """
 
 import sys
+import sysconfig
 requires_list = []
 if sys.version_info <= (2, 6):
     requires_list.append("unittest2")
@@ -57,6 +58,11 @@ class _M2CryptoBuildExt(build_ext.build_ext):
 
         openssl_include_dir = os.path.join(self.openssl, 'include')
         openssl_library_dir = os.path.join(self.openssl, 'lib')
+
+        if platform.system() == "Linux":
+            multiarch = sysconfig.get_config_var("MULTIARCH")
+            if multiarch is not None:
+                self.include_dirs += [os.path.join(openssl_include_dir, multiarch)]
 
         self.swig_opts = ['-I%s' % i for i in self.include_dirs +
                           [openssl_include_dir]]
