@@ -96,7 +96,7 @@ def server_thread(ctx, sock, addr):
     else:
         conn.clear()
     print('SSL Connection closed')
-    
+
 
 if __name__=='__main__':
     threading.init()

@@ -38,7 +38,7 @@ def manage_addGuardedFile(self, id, file, title='', precondition='', content_typ
         title  ='Success!',
         message='GuardedFile "%s" has been created.' % id,
         action ='manage_main')
-        
+
 
 class GuardedFile(File):
     """A File object accessible by proxy only."""
@@ -49,5 +49,5 @@ class GuardedFile(File):
         role = "proxy_for_%s" % self.__name__
         container._delRoles([role], None)
         self.manage_delLocalRoles(self.users_with_local_role(role))
- 
+
 

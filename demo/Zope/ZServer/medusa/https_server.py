@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""A https server built on Medusa's http_server. 
+"""A https server built on Medusa's http_server.
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
@@ -55,7 +55,7 @@ class https_server(http_server.http_server):
     def __init__(self, ip, port, ssl_ctx, resolver=None, logger_object=None):
         http_server.http_server.__init__(self, ip, port, resolver, logger_object)
         self.ssl_ctx=ssl_ctx
-        
+
     def handle_accept(self):
         # Cribbed from http_server.
         self.total_clients.increment()

@@ -26,7 +26,7 @@ unknown_issuer = [
 def ssl_verify_callback(ssl_ctx_ptr, x509_ptr, errnum, errdepth, ok):
     # Deprecated
     ssl_ctx = Context.map()[long(ssl_ctx_ptr)]
-    if errnum in unknown_issuer: 
+    if errnum in unknown_issuer:
         if ssl_ctx.get_allow_unknown_ca():
             sys.stderr.write("policy: %s: permitted...\n" % (m2.x509_get_verify_error(errnum)))
             sys.stderr.flush()

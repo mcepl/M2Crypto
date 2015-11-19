@@ -10,7 +10,7 @@ __all__ = ['DEFAULT_TIMEOUT', 'timeout', 'struct_to_timeout', 'struct_size']
 import struct
 from M2Crypto import m2
 
-DEFAULT_TIMEOUT = 600 
+DEFAULT_TIMEOUT = 600
 
 class timeout:
 

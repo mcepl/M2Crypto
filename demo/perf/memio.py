@@ -2,7 +2,7 @@
 
 """A comparison of Python's cStringIO and M2Crypto's MemoryBuffer,
 the outcome of which is that MemoryBuffer suffers from doing too much
-in Python. 
+in Python.
 
 Two way to optimise MemoryBuffer:
 1. Create MemoryBufferIn and MemoryBufferOut a la StringI and StringO.

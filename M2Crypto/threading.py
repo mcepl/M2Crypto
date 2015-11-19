@@ -1,5 +1,5 @@
 """
-M2Crypto threading support, required for multithreaded applications. 
+M2Crypto threading support, required for multithreaded applications.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 

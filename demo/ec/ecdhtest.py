@@ -6,7 +6,7 @@ from __future__ import print_function
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
 
-Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam. 
+Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam.
 All rights reserved."""
 
 from M2Crypto import EC,Rand
@@ -28,6 +28,6 @@ def test():
 
 
 if __name__=='__main__':
-    Rand.load_file('randpool.dat', -1) 
+    Rand.load_file('randpool.dat', -1)
     test()
     Rand.save_file('randpool.dat')

@@ -1,6 +1,6 @@
 """This server extends BaseHTTPServer and SimpleHTTPServer thusly:
 1. One thread per connection.
-2. Generates directory listings. 
+2. Generates directory listings.
 
 In addition, it has the following properties:
 1. Works over HTTPS only.

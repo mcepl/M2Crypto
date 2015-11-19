@@ -5,7 +5,7 @@ M2Crypto wrapper for OpenSSL ECDH/ECDSA API.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
 
-Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam. 
+Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam.
 All rights reserved."""
 
 import util, BIO, m2
@@ -83,11 +83,11 @@ NID_wap_wsg_idm_ecid_wtls10 = m2.NID_wap_wsg_idm_ecid_wtls10
 NID_wap_wsg_idm_ecid_wtls11 = m2.NID_wap_wsg_idm_ecid_wtls11
 NID_wap_wsg_idm_ecid_wtls12 = m2.NID_wap_wsg_idm_ecid_wtls12
 
-# The following two curves, according to OpenSSL, have a 
-# "Questionable extension field!" and are not supported by 
+# The following two curves, according to OpenSSL, have a
+# "Questionable extension field!" and are not supported by
 # the OpenSSL inverse function.  ECError: no inverse.
-# As such they cannot be used for signing.  They might, 
-# however, be usable for encryption but that has not 
+# As such they cannot be used for signing.  They might,
+# however, be usable for encryption but that has not
 # been tested.  Until thir usefulness can be established,
 # they are not supported at this time.
 # NID_ipsec3 = m2.NID_ipsec3
@@ -101,7 +101,7 @@ class EC:
     """
 
     m2_ec_key_free = m2.ec_key_free
-    
+
     def __init__(self, ec, _pyfree=0):
         assert m2.ec_key_type_check(ec), "'ec' type error"
         self.ec = ec
@@ -123,7 +123,7 @@ class EC:
         to create an EC key pair.
         """
         assert m2.ec_key_type_check(self.ec), "'ec' type error"
-        m2.ec_key_gen_key(self.ec)   
+        m2.ec_key_gen_key(self.ec)
 
     def pub(self):
         # Don't let python free
@@ -136,7 +136,7 @@ class EC:
         """
         assert self._check_key_type(), "'ec' type error"
         return m2.ecdsa_sign(self.ec, digest)
-    
+
     def verify_dsa(self, digest, r, s):
         """
         Verify the given digest using ECDSA. r and s are the ECDSA
@@ -148,16 +148,16 @@ class EC:
     def sign_dsa_asn1(self, digest):
         assert self._check_key_type(), "'ec' type error"
         return m2.ecdsa_sign_asn1(self.ec, digest)
-    
+
     def verify_dsa_asn1(self, digest, blob):
         assert self._check_key_type(), "'ec' type error"
         return m2.ecdsa_verify_asn1(self.ec, digest, blob)
 
     def compute_dh_key(self,pub_key):
         """
-        Compute the ECDH shared key of this key pair and the given public 
-        key object. They must both use the same curve. Returns the 
-        shared key in binary as a buffer object. No Key Derivation Function is 
+        Compute the ECDH shared key of this key pair and the given public
+        key object. They must both use the same curve. Returns the
+        shared key in binary as a buffer object. No Key Derivation Function is
         applied.
         """
         assert self.check_key(), 'key is not initialised'
@@ -207,14 +207,14 @@ class EC:
         """
         bio = BIO.openfile(file, 'wb')
         return self.save_key_bio(bio, cipher, callback)
-    
+
     def save_pub_key_bio(self, bio):
         """
         Save the public key to an M2Crypto.BIO.BIO object in PEM format.
 
         @type bio: M2Crypto.BIO.BIO
         @param bio: M2Crypto.BIO.BIO object to save key to.
-        """ 
+        """
         return m2.ec_key_write_pubkey(self.ec, bio._ptr())
 
     def save_pub_key(self, file):
@@ -226,7 +226,7 @@ class EC:
         """
         bio = BIO.openfile(file, 'wb')
         return m2.ec_key_write_pubkey(self.ec, bio._ptr())
-    
+
     def _check_key_type(self):
         return m2.ec_key_type_check(self.ec)
 
@@ -234,11 +234,11 @@ class EC:
         assert m2.ec_key_type_check(self.ec), "'ec' type error"
         return m2.ec_key_check_key(self.ec)
 
-        
+
 class EC_pub(EC):
 
     """
-    Object interface to an EC public key. 
+    Object interface to an EC public key.
     ((don't like this implementation inheritance))
     """
     def __init__(self,ec,_pyfree=0):
@@ -261,10 +261,10 @@ class EC_pub(EC):
 
 def gen_params(curve):
     """
-    Factory function that generates EC parameters and 
+    Factory function that generates EC parameters and
     instantiates a EC object from the output.
 
-    @param curve: This is the OpenSSL nid of the curve to use. 
+    @param curve: This is the OpenSSL nid of the curve to use.
     """
     return EC(m2.ec_key_new_by_curve_name(curve), 1)
 
@@ -273,10 +273,10 @@ def load_key(file, callback=util.passphrase_callback):
     """
     Factory function that instantiates a EC object.
 
-    @param file: Names the file that contains the PEM representation 
+    @param file: Names the file that contains the PEM representation
     of the EC key pair.
 
-    @param callback: Python callback object that will be invoked 
+    @param callback: Python callback object that will be invoked
     if the EC key pair is passphrase-protected.
     """
     bio = BIO.openfile(file)
@@ -288,9 +288,9 @@ def load_key_bio(bio, callback=util.passphrase_callback):
     Factory function that instantiates a EC object.
 
     @param bio: M2Crypto.BIO object that contains the PEM
-    representation of the EC key pair. 
+    representation of the EC key pair.
 
-    @param callback: Python callback object that will be invoked 
+    @param callback: Python callback object that will be invoked
     if the EC key pair is passphrase-protected.
     """
     return EC(m2.ec_key_read_bio(bio._ptr(), callback), 1)
@@ -305,7 +305,7 @@ def load_pub_key(file):
     @rtype: M2Crypto.EC.EC_pub
     @return: M2Crypto.EC.EC_pub object.
     """
-    bio = BIO.openfile(file) 
+    bio = BIO.openfile(file)
     return load_pub_key_bio(bio)
 
 
@@ -319,7 +319,7 @@ def load_pub_key_bio(bio):
 
     @rtype: M2Crypto.EC.EC_pub
     @return: M2Crypto.EC.EC_pub object.
-    """ 
+    """
     ec = m2.ec_key_read_pubkey(bio._ptr())
     if ec is None:
         ec_error()

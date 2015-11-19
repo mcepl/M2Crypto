@@ -23,7 +23,7 @@ class ssl_socket(socket.socket):
     def connect(self, addr, *args):
         self.addr = addr
         return super(ssl_socket, self).connect(addr, *args)
-        
+
     def close(self):
         if hasattr(self, 'conn'):
             self.conn.close()

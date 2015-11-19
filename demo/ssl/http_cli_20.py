@@ -11,7 +11,7 @@ def test_httplib():
     resp = h.getresponse()
     f = resp.fp
     while 1:
-        data = f.readline()   
+        data = f.readline()
         if not data:
             break
         sys.stdout.write(data)

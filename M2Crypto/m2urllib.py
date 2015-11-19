@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-"""M2Crypto enhancement to Python's urllib for handling 
+"""M2Crypto enhancement to Python's urllib for handling
 'https' url's.
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
@@ -66,7 +66,7 @@ def open_https(self, url, data=None, ssl_context=None):
     return urllib.addinfourl(fp, resp.msg, "https:" + url)
     # Stop again.
 
-# Minor brain surgery. 
+# Minor brain surgery.
 URLopener.open_https = open_https
- 
+
 

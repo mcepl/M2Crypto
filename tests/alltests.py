@@ -6,7 +6,7 @@ def suite():
     from M2Crypto import m2
     import os
     import unittest
-    
+
     def my_import(name):
         # See http://docs.python.org/lib/built-in-funcs.html#l2h-6
         components = name.split('.')
@@ -61,13 +61,13 @@ def dump_garbage():
     print('\nGarbage:')
     gc.collect()
     if len(gc.garbage):
-    
+
         print('\nLeaked objects:')
         for x in gc.garbage:
             s = str(x)
             if len(s) > 77: s = s[:73]+'...'
             print(type(x), '\n  ', s)
-    
+
         print('There were %d leaks.' % len(gc.garbage))
     else:
         print('Python garbage collector did not detect any leaks.')
@@ -76,17 +76,17 @@ def dump_garbage():
 
 def runall(report_leaks=0):
     report_leaks = report_leaks
-    
+
     if report_leaks:
         import gc
         gc.enable()
         gc.set_debug(gc.DEBUG_LEAK & ~gc.DEBUG_SAVEALL)
-    
+
     import os, unittest
     from M2Crypto import Rand
-    
+
     try:
-        Rand.load_file('tests/randpool.dat', -1) 
+        Rand.load_file('tests/randpool.dat', -1)
         unittest.TextTestRunner(verbosity=2).run(suite())
         Rand.save_file('tests/randpool.dat')
     finally:
@@ -96,7 +96,7 @@ def runall(report_leaks=0):
 
     if report_leaks:
         dump_garbage()
-    
+
 
 if __name__ == '__main__':
     runall(0)

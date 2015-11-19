@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.0
 
-"""A comparison of Python's sha and M2Crypto.EVP.MessageDigest, 
-the outcome of which is that EVP.MessageDigest suffers from doing 
+"""A comparison of Python's sha and M2Crypto.EVP.MessageDigest,
+the outcome of which is that EVP.MessageDigest suffers from doing
 too much in Python."""
 
 import profile

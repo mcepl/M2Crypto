@@ -125,7 +125,7 @@ class Proxy:
         bio.write(self._issuer.as_pem())
         bio.close()
         os.chmod(proxypath, 0o600)
-        
+
 
 class ProxyFactory:
     """

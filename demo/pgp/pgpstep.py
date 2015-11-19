@@ -19,7 +19,7 @@ def desc_public_key(pkt):
     print('e =', repr(pkt._e))
     print('n =', repr(pkt._n))
     print()
-    
+
 def desc_trust(pkt):
     print('packet = trust')
     print('trustworthiness = <ignored>')
@@ -99,17 +99,17 @@ if __name__ == '__main__':
     import sys
     count = 0
     for arg in sys.argv[1:]:
-	    f = open(arg, 'rb')
-	    ps = PGP.packet_stream(f)
-	    while 1:
-	        pkt = ps.read()
-	        if pkt is None:
-	            break
-	        elif pkt:
-	            print('-' * 70)
-	            DESC[pkt.__class__](pkt)
-	    count = count + ps.count()
-	    ps.close()
+        f = open(arg, 'rb')
+        ps = PGP.packet_stream(f)
+        while 1:
+            pkt = ps.read()
+            if pkt is None:
+                break
+            elif pkt:
+                print('-' * 70)
+                DESC[pkt.__class__](pkt)
+        count = count + ps.count()
+        ps.close()
     print('-' * 70)
     print('Total octets processed =', count)
 

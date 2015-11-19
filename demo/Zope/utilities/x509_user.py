@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 
 """
-This is a very simple program to manage the access_x509 database. The 
+This is a very simple program to manage the access_x509 database. The
 overriding goal is program portability, hence its use of 'anydbm'.
 
 Invoke it thusly:
 
-    x509_user.py 
-        -u <username> 
+    x509_user.py
+        -u <username>
         [ -x <X.509 subject DN> ]
-        [ -f <database> ] 
+        [ -f <database> ]
 
 <username> is the Zope username; it must be present.
 
 <X.509 subject DN> is the X.509 certificate's subject distinguished name
-to associate with the user. If it is present, the association is created 
+to associate with the user. If it is present, the association is created
 or updated. If it is absent, the association is removed.
 
 <database> defaults to 'access_x509'.
@@ -22,7 +22,7 @@ or updated. If it is absent, the association is removed.
 (I told you this is a dumb program.)
 
 
-To read the subject distinguished name from the certificate 'client.pem', 
+To read the subject distinguished name from the certificate 'client.pem',
 invoke 'openssl' thusly:
 
     openssl x509 -subject -noout -in client.pem

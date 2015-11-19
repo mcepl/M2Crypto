@@ -22,7 +22,7 @@ class PGPTestCase(unittest.TestCase):
         s1 = EVP.MessageDigest('sha1')
         s1.update(daft_pkt)
         s1f = repr(s1.final())
-    
+
         buf = StringIO(daft_pkt)
         ps = PGP.packet_stream(buf)
         dift_pkt = ps.read()

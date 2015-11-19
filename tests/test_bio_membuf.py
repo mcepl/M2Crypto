@@ -38,7 +38,7 @@ class MemoryBufferTestCase(unittest.TestCase):
         out = mb.read(chunk)
         self.assertEqual(out, self.data[:chunk])
         self.assertEqual(len(mb), (len(self.data)) - chunk)
-        
+
     def test_read_more_than(self):
         chunk = len(self.data) + 8
         mb = MemoryBuffer(self.data)
@@ -65,7 +65,7 @@ class MemoryBufferTestCase(unittest.TestCase):
 
 def suite():
     return unittest.makeSuite(MemoryBufferTestCase)
-    
+
 
 if __name__ == '__main__':
     unittest.TextTestRunner().run(suite())

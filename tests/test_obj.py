@@ -55,7 +55,7 @@ class ObjectsTestCase(unittest.TestCase):
                          m2.obj_obj2nid(m2.obj_txt2obj("CN", 0)), "obj2nid")
         self.assertEqual(m2.obj_txt2nid("__unknown"),
                          0, "__unknown")
-                              
+
     def test_tuple2tuple(self):
         tup = ("CN", "someCommonName")
         tup1 = x509_name_entry2tuple(tuple2x509_name_entry(tup))
@@ -67,7 +67,7 @@ class ObjectsTestCase(unittest.TestCase):
     def test_unknown(self):
         with self.assertRaises(ValueError):
             tuple2x509_name_entry(("__unknown", "_"))
-        
+
     def test_x509_name(self):
         n = X509.X509_Name()
         n.C = 'US' # It seems this actually needs to be a real 2 letter country code
@@ -80,7 +80,7 @@ class ObjectsTestCase(unittest.TestCase):
         n.serialNumber = '1234'
         n.SN = 'surname'
         n.GN = 'given name'
-        
+
         n.givenName = 'name given'
         self.assertEqual(len(n), 11, len(n))
 

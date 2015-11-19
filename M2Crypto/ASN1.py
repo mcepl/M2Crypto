@@ -24,7 +24,7 @@ class ASN1_Integer:
     def __init__(self, asn1int, _pyfree=0):
         self.asn1int = asn1int
         self._pyfree = _pyfree
-        
+
     def __cmp__(self, other):
         return m2.asn1_integer_cmp(self.asn1int, other.asn1int)
 
@@ -34,9 +34,9 @@ class ASN1_Integer:
 
 
 class ASN1_String:
-        
+
     m2_asn1_string_free = m2.asn1_string_free
-    
+
     def __init__(self, asn1str, _pyfree=0):
         self.asn1str = asn1str
         self._pyfree = _pyfree
@@ -49,10 +49,10 @@ class ASN1_String:
     def __del__(self):
         if getattr(self, '_pyfree', 0):
             self.m2_asn1_string_free(self.asn1str)
-                                                                                                        
+
     def _ptr(self):
         return self.asn1str
-    
+
     def as_text(self, flags=0):
         buf = BIO.MemoryBuffer()
         m2.asn1_string_print_ex( buf.bio_ptr(), self.asn1str, flags)
@@ -60,13 +60,13 @@ class ASN1_String:
 
 
 class ASN1_Object:
-    
+
     m2_asn1_object_free = m2.asn1_object_free
 
     def __init__(self, asn1obj, _pyfree=0):
         self.asn1obj = asn1obj
         self._pyfree = _pyfree
-        
+
     def __del__(self):
         if self._pyfree:
             self.m2_asn1_object_free(self.asn1obj)
@@ -77,10 +77,10 @@ class ASN1_Object:
 class _UTC(datetime.tzinfo):
     def tzname(self, dt):
         return "UTC"
-    
+
     def dst(self, dt):
         return datetime.timedelta(0)
-    
+
     def utcoffset(self, dt):
         return datetime.timedelta(0)
 
@@ -137,11 +137,11 @@ class ASN1_UTCTIME:
         else:
             self.asn1_utctime = m2.asn1_utctime_new ()
             self._pyfree = 1
-            
+
     def __del__(self):
         if getattr(self, '_pyfree', 0):
             self.m2_asn1_utctime_free(self.asn1_utctime)
-            
+
     def __str__(self):
         assert m2.asn1_utctime_type_check(self.asn1_utctime), "'asn1_utctime' type error'"
         buf = BIO.MemoryBuffer()

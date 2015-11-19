@@ -26,16 +26,16 @@ class CheckerTestCase(unittest.TestCase):
         assert check(x509, srv_host)
         with self.assertRaises(Checker.WrongHost):
             check(x509, 'example.com')
-        
+
         doctest.testmod(Checker)
 
-    
+
 class ContextTestCase(unittest.TestCase):
     def test_ctx_load_verify_locations(self):
         ctx = SSL.Context()
         with self.assertRaises(ValueError):
             ctx.load_verify_locations(None, None)
-        
+
     def test_map(self):
         from M2Crypto.SSL.Context import map, _ctxmap
         self.assertIsInstance(map(), _ctxmap)
@@ -58,7 +58,7 @@ def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(CheckerTestCase))
     suite.addTest(unittest.makeSuite(ContextTestCase))
-    return suite    
+    return suite
 
 
 if __name__ == '__main__':

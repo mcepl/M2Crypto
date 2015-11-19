@@ -32,16 +32,16 @@ def new_extension(name, value, critical=0, _pyfree=1):
     x509_ext_ptr = m2.x509v3_ext_conf(lhash, ctx, name, value)
     x509_ext = X509_Extension(x509_ext_ptr, _pyfree)
     x509_ext.set_critical(critical)
-    return x509_ext 
+    return x509_ext
 
 
 class X509_Extension:
     """
     X509 Extension
     """
-    
+
     m2_x509_extension_free = m2.x509_extension_free
-    
+
     def __init__(self, x509_ext_ptr=None, _pyfree=1):
         self.x509_ext = x509_ext_ptr
         self._pyfree = _pyfree
@@ -64,7 +64,7 @@ class X509_Extension:
                          set this extension to critical.
         """
         return m2.x509_extension_set_critical(self.x509_ext, critical)
-    
+
     def get_critical(self):
         """
         Return whether or not this is a critical extension.
@@ -73,7 +73,7 @@ class X509_Extension:
         @return:  Nonzero if this is a critical extension.
         """
         return m2.x509_extension_get_critical(self.x509_ext)
-    
+
     def get_name(self):
         """
         Get the extension name, for example 'subjectAltName'.
@@ -83,19 +83,19 @@ class X509_Extension:
     def get_value(self, flag=0, indent=0):
         """
         Get the extension value, for example 'DNS:www.example.com'.
-        
+
         @param flag:   Flag to control what and how to print.
         @param indent: How many spaces to print before actual value.
         """
         buf=BIO.MemoryBuffer()
         m2.x509_ext_print(buf.bio_ptr(), self.x509_ext, flag, indent)
-        return buf.read_all()    
+        return buf.read_all()
 
 
 class X509_Extension_Stack:
     """
     X509 Extension Stack
-    
+
     @warning: Do not modify the underlying OpenSSL stack
     except through this interface, or use any OpenSSL functions that do so
     indirectly. Doing so will get the OpenSSL stack and the internal pystack
@@ -117,7 +117,7 @@ class X509_Extension_Stack:
             self.stack = m2.sk_x509_extension_new_null()
             self._pyfree = 1
             self.pystack = [] # This must be kept in sync with self.stack
-        
+
     def __del__(self):
         if getattr(self, '_pyfree', 0):
             self.m2_sk_x509_extension_free(self.stack)
@@ -128,10 +128,10 @@ class X509_Extension_Stack:
 
     def __getitem__(self, idx):
         return self.pystack[idx]
-    
+
     def __iter__(self):
         return iter(self.pystack)
- 
+
     def _ptr(self):
         return self.stack
 
@@ -151,7 +151,7 @@ class X509_Extension_Stack:
     def pop(self):
         """
         Pop X509_Extension object from the stack.
-        
+
         @return: X509_Extension popped
         """
         x509_ext_ptr = m2.sk_x509_extension_pop(self.stack)
@@ -171,7 +171,7 @@ class X509_Name_Entry:
     def __init__(self, x509_name_entry, _pyfree=0):
         self.x509_name_entry = x509_name_entry
         self._pyfree = _pyfree
-        
+
     def __del__(self):
         if getattr(self, '_pyfree', 0):
             self.m2_x509_name_entry_free(self.x509_name_entry)
@@ -189,14 +189,14 @@ class X509_Name_Entry:
 
     def get_object(self):
         return ASN1.ASN1_Object(m2.x509_name_entry_get_object(self.x509_name_entry))
-        
+
     def get_data(self):
         return ASN1.ASN1_String(m2.x509_name_entry_get_data(self.x509_name_entry))
 
     def create_by_txt( self, field, type, entry, len):
         return m2.x509_name_entry_create_by_txt(self.x509_name_entry._ptr(),
                                                 field, type, entry, len)
-    
+
 
 class X509_Name:
     """
@@ -234,18 +234,18 @@ class X509_Name:
         else:
             self.x509_name = m2.x509_name_new ()
             self._pyfree = 1
-            
+
     def __del__(self):
         if getattr(self, '_pyfree', 0):
             self.m2_x509_name_free(self.x509_name)
 
     def __str__(self):
-        assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error" 
+        assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error"
         return m2.x509_name_oneline(self.x509_name)
 
     def __getattr__(self, attr):
         if attr in self.nid:
-            assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error" 
+            assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error"
             return m2.x509_name_by_nid(self.x509_name, self.nid[attr])
 
         if attr in self.__dict__:
@@ -262,7 +262,7 @@ class X509_Name:
 
     def __len__(self):
         return m2.x509_name_entry_count(self.x509_name)
-    
+
     def __getitem__(self, idx):
         if not 0 <= idx < self.entry_count():
             raise IndexError("index out of range")
@@ -273,7 +273,7 @@ class X509_Name:
             yield self[i]
 
     def _ptr(self):
-        #assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error" 
+        #assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error"
         return self.x509_name
 
     def add_entry_by_txt(self, field, type, entry, len, loc, set):
@@ -282,7 +282,7 @@ class X509_Name:
 
     def entry_count( self ):
         return m2.x509_name_entry_count( self.x509_name )
-    
+
     def get_entries_by_nid(self, nid):
         ret = []
         lastpos = -1
@@ -292,16 +292,16 @@ class X509_Name:
                                                     lastpos)
             if lastpos == -1:
                 break
-            
+
             ret.append(self[lastpos])
-        
+
         return ret
-    
+
     def as_text(self, indent=0, flags=m2.XN_FLAG_COMPAT):
         """
         as_text returns the name as a string.
-        
-        @param indent: Each line in multiline format is indented 
+
+        @param indent: Each line in multiline format is indented
                        by this many spaces.
         @param flags:  Flags that control how the output should be formatted.
         """
@@ -333,7 +333,7 @@ class X509:
         else:
             self.x509 = m2.x509_new ()
             self._pyfree = 1
-            
+
     def __del__(self):
         if getattr(self, '_pyfree', 0):
             self.m2_x509_free(self.x509)
@@ -510,7 +510,7 @@ class X509:
         m2x509_get_ext = m2.x509_get_ext
         m2x509_extension_get_name = m2.x509_extension_get_name
         x509 = self.x509
-        
+
         for i in range(m2.x509_get_ext_count(x509)):
             extPtr = m2x509_get_ext(x509, i)
             if m2x509_extension_get_name(extPtr) == name:
@@ -528,7 +528,7 @@ class X509:
         """
         if index < 0 or index >= self.get_ext_count():
             raise IndexError
-        
+
         return X509_Extension(m2.x509_get_ext(self.x509, index),
                               _pyfree=0)
 
@@ -536,7 +536,7 @@ class X509:
         """
         Get X509 extension count.
         """
-        return m2.x509_get_ext_count(self.x509)        
+        return m2.x509_get_ext_count(self.x509)
 
     def sign(self, pkey, md):
         """
@@ -560,21 +560,21 @@ class X509:
             return m2.x509_verify(self.x509, pkey.pkey)
         else:
             return m2.x509_verify(self.x509, self.get_pubkey().pkey)
-            
+
     def check_ca(self):
         """
         Check if the certificate is a Certificate Authority (CA) certificate.
-        
+
         @return: 0 if the certificate is not CA, nonzero otherwise.
-        
-        @requires: OpenSSL 0.9.8 or newer 
+
+        @requires: OpenSSL 0.9.8 or newer
         """
         return m2.x509_check_ca(self.x509)
-        
+
     def check_purpose(self, id, ca):
         """
         Check if the certificate's purpose matches the asked purpose.
-        
+
         @param id: Purpose id. See X509_PURPOSE_* constants.
         @param ca: 1 if the certificate should be CA, 0 otherwise.
         @return: 0 if the certificate purpose does not match, nonzero otherwise.
@@ -584,7 +584,7 @@ class X509:
     def get_fingerprint(self, md='md5'):
         """
         Get the fingerprint of the certificate.
-        
+
         @param md: Message digest algorithm to use.
         @return:   String containing the fingerprint in hex format.
         """
@@ -680,18 +680,18 @@ class X509_Store_Context:
     def __init__(self, x509_store_ctx, _pyfree=0):
         self.ctx = x509_store_ctx
         self._pyfree = _pyfree
-        
+
     def __del__(self):
         if self._pyfree:
             self.m2_x509_store_ctx_free(self.ctx)
-            
+
     def _ptr(self):
         return self.ctx
-            
+
     def get_current_cert(self):
         """
         Get current X.509 certificate.
-        
+
         @warning: The returned certificate is NOT refcounted, so you can not
         rely on it being valid once the store context goes away or is modified.
         """
@@ -702,23 +702,23 @@ class X509_Store_Context:
         Get error code.
         """
         return m2.x509_store_ctx_get_error(self.ctx)
-        
+
     def get_error_depth(self):
         """
         Get error depth.
         """
         return m2.x509_store_ctx_get_error_depth(self.ctx)
-    
+
     def get1_chain(self):
         """
         Get certificate chain.
-        
+
         @return: Reference counted (i.e. safe to use even after the store
                  context goes away) stack of certificates in the chain.
         @rtype:  X509_Stack
         """
         return X509_Stack(m2.x509_store_ctx_get1_chain(self.ctx), 1, 1)
-        
+
 
 class X509_Store:
     """
@@ -734,7 +734,7 @@ class X509_Store:
         else:
             self.store = m2.x509_store_new()
             self._pyfree = 1
-            
+
     def __del__(self):
         if getattr(self, '_pyfree', 0):
             self.m2_x509_store_free(self.store)
@@ -743,17 +743,17 @@ class X509_Store:
         return self.store
 
     def load_info(self, file):
-        ret = m2.x509_store_load_locations(self.store, file) 
+        ret = m2.x509_store_load_locations(self.store, file)
         if ret < 1:
             raise X509Error(Err.get_error())
         return ret
 
     load_locations = load_info
-                 
+
     def add_x509(self, x509):
         assert isinstance(x509, X509)
         return m2.x509_store_add_cert(self.store, x509._ptr())
-        
+
     add_cert = add_x509
 
 
@@ -783,18 +783,18 @@ class X509_Stack:
             self.stack = m2.sk_x509_new_null()
             self._pyfree = 1
             self.pystack = [] # This must be kept in sync with self.stack
-        
+
     def __del__(self):
         if getattr(self, '_pyfree', 0):
             self.m2_sk_x509_free(self.stack)
-            
+
     def __len__(self):
         assert m2.sk_x509_num(self.stack) == len(self.pystack)
         return len(self.pystack)
 
     def __getitem__(self, idx):
         return self.pystack[idx]
-    
+
     def __iter__(self):
         return iter(self.pystack)
 
@@ -804,7 +804,7 @@ class X509_Stack:
     def push(self, x509):
         """
         push an X509 certificate onto the stack.
-        
+
         @param x509: X509 object.
         @return: The number of X509 objects currently on the stack.
         """
@@ -817,9 +817,9 @@ class X509_Stack:
     def pop(self):
         """
         pop a certificate from the stack.
-        
+
         @return: X509 object that was popped, or None if there is nothing
-        to pop. 
+        to pop.
         """
         x509_ptr = m2.sk_x509_pop(self.stack)
         if x509_ptr is None:
@@ -831,13 +831,13 @@ class X509_Stack:
         """
         Return the stack as a DER encoded string
         """
-        return m2.get_der_encoding_stack(self.stack)     
+        return m2.get_der_encoding_stack(self.stack)
 
 
 def new_stack_from_der(der_string):
     """
     Create a new X509_Stack from DER string.
-    
+
     @return: X509_Stack
     """
     stack_ptr = m2.make_stack_from_der_sequence(der_string)
@@ -860,11 +860,11 @@ class Request:
         else:
             self.req = m2.x509_req_new()
             self._pyfree = 1
-            
+
     def __del__(self):
         if getattr(self, '_pyfree', 0):
             self.m2_x509_req_free(self.req)
-            
+
     def as_text(self):
         buf=BIO.MemoryBuffer()
         m2.x509_req_print(buf.bio_ptr(), self.req)
@@ -883,7 +883,7 @@ class Request:
     def save_pem(self, filename):
         bio=BIO.openfile(filename, 'wb')
         return m2.x509_req_write_pem(bio.bio_ptr(), self.req)
-    
+
     def save(self, filename, format=FORMAT_PEM):
         """
         Saves X.509 certificate request to a file. Default output
@@ -1067,7 +1067,7 @@ class CRL:
         else:
             self.crl = m2.x509_crl_new()
             self._pyfree = 1
-            
+
     def __del__(self):
         if getattr(self, '_pyfree', 0):
             self.m2_x509_crl_free(self.crl)

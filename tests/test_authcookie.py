@@ -59,7 +59,7 @@ class AuthCookieTestCase(unittest.TestCase):
     def test_is_valid(self):
         c = self.jar.makeCookie(self.exp, self.data)
         self.assertTrue(self.jar.isGoodCookie(c))
-        
+
     def test_is_invalid_expired(self):
         t = self.exp - 7200
         c = self.jar.makeCookie(t, self.data)
@@ -146,7 +146,7 @@ def suite():
 
 
 if __name__ == '__main__':
-    Rand.load_file('randpool.dat', -1) 
+    Rand.load_file('randpool.dat', -1)
     unittest.TextTestRunner().run(suite())
     Rand.save_file('randpool.dat')
 
