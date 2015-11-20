@@ -56,16 +56,24 @@ class _M2CryptoBuildExt(build_ext.build_ext):
 
         build_ext.build_ext.finalize_options(self)
 
-        openssl_include_dir = os.path.join(self.openssl, 'include')
+        self.include_dirs.append(os.path.join(self.openssl, 'include'))
         openssl_library_dir = os.path.join(self.openssl, 'lib')
 
+        # TODO Couldn't we do even os.name == 'posix' ?
+        # How does this work on *BSD, Solaris, ... ?
+        # I guess 'posix' includes Mac OS X, so we have to make an
+        # exclusion
         if platform.system() == "Linux":
             multiarch = sysconfig.get_config_var("MULTIARCH")
-            if multiarch is not None:
-                self.include_dirs += [os.path.join(openssl_include_dir, multiarch)]
+            self.include_dirs.append(
+                os.path.join(self.openssl, 'include', 'openssl'))
+            if multiarch:  # on Fedora/RHEL it is an empty string
+                self.include_dirs.append(
+                    os.path.join(self.openssl, 'include', multiarch))
 
-        self.swig_opts = ['-I%s' % i for i in self.include_dirs +
-                          [openssl_include_dir]]
+            self.swig_opts.append('-D__%s__' % platform.machine().lower())
+
+        self.swig_opts.extend(['-I%s' % i for i in self.include_dirs])
         self.swig_opts.append('-includeall')
         self.swig_opts.append('-modern')
         self.swig_opts.append('-builtin')
@@ -78,15 +86,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         self.swig_opts.append('-outdir')
         self.swig_opts.append(os.path.join(self.build_lib, 'M2Crypto'))
 
-        # Fedora does hat tricks.
-        if platform.linux_distribution()[0] in ['Fedora', 'CentOS']:
-            if platform.architecture()[0] == '64bit':
-                self.swig_opts.append('-D__x86_64__')
-            elif platform.architecture()[0] == '32bit':
-                self.swig_opts.append('-D__i386__')
-
-        self.include_dirs += [os.path.join(self.openssl, openssl_include_dir),
-                              os.path.join(os.getcwd(), 'SWIG')]
+        self.include_dirs.append(os.path.join(os.getcwd(), 'SWIG'))
 
         if sys.platform == 'cygwin':
             # Cygwin SHOULD work (there's code in distutils), but
