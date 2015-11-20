@@ -12,7 +12,6 @@ Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 """
 
 import sys
-import sysconfig
 requires_list = []
 if sys.version_info <= (2, 6):
     requires_list.append("unittest2")
@@ -28,6 +27,15 @@ except ImportError:
 
 from distutils.core import Extension
 from distutils.file_util import copy_file
+
+try:
+    import sysconfig
+    _multiarch = sysconfig.get_config_var("MULTIARCH")
+except ImportError:
+    import subprocess
+    pid = subprocess.Popen(['cc', '--print-multiarch'],
+                           stdout=subprocess.PIPE)
+    _multiarch = pid.communicate()[0].strip()
 
 
 class _M2CryptoBuildExt(build_ext.build_ext):
@@ -64,12 +72,12 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         # I guess 'posix' includes Mac OS X, so we have to make an
         # exclusion
         if platform.system() == "Linux":
-            multiarch = sysconfig.get_config_var("MULTIARCH")
-            self.include_dirs.append(
-                os.path.join(self.openssl, 'include', 'openssl'))
-            if multiarch:  # on Fedora/RHEL it is an empty string
+            if _multiarch:  # on Fedora/RHEL it is an empty string
                 self.include_dirs.append(
-                    os.path.join(self.openssl, 'include', multiarch))
+                    os.path.join(self.openssl, 'include', _multiarch))
+            else:
+                self.include_dirs.append(
+                    os.path.join(self.openssl, 'include', 'openssl'))
 
             self.swig_opts.append('-D__%s__' % platform.machine().lower())
 
