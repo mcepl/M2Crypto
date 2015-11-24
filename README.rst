@@ -24,15 +24,12 @@ M2Crypto comes with the following:
 
 -  Unforgeable HMAC'ing **AuthCookies** for **web session management**.
 
--  **FTP/TLS** client and server.
-
 -  **S/MIME v2**.
 
--  **ZServerSSL**: A **HTTPS server for Zope**.
-
--  **ZSmime**: An S/MIME messenger for **Zope**.
-
 -  And much more.
+
+-  Project with demo applications using M2Crypto is now in the separate
+  project available at https://gitlab.com/m2crypto/m2crypto_demo
 
 M2Crypto is released under a very liberal BSD-style licence. See LICENCE
 for details.
