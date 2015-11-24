@@ -11,23 +11,22 @@ try:
 except ImportError:
     import unittest
 
-from M2Crypto.SSL import Checker
-from M2Crypto import X509
-from M2Crypto import SSL
+from M2Crypto import Rand, SSL, X509
 from test_ssl import srv_host
 
 
 class CheckerTestCase(unittest.TestCase):
     def test_checker(self):
 
-        check = Checker.Checker(host=srv_host,
-                                peerCertHash='6D5C51BF6C90686A87E015A07731B252B7638D93')
+        check = SSL.Checker.Checker(
+            host=srv_host,
+            peerCertHash='A889D8A9861AB18265E0D504F60F81BBDC288128')
         x509 = X509.load_cert('tests/server.pem')
-        assert check(x509, srv_host)
-        with self.assertRaises(Checker.WrongHost):
+        self.assertTrue(check(x509, srv_host))
+        with self.assertRaises(SSL.Checker.WrongHost):
             check(x509, 'example.com')
 
-        doctest.testmod(Checker)
+        doctest.testmod(SSL.Checker)
 
 
 class ContextTestCase(unittest.TestCase):

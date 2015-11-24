@@ -22,7 +22,7 @@ except ImportError:
 # Python 3 and higher only has int().
 # Work around this.
 if sys.version_info > (3,):
-   long = int
+    long = int
 
 from M2Crypto import ASN1, BIO, EVP, RSA, Rand, X509, m2
 
@@ -31,6 +31,9 @@ class X509TestCase(unittest.TestCase):
 
     def callback(self, *args):
         pass
+
+    def setUp(self):
+        self.expected_hash = 'F68ED986C59F092FEA55E8504F7361967BB4C867'
 
     def mkreq(self, bits, ca=0):
         pk = EVP.PKey()
@@ -425,15 +428,13 @@ class X509TestCase(unittest.TestCase):
     def test_fingerprint(self):
         x509 = X509.load_cert('tests/x509.pem')
         fp = x509.get_fingerprint('sha1')
-        expected = 'B2522F9B4F6F2461475D0C6267911537E738494F'
-        self.assertEqual(fp, expected)
+        self.assertEqual(fp, self.expected_hash)
 
     def test_load_der_string(self):
         f = open('tests/x509.der', 'rb')
         x509 = X509.load_cert_der_string(''.join(f.readlines()))
         fp = x509.get_fingerprint('sha1')
-        expected = 'B2522F9B4F6F2461475D0C6267911537E738494F'
-        self.assertEqual(fp, expected)
+        self.assertEqual(fp, self.expected_hash)
 
     def test_save_der_string(self):
         x509 = X509.load_cert('tests/x509.pem')
@@ -500,7 +501,9 @@ class X509TestCase(unittest.TestCase):
         f = open('tests/x509.pem', 'r')
         l_tmp = f.readlines()
         # -----BEGIN CERTIFICATE----- : -----END CERTIFICATE-----
-        x509_pem = ''.join(l_tmp[44:60])
+        beg_idx = l_tmp.index('-----BEGIN CERTIFICATE-----\n')
+        end_idx = l_tmp.index('-----END CERTIFICATE-----\n')
+        x509_pem = ''.join(l_tmp[beg_idx:end_idx+1])
         f.close()
         f = open('tests/x509.der', 'rb')
         x509_der = f.read()
