@@ -47,7 +47,7 @@ class WrongHost(SSLVerificationError):
 
     def __str__(self):
         s = 'Peer certificate %s does not match host, expected %s, got %s' \
-               % (self.fieldName, self.expectedHost, self.actualHost)
+                % (self.fieldName, self.expectedHost, self.actualHost)
         if isinstance(s, unicode):
             s = s.encode('utf8')
         return s
@@ -73,16 +73,34 @@ class Checker:
             if self.digest not in ('sha1', 'md5'):
                 raise ValueError('unsupported digest "%s"' %(self.digest))
 
-            if (self.digest == 'sha1' and len(self.fingerprint) != 40) or \
-               (self.digest == 'md5' and len(self.fingerprint) != 32):
-                raise WrongCertificate('peer certificate fingerprint length does not match')
+            if self.digest == 'sha1':
+                expected_len = 40
+            elif self.digest == 'md5':
+                expected_len = 32
+            else:
+                raise ValueError('Unexpected digest {0}'.format(self.digest))
+
+            if len(self.fingerprint) != expected_len:
+                raise WrongCertificate(
+                        '''peer certificate fingerprint length does not match
+                        fingerprint: {0}
+                        expected = {1}
+                        observed = {2}'''.format(self.fingerprint,
+                            expected_len,
+                            len(self.fingerprint)))
 
             der = peerCert.as_der()
             md = EVP.MessageDigest(self.digest)
             md.update(der)
             digest = md.final()
-            if util.octx_to_num(digest) != int(self.fingerprint, 16):
-                raise WrongCertificate('peer certificate fingerprint does not match')
+            expected_fingerprint = int(self.fingerprint, 16)
+            observed_fingerprint = util.octx_to_num(digest)
+            if observed_fingerprint != expected_fingerprint:
+                raise WrongCertificate('''
+                peer certificate fingerprint does not match
+                expected = {0:x},
+                observed = {1:x}'''.format(expected_fingerprint,
+                                    observed_fingerprint))
 
         if self.host:
             hostValidationPassed = False
