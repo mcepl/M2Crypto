@@ -4,14 +4,16 @@ Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
 import m2
 
-# Deprecated
-from m2 import bio_do_handshake as bio_do_ssl_handshake
-
 from cStringIO import StringIO
+# Deprecated
+from m2 import bio_do_handshake as bio_do_ssl_handshake  # noqa
 
-class BIOError(Exception): pass
+
+class BIOError(Exception):
+    pass
 
 m2.bio_init(BIOError)
+
 
 class BIO:
 
@@ -49,7 +51,8 @@ class BIO:
             buf = StringIO()
             while 1:
                 data = m2.bio_read(self.bio, 4096)
-                if not data: break
+                if not data:
+                    break
                 buf.write(data)
             return buf.getvalue()
         elif size == 0:
@@ -68,9 +71,9 @@ class BIO:
     def readlines(self, sizehint='ignored'):
         if not self.readable():
             raise IOError('cannot read')
-        lines=[]
+        lines = []
         while 1:
-            buf=m2.bio_gets(self.bio, 4096)
+            buf = m2.bio_gets(self.bio, 4096)
             if buf is None:
                 break
             lines.append(buf)
@@ -128,10 +131,11 @@ class MemoryBuffer(BIO):
     """
     Object interface to BIO_s_mem.
 
-    Empirical testing suggests that this class performs less well than cStringIO,
-    because cStringIO is implemented in C, whereas this class is implemented in
-    Python. Thus, the recommended practice is to use cStringIO for regular work and
-    convert said cStringIO object to a MemoryBuffer object only when necessary.
+    Empirical testing suggests that this class performs less well than
+    cStringIO, because cStringIO is implemented in C, whereas this class
+    is implemented in Python. Thus, the recommended practice is to use
+    cStringIO for regular work and convert said cStringIO object to
+    a MemoryBuffer object only when necessary.
     """
 
     def __init__(self, data=None):
@@ -181,6 +185,7 @@ class File(BIO):
         self.closed = 1
         if self.close_pyfile:
             self.pyfile.close()
+
 
 def openfile(filename, mode='rb'):
     return File(open(filename, mode))
@@ -264,7 +269,6 @@ class SSLBio(BIO):
         self.bio = m2.bio_new(m2.bio_f_ssl())
         self.closed = 0
 
-
     def set_ssl(self, conn, close_flag=m2.bio_noclose):
         """
         Sets the bio to the SSL pointer which is
@@ -283,4 +287,3 @@ class SSLBio(BIO):
         Return 0 or a negative number if there is a problem
         """
         return m2.bio_do_handshake(self.bio)
-
