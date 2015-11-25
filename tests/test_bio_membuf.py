@@ -26,11 +26,23 @@ class MemoryBufferTestCase(unittest.TestCase):
         out = mb.read()
         assert out is None
 
+    def test_init_empty_cm(self):
+        with MemoryBuffer() as mb:
+            self.assertEqual(len(mb), 0)
+            out = mb.read()
+            assert out is None
+
     def test_init_something(self):
         mb = MemoryBuffer(self.data)
         self.assertEqual(len(mb), len(self.data))
         out = mb.read()
         self.assertEqual(out, self.data)
+
+    def test_init_something_cm(self):
+        with MemoryBuffer(self.data) as mb:
+            self.assertEqual(len(mb), len(self.data))
+            out = mb.read()
+            self.assertEqual(out, self.data)
 
     def test_read_less_than(self):
         chunk = len(self.data) - 7

@@ -126,6 +126,13 @@ class BIO:
         """
         return m2.bio_should_write(self.bio)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+
+
 class MemoryBuffer(BIO):
 
     """
