@@ -8,47 +8,62 @@
 #  signer.pem
 #  x509.pem
 #
+from __future__ import print_function
 
+import hashlib
 import time
-from M2Crypto import X509, RSA, EVP, ASN1, m2
+
+from M2Crypto import ASN1, EVP, RSA, X509, m2
 
 t = long(time.time()) + time.timezone
 before = ASN1.ASN1_UTCTIME()
 before.set_time(t)
 after = ASN1.ASN1_UTCTIME()
-after.set_time(t + 60 * 60 * 24 * 365 * 10) # 10 years
+after.set_time(t + 60 * 60 * 24 * 365 * 10)  # 10 years
 
 serial = 1
 
+
 def callback(self, *args):
     return ' '
+
+
+def gen_identifier(cert, dig='sha1'):
+    instr = cert.get_pubkey().get_rsa().as_pem()
+    h = hashlib.new(dig)
+    h.update(instr)
+    digest = h.hexdigest().upper()
+
+    return ":".join(digest[pos: pos+2] for pos in range(0, 40, 2))
+
 
 def req(name):
     rsa = RSA.load_key(name + '_key.pem')
     pk = EVP.PKey()
     pk.assign_rsa(rsa)
-    req = X509.Request()
-    req.set_pubkey(pk)
-    n = req.get_subject()
+    reqqed = X509.Request()
+    reqqed.set_pubkey(pk)
+    n = reqqed.get_subject()
     n.C = 'US'
-    n.O = 'M2Crypto ' + name 
+    n.O = 'M2Crypto ' + name
     n.CN = 'localhost'
-    req.sign(pk, 'sha256')
-    return req, pk
+    reqqed.sign(pk, 'sha1')
+    return reqqed, pk
+
 
 def saveTextPemKey(cert, name):
-    f = open(name + '.pem', 'wb')
-    for line in cert.as_text():
-        f.write(line)
-    for line in cert.as_pem():
-        f.write(line)
-    for line in open(name + '_key.pem', 'rb'):
-        f.write(line)
-    f.close()
+    with open(name + '.pem', 'wb') as f:
+        for line in cert.as_text():
+            f.write(line)
+        for line in cert.as_pem():
+            f.write(line)
+        for line in open(name + '_key.pem', 'rb'):
+            f.write(line)
+
 
 def issue(request, ca, capk):
     global serial
-    
+
     pkey = request.get_pubkey()
     sub = request.get_subject()
 
@@ -60,17 +75,30 @@ def issue(request, ca, capk):
 
     issuer = ca.get_subject()
     cert.set_issuer(issuer)
-    
-    cert.set_pubkey(pkey)     
+
+    cert.set_pubkey(pkey)
 
     cert.set_not_before(before)
     cert.set_not_after(after)
 
-    cert.sign(capk, 'sha256')
-    
+    ext = X509.new_extension('basicConstraints', 'CA:FALSE')
+    cert.add_ext(ext)
+
+    ext = X509.new_extension('subjectKeyIdentifier',
+                             gen_identifier(cert))
+    cert.add_ext(ext)
+
+    # auth = X509.load_cert('ca.pem')
+    # auth_id = auth.get_ext('subjectKeyIdentifier').get_value()
+    # ext = X509.new_extension('authorityKeyIdentifier', 'keyid:%s' % auth_id)
+    # # cert.add_ext(ext)
+
+    cert.sign(capk, 'sha1')
+
     assert cert.verify(capk)
-    
+
     return cert
+
 
 def mk_ca():
     r, pk = req('ca')
@@ -87,39 +115,54 @@ def mk_ca():
     issuer.O = sub.O
     issuer.CN = sub.CN
     cert.set_issuer(issuer)
-    
-    cert.set_pubkey(pkey)     
+
+    cert.set_pubkey(pkey)
 
     cert.set_not_before(before)
     cert.set_not_after(after)
 
     ext = X509.new_extension('basicConstraints', 'CA:TRUE')
     cert.add_ext(ext)
-    
-    cert.sign(pk, 'sha256')
-    
+
+    ski = gen_identifier(cert)
+    ext = X509.new_extension('subjectKeyIdentifier', ski)
+    cert.add_ext(ext)
+
+    #ext = X509.new_extension('authorityKeyIdentifier', 'keyid:%s' % ski)
+    #cert.add_ext(ext)
+
+    cert.sign(pk, 'sha1')
+
     saveTextPemKey(cert, 'ca')
-    
+
     return cert, pk
 
+
 def mk_server(ca, capk):
-    r, pk = req('server')
+    r, _ = req('server')
     cert = issue(r, ca, capk)
     saveTextPemKey(cert, 'server')
 
+
 def mk_x509(ca, capk):
-    r, pk = req('x509')
+    r, _ = req('x509')
     cert = issue(r, ca, capk)
     saveTextPemKey(cert, 'x509')
 
+    with open('x509.der', 'wb') as derf:
+        derf.write(cert.as_der())
+
+
 def mk_signer(ca, capk):
-    r, pk = req('signer')
+    r, _ = req('signer')
     r.get_subject().Email = 'signer@example.com'
     cert = issue(r, ca, capk)
+
     saveTextPemKey(cert, 'signer')
 
+
 def mk_recipient(ca, capk):
-    r, pk = req('recipient')
+    r, _ = req('recipient')
     r.get_subject().Email = 'recipient@example.com'
     cert = issue(r, ca, capk)
     saveTextPemKey(cert, 'recipient')
@@ -127,12 +170,12 @@ def mk_recipient(ca, capk):
 if __name__ == '__main__':
     names = ['ca', 'server', 'recipient', 'signer', 'x509']
 
-    for name in names:
-        rsa = RSA.gen_key(2048, m2.RSA_F4)
-        rsa.save_key('%s_key.pem' % name, None)
-    
-    ca, pk = mk_ca()
-    mk_server(ca, pk)
-    mk_x509(ca, pk)
-    mk_signer(ca, pk)
-    mk_recipient(ca, pk)
+    for key_name in names:
+        genned_key = RSA.gen_key(2048, m2.RSA_F4)
+        genned_key.save_key('%s_key.pem' % key_name, None)
+
+    ca_bits, pk_bits = mk_ca()
+    mk_server(ca_bits, pk_bits)
+    mk_x509(ca_bits, pk_bits)
+    mk_signer(ca_bits, pk_bits)
+    mk_recipient(ca_bits, pk_bits)
