@@ -11,6 +11,9 @@
 from __future__ import print_function
 
 import hashlib
+import os
+import os.path
+import sys
 import time
 
 from M2Crypto import ASN1, EVP, RSA, X509, m2
@@ -36,6 +39,19 @@ def gen_identifier(cert, dig='sha1'):
 
     return ":".join(digest[pos: pos+2] for pos in range(0, 40, 2))
 
+def make_subject(cn=None, email=None):
+    sub = X509.X509_Name()
+    sub.C = 'US'
+    sub.ST = 'California'
+    sub.O = 'M2Crypto'
+    if cn is not None:
+        sub.CN = cn
+    else:
+        sub.CN = 'Heikki Toivonen'
+    if email is not None:
+        sub.Email = email
+    return sub
+
 
 def req(name):
     rsa = RSA.load_key(name + '_key.pem')
@@ -43,22 +59,20 @@ def req(name):
     pk.assign_rsa(rsa)
     reqqed = X509.Request()
     reqqed.set_pubkey(pk)
-    n = reqqed.get_subject()
-    n.C = 'US'
-    n.O = 'M2Crypto ' + name
-    n.CN = 'localhost'
+    reqqed.set_subject(make_subject())
     reqqed.sign(pk, 'sha1')
     return reqqed, pk
 
 
-def saveTextPemKey(cert, name):
+def saveTextPemKey(cert, name, with_key=True):
     with open(name + '.pem', 'wb') as f:
         for line in cert.as_text():
             f.write(line)
         for line in cert.as_pem():
             f.write(line)
-        for line in open(name + '_key.pem', 'rb'):
-            f.write(line)
+        if with_key:
+            for line in open(name + '_key.pem', 'rb'):
+                f.write(line)
 
 
 def issue(request, ca, capk):
@@ -112,6 +126,7 @@ def mk_ca():
 
     issuer = X509.X509_Name()
     issuer.C = sub.C
+    issuer.ST = sub.ST
     issuer.O = sub.O
     issuer.CN = sub.CN
     cert.set_issuer(issuer)
@@ -140,12 +155,14 @@ def mk_ca():
 
 def mk_server(ca, capk):
     r, _ = req('server')
+    r.set_subject(make_subject(cn='localhost'))
     cert = issue(r, ca, capk)
     saveTextPemKey(cert, 'server')
 
 
 def mk_x509(ca, capk):
     r, _ = req('x509')
+    r.set_subject(make_subject(cn='X509'))
     cert = issue(r, ca, capk)
     saveTextPemKey(cert, 'x509')
 
@@ -155,23 +172,25 @@ def mk_x509(ca, capk):
 
 def mk_signer(ca, capk):
     r, _ = req('signer')
-    r.get_subject().Email = 'signer@example.com'
+    r.set_subject(make_subject(cn='Signer', email='signer@example.com'))
     cert = issue(r, ca, capk)
 
-    saveTextPemKey(cert, 'signer')
+    saveTextPemKey(cert, 'signer', with_key=False)
 
 
 def mk_recipient(ca, capk):
     r, _ = req('recipient')
-    r.get_subject().Email = 'recipient@example.com'
+    r.set_subject(make_subject(cn='Recipient', email='recipient@example.com'))
     cert = issue(r, ca, capk)
     saveTextPemKey(cert, 'recipient')
 
 if __name__ == '__main__':
     names = ['ca', 'server', 'recipient', 'signer', 'x509']
 
+    os.chdir(os.path.dirname(sys.argv[0]))
+
     for key_name in names:
-        genned_key = RSA.gen_key(2048, m2.RSA_F4)
+        genned_key = RSA.gen_key(1024, m2.RSA_F4)
         genned_key.save_key('%s_key.pem' % key_name, None)
 
     ca_bits, pk_bits = mk_ca()
