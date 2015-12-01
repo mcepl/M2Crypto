@@ -12,9 +12,16 @@ Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 """
 
 import sys
-requires_list = []
-if sys.version_info <= (2, 6):
-    requires_list.append("unittest2")
+if sys.version_info[:2] <= (2, 6):
+    # This covers hopefully only RHEL-6 (users of any other 2.6 Pythons
+    # ... Solaris?, *BSD? ... should file an issue and be prepared to
+    # help with adjusting this script.
+    requires_list = ["unittest2"]
+    _multiarch = ""
+else:
+    requires_list = []
+    import sysconfig
+    _multiarch = sysconfig.get_config_var("MULTIARCH")
 
 import os  # noqa
 import platform
@@ -55,11 +62,20 @@ class _M2CryptoBuildExt(build_ext.build_ext):
 
         build_ext.build_ext.finalize_options(self)
 
-        openssl_include_dir = os.path.join(self.openssl, 'include')
+        self.include_dirs.append(os.path.join(self.openssl, 'include'))
         openssl_library_dir = os.path.join(self.openssl, 'lib')
 
-        self.swig_opts = ['-I%s' % i for i in self.include_dirs +
-                          [openssl_include_dir]]
+        if platform.system() == "Linux":
+            if _multiarch:  # on Fedora/RHEL it is an empty string
+                self.include_dirs.append(
+                    os.path.join(self.openssl, 'include', _multiarch))
+            else:
+                self.include_dirs.append(
+                    os.path.join(self.openssl, 'include', 'openssl'))
+
+            self.swig_opts.append('-D__%s__' % platform.machine().lower())
+
+        self.swig_opts.extend(['-I%s' % i for i in self.include_dirs])
         self.swig_opts.append('-includeall')
         self.swig_opts.append('-modern')
         self.swig_opts.append('-builtin')
@@ -72,15 +88,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         self.swig_opts.append('-outdir')
         self.swig_opts.append(os.path.join(self.build_lib, 'M2Crypto'))
 
-        # Fedora does hat tricks.
-        if platform.linux_distribution()[0] in ['Fedora', 'CentOS']:
-            if platform.architecture()[0] == '64bit':
-                self.swig_opts.append('-D__x86_64__')
-            elif platform.architecture()[0] == '32bit':
-                self.swig_opts.append('-D__i386__')
-
-        self.include_dirs += [os.path.join(self.openssl, openssl_include_dir),
-                              os.path.join(os.getcwd(), 'SWIG')]
+        self.include_dirs.append(os.path.join(os.getcwd(), 'SWIG'))
 
         if sys.platform == 'cygwin':
             # Cygwin SHOULD work (there's code in distutils), but

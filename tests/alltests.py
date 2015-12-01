@@ -53,6 +53,9 @@ def suite():
     alltests = unittest.TestSuite()
     for module in map(my_import, modules_to_test):
         alltests.addTest(module.suite())
+
+    print('Version of OpenSSL is {0:x}'.format(m2.OPENSSL_VERSION_NUMBER))
+
     return alltests
 
 
