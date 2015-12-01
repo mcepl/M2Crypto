@@ -481,8 +481,8 @@ class HMACTestCase(unittest.TestCase):
         start = 'zeroth item'
         input = ['first item', 'go go go', 'fly fly fly']
         chain = make_chain(key, start, input)
-        self.assertEquals(verify_chain('some key', start, chain), 0)
-        self.assertEquals(verify_chain(key, start, chain), 1)
+        self.assertEqual(verify_chain('some key', start, chain), 0)
+        self.assertEqual(verify_chain(key, start, chain), 1)
 
 
 def suite():
