@@ -87,7 +87,7 @@ class X509_Extension:
         @param flag:   Flag to control what and how to print.
         @param indent: How many spaces to print before actual value.
         """
-        buf=BIO.MemoryBuffer()
+        buf = BIO.MemoryBuffer()
         m2.x509_ext_print(buf.bio_ptr(), self.x509_ext, flag, indent)
         return buf.read_all()
 
@@ -116,7 +116,7 @@ class X509_Extension_Stack:
         else:
             self.stack = m2.sk_x509_extension_new_null()
             self._pyfree = 1
-            self.pystack = [] # This must be kept in sync with self.stack
+            self.pystack = []  # This must be kept in sync with self.stack
 
     def __del__(self):
         if getattr(self, '_pyfree', 0):
@@ -193,7 +193,7 @@ class X509_Name_Entry:
     def get_data(self):
         return ASN1.ASN1_String(m2.x509_name_entry_get_data(self.x509_name_entry))
 
-    def create_by_txt( self, field, type, entry, len):
+    def create_by_txt(self, field, type, entry, len):
         return m2.x509_name_entry_create_by_txt(self.x509_name_entry._ptr(),
                                                 field, type, entry, len)
 
@@ -203,25 +203,25 @@ class X509_Name:
     X509 Name
     """
 
-    nid = {'C'                      : m2.NID_countryName,
-           'SP'                     : m2.NID_stateOrProvinceName,
-           'ST'                     : m2.NID_stateOrProvinceName,
-           'stateOrProvinceName'    : m2.NID_stateOrProvinceName,
-           'L'                      : m2.NID_localityName,
-           'localityName'           : m2.NID_localityName,
-           'O'                      : m2.NID_organizationName,
-           'organizationName'       : m2.NID_organizationName,
-           'OU'                     : m2.NID_organizationalUnitName,
-           'organizationUnitName'   : m2.NID_organizationalUnitName,
-           'CN'                     : m2.NID_commonName,
-           'commonName'             : m2.NID_commonName,
-           'Email'                  : m2.NID_pkcs9_emailAddress,
-           'emailAddress'           : m2.NID_pkcs9_emailAddress,
-           'serialNumber'           : m2.NID_serialNumber,
-           'SN'                     : m2.NID_surname,
-           'surname'                : m2.NID_surname,
-           'GN'                     : m2.NID_givenName,
-           'givenName'              : m2.NID_givenName
+    nid = {'C': m2.NID_countryName,
+           'SP': m2.NID_stateOrProvinceName,
+           'ST': m2.NID_stateOrProvinceName,
+           'stateOrProvinceName': m2.NID_stateOrProvinceName,
+           'L': m2.NID_localityName,
+           'localityName': m2.NID_localityName,
+           'O': m2.NID_organizationName,
+           'organizationName': m2.NID_organizationName,
+           'OU': m2.NID_organizationalUnitName,
+           'organizationUnitName': m2.NID_organizationalUnitName,
+           'CN': m2.NID_commonName,
+           'commonName': m2.NID_commonName,
+           'Email': m2.NID_pkcs9_emailAddress,
+           'emailAddress': m2.NID_pkcs9_emailAddress,
+           'serialNumber': m2.NID_serialNumber,
+           'SN': m2.NID_surname,
+           'surname': m2.NID_surname,
+           'GN': m2.NID_givenName,
+           'givenName': m2.NID_givenName
            }
 
     m2_x509_name_free = m2.x509_name_free
@@ -232,7 +232,7 @@ class X509_Name:
             self.x509_name = x509_name
             self._pyfree = _pyfree
         else:
-            self.x509_name = m2.x509_name_new ()
+            self.x509_name = m2.x509_name_new()
             self._pyfree = 1
 
     def __del__(self):
@@ -278,10 +278,10 @@ class X509_Name:
 
     def add_entry_by_txt(self, field, type, entry, len, loc, set):
         return m2.x509_name_add_entry_by_txt(self.x509_name, field, type,
-                                             entry, len, loc, set )
+                                             entry, len, loc, set)
 
-    def entry_count( self ):
-        return m2.x509_name_entry_count( self.x509_name )
+    def entry_count(self):
+        return m2.x509_name_entry_count(self.x509_name)
 
     def get_entries_by_nid(self, nid):
         ret = []
@@ -306,7 +306,7 @@ class X509_Name:
         @param flags:  Flags that control how the output should be formatted.
         """
         assert m2.x509_name_type_check(self.x509_name), "'x509_name' type error"
-        buf=BIO.MemoryBuffer()
+        buf = BIO.MemoryBuffer()
         m2.x509_name_print_ex(buf.bio_ptr(), self.x509_name, indent, flags)
         return buf.read_all()
 
@@ -331,7 +331,7 @@ class X509:
             self.x509 = x509
             self._pyfree = _pyfree
         else:
-            self.x509 = m2.x509_new ()
+            self.x509 = m2.x509_new()
             self._pyfree = 1
 
     def __del__(self):
@@ -344,7 +344,7 @@ class X509:
 
     def as_text(self):
         assert m2.x509_type_check(self.x509), "'x509' type error"
-        buf=BIO.MemoryBuffer()
+        buf = BIO.MemoryBuffer()
         m2.x509_print(buf.bio_ptr(), self.x509)
         return buf.read_all()
 
@@ -353,7 +353,7 @@ class X509:
         return m2.i2d_x509(self.x509)
 
     def as_pem(self):
-        buf=BIO.MemoryBuffer()
+        buf = BIO.MemoryBuffer()
         m2.x509_write_pem(buf.bio_ptr(), self.x509)
         return buf.read_all()
 
@@ -361,7 +361,7 @@ class X509:
         """
         save_pem
         """
-        bio=BIO.openfile(filename, 'wb')
+        bio = BIO.openfile(filename, 'wb')
         return m2.x509_write_pem(bio.bio_ptr(), self.x509)
 
     def save(self, filename, format=FORMAT_PEM):
@@ -436,7 +436,7 @@ class X509:
         # XXX Or should I do this?
         #asn1_integer = m2.asn1_integer_new()
         #m2.asn1_integer_set(asn1_integer, serial)
-        #return m2.x509_set_serial_number(self.x509, asn1_integer)
+        # return m2.x509_set_serial_number(self.x509, asn1_integer)
 
     def get_not_before(self):
         assert m2.x509_type_check(self.x509), "'x509' type error"
@@ -774,7 +774,7 @@ class X509_Stack:
         if stack is not None:
             self.stack = stack
             self._pyfree = _pyfree
-            self.pystack = [] # This must be kept in sync with self.stack
+            self.pystack = []  # This must be kept in sync with self.stack
             num = m2.sk_x509_num(self.stack)
             for i in range(num):
                 self.pystack.append(X509(m2.sk_x509_value(self.stack, i),
@@ -782,7 +782,7 @@ class X509_Stack:
         else:
             self.stack = m2.sk_x509_new_null()
             self._pyfree = 1
-            self.pystack = [] # This must be kept in sync with self.stack
+            self.pystack = []  # This must be kept in sync with self.stack
 
     def __del__(self):
         if getattr(self, '_pyfree', 0):
@@ -866,12 +866,12 @@ class Request:
             self.m2_x509_req_free(self.req)
 
     def as_text(self):
-        buf=BIO.MemoryBuffer()
+        buf = BIO.MemoryBuffer()
         m2.x509_req_print(buf.bio_ptr(), self.req)
         return buf.read_all()
 
     def as_pem(self):
-        buf=BIO.MemoryBuffer()
+        buf = BIO.MemoryBuffer()
         m2.x509_req_write_pem(buf.bio_ptr(), self.req)
         return buf.read_all()
 
@@ -881,7 +881,7 @@ class Request:
         return buf.read_all()
 
     def save_pem(self, filename):
-        bio=BIO.openfile(filename, 'wb')
+        bio = BIO.openfile(filename, 'wb')
         return m2.x509_req_write_pem(bio.bio_ptr(), self.req)
 
     def save(self, filename, format=FORMAT_PEM):
@@ -923,7 +923,7 @@ class Request:
         @rtype:      int
         @return:     Return 1 for success and 0 for failure.
         """
-        return m2.x509_req_set_pubkey( self.req, pkey.pkey )
+        return m2.x509_req_set_pubkey(self.req, pkey.pkey)
 
     def get_version(self):
         """
@@ -943,10 +943,10 @@ class Request:
         @rtype:         int
         @return:        Returns 0 on failure.
         """
-        return m2.x509_req_set_version( self.req, version )
+        return m2.x509_req_set_version(self.req, version)
 
     def get_subject(self):
-        return X509_Name(m2.x509_req_get_subject_name( self.req ))
+        return X509_Name(m2.x509_req_get_subject_name(self.req))
 
     def set_subject_name(self, name):
         """
@@ -955,7 +955,7 @@ class Request:
         @type name:     X509_Name
         @param name:    subjectName field.
         """
-        return m2.x509_req_set_subject_name( self.req, name.x509_name )
+        return m2.x509_req_set_subject_name(self.req, name.x509_name)
 
     set_subject = set_subject_name
 
@@ -990,9 +990,9 @@ def load_request(file, format=FORMAT_PEM):
     @rtype: M2Crypto.X509.Request
     @return: M2Crypto.X509.Request object.
     """
-    f=BIO.openfile(file)
+    f = BIO.openfile(file)
     if format == FORMAT_PEM:
-        cptr=m2.x509_req_read_pem(f.bio_ptr())
+        cptr = m2.x509_req_read_pem(f.bio_ptr())
     elif format == FORMAT_DER:
         cptr = m2.d2i_x509_req(f.bio_ptr())
     else:
@@ -1079,7 +1079,7 @@ class CRL:
         @rtype: string
         @return: String containing the CRL in PEM format.
         """
-        buf=BIO.MemoryBuffer()
+        buf = BIO.MemoryBuffer()
         m2.x509_crl_print(buf.bio_ptr(), self.crl)
         return buf.read_all()
 
@@ -1094,11 +1094,9 @@ def load_crl(file):
     @rtype: M2Crypto.X509.CRL
     @return: M2Crypto.X509.CRL object.
     """
-    f=BIO.openfile(file)
-    cptr=m2.x509_crl_read_pem(f.bio_ptr())
+    f = BIO.openfile(file)
+    cptr = m2.x509_crl_read_pem(f.bio_ptr())
     f.close()
     if cptr is None:
         raise X509Error(Err.get_error())
     return CRL(cptr, 1)
-
-

@@ -15,10 +15,10 @@ from M2Crypto import ASN1, m2
 class ASN1TestCase(unittest.TestCase):
 
     def test_Integer(self):
-        pass # XXX Dunno how to test
+        pass  # XXX Dunno how to test
 
     def test_BitSTring(self):
-        pass # XXX Dunno how to test
+        pass  # XXX Dunno how to test
 
     def test_String(self):
         asn1ptr = m2.asn1_string_new()
@@ -35,7 +35,7 @@ class ASN1TestCase(unittest.TestCase):
         self.assertEqual(a.as_text(), str(a))
 
     def test_Object(self):
-        pass # XXX Dunno how to test
+        pass  # XXX Dunno how to test
 
     def test_UTCTIME(self):
         asn1 = ASN1.ASN1_UTCTIME()

@@ -17,7 +17,7 @@ class Engine:
 
     m2_engine_free = m2.engine_free
 
-    def __init__(self, id = None, _ptr = None, _pyfree = 1):
+    def __init__(self, id=None, _ptr=None, _pyfree=1):
         """Create new Engine from ENGINE pointer or obtain by id"""
         if not _ptr and not id:
             raise ValueError("No engine id specified")
@@ -42,7 +42,7 @@ class Engine:
         """Release a functional and structural reference to the engine."""
         return m2.engine_finish(self._ptr)
 
-    def ctrl_cmd_string(self, cmd, arg, optional = 0):
+    def ctrl_cmd_string(self, cmd, arg, optional=0):
         """Call ENGINE_ctrl_cmd_string"""
         if not m2.engine_ctrl_cmd_string(self._ptr, cmd, arg, optional):
             raise EngineError(Err.get_error())
@@ -55,12 +55,12 @@ class Engine:
         """Return engine id"""
         return m2.engine_get_id(self._ptr)
 
-    def set_default(self, methods = m2.ENGINE_METHOD_ALL):
+    def set_default(self, methods=m2.ENGINE_METHOD_ALL):
         """Use this engine as default for methods specified in argument
         Possible values are bitwise OR of m2.ENGINE_METHOD_*"""
         return m2.engine_set_default(self._ptr, methods)
 
-    def _engine_load_key(self, func, name, pin = None):
+    def _engine_load_key(self, func, name, pin=None):
         """Helper function for loading keys"""
         ui = m2.ui_openssl()
         cbd = m2.engine_pkcs11_data_new(pin)
@@ -68,18 +68,18 @@ class Engine:
             kptr = func(self._ptr, name, ui, cbd)
             if not kptr:
                 raise EngineError(Err.get_error())
-            key = EVP.PKey(kptr, _pyfree = 1)
+            key = EVP.PKey(kptr, _pyfree=1)
         finally:
             m2.engine_pkcs11_data_free(cbd)
         return key
 
-    def load_private_key(self, name, pin = None):
+    def load_private_key(self, name, pin=None):
         """Load private key with engine methods (e.g from smartcard).
             If pin is not set it will be asked
         """
         return self._engine_load_key(m2.engine_load_private_key, name, pin)
 
-    def load_public_key(self, name, pin = None):
+    def load_public_key(self, name, pin=None):
         """Load public key with engine methods (e.g from smartcard)."""
         return self._engine_load_key(m2.engine_load_public_key, name, pin)
 
@@ -89,7 +89,7 @@ class Engine:
         cptr = m2.engine_load_certificate(self._ptr, name)
         if not cptr:
             raise EngineError("Certificate or card not found")
-        return X509.X509(cptr, _pyfree = 1)
+        return X509.X509(cptr, _pyfree=1)
 
 
 def load_dynamic_engine(id, sopath):

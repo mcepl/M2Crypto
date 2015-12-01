@@ -18,9 +18,9 @@ class SSL_Transport(Transport):
         if getattr(Transport, '__init__', None) is not None:
             Transport.__init__(self, *args, **kw)
         if ssl_context is None:
-            self.ssl_ctx=SSL.Context('sslv23')
+            self.ssl_ctx = SSL.Context('sslv23')
         else:
-            self.ssl_ctx=ssl_context
+            self.ssl_ctx = ssl_context
 
     def request(self, host, handler, request_body, verbose=0):
         # Handle username and password.
@@ -43,7 +43,7 @@ class SSL_Transport(Transport):
 
         # Authorisation.
         if user_passwd is not None:
-            auth=string.strip(base64.encodestring(user_passwd))
+            auth = string.strip(base64.encodestring(user_passwd))
             h.putheader('Authorization', 'Basic %s' % auth)
 
         h.endheaders()
@@ -62,4 +62,3 @@ class SSL_Transport(Transport):
 
         self.verbose = verbose
         return self.parse_response(h.getfile())
-

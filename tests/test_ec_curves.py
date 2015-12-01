@@ -107,19 +107,19 @@ curves = [
 # however, be usable for encryption but that has not
 # been tested.  Until thir usefulness can be established,
 # they are not supported at this time.
-#curves2 = [
+# curves2 = [
 #    ('ipsec3', 155),
 #    ('ipsec4', 185),
 #]
 
 class ECCurveTests(unittest.TestCase):
-    #data = sha.sha('Kilroy was here!').digest()     # 160 bits
+    # data = sha.sha('Kilroy was here!').digest()     # 160 bits
     data = "digest"     # keep short (48 bits) so lesser curves
                         # will work...  ECDSA requires curve be
                         # equal or longer than digest
 
     def genkey(self, curveName, curveLen):
-        curve = getattr(EC, 'NID_'+curveName)
+        curve = getattr(EC, 'NID_' + curveName)
         ec = EC.gen_params(curve)
         self.assertEqual(len(ec), curveLen)
         ec.gen_key()

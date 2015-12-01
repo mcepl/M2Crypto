@@ -117,7 +117,7 @@ class AuthCookieTestCase(unittest.TestCase):
     def test_cookie_str_changed_exp(self):
         c = self.jar.makeCookie(self.exp, self.data)
         cout = c.output()
-        str = cout[:26] + chr(ord(cout[26])^1) + cout[27:]
+        str = cout[:26] + chr(ord(cout[26]) ^ 1) + cout[27:]
         s = Cookie.SmartCookie()
         s.load(str)
         self.assertFalse(self.jar.isGoodCookieString(s.output()))
@@ -125,7 +125,7 @@ class AuthCookieTestCase(unittest.TestCase):
     def test_cookie_str_changed_data(self):
         c = self.jar.makeCookie(self.exp, self.data)
         cout = c.output()
-        str = cout[:36] + chr(ord(cout[36])^1) + cout[37:]
+        str = cout[:36] + chr(ord(cout[36]) ^ 1) + cout[37:]
         s = Cookie.SmartCookie()
         s.load(str)
         self.assertFalse(self.jar.isGoodCookieString(s.output()))
@@ -133,7 +133,7 @@ class AuthCookieTestCase(unittest.TestCase):
     def test_cookie_str_changed_mac(self):
         c = self.jar.makeCookie(self.exp, self.data)
         cout = c.output()
-        str = cout[:76] + chr(ord(cout[76])^1) + cout[77:]
+        str = cout[:76] + chr(ord(cout[76]) ^ 1) + cout[77:]
         s = Cookie.SmartCookie()
         s.load(str)
         self.assertFalse(self.jar.isGoodCookieString(s.output()))
@@ -147,4 +147,3 @@ if __name__ == '__main__':
     Rand.load_file('randpool.dat', -1)
     unittest.TextTestRunner().run(suite())
     Rand.save_file('randpool.dat')
-

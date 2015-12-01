@@ -10,7 +10,7 @@ import Cookie, binascii, re, time
 
 
 _MIX_FORMAT = 'exp=%s&data=%s&digest='
-_MIX_RE     = re.compile('exp=(\d+\.\d+)&data=(.+)&digest=(\S*)')
+_MIX_RE = re.compile('exp=(\d+\.\d+)&data=(.+)&digest=(\S*)')
 
 def mix(expiry, data, format=_MIX_FORMAT):
     return format % (repr(expiry), data)
@@ -111,4 +111,3 @@ class AuthCookie:
 
     def headerValue(self):
         return self.value()
-

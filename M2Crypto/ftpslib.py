@@ -40,7 +40,7 @@ import socket, time
 # M2Crypto
 import SSL
 
-DEFAULT_PROTOCOL='sslv23'
+DEFAULT_PROTOCOL = 'sslv23'
 
 class FTP_TLS(FTP):
 
@@ -90,5 +90,3 @@ class FTP_TLS(FTP):
             conn.set_session(self.sock.get_session())
             conn.connect_ssl()
         return conn, size
-
-

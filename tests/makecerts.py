@@ -37,7 +37,7 @@ def gen_identifier(cert, dig='sha1'):
     h.update(instr)
     digest = h.hexdigest().upper()
 
-    return ":".join(digest[pos: pos+2] for pos in range(0, 40, 2))
+    return ":".join(digest[pos: pos + 2] for pos in range(0, 40, 2))
 
 def make_subject(cn=None, email=None):
     sub = X509.X509_Name()
@@ -144,7 +144,7 @@ def mk_ca():
     cert.add_ext(ext)
 
     #ext = X509.new_extension('authorityKeyIdentifier', 'keyid:%s' % ski)
-    #cert.add_ext(ext)
+    # cert.add_ext(ext)
 
     cert.sign(pk, 'sha1')
 

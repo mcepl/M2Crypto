@@ -289,9 +289,9 @@ class RSA_pub(RSA):
         """
         return self.save_pub_key_bio(bio)
 
-    #save_key_der
+    # save_key_der
 
-    #save_key_der_bio
+    # save_key_der_bio
 
     def check_key(self):
         return m2.rsa_check_pub_key(self.rsa)
@@ -305,7 +305,7 @@ def keygen_callback(p, n, out=sys.stdout):
     """
     Default callback for gen_key().
     """
-    ch = ['.','+','*','\n']
+    ch = ['.', '+', '*', '\n']
     out.write(ch[p])
     out.flush()
 
@@ -444,5 +444,3 @@ def new_pub_key(e_n):
     m2.rsa_set_e(rsa, e)
     m2.rsa_set_n(rsa, n)
     return RSA_pub(rsa, 1)
-
-

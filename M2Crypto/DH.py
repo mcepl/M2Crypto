@@ -42,7 +42,7 @@ class DH:
     def __setattr__(self, name, value):
         if name in ('p', 'g'):
             raise DHError('set (p, g) via set_params()')
-        elif name in ('pub','priv'):
+        elif name in ('pub', 'priv'):
             raise DHError('generate (pub, priv) via gen_key()')
         else:
             self.__dict__[name] = value
@@ -87,10 +87,9 @@ def set_params(p, g):
     return DH(dh, 1)
 
 
-#def free_params(cptr):
+# def free_params(cptr):
 #    m2.dh_free(cptr)
 
 
 DH_GENERATOR_2 = m2.DH_GENERATOR_2
 DH_GENERATOR_5 = m2.DH_GENERATOR_5
-
