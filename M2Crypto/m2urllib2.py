@@ -20,21 +20,6 @@ import httpslib
 from urllib2 import *  # noqa
 
 
-class _closing_fileobject(socket._fileobject):  # noqa
-    '''socket._fileobject that propagates self.close() to the socket.
-
-    Python 2.5 provides this as socket._fileobject(sock, close=True).
-    '''
-
-    def __init__(self, sock):
-        socket._fileobject.__init__(self, sock)
-
-    def close(self):
-        sock = self._sock
-        socket._fileobject.close(self)
-        sock.close()
-
-
 class HTTPSHandler(AbstractHTTPHandler):
     def __init__(self, ssl_context=None):
         AbstractHTTPHandler.__init__(self)
@@ -97,11 +82,8 @@ class HTTPSHandler(AbstractHTTPHandler):
         # to read().  This weird wrapping allows the returned object to
         # have readline() and readlines() methods.
 
-        # XXX It might be better to extract the read buffering code
-        # out of socket._fileobject() and into a base class.
-
         r.recv = r.read
-        fp = _closing_fileobject(r)
+        fp = socket._fileobject(r, close=True)
 
         resp = addinfourl(fp, r.msg, req.get_full_url())
         resp.code = r.status
