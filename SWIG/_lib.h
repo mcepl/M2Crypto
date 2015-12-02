@@ -7,16 +7,6 @@ typedef int Py_ssize_t;
 #define PY_SSIZE_T_MIN INT_MIN
 #endif
 
-#if PY_VERSION_HEX < 0x02060000
-struct Py_buffer /* Only a subset */
-{
-  void *buf;
-  Py_ssize_t len;
-};
-
-#define PyBUF_CONTIG_RO 0
-#endif /* PY_VERSION_HEX < 0x02060000 */
-
 typedef struct _blob {
 	unsigned char *data;
 	int len;

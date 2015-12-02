@@ -56,27 +56,6 @@ void blob_free(Blob *blob) {
 %ignore m2_PyString_AsStringAndSizeInt;
 %{
 
-#if PY_VERSION_HEX < 0x02060000
-static int PyObject_CheckBuffer(PyObject *obj)
-{
-    (void)obj;
-    return 0;
-}
-
-static int PyObject_GetBuffer(PyObject *obj, Py_buffer *view, int flags)
-{
-    (void)obj;
-    (void)view;
-    (void)flags;
-    return -1;
-}
-
-static void PyBuffer_Release(Py_buffer *view)
-{
-    (void)view;
-}
-#endif /* PY_VERSION_HEX < 0x02060000 */
-
 static int
 m2_PyObject_AsReadBufferInt(PyObject *obj, const void **buffer,
                 int *buffer_len)
