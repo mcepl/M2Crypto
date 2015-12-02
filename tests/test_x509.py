@@ -512,13 +512,13 @@ class X509TestCase(unittest.TestCase):
         f = open('tests/tmpcert.pem')
         s = f.read()
         f.close()
-        self.assertEquals(s, x509_pem)
+        self.assertEqual(s, x509_pem)
         os.remove('tests/tmpcert.pem')
         x509.save('tests/tmpcert.der', format=X509.FORMAT_DER)
         f = open('tests/tmpcert.der', 'rb')
         s = f.read()
         f.close()
-        self.assertEquals(s, x509_der)
+        self.assertEqual(s, x509_der)
         os.remove('tests/tmpcert.der')
 
     def test_malformed_data(self):
@@ -541,10 +541,10 @@ class X509TestCase(unittest.TestCase):
 
     def test_long_serial(self):
         cert = X509.load_cert('tests/long_serial_cert.pem')
-        self.assertEquals(cert.get_serial_number(), 17616841808974579194)
+        self.assertEqual(cert.get_serial_number(), 17616841808974579194)
 
         cert = X509.load_cert('tests/thawte.pem')
-        self.assertEquals(cert.get_serial_number(),
+        self.assertEqual(cert.get_serial_number(),
                           127614157056681299805556476275995414779)
 
 class X509StackTestCase(unittest.TestCase):

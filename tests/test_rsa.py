@@ -158,7 +158,7 @@ class RSATestCase(unittest.TestCase):
         assert rsa.as_pem()  # calls save_key_bio
         f = 'tests/rsa_test.pub'
         try:
-            self.assertEquals(rsa.save_key(f), 1)
+            self.assertEqual(rsa.save_key(f), 1)
         finally:
             try:
                 os.remove(f)
