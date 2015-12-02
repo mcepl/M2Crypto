@@ -369,7 +369,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             self.assertEqual(r.sec, 600, r.sec)
             self.assertEqual(r.microsec, 0, r.microsec)
             self.assertEqual(w.sec, 909, w.sec)
-            #self.assertEqual(w.microsec, 9, w.microsec) XXX 4000
+            # self.assertEqual(w.microsec, 9, w.microsec) XXX 4000
 
             s.connect(self.srv_addr)
             data = self.http_get(s)
@@ -841,7 +841,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             except SSL.SSLError as e:
                 assert 0, e
             bio = s.makefile('rw')
-            #s.close()  # XXX bug 6628?
+            # s.close()  # XXX bug 6628?
             bio.write('GET / HTTP/1.0\n\n')
             bio.flush()
             data = bio.read()
@@ -903,12 +903,12 @@ class UrllibSSLClientTestCase(BaseSSLClientTestCase):
         self.assertIn('s_server -quiet -www', data)
 
     # XXX Don't actually know how to use m2urllib safely!
-    #def test_urllib_secure_context(self):
-    #def test_urllib_secure_context_fail(self):
+    # def test_urllib_secure_context(self):
+    # def test_urllib_secure_context_fail(self):
 
     # XXX Don't actually know how to use m2urllib safely!
-    #def test_urllib_safe_context(self):
-    #def test_urllib_safe_context_fail(self):
+    # def test_urllib_safe_context(self):
+    # def test_urllib_safe_context_fail(self):
 
 
 class Urllib2SSLClientTestCase(BaseSSLClientTestCase):

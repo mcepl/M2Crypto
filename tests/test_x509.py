@@ -503,7 +503,7 @@ class X509TestCase(unittest.TestCase):
         # -----BEGIN CERTIFICATE----- : -----END CERTIFICATE-----
         beg_idx = l_tmp.index('-----BEGIN CERTIFICATE-----\n')
         end_idx = l_tmp.index('-----END CERTIFICATE-----\n')
-        x509_pem = ''.join(l_tmp[beg_idx:end_idx+1])
+        x509_pem = ''.join(l_tmp[beg_idx:end_idx + 1])
         f.close()
         f = open('tests/x509.der', 'rb')
         x509_der = f.read()

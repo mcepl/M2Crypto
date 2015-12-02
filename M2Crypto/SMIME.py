@@ -5,20 +5,20 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 import BIO, EVP, X509, Err, util
 import m2
 
-PKCS7_TEXT    = m2.PKCS7_TEXT
-PKCS7_NOCERTS    = m2.PKCS7_NOCERTS
-PKCS7_NOSIGS    = m2.PKCS7_NOSIGS
-PKCS7_NOCHAIN    = m2.PKCS7_NOCHAIN
-PKCS7_NOINTERN    = m2.PKCS7_NOINTERN
-PKCS7_NOVERIFY    = m2.PKCS7_NOVERIFY
-PKCS7_DETACHED    = m2.PKCS7_DETACHED
-PKCS7_BINARY    = m2.PKCS7_BINARY
-PKCS7_NOATTR    = m2.PKCS7_NOATTR
+PKCS7_TEXT = m2.PKCS7_TEXT
+PKCS7_NOCERTS = m2.PKCS7_NOCERTS
+PKCS7_NOSIGS = m2.PKCS7_NOSIGS
+PKCS7_NOCHAIN = m2.PKCS7_NOCHAIN
+PKCS7_NOINTERN = m2.PKCS7_NOINTERN
+PKCS7_NOVERIFY = m2.PKCS7_NOVERIFY
+PKCS7_DETACHED = m2.PKCS7_DETACHED
+PKCS7_BINARY = m2.PKCS7_BINARY
+PKCS7_NOATTR = m2.PKCS7_NOATTR
 
-PKCS7_SIGNED            = m2.PKCS7_SIGNED
-PKCS7_ENVELOPED            = m2.PKCS7_ENVELOPED
-PKCS7_SIGNED_ENVELOPED    = m2.PKCS7_SIGNED_ENVELOPED # Deprecated
-PKCS7_DATA            = m2.PKCS7_DATA
+PKCS7_SIGNED = m2.PKCS7_SIGNED
+PKCS7_ENVELOPED = m2.PKCS7_ENVELOPED
+PKCS7_SIGNED_ENVELOPED = m2.PKCS7_SIGNED_ENVELOPED  # Deprecated
+PKCS7_DATA = m2.PKCS7_DATA
 
 class PKCS7_Error(Exception): pass
 
@@ -55,7 +55,7 @@ class PKCS7:
     def write_der(self, bio):
         return m2.pkcs7_write_bio_der(self.pkcs7, bio._ptr())
 
-    def get0_signers(self, certs, flags = 0):
+    def get0_signers(self, certs, flags=0):
         return X509.X509_Stack(m2.pkcs7_get0_signers(self.pkcs7,
                                                      certs.stack, flags), 1)
 
@@ -242,4 +242,3 @@ def text_crlf_bio(bio_in):
         return bio_out
     else:
         raise SMIME_Error(Err.get_error())
-

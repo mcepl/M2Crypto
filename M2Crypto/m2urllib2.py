@@ -34,7 +34,7 @@ class _closing_fileobject(socket._fileobject):
         sock.close()
 
 class HTTPSHandler(AbstractHTTPHandler):
-    def __init__(self, ssl_context = None):
+    def __init__(self, ssl_context=None):
         AbstractHTTPHandler.__init__(self)
 
         if ssl_context is not None:
@@ -65,10 +65,10 @@ class HTTPSHandler(AbstractHTTPHandler):
 
         if (target_host != host):
             request_uri = urlparse.urldefrag(full_url)[0]
-            h = httpslib.ProxyHTTPSConnection(host = host, ssl_context = self.ctx)
+            h = httpslib.ProxyHTTPSConnection(host=host, ssl_context=self.ctx)
         else:
             request_uri = req.get_selector()
-            h = httpslib.HTTPSConnection(host = host, ssl_context = self.ctx)
+            h = httpslib.HTTPSConnection(host=host, ssl_context=self.ctx)
         # End our change
         h.set_debuglevel(self._debuglevel)
 
@@ -84,7 +84,7 @@ class HTTPSHandler(AbstractHTTPHandler):
         try:
             h.request(req.get_method(), request_uri, req.data, headers)
             r = h.getresponse()
-        except socket.error as err: # XXX what error?
+        except socket.error as err:  # XXX what error?
             raise URLError(err)
 
         # Pick apart the HTTPResponse object to get the addinfourl
@@ -111,7 +111,7 @@ class HTTPSHandler(AbstractHTTPHandler):
 
 
 # Copied from urllib2 with modifications for ssl
-def build_opener(ssl_context = None, *handlers):
+def build_opener(ssl_context=None, *handlers):
     """Create an opener object from a list of handlers.
 
     The opener will use several default handlers, including support

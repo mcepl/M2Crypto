@@ -45,8 +45,7 @@ def suite():
     return unittest.makeSuite(ECDHTestCase)
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     Rand.load_file('randpool.dat', -1)
     unittest.TextTestRunner().run(suite())
     Rand.save_file('randpool.dat')
-

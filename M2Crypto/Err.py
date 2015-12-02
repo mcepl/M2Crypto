@@ -6,7 +6,7 @@ import BIO
 import m2
 
 def get_error():
-    err=BIO.MemoryBuffer()
+    err = BIO.MemoryBuffer()
     m2.err_print_errors(err.bio_ptr())
     return err.getvalue()
 
@@ -45,5 +45,3 @@ class SSLError(Exception):
 
 class M2CryptoError(Exception):
     pass
-
-

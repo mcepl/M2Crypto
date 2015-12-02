@@ -13,8 +13,8 @@ import BIO
 import m2
 
 MBSTRING_FLAG = 0x1000
-MBSTRING_ASC  = MBSTRING_FLAG | 1
-MBSTRING_BMP  = MBSTRING_FLAG | 2
+MBSTRING_ASC = MBSTRING_FLAG | 1
+MBSTRING_BMP = MBSTRING_FLAG | 2
 
 
 class ASN1_Integer:
@@ -43,7 +43,7 @@ class ASN1_String:
 
     def __str__(self):
         buf = BIO.MemoryBuffer()
-        m2.asn1_string_print( buf.bio_ptr(), self.asn1str )
+        m2.asn1_string_print(buf.bio_ptr(), self.asn1str)
         return buf.read_all()
 
     def __del__(self):
@@ -55,7 +55,7 @@ class ASN1_String:
 
     def as_text(self, flags=0):
         buf = BIO.MemoryBuffer()
-        m2.asn1_string_print_ex( buf.bio_ptr(), self.asn1str, flags)
+        m2.asn1_string_print_ex(buf.bio_ptr(), self.asn1str, flags)
         return buf.read_all()
 
 
@@ -92,9 +92,9 @@ UTC = _UTC()
 class LocalTimezone(datetime.tzinfo):
     """ Localtimezone from datetime manual """
     def __init__(self):
-        self._stdoffset = datetime.timedelta(seconds = -time.timezone)
+        self._stdoffset = datetime.timedelta(seconds=-time.timezone)
         if time.daylight:
-            self._dstoffset = datetime.timedelta(seconds = -time.altzone)
+            self._dstoffset = datetime.timedelta(seconds=-time.altzone)
         else:
             self._dstoffset = self._stdoffset
         self._dstdiff = self._dstoffset - self._stdoffset
@@ -135,7 +135,7 @@ class ASN1_UTCTIME:
             self.asn1_utctime = asn1_utctime
             self._pyfree = _pyfree
         else:
-            self.asn1_utctime = m2.asn1_utctime_new ()
+            self.asn1_utctime = m2.asn1_utctime_new()
             self._pyfree = 1
 
     def __del__(self):
@@ -145,26 +145,26 @@ class ASN1_UTCTIME:
     def __str__(self):
         assert m2.asn1_utctime_type_check(self.asn1_utctime), "'asn1_utctime' type error'"
         buf = BIO.MemoryBuffer()
-        m2.asn1_utctime_print( buf.bio_ptr(), self.asn1_utctime )
+        m2.asn1_utctime_print(buf.bio_ptr(), self.asn1_utctime)
         return buf.read_all()
 
     def _ptr(self):
         assert m2.asn1_utctime_type_check(self.asn1_utctime), "'asn1_utctime' type error'"
         return self.asn1_utctime
 
-    def set_string (self, string):
+    def set_string(self, string):
         """
         Set time from UTC string.
         """
         assert m2.asn1_utctime_type_check(self.asn1_utctime), "'asn1_utctime' type error'"
-        return m2.asn1_utctime_set_string( self.asn1_utctime, string )
+        return m2.asn1_utctime_set_string(self.asn1_utctime, string)
 
-    def set_time (self, time):
+    def set_time(self, time):
         """
         Set time from seconds since epoch (long).
         """
         assert m2.asn1_utctime_type_check(self.asn1_utctime), "'asn1_utctime' type error'"
-        return m2.asn1_utctime_set( self.asn1_utctime, time )
+        return m2.asn1_utctime_set(self.asn1_utctime, time)
 
     def get_datetime(self):
         date = str(self)

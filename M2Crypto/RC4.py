@@ -27,5 +27,3 @@ class RC4:
 
     def final(self):
         return ''
-
-

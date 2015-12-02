@@ -41,8 +41,8 @@ class MessageDigest:
         md = getattr(m2, algo, None)
         if md is None:
             raise ValueError('unknown algorithm', algo)
-        self.md=md()
-        self.ctx=m2.md_ctx_new()
+        self.md = md()
+        self.ctx = m2.md_ctx_new()
         m2.digest_init(self.ctx, self.md)
 
     def __del__(self):
@@ -72,8 +72,8 @@ class HMAC:
         md = getattr(m2, algo, None)
         if md is None:
             raise ValueError('unknown algorithm', algo)
-        self.md=md()
-        self.ctx=m2.hmac_ctx_new()
+        self.md = md()
+        self.ctx = m2.hmac_ctx_new()
         m2.hmac_init(self.ctx, key, self.md)
 
     def __del__(self):
@@ -89,7 +89,7 @@ class HMAC:
     def final(self):
         return m2.hmac_final(self.ctx)
 
-    digest=final
+    digest = final
 
 def hmac(key, data, algo='sha1'):
     md = getattr(m2, algo, None)
@@ -106,13 +106,13 @@ class Cipher:
         cipher = getattr(m2, alg, None)
         if cipher is None:
             raise ValueError('unknown cipher', alg)
-        self.cipher=cipher()
+        self.cipher = cipher()
         if key_as_bytes:
             kmd = getattr(m2, d, None)
             if kmd is None:
                 raise ValueError('unknown message digest', d)
             key = m2.bytes_to_key(self.cipher, kmd(), key, salt, iv, i)
-        self.ctx=m2.cipher_ctx_new()
+        self.ctx = m2.cipher_ctx_new()
         m2.cipher_init(self.ctx, self.cipher, key, iv, op)
         self.set_padding(padding)
         del key
@@ -404,5 +404,4 @@ def load_key_string(string, callback=util.passphrase_callback):
     @return: M2Crypto.EVP.PKey object.
     """
     bio = BIO.MemoryBuffer(string)
-    return load_key_bio( bio, callback)
-
+    return load_key_bio(bio, callback)

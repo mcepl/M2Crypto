@@ -68,7 +68,7 @@ def dump_garbage():
         print('\nLeaked objects:')
         for x in gc.garbage:
             s = str(x)
-            if len(s) > 77: s = s[:73]+'...'
+            if len(s) > 77: s = s[:73] + '...'
             print(type(x), '\n  ', s)
 
         print('There were %d leaks.' % len(gc.garbage))

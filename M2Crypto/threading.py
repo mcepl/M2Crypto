@@ -17,4 +17,3 @@ def cleanup():
     End and cleanup threading support.
     """
     m2.threading_cleanup()
-

@@ -49,7 +49,7 @@ class HandshakeClient(threading.Thread):
                     print(err_string)
                     sys.exit("unrecoverable error in handshake - client")
                 else:
-                     output_token  = writebio.read()
+                     output_token = writebio.read()
                      if output_token is not None:
                          sock.sendall(output_token)
                      else:
@@ -66,15 +66,15 @@ class SSLTestCase(unittest.TestCase):
     def setUp(self):
         self.sslbio = BIO.SSLBio()
 
-    def test_pass(self): # XXX leaks 64/24 bytes
+    def test_pass(self):  # XXX leaks 64/24 bytes
         pass
 
-    def test_set_ssl(self): # XXX leaks 64/1312 bytes
+    def test_set_ssl(self):  # XXX leaks 64/1312 bytes
         ctx = SSL.Context()
         conn = SSL.Connection(ctx)
         self.sslbio.set_ssl(conn)
 
-    def test_do_handshake_fail(self): # XXX leaks 64/42066 bytes
+    def test_do_handshake_fail(self):  # XXX leaks 64/42066 bytes
         ctx = SSL.Context()
         conn = SSL.Connection(ctx)
         conn.set_connect_state()
@@ -82,7 +82,7 @@ class SSLTestCase(unittest.TestCase):
         ret = self.sslbio.do_handshake()
         self.assertEqual(ret, 0)
 
-    def test_should_retry_fail(self): # XXX leaks 64/1312 bytes
+    def test_should_retry_fail(self):  # XXX leaks 64/1312 bytes
         ctx = SSL.Context()
         conn = SSL.Connection(ctx)
         self.sslbio.set_ssl(conn)
@@ -91,7 +91,7 @@ class SSLTestCase(unittest.TestCase):
         ret = self.sslbio.should_retry()
         self.assertEqual(ret, 0)
 
-    def test_should_write_fail(self): # XXX leaks 64/1312 bytes
+    def test_should_write_fail(self):  # XXX leaks 64/1312 bytes
         ctx = SSL.Context()
         conn = SSL.Connection(ctx)
         self.sslbio.set_ssl(conn)
@@ -100,7 +100,7 @@ class SSLTestCase(unittest.TestCase):
         ret = self.sslbio.should_write()
         self.assertEqual(ret, 0)
 
-    def test_should_read_fail(self): # XXX leaks 64/1312 bytes
+    def test_should_read_fail(self):  # XXX leaks 64/1312 bytes
         ctx = SSL.Context()
         conn = SSL.Connection(ctx)
         self.sslbio.set_ssl(conn)
@@ -109,7 +109,7 @@ class SSLTestCase(unittest.TestCase):
         ret = self.sslbio.should_read()
         self.assertEqual(ret, 0)
 
-    def test_do_handshake_succeed(self): # XXX leaks 196/26586 bytes
+    def test_do_handshake_succeed(self):  # XXX leaks 196/26586 bytes
         ctx = SSL.Context()
         ctx.load_cert_chain("tests/server.pem")
         conn = SSL.Connection(ctx)
@@ -137,7 +137,7 @@ class SSLTestCase(unittest.TestCase):
             else:
                 handshake_complete = True
 
-            output_token  = writebio.read()
+            output_token = writebio.read()
             if output_token is not None:
                 new_sock.sendall(output_token)
 

@@ -110,7 +110,7 @@ class SMIMETestCase(unittest.TestCase):
         p7, data = SMIME.smime_load_pkcs7_bio(self.signed)
         self.assertIsInstance(p7, SMIME.PKCS7, p7)
         with self.assertRaises(SMIME.PKCS7_Error):
-            s.verify(p7) # Bad signer
+            s.verify(p7)  # Bad signer
 
     def test_encrypt(self):
         buf = BIO.MemoryBuffer(self.cleartext)
@@ -154,7 +154,7 @@ class SMIMETestCase(unittest.TestCase):
         p7, data = SMIME.smime_load_pkcs7_bio(self.encrypted)
         self.assertIsInstance(p7, SMIME.PKCS7, p7)
         with self.assertRaises(SMIME.SMIME_Error):
-            s.verify(p7) # No signer
+            s.verify(p7)  # No signer
 
         out = s.decrypt(p7)
         self.assertEqual(out, self.cleartext)
@@ -167,7 +167,7 @@ class SMIMETestCase(unittest.TestCase):
         p7, data = SMIME.smime_load_pkcs7_bio(self.encrypted)
         self.assertIsInstance(p7, SMIME.PKCS7, p7)
         with self.assertRaises(SMIME.SMIME_Error):
-            s.verify(p7) # No signer
+            s.verify(p7)  # No signer
 
         # Cannot decrypt: no recipient matches certificate
         with self.assertRaises(SMIME.PKCS7_Error):
@@ -281,4 +281,3 @@ if __name__ == '__main__':
     Rand.load_file('randpool.dat', -1)
     unittest.TextTestRunner().run(suite())
     Rand.save_file('randpool.dat')
-

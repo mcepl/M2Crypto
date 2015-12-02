@@ -29,7 +29,7 @@ class EVPTestCase(unittest.TestCase):
     def _assign_rsa(self):
         rsa = RSA.gen_key(1024, 3, callback=self._gen_callback)
         pkey = EVP.PKey()
-        pkey.assign_rsa(rsa, capture=0) # capture=1 should cause crash
+        pkey.assign_rsa(rsa, capture=0)  # capture=1 should cause crash
         return rsa
 
     def test_assign(self):
@@ -55,7 +55,7 @@ class EVPTestCase(unittest.TestCase):
         pkey = EVP.PKey()
         pkey.assign_rsa(rsa)
         der_blob = pkey.as_der()
-        #A quick but not thorough sanity check
+        # A quick but not thorough sanity check
         self.assertEqual(len(der_blob), 160)
 
 
@@ -75,7 +75,7 @@ class EVPTestCase(unittest.TestCase):
         pkey = EVP.PKey()
         pkey.assign_rsa(rsa, 1)
         der_blob = pkey.as_der()
-        #A quick but not thorough sanity check
+        # A quick but not thorough sanity check
         self.assertEqual(len(der_blob), 160)
 
     def test_size(self):
@@ -89,7 +89,7 @@ class EVPTestCase(unittest.TestCase):
         self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data')),
                          92800611269186718152770431077867383126636491933,
                          util.octx_to_num(EVP.hmac('key', 'data')))
-        if not fips_mode: # Disabled algorithms
+        if not fips_mode:  # Disabled algorithms
             self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data', algo='md5')),
                 209168838103121722341657216703105225176,
                 util.octx_to_num(EVP.hmac('key', 'data', algo='md5')))
@@ -192,7 +192,7 @@ class EVPTestCase(unittest.TestCase):
         with self.assertRaises(BIO.BIOError):
             EVP.load_key('thisdoesnotexist-dfgh56789')
         with self.assertRaises(EVP.EVPError):
-            EVP.load_key('tests/signer.pem') # not a key
+            EVP.load_key('tests/signer.pem')  # not a key
         with self.assertRaises(EVP.EVPError):
             EVP.load_key_bio(BIO.MemoryBuffer('no a key'))
 
@@ -208,7 +208,7 @@ class EVPTestCase(unittest.TestCase):
 class CipherTestCase(unittest.TestCase):
     def cipher_filter(self, cipher, inf, outf):
         while 1:
-            buf=inf.read()
+            buf = inf.read()
             if not buf:
                 break
             outf.write(cipher.update(buf))
@@ -218,44 +218,44 @@ class CipherTestCase(unittest.TestCase):
     def try_algo(self, algo):
         enc = 1
         dec = 0
-        otxt='against stupidity the gods themselves contend in vain'
+        otxt = 'against stupidity the gods themselves contend in vain'
 
-        k=EVP.Cipher(algo, 'goethe','12345678', enc, 1, 'sha1', 'saltsalt', 5)
-        pbuf=cStringIO.StringIO(otxt)
-        cbuf=cStringIO.StringIO()
-        ctxt=self.cipher_filter(k, pbuf, cbuf)
+        k = EVP.Cipher(algo, 'goethe', '12345678', enc, 1, 'sha1', 'saltsalt', 5)
+        pbuf = cStringIO.StringIO(otxt)
+        cbuf = cStringIO.StringIO()
+        ctxt = self.cipher_filter(k, pbuf, cbuf)
         pbuf.close()
         cbuf.close()
 
-        j=EVP.Cipher(algo, 'goethe','12345678', dec, 1, 'sha1', 'saltsalt', 5)
-        pbuf=cStringIO.StringIO()
-        cbuf=cStringIO.StringIO(ctxt)
-        ptxt=self.cipher_filter(j, cbuf, pbuf)
+        j = EVP.Cipher(algo, 'goethe', '12345678', dec, 1, 'sha1', 'saltsalt', 5)
+        pbuf = cStringIO.StringIO()
+        cbuf = cStringIO.StringIO(ctxt)
+        ptxt = self.cipher_filter(j, cbuf, pbuf)
         pbuf.close()
         cbuf.close()
 
         self.assertEqual(otxt, ptxt, '%s algorithm cipher test failed' % algo)
 
     def test_ciphers(self):
-        ciphers=[
+        ciphers = [
             'des_ede_ecb', 'des_ede_cbc', 'des_ede_cfb', 'des_ede_ofb',
             'des_ede3_ecb', 'des_ede3_cbc', 'des_ede3_cfb', 'des_ede3_ofb',
             'aes_128_ecb', 'aes_128_cbc', 'aes_128_cfb', 'aes_128_ofb',
             'aes_192_ecb', 'aes_192_cbc', 'aes_192_cfb', 'aes_192_ofb',
             'aes_256_ecb', 'aes_256_cbc', 'aes_256_cfb', 'aes_256_ofb']
-        nonfips_ciphers=['bf_ecb', 'bf_cbc', 'bf_cfb', 'bf_ofb',
+        nonfips_ciphers = ['bf_ecb', 'bf_cbc', 'bf_cfb', 'bf_ofb',
                          #'idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb',
                          'cast5_ecb', 'cast5_cbc', 'cast5_cfb', 'cast5_ofb',
                          #'rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb',
                          'des_ecb', 'des_cbc', 'des_cfb', 'des_ofb',
                          'rc4', 'rc2_40_cbc']
-        if not fips_mode: # Disabled algorithms
+        if not fips_mode:  # Disabled algorithms
             ciphers += nonfips_ciphers
         for i in ciphers:
             self.try_algo(i)
 
         # idea might not be compiled in
-        ciphers=['idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb']
+        ciphers = ['idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb']
         try:
             for i in ciphers:
                 self.try_algo(i)
@@ -264,7 +264,7 @@ class CipherTestCase(unittest.TestCase):
                 raise
 
         # rc5 might not be compiled in
-        ciphers=['rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb']
+        ciphers = ['rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb']
         try:
             for i in ciphers:
                 self.try_algo(i)
@@ -280,49 +280,49 @@ class CipherTestCase(unittest.TestCase):
         dec = 0
         tests = [
             # test vectors from rfc 3602
-            #Case #1: Encrypting 16 bytes (1 block) using AES-CBC with 128-bit key
+            # Case #1: Encrypting 16 bytes (1 block) using AES-CBC with 128-bit key
             {
             'KEY': '06a9214036b8a15b512e03d534120006',
-            'IV':  '3dafba429d9eb430b422da802c9fac41',
-            'PT':  'Single block msg',
-            'CT':  'e353779c1079aeb82708942dbe77181a',
+            'IV': '3dafba429d9eb430b422da802c9fac41',
+            'PT': 'Single block msg',
+            'CT': 'e353779c1079aeb82708942dbe77181a',
             },
 
-            #Case #2: Encrypting 32 bytes (2 blocks) using AES-CBC with 128-bit key
+            # Case #2: Encrypting 32 bytes (2 blocks) using AES-CBC with 128-bit key
             {
             'KEY': 'c286696d887c9aa0611bbb3e2025a45a',
-            'IV':  '562e17996d093d28ddb3ba695a2e6f58',
-            'PT':  unhexlify('000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f'),
-            'CT':  'd296cd94c2cccf8a3a863028b5e1dc0a7586602d253cfff91b8266bea6d61ab1',
+            'IV': '562e17996d093d28ddb3ba695a2e6f58',
+            'PT': unhexlify('000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f'),
+            'CT': 'd296cd94c2cccf8a3a863028b5e1dc0a7586602d253cfff91b8266bea6d61ab1',
             },
 
-            #Case #3: Encrypting 48 bytes (3 blocks) using AES-CBC with 128-bit key
+            # Case #3: Encrypting 48 bytes (3 blocks) using AES-CBC with 128-bit key
             {
             'KEY': '6c3ea0477630ce21a2ce334aa746c2cd',
-            'IV':  'c782dc4c098c66cbd9cd27d825682c81',
-            'PT':  'This is a 48-byte message (exactly 3 AES blocks)',
-            'CT':  'd0a02b3836451753d493665d33f0e8862dea54cdb293abc7506939276772f8d5021c19216bad525c8579695d83ba2684',
+            'IV': 'c782dc4c098c66cbd9cd27d825682c81',
+            'PT': 'This is a 48-byte message (exactly 3 AES blocks)',
+            'CT': 'd0a02b3836451753d493665d33f0e8862dea54cdb293abc7506939276772f8d5021c19216bad525c8579695d83ba2684',
             },
         ]
 
         # Test with padding
         for test in tests:
             # encrypt
-            k=EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=enc)
-            pbuf=cStringIO.StringIO(test['PT'])
-            cbuf=cStringIO.StringIO()
+            k = EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=enc)
+            pbuf = cStringIO.StringIO(test['PT'])
+            cbuf = cStringIO.StringIO()
             ciphertext = hexlify(self.cipher_filter(k, pbuf, cbuf))
             cipherpadding = ciphertext[len(test['PT']) * 2:]
-            ciphertext = ciphertext[:len(test['PT']) * 2] # Remove the padding from the end
+            ciphertext = ciphertext[:len(test['PT']) * 2]  # Remove the padding from the end
             pbuf.close()
             cbuf.close()
             self.assertEqual(ciphertext, test['CT'])
 
             # decrypt
-            j=EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=dec)
-            pbuf=cStringIO.StringIO()
-            cbuf=cStringIO.StringIO(unhexlify(test['CT'] + cipherpadding))
-            plaintext=self.cipher_filter(j, cbuf, pbuf)
+            j = EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=dec)
+            pbuf = cStringIO.StringIO()
+            cbuf = cStringIO.StringIO(unhexlify(test['CT'] + cipherpadding))
+            plaintext = self.cipher_filter(j, cbuf, pbuf)
             pbuf.close()
             cbuf.close()
             self.assertEqual(plaintext, test['PT'])
@@ -330,19 +330,19 @@ class CipherTestCase(unittest.TestCase):
         # Test without padding
         for test in tests:
             # encrypt
-            k=EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=enc, padding=False)
-            pbuf=cStringIO.StringIO(test['PT'])
-            cbuf=cStringIO.StringIO()
+            k = EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=enc, padding=False)
+            pbuf = cStringIO.StringIO(test['PT'])
+            cbuf = cStringIO.StringIO()
             ciphertext = hexlify(self.cipher_filter(k, pbuf, cbuf))
             pbuf.close()
             cbuf.close()
             self.assertEqual(ciphertext, test['CT'])
 
             # decrypt
-            j=EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=dec, padding=False)
-            pbuf=cStringIO.StringIO()
-            cbuf=cStringIO.StringIO(unhexlify(test['CT']))
-            plaintext=self.cipher_filter(j, cbuf, pbuf)
+            j = EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=dec, padding=False)
+            pbuf = cStringIO.StringIO()
+            cbuf = cStringIO.StringIO(unhexlify(test['CT']))
+            plaintext = self.cipher_filter(j, cbuf, pbuf)
             pbuf.close()
             cbuf.close()
             self.assertEqual(plaintext, test['PT'])
@@ -400,19 +400,19 @@ class PBKDF2TestCase(unittest.TestCase):
 
 
 class HMACTestCase(unittest.TestCase):
-    data1=['', 'More text test vectors to stuff up EBCDIC machines :-)', \
+    data1 = ['', 'More text test vectors to stuff up EBCDIC machines :-)', \
            h2b("b760e92d6662d351eb3801057695ac0346295356")]
 
-    data2=[h2b('0b'*16), "Hi There", \
+    data2 = [h2b('0b' * 16), "Hi There", \
            h2b("675b0b3a1b4ddf4e124872da6c2f632bfed957e9")]
 
-    data3=['Jefe', "what do ya want for nothing?", \
+    data3 = ['Jefe', "what do ya want for nothing?", \
            h2b("effcdf6ae5eb2fa2d27416d5f184df9c259a7c79")]
 
-    data4=[h2b('aa'*16), h2b('dd'*50), \
+    data4 = [h2b('aa' * 16), h2b('dd' * 50), \
            h2b("d730594d167e35d5956fd8003d0db3d3f46dc7bb")]
 
-    data=[data1, data2, data3, data4]
+    data = [data1, data2, data3, data4]
 
     def test_simple(self):
         algo = 'sha1'
@@ -497,4 +497,3 @@ if __name__ == '__main__':
     Rand.load_file('randpool.dat', -1)
     unittest.TextTestRunner().run(suite())
     Rand.save_file('randpool.dat')
-

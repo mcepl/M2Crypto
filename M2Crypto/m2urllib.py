@@ -11,7 +11,7 @@ from urllib import *
 import SSL
 import httpslib
 
-DEFAULT_PROTOCOL='sslv23'
+DEFAULT_PROTOCOL = 'sslv23'
 
 def open_https(self, url, data=None, ssl_context=None):
     if ssl_context is not None and isinstance(ssl_context, SSL.Context):
@@ -47,7 +47,7 @@ def open_https(self, url, data=None, ssl_context=None):
         auth = None
     # Start here!
     h = httpslib.HTTPSConnection(host=host, ssl_context=self.ctx)
-    #h.set_debuglevel(1)
+    # h.set_debuglevel(1)
     # Stop here!
     if data is not None:
         h.putrequest('POST', selector)
@@ -68,5 +68,3 @@ def open_https(self, url, data=None, ssl_context=None):
 
 # Minor brain surgery.
 URLopener.open_https = open_https
-
-

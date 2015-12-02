@@ -37,7 +37,7 @@ NID_sect163r1 = m2.NID_sect163r1
 NID_sect163r2 = m2.NID_sect163r2
 NID_sect193r1 = m2.NID_sect193r1
 NID_sect193r2 = m2.NID_sect193r2
-NID_sect233k1 = m2.NID_sect233k1 # default for secg.org TLS test server
+NID_sect233k1 = m2.NID_sect233k1  # default for secg.org TLS test server
 NID_sect233r1 = m2.NID_sect233r1
 NID_sect239k1 = m2.NID_sect239k1
 NID_sect283k1 = m2.NID_sect283k1
@@ -71,14 +71,14 @@ NID_X9_62_c2tnb359v1 = m2.NID_X9_62_c2tnb359v1
 NID_X9_62_c2pnb368w1 = m2.NID_X9_62_c2pnb368w1
 NID_X9_62_c2tnb431r1 = m2.NID_X9_62_c2tnb431r1
 
-NID_wap_wsg_idm_ecid_wtls1  = m2.NID_wap_wsg_idm_ecid_wtls1
-NID_wap_wsg_idm_ecid_wtls3  = m2.NID_wap_wsg_idm_ecid_wtls3
-NID_wap_wsg_idm_ecid_wtls4  = m2.NID_wap_wsg_idm_ecid_wtls4
-NID_wap_wsg_idm_ecid_wtls5  = m2.NID_wap_wsg_idm_ecid_wtls5
-NID_wap_wsg_idm_ecid_wtls6  = m2.NID_wap_wsg_idm_ecid_wtls6
-NID_wap_wsg_idm_ecid_wtls7  = m2.NID_wap_wsg_idm_ecid_wtls7
-NID_wap_wsg_idm_ecid_wtls8  = m2.NID_wap_wsg_idm_ecid_wtls8
-NID_wap_wsg_idm_ecid_wtls9  = m2.NID_wap_wsg_idm_ecid_wtls9
+NID_wap_wsg_idm_ecid_wtls1 = m2.NID_wap_wsg_idm_ecid_wtls1
+NID_wap_wsg_idm_ecid_wtls3 = m2.NID_wap_wsg_idm_ecid_wtls3
+NID_wap_wsg_idm_ecid_wtls4 = m2.NID_wap_wsg_idm_ecid_wtls4
+NID_wap_wsg_idm_ecid_wtls5 = m2.NID_wap_wsg_idm_ecid_wtls5
+NID_wap_wsg_idm_ecid_wtls6 = m2.NID_wap_wsg_idm_ecid_wtls6
+NID_wap_wsg_idm_ecid_wtls7 = m2.NID_wap_wsg_idm_ecid_wtls7
+NID_wap_wsg_idm_ecid_wtls8 = m2.NID_wap_wsg_idm_ecid_wtls8
+NID_wap_wsg_idm_ecid_wtls9 = m2.NID_wap_wsg_idm_ecid_wtls9
 NID_wap_wsg_idm_ecid_wtls10 = m2.NID_wap_wsg_idm_ecid_wtls10
 NID_wap_wsg_idm_ecid_wtls11 = m2.NID_wap_wsg_idm_ecid_wtls11
 NID_wap_wsg_idm_ecid_wtls12 = m2.NID_wap_wsg_idm_ecid_wtls12
@@ -153,7 +153,7 @@ class EC:
         assert self._check_key_type(), "'ec' type error"
         return m2.ecdsa_verify_asn1(self.ec, digest, blob)
 
-    def compute_dh_key(self,pub_key):
+    def compute_dh_key(self, pub_key):
         """
         Compute the ECDH shared key of this key pair and the given public
         key object. They must both use the same curve. Returns the
@@ -241,8 +241,8 @@ class EC_pub(EC):
     Object interface to an EC public key.
     ((don't like this implementation inheritance))
     """
-    def __init__(self,ec,_pyfree=0):
-        EC.__init__(self,ec,_pyfree)
+    def __init__(self, ec, _pyfree=0):
+        EC.__init__(self, ec, _pyfree)
         self.der = None
 
     def get_der(self):

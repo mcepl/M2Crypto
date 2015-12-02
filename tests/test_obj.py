@@ -17,7 +17,7 @@ Taken from CA managment code
 
 def x509_name2list(name):
     for i in range(0, name.entry_count()):
-        yield X509.X509_Name_Entry(m2.x509_name_get_entry(name._ptr(), i), _pyfree = 0)
+        yield X509.X509_Name_Entry(m2.x509_name_get_entry(name._ptr(), i), _pyfree=0)
 
 def x509_name_entry2tuple(entry):
     bio = BIO.MemoryBuffer()
@@ -29,7 +29,7 @@ def tuple2x509_name_entry(tup):
     _x509_ne = m2.x509_name_entry_create_by_txt(None, obj, ASN1.MBSTRING_ASC, data, len(data))
     if not _x509_ne:
         raise ValueError("Invalid object indentifier: %s" % obj)
-    return X509.X509_Name_Entry(_x509_ne, _pyfree = 1) # Prevent memory leaks
+    return X509.X509_Name_Entry(_x509_ne, _pyfree=1)  # Prevent memory leaks
 
 class ObjectsTestCase(unittest.TestCase):
 
@@ -70,7 +70,7 @@ class ObjectsTestCase(unittest.TestCase):
 
     def test_x509_name(self):
         n = X509.X509_Name()
-        n.C = 'US' # It seems this actually needs to be a real 2 letter country code
+        n.C = 'US'  # It seems this actually needs to be a real 2 letter country code
         n.SP = 'State or Province'
         n.L = 'locality name'
         n.O = 'orhanization name'
@@ -91,7 +91,7 @@ class ObjectsTestCase(unittest.TestCase):
         x509_n = m2.x509_name_new()
         for o in map(tuple2x509_name_entry, tl):
             m2.x509_name_add_entry(x509_n, o._ptr(), -1, 0)
-            o._pyfree = 0 # Take care of underlying object
+            o._pyfree = 0  # Take care of underlying object
         n1 = X509.X509_Name(x509_n)
 
         self.assertEqual(n.as_text(), n1.as_text(), n1.as_text())

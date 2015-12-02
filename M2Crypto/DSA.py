@@ -85,7 +85,7 @@ class DSA:
     def __setattr__(self, name, value):
         if name in ['p', 'q', 'g']:
             raise DSAError('set (p, q, g) via set_params()')
-        elif name in ['pub','priv']:
+        elif name in ['pub', 'priv']:
             raise DSAError('generate (pub, priv) via gen_key()')
         else:
             self.__dict__[name] = value
