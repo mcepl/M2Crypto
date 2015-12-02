@@ -12,14 +12,15 @@ Summary of changes:
 """
 
 import socket
-from urllib2 import *
 import urlparse
 
 import SSL
+
 import httpslib
+from urllib2 import *  # noqa
 
 
-class _closing_fileobject(socket._fileobject):
+class _closing_fileobject(socket._fileobject):  # noqa
     '''socket._fileobject that propagates self.close() to the socket.
 
     Python 2.5 provides this as socket._fileobject(sock, close=True).
@@ -32,6 +33,7 @@ class _closing_fileobject(socket._fileobject):
         sock = self._sock
         socket._fileobject.close(self)
         sock.close()
+
 
 class HTTPSHandler(AbstractHTTPHandler):
     def __init__(self, ssl_context=None):
@@ -106,7 +108,6 @@ class HTTPSHandler(AbstractHTTPHandler):
         resp.msg = r.reason
         return resp
 
-
     https_request = AbstractHTTPHandler.do_request_
 
 
@@ -121,6 +122,7 @@ def build_opener(ssl_context=None, *handlers):
     default handlers, the default handlers will not be used.
     """
     import types
+
     def isclass(obj):
         return isinstance(obj, types.ClassType) or hasattr(obj, "__bases__")
 
@@ -145,7 +147,6 @@ def build_opener(ssl_context=None, *handlers):
     # Add the HTTPS handler with ssl_context
     if HTTPSHandler not in skip:
         opener.add_handler(HTTPSHandler(ssl_context))
-
 
     for h in handlers:
         if isclass(h):
