@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Distutils/setuptools installer for M2Crypto.
+setuptools based installer for M2Crypto.
 
 Copyright (c) 1999-2004, Ng Pheng Siong. All rights reserved.
 
@@ -25,14 +25,8 @@ else:
 
 import os  # noqa
 import platform
-try:
-    from setuptools import setup
-    from setuptools.command import build_ext
-except ImportError:
-    from distutils.core import setup
-    from distutils.command import build_ext
-
-from distutils.core import Extension
+import setuptools
+from setuptools.command import build_ext
 from distutils.file_util import copy_file
 
 
@@ -119,14 +113,14 @@ if sys.platform == 'darwin':
 else:
     my_extra_compile_args = []
 
-m2crypto = Extension(name='M2Crypto.__m2crypto',
+m2crypto = setuptools.Extension(name='M2Crypto.__m2crypto',
                      sources=['SWIG/_m2crypto.i'],
                      extra_compile_args=['-DTHREADING'],
                      # Uncomment to build Universal Mac binaries
                      #extra_link_args = ['-Wl,-search_paths_first'],
                      )
 
-setup(name='M2Crypto',
+setuptools.setup(name='M2Crypto',
       version='0.22.6.rc3',
       description='M2Crypto: A Python crypto and SSL toolkit',
       long_description='''\
@@ -144,7 +138,6 @@ used to provide SSL for Twisted.''',
       maintainer='Matej Cepl',
       maintainer_email='mcepl@cepl.eu',
       url='https://gitlab.com/m2crypto/m2crypto',
-      packages=['M2Crypto', 'M2Crypto.SSL', 'M2Crypto.PGP'],
       classifiers=[
           'Development Status :: 5 - Production/Stable',
           'Intended Audience :: Developers',
@@ -153,8 +146,12 @@ used to provide SSL for Twisted.''',
           'Programming Language :: Python',
           'Topic :: Security :: Cryptography',
           'Topic :: Software Development :: Libraries :: Python Modules',
+          'Programming Language :: Python :: 2',
+          'Programming Language :: Python :: 2.6',
+          'Programming Language :: Python :: 2.7',
       ],
-
+      keywords='cryptography openssl',
+      packages=setuptools.find_packages(exclude=['contrib', 'docs', 'tests']),
       ext_modules=[m2crypto],
       test_suite='tests.alltests.suite',
       install_requires=requires_list,
