@@ -121,7 +121,7 @@ m2crypto = setuptools.Extension(name='M2Crypto.__m2crypto',
                      )
 
 setuptools.setup(name='M2Crypto',
-      version='0.22.6.rc3',
+      version='0.22.6rc3',
       description='M2Crypto: A Python crypto and SSL toolkit',
       long_description='''\
 M2Crypto is the most complete Python wrapper for OpenSSL featuring RSA, DSA,
