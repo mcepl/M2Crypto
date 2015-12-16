@@ -153,6 +153,25 @@ PyObject *dsa_set_g(DSA *dsa, PyObject *value) {
     Py_INCREF(Py_None);
     return Py_None;
 }
+
+PyObject *dsa_set_pub(DSA *dsa, PyObject *value) {
+    BIGNUM *bn;
+    const void *vbuf;
+    int vlen;
+
+    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
+        return NULL;
+
+    if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
+        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
+    if (dsa->pub_key)
+        BN_free(dsa->pub_key);
+    dsa->pub_key = bn;
+    Py_INCREF(Py_None);
+    return Py_None;
+}
 %}
 
 %inline %{

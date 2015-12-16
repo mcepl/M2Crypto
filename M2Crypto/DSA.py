@@ -396,6 +396,29 @@ def load_key_bio(bio, callback=util.passphrase_callback):
         raise DSAError('problem loading DSA key pair')
     return DSA(dsa, 1)
 
+def pub_key_from_params(p, q, g, pub):
+    """
+    Factory function that instantiates a DSA_pub object using
+    the parameters and public key specified.
+
+    @type  p: str
+    @param p: value of p, a "byte string"
+    @type  q: str
+    @param q: value of q, a "byte string"
+    @type  g: str
+    @param g: value of g, a "byte string"
+    @type  pub: str
+    @param pub: value of the public key, a "byte string"
+    @rtype:   DSA_pub
+    @return:  instance of DSA_pub.
+    """
+    dsa = m2.dsa_new()
+    m2.dsa_set_p(dsa, p)
+    m2.dsa_set_q(dsa, q)
+    m2.dsa_set_g(dsa, g)
+    m2.dsa_set_pub(dsa, pub)
+    return DSA_pub(dsa, 1)
+
 
 def load_pub_key(file, callback=util.passphrase_callback):
     """

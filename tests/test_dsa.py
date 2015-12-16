@@ -99,6 +99,19 @@ class DSATestCase(unittest.TestCase):
         r, s = dsa2.sign(self.data)
         assert dsa2.verify(self.data, r, s)
 
+    def test_pub_key_from_params(self):
+        dsa = DSA.gen_params(1024, self.callback)
+        dsa.gen_key()
+        assert len(dsa) == 1024
+        p = dsa.p
+        q = dsa.q
+        g = dsa.g
+        pub = dsa.pub
+        dsa2 = DSA.pub_key_from_params(p,q,g,pub)
+        assert dsa2.check_key()
+        r,s = dsa.sign(self.data)
+        assert dsa2.verify(self.data, r, s)
+
 def suite():
     return unittest.makeSuite(DSATestCase)
 
