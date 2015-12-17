@@ -49,6 +49,9 @@ extern const EVP_MD *EVP_sha512(void);
 %rename(digest_init) EVP_DigestInit;
 extern int EVP_DigestInit(EVP_MD_CTX *, const EVP_MD *);
 
+%rename(get_digestbyname) EVP_get_digestbyname;
+extern EVP_MD *EVP_get_digestbyname(const char * name);
+
 %rename(des_ecb) EVP_des_ecb;
 extern const EVP_CIPHER *EVP_des_ecb(void);
 %rename(des_ede_ecb) EVP_des_ede;

@@ -58,6 +58,9 @@ class EVPTestCase(unittest.TestCase):
         # A quick but not thorough sanity check
         self.assertEqual(len(der_blob), 160)
 
+    def test_get_digestbyname(self):
+        self.assertEqual(m2.get_digestbyname('sha513'), None)
+        self.assertNotEqual(m2.get_digestbyname('sha1'), None)
 
     def test_MessageDigest(self):
         with self.assertRaises(ValueError):
