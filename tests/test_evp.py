@@ -140,6 +140,26 @@ class EVPTestCase(unittest.TestCase):
         rsa3 = RSA.gen_key(1024, 3, callback=self._gen_callback)
         self.assertNotEqual(rsa.sign(digest), rsa3.sign(digest))
 
+    def test_load_key_string_pubkey(self):
+        """
+        Testing creating a PKey instance from PEM string.
+        """
+        rsa = RSA.gen_key(1024, 3, callback=self._gen_callback)
+        self.assertIsInstance(rsa, RSA.RSA)
+
+        rsa_pem = BIO.MemoryBuffer()
+        rsa.save_pub_key_bio(rsa_pem)
+        pkey = EVP.load_key_string_pubkey(rsa_pem.read())
+        rsa2 = pkey.get_rsa()
+        self.assertIsInstance(rsa2, RSA.RSA_pub)
+        self.assertEqual(rsa.e, rsa2.e)
+        self.assertEqual(rsa.n, rsa2.n)
+        pem = rsa.as_pem(callback=self._pass_callback)
+        pem2 = rsa2.as_pem()
+        assert pem
+        assert pem2
+        self.assertNotEqual(pem, pem2)
+
     def test_get_rsa_fail(self):
         """
         Testing trying to retrieve the RSA key from the PKey instance

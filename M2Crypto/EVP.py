@@ -389,6 +389,25 @@ def load_key_bio(bio, callback=util.passphrase_callback):
         raise EVPError(Err.get_error())
     return PKey(cptr, 1)
 
+def load_key_bio_pubkey(bio, callback=util.passphrase_callback):
+    """
+    Load an M2Crypto.EVP.PKey from a public key as a M2Crypto.BIO object.
+
+    @type bio: M2Crypto.BIO
+    @param bio: M2Crypto.BIO object containing the key in PEM format.
+
+    @type callback: Python callable
+    @param callback: A Python callable object that is invoked
+    to acquire a passphrase with which to protect the key.
+
+    @rtype: M2Crypto.EVP.PKey
+    @return: M2Crypto.EVP.PKey object.
+    """
+    cptr = m2.pkey_read_pem_pubkey(bio._ptr(), callback)
+    if cptr is None:
+        raise EVPError(Err.get_error())
+    return PKey(cptr, 1)
+
 def load_key_string(string, callback=util.passphrase_callback):
     """
     Load an M2Crypto.EVP.PKey from a string.
@@ -405,3 +424,20 @@ def load_key_string(string, callback=util.passphrase_callback):
     """
     bio = BIO.MemoryBuffer(string)
     return load_key_bio(bio, callback)
+
+def load_key_string_pubkey(string, callback=util.passphrase_callback):
+    """
+    Load an M2Crypto.EVP.PKey from a public key as a string.
+
+    @type string: string
+    @param string: String containing the key in PEM format.
+
+    @type callback: Python callable
+    @param callback: A Python callable object that is invoked
+    to acquire a passphrase with which to protect the key.
+
+    @rtype: M2Crypto.EVP.PKey
+    @return: M2Crypto.EVP.PKey object.
+    """
+    bio = BIO.MemoryBuffer(string)
+    return load_key_bio_pubkey( bio, callback)

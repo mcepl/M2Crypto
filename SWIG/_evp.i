@@ -525,6 +525,17 @@ EVP_PKEY *pkey_read_pem(BIO *f, PyObject *pyfunc) {
     return pk;
 }
 
+EVP_PKEY *pkey_read_pem_pubkey(BIO *f, PyObject *pyfunc) {
+    EVP_PKEY *pk;
+
+    Py_INCREF(pyfunc);
+    Py_BEGIN_ALLOW_THREADS
+    pk = PEM_read_bio_PUBKEY(f, NULL, passphrase_callback, (void *)pyfunc);
+    Py_END_ALLOW_THREADS
+    Py_DECREF(pyfunc);
+    return pk;
+}
+
 int pkey_assign_rsa(EVP_PKEY *pkey, RSA *rsa) {
     return EVP_PKEY_assign_RSA(pkey, rsa);
 }
