@@ -40,8 +40,13 @@ class MessageDigest:
     def __init__(self, algo):
         md = getattr(m2, algo, None)
         if md is None:
-            raise ValueError('unknown algorithm', algo)
-        self.md = md()
+            # if the digest algorithm isn't found as an attribute of the m2
+            # module, try to look up the digest using get_digestbyname()
+            self.md = m2.get_digestbyname(algo)
+            if self.md is None:
+                raise ValueError('unknown algorithm', algo)
+        else:
+            self.md = md()
         self.ctx = m2.md_ctx_new()
         m2.digest_init(self.ctx, self.md)
 

@@ -69,6 +69,19 @@ class EVPTestCase(unittest.TestCase):
         self.assertEqual(md.update('Hello'), 1)
         self.assertEqual(util.octx_to_num(md.final()), 1415821221623963719413415453263690387336440359920)
 
+        # temporarily remove sha1 from m2
+        old_sha1 = m2.sha1
+        del m2.sha1
+
+        # now run the same test again, relying on EVP.MessageDigest() to call
+        # get_digestbyname() under the hood
+        md = EVP.MessageDigest('sha1')
+        self.assertEqual(md.update('Hello'), 1)
+        self.assertEqual(util.octx_to_num(md.final()), 1415821221623963719413415453263690387336440359920)
+
+        # put sha1 back in place
+        m2.sha1 = old_sha1
+
     def test_as_der_capture_key(self):
         """
         Test DER encoding the PKey instance after assigning
