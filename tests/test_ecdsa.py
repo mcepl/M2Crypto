@@ -70,6 +70,16 @@ class ECDSATestCase(unittest.TestCase):
         ec = EC.gen_params(EC.NID_sect233k1)
         self.assertEqual(len(ec), 233)
 
+    def test_pub_key_from_params(self):
+        curve = EC.NID_X9_62_prime256v1
+        ec = EC.gen_params(curve)
+        ec.gen_key()
+        ec_pub = ec.pub()
+        k = ec_pub.get_key()
+        ec2 = EC.pub_key_from_params(curve, k)
+        assert ec2.check_key()
+        r, s = ec.sign_dsa(self.data)
+        assert ec2.verify_dsa(self.data, r, s)
 
 def suite():
     return unittest.makeSuite(ECDSATestCase)

@@ -189,6 +189,43 @@ PyObject *ec_key_get_public_der(EC_KEY *key) {
 
     return pyo;
 }
+
+PyObject *ec_key_get_public_key(EC_KEY *key) {
+
+    unsigned char *src=NULL;
+    void *dst=NULL;
+    int src_len=0;
+    Py_ssize_t dst_len=0;
+    PyObject *pyo=NULL;
+    int ret=0;
+    
+    /* Convert to binary */
+    src_len = i2o_ECPublicKey(key, &src);
+    if (src_len < 0)
+    {
+        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
+
+    /* Create a PyBuffer containing a copy of the binary,
+     * to simplify memory deallocation
+     */
+    pyo = PyBuffer_New( src_len );
+    ret = PyObject_AsWriteBuffer( pyo, &dst, &dst_len );
+    assert( src_len == dst_len );
+    if (ret < 0)
+    {
+        Py_DECREF(pyo);
+        OPENSSL_free(src);    
+        PyErr_SetString(_ec_err, "cannot get write buffer");
+        return NULL;
+    }
+    memcpy( dst, src, src_len );
+    OPENSSL_free(src);
+
+    return pyo;
+}
+
 %}
 
 %threadallow ec_key_read_pubkey;
@@ -397,6 +434,32 @@ EC_KEY* ec_key_from_pubkey_der(PyObject *pubkey) {
 
     tempBuf = (const unsigned char *)keypairbuf;
     if ((keypair = d2i_EC_PUBKEY( NULL, &tempBuf, keypairbuflen)) == 0)
+    {
+        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
+    return keypair;
+}
+
+EC_KEY* ec_key_from_pubkey_params(int nid, PyObject *pubkey) {
+    const void *keypairbuf;
+    Py_ssize_t keypairbuflen;
+    const unsigned char *tempBuf;
+    EC_KEY *keypair;
+
+    if (PyObject_AsReadBuffer(pubkey, &keypairbuf, &keypairbuflen) == -1)
+    {
+        return NULL;
+    }
+
+    keypair = ec_key_new_by_curve_name(nid);
+    if (!keypair) {
+        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
+
+    tempBuf = (const unsigned char *)keypairbuf;
+    if ((o2i_ECPublicKey( &keypair, &tempBuf, keypairbuflen)) == 0)
     {
         PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;

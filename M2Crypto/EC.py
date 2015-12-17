@@ -254,6 +254,13 @@ class EC_pub(EC):
             self.der = m2.ec_key_get_public_der(self.ec)
         return self.der
 
+    def get_key(self):
+        """
+        Returns the public key as a byte string.
+        """
+        assert self.check_key(), 'key is not initialised'
+        return m2.ec_key_get_public_key(self.ec)
+
     save_key = EC.save_pub_key
 
     save_key_bio = EC.save_pub_key_bio
@@ -333,3 +340,9 @@ def pub_key_from_der(der):
     Create EC_pub from DER.
     """
     return EC_pub(m2.ec_key_from_pubkey_der(der), 1)
+
+def pub_key_from_params(curve, bytes):
+    """
+    Create EC_pub from curve name and octet string.
+    """
+    return EC_pub(m2.ec_key_from_pubkey_params(curve, bytes), 1)
