@@ -240,9 +240,9 @@ class CipherTestCase(unittest.TestCase):
         ciphers = [
             'des_ede_ecb', 'des_ede_cbc', 'des_ede_cfb', 'des_ede_ofb',
             'des_ede3_ecb', 'des_ede3_cbc', 'des_ede3_cfb', 'des_ede3_ofb',
-            'aes_128_ecb', 'aes_128_cbc', 'aes_128_cfb', 'aes_128_ofb',
-            'aes_192_ecb', 'aes_192_cbc', 'aes_192_cfb', 'aes_192_ofb',
-            'aes_256_ecb', 'aes_256_cbc', 'aes_256_cfb', 'aes_256_ofb']
+            'aes_128_ecb', 'aes_128_cbc', 'aes_128_cfb', 'aes_128_ofb', 'aes_128_ctr',
+            'aes_192_ecb', 'aes_192_cbc', 'aes_192_cfb', 'aes_192_ofb', 'aes_192_ctr',
+            'aes_256_ecb', 'aes_256_cbc', 'aes_256_cfb', 'aes_256_ofb', 'aes_256_ctr']
         nonfips_ciphers = ['bf_ecb', 'bf_cbc', 'bf_cfb', 'bf_ofb',
                          #'idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb',
                          'cast5_ecb', 'cast5_cbc', 'cast5_cfb', 'cast5_ofb',
