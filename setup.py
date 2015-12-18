@@ -10,8 +10,15 @@ Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 
 Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 """
-
+import os
+import platform
 import sys
+
+import setuptools
+
+from distutils.file_util import copy_file
+from setuptools.command import build_ext
+
 if sys.version_info[:2] <= (2, 6):
     # This covers hopefully only RHEL-6 (users of any other 2.6 Pythons
     # ... Solaris?, *BSD? ... should file an issue and be prepared to
@@ -23,12 +30,6 @@ else:
     import sysconfig
     _multiarch = sysconfig.get_config_var("MULTIARCH")
 
-import os  # noqa
-import platform
-import setuptools
-from setuptools.command import build_ext
-from distutils.file_util import copy_file
-
 
 class _M2CryptoBuildExt(build_ext.build_ext):
     '''Specialization of build_ext to enable swig_opts to inherit any
@@ -38,7 +39,6 @@ class _M2CryptoBuildExt(build_ext.build_ext):
 
     def initialize_options(self):
         '''Overload to enable custom openssl settings to be picked up'''
-
         build_ext.build_ext.initialize_options(self)
 
         # openssl is the attribute corresponding to openssl directory prefix
@@ -114,46 +114,50 @@ else:
     my_extra_compile_args = []
 
 m2crypto = setuptools.Extension(name='M2Crypto.__m2crypto',
-                     sources=['SWIG/_m2crypto.i'],
-                     extra_compile_args=['-DTHREADING'],
-                     # Uncomment to build Universal Mac binaries
-                     #extra_link_args = ['-Wl,-search_paths_first'],
-                     )
+                                sources=['SWIG/_m2crypto.i'],
+                                extra_compile_args=['-DTHREADING'],
+                                # Uncomment to build Universal Mac binaries
+                                # extra_link_args =
+                                #     ['-Wl,-search_paths_first'],
+                                )
 
-setuptools.setup(name='M2Crypto',
-      version='0.22.6rc3',
-      description='M2Crypto: A Python crypto and SSL toolkit',
-      long_description='''\
+long_description_text = '''\
 M2Crypto is the most complete Python wrapper for OpenSSL featuring RSA, DSA,
 DH, EC, HMACs, message digests, symmetric ciphers (including AES); SSL
 functionality to implement clients and servers; HTTPS extensions to Python's
 httplib, urllib, and xmlrpclib; unforgeable HMAC'ing AuthCookies for web
 session management; FTP/TLS client and server; S/MIME; ZServerSSL: A HTTPS
 server for Zope and ZSmime: An S/MIME messenger for Zope. M2Crypto can also be
-used to provide SSL for Twisted.''',
-      license='BSD-style license',
-      platforms=['any'],
-      author='Ng Pheng Siong',
-      author_email='ngps at sandbox rulemaker net',
-      maintainer='Matej Cepl',
-      maintainer_email='mcepl@cepl.eu',
-      url='https://gitlab.com/m2crypto/m2crypto',
-      classifiers=[
-          'Development Status :: 5 - Production/Stable',
-          'Intended Audience :: Developers',
-          'Operating System :: OS Independent',
-          'Programming Language :: C',
-          'Programming Language :: Python',
-          'Topic :: Security :: Cryptography',
-          'Topic :: Software Development :: Libraries :: Python Modules',
-          'Programming Language :: Python :: 2',
-          'Programming Language :: Python :: 2.6',
-          'Programming Language :: Python :: 2.7',
-      ],
-      keywords='cryptography openssl',
-      packages=setuptools.find_packages(exclude=['contrib', 'docs', 'tests']),
-      ext_modules=[m2crypto],
-      test_suite='tests.alltests.suite',
-      install_requires=requires_list,
-      cmdclass={'build_ext': _M2CryptoBuildExt}
-      )
+used to provide SSL for Twisted.'''
+
+setuptools.setup(
+    name='M2Crypto',
+    version='0.22.6rc3',
+    description='M2Crypto: A Python crypto and SSL toolkit',
+    long_description=long_description_text,
+    license='BSD-style license',
+    platforms=['any'],
+    author='Ng Pheng Siong',
+    author_email='ngps at sandbox rulemaker net',
+    maintainer='Matej Cepl',
+    maintainer_email='mcepl@cepl.eu',
+    url='https://gitlab.com/m2crypto/m2crypto',
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'Operating System :: OS Independent',
+        'Programming Language :: C',
+        'Programming Language :: Python',
+        'Topic :: Security :: Cryptography',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+    ],
+    keywords='cryptography openssl',
+    packages=setuptools.find_packages(exclude=['contrib', 'docs', 'tests']),
+    ext_modules=[m2crypto],
+    test_suite='tests.alltests.suite',
+    install_requires=requires_list,
+    cmdclass={'build_ext': _M2CryptoBuildExt}
+)
