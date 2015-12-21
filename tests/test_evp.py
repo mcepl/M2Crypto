@@ -348,6 +348,43 @@ class CipherTestCase(unittest.TestCase):
             self.assertEqual(plaintext, test['PT'])
 
 
+    def test_AES_ctr(self):
+        # In CTR mode, encrypt and decrypt are actually the same operation because
+        # you encrypt the nonce value, then use the output of that to XOR the plaintext.
+        # So we set operation=0, even though this setting is ignored by OpenSSL.
+        op = 0
+
+        nonce = unhexlify('4a45a048a1e9f7c1bd17f2908222b964')  # CTR nonce value, 16 bytes
+        key = unhexlify('8410ad66fe53a09addc0d041ae00bc6d70e8038ec17019f27e52eecd3846757e')
+        plaintext_value = 'This is three blocks of text with unicode char \x03'
+
+        ciphertext_values = {
+           '128': unhexlify('6098fb2e49b3f7ed34f841f43f825d84cf4834021511594b931c85f04662544bdb4f38232e9d87fda6280ab1ef450e27'),
+           '192': unhexlify('2299b1c5363824cb92b5851dedc73f49f30b23fb23f288492e840c951ce703292a5c6de6fc7f0625c403648f8ca4a582'),
+           '256': unhexlify('713e34bcd2c59affc9185a716c3c6aef5c9bf7b9914337dd96e9d7436344bcb9c35175afb54adb78aab322829ce9cb4a'),
+        }
+
+        for key_size in [128, 192, 256]:
+            alg = 'aes_%s_ctr' % str(key_size)
+
+            # Our key for this test is 256 bits in length (32 bytes).
+            # We will trim it to the appopriate length for testing AES-128
+            # and AES-192 as well (so 16 and 24 bytes, respectively).
+            key_truncated = key[0:(key_size / 8)]
+
+            # Test encrypt operations
+            cipher = EVP.Cipher(alg=alg, key=key_truncated, iv=nonce, op=op)
+            ciphertext = cipher.update(plaintext_value)
+            ciphertext = ciphertext + cipher.final()
+            self.assertEqual(ciphertext, ciphertext_values[str(key_size)])
+
+            # Test decrypt operations
+            cipher = EVP.Cipher(alg=alg, key=key_truncated, iv=nonce, op=op)
+            plaintext = cipher.update( ciphertext_values[str(key_size)] )
+            plaintext = plaintext + cipher.final()
+            self.assertEqual(plaintext, plaintext_value)
+
+
     def test_raises(self):
         def _cipherFilter(cipher, inf, outf):
             while 1:
