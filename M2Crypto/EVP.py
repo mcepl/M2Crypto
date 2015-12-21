@@ -445,4 +445,4 @@ def load_key_string_pubkey(string, callback=util.passphrase_callback):
     @return: M2Crypto.EVP.PKey object.
     """
     bio = BIO.MemoryBuffer(string)
-    return load_key_bio_pubkey( bio, callback)
+    return load_key_bio_pubkey(bio, callback)
