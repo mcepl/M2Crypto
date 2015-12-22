@@ -16,6 +16,7 @@ import sys
 
 import setuptools
 
+from distutils.command import build
 from distutils.file_util import copy_file
 from setuptools.command import build_ext
 
@@ -29,6 +30,19 @@ else:
     requires_list = []
     import sysconfig
     _multiarch = sysconfig.get_config_var("MULTIARCH")
+
+
+class _M2CryptoBuild(build.build):
+    '''Specialization of build to enable swig_opts to inherit any
+    include_dirs settings made at the command line or in a setup.cfg file'''
+    user_options = build.build.user_options + \
+        [('openssl=', 'o', 'Prefix for openssl installation location')]
+
+    def initialize_options(self):
+        '''Overload to enable custom openssl settings to be picked up'''
+
+        build.build.initialize_options(self)
+        self.openssl = None
 
 
 class _M2CryptoBuildExt(build_ext.build_ext):
@@ -55,6 +69,12 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         include file and library linking options'''
 
         build_ext.build_ext.finalize_options(self)
+
+        openssl_opts = [x for x in sys.argv if '--openssl=' in x]
+        if openssl_opts:
+            _openssl = openssl_opts[0].split('=')[1]
+            if os.path.isdir(_openssl):
+                self.openssl = _openssl
 
         self.include_dirs.append(os.path.join(self.openssl, 'include'))
         openssl_library_dir = os.path.join(self.openssl, 'lib')
@@ -159,5 +179,8 @@ setuptools.setup(
     ext_modules=[m2crypto],
     test_suite='tests.alltests.suite',
     install_requires=requires_list,
-    cmdclass={'build_ext': _M2CryptoBuildExt}
+    cmdclass={
+        'build_ext': _M2CryptoBuildExt,
+        'build': _M2CryptoBuild
+    }
 )
