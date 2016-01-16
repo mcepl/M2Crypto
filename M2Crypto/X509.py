@@ -10,6 +10,7 @@ Author: Heikki Toivonen
 # M2Crypto
 from M2Crypto import ASN1, BIO, Err, EVP, util
 import m2
+import binascii
 
 FORMAT_DER = 0
 FORMAT_PEM = 1
@@ -592,7 +593,7 @@ class X509:
         md = EVP.MessageDigest(md)
         md.update(der)
         digest = md.final()
-        return hex(util.octx_to_num(digest))[2:-1].upper()
+        return binascii.hexlify(digest).upper()
 
 def load_cert(file, format=FORMAT_PEM):
     """

@@ -10,7 +10,7 @@ Copyright 2008 Heikki Toivonen. All rights reserved.
 __all__ = ['SSLVerificationError', 'NoCertificate', 'WrongCertificate',
            'WrongHost', 'Checker']
 
-from M2Crypto import util, EVP, m2
+from M2Crypto import m2
 import socket
 import re
 
@@ -89,18 +89,14 @@ class Checker:
                             expected_len,
                             len(self.fingerprint)))
 
-            der = peerCert.as_der()
-            md = EVP.MessageDigest(self.digest)
-            md.update(der)
-            digest = md.final()
-            expected_fingerprint = int(self.fingerprint, 16)
-            observed_fingerprint = util.octx_to_num(digest)
+            expected_fingerprint = self.fingerprint
+            observed_fingerprint = peerCert.get_fingerprint(md=self.digest)
             if observed_fingerprint != expected_fingerprint:
                 raise WrongCertificate('''
                 peer certificate fingerprint does not match
-                expected = {0:x},
-                observed = {1:x}'''.format(expected_fingerprint,
-                                    observed_fingerprint))
+                expected = {0},
+                observed = {1}'''.format(expected_fingerprint,
+                                         observed_fingerprint))
 
         if self.host:
             hostValidationPassed = False
