@@ -70,11 +70,10 @@ class _M2CryptoBuildExt(build_ext.build_ext):
 
         build_ext.build_ext.finalize_options(self)
 
-        openssl_opts = [x for x in sys.argv if '--openssl=' in x]
-        if openssl_opts:
-            _openssl = openssl_opts[0].split('=')[1]
-            if os.path.isdir(_openssl):
-                self.openssl = _openssl
+        _openssl = next((x.split('=')[1] for x in sys.argv
+                         if '--openssl=' in x), None)
+        if _openssl and os.path.isdir(_openssl):
+            self.openssl = _openssl
 
         self.include_dirs.append(os.path.join(self.openssl, 'include'))
         openssl_library_dir = os.path.join(self.openssl, 'lib')
