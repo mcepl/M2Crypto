@@ -151,7 +151,7 @@ used to provide SSL for Twisted.'''
 
 setuptools.setup(
     name='M2Crypto',
-    version='0.22.6rc3',
+    version='0.23.0',
     description='M2Crypto: A Python crypto and SSL toolkit',
     long_description=long_description_text,
     license='BSD-style license',
