@@ -15,9 +15,11 @@ Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 
 Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 """
+from distutils.version import StrictVersion
 
-version_info = (0, 21, 1)
-version = '.'.join([str(_v) for _v in version_info])
+__version__ = '0.23.0'
+version = __version__
+version_info = StrictVersion(__version__).version
 
 import _m2crypto
 import m2

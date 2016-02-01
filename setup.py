@@ -12,6 +12,7 @@ Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 """
 import os
 import platform
+import string
 import sys
 
 import setuptools
@@ -19,6 +20,7 @@ import setuptools
 from distutils.command import build
 from distutils.file_util import copy_file
 from setuptools.command import build_ext
+
 
 if sys.version_info[:2] <= (2, 6):
     # This covers hopefully only RHEL-6 (users of any other 2.6 Pythons
@@ -140,6 +142,13 @@ m2crypto = setuptools.Extension(name='M2Crypto.__m2crypto',
                                 #     ['-Wl,-search_paths_first'],
                                 )
 
+
+def __get_version():
+    with open('M2Crypto/__init__.py') as init_file:
+        for line in init_file:
+            if line.startswith('__version__ ='):
+                return line.split('=')[1].strip(string.whitespace+"'")
+
 long_description_text = '''\
 M2Crypto is the most complete Python wrapper for OpenSSL featuring RSA, DSA,
 DH, EC, HMACs, message digests, symmetric ciphers (including AES); SSL
@@ -151,7 +160,7 @@ used to provide SSL for Twisted.'''
 
 setuptools.setup(
     name='M2Crypto',
-    version='0.23.0',
+    version=__get_version(),
     description='M2Crypto: A Python crypto and SSL toolkit',
     long_description=long_description_text,
     license='BSD-style license',
