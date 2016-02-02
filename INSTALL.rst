@@ -1,7 +1,5 @@
-==================== Installing M2Crypto ====================
-
-:Maintainer: Heikki Toivonen :Web-Site:
-http://chandlerproject.org/Projects/MeTooCrypto
+Installing M2Crypto
+===================
 
 .. contents::
 
@@ -10,38 +8,17 @@ Pre-requisites
 
 The following software packages are pre-requisites:
 
--  **Python 2.6 or newer**
--  **OpenSSL 1.0.1e or newer**
--  **SWIG 1.3.40 or newer**
+-  Python 2.6 or newer
+-  OpenSSL 1.0.1e or newer
+-  SWIG 1.3.40 or newer
 -  Python 2.6 platforms require the Python package unittest2 to be
    installed
-
-Note about OpenSSL versions early in the 0.9.7 series
------------------------------------------------------
-
-Early OpenSSL 0.9.7 versions require the **i386** symbol to be defined.
-Uncomment this line in setup.py:
-
-#'-D\_\_i386\_\_', # Uncomment for early OpenSSL 0.9.7 versions
-
-if you get this compile-time error:
-
-This openssl-devel package does not work your architecture?
-
-Note about Fedora Core -based Distributions
--------------------------------------------
-
-Fedora Core (and RedHat, CentOS etc.) have made changes to OpenSSL
-configuration compared to many other Linux distributions. If you can not
-build M2Crypto normally, try the fedora\_setup.sh script included with
-M2Crypto sources.
 
 Installing on Unix-like systems, including Cygwin
 -------------------------------------------------
 
-::
-
-::
+(not tested and most likely obsolete, updated information for building
+with Cygwin are welcome).::
 
     $ tar zxf m2crypto-<version>.tar.gz
     $ cd m2crypto-<version>
@@ -49,9 +26,7 @@ Installing on Unix-like systems, including Cygwin
     $ python setup.py install
 
 If you have installed setuptools you can also optionally run tests like
-this:
-
-::
+this:::
 
     $ python setup.py test
 
@@ -61,17 +36,19 @@ Other commands accept standard options if you need them.
 
 Some distributions, like Fedora Core, package OpenSSL headers in a
 different location from OpenSSL itself. In that case you need to tell
-build\_ext the additional include location with -I option.
+``build`` the additional include location with -I option.
 
 Differences when installing on Windows
 --------------------------------------
+
+(needs updating)
 
 Before building from source, you need to install OpenSSL's include
 files, import libraries and DLLs. By default setup.py assumes that
 OpenSSL include files are in ``c:\pkg\openssl\include``, and the import
 libraries in ``c:\pkg\openssl\lib``. As with other platforms, you can
-specify a different OpenSSL location with --openssl option to build\_ext
-command.
+specify a different OpenSSL location with --openssl option to
+``build\_ext`` (or ``build``) command.
 
 Using OpenSSL 0.9.8 on Windows requires Python be built with applink.c
 (add an include statement in python.c). This is not a requirement for
@@ -91,12 +68,10 @@ For MSVC++, the import libraries, as built by OpenSSL, are named
 MINGW :sub:`:sub:`:sub:`~```
 
 .. NOTE:: The following instructions for building M2Crypto with MINGW
-are from M2Crypto 0.12. These instructions should continue to work for
-this release, although I have not tested them.
+    are from M2Crypto 0.12. These instructions should continue to work
+    for this release, although I have not tested them.
 
-Read Sebastien Sauvage's webpage:
-
-::
+Read Sebastien Sauvage's webpage::
 
      http://sebsauvage.net/python/mingw.html
 
@@ -110,9 +85,7 @@ OpenSSL DLLs for mingw32 are named ``libeay32.dll`` and
 ``libssl32.dll``. Install these somewhere on your PATH; for example in
 ``c:\bin``, together with ``openssl.exe``.
 
-Build M2Crypto:
-
-::
+Build M2Crypto::
 
     python setup.py build -cmingw32
     python setup.py install
@@ -120,9 +93,9 @@ Build M2Crypto:
 BC++ :sub:`:sub:`~``\ ~
 
 .. NOTE:: The following instructions for building M2Crypto with MSVC++
-6.0 and BC++ 5.5 free compiler suite are from M2Crypto 0.10. These
-instructions should continue to work for this release, although I have
-not tested them.
+    6.0 and BC++ 5.5 free compiler suite are from M2Crypto 0.10. These
+    instructions should continue to work for this release, although
+    I have not tested them.
 
 For BC++ these files are created from the MSVC++-built ones using the
 tool ``coff2omf.exe``. I call them ``libeay32_bc.lib`` and
@@ -137,97 +110,28 @@ the BC++-compatible version; i.e., create ``python22_bc.lib`` from
 
 Now you are ready to build M2Crypto. Do one of the following::
 
-::
-
     python setup.py build
     python setup.py build -cbcpp
 
-Then,
-
-::
-
-::
+Then,::
 
     python setup.py install
 
 MacOSX
 ------
 
-| Follow the standard instructions to build and install M2Crypto.
-| However, should you encounter difficulties, you may want to consider
-the following possibilities.
+Apple does not provide on more recent versions of Mac OS X (at least
+certainly `since 10.11`_) any version of OpenSSL, so it is necessary to
+use ``brew`` or similar packaging systems to install third party
+packages. A Mac OS X users suggested, that this series of commands gave
+him a working copy of M2Crypto on his system::
 
--  Distutils from Python 2.5 provides support for universal builds (ppc
-   and i386) and Distutils requires a recent version of Xcode. See
-   http://developer.apple.com/tools/download/
+    $ brew --prefix openssl
+    /usr/local/opt/openssl
+    $ LDFLAGS="-L$(brew --prefix openssl)/lib" 
+    CFLAGS="-I$(brew --prefix openssl)/include" \
+    SWIG_FEATURES="-I$(brew --prefix openssl)/include" \
+    pip install m2crypto
 
--  OpenSSL 0.9.7l gets installed in /usr with Apple's Security Update
-   2006-007. If you need features in OpenSSL 0.9.8, you should consider
-   installing 0.9.8 in /usr/local. The commands are:
-
-   OpenSSL: ./config shared --prefix=/usr/local make make test sudo make
-   install [or... install\_sw]
-
-   M2Crypto: python setup.py build build\_ext --openssl=/usr/local sudo
-   python setup.py install build\_ext --openssl=/usr/local
-
-To make Universal builds, you will need to uncomment a line in setup.py:
-
-extra\_link\_args = ['-Wl,-search\_paths\_first'],
-
-If that does not work, here is what Marc Hedlund was able to get
-working:
-
-First, download OpenSSL 0.9.8d and unpack it. Edit the OpenSSL Makefiles
-per PROBLEMS. Then:
-
-::
-
-    ./config no-shared no-asm --prefix=/usr/local
-    make
-    make test
-    sudo make install
-    make clean
-    ./Configure no-shared no-asm --prefix=/usr/local darwin-ppc-cc
-    make build_libs "CC=cc -arch ppc"
-    lipo -info lib*
-    mkdir -p build/ppc
-    mv lib* build/ppc
-    make clean
-    ./Configure no-shared no-asm --prefix=/usr/local darwin-i386-cc
-    make build_libs "CC=cc -arch i386"
-    lipo -info lib*
-    mkdir -p build/i386
-    mv lib* build/i386/
-    /bin/ls -1 build/i386/ > libnames.tmp
-    mkdir universal
-
-Create a script in the OpenSSL directory called 'make\_universal', with
-these contents:
-
-::
-
-    #!/bin/sh
-    for lib in `cat libnames.tmp`; do
-     lipo -create build/*/$lib -output universal/$lib
-    done
-    exit 0
-
-Then:
-
-::
-
-    sh make_universal
-    lipo -info universal/lib*
-    sudo cp universal/lib* /usr/local/lib
-    lipo -info /usr/local/lib/lib{crypto,ssl}*
-    cd ../m2crypto-0.17
-
-Then edit the m2crypto setup.py and uncomment the extra\_link\_args line
-at the end.
-
-::
-
-    python setup.py build build_ext --openssl=/usr/local
-    sudo python setup.py install build_ext --openssl=/usr/local
-
+.. _`since 10.11`:
+    https://gitlab.com/m2crypto/m2crypto/merge_requests/7#note_2581821
