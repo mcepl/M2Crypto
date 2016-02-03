@@ -126,6 +126,7 @@ use ``brew`` or similar packaging systems to install third party
 packages. A Mac OS X users suggested, that this series of commands gave
 him a working copy of M2Crypto on his system::
 
+    $ brew install openssl && brew install swig
     $ brew --prefix openssl
     /usr/local/opt/openssl
     $ LDFLAGS="-L$(brew --prefix openssl)/lib" 
