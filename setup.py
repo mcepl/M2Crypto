@@ -18,6 +18,7 @@ import sys
 import setuptools
 
 from distutils.command import build
+from distutils.dir_util import mkpath
 from distutils.file_util import copy_file
 from setuptools.command import build_ext
 
@@ -125,6 +126,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
             self.library_dirs += [os.path.join(self.openssl, 'bin')]
 
         self.library_dirs += [os.path.join(self.openssl, openssl_library_dir)]
+        mkpath(os.path.join(self.build_lib, 'M2Crypto'))
 
     def run(self):
         '''Overloaded build_ext implementation to allow inplace=1 to work,
