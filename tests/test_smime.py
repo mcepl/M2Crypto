@@ -10,7 +10,7 @@ try:
 except ImportError:
     import unittest
 
-from M2Crypto import SMIME, BIO, Rand, X509, EVP
+from M2Crypto import BIO, EVP, Rand, SMIME, X509
 
 class SMIMETestCase(unittest.TestCase):
     cleartext = 'some text to manipulate'
