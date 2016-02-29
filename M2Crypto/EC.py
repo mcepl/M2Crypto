@@ -10,9 +10,10 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
 Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam.
 All rights reserved."""
 
-from . import util, BIO, m2
+from M2Crypto import BIO, m2, util
 
-class ECError(Exception): pass
+class ECError(Exception):
+    pass
 
 m2.ec_init(ECError)
 
@@ -165,7 +166,8 @@ class EC:
         assert self.check_key(), 'key is not initialised'
         return m2.ecdh_compute_key(self.ec, pub_key.ec)
 
-    def save_key_bio(self, bio, cipher='aes_128_cbc', callback=util.passphrase_callback):
+    def save_key_bio(self, bio, cipher='aes_128_cbc',
+                     callback=util.passphrase_callback):
         """
         Save the key pair to an M2Crypto.BIO.BIO object in PEM format.
 
@@ -190,7 +192,8 @@ class EC:
                 raise ValueError('not such cipher %s' % cipher)
             return m2.ec_key_write_bio(self.ec, bio._ptr(), ciph(), callback)
 
-    def save_key(self, file, cipher='aes_128_cbc', callback=util.passphrase_callback):
+    def save_key(self, file, cipher='aes_128_cbc',
+                 callback=util.passphrase_callback):
         """
         Save the key pair to a file in PEM format.
 
@@ -237,7 +240,7 @@ class EC:
         return m2.ec_key_check_key(self.ec)
 
 
-class EC_pub(EC):
+class EC_pub(EC):  # noqa
 
     """
     Object interface to an EC public key.

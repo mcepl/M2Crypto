@@ -4,11 +4,11 @@ from __future__ import absolute_import
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-from . import m2
+from M2Crypto import m2
 
 from cStringIO import StringIO
 # Deprecated
-from .m2 import bio_do_handshake as bio_do_ssl_handshake
+from M2Crypto.m2 import bio_do_handshake as bio_do_ssl_handshake
 
 
 class BIOError(Exception):

@@ -4,7 +4,7 @@ from __future__ import absolute_import
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-from .m2 import rc4_new, rc4_free, rc4_set_key, rc4_update
+from M2Crypto.m2 import rc4_free, rc4_new, rc4_set_key, rc4_update
 
 class RC4:
 

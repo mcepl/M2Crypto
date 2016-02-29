@@ -23,7 +23,7 @@ except ImportError:
 
 if win32process:
     from M2Crypto import Rand
-    from . import test_ssl
+    from tests import test_ssl
 
     def find_openssl():
         plist = os.environ['PATH'].split(';')

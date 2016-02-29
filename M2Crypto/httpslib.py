@@ -4,14 +4,13 @@ from __future__ import absolute_import
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-import sys
-import socket
-from urlparse import urlsplit, urlunsplit
 import base64
+import socket
 
-from httplib import *
-from httplib import HTTPS_PORT # This is not imported with just '*'
-from . import SSL
+from M2Crypto import SSL
+from urlparse import urlsplit, urlunsplit
+from httplib import *  # noqa
+from httplib import HTTPS_PORT  # This is not imported with just '*'
 
 class HTTPSConnection(HTTPConnection):
 
@@ -50,7 +49,8 @@ class HTTPSConnection(HTTPConnection):
         # We ignore the returned sockaddr because SSL.Connection.connect needs
         # a host name.
         for (family, _, _, _, _) in \
-                socket.getaddrinfo(self.host, self.port, 0, socket.SOCK_STREAM):
+                socket.getaddrinfo(self.host, self.port, 0,
+                                   socket.SOCK_STREAM):
             sock = None
             try:
                 sock = SSL.Connection(self.ssl_ctx, family=family)
@@ -130,7 +130,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
     _UA_HEADER = "User-Agent"
 
     def __init__(self, host, port=None, strict=None, username=None,
-        password=None, **ssl):
+                 password=None, **ssl):
         """
         Create the ProxyHTTPSConnection object.
 

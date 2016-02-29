@@ -16,8 +16,8 @@ Summary of changes:
 import socket
 import urlparse
 
-from . import SSL
-from . import httpslib
+from M2Crypto import SSL
+from M2Crypto import httpslib
 
 
 class _closing_fileobject(socket._fileobject):
@@ -26,7 +26,6 @@ class _closing_fileobject(socket._fileobject):
     Python 2.5 provides this as socket._fileobject(sock, close=True).
     '''
 
-import httpslib
 from urllib2 import *  # noqa
 
 

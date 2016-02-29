@@ -5,7 +5,7 @@ from __future__ import absolute_import
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
 # M2Crypto
-from . import Rand, m2
+from M2Crypto import Rand, m2
 
 # Python. Cookie is bundled with Python 2.x.
 import Cookie, binascii, re, time

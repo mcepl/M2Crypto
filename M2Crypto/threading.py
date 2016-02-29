@@ -6,7 +6,7 @@ M2Crypto threading support, required for multithreaded applications.
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
 # M2Crypto
-from . import m2
+from M2Crypto import m2
 
 def init():
     """

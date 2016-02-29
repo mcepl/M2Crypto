@@ -5,9 +5,11 @@ from __future__ import absolute_import
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
 import sys
-from . import util, BIO, Err, m2
 
-class RSAError(Exception): pass
+from M2Crypto import BIO, Err, m2, util
+
+class RSAError(Exception):
+    pass
 
 m2.rsa_init(RSAError)
 
@@ -64,7 +66,8 @@ class RSA:
         assert self.check_key(), 'key is not initialised'
         return m2.rsa_private_decrypt(self.rsa, data, padding)
 
-    def save_key_bio(self, bio, cipher='aes_128_cbc', callback=util.passphrase_callback):
+    def save_key_bio(self, bio, cipher='aes_128_cbc',
+                     callback=util.passphrase_callback):
         """
         Save the key pair to an M2Crypto.BIO.BIO object in PEM format.
 
@@ -91,7 +94,8 @@ class RSA:
                 ciph = ciph()
             return m2.rsa_write_key(self.rsa, bio._ptr(), ciph, callback)
 
-    def save_key(self, file, cipher='aes_128_cbc', callback=util.passphrase_callback):
+    def save_key(self, file, cipher='aes_128_cbc',
+                 callback=util.passphrase_callback):
         """
         Save the key pair to a file in PEM format.
 
@@ -181,9 +185,10 @@ class RSA:
         """
         hash = getattr(m2, algo, None)
         if hash is None:
-            raise ValueError('not such hash algorithm %s' % hash_algo)
+            raise ValueError('not such hash algorithm %s' % algo)
 
-        signature = m2.rsa_padding_add_pkcs1_pss(self.rsa, digest, hash(), salt_length)
+        signature = m2.rsa_padding_add_pkcs1_pss(self.rsa, digest, hash(),
+                                                 salt_length)
 
         return self.private_encrypt(signature, m2.no_padding)
 
@@ -214,7 +219,8 @@ class RSA:
 
         plain_signature = self.public_decrypt(signature, m2.no_padding)
 
-        return m2.rsa_verify_pkcs1_pss(self.rsa, data, plain_signature, hash(), salt_length)
+        return m2.rsa_verify_pkcs1_pss(self.rsa, data, plain_signature,
+                                       hash(), salt_length)
 
     def sign(self, digest, algo='sha1'):
         """
@@ -261,7 +267,7 @@ class RSA:
         return m2.rsa_verify(self.rsa, data, signature, digest_type)
 
 
-class RSA_pub(RSA):
+class RSA_pub(RSA):  # noqa
 
     """
     Object interface to an RSA public key.

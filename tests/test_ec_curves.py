@@ -20,14 +20,12 @@ from __future__ import absolute_import
 
 """
 
-#import sha
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
 
 from M2Crypto import EC, Rand
-from test_ecdsa import ECDSATestCase as ECDSATest
 
 
 curves = [
@@ -112,21 +110,22 @@ curves = [
 # curves2 = [
 #    ('ipsec3', 155),
 #    ('ipsec4', 185),
-#]
+# ]
+
 
 class ECCurveTests(unittest.TestCase):
     # data = sha.sha('Kilroy was here!').digest()     # 160 bits
-    data = "digest"     # keep short (48 bits) so lesser curves
-                        # will work...  ECDSA requires curve be
-                        # equal or longer than digest
+    # keep short (48 bits) so lesser curves will work...  ECDSA requires
+    # curve be equal or longer than digest
+    data = "digest"
 
-    def genkey(self, curveName, curveLen):
-        curve = getattr(EC, 'NID_' + curveName)
+    def genkey(self, curve_name, curve_len):
+        curve = getattr(EC, 'NID_' + curve_name)
         ec = EC.gen_params(curve)
-        self.assertEqual(len(ec), curveLen)
+        self.assertEqual(len(ec), curve_len)
         ec.gen_key()
         self.assertTrue(ec.check_key(),
-                        'check_key() failure for "%s"' % curveName)
+                        'check_key() failure for "%s"' % curve_name)
         return ec
 
 #    def check_ec_curves_genkey(self):
@@ -136,8 +135,8 @@ class ECCurveTests(unittest.TestCase):
 #        self.assertRaises(AttributeError, self.genkey,
 #                                          'nosuchcurve', 1)
 
-    def sign_verify_ecdsa(self, curveName, curveLen):
-        ec = self.genkey(curveName, curveLen)
+    def sign_verify_ecdsa(self, curve_name, curve_len):
+        ec = self.genkey(curve_name, curve_len)
         r, s = ec.sign_dsa(self.data)
         self.assertTrue(ec.verify_dsa(self.data, r, s))
         self.assertFalse(ec.verify_dsa(self.data, s, r))
@@ -152,6 +151,7 @@ class ECCurveTests(unittest.TestCase):
 #        for curveName, curveLen in curves2:
 #            with self.assertRaises(EC.ECError):
 #                self.sign_verify_ecdsa(curveName, curveLen)
+
 
 def suite():
     suite = unittest.TestSuite()

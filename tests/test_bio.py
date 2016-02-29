@@ -16,7 +16,7 @@ except ImportError:
 
 from M2Crypto import BIO, Rand
 
-from .fips import fips_mode
+from tests.fips import fips_mode
 
 class CipherStreamTestCase(unittest.TestCase):
     def try_algo(self, algo):

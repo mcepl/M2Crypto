@@ -2,7 +2,8 @@ from __future__ import absolute_import
 
 """M2Crypto PGP2.
 
-This module implements PGP packets per RFC1991 and various source distributions.
+This module implements PGP packets per RFC1991 and various source
+distributions.
 
 Each packet type is represented by a class; packet classes derive from
 the abstract 'packet' class.
@@ -20,7 +21,6 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
 import struct
 import sys
-import time
 
 try:
     from cStringIO import StringIO
@@ -31,22 +31,25 @@ except ImportError:
 # Python 3 and higher only has int().
 # Work around this.
 if sys.version_info > (3,):
-   long = int
+    long = int
 
-from M2Crypto import EVP, RSA
+from M2Crypto import EVP, RSA  # noqa
 from M2Crypto.util import octx_to_num
 
-from .constants import *
+from M2Crypto.PGP.constants import *  # noqa
 
-_OK_VERSION     = ('\002', '\003')
-_OK_VALIDITY    = ('\000',)
-_OK_PKC         = ('\001',)
+_OK_VERSION = ('\002', '\003')
+_OK_VALIDITY = ('\000',)
+_OK_PKC = ('\001',)
 
 
 class packet:
     def __init__(self, ctb, body=None):
         import warnings
-        warnings.warn('Deprecated. No maintainer for PGP. If you use this, please inform M2Crypto maintainer.', DeprecationWarning)
+        warnings.warn(
+            'Deprecated. No maintainer for PGP. If you use this, ' +
+            'please inform M2Crypto maintainer.',
+            DeprecationWarning)
 
         self.ctb = ctb
         if body is not None:
@@ -58,7 +61,8 @@ class packet:
         return 1
 
     def pack(self):
-        raise NotImplementedError('%s.pack(): abstract method' % (self.__class__,))
+        raise NotImplementedError('%s.pack(): abstract method' %
+                                  (self.__class__,))
 
     def version(self):
         if hasattr(self, '_version'):
@@ -207,7 +211,6 @@ class signature_packet(packet):
         self.ctb = self.ctb | llf
         return '%s%s%s' % (self.ctb, lenf, self.body)
 
-
     def validate(self):
         if self._version not in _OK_VERSION:
             return None
@@ -267,7 +270,7 @@ class pke_packet(packet):
             self._keyid = self.body.read(8)
             self._pkc = ord(self.body.read(1))
 
-            deklen = (struct.unpack('>H', self.body.read(2))[0] + 7 ) / 8
+            deklen = (struct.unpack('>H', self.body.read(2))[0] + 7) / 8
             self._dek = octx_to_num(self.body.read(deklen))
 
 
@@ -279,7 +282,7 @@ class literal_packet(packet):
             fnlen = self.body.read(1)
             self.fname = self.body.read(fnlen)
             self.ftime = self.body.read(4)
-            #self.data = self.body.read()
+            # self.data = self.body.read()
 
 
 class compressed_packet(packet):
@@ -302,28 +305,28 @@ class compressed_packet(packet):
 
 
 _FACTORY = {
-    1 : pke_packet,
-    2 : signature_packet,
-    #3 : message_digest_packet,     # XXX not implemented
-    5 : private_key_packet,
-    6 : public_key_packet,
-    #8 : compressed_packet,         # special case
-    9 : cke_packet,
-    11 : literal_packet,
-    12 : trust_packet,
-    13 : userid_packet,
-    14 : comment_packet,
-    pke_packet : 1,
-    signature_packet : 2,
-    #3 : message_digest_packet,
-    private_key_packet : 5,
-    public_key_packet : 6,
-    #8 : compressed_packet,
-    cke_packet : 9,
-    literal_packet : 11,
-    trust_packet : 12,
-    userid_packet : 13,
-    comment_packet : 14
+    1: pke_packet,
+    2: signature_packet,
+    # 3 : message_digest_packet,     # XXX not implemented
+    5: private_key_packet,
+    6: public_key_packet,
+    # 8 : compressed_packet,         # special case
+    9: cke_packet,
+    11: literal_packet,
+    12: trust_packet,
+    13: userid_packet,
+    14: comment_packet,
+    pke_packet: 1,
+    signature_packet: 2,
+    # 3 : message_digest_packet,
+    private_key_packet: 5,
+    public_key_packet: 6,
+    # 8 : compressed_packet,
+    cke_packet: 9,
+    literal_packet: 11,
+    trust_packet: 12,
+    userid_packet: 13,
+    comment_packet: 14
 }
 
 
@@ -366,7 +369,7 @@ class packet_stream:
             lenf = struct.unpack('>H', self.stream.read(2))[0]
         elif llf == 2:
             lenf = struct.unpack('>L', self.stream.read(4))[0]
-        else: # llf == 3
+        else:  # llf == 3
             raise XXXError('impossible case')
 
         body = self.stream.read(lenf)

@@ -8,17 +8,19 @@ Copyright (c) 2004-2007 Open Source Applications Foundation
 Author: Heikki Toivonen
 """
 
-import cStringIO, sha
+import cStringIO
+import sha
+
+from M2Crypto import BIO, EVP, RSA, Rand, m2, util
+from M2Crypto.util import h2b
+
 from binascii import hexlify, unhexlify
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
 
-from M2Crypto import EVP, RSA, util, Rand, m2, BIO
-from M2Crypto.util import h2b
-
-from .fips import fips_mode
+from tests.fips import fips_mode
 
 class EVPTestCase(unittest.TestCase):
     def _gen_callback(self, *args):
@@ -68,7 +70,8 @@ class EVPTestCase(unittest.TestCase):
             EVP.MessageDigest('sha513')
         md = EVP.MessageDigest('sha1')
         self.assertEqual(md.update('Hello'), 1)
-        self.assertEqual(util.octx_to_num(md.final()), 1415821221623963719413415453263690387336440359920)
+        self.assertEqual(util.octx_to_num(md.final()),
+                         1415821221623963719413415453263690387336440359920)
 
         # temporarily remove sha1 from m2
         old_sha1 = m2.sha1
@@ -78,7 +81,8 @@ class EVPTestCase(unittest.TestCase):
         # get_digestbyname() under the hood
         md = EVP.MessageDigest('sha1')
         self.assertEqual(md.update('Hello'), 1)
-        self.assertEqual(util.octx_to_num(md.final()), 1415821221623963719413415453263690387336440359920)
+        self.assertEqual(util.octx_to_num(md.final()),
+                         1415821221623963719413415453263690387336440359920)
 
         # put sha1 back in place
         m2.sha1 = old_sha1
@@ -107,30 +111,41 @@ class EVPTestCase(unittest.TestCase):
                          92800611269186718152770431077867383126636491933,
                          util.octx_to_num(EVP.hmac('key', 'data')))
         if not fips_mode:  # Disabled algorithms
-            self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data', algo='md5')),
-                209168838103121722341657216703105225176,
-                util.octx_to_num(EVP.hmac('key', 'data', algo='md5')))
-            self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data', algo='ripemd160')),
-                1176807136224664126629105846386432860355826868536,
-                util.octx_to_num(EVP.hmac('key', 'data', algo='ripemd160')))
+            self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data',
+                                              algo='md5')),
+                             209168838103121722341657216703105225176,
+                             util.octx_to_num(EVP.hmac('key', 'data',
+                                              algo='md5')))
+            self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data',
+                                              algo='ripemd160')),
+                             1176807136224664126629105846386432860355826868536,
+                             util.octx_to_num(EVP.hmac('key', 'data',
+                                              algo='ripemd160')))
 
         if m2.OPENSSL_VERSION_NUMBER >= 0x90800F:
-            self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data', algo='sha224')),
+            self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data',
+                                              algo='sha224')),
                              2660082265842109788381286338540662430962855478412025487066970872635,
-                             util.octx_to_num(EVP.hmac('key', 'data', algo='sha224')))
-            self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data', algo='sha256')),
+                             util.octx_to_num(EVP.hmac('key', 'data',
+                                              algo='sha224')))
+            self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data',
+                                              algo='sha256')),
                              36273358097036101702192658888336808701031275731906771612800928188662823394256,
-                             util.octx_to_num(EVP.hmac('key', 'data', algo='sha256')))
-            self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data', algo='sha384')),
+                             util.octx_to_num(EVP.hmac('key', 'data',
+                                              algo='sha256')))
+            self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data',
+                                              algo='sha384')),
                              30471069101236165765942696708481556386452105164815350204559050657318908408184002707969468421951222432574647369766282,
-                             util.octx_to_num(EVP.hmac('key', 'data', algo='sha384')))
-            self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data', algo='sha512')),
+                             util.octx_to_num(EVP.hmac('key', 'data',
+                                              algo='sha384')))
+            self.assertEqual(util.octx_to_num(EVP.hmac('key', 'data',
+                                              algo='sha512')),
                              3160730054100700080556942280820129108466291087966635156623014063982211353635774277148932854680195471287740489442390820077884317620321797003323909388868696,
-                             util.octx_to_num(EVP.hmac('key', 'data', algo='sha512')))
+                             util.octx_to_num(EVP.hmac('key', 'data',
+                                              algo='sha512')))
 
         with self.assertRaises(ValueError):
             EVP.hmac('key', 'data', algo='sha513')
-
 
     def test_get_rsa(self):
         """
@@ -257,14 +272,16 @@ class CipherTestCase(unittest.TestCase):
         dec = 0
         otxt = 'against stupidity the gods themselves contend in vain'
 
-        k = EVP.Cipher(algo, 'goethe', '12345678', enc, 1, 'sha1', 'saltsalt', 5)
+        k = EVP.Cipher(algo, 'goethe', '12345678', enc,
+                       1, 'sha1', 'saltsalt', 5)
         pbuf = cStringIO.StringIO(otxt)
         cbuf = cStringIO.StringIO()
         ctxt = self.cipher_filter(k, pbuf, cbuf)
         pbuf.close()
         cbuf.close()
 
-        j = EVP.Cipher(algo, 'goethe', '12345678', dec, 1, 'sha1', 'saltsalt', 5)
+        j = EVP.Cipher(algo, 'goethe', '12345678', dec,
+                       1, 'sha1', 'saltsalt', 5)
         pbuf = cStringIO.StringIO()
         cbuf = cStringIO.StringIO(ctxt)
         ptxt = self.cipher_filter(j, cbuf, pbuf)
@@ -277,15 +294,16 @@ class CipherTestCase(unittest.TestCase):
         ciphers = [
             'des_ede_ecb', 'des_ede_cbc', 'des_ede_cfb', 'des_ede_ofb',
             'des_ede3_ecb', 'des_ede3_cbc', 'des_ede3_cfb', 'des_ede3_ofb',
-            'aes_128_ecb', 'aes_128_cbc', 'aes_128_cfb', 'aes_128_ofb', 'aes_128_ctr',
-            'aes_192_ecb', 'aes_192_cbc', 'aes_192_cfb', 'aes_192_ofb', 'aes_192_ctr',
-            'aes_256_ecb', 'aes_256_cbc', 'aes_256_cfb', 'aes_256_ofb', 'aes_256_ctr']
+            'aes_128_ecb', 'aes_128_cbc', 'aes_128_cfb', 'aes_128_ofb',
+            'aes_128_ctr', 'aes_192_ecb', 'aes_192_cbc', 'aes_192_cfb',
+            'aes_192_ofb', 'aes_192_ctr', 'aes_256_ecb', 'aes_256_cbc',
+            'aes_256_cfb', 'aes_256_ofb', 'aes_256_ctr']
         nonfips_ciphers = ['bf_ecb', 'bf_cbc', 'bf_cfb', 'bf_ofb',
-                         #'idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb',
-                         'cast5_ecb', 'cast5_cbc', 'cast5_cfb', 'cast5_ofb',
-                         #'rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb',
-                         'des_ecb', 'des_cbc', 'des_cfb', 'des_ofb',
-                         'rc4', 'rc2_40_cbc']
+                           # 'idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb',
+                           'cast5_ecb', 'cast5_cbc', 'cast5_cfb', 'cast5_ofb',
+                           # 'rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb',
+                           'des_ecb', 'des_cbc', 'des_cfb', 'des_ofb',
+                           'rc4', 'rc2_40_cbc']
         if not fips_mode:  # Disabled algorithms
             ciphers += nonfips_ciphers
         for i in ciphers:
@@ -317,46 +335,52 @@ class CipherTestCase(unittest.TestCase):
         dec = 0
         tests = [
             # test vectors from rfc 3602
-            # Case #1: Encrypting 16 bytes (1 block) using AES-CBC with 128-bit key
+            # Case #1: Encrypting 16 bytes (1 block) using AES-CBC with
+            # 128-bit key
             {
-            'KEY': '06a9214036b8a15b512e03d534120006',
-            'IV': '3dafba429d9eb430b422da802c9fac41',
-            'PT': 'Single block msg',
-            'CT': 'e353779c1079aeb82708942dbe77181a',
+                'KEY': '06a9214036b8a15b512e03d534120006',
+                'IV': '3dafba429d9eb430b422da802c9fac41',
+                'PT': 'Single block msg',
+                'CT': 'e353779c1079aeb82708942dbe77181a',
             },
 
-            # Case #2: Encrypting 32 bytes (2 blocks) using AES-CBC with 128-bit key
+            # Case #2: Encrypting 32 bytes (2 blocks) using AES-CBC with
+            # 128-bit key
             {
-            'KEY': 'c286696d887c9aa0611bbb3e2025a45a',
-            'IV': '562e17996d093d28ddb3ba695a2e6f58',
-            'PT': unhexlify('000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f'),
-            'CT': 'd296cd94c2cccf8a3a863028b5e1dc0a7586602d253cfff91b8266bea6d61ab1',
+                'KEY': 'c286696d887c9aa0611bbb3e2025a45a',
+                'IV': '562e17996d093d28ddb3ba695a2e6f58',
+                'PT': unhexlify('000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f'),
+                'CT': 'd296cd94c2cccf8a3a863028b5e1dc0a7586602d253cfff91b8266bea6d61ab1',
             },
 
-            # Case #3: Encrypting 48 bytes (3 blocks) using AES-CBC with 128-bit key
+            # Case #3: Encrypting 48 bytes (3 blocks) using AES-CBC with
+            # 128-bit key
             {
-            'KEY': '6c3ea0477630ce21a2ce334aa746c2cd',
-            'IV': 'c782dc4c098c66cbd9cd27d825682c81',
-            'PT': 'This is a 48-byte message (exactly 3 AES blocks)',
-            'CT': 'd0a02b3836451753d493665d33f0e8862dea54cdb293abc7506939276772f8d5021c19216bad525c8579695d83ba2684',
+                'KEY': '6c3ea0477630ce21a2ce334aa746c2cd',
+                'IV': 'c782dc4c098c66cbd9cd27d825682c81',
+                'PT': 'This is a 48-byte message (exactly 3 AES blocks)',
+                'CT': 'd0a02b3836451753d493665d33f0e8862dea54cdb293abc7506939276772f8d5021c19216bad525c8579695d83ba2684',
             },
         ]
 
         # Test with padding
         for test in tests:
             # encrypt
-            k = EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=enc)
+            k = EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']),
+                           iv=unhexlify(test['IV']), op=enc)
             pbuf = cStringIO.StringIO(test['PT'])
             cbuf = cStringIO.StringIO()
             ciphertext = hexlify(self.cipher_filter(k, pbuf, cbuf))
             cipherpadding = ciphertext[len(test['PT']) * 2:]
-            ciphertext = ciphertext[:len(test['PT']) * 2]  # Remove the padding from the end
+            # Remove the padding from the end
+            ciphertext = ciphertext[:len(test['PT']) * 2]
             pbuf.close()
             cbuf.close()
             self.assertEqual(ciphertext, test['CT'])
 
             # decrypt
-            j = EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=dec)
+            j = EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']),
+                           iv=unhexlify(test['IV']), op=dec)
             pbuf = cStringIO.StringIO()
             cbuf = cStringIO.StringIO(unhexlify(test['CT'] + cipherpadding))
             plaintext = self.cipher_filter(j, cbuf, pbuf)
@@ -367,7 +391,8 @@ class CipherTestCase(unittest.TestCase):
         # Test without padding
         for test in tests:
             # encrypt
-            k = EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=enc, padding=False)
+            k = EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']),
+                           iv=unhexlify(test['IV']), op=enc, padding=False)
             pbuf = cStringIO.StringIO(test['PT'])
             cbuf = cStringIO.StringIO()
             ciphertext = hexlify(self.cipher_filter(k, pbuf, cbuf))
@@ -376,7 +401,8 @@ class CipherTestCase(unittest.TestCase):
             self.assertEqual(ciphertext, test['CT'])
 
             # decrypt
-            j = EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']), iv=unhexlify(test['IV']), op=dec, padding=False)
+            j = EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']),
+                           iv=unhexlify(test['IV']), op=dec, padding=False)
             pbuf = cStringIO.StringIO()
             cbuf = cStringIO.StringIO(unhexlify(test['CT']))
             plaintext = self.cipher_filter(j, cbuf, pbuf)
@@ -384,11 +410,11 @@ class CipherTestCase(unittest.TestCase):
             cbuf.close()
             self.assertEqual(plaintext, test['PT'])
 
-
     def test_AES_ctr(self):
-        # In CTR mode, encrypt and decrypt are actually the same operation because
-        # you encrypt the nonce value, then use the output of that to XOR the plaintext.
-        # So we set operation=0, even though this setting is ignored by OpenSSL.
+        # In CTR mode, encrypt and decrypt are actually the same
+        # operation because you encrypt the nonce value, then use the
+        # output of that to XOR the plaintext.  So we set operation=0,
+        # even though this setting is ignored by OpenSSL.
         op = 0
 
         nonce = unhexlify('4a45a048a1e9f7c1bd17f2908222b964')  # CTR nonce value, 16 bytes
@@ -417,10 +443,9 @@ class CipherTestCase(unittest.TestCase):
 
             # Test decrypt operations
             cipher = EVP.Cipher(alg=alg, key=key_truncated, iv=nonce, op=op)
-            plaintext = cipher.update( ciphertext_values[str(key_size)] )
+            plaintext = cipher.update(ciphertext_values[str(key_size)])
             plaintext = plaintext + cipher.final()
             self.assertEqual(plaintext, plaintext_value)
-
 
     def test_raises(self):
         def _cipherFilter(cipher, inf, outf):
@@ -463,7 +488,8 @@ class PBKDF2TestCase(unittest.TestCase):
         iter = 5
         keylen = 8
         ret = EVP.pbkdf2(password, salt, iter, keylen)
-        self.assertEqual(hexlify(ret), 'D1 DA A7 86 15 F2 87 E6'.replace(' ', '').lower())
+        self.assertEqual(hexlify(ret), 'D1 DA A7 86 15 F2 87 E6'.
+                         replace(' ', '').lower())
 
         password = 'All n-entities must communicate with other n-entities via n-1 entiteeheehees'
         salt = unhexlify('12 34 56 78 78 56 34 12'.replace(' ', ''))

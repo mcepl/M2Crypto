@@ -8,4 +8,4 @@ import warnings
 
 warnings.warn('Use the util module instead', DeprecationWarning)
 
-from .util import genparam_callback, passphrase_callback
+from M2Crypto.util import genparam_callback, passphrase_callback

@@ -4,13 +4,11 @@ from __future__ import absolute_import
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-from .constants import *
-
-from .packet import public_key_packet, trust_packet, userid_packet,\
-    comment_packet, signature_packet, private_key_packet, cke_packet,\
-    pke_packet, literal_packet, packet_stream
-
-from .PublicKey import *
-from .PublicKeyRing import *
-
-
+from M2Crypto.PGP.PublicKey import *  # noqa
+from M2Crypto.PGP.PublicKeyRing import *  # noqa
+from M2Crypto.PGP.constants import *  # noqa
+from M2Crypto.PGP.packet import (cke_packet, comment_packet,
+                                 literal_packet, packet_stream,
+                                 pke_packet, private_key_packet,
+                                 public_key_packet, signature_packet,
+                                 trust_packet, userid_packet)

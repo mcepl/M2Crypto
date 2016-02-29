@@ -4,10 +4,11 @@ from __future__ import absolute_import
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-from .util import genparam_callback
-from . import BIO, Err, m2
+from M2Crypto import BIO, Err, m2
+from M2Crypto.util import genparam_callback
 
-class DHError(Exception): pass
+class DHError(Exception):
+    pass
 
 m2.dh_init(DHError)
 

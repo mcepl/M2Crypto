@@ -4,8 +4,7 @@ from __future__ import absolute_import
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-from . import BIO, EVP, X509, Err, util
-from . import m2
+from M2Crypto import BIO, EVP, Err, X509, m2, util
 
 PKCS7_TEXT = m2.PKCS7_TEXT
 PKCS7_NOCERTS = m2.PKCS7_NOCERTS
@@ -22,7 +21,8 @@ PKCS7_ENVELOPED = m2.PKCS7_ENVELOPED
 PKCS7_SIGNED_ENVELOPED = m2.PKCS7_SIGNED_ENVELOPED  # Deprecated
 PKCS7_DATA = m2.PKCS7_DATA
 
-class PKCS7_Error(Exception): pass
+class PKCS7_Error(Exception):  # noqa
+    pass
 
 m2.pkcs7_init(PKCS7_Error)
 
@@ -114,8 +114,8 @@ def smime_load_pkcs7_bio(p7_bio):
 
 class Cipher:
 
-    """
-    Object interface to EVP_CIPHER without all the frills of M2Crypto.EVP.Cipher.
+    """Object interface to EVP_CIPHER without all the frills of
+    M2Crypto.EVP.Cipher.
     """
 
     def __init__(self, algo):
@@ -128,18 +128,21 @@ class Cipher:
         return self.cipher
 
 
-class SMIME_Error(Exception): pass
+class SMIME_Error(Exception):  # noqa
+    pass
 
 m2.smime_init(SMIME_Error)
 
 class SMIME:
-    def load_key(self, keyfile, certfile=None, callback=util.passphrase_callback):
+    def load_key(self, keyfile, certfile=None,
+                 callback=util.passphrase_callback):
         if certfile is None:
             certfile = keyfile
         self.pkey = EVP.load_key(keyfile, callback)
         self.x509 = X509.load_cert(certfile)
 
-    def load_key_bio(self, keybio, certbio=None, callback=util.passphrase_callback):
+    def load_key_bio(self, keybio, certbio=None,
+                     callback=util.passphrase_callback):
         if certbio is None:
             certbio = keybio
         self.pkey = EVP.load_key_bio(keybio, callback)
@@ -175,7 +178,8 @@ class SMIME:
             raise SMIME_Error('no cipher: use set_cipher()')
         if not hasattr(self, 'x509_stack'):
             raise SMIME_Error('no recipient certs: use set_x509_stack()')
-        pkcs7 = m2.pkcs7_encrypt(self.x509_stack._ptr(), data_bio._ptr(), self.cipher._ptr(), flags)
+        pkcs7 = m2.pkcs7_encrypt(self.x509_stack._ptr(), data_bio._ptr(),
+                                 self.cipher._ptr(), flags)
         if pkcs7 is None:
             raise SMIME_Error(Err.get_error())
         return PKCS7(pkcs7, 1)
@@ -185,7 +189,8 @@ class SMIME:
             raise SMIME_Error('no private key: use load_key()')
         if not hasattr(self, 'x509'):
             raise SMIME_Error('no certificate: load_key() used incorrectly?')
-        blob = m2.pkcs7_decrypt(pkcs7._ptr(), self.pkey._ptr(), self.x509._ptr(), flags)
+        blob = m2.pkcs7_decrypt(pkcs7._ptr(), self.pkey._ptr(),
+                                self.x509._ptr(), flags)
         if blob is None:
             raise SMIME_Error(Err.get_error())
         return blob
@@ -195,13 +200,14 @@ class SMIME:
             raise SMIME_Error('no private key: use load_key()')
         if hasattr(self, 'x509_stack'):
             pkcs7 = m2.pkcs7_sign1(self.x509._ptr(), self.pkey._ptr(),
-                self.x509_stack._ptr(), data_bio._ptr(), flags)
+                                   self.x509_stack._ptr(),
+                                   data_bio._ptr(), flags)
             if pkcs7 is None:
                 raise SMIME_Error(Err.get_error())
             return PKCS7(pkcs7, 1)
         else:
             pkcs7 = m2.pkcs7_sign0(self.x509._ptr(), self.pkey._ptr(),
-                data_bio._ptr(), flags)
+                                   data_bio._ptr(), flags)
             if pkcs7 is None:
                 raise SMIME_Error(Err.get_error())
             return PKCS7(pkcs7, 1)
@@ -214,9 +220,12 @@ class SMIME:
         assert isinstance(pkcs7, PKCS7), 'pkcs7 not an instance of PKCS7'
         p7 = pkcs7._ptr()
         if data_bio is None:
-            blob = m2.pkcs7_verify0(p7, self.x509_stack._ptr(), self.x509_store._ptr(), flags)
+            blob = m2.pkcs7_verify0(p7, self.x509_stack._ptr(),
+                                    self.x509_store._ptr(), flags)
         else:
-            blob = m2.pkcs7_verify1(p7, self.x509_stack._ptr(), self.x509_store._ptr(), data_bio._ptr(), flags)
+            blob = m2.pkcs7_verify1(p7, self.x509_stack._ptr(),
+                                    self.x509_store._ptr(),
+                                    data_bio._ptr(), flags)
         if blob is None:
             raise SMIME_Error(Err.get_error())
         return blob
@@ -226,7 +235,8 @@ class SMIME:
         if data_bio is None:
             return m2.smime_write_pkcs7(out_bio._ptr(), pkcs7._ptr(), flags)
         else:
-            return m2.smime_write_pkcs7_multi(out_bio._ptr(), pkcs7._ptr(), data_bio._ptr(), flags)
+            return m2.smime_write_pkcs7_multi(out_bio._ptr(), pkcs7._ptr(),
+                                              data_bio._ptr(), flags)
 
 
 def text_crlf(text):

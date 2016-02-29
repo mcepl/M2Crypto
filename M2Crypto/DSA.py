@@ -9,10 +9,10 @@ from __future__ import absolute_import, print_function
     Copyright (C) 2004 OSAF. All Rights Reserved.
 """
 
-import sys
-from . import util, BIO, m2
+from M2Crypto import BIO, m2, util
 
-class DSAError(Exception): pass
+class DSAError(Exception):
+    pass
 
 m2.dsa_init(DSAError)
 
@@ -163,7 +163,7 @@ class DSA:
         """
         if cipher is None:
             return m2.dsa_write_key_bio_no_cipher(self.dsa,
-                                                 bio._ptr(), callback)
+                                                  bio._ptr(), callback)
         else:
             ciph = getattr(m2, cipher, None)
             if ciph is None:
@@ -248,7 +248,6 @@ class DSA:
         return m2.dsa_check_key(self.dsa)
 
 
-
 class DSA_pub(DSA):
 
     """
@@ -270,7 +269,7 @@ class DSA_pub(DSA):
 
     save_key_bio = DSA.save_pub_key_bio
 
-#---------------------------------------------------------------
+# --------------------------------------------------------------
 # factories and other functions
 
 def gen_params(bits, callback=util.genparam_callback):

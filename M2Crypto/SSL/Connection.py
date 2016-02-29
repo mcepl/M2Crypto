@@ -10,28 +10,25 @@ Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 Copyright 2008 Heikki Toivonen. All rights reserved.
 """
 
+import socket
+
+from M2Crypto import X509, m2
+from M2Crypto.SSL import Checker, timeout
+from M2Crypto.SSL import SSLError
+from M2Crypto.SSL.Cipher import Cipher, Cipher_Stack
+from M2Crypto.SSL.Session import Session
+
 __all__ = ['Connection',
            'timeout',  # XXX Not really, but for documentation purposes
            ]
 
-# Python
-import socket
-
-# M2Crypto
-from . import Checker
-
-from . import timeout
-
-from .Cipher import Cipher, Cipher_Stack
-from M2Crypto import X509, m2
-from M2Crypto.SSL import SSLError
-from .Session import Session
-
-#SSLError = getattr(__import__('M2Crypto.SSL', globals(), locals(),
+# SSLError = getattr(__import__('M2Crypto.SSL', globals(), locals(),
 #    'SSLError'), 'SSLError')
+
 
 def _serverPostConnectionCheck(*args, **kw):
     return 1
+
 
 class Connection:
 
@@ -60,9 +57,8 @@ class Connection:
         self.ssl_close_flag = m2.bio_noclose
 
         if self.ctx.post_connection_check is not None:
-            self.set_post_connection_check_callback \
-                (self.ctx.post_connection_check)
-
+            self.set_post_connection_check_callback(
+                self.ctx.post_connection_check)
 
     def __del__(self):
         if getattr(self, 'sslbio', None):
@@ -171,10 +167,12 @@ class Connection:
         ssl.setup_ssl()
         ssl.set_accept_state()
         ssl.accept_ssl()
-        check = getattr(self, 'postConnectionCheck', self.serverPostConnectionCheck)
+        check = getattr(self, 'postConnectionCheck',
+                        self.serverPostConnectionCheck)
         if check is not None:
             if not check(ssl.get_peer_cert(), ssl.addr[0]):
-                raise Checker.SSLVerificationError('post connection check failed')
+                raise Checker.SSLVerificationError(
+                    'post connection check failed')
         return ssl, addr
 
     def set_connect_state(self):
@@ -189,10 +187,12 @@ class Connection:
         self.setup_ssl()
         self.set_connect_state()
         ret = self.connect_ssl()
-        check = getattr(self, 'postConnectionCheck', self.clientPostConnectionCheck)
+        check = getattr(self, 'postConnectionCheck',
+                        self.clientPostConnectionCheck)
         if check is not None:
             if not check(self.get_peer_cert(), self.addr[0]):
-                raise Checker.SSLVerificationError('post connection check failed')
+                raise Checker.SSLVerificationError(
+                    'post connection check failed')
         return ret
 
     def shutdown(self, how):
@@ -286,7 +286,7 @@ class Connection:
     def get_peer_cert(self):
         """Return the peer certificate; if the peer did not provide
         a certificate, return None."""
-        c=m2.ssl_get_peer_cert(self.ssl)
+        c = m2.ssl_get_peer_cert(self.ssl)
         if c is None:
             return None
         # Need to free the pointer coz OpenSSL doesn't.
@@ -300,7 +300,7 @@ class Connection:
         connection object is alive. Once the connection object gets freed,
         the chain will be freed as well.
         """
-        c=m2.ssl_get_peer_cert_chain(self.ssl)
+        c = m2.ssl_get_peer_cert_chain(self.ssl)
         if c is None:
             return None
         # No need to free the pointer coz OpenSSL does.
@@ -308,16 +308,18 @@ class Connection:
 
     def get_cipher(self):
         """Return an M2Crypto.SSL.Cipher object for this connection; if the
-        connection has not been initialised with a cipher suite, return None."""
-        c=m2.ssl_get_current_cipher(self.ssl)
+        connection has not been initialised with a cipher suite, return None.
+        """
+        c = m2.ssl_get_current_cipher(self.ssl)
         if c is None:
             return None
         return Cipher(c)
 
     def get_ciphers(self):
         """Return an M2Crypto.SSL.Cipher_Stack object for this connection; if the
-        connection has not been initialised with cipher suites, return None."""
-        c=m2.ssl_get_ciphers(self.ssl)
+        connection has not been initialised with cipher suites, return None.
+        """
+        c = m2.ssl_get_ciphers(self.ssl)
         if c is None:
             return None
         return Cipher_Stack(c)
@@ -355,26 +357,34 @@ class Connection:
         return m2.ssl_get_default_session_timeout(self.ssl)
 
     def get_socket_read_timeout(self):
-        return timeout.struct_to_timeout(self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, timeout.struct_size()))
+        return timeout.struct_to_timeout(
+            self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO,
+                                   timeout.struct_size()))
 
     def get_socket_write_timeout(self):
-        return timeout.struct_to_timeout(self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_SNDTIMEO, timeout.struct_size()))
+        return timeout.struct_to_timeout(
+            self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_SNDTIMEO,
+                                   timeout.struct_size()))
 
     def set_socket_read_timeout(self, timeo):
         assert isinstance(timeo, timeout.timeout)
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO, timeo.pack())
+        self.socket.setsockopt(
+            socket.SOL_SOCKET, socket.SO_RCVTIMEO, timeo.pack())
 
     def set_socket_write_timeout(self, timeo):
         assert isinstance(timeo, timeout.timeout)
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_SNDTIMEO, timeo.pack())
+        self.socket.setsockopt(
+            socket.SOL_SOCKET, socket.SO_SNDTIMEO, timeo.pack())
 
     def get_version(self):
         "Return the TLS/SSL protocol version for this connection."
         return m2.ssl_get_version(self.ssl)
 
-    def set_post_connection_check_callback(self, postConnectionCheck):
+    def set_post_connection_check_callback(self, postConnectionCheck):  # noqa
         self.postConnectionCheck = postConnectionCheck
 
     def set_tlsext_host_name(self, name):
-        "Set the requested hostname for the SNI (Server Name Indication) extension"
+        """Set the requested hostname for the SNI (Server Name Indication)
+        extension.
+        """
         m2.ssl_set_tlsext_host_name(self.ssl, name)

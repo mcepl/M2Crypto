@@ -4,26 +4,29 @@ from __future__ import absolute_import, print_function
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-__all__ = ['SSLServer', 'ForkingSSLServer', 'ThreadingSSLServer']
-
 # Python
-import socket, SocketServer
+import SocketServer
+import socket  # noqa
 
 # M2Crypto
-from .Connection import Connection
 from M2Crypto.SSL import SSLError
-from M2Crypto import m2
+from M2Crypto.SSL.Connection import Connection
+from M2Crypto import m2  # noqa
+
+__all__ = ['SSLServer', 'ForkingSSLServer', 'ThreadingSSLServer']
 
 
 class SSLServer(SocketServer.TCPServer):
-    def __init__(self, server_address, RequestHandlerClass, ssl_context, bind_and_activate=True):
+    def __init__(self, server_address, RequestHandlerClass, ssl_context,  # noqa
+                 bind_and_activate=True):
         """
         Superclass says: Constructor. May be extended, do not override.
         This class says: Ho-hum.
         """
-        SocketServer.BaseServer.__init__(self, server_address, RequestHandlerClass)
-        self.ssl_ctx=ssl_context
-        self.socket=Connection(self.ssl_ctx)
+        SocketServer.BaseServer.__init__(self, server_address,
+                                         RequestHandlerClass)
+        self.ssl_ctx = ssl_context
+        self.socket = Connection(self.ssl_ctx)
         if bind_and_activate:
             self.server_bind()
             self.server_activate()
@@ -51,5 +54,3 @@ class ForkingSSLServer(SocketServer.ForkingMixIn, SSLServer):
 
 class ThreadingSSLServer(SocketServer.ThreadingMixIn, SSLServer):
     pass
-
-

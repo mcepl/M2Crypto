@@ -4,17 +4,20 @@ from __future__ import absolute_import
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-import base64, string, sys
+import base64
+import string
 
-from xmlrpclib import *
 import M2Crypto
-from . import SSL, httpslib, m2urllib
+
+from M2Crypto import SSL, httpslib, m2urllib
+from xmlrpclib import *
 
 __version__ = M2Crypto.version
 
-class SSL_Transport(Transport):
+class SSL_Transport(Transport):  # noqa
 
-    user_agent = "M2Crypto_XMLRPC/%s - %s" % (__version__, Transport.user_agent)
+    user_agent = "M2Crypto_XMLRPC/%s - %s" % (__version__,
+                                              Transport.user_agent)
 
     def __init__(self, ssl_context=None, *args, **kw):
         if getattr(Transport, '__init__', None) is not None:
@@ -60,7 +63,7 @@ class SSL_Transport(Transport):
                 host + handler,
                 errcode, errmsg,
                 headers
-                )
+            )
 
         self.verbose = verbose
         return self.parse_response(h.getfile())

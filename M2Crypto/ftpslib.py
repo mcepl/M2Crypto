@@ -40,7 +40,7 @@ import socket  # noqa
 import time  # noqa
 
 # M2Crypto
-from . import SSL
+from M2Crypto import SSL
 
 DEFAULT_PROTOCOL = 'sslv23'
 

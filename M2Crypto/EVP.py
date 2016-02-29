@@ -8,10 +8,11 @@ Portions Copyright (c) 2004-2007 Open Source Applications Foundation.
 Author: Heikki Toivonen
 """
 
-from M2Crypto import Err, util, BIO, RSA
-from . import m2
+from M2Crypto import BIO, Err, RSA, m2, util
 
-class EVPError(Exception): pass
+
+class EVPError(Exception):
+    pass
 
 m2.evp_init(EVPError)
 
@@ -32,6 +33,7 @@ def pbkdf2(password, salt, iter, keylen):
     @rtype:          str
     """
     return m2.pkcs5_pbkdf2_hmac_sha1(password, salt, iter, keylen)
+
 
 class MessageDigest:
     """
@@ -98,6 +100,7 @@ class HMAC:
 
     digest = final
 
+
 def hmac(key, data, algo='sha1'):
     md = getattr(m2, algo, None)
     if md is None:
@@ -109,7 +112,8 @@ class Cipher:
 
     m2_cipher_ctx_free = m2.cipher_ctx_free
 
-    def __init__(self, alg, key, iv, op, key_as_bytes=0, d='md5', salt='12345678', i=1, padding=1):
+    def __init__(self, alg, key, iv, op, key_as_bytes=0, d='md5',
+                 salt='12345678', i=1, padding=1):
         cipher = getattr(m2, alg, None)
         if cipher is None:
             raise ValueError('unknown cipher', alg)
@@ -270,7 +274,8 @@ class PKey:
         rsa = RSA.RSA_pub(rsa_ptr, 1)
         return rsa
 
-    def save_key(self, file, cipher='aes_128_cbc', callback=util.passphrase_callback):
+    def save_key(self, file, cipher='aes_128_cbc',
+                 callback=util.passphrase_callback):
         """
         Save the key pair to a file in PEM format.
 
@@ -290,7 +295,8 @@ class PKey:
         bio = BIO.openfile(file, 'wb')
         return self.save_key_bio(bio, cipher, callback)
 
-    def save_key_bio(self, bio, cipher='aes_128_cbc', callback=util.passphrase_callback):
+    def save_key_bio(self, bio, cipher='aes_128_cbc',
+                     callback=util.passphrase_callback):
         """
         Save the key pair to the M2Crypto.BIO object 'bio' in PEM format.
 
@@ -377,6 +383,7 @@ def load_key(file, callback=util.passphrase_callback):
         raise EVPError(Err.get_error())
     return PKey(cptr, 1)
 
+
 def load_key_bio(bio, callback=util.passphrase_callback):
     """
     Load an M2Crypto.EVP.PKey from an M2Crypto.BIO object.
@@ -395,6 +402,7 @@ def load_key_bio(bio, callback=util.passphrase_callback):
     if cptr is None:
         raise EVPError(Err.get_error())
     return PKey(cptr, 1)
+
 
 def load_key_bio_pubkey(bio, callback=util.passphrase_callback):
     """
@@ -415,6 +423,7 @@ def load_key_bio_pubkey(bio, callback=util.passphrase_callback):
         raise EVPError(Err.get_error())
     return PKey(cptr, 1)
 
+
 def load_key_string(string, callback=util.passphrase_callback):
     """
     Load an M2Crypto.EVP.PKey from a string.
@@ -431,6 +440,7 @@ def load_key_string(string, callback=util.passphrase_callback):
     """
     bio = BIO.MemoryBuffer(string)
     return load_key_bio(bio, callback)
+
 
 def load_key_string_pubkey(string, callback=util.passphrase_callback):
     """

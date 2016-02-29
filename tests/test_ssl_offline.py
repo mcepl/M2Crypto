@@ -14,7 +14,7 @@ except ImportError:
     import unittest
 
 from M2Crypto import Rand, SSL, X509
-from .test_ssl import srv_host
+from tests.test_ssl import srv_host
 
 
 class CheckerTestCase(unittest.TestCase):

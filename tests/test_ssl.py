@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from __future__ import absolute_import, print_function
-
 """Unit tests for M2Crypto.SSL.
 
 Copyright (c) 2000-2004 Ng Pheng Siong. All rights reserved.
@@ -20,7 +19,7 @@ Others:
 - ForkingSSLServer
 - ThreadingSSLServer
 """
-
+import logging
 import os
 import signal
 import socket
@@ -33,15 +32,12 @@ except ImportError:
     import unittest
 
 from M2Crypto import Err, Rand, SSL, m2
-from fips import fips_mode
-from platform import linux_distribution
+from tests import plat_debian, plat_fedora
+from tests.fips import fips_mode
+
+log = logging.getLogger('test_SSL')
 
 srv_host = 'localhost'
-distro_string = linux_distribution(supported_dists=('redhat', 'fedora',
-                                                    'debian'),
-                                   full_distribution_name=False)[0]
-plat_fedora = distro_string in ['redhat', 'fedora']
-plat_debian = distro_string in ['debian']
 
 def allocate_srv_port():
     s = socket.socket()
@@ -646,8 +642,9 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s = SSL.Connection(ctx)
             try:
                 s.connect(self.srv_addr)
-            except SSL.SSLError as e:
-                assert 0, e
+            except SSL.SSLError:
+                log.error('Failed to connect to %s', self.srv_addr)
+                raise
             data = self.http_get(s)
             s.close()
         finally:
@@ -1173,5 +1170,5 @@ if __name__ == '__main__':
         zap_servers()
 
     if report_leaks:
-        from . import alltests
+        from tests import alltests
         alltests.dump_garbage()

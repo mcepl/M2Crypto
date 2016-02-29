@@ -4,8 +4,7 @@ from __future__ import absolute_import
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-from . import BIO
-from . import m2
+from M2Crypto import BIO, m2
 
 def get_error():
     err = BIO.MemoryBuffer()
@@ -41,9 +40,9 @@ class SSLError(Exception):
         else:
             s = self.client_addr
         return "%s: %s: %s" % \
-            (m2.err_func_error_string(self.err), \
-            s, \
-            m2.err_reason_error_string(self.err))
+            (m2.err_func_error_string(self.err), s,
+             m2.err_reason_error_string(self.err))
+
 
 class M2CryptoError(Exception):
     pass

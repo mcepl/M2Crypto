@@ -17,7 +17,7 @@ from M2Crypto import Err
 from M2Crypto import Rand
 from M2Crypto import threading as m2threading
 
-from .test_ssl import srv_host, allocate_srv_port
+from tests.test_ssl import srv_host, allocate_srv_port
 
 class HandshakeClient(threading.Thread):
 

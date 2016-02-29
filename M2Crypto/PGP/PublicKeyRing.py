@@ -4,14 +4,17 @@ from __future__ import absolute_import
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-from .constants import *
-from .packet import *
-from .PublicKey import *
+from M2Crypto.PGP.PublicKey import *  # noqa
+from M2Crypto.PGP.constants import *  # noqa
+from M2Crypto.PGP.packet import *  # noqa
 
 class PublicKeyRing:
     def __init__(self, keyring):
         import warnings
-        warnings.warn('Deprecated. No maintainer for PGP. If you use this, please inform M2Crypto maintainer.', DeprecationWarning)
+        warnings.warn(
+            'Deprecated. No maintainer for PGP. If you use this, ' +
+            'please inform M2Crypto maintainer.',
+            DeprecationWarning)
 
         self._keyring = keyring
         self._userid = {}
@@ -34,7 +37,7 @@ class PublicKeyRing:
                 curr_index = curr_index + 1
                 curr_pub = PublicKey(pkt)
                 self._pubkey.append(curr_pub)
-                #self._keyid[curr_pub.keyid()] = (curr_pub, curr_index)
+                # self._keyid[curr_pub.keyid()] = (curr_pub, curr_index)
 
             elif isinstance(pkt, userid_packet):
                 if curr_pub is None:
@@ -80,4 +83,3 @@ def load_pubring(filename='pubring.pgp'):
     pkr = PublicKeyRing(open(filename, 'rb'))
     pkr.load()
     return pkr
-

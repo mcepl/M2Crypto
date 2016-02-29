@@ -4,23 +4,24 @@ from __future__ import absolute_import
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-__all__ = ['ssl_dispatcher']
-
 # Python
-import asyncore, socket
+import asyncore
+import socket
 
 # M2Crypto
-from .Connection import Connection
-from M2Crypto import Err, m2
+from M2Crypto import Err, m2  # noqa
+from M2Crypto.SSL.Connection import Connection
+
+__all__ = ['ssl_dispatcher']
 
 
-class ssl_dispatcher(asyncore.dispatcher):
+class ssl_dispatcher(asyncore.dispatcher):  # noqa
 
     def create_socket(self, ssl_context):
-        self.family_and_type=socket.AF_INET, socket.SOCK_STREAM
-        self.ssl_ctx=ssl_context
-        self.socket=Connection(self.ssl_ctx)
-        #self.socket.setblocking(0)
+        self.family_and_type = socket.AF_INET, socket.SOCK_STREAM
+        self.ssl_ctx = ssl_context
+        self.socket = Connection(self.ssl_ctx)
+        # self.socket.setblocking(0)
         self.add_channel()
 
     def connect(self, addr):
@@ -35,4 +36,3 @@ class ssl_dispatcher(asyncore.dispatcher):
     def send(self, buffer):
         """Send data over SSL."""
         return self.socket.send(buffer)
-

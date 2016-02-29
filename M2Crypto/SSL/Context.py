@@ -4,21 +4,21 @@ from __future__ import absolute_import
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-__all__ = ['map', 'Context']
-
-
 # M2Crypto
-from . import cb
 import sys
 
 from M2Crypto import BIO, Err, RSA, X509, m2, util
+from M2Crypto.SSL import cb
 from weakref import WeakValueDictionary
+
+__all__ = ['map', 'Context']
 
 # Python 2 has int() and long().
 # Python 3 and higher only has int().
 # Work around this.
 if sys.version_info > (3,):
-   long = int
+    long = int
+
 
 class _ctxmap:  # noqa
     singleton = None
@@ -34,6 +34,7 @@ class _ctxmap:  # noqa
 
     def __delitem__(self, key):
         del self.map[key]
+
 
 def map():
     if _ctxmap.singleton is None:

@@ -9,17 +9,13 @@ Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 Author: Heikki Toivonen
 """
 
-# M2Crypto
 import binascii
-from M2Crypto import ASN1, BIO, Err, EVP, util
-from . import m2
 
-import m2
-
-from M2Crypto import ASN1, BIO, EVP, Err
+from M2Crypto import ASN1, BIO, EVP, Err, m2, util  # noqa
 
 FORMAT_DER = 0
 FORMAT_PEM = 1
+
 
 class X509Error(Exception):
     pass
@@ -27,6 +23,7 @@ class X509Error(Exception):
 m2.x509_init(X509Error)
 
 V_OK = m2.X509_V_OK
+
 
 def new_extension(name, value, critical=0, _pyfree=1):
     """
@@ -43,7 +40,7 @@ def new_extension(name, value, critical=0, _pyfree=1):
     return x509_ext
 
 
-class X509_Extension:
+class X509_Extension:  # noqa
     """
     X509 Extension
     """
@@ -100,7 +97,7 @@ class X509_Extension:
         return buf.read_all()
 
 
-class X509_Extension_Stack:
+class X509_Extension_Stack:  # noqa
     """
     X509 Extension Stack
 
@@ -170,7 +167,7 @@ class X509_Extension_Stack:
         return self.pystack.pop()
 
 
-class X509_Name_Entry:
+class X509_Name_Entry:  # noqa
     """
     X509 Name Entry
     """
@@ -209,7 +206,7 @@ class X509_Name_Entry:
                                                 field, type, entry, len)
 
 
-class X509_Name:
+class X509_Name:  # noqa
     """
     X509 Name
     """
@@ -270,8 +267,8 @@ class X509_Name:
         if attr in self.nid:
             assert m2.x509_name_type_check(self.x509_name), \
                 "'x509_name' type error"
-            return m2.x509_name_set_by_nid(
-                self.x509_name, self.nid[attr], value)
+            return m2.x509_name_set_by_nid(self.x509_name, self.nid[attr],
+                                           value)
 
         self.__dict__[attr] = value
 
@@ -336,6 +333,7 @@ class X509_Name:
         assert m2.x509_name_type_check(self.x509_name), \
             "'x509_name' type error"
         return m2.x509_name_hash(self.x509_name)
+
 
 class X509:
     """
@@ -621,6 +619,7 @@ class X509:
         digest = md.final()
         return binascii.hexlify(digest).upper()
 
+
 def load_cert(file, format=FORMAT_PEM):
     """
     Load certificate from file.
@@ -647,6 +646,7 @@ def load_cert(file, format=FORMAT_PEM):
         raise ValueError(
             "Unknown format. Must be either FORMAT_DER or FORMAT_PEM")
 
+
 def load_cert_bio(bio, format=FORMAT_PEM):
     """
     Load certificate from a bio.
@@ -671,6 +671,7 @@ def load_cert_bio(bio, format=FORMAT_PEM):
         raise X509Error(Err.get_error())
     return X509(cptr, _pyfree=1)
 
+
 def load_cert_string(string, format=FORMAT_PEM):
     """
     Load certificate from a string.
@@ -686,6 +687,7 @@ def load_cert_string(string, format=FORMAT_PEM):
     """
     bio = BIO.MemoryBuffer(string)
     return load_cert_bio(bio, format)
+
 
 def load_cert_der_string(string):
     """
@@ -703,7 +705,8 @@ def load_cert_der_string(string):
         raise X509Error(Err.get_error())
     return X509(cptr, _pyfree=1)
 
-class X509_Store_Context:
+
+class X509_Store_Context:  # noqa
     """
     X509 Store Context
     """
@@ -753,7 +756,7 @@ class X509_Store_Context:
         return X509_Stack(m2.x509_store_ctx_get1_chain(self.ctx), 1, 1)
 
 
-class X509_Store:
+class X509_Store:  # noqa
     """
     X509 Store
     """
@@ -790,7 +793,7 @@ class X509_Store:
     add_cert = add_x509
 
 
-class X509_Stack:
+class X509_Stack:  # noqa
     """
     X509 Stack
 
@@ -1039,6 +1042,7 @@ def load_request(file, format=FORMAT_PEM):
         raise X509Error(Err.get_error())
     return Request(cptr, 1)
 
+
 def load_request_bio(bio, format=FORMAT_PEM):
     """
     Load certificate request from a bio.
@@ -1064,6 +1068,7 @@ def load_request_bio(bio, format=FORMAT_PEM):
         raise X509Error(Err.get_error())
     return Request(cptr, _pyfree=1)
 
+
 def load_request_string(string, format=FORMAT_PEM):
     """
     Load certificate request from a string.
@@ -1080,6 +1085,7 @@ def load_request_string(string, format=FORMAT_PEM):
     """
     bio = BIO.MemoryBuffer(string)
     return load_request_bio(bio, format)
+
 
 def load_request_der_string(string):
     """
