@@ -5,6 +5,7 @@
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
 import hashlib
+import logging
 import os
 try:
     import unittest2 as unittest
@@ -14,6 +15,8 @@ except ImportError:
 from M2Crypto import BIO, RSA, Rand, X509, m2
 
 from fips import fips_mode
+
+log = logging.getLogger('test_RSA')
 
 class RSATestCase(unittest.TestCase):
 
@@ -174,7 +177,10 @@ class RSATestCase(unittest.TestCase):
 
     def test_newpub(self):
         old = RSA.load_pub_key(self.pubkey)
+        log.debug('old = %s', old)
+        log.debug('old.pub = %s', old.pub())
         new = RSA.new_pub_key(old.pub())
+        log.debug('new = %s', new)
         self.assertTrue(new.check_key())
         self.assertEqual(len(new), 1024)
         # aka 65537 aka 0xf4
