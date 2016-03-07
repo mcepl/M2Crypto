@@ -460,7 +460,13 @@ class X509:
 
     def get_not_after(self):
         assert m2.x509_type_check(self.x509), "'x509' type error"
-        return ASN1.ASN1_UTCTIME(m2.x509_get_not_after(self.x509))
+        out = ASN1.ASN1_UTCTIME(m2.x509_get_not_after(self.x509))
+        if 'Bad time value' in str(out):
+            raise X509Error(
+                '''M2Crypto cannot handle dates after year 2050.
+                See RFC 5280 4.1.2.5 for more information.
+                ''')
+        return out
 
     def get_pubkey(self):
         assert m2.x509_type_check(self.x509), "'x509' type error"

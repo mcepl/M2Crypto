@@ -545,7 +545,13 @@ class X509TestCase(unittest.TestCase):
 
         cert = X509.load_cert('tests/thawte.pem')
         self.assertEqual(cert.get_serial_number(),
-                          127614157056681299805556476275995414779)
+                         127614157056681299805556476275995414779)
+
+    def test_date_after_2050_not_working(self):
+        cert = X509.load_cert('tests/bad_date_cert.crt')
+        with self.assertRaises(X509.X509Error):
+            cert.get_not_after()
+
 
 class X509StackTestCase(unittest.TestCase):
     def test_make_stack_from_der(self):
