@@ -459,39 +459,6 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
         finally:
             self.stop_server(pid)
 
-    # TLS is required in FIPS mode
-    @unittest.skipIf(fips_mode, "Can't be run in FIPS mode")
-    def test_no_weak_cipher(self):
-        self.args = self.args + ['-cipher', 'EXP']
-        pid = self.start_server(self.args)
-        try:
-            ctx = SSL.Context()
-            s = SSL.Connection(ctx)
-            with self.assertRaisesRegexp(SSL.SSLError,
-                                         'sslv3 alert handshake failure'):
-                s.connect(self.srv_addr)
-        finally:
-            s.close()
-            self.stop_server(pid)
-
-    # TLS is required in FIPS mode
-    @unittest.skipIf(fips_mode, "Can't be run in FIPS mode")
-    @unittest.skipIf(plat_debian, "Debian distros don't allow weak ciphers")
-    @unittest.skipIf(plat_fedora,
-                     "Export ciphers are prohibited in recent Fedora releases")
-    def test_use_weak_cipher(self):
-        self.args = self.args + ['-cipher', 'EXP']
-        pid = self.start_server(self.args)
-        try:
-            ctx = SSL.Context(weak_crypto=1)
-            s = SSL.Connection(ctx)
-            s.connect(self.srv_addr)
-            data = self.http_get(s)
-            s.close()
-        finally:
-            self.stop_server(pid)
-        self.assertIn('s_server -quiet -www', data)
-
     def test_cipher_ok(self):
         self.args = self.args + ['-cipher', 'AES128-SHA']
         pid = self.start_server(self.args)
@@ -511,7 +478,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             with self.assertRaises(IndexError):
                 cipher_stack.__getitem__(2)
             # For some reason there are 2 entries in the stack
-            #self.assertEqual(len(cipher_stack), 1, len(cipher_stack))
+            # self.assertEqual(len(cipher_stack), 1, len(cipher_stack))
             self.assertEqual(s.get_cipher_list(), 'AES128-SHA',
                              s.get_cipher_list())
 
@@ -523,7 +490,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
                                  '"%s"' % cipher.name())
                 self.assertEqual('AES128-SHA-128', str(cipher))
             # For some reason there are 2 entries in the stack
-            #self.assertEqual(i, 1, i)
+            # self.assertEqual(i, 1, i)
             self.assertEqual(i, len(cipher_stack))
 
             s.close()
