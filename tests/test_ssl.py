@@ -143,7 +143,7 @@ class BaseSSLClientTestCase(unittest.TestCase):
         self.srv_addr = (srv_host, self.srv_port)
         self.srv_url = 'https://%s:%s/' % (srv_host, self.srv_port)
         self.args = ['s_server', '-quiet', '-www',
-                     #'-cert', 'server.pem', Implicitly using this
+                     # '-cert', 'server.pem', Implicitly using this
                      '-accept', str(self.srv_port)]
 
 
@@ -609,9 +609,9 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             from M2Crypto import X509
             assert not ok
             assert err == m2.X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT or \
-               err == m2.X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY or \
-               err == m2.X509_V_ERR_CERT_UNTRUSTED or \
-               err == m2.X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE
+                err == m2.X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY or \
+                err == m2.X509_V_ERR_CERT_UNTRUSTED or \
+                err == m2.X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE
             self.assertTrue(m2.ssl_ctx_get_cert_store(ctx_ptr))
             self.assertTrue(X509.X509(x509_ptr).as_pem())
         except AssertionError:
