@@ -637,7 +637,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
         try:
             ctx = SSL.Context()
             ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert,
-                           9, SSL.cb.ssl_verify_callback)
+                           9, SSL.cb.ssl_verify_callback_allow_unknown_ca)
             ctx.set_allow_unknown_ca(1)
             s = SSL.Connection(ctx)
             try:
