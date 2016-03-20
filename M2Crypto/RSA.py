@@ -210,7 +210,7 @@ class RSA:
         """
         hash = getattr(m2, algo, None)
         if hash is None:
-            raise ValueError('not such hash algorithm %s' % hash_algo)
+            raise ValueError('not such hash algorithm %s' % algo)
 
         plain_signature = self.public_decrypt(signature, m2.no_padding)
 
