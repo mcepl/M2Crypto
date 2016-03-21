@@ -19,7 +19,7 @@ Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 """
 # noqa
 from distutils.version import StrictVersion
-__version__ = '0.23.0'
+__version__ = '0.24.0'
 version = __version__
 version_info = StrictVersion(__version__).version
 
