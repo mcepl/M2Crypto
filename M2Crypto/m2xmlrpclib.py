@@ -5,12 +5,11 @@ from __future__ import absolute_import
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
 import base64
-import string
 
 import M2Crypto
 
 from M2Crypto import SSL, httpslib, m2urllib
-from xmlrpclib import *
+from xmlrpclib import *  # noqa
 
 __version__ = M2Crypto.version
 
@@ -48,7 +47,7 @@ class SSL_Transport(Transport):  # noqa
 
         # Authorisation.
         if user_passwd is not None:
-            auth = string.strip(base64.encodestring(user_passwd))
+            auth = base64.encodestring(user_passwd).strip()
             h.putheader('Authorization', 'Basic %s' % auth)
 
         h.endheaders()

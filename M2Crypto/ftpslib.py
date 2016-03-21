@@ -37,7 +37,6 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 # to use them.
 from ftplib import *  # noqa
 import socket  # noqa
-import time  # noqa
 
 # M2Crypto
 from M2Crypto import SSL

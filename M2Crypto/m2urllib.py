@@ -5,7 +5,6 @@ from __future__ import absolute_import, print_function
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-import string
 import urllib
 
 from M2Crypto import SSL
@@ -33,7 +32,7 @@ def open_https(self, url, data=None, ssl_context=None):
         urltype, rest = urllib.splittype(selector)
         url = rest
         user_passwd = None
-        if string.lower(urltype) != 'http':
+        if urltype.lower() != 'http':
             realhost = None
         else:
             realhost, rest = urllib.splithost(rest)
@@ -46,7 +45,7 @@ def open_https(self, url, data=None, ssl_context=None):
         raise IOError('http error', 'no host given')
     if user_passwd:
         import base64
-        auth = string.strip(base64.encodestring(user_passwd))
+        auth = base64.encodestring(user_passwd).strip()
     else:
         auth = None
     # Start here!
