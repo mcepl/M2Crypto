@@ -9,6 +9,7 @@ Author: Heikki Toivonen
 """
 
 import cStringIO
+import logging
 import sha
 
 from M2Crypto import BIO, EVP, RSA, Rand, m2, util
@@ -21,6 +22,9 @@ except ImportError:
     import unittest
 
 from tests.fips import fips_mode
+
+log = logging.getLogger('test_EVP')
+
 
 class EVPTestCase(unittest.TestCase):
     def _gen_callback(self, *args):
@@ -65,7 +69,7 @@ class EVPTestCase(unittest.TestCase):
         self.assertEqual(m2.get_digestbyname('sha513'), None)
         self.assertNotEqual(m2.get_digestbyname('sha1'), None)
 
-    def test_MessageDigest(self):
+    def test_MessageDigest(self):  # noqa
         with self.assertRaises(ValueError):
             EVP.MessageDigest('sha513')
         md = EVP.MessageDigest('sha1')
@@ -330,7 +334,7 @@ class CipherTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.try_algo('nosuchalgo4567')
 
-    def test_AES(self):
+    def test_AES(self):  # noqa
         enc = 1
         dec = 0
         tests = [
@@ -410,7 +414,7 @@ class CipherTestCase(unittest.TestCase):
             cbuf.close()
             self.assertEqual(plaintext, test['PT'])
 
-    def test_AES_ctr(self):
+    def test_AES_ctr(self):  # noqa
         # In CTR mode, encrypt and decrypt are actually the same
         # operation because you encrypt the nonce value, then use the
         # output of that to XOR the plaintext.  So we set operation=0,
@@ -429,6 +433,7 @@ class CipherTestCase(unittest.TestCase):
 
         for key_size in [128, 192, 256]:
             alg = 'aes_%s_ctr' % str(key_size)
+            log.info('Testing cipher %s', alg)
 
             # Our key for this test is 256 bits in length (32 bytes).
             # We will trim it to the appopriate length for testing AES-128
@@ -448,7 +453,7 @@ class CipherTestCase(unittest.TestCase):
             self.assertEqual(plaintext, plaintext_value)
 
     def test_raises(self):
-        def _cipherFilter(cipher, inf, outf):
+        def _cipherFilter(cipher, inf, outf):  # noqa
             while 1:
                 buf = inf.read()
                 if not buf:
@@ -500,17 +505,17 @@ class PBKDF2TestCase(unittest.TestCase):
 
 
 class HMACTestCase(unittest.TestCase):
-    data1 = ['', 'More text test vectors to stuff up EBCDIC machines :-)', \
-           h2b("b760e92d6662d351eb3801057695ac0346295356")]
+    data1 = ['', 'More text test vectors to stuff up EBCDIC machines :-)',
+             h2b("b760e92d6662d351eb3801057695ac0346295356")]
 
-    data2 = [h2b('0b' * 16), "Hi There", \
-           h2b("675b0b3a1b4ddf4e124872da6c2f632bfed957e9")]
+    data2 = [h2b('0b' * 16), "Hi There",
+             h2b("675b0b3a1b4ddf4e124872da6c2f632bfed957e9")]
 
-    data3 = ['Jefe', "what do ya want for nothing?", \
-           h2b("effcdf6ae5eb2fa2d27416d5f184df9c259a7c79")]
+    data3 = ['Jefe', "what do ya want for nothing?",
+             h2b("effcdf6ae5eb2fa2d27416d5f184df9c259a7c79")]
 
-    data4 = [h2b('aa' * 16), h2b('dd' * 50), \
-           h2b("d730594d167e35d5956fd8003d0db3d3f46dc7bb")]
+    data4 = [h2b('aa' * 16), h2b('dd' * 50),
+             h2b("d730594d167e35d5956fd8003d0db3d3f46dc7bb")]
 
     data = [data1, data2, data3, data4]
 
@@ -524,7 +529,7 @@ class HMACTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             EVP.HMAC(d[0], algo='nosuchalgo')
 
-    def make_chain_HMAC(self, key, start, input, algo='sha1'):
+    def make_chain_HMAC(self, key, start, input, algo='sha1'):  # noqa
         chain = []
         hmac = EVP.HMAC(key, algo)
         hmac.update(repr(start))
@@ -559,7 +564,7 @@ class HMACTestCase(unittest.TestCase):
                 return 0
         return 1
 
-    def verify_chain_HMAC(self, key, start, chain, algo='sha1'):
+    def verify_chain_HMAC(self, key, start, chain, algo='sha1'):  # noqa
         hmac = EVP.HMAC(key, algo)
         hmac.update(repr(start))
         digest = hmac.final()
