@@ -13,7 +13,7 @@ import binascii
 import logging
 import sys
 
-from M2Crypto import m2
+from M2Crypto import m2, six
 
 log = logging.getLogger('util')
 
@@ -41,6 +41,26 @@ def pkcs7_pad(data, blklen):
         raise ValueError('illegal block size')
     pad = (blklen - (len(data) % blklen))
     return data + chr(pad) * pad
+
+
+def py3ord(x):
+    return ord(x) if not isinstance(x, int) else x
+
+
+# before the introduction of py3{bytes,str}, python2 code
+# was just using args as-is
+if six.PY2:
+    def py3bytes(x):
+        return x
+
+    def py3str(x):
+        return x
+else:
+    def py3bytes(x):
+        return x if isinstance(x, bytes) else bytes(x, encoding="ascii")
+
+    def py3str(x):
+        return x if isinstance(x, str) else x.decode("ascii")
 
 
 def octx_to_num(x):
