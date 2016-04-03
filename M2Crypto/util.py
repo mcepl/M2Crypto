@@ -57,11 +57,11 @@ if six.PY2:
 else:
     def py3bytes(x):
         # type: (AnyStr) -> bytes
-        return x if isinstance(x, bytes) else bytes(x, encoding="ascii")
+        return x if isinstance(x, bytes) else bytes(x, encoding="utf8")
 
     def py3str(x):
         # type: (AnyStr) -> str
-        return x if isinstance(x, str) else x.decode("ascii")
+        return x if isinstance(x, str) else x.decode("utf8")
 
 
 def bin_to_hex(b):
