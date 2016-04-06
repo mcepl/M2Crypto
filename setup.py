@@ -10,6 +10,7 @@ Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 
 Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 """
+import glob
 import os
 import platform
 import string
@@ -18,6 +19,7 @@ import sys
 import setuptools
 
 from distutils.command import build
+from distutils.command.clean import clean
 from distutils.dir_util import mkpath
 from distutils.file_util import copy_file
 from setuptools.command import build_ext
@@ -156,7 +158,30 @@ m2crypto = setuptools.Extension(name='M2Crypto.__m2crypto',
                                 )
 
 
-def __get_version():
+class Clean(clean):
+    def __init__(self, dist):
+        clean.__init__(self, dist)
+
+    def initialize_options(self):
+        clean.initialize_options(self)
+        self.all = True
+
+    def finalize_options(self):
+        clean.finalize_options(self)
+
+    def run(self):
+        clean.run(self)
+        garbage_list = [
+            "M2Crypto/__m2crypto*.so",
+            "M2Crypto/__m2crypto*.dll",
+        ]
+        for p in garbage_list:
+            for f in glob.glob(p):
+                if os.path.exists(f):
+                    os.unlink(f)
+
+
+def __get_version():  # noqa
     with open('M2Crypto/__init__.py') as init_file:
         for line in init_file:
             if line.startswith('__version__ ='):
@@ -202,6 +227,7 @@ setuptools.setup(
     install_requires=requires_list,
     cmdclass={
         'build_ext': _M2CryptoBuildExt,
-        'build': _M2CryptoBuild
+        'build': _M2CryptoBuild,
+        'clean': Clean
     }
 )
