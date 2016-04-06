@@ -3,7 +3,8 @@
 """Unit tests for M2Crypto.EC, ECDSA part.
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved.
-Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam. All rights reserved.
+Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam. All
+rights reserved.
 """
 import hashlib
 try:
@@ -11,7 +12,10 @@ try:
 except ImportError:
     import unittest
 
-from M2Crypto import EC, BIO, Rand, m2
+from M2Crypto import EC, Rand
+
+from tests.test_ec_curves import tested_curve
+
 
 class ECDSATestCase(unittest.TestCase):
 
@@ -43,7 +47,7 @@ class ECDSATestCase(unittest.TestCase):
             EC.load_pub_key(self.errkey)
 
     def _test_sign_dsa(self):
-        ec = EC.gen_params(EC.NID_sect233k1)
+        ec = EC.gen_params(tested_curve[0])
         # ec.gen_key()
         with self.assertRaises(EC.ECError):
             ec.sign_dsa(self.data)
@@ -80,6 +84,7 @@ class ECDSATestCase(unittest.TestCase):
         assert ec2.check_key()
         r, s = ec.sign_dsa(self.data)
         assert ec2.verify_dsa(self.data, r, s)
+
 
 def suite():
     return unittest.makeSuite(ECDSATestCase)

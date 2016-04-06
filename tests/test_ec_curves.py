@@ -19,86 +19,89 @@ from __future__ import absolute_import
     Copyright (c) 2006 Larry Bugbee. All rights reserved.
 
 """
+import logging
 
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
 
-from M2Crypto import EC, Rand
+from M2Crypto import EC, Rand, m2  # noqa
+
+log = logging.getLogger(__name__)
 
 
-curves = [
-    ('secp112r1', 112),
-    ('secp112r2', 112),
-    ('secp128r1', 128),
-    ('secp128r2', 128),
-    ('secp160k1', 160),
-    ('secp160r1', 160),
-    ('secp160r2', 160),
-    ('secp192k1', 192),
-    ('secp224k1', 224),
-    ('secp224r1', 224),
-    ('secp256k1', 256),
-    ('secp384r1', 384),
-    ('secp521r1', 521),
+curves = {
+    'secp112r1': 112,
+    'secp112r2': 112,
+    'secp128r1': 128,
+    'secp128r2': 128,
+    'secp160k1': 160,
+    'secp160r1': 160,
+    'secp160r2': 160,
+    'secp192k1': 192,
+    'secp224k1': 224,
+    'secp224r1': 224,
+    'secp256k1': 256,
+    'secp384r1': 384,
+    'secp521r1': 521,
 
-    ('sect113r1', 113),
-    ('sect113r2', 113),
-    ('sect131r1', 131),
-    ('sect131r2', 131),
-    ('sect163k1', 163),
-    ('sect163r1', 163),
-    ('sect163r2', 163),
-    ('sect193r1', 193),
-    ('sect193r2', 193),
-    ('sect233k1', 233),
-    ('sect233r1', 233),
-    ('sect239k1', 239),
-    ('sect283k1', 283),
-    ('sect283r1', 283),
-    ('sect409k1', 409),
-    ('sect409r1', 409),
-    ('sect571k1', 571),
-    ('sect571r1', 571),
+    'sect113r1': 113,
+    'sect113r2': 113,
+    'sect131r1': 131,
+    'sect131r2': 131,
+    'sect163k1': 163,
+    'sect163r1': 163,
+    'sect163r2': 163,
+    'sect193r1': 193,
+    'sect193r2': 193,
+    'sect233k1': 233,
+    'sect233r1': 233,
+    'sect239k1': 239,
+    'sect283k1': 283,
+    'sect283r1': 283,
+    'sect409k1': 409,
+    'sect409r1': 409,
+    'sect571k1': 571,
+    'sect571r1': 571,
 
-    ('X9_62_prime192v1', 192),
-    ('X9_62_prime192v2', 192),
-    ('X9_62_prime192v3', 192),
-    ('X9_62_prime239v1', 239),
-    ('X9_62_prime239v2', 239),
-    ('X9_62_prime239v3', 239),
-    ('X9_62_prime256v1', 256),
+    'X9_62_prime192v1': 192,
+    'X9_62_prime192v2': 192,
+    'X9_62_prime192v3': 192,
+    'X9_62_prime239v1': 239,
+    'X9_62_prime239v2': 239,
+    'X9_62_prime239v3': 239,
+    'X9_62_prime256v1': 256,
 
-    ('X9_62_c2pnb163v1', 163),
-    ('X9_62_c2pnb163v2', 163),
-    ('X9_62_c2pnb163v3', 163),
-    ('X9_62_c2pnb176v1', 176),
-    ('X9_62_c2tnb191v1', 191),
-    ('X9_62_c2tnb191v2', 191),
-    ('X9_62_c2tnb191v3', 191),
-    ('X9_62_c2pnb208w1', 208),
-    ('X9_62_c2tnb239v1', 239),
-    ('X9_62_c2tnb239v2', 239),
-    ('X9_62_c2tnb239v3', 239),
-    ('X9_62_c2pnb272w1', 272),
-    ('X9_62_c2pnb304w1', 304),
-    ('X9_62_c2tnb359v1', 359),
-    ('X9_62_c2pnb368w1', 368),
-    ('X9_62_c2tnb431r1', 431),
+    'X9_62_c2pnb163v1': 163,
+    'X9_62_c2pnb163v2': 163,
+    'X9_62_c2pnb163v3': 163,
+    'X9_62_c2pnb176v1': 176,
+    'X9_62_c2tnb191v1': 191,
+    'X9_62_c2tnb191v2': 191,
+    'X9_62_c2tnb191v3': 191,
+    'X9_62_c2pnb208w1': 208,
+    'X9_62_c2tnb239v1': 239,
+    'X9_62_c2tnb239v2': 239,
+    'X9_62_c2tnb239v3': 239,
+    'X9_62_c2pnb272w1': 272,
+    'X9_62_c2pnb304w1': 304,
+    'X9_62_c2tnb359v1': 359,
+    'X9_62_c2pnb368w1': 368,
+    'X9_62_c2tnb431r1': 431,
 
-    ('wap_wsg_idm_ecid_wtls1', 113),
-    ('wap_wsg_idm_ecid_wtls3', 163),
-    ('wap_wsg_idm_ecid_wtls4', 113),
-    ('wap_wsg_idm_ecid_wtls5', 163),
-    ('wap_wsg_idm_ecid_wtls6', 112),
-    ('wap_wsg_idm_ecid_wtls7', 160),
-    ('wap_wsg_idm_ecid_wtls8', 112),
-    ('wap_wsg_idm_ecid_wtls9', 160),
-    ('wap_wsg_idm_ecid_wtls10', 233),
-    ('wap_wsg_idm_ecid_wtls11', 233),
-    ('wap_wsg_idm_ecid_wtls12', 224),
-]
+    'wap_wsg_idm_ecid_wtls1': 113,
+    'wap_wsg_idm_ecid_wtls3': 163,
+    'wap_wsg_idm_ecid_wtls4': 113,
+    'wap_wsg_idm_ecid_wtls5': 163,
+    'wap_wsg_idm_ecid_wtls6': 112,
+    'wap_wsg_idm_ecid_wtls7': 160,
+    'wap_wsg_idm_ecid_wtls8': 112,
+    'wap_wsg_idm_ecid_wtls9': 160,
+    'wap_wsg_idm_ecid_wtls10': 233,
+    'wap_wsg_idm_ecid_wtls11': 233,
+    'wap_wsg_idm_ecid_wtls12': 224
+}
 
 # The following two curves, according to OpenSSL, have a
 # "Questionable extension field!" and are not supported by
@@ -113,44 +116,47 @@ curves = [
 # ]
 
 
+def available_curves():
+    bc_dict = EC.get_builtin_curves()
+    bin_curves = set(x['sname'] for x in bc_dict)
+    out_curves = tuple((m2.obj_sn2nid(x[0]), x[1]) for x in curves
+                       if x[0] in bin_curves)
+    log.debug('out_curves = %s', out_curves)
+    return out_curves
+
+# Seems like one of the most widely supported curves.
+tested_curve = EC.NID_secp384r1, curves['secp384r1']
+
+
 class ECCurveTests(unittest.TestCase):
-    # data = sha.sha('Kilroy was here!').digest()     # 160 bits
-    # keep short (48 bits) so lesser curves will work...  ECDSA requires
-    # curve be equal or longer than digest
     data = "digest"
 
-    def genkey(self, curve_name, curve_len):
-        curve = getattr(EC, 'NID_' + curve_name)
-        ec = EC.gen_params(curve)
-        self.assertEqual(len(ec), curve_len)
+    def genkey(self, curve):
+        try:
+            curve_name = m2.obj_nid2sn(curve[0])
+        except TypeError:
+            # we have to throw different exception for compatibility
+            raise AttributeError('Unknown cipher %s', curve[0])
+        ec = EC.gen_params(curve[0])
+        self.assertEqual(len(ec), curve[1])
         ec.gen_key()
         self.assertTrue(ec.check_key(),
-                        'check_key() failure for "%s"' % curve_name)
+                        'check_key() failure for "%s"' %
+                        curve_name)
         return ec
 
-#    def check_ec_curves_genkey(self):
-#        for curveName, curveLen in curves2:
-#            self.genkey(curveName, curveLen)
-#
-#        self.assertRaises(AttributeError, self.genkey,
-#                                          'nosuchcurve', 1)
-
-    def sign_verify_ecdsa(self, curve_name, curve_len):
-        ec = self.genkey(curve_name, curve_len)
+    def sign_verify_ecdsa(self, curve):
+        ec = self.genkey(curve)
         r, s = ec.sign_dsa(self.data)
         self.assertTrue(ec.verify_dsa(self.data, r, s))
         self.assertFalse(ec.verify_dsa(self.data, s, r))
 
     def test_ec_curves_ECDSA(self):  # noqa
-        for curveName, curveLen in curves:
-            self.sign_verify_ecdsa(curveName, curveLen)
+        for curve in available_curves():
+            self.sign_verify_ecdsa(curve)
 
         with self.assertRaises(AttributeError):
-            self.sign_verify_ecdsa('nosuchcurve', 1)
-
-#        for curveName, curveLen in curves2:
-#            with self.assertRaises(EC.ECError):
-#                self.sign_verify_ecdsa(curveName, curveLen)
+            self.sign_verify_ecdsa(('nosuchcurve', 1))
 
     def test_ec_get_builtin_curves(self):
         curves = EC.get_builtin_curves()

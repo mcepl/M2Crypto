@@ -3,15 +3,18 @@
 """Unit tests for M2Crypto.EC, ECDH part.
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved.
-Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam. All rights reserved.
+Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam. All
+rights reserved.
 """
-import sys
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
 
-from M2Crypto import EC, BIO, Rand, m2
+from M2Crypto import EC, Rand
+
+from tests.test_ec_curves import tested_curve
+
 
 class ECDHTestCase(unittest.TestCase):
 
@@ -23,16 +26,16 @@ class ECDHTestCase(unittest.TestCase):
 
     def test_compute_key(self):
         a = EC.load_key(self.privkey)
-        b = EC.gen_params(EC.NID_sect233k1)
+        b = EC.gen_params(tested_curve[0])
         b.gen_key()
         ak = a.compute_dh_key(b.pub())
         bk = b.compute_dh_key(a.pub())
         self.assertEqual(ak, bk)
 
     def test_pubkey_from_der(self):
-        a = EC.gen_params(EC.NID_sect233k1)
+        a = EC.gen_params(tested_curve[0])
         a.gen_key()
-        b = EC.gen_params(EC.NID_sect233k1)
+        b = EC.gen_params(tested_curve[0])
         b.gen_key()
         a_pub_der = a.pub().get_der()
         a_pub = EC.pub_key_from_der(a_pub_der)
