@@ -13,7 +13,7 @@ try:
 except ImportError:
     import unittest
 
-from M2Crypto import EC, Rand
+from M2Crypto import EC, Rand, m2
 
 from tests.test_ec_curves import tested_curve
 
@@ -26,7 +26,7 @@ class ECDSATestCase(unittest.TestCase):
     privkey = 'tests/ec.priv.pem'
     pubkey = 'tests/ec.pub.pem'
 
-    data = hashlib.sha1('Can you spell subliminal channel?').digest()
+    data = hashlib.sha1(b'Can you spell subliminal channel?').digest()
 
     def callback(self, *args):
         pass
@@ -78,7 +78,7 @@ class ECDSATestCase(unittest.TestCase):
         self.assertEqual(len(ec), tested_curve[1])
 
     def test_pub_key_from_params(self):
-        curve = EC.NID_X9_62_prime256v1
+        curve = EC.NID_prime256v1
         ec = EC.gen_params(curve)
         ec.gen_key()
         ec_pub = ec.pub()

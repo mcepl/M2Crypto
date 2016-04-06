@@ -25,7 +25,7 @@ except ImportError:
 if sys.version_info > (3,):
     long = int
 
-from M2Crypto import ASN1, BIO, EVP, RSA, Rand, X509, m2  # noqa
+from M2Crypto import ASN1, BIO, EVP, RSA, Rand, X509, m2, util  # noqa
 
 log = logging.getLogger(__name__)
 
