@@ -115,6 +115,57 @@ void ec_init(PyObject *ec_err) {
     _ec_err = ec_err;
 }
 
+PyObject *ec_get_builtin_curves(void) {
+    /*  size_t EC_get_builtin_curves(EC_builtin_curve *r, size_t
+     *  nitems); */
+  EC_builtin_curve *curves;
+  Py_ssize_t ret_curves = 0;
+  size_t num_curves =  EC_get_builtin_curves(NULL, 0);
+  PyObject *ret_tuple = NULL;
+  PyObject *ret_dict = NULL;
+  Py_ssize_t i;
+  const char *comment;
+  const char *sname;
+
+  if (!(curves = PyMem_Malloc(num_curves * sizeof(EC_builtin_curve)))) {
+      PyErr_SetString(PyExc_MemoryError, "ec_get_builtin_curves");
+      return NULL;
+  }
+
+  ret_curves = (Py_ssize_t)EC_get_builtin_curves(curves, num_curves);
+
+  if (!(ret_tuple = PyTuple_New(ret_curves))) {
+      PyErr_SetString(PyExc_MemoryError, "ec_get_builtin_curves");
+      return NULL;
+  }
+
+  for (i = 0; i < ret_curves; i++) {
+    if (!(ret_dict = PyDict_New())) {
+        PyErr_SetString(PyExc_MemoryError, "ec_get_builtin_curves");
+        return NULL;
+    }
+
+    comment = curves[i].comment;
+    sname = OBJ_nid2sn(curves[i].nid);
+    if (sname == NULL)
+        sname = "";
+
+    PyDict_SetItemString(ret_dict, "NID",
+                         PyLong_FromLong((long)curves[i].nid));
+    PyDict_SetItemString(ret_dict, "sname",
+                         PyString_FromString(sname));
+    PyDict_SetItemString(ret_dict, "comment",
+                         PyString_FromString(comment));
+
+    PyTuple_SET_ITEM(ret_tuple, i, ret_dict);
+
+  }
+
+  PyMem_Free(curves);
+
+  return ret_tuple;
+}
+
 EC_KEY* ec_key_new_by_curve_name(int nid)
 {
     EC_KEY   *key;

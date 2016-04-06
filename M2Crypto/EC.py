@@ -12,6 +12,7 @@ All rights reserved."""
 
 from M2Crypto import BIO, m2, util
 
+
 class ECError(Exception):
     pass
 
@@ -307,6 +308,7 @@ def load_key_bio(bio, callback=util.passphrase_callback):
     """
     return EC(m2.ec_key_read_bio(bio._ptr(), callback), 1)
 
+
 def load_pub_key(file):
     """
     Load an EC public key from file.
@@ -337,8 +339,10 @@ def load_pub_key_bio(bio):
         ec_error()
     return EC_pub(ec, 1)
 
+
 def ec_error():
     raise ECError(m2.err_reason_error_string(m2.err_get_error()))
+
 
 def pub_key_from_der(der):
     """
@@ -346,8 +350,13 @@ def pub_key_from_der(der):
     """
     return EC_pub(m2.ec_key_from_pubkey_der(der), 1)
 
+
 def pub_key_from_params(curve, bytes):
     """
     Create EC_pub from curve name and octet string.
     """
     return EC_pub(m2.ec_key_from_pubkey_params(curve, bytes), 1)
+
+
+def get_builtin_curves():
+    return m2.ec_get_builtin_curves()

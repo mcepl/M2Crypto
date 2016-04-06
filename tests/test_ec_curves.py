@@ -141,7 +141,7 @@ class ECCurveTests(unittest.TestCase):
         self.assertTrue(ec.verify_dsa(self.data, r, s))
         self.assertFalse(ec.verify_dsa(self.data, s, r))
 
-    def test_ec_curves_ECDSA(self):
+    def test_ec_curves_ECDSA(self):  # noqa
         for curveName, curveLen in curves:
             self.sign_verify_ecdsa(curveName, curveLen)
 
@@ -151,6 +151,11 @@ class ECCurveTests(unittest.TestCase):
 #        for curveName, curveLen in curves2:
 #            with self.assertRaises(EC.ECError):
 #                self.sign_verify_ecdsa(curveName, curveLen)
+
+    def test_ec_get_builtin_curves(self):
+        curves = EC.get_builtin_curves()
+        self.assertNotEqual(curves, [])
+        self.assertIsNotNone(curves)
 
 
 def suite():
