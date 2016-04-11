@@ -7,6 +7,7 @@ Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam. All
 rights reserved.
 """
 import hashlib
+import logging
 try:
     import unittest2 as unittest
 except ImportError:
@@ -15,6 +16,8 @@ except ImportError:
 from M2Crypto import EC, Rand
 
 from tests.test_ec_curves import tested_curve
+
+log = logging.getLogger(__name__)
 
 
 class ECDSATestCase(unittest.TestCase):
@@ -37,12 +40,12 @@ class ECDSATestCase(unittest.TestCase):
 
     def test_loadkey(self):
         ec = EC.load_key(self.privkey)
-        self.assertEqual(len(ec), 233)
+        self.assertEqual(len(ec), tested_curve[1])
 
     def test_loadpubkey(self):
         # XXX more work needed
         ec = EC.load_pub_key(self.pubkey)
-        self.assertEqual(len(ec), 233)
+        self.assertEqual(len(ec), tested_curve[1])
         with self.assertRaises(EC.ECError):
             EC.load_pub_key(self.errkey)
 

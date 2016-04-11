@@ -16,7 +16,10 @@ import os.path
 import sys
 import time
 
-from M2Crypto import ASN1, EVP, RSA, X509, m2
+from M2Crypto import ASN1, EC, EVP, RSA, X509, m2, util
+
+from tests.test_ec_curves import tested_curve
+
 
 t = long(time.time()) + time.timezone
 before = ASN1.ASN1_UTCTIME()
@@ -38,6 +41,7 @@ def gen_identifier(cert, dig='sha1'):
     digest = h.hexdigest().upper()
 
     return ":".join(digest[pos: pos + 2] for pos in range(0, 40, 2))
+
 
 def make_subject(cn=None, email=None):
     sub = X509.X509_Name()
@@ -64,7 +68,7 @@ def req(name):
     return reqqed, pk
 
 
-def saveTextPemKey(cert, name, with_key=True):
+def save_text_pem_key(cert, name, with_key=True):
     with open(name + '.pem', 'wb') as f:
         for line in cert.as_text():
             f.write(line)
@@ -143,12 +147,12 @@ def mk_ca():
     ext = X509.new_extension('subjectKeyIdentifier', ski)
     cert.add_ext(ext)
 
-    #ext = X509.new_extension('authorityKeyIdentifier', 'keyid:%s' % ski)
+    # ext = X509.new_extension('authorityKeyIdentifier', 'keyid:%s' % ski)
     # cert.add_ext(ext)
 
     cert.sign(pk, 'sha1')
 
-    saveTextPemKey(cert, 'ca')
+    save_text_pem_key(cert, 'ca')
 
     return cert, pk
 
@@ -157,14 +161,14 @@ def mk_server(ca, capk):
     r, _ = req('server')
     r.set_subject(make_subject(cn='localhost'))
     cert = issue(r, ca, capk)
-    saveTextPemKey(cert, 'server')
+    save_text_pem_key(cert, 'server')
 
 
 def mk_x509(ca, capk):
     r, _ = req('x509')
     r.set_subject(make_subject(cn='X509'))
     cert = issue(r, ca, capk)
-    saveTextPemKey(cert, 'x509')
+    save_text_pem_key(cert, 'x509')
 
     with open('x509.der', 'wb') as derf:
         derf.write(cert.as_der())
@@ -175,14 +179,23 @@ def mk_signer(ca, capk):
     r.set_subject(make_subject(cn='Signer', email='signer@example.com'))
     cert = issue(r, ca, capk)
 
-    saveTextPemKey(cert, 'signer', with_key=False)
+    save_text_pem_key(cert, 'signer', with_key=False)
 
 
 def mk_recipient(ca, capk):
     r, _ = req('recipient')
     r.set_subject(make_subject(cn='Recipient', email='recipient@example.com'))
     cert = issue(r, ca, capk)
-    saveTextPemKey(cert, 'recipient')
+    save_text_pem_key(cert, 'recipient')
+
+
+def mk_ec_pair():
+    priv_key = EC.gen_params(tested_curve[0])
+    priv_key.gen_key()
+    priv_key.save_key('ec.priv.pem',
+                      callback=util.no_passphrase_callback)
+    pub_key = priv_key.pub()
+    pub_key.save_pub_key('ec.pub.pem')
 
 if __name__ == '__main__':
     names = ['ca', 'server', 'recipient', 'signer', 'x509']
@@ -198,3 +211,6 @@ if __name__ == '__main__':
     mk_x509(ca_bits, pk_bits)
     mk_signer(ca_bits, pk_bits)
     mk_recipient(ca_bits, pk_bits)
+
+    # FIXME This doesn't work well.
+    # mk_ec_pair()
