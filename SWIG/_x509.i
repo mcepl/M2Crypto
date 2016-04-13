@@ -511,44 +511,24 @@ X509_NAME_ENTRY *x509_name_entry_create_by_txt(X509_NAME_ENTRY **ne, char *field
     return X509_NAME_ENTRY_create_by_txt( ne, field, type, (unsigned char *)bytes, len);
 }
 
-#if OPENSSL_VERSION_NUMBER >= 0x10000000L
-LHASH_OF(CONF_VALUE) 
-#else
-LHASH
-#endif
-*x509v3_lhash() { 
-    return lh_new(NULL, NULL); /* Should probably be lh_CONF_VALUE_new but won't compile. */
-}
-
 X509V3_CTX *
-#if OPENSSL_VERSION_NUMBER >= 0x10000000L
-x509v3_set_conf_lhash(LHASH_OF(CONF_VALUE) * lhash) {
-#else
-x509v3_set_conf_lhash(LHASH                * lhash) {
-#endif
+x509v3_set_nconf() {
       X509V3_CTX * ctx;
+      CONF *conf = NCONF_new(NULL);
+
       if (!(ctx=(X509V3_CTX *)PyMem_Malloc(sizeof(X509V3_CTX)))) {
-          PyErr_SetString(PyExc_MemoryError, "x509v3_set_conf_lhash");
+          PyErr_SetString(PyExc_MemoryError, "x509v3_set_nconf");
           return NULL;
       }
-      X509V3_set_conf_lhash(ctx, lhash);        
+      X509V3_set_nconf(ctx, conf);
       return ctx;
 }
 
 X509_EXTENSION *
-#if OPENSSL_VERSION_NUMBER >= 0x10000000L
-x509v3_ext_conf(LHASH_OF(CONF_VALUE) *conf, X509V3_CTX *ctx, char *name, char *value) {
-#else
-x509v3_ext_conf(LHASH                *conf, X509V3_CTX *ctx, char *name, char *value) {
-#endif
+x509v3_ext_conf(void *conf, X509V3_CTX *ctx, char *name, char *value) {
       X509_EXTENSION * ext = NULL;
       ext = X509V3_EXT_conf(conf, ctx, name, value); 
       PyMem_Free(ctx); 
-#if OPENSSL_VERSION_NUMBER >= 0x10000000L
-      lh_CONF_VALUE_free(conf);
-#else
-      lh_free(conf);
-#endif
       return ext;
 }
 

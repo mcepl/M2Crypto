@@ -10,11 +10,14 @@ Author: Heikki Toivonen
 """
 
 import binascii
+import logging
 
 from M2Crypto import ASN1, BIO, EVP, Err, m2, util  # noqa
 
 FORMAT_DER = 0
 FORMAT_PEM = 1
+
+log = logging.getLogger(__name__)
 
 
 class X509Error(Exception):
@@ -32,9 +35,15 @@ def new_extension(name, value, critical=0, _pyfree=1):
     if name == 'subjectKeyIdentifier' and \
             value.strip('0123456789abcdefABCDEF:') is not '':
         raise ValueError('value must be precomputed hash')
-    lhash = m2.x509v3_lhash()
-    ctx = m2.x509v3_set_conf_lhash(lhash)
-    x509_ext_ptr = m2.x509v3_ext_conf(lhash, ctx, name, value)
+    ctx = m2.x509v3_set_nconf()
+    if ctx is None:
+        raise MemoryError(
+            'Not enough memory when creating a new X509 extension')
+    x509_ext_ptr = m2.x509v3_ext_conf(None, ctx, name, value)
+    if x509_ext_ptr is None:
+        raise X509Error(
+            "Cannot create X509_Extension with name '%s' and value '%s'" %
+            (name, value))
     x509_ext = X509_Extension(x509_ext_ptr, _pyfree)
     x509_ext.set_critical(critical)
     return x509_ext

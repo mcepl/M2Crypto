@@ -10,6 +10,7 @@ Author: Heikki Toivonen
 """
 
 import base64
+import logging
 import os
 import sys
 import time
@@ -25,6 +26,8 @@ if sys.version_info > (3,):
     long = int
 
 from M2Crypto import ASN1, BIO, EVP, RSA, Rand, X509, m2  # noqa
+
+log = logging.getLogger(__name__)
 
 
 class X509TestCase(unittest.TestCase):
@@ -73,6 +76,10 @@ class X509TestCase(unittest.TestCase):
                          '  DNS:foobar.example.com')
         self.assertEqual(ext.get_value(flag=m2.X509V3_EXT_PARSE_UNKNOWN),
                          'DNS:foobar.example.com')
+
+    def test_ext_error(self):
+        with self.assertRaises(X509.X509Error):
+            X509.new_extension('nonsensicalName', 'blabla')
 
     def test_extstack(self):
         # new
@@ -637,9 +644,8 @@ class X509ExtTestCase(unittest.TestCase):
             name = "nsComment"
             value = "Hello"
 
-        lhash = m2.x509v3_lhash()
-        ctx = m2.x509v3_set_conf_lhash(lhash)
-        x509_ext_ptr = m2.x509v3_ext_conf(lhash, ctx, name, value)
+        ctx = m2.x509v3_set_nconf()
+        x509_ext_ptr = m2.x509v3_ext_conf(None, ctx, name, value)
         X509.X509_Extension(x509_ext_ptr, 1)
 
 
