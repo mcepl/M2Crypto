@@ -1,7 +1,9 @@
-========= M2Crypto =========
+========
+M2Crypto
+========
 
-:Maintainer: Heikki Toivonen :Web-Site:
-https://gitlab.com/m2crypto/m2crypto
+:Maintainer: Matěj Cepl
+:Web-Site: https://gitlab.com/m2crypto/m2crypto
 
 M2Crypto = Python + OpenSSL + SWIG
 ----------------------------------
@@ -30,6 +32,12 @@ M2Crypto comes with the following:
 
 -  Project with demo applications using M2Crypto is now in the separate
   project available at https://gitlab.com/m2crypto/m2crypto_demo
+
+We care a lot about stable API and all Python methods should be
+preserved, note however that ``m2.`` namespace is considered internal to
+the library and it doesn't have to be preserved. If however some change
+to it breaks your app, let us know and we will try to make things
+working for you.
 
 M2Crypto is released under a very liberal BSD-style licence. See LICENCE
 for details.
