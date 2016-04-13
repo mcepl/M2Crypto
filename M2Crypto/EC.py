@@ -279,6 +279,9 @@ def gen_params(curve):
 
     @param curve: This is the OpenSSL nid of the curve to use.
     """
+    assert curve in [x['NID'] for x in m2.ec_get_builtin_curves()], \
+        'Elliptic curve %s is not available on this system.' % \
+        m2.obj_nid2sn(curve)
     return EC(m2.ec_key_new_by_curve_name(curve), 1)
 
 
