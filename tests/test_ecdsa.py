@@ -74,8 +74,8 @@ class ECDSATestCase(unittest.TestCase):
         assert not ec2.verify_dsa(self.data, s, r)
 
     def test_genparam(self):
-        ec = EC.gen_params(EC.NID_sect233k1)
-        self.assertEqual(len(ec), 233)
+        ec = EC.gen_params(tested_curve[0])
+        self.assertEqual(len(ec), tested_curve[1])
 
     def test_pub_key_from_params(self):
         curve = EC.NID_X9_62_prime256v1

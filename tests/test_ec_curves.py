@@ -121,7 +121,6 @@ def available_curves():
     bin_curves = set(x['sname'] for x in bc_dict)
     out_curves = tuple((m2.obj_sn2nid(x[0]), x[1]) for x in curves
                        if x[0] in bin_curves)
-    log.debug('out_curves = %s', out_curves)
     return out_curves
 
 # Seems like one of the most widely supported curves.
