@@ -1,6 +1,6 @@
 stages:
-    - centos6
-      # - python26
+    # - centos6
+    # - python26
     - python27
     - python34
 
@@ -11,7 +11,7 @@ stages:
     script:
         - python setup.py clean build test
 
-centos6:
+.centos6:
     stage: centos6
     image: centos:6
     when: always
