@@ -4,18 +4,22 @@ from __future__ import absolute_import
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-# M2Crypto
-from M2Crypto import Rand, m2
+import Cookie
+import binascii
+import re
+import time
 
-# Python. Cookie is bundled with Python 2.x.
-import Cookie, binascii, re, time
+# M2Crypto
+from M2Crypto import Rand, m2, six
 
 
 _MIX_FORMAT = 'exp=%s&data=%s&digest='
 _MIX_RE = re.compile('exp=(\d+\.\d+)&data=(.+)&digest=(\S*)')
 
+
 def mix(expiry, data, format=_MIX_FORMAT):
     return format % (repr(expiry), data)
+
 
 def unmix(dough, regex=_MIX_RE):
     mo = regex.match(dough)
@@ -23,6 +27,7 @@ def unmix(dough, regex=_MIX_RE):
         return float(mo.group(1)), mo.group(2)
     else:
         return None
+
 
 def unmix3(dough, regex=_MIX_RE):
     mo = regex.match(dough)
@@ -34,6 +39,7 @@ def unmix3(dough, regex=_MIX_RE):
 
 _TOKEN = '_M2AUTH_'
 
+
 class AuthCookieJar:
 
     _keylen = 20
@@ -42,7 +48,9 @@ class AuthCookieJar:
         self._key = Rand.rand_bytes(self._keylen)
 
     def _hmac(self, key, data):
-        return binascii.b2a_base64(m2.hmac(key, data, m2.sha1()))[:-1]
+        return six.b(binascii.b2a_base64(m2.hmac(key,
+                                         six.b(data),
+                                         m2.sha1()))[:-1])
 
     def makeCookie(self, expiry, data):
         dough = mix(expiry, data)
