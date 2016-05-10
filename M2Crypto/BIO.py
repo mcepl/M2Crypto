@@ -7,7 +7,7 @@ Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 import logging
 import io  # noqa
 
-from M2Crypto import m2, util
+from M2Crypto import m2, six, util
 if util.py27plus:
     from typing import AnyStr, Callable, Iterable, Optional, Union  # noqa
 
@@ -103,7 +103,7 @@ class BIO(object):
         """
         if not self.writeable():
             raise IOError('cannot write')
-        if isinstance(data, unicode):
+        if isinstance(data, six.text_type):
             data = data.encode('utf8')
         return m2.bio_write(self.bio, data)
 

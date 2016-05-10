@@ -39,7 +39,7 @@ def time_limit(timeout, func, exc_msg, *args, **kwargs):
 class MemoryBufferTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.data = 'abcdef' * 64
+        self.data = b'abcdef' * 64
 
     def tearDown(self):
         pass
