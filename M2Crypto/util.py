@@ -9,33 +9,26 @@ from __future__ import absolute_import
     Copyright (C) 2004 OSAF. All Rights Reserved.
 """
 
+import binascii
+import logging
 import sys
 
 from M2Crypto import m2
+
+log = logging.getLogger('util')
 
 # Python 2 has int() and long().
 # Python 3 and higher only has int().
 # Work around this.
 if sys.version_info > (3,):
     long = int
+    unicode = str
 
 
 class UtilError(Exception):
     pass
 
 m2.util_init(UtilError)
-
-
-def h2b(s):
-    import array
-    ar = array.array('c')
-    start = 0
-    if s[:2] == '0x':
-        start = 2
-    for i in range(start, len(s), 2):
-        num = int("%s" % (s[i:i + 2],), 16)
-        ar.append(chr(num))
-    return ar.tostring()
 
 
 def pkcs5_pad(data, blklen=8):
@@ -51,11 +44,7 @@ def pkcs7_pad(data, blklen):
 
 
 def octx_to_num(x):
-    v = long(0)
-    lx = len(x)
-    for i in range(lx):
-        v = v + ord(x[i]) * (long(256) ** (lx - i - 1))
-    return v
+    return int(binascii.hexlify(x), 16)
 
 
 def genparam_callback(p, n, out=sys.stdout):

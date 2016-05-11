@@ -31,13 +31,21 @@ try:
 except ImportError:
     import unittest
 
-from M2Crypto import Err, Rand, SSL, m2
+from M2Crypto import Err, Rand, SSL, m2, six
 from tests import plat_debian, plat_fedora
 from tests.fips import fips_mode
 
 log = logging.getLogger('test_SSL')
 
 srv_host = 'localhost'
+
+
+def sslerror_text(e):
+    if six.PY2:
+        return e[0]
+    else:
+        return e
+
 
 def allocate_srv_port():
     s = socket.socket()
@@ -48,6 +56,7 @@ def allocate_srv_port():
     finally:
         s.close()
     return port
+
 
 def verify_cb_new_function(ok, store):
     try:
@@ -71,11 +80,13 @@ def verify_cb_new_function(ok, store):
         return 0
     return 1
 
+
 class VerifyCB:
     def __call__(self, ok, store):
         return verify_cb_new_function(ok, store)
 
 sleepTime = float(os.getenv('M2CRYPTO_TEST_SSL_SLEEP', 1.5))
+
 
 def find_openssl():
     if os.name == 'nt' or sys.platform == 'cygwin':
@@ -92,6 +103,7 @@ def find_openssl():
         except:
             pass
     return False
+
 
 class BaseSSLClientTestCase(unittest.TestCase):
 
@@ -146,6 +158,7 @@ class PassSSLClientTestCase(BaseSSLClientTestCase):
 
     def test_pass(self):
         pass
+
 
 class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
 
@@ -1107,6 +1120,7 @@ class SessionTestCase(unittest.TestCase):
     def test_session_load_bad(self):
         self.assertRaises(SSL.SSLError, SSL.Session.load_session,
                           'tests/signer.pem')
+
 
 class FtpslibTestCase(unittest.TestCase):
     def test_26_compat(self):

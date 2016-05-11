@@ -10,9 +10,10 @@ Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 Copyright 2008 Heikki Toivonen. All rights reserved.
 """
 
+import logging
 import socket
 
-from M2Crypto import X509, m2
+from M2Crypto import X509, m2, six
 from M2Crypto.SSL import Checker, timeout
 from M2Crypto.SSL import SSLError
 from M2Crypto.SSL.Cipher import Cipher, Cipher_Stack
@@ -22,8 +23,7 @@ __all__ = ['Connection',
            'timeout',  # XXX Not really, but for documentation purposes
            ]
 
-# SSLError = getattr(__import__('M2Crypto.SSL', globals(), locals(),
-#    'SSLError'), 'SSLError')
+log = logging.getLogger(__name__)
 
 
 def _serverPostConnectionCheck(*args, **kw):
@@ -333,7 +333,16 @@ class Connection:
         return m2.ssl_set_cipher_list(self.ssl, cipher_list)
 
     def makefile(self, mode='rb', bufsize=-1):
-        return socket._fileobject(self, mode, bufsize)
+        log.debug('self.socket = %s, mode = "%s", bufsize = %d',
+                  self.socket, mode, bufsize)
+        if not six.PY3:
+            return socket._fileobject(self, mode, bufsize)
+        else:
+            # FIXME This is nonsense, I know, it is here just as filling
+            return socket._fileobject(self, mode, bufsize)
+    # or alternatively
+    # @forward_socket
+    # def makefile(self): pass
 
     def getsockname(self):
         return self.socket.getsockname()

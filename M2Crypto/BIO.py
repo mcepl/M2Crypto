@@ -4,11 +4,13 @@ from __future__ import absolute_import
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
+import io
+import logging
+
 from M2Crypto import m2
 
-from cStringIO import StringIO
-# Deprecated
-from M2Crypto.m2 import bio_do_handshake as bio_do_ssl_handshake
+
+log = logging.getLogger('BIO')
 
 
 class BIOError(Exception):
@@ -50,7 +52,7 @@ class BIO:
         if not self.readable():
             raise IOError('cannot read')
         if size is None:
-            buf = StringIO()
+            buf = io.BytesIO()
             while 1:
                 data = m2.bio_read(self.bio, 4096)
                 if not data:
@@ -188,7 +190,7 @@ class File(BIO):
         BIO.__init__(self, _pyfree=1)
         self.pyfile = pyfile
         self.close_pyfile = close_pyfile
-        self.bio = m2.bio_new_fp(pyfile, 0)
+        self.bio = m2.bio_new_fd(pyfile.fileno(), m2.bio_noclose)
 
     def close(self):
         self.closed = 1
