@@ -4,7 +4,7 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
 __all__ = ['Cipher', 'Cipher_Stack']
 
-from M2Crypto import m2, util
+from M2Crypto import m2, six, util
 if util.py27plus:
     from typing import Iterable  # noqa
 
@@ -56,5 +56,5 @@ class Cipher_Stack:  # noqa
 
     def __iter__(self):
         # type: () -> Iterable
-        for i in xrange(m2.sk_ssl_cipher_num(self.stack)):
+        for i in six.moves.range(m2.sk_ssl_cipher_num(self.stack)):
             yield self[i]

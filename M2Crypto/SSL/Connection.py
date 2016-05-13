@@ -13,7 +13,7 @@ Copyright 2008 Heikki Toivonen. All rights reserved.
 import logging
 import socket
 
-from M2Crypto import BIO, X509, m2, util  # noqa
+from M2Crypto import BIO, Err, X509, m2, six, util  # noqa
 from M2Crypto.SSL import Checker, Context, timeout  # noqa
 from M2Crypto.SSL import SSLError
 from M2Crypto.SSL.Cipher import Cipher, Cipher_Stack
@@ -51,7 +51,7 @@ class Connection:
         :param family: socket family
         """
         self.ctx = ctx
-        self.ssl = m2.ssl_new(self.ctx.ctx)
+        self.ssl = m2.ssl_new(self.ctx.ctx)  # type: bytes
         if sock is not None:
             self.socket = sock
         else:
@@ -77,7 +77,10 @@ class Connection:
             self.m2_bio_free(self.sslbio)
         if getattr(self, 'sockbio', None):
             self.m2_bio_free(self.sockbio)
-        if self.ssl_close_flag == m2.bio_noclose and \
+        # in __del__ method we have to check whether m2.bio_noclose
+        # exists at all.
+        if m2 is not None and m2.bio_noclose and \
+                self.ssl_close_flag == m2.bio_noclose and \
                 getattr(self, 'ssl', None):
             self.m2_ssl_free(self.ssl)
         self.socket.close()
@@ -351,6 +354,46 @@ class Connection:
         return self._write_nbio(data)
     sendall = send = write
 
+    def _decref_socketios(self):
+        pass
+
+    def recv_into(self, buff, nbytes=0):
+        # type: (Union[bytearray, memoryview], int) -> int
+        """
+        A version of recv() that stores its data into a buffer rather
+        than creating a new string.  Receive up to buffersize bytes from
+        the socket.  If buffersize is not specified (or 0), receive up
+        to the size available in the given buffer.
+
+        If buff is bytearray, it will have after return length of the
+        actually returned number of bytes. If buff is memoryview, then
+        the size of buff won't change (it cannot), but all bytes after
+        the number of returned bytes will be NULL.
+
+        :param buffer: a buffer for the received bytes
+        :param nbytes: maximum number of bytes to read
+        :return: number of bytes read
+
+        See recv() for documentation about the flags.
+        """
+        n = len(buff) if nbytes == 0 else nbytes
+
+        if n <= 0:
+            raise ValueError('size <= 0')
+
+        # buff_bytes are actual bytes returned
+        buff_bytes = m2.ssl_read(self.ssl, n, self._timeout)
+        buflen = len(buff_bytes)
+
+        # memoryview type has been added in 2.7
+        if util.py27plus and isinstance(buff, memoryview):
+            buff[:buflen] = buff_bytes
+            buff[buflen:] = b'\x00' * (len(buff) - buflen)
+        else:
+            buff[:] = buff_bytes
+
+        return buflen
+
     def read(self, size=1024):
         # type: (int) -> bytes
         if self._timeout != 0.0:
@@ -441,8 +484,8 @@ class Connection:
         return self.socket.setsockopt(level, optname, value)
 
     def get_context(self):
-        # type: () -> SSL.Context
-        """Return the SSL.Context object associated with this connection."""
+        # type: () -> Context
+        """Return the Context object associated with this connection."""
         return m2.ssl_get_ssl_ctx(self.ssl)
 
     def get_state(self):
@@ -507,7 +550,7 @@ class Connection:
         return X509.X509_Stack(c)
 
     def get_cipher(self):
-        # type: () -> Optional[SSL.Cipher]
+        # type: () -> Optional[Cipher]
         """Return an M2Crypto.SSL.Cipher object for this connection; if the
         connection has not been initialised with a cipher suite, return None.
         """
@@ -517,7 +560,7 @@ class Connection:
         return Cipher(c)
 
     def get_ciphers(self):
-        # type: () -> Optional[SSL.Cipher_Stack]
+        # type: () -> Optional[Cipher_Stack]
         """Return an M2Crypto.SSL.Cipher_Stack object for this
         connection; if the connection has not been initialised with
         cipher suites, return None.
@@ -530,7 +573,7 @@ class Connection:
     def get_cipher_list(self, idx=0):
         # type: (int) -> str
         """Return the cipher suites for this connection as a string object."""
-        return m2.ssl_get_cipher_list(self.ssl, idx)
+        return util.py3str(m2.ssl_get_cipher_list(self.ssl, idx))
 
     def set_cipher_list(self, cipher_list):
         # type: (str) -> int
@@ -539,7 +582,10 @@ class Connection:
 
     def makefile(self, mode='rb', bufsize=-1):
         # type: (AnyStr, int) -> socket._fileobject
-        return socket._fileobject(self, mode, bufsize)
+        if six.PY3:
+            return socket.SocketIO(self, mode)
+        else:
+            return socket._fileobject(self, mode, bufsize)
 
     def getsockname(self):
         # type: () -> util.AddrType
@@ -572,12 +618,12 @@ class Connection:
             raise SSLError(Err.get_error_message())
 
     def get_session(self):
-        # type: () -> SSL.Session
+        # type: () -> Session
         sess = m2.ssl_get_session(self.ssl)
         return Session(sess)
 
     def set_session(self, session):
-        # type: (SSL.Session) -> None
+        # type: (Session) -> None
         m2.ssl_set_session(self.ssl, session._ptr())
 
     def get_default_session_timeout(self):
@@ -585,25 +631,25 @@ class Connection:
         return m2.ssl_get_default_session_timeout(self.ssl)
 
     def get_socket_read_timeout(self):
-        # type: () -> SSL.timeout
+        # type: () -> timeout
         return timeout.struct_to_timeout(
             self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO,
                                    timeout.struct_size()))
 
     def get_socket_write_timeout(self):
-        # type: () -> SSL.timeout
+        # type: () -> timeout
         return timeout.struct_to_timeout(
             self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_SNDTIMEO,
                                    timeout.struct_size()))
 
     def set_socket_read_timeout(self, timeo):
-        # type: (SSL.timeout) -> None
+        # type: (timeout) -> None
         assert isinstance(timeo, timeout.timeout)
         self.socket.setsockopt(
             socket.SOL_SOCKET, socket.SO_RCVTIMEO, timeo.pack())
 
     def set_socket_write_timeout(self, timeo):
-        # type: (SSL.timeout) -> None
+        # type: (timeout) -> None
         assert isinstance(timeo, timeout.timeout)
         self.socket.setsockopt(
             socket.SOL_SOCKET, socket.SO_SNDTIMEO, timeo.pack())
@@ -611,7 +657,7 @@ class Connection:
     def get_version(self):
         # type: () -> str
         """Return the TLS/SSL protocol version for this connection."""
-        return m2.ssl_get_version(self.ssl)
+        return util.py3str(m2.ssl_get_version(self.ssl))
 
     def set_post_connection_check_callback(self, postConnectionCheck):  # noqa
         # type: (Callable) -> None

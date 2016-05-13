@@ -120,7 +120,7 @@ class Cipher:
     m2_cipher_ctx_free = m2.cipher_ctx_free
 
     def __init__(self, alg, key, iv, op, key_as_bytes=0, d='md5',
-                 salt='12345678', i=1, padding=1):
+                 salt=b'12345678', i=1, padding=1):
         # type: (str, bytes, bytes, object, int, str, bytes, int, int) -> None
         cipher = getattr(m2, alg, None)
         if cipher is None:

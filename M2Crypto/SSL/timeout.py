@@ -12,7 +12,7 @@ import struct
 DEFAULT_TIMEOUT = 600  # type: int
 
 
-class timeout:
+class timeout:  # noqa
 
     def __init__(self, sec=DEFAULT_TIMEOUT, microsec=0):
         # type: (int, int) -> None
