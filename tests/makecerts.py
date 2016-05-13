@@ -21,7 +21,7 @@ from M2Crypto import ASN1, EC, EVP, RSA, X509, m2, util
 from tests.test_ec_curves import tested_curve
 
 
-t = long(time.time()) + time.timezone
+t = time.time() + time.timezone
 before = ASN1.ASN1_UTCTIME()
 before.set_time(t)
 after = ASN1.ASN1_UTCTIME()
