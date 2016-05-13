@@ -77,7 +77,11 @@ PyObject *AES_crypt(const AES_KEY *key, PyObject *in, int outlen, int op) {
         AES_encrypt((const unsigned char *)in, out, key);
     else
         AES_decrypt((const unsigned char *)in, out, key);
-    res = PyString_FromStringAndSize((char*)out, outlen);
+#if PY_MAJOR_VERSION >= 3
+    return PyBytes_FromStringAndSize((char*)out, outlen);
+#else
+    return PyString_FromStringAndSize((char*)out, outlen);
+#endif // PY_MAJOR_VERSION >= 3
     PyMem_Free(out);
     return res;
 }

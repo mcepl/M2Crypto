@@ -639,10 +639,13 @@ PyObject *ssl_read(SSL *ssl, int num, double timeout) {
     r = SSL_read(ssl, buf, num);
     Py_END_ALLOW_THREADS
 
-
     if (r >= 0) {
         buf = PyMem_Realloc(buf, r);
+#if PY_MAJOR_VERSION >= 3
+        obj = PyBytes_FromStringAndSize(buf, r);
+#else
         obj = PyString_FromStringAndSize(buf, r);
+#endif //PY_MAJOR_VERSION >= 3
     } else {
         int ssl_err;
 
@@ -698,7 +701,13 @@ PyObject *ssl_read_nbio(SSL *ssl, int num) {
         case SSL_ERROR_NONE:
         case SSL_ERROR_ZERO_RETURN:
             buf = PyMem_Realloc(buf, r);
+
+#if PY_MAJOR_VERSION >= 3
+            obj = PyBytes_FromStringAndSize(buf, r);
+#else
             obj = PyString_FromStringAndSize(buf, r);
+#endif // PY_MAJOR_VERSION >= 3
+
             break;
         case SSL_ERROR_WANT_WRITE:
         case SSL_ERROR_WANT_READ:

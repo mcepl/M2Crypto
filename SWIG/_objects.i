@@ -3,7 +3,7 @@
  * vim: syntax=c sts=4 sw=4
  *
  * ASN1_OBJECT manipulation functions from OBJ_obj2txt(3SSL).
- * 
+ *
  * Pavel Shramov
  * IMEC MSU
  */
@@ -87,7 +87,13 @@ PyObject *obj_obj2txt(const ASN1_OBJECT *obj, int no_name)
 
     buf = PyMem_Malloc(len + 1);
     len = OBJ_obj2txt(buf, len + 1, obj, no_name);
+
+#if PY_MAJOR_VERSION >= 3
+    ret = PyBytes_FromStringAndSize(buf, len);
+#else
     ret = PyString_FromStringAndSize(buf, len);
+#endif // PY_MAJOR_VERSION >= 3
+
     PyMem_Free(buf);
 
     return ret;

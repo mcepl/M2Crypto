@@ -11,11 +11,11 @@
 %inline %{
 RC4_KEY *rc4_new(void) {
     RC4_KEY *key;
-    
+
     if (!(key = (RC4_KEY *)PyMem_Malloc(sizeof(RC4_KEY))))
         PyErr_SetString(PyExc_MemoryError, "rc4_new");
     return key;
-}   
+}
 
 void rc4_free(RC4_KEY *key) {
     PyMem_Free((void *)key);
@@ -47,7 +47,13 @@ PyObject *rc4_update(RC4_KEY *key, PyObject *in) {
         return NULL;
     }
     RC4(key, len, buf, out);
+
+#if PY_MAJOR_VERSION >= 3
+    ret = PyBytes_FromStringAndSize(out, len);
+#else
     ret = PyString_FromStringAndSize(out, len);
+#endif // PY_MAJOR_VERSION >= 3
+
     PyMem_Free(out);
     return ret;
 }

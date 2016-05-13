@@ -20,7 +20,7 @@ PyObject *bn_rand(int bits, int top, int bottom)
     BIGNUM rnd;
     PyObject *ret;
     char *randhex;
-    
+
     BN_init(&rnd);
     if (!BN_rand(&rnd, bits, top, bottom)) {
         /*Custom errors?*/
@@ -28,7 +28,7 @@ PyObject *bn_rand(int bits, int top, int bottom)
         BN_free(&rnd);
         return NULL;
     }
-    
+
     randhex = BN_bn2hex(&rnd);
     if (!randhex) {
         /*Custom errors?*/
@@ -37,7 +37,7 @@ PyObject *bn_rand(int bits, int top, int bottom)
         return NULL;
     }
     BN_free(&rnd);
-        
+
     ret = PyLong_FromString(randhex, NULL, 16);
     OPENSSL_free(randhex);
     return ret;
@@ -51,9 +51,14 @@ PyObject *bn_rand_range(PyObject *range)
     PyObject *ret, *tuple;
     PyObject *format, *rangePyString;
     char *randhex, *rangehex;
-    
+
     /* Wow, it's a lot of work to convert into a hex string in C! */
+#if PY_MAJOR_VERSION >= 3
+    format = PyUnicode_FromString("%x");
+#else
     format = PyString_FromString("%x");
+#endif // PY_MAJOR_VERSION >= 3
+
     if (!format) {
         return NULL;
     }
@@ -65,35 +70,46 @@ PyObject *bn_rand_range(PyObject *range)
     }
     Py_INCREF(range);
     PyTuple_SET_ITEM(tuple, 0, range);
+
+#if PY_MAJOR_VERSION >= 3
+    rangePyString = PyUnicode_Format(format, tuple);
+#else
     rangePyString = PyString_Format(format, tuple);
+#endif // PY_MAJOR_VERSION >= 3
+
     if (!rangePyString) {
-        PyErr_SetString(PyExc_Exception, "PyString_Format failed");    
+        PyErr_SetString(PyExc_Exception, "String Format failed");
         Py_DECREF(format);
         Py_DECREF(tuple);
-        return NULL;    
+        return NULL;
     }
     Py_DECREF(format);
     Py_DECREF(tuple);
+
+#if PY_MAJOR_VERSION >= 3
+    rangehex = PyUnicode_AsUTF8(rangePyString);
+#else
     rangehex = PyString_AsString(rangePyString);
-    
+#endif // PY_MAJOR_VERSION >= 3
+
     if (!BN_hex2bn(&rng, rangehex)) {
         /*Custom errors?*/
         PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
         Py_DECREF(rangePyString);
-        return NULL;             
+        return NULL;
     }
 
     Py_DECREF(rangePyString);
-                 
+
     BN_init(&rnd);
 
-     if (!BN_rand_range(&rnd, rng)) {
+    if (!BN_rand_range(&rnd, rng)) {
         /*Custom errors?*/
         PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
         BN_free(&rnd);
         BN_free(rng);
-        return NULL;         
-     }
+        return NULL;
+    }
 
     BN_free(rng);
 
@@ -105,7 +121,7 @@ PyObject *bn_rand_range(PyObject *range)
         return NULL;
     }
     BN_free(&rnd);
-        
+
     ret = PyLong_FromString(randhex, NULL, 16);
     OPENSSL_free(randhex);
     return ret;

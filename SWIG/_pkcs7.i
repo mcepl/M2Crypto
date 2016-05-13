@@ -64,7 +64,7 @@ PyObject *pkcs7_decrypt(PKCS7 *pkcs7, EVP_PKEY *pkey, X509 *cert, int flags) {
     int outlen;
     char *outbuf;
     BIO *bio;
-    PyObject *ret; 
+    PyObject *ret;
 
     if (!(bio=BIO_new(BIO_s_mem()))) {
         PyErr_SetString(PyExc_MemoryError, "pkcs7_decrypt");
@@ -82,7 +82,13 @@ PyObject *pkcs7_decrypt(PKCS7 *pkcs7, EVP_PKEY *pkey, X509 *cert, int flags) {
         return NULL;
     }
     BIO_read(bio, outbuf, outlen);
+
+#if PY_MAJOR_VERSION >= 3
+    ret = PyBytes_FromStringAndSize(outbuf, outlen);
+#else
     ret = PyString_FromStringAndSize(outbuf, outlen);
+#endif // PY_MAJOR_VERSION >= 3
+
     BIO_free(bio);
     PyMem_Free(outbuf);
     return ret;
@@ -108,7 +114,7 @@ PyObject *pkcs7_verify1(PKCS7 *pkcs7, STACK_OF(X509) *stack, X509_STORE *store, 
     int res, outlen;
     char *outbuf;
     BIO *bio;
-    PyObject *ret; 
+    PyObject *ret;
 
     if (!(bio=BIO_new(BIO_s_mem()))) {
         PyErr_SetString(PyExc_MemoryError, "pkcs7_verify1");
@@ -129,7 +135,13 @@ PyObject *pkcs7_verify1(PKCS7 *pkcs7, STACK_OF(X509) *stack, X509_STORE *store, 
         return NULL;
     }
     BIO_read(bio, outbuf, outlen);
+
+#if PY_MAJOR_VERSION >= 3
+    ret = PyBytes_FromStringAndSize(outbuf, outlen);
+#else
     ret = PyString_FromStringAndSize(outbuf, outlen);
+#endif // PY_MAJOR_VERSION >= 3
+
     BIO_free(bio);
     PyMem_Free(outbuf);
     return ret;
@@ -233,9 +245,9 @@ int smime_crlf_copy(BIO *in, BIO *out) {
     return SMIME_crlf_copy(in, out, PKCS7_TEXT);
 }
 
-/* return STACK_OF(X509)* */     
-STACK_OF(X509) *pkcs7_get0_signers(PKCS7 *p7, STACK_OF(X509) *certs, int flags) {     
-    return PKCS7_get0_signers(p7, certs, flags);      
+/* return STACK_OF(X509)* */
+STACK_OF(X509) *pkcs7_get0_signers(PKCS7 *p7, STACK_OF(X509) *certs, int flags) {
+    return PKCS7_get0_signers(p7, certs, flags);
 }
 
 %}

@@ -89,7 +89,13 @@ PyObject *bio_read(BIO *bio, int num) {
         Py_INCREF(Py_None);
         return Py_None;
     }
+
+#if PY_MAJOR_VERSION >= 3
+    blob = PyBytes_FromStringAndSize(buf, r);
+#else
     blob = PyString_FromStringAndSize(buf, r);
+#endif // PY_MAJOR_VERSION >= 3
+
     PyMem_Free(buf);
     return blob;
 }
@@ -115,7 +121,13 @@ PyObject *bio_gets(BIO *bio, int num) {
         Py_INCREF(Py_None);
         return Py_None;
     }
+
+#if PY_MAJOR_VERSION >= 3
+    blob = PyBytes_FromStringAndSize(buf, r);
+#else
     blob = PyString_FromStringAndSize(buf, r);
+#endif // PY_MAJOR_VERSION >= 3
+
     PyMem_Free(buf);
     return blob;
 }
@@ -174,6 +186,11 @@ int bio_get_flags(BIO *bio) {
     return BIO_get_flags(bio);
 }
 
+/*
+ * sets the cipher of BIO @param b to c using key @param key and IV @iv.
+ * @param enc should be set to 1 for encryption and zero to decryption.
+ *
+ */
 PyObject *bio_set_cipher(BIO *b, EVP_CIPHER *c, PyObject *key, PyObject *iv, int op) {
     const void *kbuf, *ibuf;
     Py_ssize_t klen, ilen;

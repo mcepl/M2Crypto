@@ -13,7 +13,7 @@
 /* Blob interface. Deprecated. */
 
 Blob *blob_new(int len, const char *errmsg) {
-    
+
     Blob *blob;
     if (!(blob=(Blob *)PyMem_Malloc(sizeof(Blob)))){
         PyErr_SetString(PyExc_MemoryError, errmsg);
@@ -111,7 +111,12 @@ m2_PyString_AsStringAndSizeInt(PyObject *obj, char **s, int *len)
     int ret;
     Py_ssize_t len2;
 
+#if PY_MAJOR_VERSION >= 3
+    ret = PyBytes_AsStringAndSize(obj, s, &len2);
+#else
     ret = PyString_AsStringAndSize(obj, s, &len2);
+#endif // PY_MAJOR_VERSION >= 3
+
     if (ret)
        return ret;
     if (len2 > INT_MAX) {
@@ -123,7 +128,7 @@ m2_PyString_AsStringAndSizeInt(PyObject *obj, char **s, int *len)
 }
 
 
-/* C callbacks invoked by OpenSSL; these in turn call back into 
+/* C callbacks invoked by OpenSSL; these in turn call back into
 Python. */
 
 int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
@@ -155,7 +160,7 @@ int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
         PyCodeObject *code = (PyCodeObject *) PyFunction_GetCode(ssl_verify_cb_func);
         if (code && code->co_argcount == 2) { /* XXX Python internals */
             new_style_callback = 1;
-        }    
+        }
     } else {
         /* XXX There are lots of other callable types, but we will assume
          * XXX that any other type of callable uses the new style callback,
@@ -163,30 +168,36 @@ int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
          */
         new_style_callback = 1;
     }
-    
+
     if (new_style_callback) {
         PyObject *x509mod = PyDict_GetItemString(PyImport_GetModuleDict(), "M2Crypto.X509");
         _klass = PyObject_GetAttrString(x509mod, "X509_Store_Context");
-    
+
         _x509_store_ctx_swigptr = SWIG_NewPointerObj((void *)ctx, SWIGTYPE_p_X509_STORE_CTX, 0);
         _x509_store_ctx_obj = Py_BuildValue("(Oi)", _x509_store_ctx_swigptr, 0);
+
+#if PY_MAJOR_VERSION >= 3
+        _x509_store_ctx_inst = PyType_GenericNew(_klass, _x509_store_ctx_obj, NULL);
+#else
         _x509_store_ctx_inst = PyInstance_New(_klass, _x509_store_ctx_obj, NULL);
+#endif // PY_MAJOR_VERSION >= 3
+
         argv = Py_BuildValue("(iO)", ok, _x509_store_ctx_inst);
     } else {
         if (PyErr_Warn(PyExc_DeprecationWarning, "Old style callback, use cb_func(ok, store) instead")) {
             warning_raised_exception = 1;
         }
-       
+
         x509 = X509_STORE_CTX_get_current_cert(ctx);
         errnum = X509_STORE_CTX_get_error(ctx);
         errdepth = X509_STORE_CTX_get_error_depth(ctx);
-    
+
         ssl = (SSL *)X509_STORE_CTX_get_app_data(ctx);
         ssl_ctx = SSL_get_SSL_CTX(ssl);
-    
+
         _x509 = SWIG_NewPointerObj((void *)x509, SWIGTYPE_p_X509, 0);
         _ssl_ctx = SWIG_NewPointerObj((void *)ssl_ctx, SWIGTYPE_p_SSL_CTX, 0);
-        argv = Py_BuildValue("(OOiii)", _ssl_ctx, _x509, errnum, errdepth, ok);    
+        argv = Py_BuildValue("(OOiii)", _ssl_ctx, _x509, errnum, errdepth, ok);
     }
 
     if (!warning_raised_exception) {
@@ -199,7 +210,7 @@ int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
         /* Got an exception in PyEval_CallObject(), let's fail verification
          * to be safe.
          */
-        cret = 0;   
+        cret = 0;
     } else {
         cret = (int)PyInt_AsLong(ret);
     }
@@ -229,7 +240,7 @@ void ssl_info_callback(const SSL *s, int where, int ret) {
 
     _SSL = SWIG_NewPointerObj((void *)s, SWIGTYPE_p_SSL, 0);
     argv = Py_BuildValue("(iiO)", where, ret, _SSL);
-    
+
     retval = PyEval_CallObject(ssl_info_cb_func, argv);
 
     Py_XDECREF(retval);
@@ -289,7 +300,7 @@ RSA *ssl_set_tmp_rsa_callback(SSL *ssl, int is_export, int keylength) {
 
 void gen_callback(int p, int n, void *arg) {
     PyObject *argv, *ret, *cbfunc;
- 
+
     PyGILState_STATE gilstate;
     gilstate = PyGILState_Ensure();
     cbfunc = (PyObject *)arg;
@@ -316,6 +327,16 @@ int passphrase_callback(char *buf, int num, int v, void *arg) {
         PyGILState_Release(gilstate);
         return -1;
     }
+
+#if PY_MAJOR_VERSION >= 3
+    if (!PyBytes_Check(ret)) {
+        Py_DECREF(ret);
+        return -1;
+    }
+    if ((len = PyBytes_Size(ret)) > num)
+        len = num;
+    str = PyBytes_AsString(ret);
+#else
     if (!PyString_Check(ret)) {
         Py_DECREF(ret);
         PyGILState_Release(gilstate);
@@ -323,7 +344,9 @@ int passphrase_callback(char *buf, int num, int v, void *arg) {
     }
     if ((len = PyString_Size(ret)) > num)
         len = num;
-    str = PyString_AsString(ret); 
+    str = PyString_AsString(ret);
+#endif // PY_MAJOR_VERSION >= 3
+
     for (i = 0; i < len; i++)
         buf[i] = str[i];
     Py_DECREF(ret);
@@ -338,22 +361,28 @@ void lib_init() {
     ERR_load_ERR_strings();
 }
 
-/* Bignum routines that aren't not numerous enough to 
+/* Bignum routines that aren't not numerous enough to
 warrant a separate file. */
 
 PyObject *bn_to_mpi(BIGNUM *bn) {
     int len;
     unsigned char *mpi;
-    PyObject *pyo;  
+    PyObject *pyo;
 
     len = BN_bn2mpi(bn, NULL);
     if (!(mpi=(unsigned char *)PyMem_Malloc(len))) {
-        PyErr_SetString(PyExc_RuntimeError, 
+        PyErr_SetString(PyExc_RuntimeError,
             ERR_error_string(ERR_get_error(), NULL));
         return NULL;
     }
     len=BN_bn2mpi(bn, mpi);
+
+#if PY_MAJOR_VERSION >= 3
+    pyo=PyBytes_FromStringAndSize((const char *)mpi, len);
+#else
     pyo=PyString_FromStringAndSize((const char *)mpi, len);
+#endif // PY_MAJOR_VERSION >= 3
+
     PyMem_Free(mpi);
     return pyo;
 }
@@ -371,7 +400,7 @@ BIGNUM *mpi_to_bn(PyObject *value) {
 PyObject *bn_to_bin(BIGNUM *bn) {
     int len;
     unsigned char *bin;
-    PyObject *pyo;  
+    PyObject *pyo;
 
     len = BN_num_bytes(bn);
     if (!(bin=(unsigned char *)PyMem_Malloc(len))) {
@@ -379,7 +408,13 @@ PyObject *bn_to_bin(BIGNUM *bn) {
       return NULL;
     }
     BN_bn2bin(bn, bin);
+
+#if PY_MAJOR_VERSION >= 3
+    pyo=PyBytes_FromStringAndSize((const char *)bin, len);
+#else
     pyo=PyString_FromStringAndSize((const char *)bin, len);
+#endif // PY_MAJOR_VERSION >= 3
+
     PyMem_Free(bin);
     return pyo;
 }
@@ -396,18 +431,24 @@ BIGNUM *bin_to_bn(PyObject *value) {
 
 PyObject *bn_to_hex(BIGNUM *bn) {
     char *hex;
-    PyObject *pyo;  
+    PyObject *pyo;
     Py_ssize_t len;
 
     hex = BN_bn2hex(bn);
     if (!hex) {
-        PyErr_SetString(PyExc_RuntimeError, 
+        PyErr_SetString(PyExc_RuntimeError,
               ERR_error_string(ERR_get_error(), NULL));
         OPENSSL_free(hex);
-        return NULL;    
+        return NULL;
     }
     len = strlen(hex);
+
+#if PY_MAJOR_VERSION >= 3
+    pyo=PyBytes_FromStringAndSize(hex, len);
+#else
     pyo=PyString_FromStringAndSize(hex, len);
+#endif // PY_MAJOR_VERSION >= 3
+
     OPENSSL_free(hex);
     return pyo;
 }
@@ -425,7 +466,7 @@ BIGNUM *hex_to_bn(PyObject *value) {
         return NULL;
     }
     if (BN_hex2bn(&bn, (const char *)vbuf) <= 0) {
-        PyErr_SetString(PyExc_RuntimeError, 
+        PyErr_SetString(PyExc_RuntimeError,
               ERR_error_string(ERR_get_error(), NULL));
         BN_free(bn);
         return NULL;
@@ -446,7 +487,7 @@ BIGNUM *dec_to_bn(PyObject *value) {
       return NULL;
     }
     if ((BN_dec2bn(&bn, (const char *)vbuf) <= 0)) {
-      PyErr_SetString(PyExc_RuntimeError, 
+      PyErr_SetString(PyExc_RuntimeError,
             ERR_error_string(ERR_get_error(), NULL));
       BN_free(bn);
       return NULL;
@@ -461,11 +502,20 @@ BIGNUM *dec_to_bn(PyObject *value) {
 %typemap(in) Blob * {
     Py_ssize_t len;
 
+#if PY_MAJOR_VERSION >= 3
+    if (!PyBytes_Check($input)) {
+        PyErr_SetString(PyExc_TypeError, "expected PyString");
+        return NULL;
+    }
+    len=PyBytes_Size($input);
+#else
     if (!PyString_Check($input)) {
         PyErr_SetString(PyExc_TypeError, "expected PyString");
         return NULL;
     }
     len=PyString_Size($input);
+#endif // PY_MAJOR_VERSION >= 3
+
     if (len > INT_MAX) {
         PyErr_SetString(PyExc_ValueError, "object too large");
         return -1;
@@ -475,7 +525,13 @@ BIGNUM *dec_to_bn(PyObject *value) {
         PyErr_SetString(PyExc_MemoryError, "malloc Blob");
         return NULL;
     }
+
+#if PY_MAJOR_VERSION >= 3
+    $1->data=(unsigned char *)PyBytes_AsString($input);
+#else
     $1->data=(unsigned char *)PyString_AsString($input);
+#endif // PY_MAJOR_VERSION >= 3
+
     $1->len=len;
 }
 
@@ -484,19 +540,35 @@ BIGNUM *dec_to_bn(PyObject *value) {
         Py_INCREF(Py_None);
         $result=Py_None;
     } else {
+
+#if PY_MAJOR_VERSION >= 3
+        $result=PyBytes_FromStringAndSize((const char *)$1->data, $1->len);
+#else
         $result=PyString_FromStringAndSize((const char *)$1->data, $1->len);
+#endif // PY_MAJOR_VERSION >= 3
+
         PyMem_Free($1->data);
         PyMem_Free($1);
     }
 }
 
+/*
+PyFile* is not part of Python3 ... if we’ll ever need it, we have to
+replace it completely.
+http://stackoverflow.com/questions/8195383/pyfile-type-replaced-by
+
 %typemap(in) FILE * {
+#if PY_MAJOR_VERSION >= 3
+    $1=PyObject_AsFileDescriptor($input);
+#else
     if (!PyFile_Check($input)) {
         PyErr_SetString(PyExc_TypeError, "expected PyFile");
         return NULL;
     }
     $1=PyFile_AsFile($input);
+#endif // PY_MAJOR_VERSION >= 3
 }
+*/
 
 %typemap(in) PyObject *pyfunc {
     if (!PyCallable_Check($input)) {
@@ -507,7 +579,12 @@ BIGNUM *dec_to_bn(PyObject *value) {
 }
 
 %typemap(in) PyObject *pyblob {
+#if PY_MAJOR_VERSION >= 3
+    if (!PyBytes_Check($input)) {
+#else
     if (!PyString_Check($input)) {
+#endif // PY_MAJOR_VERSION >= 3
+
         PyErr_SetString(PyExc_TypeError, "expected PyString");
         return NULL;
     }

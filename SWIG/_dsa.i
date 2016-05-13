@@ -38,7 +38,7 @@ void dsa_init(PyObject *dsa_err) {
 void genparam_callback(int p, int n, void *arg) {
     PyObject *argv, *ret, *cbfunc;
 
-    cbfunc = (PyObject *)arg; 
+    cbfunc = (PyObject *)arg;
     argv = Py_BuildValue("(ii)", p, n);
     ret = PyEval_CallObject(cbfunc, argv);
     PyErr_Clear();
@@ -258,7 +258,7 @@ PyObject *dsa_sign(DSA *dsa, PyObject *value) {
     const void *vbuf;
     int vlen;
     PyObject *tuple;
-    DSA_SIG *sig; 
+    DSA_SIG *sig;
 
     if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
@@ -329,13 +329,19 @@ PyObject *dsa_sign_asn1(DSA *dsa, PyObject *value) {
         PyMem_Free(sigbuf);
         return NULL;
     }
+
+#if PY_MAJOR_VERSION >= 3
+    ret = PyBytes_FromStringAndSize(sigbuf, siglen);
+#else
     ret = PyString_FromStringAndSize(sigbuf, siglen);
+#endif // PY_MAJOR_VERSION >= 3
+
     PyMem_Free(sigbuf);
     return ret;
 }
 
 int dsa_verify_asn1(DSA *dsa, PyObject *value, PyObject *sig) {
-    const void *vbuf; 
+    const void *vbuf;
     void *sbuf;
     int vlen, slen, ret;
 
