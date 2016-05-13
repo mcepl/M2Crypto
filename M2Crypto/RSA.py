@@ -6,7 +6,8 @@ Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
 import sys
 
-from M2Crypto import BIO, Err, m2, util
+from M2Crypto import BIO, m2, util
+
 
 class RSAError(Exception):
     pass
@@ -170,8 +171,6 @@ class RSA:
         """
         Signs a digest with the private key using RSASSA-PSS
 
-        @requires: OpenSSL 0.9.7h or later.
-
         @type digest: str
         @param digest: A digest created by using the digest method
 
@@ -180,23 +179,23 @@ class RSA:
 
         @type algo: str
         @param algo: The hash algorithm to use
+        Legal values like 'sha1','sha224', 'sha256', 'ripemd160',
+        and 'md5'.
 
         @return: a string which is the signature
         """
         hash = getattr(m2, algo, None)
-        if hash is None:
-            raise ValueError('not such hash algorithm %s' % algo)
 
-        signature = m2.rsa_padding_add_pkcs1_pss(self.rsa, digest, hash(),
-                                                 salt_length)
+        if hash is None:
+            raise RSAError('not such hash algorithm %s' % algo)
+
+        signature = m2.rsa_padding_add_pkcs1_pss(self.rsa, digest, hash(), salt_length)
 
         return self.private_encrypt(signature, m2.no_padding)
 
     def verify_rsassa_pss(self, data, signature, algo='sha1', salt_length=20):
         """
         Verifies the signature RSASSA-PSS
-
-        @requires: OpenSSL 0.9.7h or later.
 
         @type data: str
         @param data: Data that has been signed
@@ -214,13 +213,13 @@ class RSA:
         verified or not.
         """
         hash = getattr(m2, algo, None)
+
         if hash is None:
-            raise ValueError('not such hash algorithm %s' % algo)
+            raise RSAError('not such hash algorithm %s' % algo)
 
         plain_signature = self.public_decrypt(signature, m2.no_padding)
 
-        return m2.rsa_verify_pkcs1_pss(self.rsa, data, plain_signature,
-                                       hash(), salt_length)
+        return m2.rsa_verify_pkcs1_pss(self.rsa, data, plain_signature, hash(), salt_length)
 
     def sign(self, digest, algo='sha1'):
         """
@@ -231,7 +230,7 @@ class RSA:
 
         @type algo: str
         @param algo: The method that created the digest.
-        Legal values are 'sha1','sha224', 'sha256', 'ripemd160',
+        Legal values like 'sha1','sha224', 'sha256', 'ripemd160',
         and 'md5'.
 
         @return: a string which is the signature
@@ -254,7 +253,7 @@ class RSA:
 
         @type algo: str
         @param algo: The method use to create digest from the data
-        before it was signed.  Legal values are 'sha1','sha224',
+        before it was signed.  Legal values like 'sha1','sha224',
         'sha256', 'ripemd160', and 'md5'.
 
         @return: True or False, depending on whether the signature was
