@@ -198,7 +198,7 @@ httplib, urllib, and xmlrpclib; unforgeable HMAC'ing AuthCookies for web
 session management; FTP/TLS client and server; S/MIME; ZServerSSL: A HTTPS
 server for Zope and ZSmime: An S/MIME messenger for Zope. M2Crypto can also be
 used to provide SSL for Twisted. Smartcards supported through the Engine
-interface.''',
+interface.'''
 
 setuptools.setup(
     name='M2Crypto',
