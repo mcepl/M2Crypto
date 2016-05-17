@@ -7,6 +7,7 @@ All Rights Reserved.
 """
 
 import os
+import warnings
 try:
     import unittest2 as unittest
 except ImportError:
@@ -54,6 +55,15 @@ class RandTestCase(unittest.TestCase):
         self.assertIsNone(Rand.rand_add(os.urandom(2), 0.5))
         Rand.rand_add(os.urandom(2), -0.5)
         Rand.rand_add(os.urandom(2), 5000.0)
+
+    def test_rand_status(self):
+        # Although it is hard to believe we would ever get 0 (i.e., PRNG
+        # hasn't enough entropy), it is a legitimate value.
+        status = Rand.rand_status()
+        self.assertIn(status, [0, 1],
+                      'Illegal value of RAND.rand_status {0}!'.format(status))
+        if status == 0:
+            warnings.warn('RAND_status reports insufficient seeding of PRNG!')
 
 
 def suite():
