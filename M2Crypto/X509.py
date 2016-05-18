@@ -294,8 +294,8 @@ class X509_Name:  # noqa
             yield self[i]
 
     def _ptr(self):
-        # assert m2.x509_name_type_check(self.x509_name), \
-        #     "'x509_name' type error"
+        assert m2.x509_name_type_check(self.x509_name), \
+            "'x509_name' type error"
         return self.x509_name
 
     def add_entry_by_txt(self, field, type, entry, len, loc, set):
