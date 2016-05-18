@@ -176,7 +176,8 @@ class Clean(clean):
         clean.run(self)
         garbage_list = [
             "M2Crypto/__m2crypto*.so",
-            "M2Crypto/__m2crypto*.dll",
+            "M2Crypto/__m2crypto*.pyd",
+            "M2Crypto/_m2crypto.py",
         ]
         for p in garbage_list:
             for f in glob.glob(p):
@@ -188,7 +189,7 @@ def __get_version():  # noqa
     with open('M2Crypto/__init__.py') as init_file:
         for line in init_file:
             if line.startswith('__version__ ='):
-                return line.split('=')[1].strip(string.whitespace+"'")
+                return line.split('=')[1].strip(string.whitespace + "'")
 
 long_description_text = '''\
 M2Crypto is the most complete Python wrapper for OpenSSL featuring RSA, DSA,
