@@ -121,8 +121,8 @@ class RSA:
         to acquire a passphrase with which to protect the key.
         The default is util.passphrase_callback.
         """
-        bio = BIO.openfile(file, 'wb')
-        return self.save_key_bio(bio, cipher, callback)
+        with BIO.openfile(file, 'wb') as bio:
+            return self.save_key_bio(bio, cipher, callback)
 
     save_pem = save_key
 
@@ -151,8 +151,8 @@ class RSA:
 
         @param file: Filename to save key to
         """
-        bio = BIO.openfile(file, 'wb')
-        return self.save_key_der_bio(bio)
+        with BIO.openfile(file, 'wb') as bio:
+            return self.save_key_der_bio(bio)
 
     def save_pub_key_bio(self, bio):
         # type: (BIO.BIO) -> int
@@ -170,8 +170,8 @@ class RSA:
 
         @param file: Name of file to save key to.
         """
-        bio = BIO.openfile(file, 'wb')
-        return m2.rsa_write_pub_key(self.rsa, bio._ptr())
+        with BIO.openfile(file, 'wb') as bio:
+            return m2.rsa_write_pub_key(self.rsa, bio._ptr())
 
     def check_key(self):
         # type: () -> int
@@ -350,8 +350,8 @@ def load_key(file, callback=util.passphrase_callback):
     The default is util.passphrase_callback.
     @return: M2Crypto.RSA.RSA object.
     """
-    bio = BIO.openfile(file)
-    return load_key_bio(bio, callback)
+    with BIO.openfile(file) as bio:
+        return load_key_bio(bio, callback)
 
 
 def load_key_bio(bio, callback=util.passphrase_callback):
@@ -395,8 +395,8 @@ def load_pub_key(file):
     @param file: Name of file containing RSA public key in PEM format.
     @return: M2Crypto.RSA.RSA_pub object.
     """
-    bio = BIO.openfile(file)
-    return load_pub_key_bio(bio)
+    with BIO.openfile(file) as bio:
+        return load_pub_key_bio(bio)
 
 
 def load_pub_key_bio(bio):

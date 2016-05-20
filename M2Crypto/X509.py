@@ -494,8 +494,8 @@ class X509:
         @param filename: name of the file to be loaded
         @return: 1 for success or 0 for failure
         """
-        bio = BIO.openfile(filename, 'wb')
-        return m2.x509_write_pem(bio.bio_ptr(), self.x509)
+        with BIO.openfile(filename, 'wb') as bio:
+            return m2.x509_write_pem(bio.bio_ptr(), self.x509)
 
     def save(self, filename, format=FORMAT_PEM):
         # type: (AnyStr, int) -> int
@@ -509,14 +509,14 @@ class X509:
         Raises a ValueError if an unknow format is used.
         @return: 1 for success or 0 for failure
         """
-        bio = BIO.openfile(filename, 'wb')
-        if format == FORMAT_PEM:
-            return m2.x509_write_pem(bio.bio_ptr(), self.x509)
-        elif format == FORMAT_DER:
-            return m2.i2d_x509_bio(bio.bio_ptr(), self.x509)
-        else:
-            raise ValueError(
-                "Unknown filetype. Must be either FORMAT_PEM or FORMAT_DER")
+        with BIO.openfile(filename, 'wb') as bio:
+            if format == FORMAT_PEM:
+                return m2.x509_write_pem(bio.bio_ptr(), self.x509)
+            elif format == FORMAT_DER:
+                return m2.i2d_x509_bio(bio.bio_ptr(), self.x509)
+            else:
+                raise ValueError(
+                    "Unknown filetype. Must be either FORMAT_PEM or FORMAT_DER")
 
     def set_version(self, version):
         # type: (int) -> int
@@ -781,17 +781,17 @@ def load_cert(file, format=FORMAT_PEM):
 
     @return: M2Crypto.X509.X509 object.
     """
-    bio = BIO.openfile(file)
-    if format == FORMAT_PEM:
-        return load_cert_bio(bio)
-    elif format == FORMAT_DER:
-        cptr = m2.d2i_x509(bio._ptr())
-        if cptr is None:
-            raise X509Error(Err.get_error())
-        return X509(cptr, _pyfree=1)
-    else:
-        raise ValueError(
-            "Unknown format. Must be either FORMAT_DER or FORMAT_PEM")
+    with BIO.openfile(file) as bio:
+        if format == FORMAT_PEM:
+            return load_cert_bio(bio)
+        elif format == FORMAT_DER:
+            cptr = m2.d2i_x509(bio._ptr())
+            if cptr is None:
+                raise X509Error(Err.get_error())
+            return X509(cptr, _pyfree=1)
+        else:
+            raise ValueError(
+                "Unknown format. Must be either FORMAT_DER or FORMAT_PEM")
 
 
 def load_cert_bio(bio, format=FORMAT_PEM):
@@ -1116,14 +1116,14 @@ class Request:
         @return: 1 for success, 0 for failure.
                  The error code can be obtained by ERR_get_error.
         """
-        bio = BIO.openfile(filename, 'wb')
-        if format == FORMAT_PEM:
-            return m2.x509_req_write_pem(bio.bio_ptr(), self.req)
-        elif format == FORMAT_DER:
-            return m2.i2d_x509_req_bio(bio.bio_ptr(), self.req)
-        else:
-            raise ValueError(
-                "Unknown filetype. Must be either FORMAT_DER or FORMAT_PEM")
+        with BIO.openfile(filename, 'wb') as bio:
+            if format == FORMAT_PEM:
+                return m2.x509_req_write_pem(bio.bio_ptr(), self.req)
+            elif format == FORMAT_DER:
+                return m2.i2d_x509_req_bio(bio.bio_ptr(), self.req)
+            else:
+                raise ValueError(
+                    "Unknown filetype. Must be either FORMAT_DER or FORMAT_PEM")
 
     def get_pubkey(self):
         # type: () -> EVP.PKey
@@ -1225,15 +1225,15 @@ def load_request(file, format=FORMAT_PEM):
                    and FORMAT_DER)
     @return: Request object.
     """
-    f = BIO.openfile(file)
-    if format == FORMAT_PEM:
-        cptr = m2.x509_req_read_pem(f.bio_ptr())
-    elif format == FORMAT_DER:
-        cptr = m2.d2i_x509_req(f.bio_ptr())
-    else:
-        raise ValueError(
-            "Unknown filetype. Must be either FORMAT_PEM or FORMAT_DER")
-    f.close()
+    with BIO.openfile(file) as f:
+        if format == FORMAT_PEM:
+            cptr = m2.x509_req_read_pem(f.bio_ptr())
+        elif format == FORMAT_DER:
+            cptr = m2.d2i_x509_req(f.bio_ptr())
+        else:
+            raise ValueError(
+                "Unknown filetype. Must be either FORMAT_PEM or FORMAT_DER")
+
     if cptr is None:
         raise X509Error(Err.get_error())
     return Request(cptr, 1)
@@ -1341,9 +1341,9 @@ def load_crl(file):
 
     @return: M2Crypto.X509.CRL object.
     """
-    f = BIO.openfile(file)
-    cptr = m2.x509_crl_read_pem(f.bio_ptr())
-    f.close()
+    with BIO.openfile(file) as f:
+        cptr = m2.x509_crl_read_pem(f.bio_ptr())
+
     if cptr is None:
         raise X509Error(Err.get_error())
     return CRL(cptr, 1)

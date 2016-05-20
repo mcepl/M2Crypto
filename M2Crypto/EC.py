@@ -234,7 +234,7 @@ class EC:
                  callback=util.passphrase_callback):
         # type: (AnyStr, Optional[str], Callable) -> int
         """
-        Save the key pair to a filename in PEM format.
+        Save the key pair to a file in PEM format.
 
         @param file: Name of filename to save key to.
 

@@ -309,8 +309,8 @@ class PKey:
         to acquire a passphrase with which to protect the key.
         The default is util.passphrase_callback.
         """
-        bio = BIO.openfile(file, 'wb')
-        return self.save_key_bio(bio, cipher, callback)
+        with BIO.openfile(file, 'wb') as bio:
+            return self.save_key_bio(bio, cipher, callback)
 
     def save_key_bio(self, bio, cipher='aes_128_cbc',
                      callback=util.passphrase_callback):
