@@ -8,10 +8,18 @@ import base64
 
 import M2Crypto
 
-from M2Crypto import SSL, httpslib, m2urllib
-from xmlrpclib import *  # noqa
+from M2Crypto import SSL, httpslib, m2urllib, six, util
+if util.py27plus:
+    from typing import Any, AnyStr, Callable, Optional  # noqa
 
-__version__ = M2Crypto.version
+from M2Crypto.six.moves.xmlrpc_client import ProtocolError, Transport
+# six.moves doesn't support star imports
+if six.PY3:
+    from xmlrpc.client import *  # noqa
+else:
+    from xmlrpclib import *  # noqa
+
+__version__ = M2Crypto.__version__
 
 class SSL_Transport(Transport):  # noqa
 
@@ -19,18 +27,20 @@ class SSL_Transport(Transport):  # noqa
                                               Transport.user_agent)
 
     def __init__(self, ssl_context=None, *args, **kw):
-        if getattr(Transport, '__init__', None) is not None:
-            Transport.__init__(self, *args, **kw)
+        # type: (Optional[SSL.Context], *List[Any], **Dict[Any, Any]) -> None
+        Transport.__init__(self, *args, **kw)
         if ssl_context is None:
             self.ssl_ctx = SSL.Context('sslv23')
         else:
             self.ssl_ctx = ssl_context
 
     def request(self, host, handler, request_body, verbose=0):
+        # type: (AnyStr, Callable, bytes, int) -> object
         # Handle username and password.
         user_passwd, host_port = m2urllib.splituser(host)
         _host, _port = m2urllib.splitport(host_port)
-        h = httpslib.HTTPS(_host, int(_port), ssl_context=self.ssl_ctx)
+        h = httpslib.HTTPSConnection(_host, int(_port),
+                                     ssl_context=self.ssl_ctx)
         if verbose:
             h.set_debuglevel(1)
 

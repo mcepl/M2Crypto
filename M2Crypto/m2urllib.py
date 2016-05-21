@@ -3,43 +3,83 @@ from __future__ import absolute_import, print_function
 """M2Crypto enhancement to Python's urllib for handling
 'https' url's.
 
+FIXME: it is questionable whether we need this old-style module at all. urllib
+(not urllib2) is in Python 3 support just as a legacy API.
+
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-import urllib
+from M2Crypto import SSL, httpslib, six, util
 
-from M2Crypto import SSL
-from M2Crypto import httpslib
+from M2Crypto.six.moves.urllib_response import addinfourl
+if util.py27plus:
+    from typing import AnyStr, Optional  # noqa
 
-from urllib import *  # noqa for other modules to import
+# six.moves doesn't support star imports
+if six.PY3:
+    from urllib.request import *  # noqa for other modules to import
+    from urllib.parse import *  # noqa for other modules to import
+    from urllib.error import *  # noqa for other modules to import
+else:
+    from urllib import *  # noqa
 
 DEFAULT_PROTOCOL = 'sslv23'
 
 
 def open_https(self, url, data=None, ssl_context=None):
+    # type: (AnyStr, Optional[bytes], Optional[SSL.Context]) -> addinfourl
+    """
+    Open URL over the SSL connection.
+
+    @param url: URL to be opened
+    @param data: data for the POST request
+    @param ssl_context: SSL.Context to be used
+    @return:
+    """
     if ssl_context is not None and isinstance(ssl_context, SSL.Context):
         self.ctx = ssl_context
     else:
         self.ctx = SSL.Context(DEFAULT_PROTOCOL)
     user_passwd = None
-    if isinstance(url, basestring):
-        host, selector = urllib.splithost(url)
-        if host:
-            user_passwd, host = urllib.splituser(host)
-            host = urllib.unquote(host)
-        realhost = host
+    if isinstance(url, six.string_types):
+        try:               # python 2
+            # http://pydoc.org/2.5.1/urllib.html
+            host, selector = splithost(url)
+            if host:
+                user_passwd, host = splituser(host)
+                host = unquote(host)
+            realhost = host
+        except NameError:  # python 3 has no splithost
+            # https://docs.python.org/3/library/urllib.parse.html
+            parsed = urlparse(url)
+            host = parsed.hostname
+            if parsed.port:
+                host += ":{0}".format(parsed.port)
+            user_passwd = parsed.username
+            if parsed.password:
+                user_passwd += ":{0}".format(parsed.password)
+            selector = parsed.path
     else:
         host, selector = url
-        urltype, rest = urllib.splittype(selector)
+        urltype, rest = splittype(selector)
         url = rest
         user_passwd = None
         if urltype.lower() != 'http':
             realhost = None
         else:
-            realhost, rest = urllib.splithost(rest)
-            if realhost:
-                user_passwd, realhost = urllib.splituser(realhost)
-            if user_passwd:
-                selector = "%s://%s%s" % (urltype, realhost, rest)
+            try:               # python 2
+                realhost, rest = splithost(rest)
+                if realhost:
+                    user_passwd, realhost = splituser(realhost)
+                    if user_passwd:
+                        selector = "%s://%s%s" % (urltype, realhost, rest)
+            except NameError:  # python 3 has no splithost
+                parsed = urlparse(rest)
+                host = parsed.hostname
+                if parsed.port:
+                    host += ":{0}".format(parsed.port)
+                user_passwd = parsed.username
+                if parsed.password:
+                    user_passwd += ":{0}".format(parsed.password)
         # print("proxy via http:", host, selector)
     if not host:
         raise IOError('http error', 'no host given')
@@ -61,15 +101,15 @@ def open_https(self, url, data=None, ssl_context=None):
     if auth:
         h.putheader('Authorization', 'Basic %s' % auth)
     for args in self.addheaders:
-        apply(h.putheader, args)
+        h.putheader(*args)   # for python3 - used to use apply
     h.endheaders()
     if data is not None:
         h.send(data + '\r\n')
     # Here again!
     resp = h.getresponse()
     fp = resp.fp
-    return urllib.addinfourl(fp, resp.msg, "https:" + url)
+    return addinfourl(fp, resp.msg, "https:" + url)
     # Stop again.
 
 # Minor brain surgery.
-urllib.URLopener.open_https = open_https
+URLopener.open_https = open_https
