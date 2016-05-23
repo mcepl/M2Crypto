@@ -331,6 +331,7 @@ int passphrase_callback(char *buf, int num, int v, void *arg) {
 #if PY_MAJOR_VERSION >= 3
     if (!PyBytes_Check(ret)) {
         Py_DECREF(ret);
+        PyGILState_Release(gilstate);
         return -1;
     }
     if ((len = PyBytes_Size(ret)) > num)
