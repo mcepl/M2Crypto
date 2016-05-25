@@ -42,7 +42,7 @@ working for you.
 
 - And much more.
 
-M2Crypto is released under a very liberal BSD-style licence. See 
+M2Crypto is released under a very liberal BSD-style licence. See
 LICENCE for details.
 
 To install, see the file INSTALL.
@@ -57,10 +57,10 @@ Note these caveats:
   Python side and other objects on the C side, and these may change
   between OpenSSL versions. (Multiple free's lead to crashes very
   quickly, so these should be relatively rare.)
-    
+
 - No memory locking/clearing for keys, passphrases, etc. because AFAIK
   Python does not provide the features needed. On the C (OpenSSL) side
   things are cleared when the Python objects are deleted.
-    
+
 
 Have fun! Your feedback is welcome.
