@@ -41,7 +41,7 @@ import socket  # noqa
 # M2Crypto
 from M2Crypto import SSL
 
-DEFAULT_PROTOCOL = 'sslv23'
+DEFAULT_PROTOCOL = 'sslv23'  # type: str
 
 
 class FTP_TLS(FTP):  # noqa
