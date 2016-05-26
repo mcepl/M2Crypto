@@ -22,7 +22,9 @@ class ASN1TestCase(unittest.TestCase):
 
     def test_String(self):
         asn1ptr = m2.asn1_string_new()
-        text = 'hello there'
+        # FIXME this is probably wrong ... asn1_string_set should have
+        # Python string as its parameter.
+        text = b'hello there'
         # In RFC2253 format:
         # #040B68656C6C6F207468657265
         #      h e l l o   t h e r e
@@ -57,7 +59,7 @@ class ASN1TestCase(unittest.TestCase):
         t2 = time.strftime(format, time.gmtime(500))
         self.assertEqual(t1, t2)
 
-        t = long(time.time()) + time.timezone
+        t = int(time.time()) + time.timezone
         asn1.set_time(t)
         t1 = time.strftime(format, time.strptime(str(asn1), format))
         t2 = time.strftime(format, time.gmtime(t))
