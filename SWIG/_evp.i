@@ -20,6 +20,13 @@ Copyright (c) 2009-2010 Heikki Toivonen. All rights reserved.
 #include <openssl/opensslv.h>
 %}
 
+/*
+from openssl/crypto/include/internal/evp_int.h struct evp_md_st
+typedef struct evp_md_st EVP_MD;
+from openssl/crypto/evp/evp_locl.h evp_md_ctx_st
+typedef struct evp_md_ctx_st EVP_MD_CTX;
+*/
+
 %apply Pointer NONNULL { EVP_MD_CTX * };
 %apply Pointer NONNULL { EVP_MD * };
 %apply Pointer NONNULL { EVP_PKEY * };
