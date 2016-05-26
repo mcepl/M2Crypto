@@ -61,7 +61,7 @@ class AuthCookieJar:
         return util.bin_to_hex(m2.hmac(key, util.py3bytes(data), m2.sha1()))
 
     def makeCookie(self, expiry, data):
-        # type: (float, AnyStr) -> AuthCookie
+        # type: (float, str) -> AuthCookie
         dough = mix(expiry, data)
         return AuthCookie(expiry, data, dough, self._hmac(self._key, dough))
 
