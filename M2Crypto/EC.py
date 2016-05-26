@@ -11,6 +11,10 @@ Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam.
 All rights reserved."""
 
 from M2Crypto import BIO, m2, util
+if util.py27plus:
+    from typing import AnyStr, Callable, Dict, Optional, Tuple, Union  # noqa
+
+EC_Key = bytes
 
 
 class ECError(Exception):
@@ -19,98 +23,99 @@ class ECError(Exception):
 m2.ec_init(ECError)
 
 # Curve identifier constants
-NID_secp112r1 = m2.NID_secp112r1
-NID_secp112r2 = m2.NID_secp112r2
-NID_secp128r1 = m2.NID_secp128r1
-NID_secp128r2 = m2.NID_secp128r2
-NID_secp160k1 = m2.NID_secp160k1
-NID_secp160r1 = m2.NID_secp160r1
-NID_secp160r2 = m2.NID_secp160r2
-NID_secp192k1 = m2.NID_secp192k1
-NID_secp224k1 = m2.NID_secp224k1
-NID_secp224r1 = m2.NID_secp224r1
-NID_secp256k1 = m2.NID_secp256k1
-NID_secp384r1 = m2.NID_secp384r1
-NID_secp521r1 = m2.NID_secp521r1
-NID_sect113r1 = m2.NID_sect113r1
-NID_sect113r2 = m2.NID_sect113r2
-NID_sect131r1 = m2.NID_sect131r1
-NID_sect131r2 = m2.NID_sect131r2
-NID_sect163k1 = m2.NID_sect163k1
-NID_sect163r1 = m2.NID_sect163r1
-NID_sect163r2 = m2.NID_sect163r2
-NID_sect193r1 = m2.NID_sect193r1
-NID_sect193r2 = m2.NID_sect193r2
-NID_sect233k1 = m2.NID_sect233k1  # default for secg.org TLS test server
-NID_sect233r1 = m2.NID_sect233r1
-NID_sect239k1 = m2.NID_sect239k1
-NID_sect283k1 = m2.NID_sect283k1
-NID_sect283r1 = m2.NID_sect283r1
-NID_sect409k1 = m2.NID_sect409k1
-NID_sect409r1 = m2.NID_sect409r1
-NID_sect571k1 = m2.NID_sect571k1
-NID_sect571r1 = m2.NID_sect571r1
+NID_secp112r1 = m2.NID_secp112r1  # type: int
+NID_secp112r2 = m2.NID_secp112r2  # type: int
+NID_secp128r1 = m2.NID_secp128r1  # type: int
+NID_secp128r2 = m2.NID_secp128r2  # type: int
+NID_secp160k1 = m2.NID_secp160k1  # type: int
+NID_secp160r1 = m2.NID_secp160r1  # type: int
+NID_secp160r2 = m2.NID_secp160r2  # type: int
+NID_secp192k1 = m2.NID_secp192k1  # type: int
+NID_secp224k1 = m2.NID_secp224k1  # type: int
+NID_secp224r1 = m2.NID_secp224r1  # type: int
+NID_secp256k1 = m2.NID_secp256k1  # type: int
+NID_secp384r1 = m2.NID_secp384r1  # type: int
+NID_secp521r1 = m2.NID_secp521r1  # type: int
+NID_sect113r1 = m2.NID_sect113r1  # type: int
+NID_sect113r2 = m2.NID_sect113r2  # type: int
+NID_sect131r1 = m2.NID_sect131r1  # type: int
+NID_sect131r2 = m2.NID_sect131r2  # type: int
+NID_sect163k1 = m2.NID_sect163k1  # type: int
+NID_sect163r1 = m2.NID_sect163r1  # type: int
+NID_sect163r2 = m2.NID_sect163r2  # type: int
+NID_sect193r1 = m2.NID_sect193r1  # type: int
+NID_sect193r2 = m2.NID_sect193r2  # type: int
+# default for secg.org TLS test server
+NID_sect233k1 = m2.NID_sect233k1  # type: int
+NID_sect233r1 = m2.NID_sect233r1  # type: int
+NID_sect239k1 = m2.NID_sect239k1  # type: int
+NID_sect283k1 = m2.NID_sect283k1  # type: int
+NID_sect283r1 = m2.NID_sect283r1  # type: int
+NID_sect409k1 = m2.NID_sect409k1  # type: int
+NID_sect409r1 = m2.NID_sect409r1  # type: int
+NID_sect571k1 = m2.NID_sect571k1  # type: int
+NID_sect571r1 = m2.NID_sect571r1  # type: int
 
-NID_prime192v1 = m2.NID_X9_62_prime192v1
-NID_prime192v2 = m2.NID_X9_62_prime192v2
-NID_prime192v3 = m2.NID_X9_62_prime192v3
-NID_prime239v1 = m2.NID_X9_62_prime239v1
-NID_prime239v2 = m2.NID_X9_62_prime239v2
-NID_prime239v3 = m2.NID_X9_62_prime239v3
-NID_prime256v1 = m2.NID_X9_62_prime256v1
-NID_c2pnb163v1 = m2.NID_X9_62_c2pnb163v1
-NID_c2pnb163v2 = m2.NID_X9_62_c2pnb163v2
-NID_c2pnb163v3 = m2.NID_X9_62_c2pnb163v3
-NID_c2pnb176v1 = m2.NID_X9_62_c2pnb176v1
-NID_c2tnb191v1 = m2.NID_X9_62_c2tnb191v1
-NID_c2tnb191v2 = m2.NID_X9_62_c2tnb191v2
-NID_c2tnb191v3 = m2.NID_X9_62_c2tnb191v3
-NID_c2pnb208w1 = m2.NID_X9_62_c2pnb208w1
-NID_c2tnb239v1 = m2.NID_X9_62_c2tnb239v1
-NID_c2tnb239v2 = m2.NID_X9_62_c2tnb239v2
-NID_c2tnb239v3 = m2.NID_X9_62_c2tnb239v3
-NID_c2pnb272w1 = m2.NID_X9_62_c2pnb272w1
-NID_c2pnb304w1 = m2.NID_X9_62_c2pnb304w1
-NID_c2tnb359v1 = m2.NID_X9_62_c2tnb359v1
-NID_c2pnb368w1 = m2.NID_X9_62_c2pnb368w1
-NID_c2tnb431r1 = m2.NID_X9_62_c2tnb431r1
+NID_prime192v1 = m2.NID_X9_62_prime192v1  # type: int
+NID_prime192v2 = m2.NID_X9_62_prime192v2  # type: int
+NID_prime192v3 = m2.NID_X9_62_prime192v3  # type: int
+NID_prime239v1 = m2.NID_X9_62_prime239v1  # type: int
+NID_prime239v2 = m2.NID_X9_62_prime239v2  # type: int
+NID_prime239v3 = m2.NID_X9_62_prime239v3  # type: int
+NID_prime256v1 = m2.NID_X9_62_prime256v1  # type: int
+NID_c2pnb163v1 = m2.NID_X9_62_c2pnb163v1  # type: int
+NID_c2pnb163v2 = m2.NID_X9_62_c2pnb163v2  # type: int
+NID_c2pnb163v3 = m2.NID_X9_62_c2pnb163v3  # type: int
+NID_c2pnb176v1 = m2.NID_X9_62_c2pnb176v1  # type: int
+NID_c2tnb191v1 = m2.NID_X9_62_c2tnb191v1  # type: int
+NID_c2tnb191v2 = m2.NID_X9_62_c2tnb191v2  # type: int
+NID_c2tnb191v3 = m2.NID_X9_62_c2tnb191v3  # type: int
+NID_c2pnb208w1 = m2.NID_X9_62_c2pnb208w1  # type: int
+NID_c2tnb239v1 = m2.NID_X9_62_c2tnb239v1  # type: int
+NID_c2tnb239v2 = m2.NID_X9_62_c2tnb239v2  # type: int
+NID_c2tnb239v3 = m2.NID_X9_62_c2tnb239v3  # type: int
+NID_c2pnb272w1 = m2.NID_X9_62_c2pnb272w1  # type: int
+NID_c2pnb304w1 = m2.NID_X9_62_c2pnb304w1  # type: int
+NID_c2tnb359v1 = m2.NID_X9_62_c2tnb359v1  # type: int
+NID_c2pnb368w1 = m2.NID_X9_62_c2pnb368w1  # type: int
+NID_c2tnb431r1 = m2.NID_X9_62_c2tnb431r1  # type: int
 
 # To preserve compatibility with older names
-NID_X9_62_prime192v1 = NID_prime192v1
-NID_X9_62_prime192v2 = NID_prime192v2
-NID_X9_62_prime192v3 = NID_prime192v3
-NID_X9_62_prime239v1 = NID_prime239v1
-NID_X9_62_prime239v2 = NID_prime239v2
-NID_X9_62_prime239v3 = NID_prime239v3
-NID_X9_62_prime256v1 = NID_prime256v1
-NID_X9_62_c2pnb163v1 = NID_c2pnb163v1
-NID_X9_62_c2pnb163v2 = NID_c2pnb163v2
-NID_X9_62_c2pnb163v3 = NID_c2pnb163v3
-NID_X9_62_c2pnb176v1 = NID_c2pnb176v1
-NID_X9_62_c2tnb191v1 = NID_c2tnb191v1
-NID_X9_62_c2tnb191v2 = NID_c2tnb191v2
-NID_X9_62_c2tnb191v3 = NID_c2tnb191v3
-NID_X9_62_c2pnb208w1 = NID_c2pnb208w1
-NID_X9_62_c2tnb239v1 = NID_c2tnb239v1
-NID_X9_62_c2tnb239v2 = NID_c2tnb239v2
-NID_X9_62_c2tnb239v3 = NID_c2tnb239v3
-NID_X9_62_c2pnb272w1 = NID_c2pnb272w1
-NID_X9_62_c2pnb304w1 = NID_c2pnb304w1
-NID_X9_62_c2tnb359v1 = NID_c2tnb359v1
-NID_X9_62_c2pnb368w1 = NID_c2pnb368w1
-NID_X9_62_c2tnb431r1 = NID_c2tnb431r1
+NID_X9_62_prime192v1 = NID_prime192v1  # type: int
+NID_X9_62_prime192v2 = NID_prime192v2  # type: int
+NID_X9_62_prime192v3 = NID_prime192v3  # type: int
+NID_X9_62_prime239v1 = NID_prime239v1  # type: int
+NID_X9_62_prime239v2 = NID_prime239v2  # type: int
+NID_X9_62_prime239v3 = NID_prime239v3  # type: int
+NID_X9_62_prime256v1 = NID_prime256v1  # type: int
+NID_X9_62_c2pnb163v1 = NID_c2pnb163v1  # type: int
+NID_X9_62_c2pnb163v2 = NID_c2pnb163v2  # type: int
+NID_X9_62_c2pnb163v3 = NID_c2pnb163v3  # type: int
+NID_X9_62_c2pnb176v1 = NID_c2pnb176v1  # type: int
+NID_X9_62_c2tnb191v1 = NID_c2tnb191v1  # type: int
+NID_X9_62_c2tnb191v2 = NID_c2tnb191v2  # type: int
+NID_X9_62_c2tnb191v3 = NID_c2tnb191v3  # type: int
+NID_X9_62_c2pnb208w1 = NID_c2pnb208w1  # type: int
+NID_X9_62_c2tnb239v1 = NID_c2tnb239v1  # type: int
+NID_X9_62_c2tnb239v2 = NID_c2tnb239v2  # type: int
+NID_X9_62_c2tnb239v3 = NID_c2tnb239v3  # type: int
+NID_X9_62_c2pnb272w1 = NID_c2pnb272w1  # type: int
+NID_X9_62_c2pnb304w1 = NID_c2pnb304w1  # type: int
+NID_X9_62_c2tnb359v1 = NID_c2tnb359v1  # type: int
+NID_X9_62_c2pnb368w1 = NID_c2pnb368w1  # type: int
+NID_X9_62_c2tnb431r1 = NID_c2tnb431r1  # type: int
 
-NID_wap_wsg_idm_ecid_wtls1 = m2.NID_wap_wsg_idm_ecid_wtls1
-NID_wap_wsg_idm_ecid_wtls3 = m2.NID_wap_wsg_idm_ecid_wtls3
-NID_wap_wsg_idm_ecid_wtls4 = m2.NID_wap_wsg_idm_ecid_wtls4
-NID_wap_wsg_idm_ecid_wtls5 = m2.NID_wap_wsg_idm_ecid_wtls5
-NID_wap_wsg_idm_ecid_wtls6 = m2.NID_wap_wsg_idm_ecid_wtls6
-NID_wap_wsg_idm_ecid_wtls7 = m2.NID_wap_wsg_idm_ecid_wtls7
-NID_wap_wsg_idm_ecid_wtls8 = m2.NID_wap_wsg_idm_ecid_wtls8
-NID_wap_wsg_idm_ecid_wtls9 = m2.NID_wap_wsg_idm_ecid_wtls9
-NID_wap_wsg_idm_ecid_wtls10 = m2.NID_wap_wsg_idm_ecid_wtls10
-NID_wap_wsg_idm_ecid_wtls11 = m2.NID_wap_wsg_idm_ecid_wtls11
-NID_wap_wsg_idm_ecid_wtls12 = m2.NID_wap_wsg_idm_ecid_wtls12
+NID_wap_wsg_idm_ecid_wtls1 = m2.NID_wap_wsg_idm_ecid_wtls1  # type: int
+NID_wap_wsg_idm_ecid_wtls3 = m2.NID_wap_wsg_idm_ecid_wtls3  # type: int
+NID_wap_wsg_idm_ecid_wtls4 = m2.NID_wap_wsg_idm_ecid_wtls4  # type: int
+NID_wap_wsg_idm_ecid_wtls5 = m2.NID_wap_wsg_idm_ecid_wtls5  # type: int
+NID_wap_wsg_idm_ecid_wtls6 = m2.NID_wap_wsg_idm_ecid_wtls6  # type: int
+NID_wap_wsg_idm_ecid_wtls7 = m2.NID_wap_wsg_idm_ecid_wtls7  # type: int
+NID_wap_wsg_idm_ecid_wtls8 = m2.NID_wap_wsg_idm_ecid_wtls8  # type: int
+NID_wap_wsg_idm_ecid_wtls9 = m2.NID_wap_wsg_idm_ecid_wtls9  # type: int
+NID_wap_wsg_idm_ecid_wtls10 = m2.NID_wap_wsg_idm_ecid_wtls10  # type: int
+NID_wap_wsg_idm_ecid_wtls11 = m2.NID_wap_wsg_idm_ecid_wtls11  # type: int
+NID_wap_wsg_idm_ecid_wtls12 = m2.NID_wap_wsg_idm_ecid_wtls12  # type: int
 
 # The following two curves, according to OpenSSL, have a
 # "Questionable extension field!" and are not supported by
@@ -132,19 +137,23 @@ class EC:
     m2_ec_key_free = m2.ec_key_free
 
     def __init__(self, ec, _pyfree=0):
+        # type: (EC, int) -> None
         assert m2.ec_key_type_check(ec), "'ec' type error"
         self.ec = ec
         self._pyfree = _pyfree
 
     def __del__(self):
+        # type: () -> None
         if getattr(self, '_pyfree', 0):
             self.m2_ec_key_free(self.ec)
 
     def __len__(self):
+        # type: () -> int
         assert m2.ec_key_type_check(self.ec), "'ec' type error"
         return m2.ec_key_keylen(self.ec)
 
     def gen_key(self):
+        # type: () -> int
         """
         Generates the key pair from its parameters. Use::
             keypair = EC.gen_params(curve)
@@ -155,10 +164,12 @@ class EC:
         m2.ec_key_gen_key(self.ec)
 
     def pub(self):
+        # type: () -> EC_pub
         # Don't let python free
         return EC_pub(self.ec, 0)
 
     def sign_dsa(self, digest):
+        # type: (bytes) -> Tuple[bytes, bytes]
         """
         Sign the given digest using ECDSA. Returns a tuple (r,s), the two
         ECDSA signature parameters.
@@ -167,6 +178,7 @@ class EC:
         return m2.ecdsa_sign(self.ec, digest)
 
     def verify_dsa(self, digest, r, s):
+        # type: (bytes, bytes, bytes) -> int
         """
         Verify the given digest using ECDSA. r and s are the ECDSA
         signature parameters.
@@ -175,6 +187,7 @@ class EC:
         return m2.ecdsa_verify(self.ec, digest, r, s)
 
     def sign_dsa_asn1(self, digest):
+        # type: (bytes) -> bytes
         assert self._check_key_type(), "'ec' type error"
         return m2.ecdsa_sign_asn1(self.ec, digest)
 
@@ -183,6 +196,7 @@ class EC:
         return m2.ecdsa_verify_asn1(self.ec, digest, blob)
 
     def compute_dh_key(self, pub_key):
+        # type: (EC) -> Optional[bytes]
         """
         Compute the ECDH shared key of this key pair and the given public
         key object. They must both use the same curve. Returns the
@@ -194,18 +208,16 @@ class EC:
 
     def save_key_bio(self, bio, cipher='aes_128_cbc',
                      callback=util.passphrase_callback):
+        # type: (BIO.BIO, Optional[str], Callable) -> int
         """
         Save the key pair to an M2Crypto.BIO.BIO object in PEM format.
 
-        @type bio: M2Crypto.BIO.BIO
         @param bio: M2Crypto.BIO.BIO object to save key to.
 
-        @type cipher: string
         @param cipher: Symmetric cipher to protect the key. The default
         cipher is 'aes_128_cbc'. If cipher is None, then the key is saved
         in the clear.
 
-        @type callback: Python callable
         @param callback: A Python callable object that is invoked
         to acquire a passphrase with which to protect the key.
         The default is util.passphrase_callback.
@@ -220,18 +232,16 @@ class EC:
 
     def save_key(self, file, cipher='aes_128_cbc',
                  callback=util.passphrase_callback):
+        # type: (AnyStr, Optional[str], Callable) -> int
         """
-        Save the key pair to a file in PEM format.
+        Save the key pair to a filename in PEM format.
 
-        @type file: string
-        @param file: Name of file to save key to.
+        @param file: Name of filename to save key to.
 
-        @type cipher: string
         @param cipher: Symmetric cipher to protect the key. The default
         cipher is 'aes_128_cbc'. If cipher is None, then the key is saved
         in the clear.
 
-        @type callback: Python callable
         @param callback: A Python callable object that is invoked
         to acquire a passphrase with which to protect the key.
         The default is util.passphrase_callback.
@@ -240,28 +250,30 @@ class EC:
             return self.save_key_bio(bio, cipher, callback)
 
     def save_pub_key_bio(self, bio):
+        # type: (BIO.BIO) -> int
         """
         Save the public key to an M2Crypto.BIO.BIO object in PEM format.
 
-        @type bio: M2Crypto.BIO.BIO
         @param bio: M2Crypto.BIO.BIO object to save key to.
         """
         return m2.ec_key_write_pubkey(self.ec, bio._ptr())
 
     def save_pub_key(self, file):
+        # type: (AnyStr) -> int
         """
-        Save the public key to a file in PEM format.
+        Save the public key to a filename in PEM format.
 
-        @type file: string
-        @param file: Name of file to save key to.
+        @param file: Name of filename to save key to.
         """
-        bio = BIO.openfile(file, 'wb')
-        return m2.ec_key_write_pubkey(self.ec, bio._ptr())
+        with BIO.openfile(file, 'wb') as bio:
+            return m2.ec_key_write_pubkey(self.ec, bio._ptr())
 
     def _check_key_type(self):
+        # type: () -> int
         return m2.ec_key_type_check(self.ec)
 
     def check_key(self):
+        # type: () -> int
         assert m2.ec_key_type_check(self.ec), "'ec' type error"
         return m2.ec_key_check_key(self.ec)
 
@@ -273,10 +285,12 @@ class EC_pub(EC):  # noqa
     ((don't like this implementation inheritance))
     """
     def __init__(self, ec, _pyfree=0):
+        # type: (EC, int) -> None
         EC.__init__(self, ec, _pyfree)
-        self.der = None
+        self.der = None  # type: Optional[bytes]
 
     def get_der(self):
+        # type: () -> bytes
         """
         Returns the public key in DER format as a buffer object.
         """
@@ -286,6 +300,7 @@ class EC_pub(EC):  # noqa
         return self.der
 
     def get_key(self):
+        # type: () -> bytes
         """
         Returns the public key as a byte string.
         """
@@ -298,6 +313,7 @@ class EC_pub(EC):  # noqa
 
 
 def gen_params(curve):
+    # type: (int) -> EC
     """
     Factory function that generates EC parameters and
     instantiates a EC object from the output.
@@ -311,10 +327,11 @@ def gen_params(curve):
 
 
 def load_key(file, callback=util.passphrase_callback):
+    # type: (AnyStr, Callable) -> EC
     """
     Factory function that instantiates a EC object.
 
-    @param file: Names the file that contains the PEM representation
+    @param file: Names the filename that contains the PEM representation
     of the EC key pair.
 
     @param callback: Python callback object that will be invoked
@@ -325,6 +342,7 @@ def load_key(file, callback=util.passphrase_callback):
 
 
 def load_key_bio(bio, callback=util.passphrase_callback):
+    # type: (BIO.BIO, Callable) -> EC
     """
     Factory function that instantiates a EC object.
 
@@ -338,28 +356,26 @@ def load_key_bio(bio, callback=util.passphrase_callback):
 
 
 def load_pub_key(file):
+    # type: (AnyStr) -> EC_pub
     """
-    Load an EC public key from file.
+    Load an EC public key from filename.
 
-    @type file: string
-    @param file: Name of file containing EC public key in PEM format.
+    @param file: Name of filename containing EC public key in PEM format.
 
-    @rtype: M2Crypto.EC.EC_pub
     @return: M2Crypto.EC.EC_pub object.
     """
-    bio = BIO.openfile(file)
-    return load_pub_key_bio(bio)
+    with BIO.openfile(file) as bio:
+        return load_pub_key_bio(bio)
 
 
 def load_pub_key_bio(bio):
+    # type: (BIO.BIO) -> EC_pub
     """
     Load an EC public key from an M2Crypto.BIO.BIO object.
 
-    @type bio: M2Crypto.BIO.BIO
     @param bio: M2Crypto.BIO.BIO object containing EC public key in PEM
     format.
 
-    @rtype: M2Crypto.EC.EC_pub
     @return: M2Crypto.EC.EC_pub object.
     """
     ec = m2.ec_key_read_pubkey(bio._ptr())
@@ -369,10 +385,12 @@ def load_pub_key_bio(bio):
 
 
 def ec_error():
+    # type: () -> ECError
     raise ECError(m2.err_reason_error_string(m2.err_get_error()))
 
 
 def pub_key_from_der(der):
+    # type: (bytes) -> EC_pub
     """
     Create EC_pub from DER.
     """
@@ -380,6 +398,7 @@ def pub_key_from_der(der):
 
 
 def pub_key_from_params(curve, bytes):
+    # type: (bytes, bytes) -> EC_pub
     """
     Create EC_pub from curve name and octet string.
     """
@@ -387,4 +406,5 @@ def pub_key_from_params(curve, bytes):
 
 
 def get_builtin_curves():
+    # type: () -> Tuple[Dict[str, Union[int, str]]]
     return m2.ec_get_builtin_curves()
