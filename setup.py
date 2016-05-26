@@ -32,7 +32,7 @@ if sys.version_info[:2] <= (2, 6):
     requires_list = ["unittest2"]
     _multiarch = ""
 else:
-    requires_list = []
+    requires_list = ['typing']
     import sysconfig
     _multiarch = sysconfig.get_config_var("MULTIARCH")
 
