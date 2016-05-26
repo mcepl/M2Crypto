@@ -4,44 +4,64 @@ from __future__ import absolute_import
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-from M2Crypto import BIO, m2
+from M2Crypto import BIO, m2, util, six  # noqa
+if util.py27plus:
+    from typing import Optional  # noqa
+
 
 def get_error():
+    # type: () -> Optional[str]
     err = BIO.MemoryBuffer()
     m2.err_print_errors(err.bio_ptr())
-    return err.getvalue()
+    err_msg = err.read()
+    if err_msg:
+        return util.py3str(err_msg)
+
 
 def get_error_code():
+    # type: () -> int
     return m2.err_get_error()
 
+
 def peek_error_code():
+    # type: () -> int
     return m2.err_peek_error()
 
+
 def get_error_lib(err):
-    return m2.err_lib_error_string(err)
+    # type: (int) -> str
+    return util.py3str(m2.err_lib_error_string(err))
+
 
 def get_error_func(err):
-    return m2.err_func_error_string(err)
+    # type: (int) -> str
+    return util.py3str(m2.err_func_error_string(err))
+
 
 def get_error_reason(err):
-    return m2.err_reason_error_string(err)
+    # type: (int) -> str
+    return util.py3str(m2.err_reason_error_string(err))
+
 
 def get_x509_verify_error(err):
-    return m2.x509_get_verify_error(err)
+    # type: (int) -> str
+    return util.py3str(m2.x509_get_verify_error(err))
+
 
 class SSLError(Exception):
     def __init__(self, err, client_addr):
+        # type: (int, util.AddrType) -> None
         self.err = err
         self.client_addr = client_addr
 
     def __str__(self):
-        if (isinstance(self.client_addr, unicode)):
-            s = self.client_addr.encode('utf8')
+        # type: () -> str
+        if not isinstance(self.client_addr, six.text_type):
+            s = self.client_addr.decode('utf8')
         else:
             s = self.client_addr
-        return "%s: %s: %s" % \
-            (m2.err_func_error_string(self.err), s,
-             m2.err_reason_error_string(self.err))
+        return "%s: %s: %s" % (get_error_func(self.err), s,
+                               get_error_reason(self.err))
 
 
 class M2CryptoError(Exception):
