@@ -20,7 +20,7 @@ class BIOError(Exception):
 m2.bio_init(BIOError)
 
 
-class BIO:
+class BIO(object):
 
     """Abstract object interface to the BIO API."""
 
