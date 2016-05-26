@@ -3,20 +3,31 @@ Make Twisted use M2Crypto for SSL
 
 Copyright (c) 2004-2007 Open Source Applications Foundation.
 All rights reserved.
+
+FIXME THIS HAS NOT BEEN FINISHED. NEITHER PEP484 NOR PORT PYTHON3 HAS
+BEEN FINISHED. THE FURTHER WORK WILL BE DONE WHEN THE STATUS OF TWISTED
+IN THE PYTHON 3 (AND ASYNCIO) WORLD WILL BE CLEAR.
 """
 
 __all__ = ['connectSSL', 'connectTCP', 'listenSSL', 'listenTCP',
            'TLSProtocolWrapper']
 
-import twisted.protocols.policies as policies
-import twisted.internet.reactor
-from twisted.protocols.policies import ProtocolWrapper
-from twisted.internet.interfaces import ITLSTransport
-from zope.interface import implements
+import logging
 
-import M2Crypto # for M2Crypto.BIO.BIOError
-from M2Crypto import m2, X509
-from M2Crypto.SSL import Checker
+import twisted.internet.reactor
+import twisted.protocols.policies as policies
+
+from M2Crypto import BIO, X509, m2, util
+from M2Crypto.SSL.Checker import Checker, SSLVerificationError
+
+from twisted.internet.interfaces import ITLSTransport
+from twisted.protocols.policies import ProtocolWrapper
+if util.py27plus:
+    from typing import AnyStr, Callable, Optional  # noqa
+
+from zope.interface import implementer
+
+log = logging.getLogger(__name__)
 
 
 def _alwaysSucceedsPostConnectionCheck(peerX509, expectedHost):
@@ -26,7 +37,8 @@ def _alwaysSucceedsPostConnectionCheck(peerX509, expectedHost):
 def connectSSL(host, port, factory, contextFactory, timeout=30,
                bindAddress=None,
                reactor=twisted.internet.reactor,
-               postConnectionCheck=Checker.Checker()):
+               postConnectionCheck=Checker()):
+    # type: (str, int, object, object, int, Optional[str], twisted.internet.reactor, Checker) -> reactor.connectTCP
     """
     A convenience function to start an SSL/TLS connection using Twisted.
 
@@ -45,7 +57,8 @@ def connectSSL(host, port, factory, contextFactory, timeout=30,
 
 def connectTCP(host, port, factory, timeout=30, bindAddress=None,
                reactor=twisted.internet.reactor,
-               postConnectionCheck=Checker.Checker()):
+               postConnectionCheck=Checker()):
+    # type: (str, int, object, int, Optional[util.AddrType], object, Callable) -> object
     """
     A convenience function to start a TCP connection using Twisted.
 
@@ -142,6 +155,7 @@ class _SSLProxy:
             self.m2_ssl_free(self.ssl)
 
 
+@implementer(ITLSTransport)
 class TLSProtocolWrapper(ProtocolWrapper):
     """
     A SSL/TLS protocol wrapper to be used with Twisted. Typically
@@ -149,8 +163,6 @@ class TLSProtocolWrapper(ProtocolWrapper):
     connectSSL, listenTCP, listenSSL functions defined above,
     which will hook in this class.
     """
-
-    implements(ITLSTransport)
 
     def __init__(self, factory, wrappedProtocol, startPassThrough, client,
                  contextFactory, postConnectionCheck):
@@ -169,25 +181,25 @@ class TLSProtocolWrapper(ProtocolWrapper):
                                     this function is an X509 object, the second
                                     is the expected host name string.
         """
-        #ProtocolWrapper.__init__(self, factory, wrappedProtocol)
-        #XXX: Twisted 2.0 has a new addition where the wrappingFactory is
-        #     set as the factory of the wrappedProtocol. This is an issue
-        #     as the wrap should be transparent. What we want is
-        #     the factory of the wrappedProtocol to be the wrappedFactory and
-        #     not the outer wrappingFactory. This is how it was implemented in
-        #     Twisted 1.3
+        # ProtocolWrapper.__init__(self, factory, wrappedProtocol)
+        # XXX: Twisted 2.0 has a new addition where the wrappingFactory is
+        #      set as the factory of the wrappedProtocol. This is an issue
+        #      as the wrap should be transparent. What we want is
+        #      the factory of the wrappedProtocol to be the wrappedFactory and
+        #      not the outer wrappingFactory. This is how it was implemented in
+        #      Twisted 1.3
         self.factory = factory
         self.wrappedProtocol = wrappedProtocol
 
         # wrappedProtocol == client/server instance
         # factory.wrappedFactory == client/server factory
 
-        self.data = '' # Clear text to encrypt and send
-        self.encrypted = '' # Encrypted data we need to decrypt and pass on
-        self.tlsStarted = 0 # SSL/TLS mode or pass through
-        self.checked = 0 # Post connection check done or not
+        self.data = b''  # Clear text to encrypt and send
+        self.encrypted = b''  # Encrypted data we need to decrypt and pass on
+        self.tlsStarted = 0  # SSL/TLS mode or pass through
+        self.checked = 0  # Post connection check done or not
         self.isClient = client
-        self.helloDone = 0 # True when hello has been sent
+        self.helloDone = 0  # True when hello has been sent
         if postConnectionCheck is None:
             self.postConnectionCheck = _alwaysSucceedsPostConnectionCheck
         else:
@@ -263,7 +275,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
             encryptedData = self._encrypt(data)
             ProtocolWrapper.write(self, encryptedData)
             self.helloDone = 1
-        except M2Crypto.BIO.BIOError as e:
+        except BIO.BIOError as e:
             # See http://www.openssl.org/docs/apps/verify.html#DIAGNOSTICS
             # for the error codes returned by SSL_get_verify_result.
             e.args = (m2.ssl_get_verify_result(self.ssl._ptr()), e.args[0])
@@ -305,13 +317,15 @@ class TLSProtocolWrapper(ProtocolWrapper):
 
                 if decryptedData == '' and encryptedData == '':
                     break
-        except M2Crypto.BIO.BIOError as e:
+        except BIO.BIOError as e:
             # See http://www.openssl.org/docs/apps/verify.html#DIAGNOSTICS
             # for the error codes returned by SSL_get_verify_result.
             e.args = (m2.ssl_get_verify_result(self.ssl._ptr()), e.args[0])
             raise e
 
     def connectionLost(self, reason):
+        # type: (AnyStr) -> None
+        log.debug('reason = %s (%s)', reason, type(reason))
         self.clear()
         ProtocolWrapper.connectionLost(self, reason)
 
@@ -325,7 +339,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
             else:
                 host = self.transport.getPeer().host
             if not self.postConnectionCheck(x509, host):
-                raise Checker.SSLVerificationError('post connection check')
+                raise SSLVerificationError('post connection check')
             self.checked = 1
 
     def _clientHello(self):
@@ -335,7 +349,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
             encryptedData = self._encrypt(clientHello=1)
             ProtocolWrapper.write(self, encryptedData)
             self.helloDone = 1
-        except M2Crypto.BIO.BIOError as e:
+        except BIO.BIOError as e:
             # See http://www.openssl.org/docs/apps/verify.html#DIAGNOSTICS
             # for the error codes returned by SSL_get_verify_result.
             e.args = (m2.ssl_get_verify_result(self.ssl._ptr()), e.args[0])
@@ -367,7 +381,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
             pending = m2bio_ctrl_pending(networkBio)
             if pending:
                 d = m2bio_read(networkBio, pending)
-                if d is not None: # This is strange, but d can be None
+                if d is not None:  # This is strange, but d can be None
                     encryptedData += d
                 else:
                     assert(m2bio_should_retry(networkBio))
@@ -400,7 +414,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
             pending = m2bio_ctrl_pending(sslBioPtr)
             if pending:
                 d = m2bio_read(sslBioPtr, pending)
-                if d is not None: # This is strange, but d can be None
+                if d is not None:  # This is strange, but d can be None
                     decryptedData += d
                 else:
                     assert(m2bio_should_retry(sslBioPtr))

@@ -9,8 +9,9 @@ import asyncore
 import socket
 
 # M2Crypto
-from M2Crypto import Err, m2  # noqa
+from M2Crypto import Err, m2, util  # noqa
 from M2Crypto.SSL.Connection import Connection
+from M2Crypto.SSL.Context import Context  # noqa
 
 __all__ = ['ssl_dispatcher']
 
@@ -18,6 +19,7 @@ __all__ = ['ssl_dispatcher']
 class ssl_dispatcher(asyncore.dispatcher):  # noqa
 
     def create_socket(self, ssl_context):
+        # type: (Context) -> None
         self.family_and_type = socket.AF_INET, socket.SOCK_STREAM
         self.ssl_ctx = ssl_context
         self.socket = Connection(self.ssl_ctx)
@@ -25,14 +27,17 @@ class ssl_dispatcher(asyncore.dispatcher):  # noqa
         self.add_channel()
 
     def connect(self, addr):
+        # type: (util.AddrType) -> None
         self.socket.setblocking(1)
         self.socket.connect(addr)
         self.socket.setblocking(0)
 
     def recv(self, buffer_size=4096):
+        # type: (int) -> bytes
         """Receive data over SSL."""
         return self.socket.recv(buffer_size)
 
     def send(self, buffer):
+        # type: (bytes) -> int
         """Send data over SSL."""
         return self.socket.send(buffer)

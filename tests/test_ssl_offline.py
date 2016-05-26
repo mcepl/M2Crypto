@@ -38,12 +38,12 @@ class ContextTestCase(unittest.TestCase):
             ctx.load_verify_locations(None, None)
 
     def test_map(self):
-        from M2Crypto.SSL.Context import map, _ctxmap
-        self.assertIsInstance(map(), _ctxmap)
+        from M2Crypto.SSL.Context import ctxmap, _ctxmap
+        self.assertIsInstance(ctxmap(), _ctxmap)
         ctx = SSL.Context()
-        assert map()
+        assert ctxmap()
         ctx.close()
-        self.assertIs(map(), _ctxmap.singleton)
+        self.assertIs(ctxmap(), _ctxmap.singleton)
 
     def test_certstore(self):
         ctx = SSL.Context()
