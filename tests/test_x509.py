@@ -12,18 +12,11 @@ Author: Heikki Toivonen
 import base64
 import logging
 import os
-import sys
 import time
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
-
-# Python 2 has int() and long().
-# Python 3 and higher only has int().
-# Work around this.
-if sys.version_info > (3,):
-    long = int
 
 from M2Crypto import ASN1, BIO, EVP, RSA, Rand, X509, m2, util  # noqa
 
@@ -255,7 +248,7 @@ class X509TestCase(unittest.TestCase):
         cert.set_serial_number(1)
         cert.set_version(2)
         cert.set_subject(sub)
-        t = long(time.time()) + time.timezone
+        t = int(time.time()) + time.timezone
         now = ASN1.ASN1_UTCTIME()
         now.set_time(t)
         now_plus_year = ASN1.ASN1_UTCTIME()
@@ -299,7 +292,7 @@ class X509TestCase(unittest.TestCase):
         self.assertEqual(cert.get_serial_number(), 1)
         self.assertEqual(cert.get_issuer().CN, 'The Issuer Monkey')
 
-        if m2.OPENSSL_VERSION_NUMBER >= long(0x90800f):
+        if m2.OPENSSL_VERSION_NUMBER >= 0x90800f:
             self.assertFalse(cert.check_ca())
             self.assertFalse(cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 1))
             self.assertFalse(cert.check_purpose(m2.X509_PURPOSE_NS_SSL_SERVER,
@@ -320,7 +313,7 @@ class X509TestCase(unittest.TestCase):
         cert.set_serial_number(1)
         cert.set_version(2)
         cert.set_subject(sub)
-        t = long(time.time()) + time.timezone
+        t = int(time.time()) + time.timezone
         now = ASN1.ASN1_UTCTIME()
         now.set_time(t)
         now_plus_year = ASN1.ASN1_UTCTIME()
@@ -382,11 +375,12 @@ class X509TestCase(unittest.TestCase):
                                             flags=m2.XN_FLAG_RFC2253),
             '  CN=Proxy,CN=OpenSSL Group,C=UK')
 
-    def make_eecert(self, cacert):
+    @staticmethod
+    def make_eecert(cacert):
         eecert = X509.X509()
         eecert.set_serial_number(2)
         eecert.set_version(2)
-        t = long(time.time()) + time.timezone
+        t = int(time.time()) + time.timezone
         now = ASN1.ASN1_UTCTIME()
         now.set_time(t)
         now_plus_year = ASN1.ASN1_UTCTIME()
@@ -439,7 +433,7 @@ class X509TestCase(unittest.TestCase):
 
     def test_load_der_string(self):
         f = open('tests/x509.der', 'rb')
-        x509 = X509.load_cert_der_string(''.join(f.readlines()))
+        x509 = X509.load_cert_der_string(f.read())
         fp = x509.get_fingerprint('sha1')
         self.assertEqual(fp, self.expected_hash)
 
@@ -562,7 +556,7 @@ class X509TestCase(unittest.TestCase):
 
 class X509StackTestCase(unittest.TestCase):
     def test_make_stack_from_der(self):
-        f = open("tests/der_encoded_seq.b64")
+        f = open("tests/der_encoded_seq.b64", 'rb')
         b64 = f.read(1304)
         seq = base64.decodestring(b64)
         stack = X509.new_stack_from_der(seq)
@@ -578,7 +572,7 @@ class X509StackTestCase(unittest.TestCase):
             "/DC=org/DC=doegrids/OU=Services/CN=host/bosshog.lbl.gov")
 
     def test_make_stack_check_num(self):
-        f = open("tests/der_encoded_seq.b64")
+        f = open("tests/der_encoded_seq.b64", 'rb')
         b64 = f.read(1304)
         seq = base64.decodestring(b64)
         stack = X509.new_stack_from_der(seq)
