@@ -268,6 +268,16 @@ class EC:
         with BIO.openfile(file, 'wb') as bio:
             return m2.ec_key_write_pubkey(self.ec, bio._ptr())
 
+    def as_pem(self, cipher='aes_128_cbc', callback=util.passphrase_callback):
+        """
+        Returns the key(pair) as a string in PEM format.
+        If no password is passed and the cipher is set
+        it exits with error
+        """
+        with BIO.MemoryBuffer() as bio:
+            self.save_key_bio(bio, cipher, callback)
+            return bio.read()
+
     def _check_key_type(self):
         # type: () -> int
         return m2.ec_key_type_check(self.ec)
@@ -341,6 +351,25 @@ def load_key(file, callback=util.passphrase_callback):
         return load_key_bio(bio, callback)
 
 
+def load_key_string(string, callback=util.passphrase_callback):
+    """
+    Load an EC key pair from a string.
+
+    @type string: string
+    @param string: String containing EC key pair in PEM format.
+
+    @type callback: Python callable
+    @param callback: A Python callable object that is invoked
+    to acquire a passphrase with which to unlock the key.
+    The default is util.passphrase_callback.
+
+    @rtype: M2Crypto.EC.EC
+    @return: M2Crypto.EC.EC object.
+    """
+    with BIO.MemoryBuffer(string) as bio:
+        return load_key_bio(bio, callback)
+
+
 def load_key_bio(bio, callback=util.passphrase_callback):
     # type: (BIO.BIO, Callable) -> EC
     """
@@ -366,6 +395,24 @@ def load_pub_key(file):
     """
     with BIO.openfile(file) as bio:
         return load_pub_key_bio(bio)
+
+
+def load_key_string_pubkey(string, callback=util.passphrase_callback):
+    """
+    Load an M2Crypto.EC.PKey from a public key as a string.
+
+    @type string: string
+    @param string: String containing the key in PEM format.
+
+    @type callback: Python callable
+    @param callback: A Python callable object that is invoked
+    to acquire a passphrase with which to protect the key.
+
+    @rtype: M2Crypto.EC.PKey
+    @return: M2Crypto.EC.PKey object.
+    """
+    with BIO.MemoryBuffer(string) as bio:
+        return load_key_bio_pubkey(bio, callback)
 
 
 def load_pub_key_bio(bio):
