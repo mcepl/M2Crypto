@@ -8,7 +8,7 @@ try:
 except ImportError:
     import unittest
 
-from M2Crypto import ASN1, BIO, Rand, X509, m2
+from M2Crypto import ASN1, BIO, Rand, X509, m2, util
 
 """
 These functions must be cleaned up and moved to some python module
@@ -25,8 +25,10 @@ def x509_name2list(name):
 def x509_name_entry2tuple(entry):
     bio = BIO.MemoryBuffer()
     m2.asn1_string_print(bio._ptr(), m2.x509_name_entry_get_data(entry._ptr()))
-    return (m2.obj_obj2txt(m2.x509_name_entry_get_object(entry._ptr()), 0),
-            bio.getvalue())
+    return (
+        util.py3str(m2.obj_obj2txt(
+            m2.x509_name_entry_get_object(entry._ptr()), 0)),
+        util.py3str(bio.getvalue()))
 
 
 def tuple2x509_name_entry(tup):
