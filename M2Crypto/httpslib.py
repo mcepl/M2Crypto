@@ -43,21 +43,9 @@ class HTTPSConnection(HTTPConnection):
         self.session = None  # type: bytes
         self.host = host
         self.port = port
-        keys = ssl.keys()
-        try:
-            keys.remove('key_file')
-        except ValueError:
-            pass
-        try:
-            keys.remove('cert_file')
-        except ValueError:
-            pass
-        try:
-            keys.remove('ssl_context')
-        except ValueError:
-            pass
+        keys = set(ssl.keys()) - set(('key_file', 'cert_file', 'ssl_context'))
         if keys:
-            raise ValueError('unknown keyword argument')
+            raise ValueError('unknown keyword argument: %s', keys)
         try:
             self.ssl_ctx = ssl['ssl_context']
             assert isinstance(self.ssl_ctx, SSL.Context), self.ssl_ctx
