@@ -124,9 +124,15 @@ class HTTPSHandler(AbstractHTTPHandler):
         # for Windows.  That adapter calls recv(), so delegate recv()
         # to read().  This weird wrapping allows the returned object to
         # have readline() and readlines() methods.
-
         r.recv = r.read
-        fp = socket._fileobject(r, close=True)
+        if six.PY2:
+            fp = socket._fileobject(r, close=True)
+        else:
+            r._decref_socketios = lambda: None
+            r.ssl = h.sock.ssl
+            r._timeout = -1.0
+            r.recv_into = lambda b: SSL.Connection.recv_into(r, b)
+            fp = socket.SocketIO(r, 'rb')
 
         resp = addinfourl(fp, r.msg, req.get_full_url())
         resp.code = r.status
