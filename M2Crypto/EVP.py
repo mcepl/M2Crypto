@@ -9,6 +9,8 @@ Author: Heikki Toivonen
 """
 
 from M2Crypto import BIO, Err, RSA, m2, util
+if util.py27plus:
+    from typing import AnyStr, Optional, Callable  # noqa
 
 
 class EVPError(Exception):
@@ -18,19 +20,15 @@ m2.evp_init(EVPError)
 
 
 def pbkdf2(password, salt, iter, keylen):
+    # type: (bytes, bytes, int, int) -> bytes
     """
     Derive a key from password using PBKDF2 algorithm specified in RFC 2898.
 
     @param password: Derive the key from this password.
-    @type password:  str
     @param salt:     Salt.
-    @type salt:      str
     @param iter:     Number of iterations to perform.
-    @type iter:      int
     @param keylen:   Length of key to produce.
-    @type keylen:    int
     @return:         Key.
-    @rtype:          str
     """
     return m2.pkcs5_pbkdf2_hmac_sha1(password, salt, iter, keylen)
 
@@ -42,7 +40,8 @@ class MessageDigest:
     m2_md_ctx_free = m2.md_ctx_free
 
     def __init__(self, algo):
-        md = getattr(m2, algo, None)
+        # type: (str) -> None
+        md = getattr(m2, algo, None)  # type: Optional[Callable]
         if md is None:
             # if the digest algorithm isn't found as an attribute of the m2
             # module, try to look up the digest using get_digestbyname()
@@ -55,10 +54,12 @@ class MessageDigest:
         m2.digest_init(self.ctx, self.md)
 
     def __del__(self):
+        # type: () -> None
         if getattr(self, 'ctx', None):
             self.m2_md_ctx_free(self.ctx)
 
     def update(self, data):
+        # type: (bytes) -> int
         """
         Add data to be digested.
 
@@ -78,6 +79,7 @@ class HMAC:
     m2_hmac_ctx_free = m2.hmac_ctx_free
 
     def __init__(self, key, algo='sha1'):
+        # type: (bytes, str) -> None
         md = getattr(m2, algo, None)
         if md is None:
             raise ValueError('unknown algorithm', algo)
@@ -86,22 +88,27 @@ class HMAC:
         m2.hmac_init(self.ctx, key, self.md)
 
     def __del__(self):
+        # type: () -> None
         if getattr(self, 'ctx', None):
             self.m2_hmac_ctx_free(self.ctx)
 
     def reset(self, key):
+        # type: (bytes) -> None
         m2.hmac_init(self.ctx, key, self.md)
 
     def update(self, data):
+        # type: (bytes) -> None
         m2.hmac_update(self.ctx, data)
 
     def final(self):
+        # type: () -> bytes
         return m2.hmac_final(self.ctx)
 
     digest = final
 
 
 def hmac(key, data, algo='sha1'):
+    # type: (bytes, bytes, str) -> bytes
     md = getattr(m2, algo, None)
     if md is None:
         raise ValueError('unknown algorithm', algo)
@@ -114,6 +121,7 @@ class Cipher:
 
     def __init__(self, alg, key, iv, op, key_as_bytes=0, d='md5',
                  salt='12345678', i=1, padding=1):
+        # type: (str, bytes, bytes, object, int, str, bytes, int, int) -> None
         cipher = getattr(m2, alg, None)
         if cipher is None:
             raise ValueError('unknown cipher', alg)
@@ -129,16 +137,23 @@ class Cipher:
         del key
 
     def __del__(self):
+        # type: () -> None
         if getattr(self, 'ctx', None):
             self.m2_cipher_ctx_free(self.ctx)
 
     def update(self, data):
+        # type: (bytes) -> bytes
         return m2.cipher_update(self.ctx, data)
 
     def final(self):
+        # type: () -> bytes
         return m2.cipher_final(self.ctx)
 
     def set_padding(self, padding=1):
+        # type: (int) -> int
+        """
+        Actually always return 1
+        """
         return m2.cipher_set_padding(self.ctx, padding)
 
 
@@ -151,8 +166,9 @@ class PKey:
     m2_md_ctx_free = m2.md_ctx_free
 
     def __init__(self, pkey=None, _pyfree=0, md='sha1'):
+        # type: (Optional[bytes], int, str) -> None
         if pkey is not None:
-            self.pkey = pkey
+            self.pkey = pkey  # type: bytes
             self._pyfree = _pyfree
         else:
             self.pkey = m2.pkey_new()
@@ -160,6 +176,7 @@ class PKey:
         self._set_context(md)
 
     def __del__(self):
+        # type: () -> None
         if getattr(self, '_pyfree', 0):
             self.m2_pkey_free(self.pkey)
         if getattr(self, 'ctx', None):
@@ -169,41 +186,43 @@ class PKey:
         return self.pkey
 
     def _set_context(self, md):
-        mda = getattr(m2, md, None)
+        # type: (str) -> None
+        mda = getattr(m2, md, None)  # type: Optional[Callable]
         if mda is None:
             raise ValueError('unknown message digest', md)
         self.md = mda()
-        self.ctx = m2.md_ctx_new()
+        self.ctx = m2.md_ctx_new()  # type: Context
 
     def reset_context(self, md='sha1'):
+        # type: (str) -> None
         """
         Reset internal message digest context.
 
-        @type md: string
         @param md: The message digest algorithm.
         """
         self._set_context(md)
 
     def sign_init(self):
+        # type: () -> None
         """
         Initialise signing operation with self.
         """
         m2.sign_init(self.ctx, self.md)
 
     def sign_update(self, data):
+        # type: (bytes) -> None
         """
         Feed data to signing operation.
 
-        @type data: string
         @param data: Data to be signed.
         """
         m2.sign_update(self.ctx, data)
 
     def sign_final(self):
+        # type: () -> bytes
         """
         Return signature.
 
-        @rtype: string
         @return: The signature.
         """
         return m2.sign_final(self.ctx, self.pkey)
@@ -213,45 +232,44 @@ class PKey:
     final = sign_final
 
     def verify_init(self):
+        # type: () -> None
         """
         Initialise signature verification operation with self.
         """
         m2.verify_init(self.ctx, self.md)
 
     def verify_update(self, data):
+        # type: (bytes) -> int
         """
         Feed data to verification operation.
 
-        @type data: string
         @param data: Data to be verified.
         @return: -1 on Python error, 1 for success, 0 for OpenSSL error
         """
         return m2.verify_update(self.ctx, data)
 
     def verify_final(self, sign):
+        # type: (bytes) -> int
         """
         Return result of verification.
 
         @param sign: Signature to use for verification
-        @rtype: int
         @return: Result of verification: 1 for success, 0 for failure, -1 on
                  other error.
         """
         return m2.verify_final(self.ctx, sign, self.pkey)
 
     def assign_rsa(self, rsa, capture=1):
+        # type: (RSA.RSA, int) -> int
         """
         Assign the RSA key pair to self.
 
-        @type rsa: M2Crypto.RSA.RSA
         @param rsa: M2Crypto.RSA.RSA object to be assigned to self.
 
-        @type capture:  boolean
         @param capture: If true (default), this PKey object will own the RSA
                         object, meaning that once the PKey object gets
                         deleted it is no longer safe to use the RSA object.
 
-        @rtype: int
         @return: Return 1 for success and 0 for failure.
         """
         if capture:
@@ -263,6 +281,7 @@ class PKey:
         return ret
 
     def get_rsa(self):
+        # type: () -> RSA.RSA_pub
         """
         Return the underlying RSA key if that is what the EVP
         instance is holding.
@@ -276,18 +295,16 @@ class PKey:
 
     def save_key(self, file, cipher='aes_128_cbc',
                  callback=util.passphrase_callback):
+        # type: (AnyStr, Optional[str], Callable) -> int
         """
         Save the key pair to a file in PEM format.
 
-        @type file: string
         @param file: Name of file to save key to.
 
-        @type cipher: string
         @param cipher: Symmetric cipher to protect the key. The default
         cipher is 'aes_128_cbc'. If cipher is None, then the key is saved
         in the clear.
 
-        @type callback: Python callable
         @param callback: A Python callable object that is invoked
         to acquire a passphrase with which to protect the key.
         The default is util.passphrase_callback.
@@ -297,18 +314,16 @@ class PKey:
 
     def save_key_bio(self, bio, cipher='aes_128_cbc',
                      callback=util.passphrase_callback):
+        # type: (BIO.BIO, Optional[str], Callable) -> int
         """
         Save the key pair to the M2Crypto.BIO object 'bio' in PEM format.
 
-        @type bio: M2Crypto.BIO
         @param bio: M2Crypto.BIO object to save key to.
 
-        @type cipher: string
         @param cipher: Symmetric cipher to protect the key. The default
         cipher is 'aes_128_cbc'. If cipher is None, then the key is saved
         in the clear.
 
-        @type callback: Python callable
         @param callback: A Python callable object that is invoked
         to acquire a passphrase with which to protect the key.
         The default is util.passphrase_callback.
@@ -322,15 +337,14 @@ class PKey:
             return m2.pkey_write_pem(self.pkey, bio._ptr(), proto(), callback)
 
     def as_pem(self, cipher='aes_128_cbc', callback=util.passphrase_callback):
+        # type: (Optional[str], Callable) -> bytes
         """
         Return key in PEM format in a string.
 
-        @type cipher: string
         @param cipher: Symmetric cipher to protect the key. The default
         cipher is 'aes_128_cbc'. If cipher is None, then the key is saved
         in the clear.
 
-        @type callback: Python callable
         @param callback: A Python callable object that is invoked
         to acquire a passphrase with which to protect the key.
         The default is util.passphrase_callback.
@@ -340,6 +354,7 @@ class PKey:
         return bio.read_all()
 
     def as_der(self):
+        # type: () -> bytes
         """
         Return key in DER format in a string
         """
@@ -348,12 +363,14 @@ class PKey:
         return bio.read_all()
 
     def size(self):
+        # type: () -> int
         """
         Return the size of the key in bytes.
         """
         return m2.pkey_size(self.pkey)
 
     def get_modulus(self):
+        # type: () -> Optional[bytes]
         """
         Return the modulus in hex format.
         """
@@ -361,17 +378,15 @@ class PKey:
 
 
 def load_key(file, callback=util.passphrase_callback):
+    # type: (AnyStr, Callable) -> PKey
     """
     Load an M2Crypto.EVP.PKey from file.
 
-    @type file: string
     @param file: Name of file containing the key in PEM format.
 
-    @type callback: Python callable
     @param callback: A Python callable object that is invoked
     to acquire a passphrase with which to protect the key.
 
-    @rtype: M2Crypto.EVP.PKey
     @return: M2Crypto.EVP.PKey object.
     """
     bio = m2.bio_new_file(file, 'r')
@@ -385,17 +400,15 @@ def load_key(file, callback=util.passphrase_callback):
 
 
 def load_key_bio(bio, callback=util.passphrase_callback):
+    # type: (BIO.BIO, Callable) -> PKey
     """
     Load an M2Crypto.EVP.PKey from an M2Crypto.BIO object.
 
-    @type bio: M2Crypto.BIO
     @param bio: M2Crypto.BIO object containing the key in PEM format.
 
-    @type callback: Python callable
     @param callback: A Python callable object that is invoked
     to acquire a passphrase with which to protect the key.
 
-    @rtype: M2Crypto.EVP.PKey
     @return: M2Crypto.EVP.PKey object.
     """
     cptr = m2.pkey_read_pem(bio._ptr(), callback)
@@ -405,17 +418,15 @@ def load_key_bio(bio, callback=util.passphrase_callback):
 
 
 def load_key_bio_pubkey(bio, callback=util.passphrase_callback):
+    # type: (BIO.BIO, Callable) -> PKey
     """
     Load an M2Crypto.EVP.PKey from a public key as a M2Crypto.BIO object.
 
-    @type bio: M2Crypto.BIO
     @param bio: M2Crypto.BIO object containing the key in PEM format.
 
-    @type callback: Python callable
     @param callback: A Python callable object that is invoked
     to acquire a passphrase with which to protect the key.
 
-    @rtype: M2Crypto.EVP.PKey
     @return: M2Crypto.EVP.PKey object.
     """
     cptr = m2.pkey_read_pem_pubkey(bio._ptr(), callback)
@@ -425,17 +436,15 @@ def load_key_bio_pubkey(bio, callback=util.passphrase_callback):
 
 
 def load_key_string(string, callback=util.passphrase_callback):
+    # type: (AnyStr, Callable) -> PKey
     """
     Load an M2Crypto.EVP.PKey from a string.
 
-    @type string: string
     @param string: String containing the key in PEM format.
 
-    @type callback: Python callable
     @param callback: A Python callable object that is invoked
     to acquire a passphrase with which to protect the key.
 
-    @rtype: M2Crypto.EVP.PKey
     @return: M2Crypto.EVP.PKey object.
     """
     bio = BIO.MemoryBuffer(string)
@@ -443,17 +452,15 @@ def load_key_string(string, callback=util.passphrase_callback):
 
 
 def load_key_string_pubkey(string, callback=util.passphrase_callback):
+    # type: (AnyStr, Callable) -> PKey
     """
     Load an M2Crypto.EVP.PKey from a public key as a string.
 
-    @type string: string
     @param string: String containing the key in PEM format.
 
-    @type callback: Python callable
     @param callback: A Python callable object that is invoked
     to acquire a passphrase with which to protect the key.
 
-    @rtype: M2Crypto.EVP.PKey
     @return: M2Crypto.EVP.PKey object.
     """
     bio = BIO.MemoryBuffer(string)

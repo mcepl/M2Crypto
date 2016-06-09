@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from __future__ import absolute_import
+from __future__ import absolute_import, division
 
 """
 Unit tests for M2Crypto.EVP.
@@ -433,7 +433,7 @@ class CipherTestCase(unittest.TestCase):
 
         nonce = unhexlify('4a45a048a1e9f7c1bd17f2908222b964')  # CTR nonce value, 16 bytes
         key = unhexlify('8410ad66fe53a09addc0d041ae00bc6d70e8038ec17019f27e52eecd3846757e')
-        plaintext_value = 'This is three blocks of text with unicode char \x03'
+        plaintext_value = b'This is three blocks of text with unicode char \x03'
 
         ciphertext_values = {
            '128': unhexlify('6098fb2e49b3f7ed34f841f43f825d84cf4834021511594b931c85f04662544bdb4f38232e9d87fda6280ab1ef450e27'),  # noqa
@@ -448,7 +448,7 @@ class CipherTestCase(unittest.TestCase):
             # Our key for this test is 256 bits in length (32 bytes).
             # We will trim it to the appopriate length for testing AES-128
             # and AES-192 as well (so 16 and 24 bytes, respectively).
-            key_truncated = key[0:(key_size / 8)]
+            key_truncated = key[0:(key_size // 8)]
 
             # Test encrypt operations
             cipher = EVP.Cipher(alg=alg, key=key_truncated, iv=nonce, op=op)
@@ -460,6 +460,9 @@ class CipherTestCase(unittest.TestCase):
             cipher = EVP.Cipher(alg=alg, key=key_truncated, iv=nonce, op=op)
             plaintext = cipher.update(ciphertext_values[str(key_size)])
             plaintext = plaintext + cipher.final()
+            # XXX not quite sure this is the actual intention
+            # but for now let's be happy to find the same content even if with
+            # a different type - XXX
             self.assertEqual(plaintext, plaintext_value)
 
     def test_raises(self):
@@ -496,22 +499,21 @@ class CipherTestCase(unittest.TestCase):
 
 class PBKDF2TestCase(unittest.TestCase):
     def test_rfc3211_test_vectors(self):
-        from binascii import hexlify, unhexlify
 
         password = b'password'
-        salt = unhexlify('12 34 56 78 78 56 34 12'.replace(' ', ''))
+        salt = unhexlify('1234567878563412')
         iter = 5
         keylen = 8
         ret = EVP.pbkdf2(password, salt, iter, keylen)
-        self.assertEqual(hexlify(ret), b'D1 DA A7 86 15 F2 87 E6'.
-                         replace(' ', '').lower())
+        self.assertEqual(ret, unhexlify(b'd1daa78615f287e6'))
 
-        password = b'All n-entities must communicate with other n-entities via n-1 entiteeheehees'
-        salt = unhexlify('12 34 56 78 78 56 34 12'.replace(' ', ''))
+        password = b'All n-entities must communicate with other n-entities' + \
+            b' via n-1 entiteeheehees'
+        salt = unhexlify('1234567878563412')
         iter = 500
         keylen = 16
         ret = EVP.pbkdf2(password, salt, iter, keylen)
-        self.assertEqual(hexlify(ret), b'6A 89 70 BF 68 C9 2C AE A8 4A 8D F2 85 10 85 86'.replace(b' ', b'').lower())
+        self.assertEqual(ret, unhexlify(b'6a8970bf68c92caea84a8df285108586'))
 
 
 class HMACTestCase(unittest.TestCase):
@@ -553,23 +555,21 @@ class HMACTestCase(unittest.TestCase):
         return chain
 
     def make_chain_hmac(self, key, start, input, algo='sha1'):
-        from M2Crypto.EVP import hmac
         chain = []
-        digest = hmac(key, start, algo)
+        digest = EVP.hmac(key, start, algo)
         chain.append((digest, start))
         for i in input:
-            digest = hmac(digest, i, algo)
+            digest = EVP.hmac(digest, i, algo)
             chain.append((digest, i))
         return chain
 
     def verify_chain_hmac(self, key, start, chain, algo='sha1'):
-        from M2Crypto.EVP import hmac
-        digest = hmac(key, start, algo)
+        digest = EVP.hmac(key, start, algo)
         c = chain[0]
         if c[0] != digest or c[1] != start:
             return 0
         for d, v in chain[1:]:
-            digest = hmac(digest, v, algo)
+            digest = EVP.hmac(digest, v, algo)
             if digest != d:
                 return 0
         return 1
