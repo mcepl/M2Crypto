@@ -58,7 +58,8 @@ extern void ASN1_STRING_free( ASN1_STRING *);
             return NULL;
         }
         $2 = len;
-    } else {
+    }
+    else {
         PyErr_SetString(PyExc_TypeError, "expected string");
         return NULL;
     }

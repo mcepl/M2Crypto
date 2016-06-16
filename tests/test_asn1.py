@@ -4,13 +4,15 @@
 
 Copyright (c) 2005 Open Source Applications Foundation. All rights reserved."""
 
-import time, datetime
+import datetime
+import time
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
 
 from M2Crypto import ASN1, m2
+
 
 class ASN1TestCase(unittest.TestCase):
 
@@ -32,8 +34,8 @@ class ASN1TestCase(unittest.TestCase):
         a = ASN1.ASN1_String(asn1ptr, 1)
         self.assertEqual(a.as_text(), 'hello there', a.as_text())
         self.assertEqual(a.as_text(flags=m2.ASN1_STRFLGS_RFC2253),
-                                   '#040B68656C6C6F207468657265',
-                                   a.as_text(flags=m2.ASN1_STRFLGS_RFC2253))
+                         '#040B68656C6C6F207468657265',
+                         a.as_text(flags=m2.ASN1_STRFLGS_RFC2253))
         self.assertEqual(a.as_text(), str(a))
 
     def test_Object(self):
@@ -48,13 +50,13 @@ class ASN1TestCase(unittest.TestCase):
 
         s = '990807053011Z'
         asn1.set_string(s)
-        #assert str(asn1) == 'Aug  7 05:30:11 1999 GMT'
+        # assert str(asn1) == 'Aug  7 05:30:11 1999 GMT'
         t1 = time.strptime(str(asn1), format)
         t2 = time.strptime(s, utcformat)
         self.assertEqual(t1, t2)
 
         asn1.set_time(500)
-        #assert str(asn1) == 'Jan  1 00:08:20 1970 GMT'
+        # assert str(asn1) == 'Jan  1 00:08:20 1970 GMT'
         t1 = time.strftime(format, time.strptime(str(asn1), format))
         t2 = time.strftime(format, time.gmtime(500))
         self.assertEqual(t1, t2)
