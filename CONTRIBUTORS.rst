@@ -1,8 +1,8 @@
 * The original project was created inside of the huge `Chandler project`_
   where it was mostly work of Ng Pheng Siong [#]_ .
 
-* Then for a log time it was maintain and extended to the large part by
-  Heikki Toivonen.
+* Then for a log time it was maintained and extended to the large part
+  by Heikki Toivonen.
   
 With 247 and 415 commits, respectively, these two first maintainers
 provided by far the biggest amount of work on the project.  Thank you.
