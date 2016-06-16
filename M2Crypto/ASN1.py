@@ -65,7 +65,7 @@ class ASN1_String:  # noqa
 
     def __str__(self):
         # type: () -> str
-        return self.__bytes__()
+        return util.py3str(self.__bytes__())
 
     def __del__(self):
         # type: () -> None
@@ -86,7 +86,7 @@ class ASN1_String:  # noqa
         """
         buf = BIO.MemoryBuffer()
         m2.asn1_string_print_ex(buf.bio_ptr(), self.asn1str, flags)
-        return buf.read_all()
+        return util.py3str(buf.read_all())
 
 
 class ASN1_Object:  # noqa
