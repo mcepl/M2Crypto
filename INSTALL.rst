@@ -10,7 +10,7 @@ The following software packages are pre-requisites:
 
 -  Python 2.6 or newer
 -  OpenSSL 1.0.1e or newer
--  SWIG 1.3.40 or newer
+-  SWIG 2.0.4 or newer
 -  Python 2.6 platforms require the Python package unittest2 to be
    installed
 
