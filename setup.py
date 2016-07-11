@@ -14,6 +14,7 @@ import glob
 import os
 import platform
 import string
+import subprocess
 import sys
 
 import setuptools
@@ -22,8 +23,11 @@ from distutils.command import build
 from distutils.command.clean import clean
 from distutils.dir_util import mkpath
 from distutils.file_util import copy_file
+from distutils.version import StrictVersion
+
 from setuptools.command import build_ext
 
+REQUIRED_SWIG_VERSION = '2.0.4'
 
 if sys.version_info[:2] <= (2, 6):
     # This covers hopefully only RHEL-6 (users of any other 2.6 Pythons
@@ -147,13 +151,54 @@ class _M2CryptoBuildExt(build_ext.build_ext):
                       os.path.join('M2Crypto', '_m2crypto.py'),
                       verbose=self.verbose, dry_run=self.dry_run)
 
+
+def swig_version(req_ver):
+    # type: (str) -> bool
+    """
+    Compare version of the swig with the required version
+
+    @param req_ver: required version as a str (e.g., '2.0.4')
+    @return: Boolean indicating whether the satisfying version of swig
+             has been installed.
+    """
+    ver_str = None
+    IND_VER_LINE = 'SWIG Version '
+
+    try:
+        pid = subprocess.Popen(['swig', '-version'], stdout=subprocess.PIPE)
+    except OSError:
+        return False
+
+    out, _ = pid.communicate()
+    if hasattr(out, 'decode'):
+        out = out.decode('utf8')
+
+    for line in out.split('\n'):
+        line = line.strip()
+        if line.startswith(IND_VER_LINE):
+            ver_str = line.strip()[len(IND_VER_LINE):]
+            break
+
+    if not ver_str:
+        raise OSError('Unknown format of swig -version output:\n%s' % out)
+
+    return StrictVersion(ver_str) >= StrictVersion(req_ver)
+
+
 if sys.platform == 'darwin':
     my_extra_compile_args = ["-Wno-deprecated-declarations"]
 else:
     my_extra_compile_args = []
 
+# Don't try to run swig on the ancient platforms
+if swig_version(REQUIRED_SWIG_VERSION):
+    lib_sources = ['SWIG/_m2crypto.i']
+else:
+    lib_sources = ['SWIG/_m2crypto_wrap.c']
+
+
 m2crypto = setuptools.Extension(name='M2Crypto.__m2crypto',
-                                sources=['SWIG/_m2crypto.i'],
+                                sources=lib_sources,
                                 extra_compile_args=['-DTHREADING'],
                                 # Uncomment to build Universal Mac binaries
                                 # extra_link_args =

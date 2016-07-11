@@ -9,4 +9,5 @@ include README.rst
 include CHANGES
 include epydoc.conf
 include LICENCE
-exclude M2Crypto/_m2crypto.py
+include SWIG/_m2crypto_wrap.c
+include M2Crypto/_m2crypto.py
