@@ -103,8 +103,12 @@ extern int ASN1_INTEGER_cmp(ASN1_INTEGER *, ASN1_INTEGER *);
 %constant int ASN1_STRFLGS_ESC_MSB = 4;
 %constant int ASN1_STRFLGS_ESC_QUOTE = 8;
 %constant int ASN1_STRFLGS_UTF8_CONVERT = 0x10;
+%constant int ASN1_STRFLGS_IGNORE_TYPE = 0x20;
+%constant int ASN1_STRFLGS_SHOW_TYPE = 0x40;
+%constant int ASN1_STRFLGS_DUMP_ALL = 0x80;
 %constant int ASN1_STRFLGS_DUMP_UNKNOWN = 0x100;
 %constant int ASN1_STRFLGS_DUMP_DER = 0x200;
+
 %constant int ASN1_STRFLGS_RFC2253 = (ASN1_STRFLGS_ESC_2253 | \
                 ASN1_STRFLGS_ESC_CTRL | \
                 ASN1_STRFLGS_ESC_MSB | \
