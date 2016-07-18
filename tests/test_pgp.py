@@ -4,15 +4,19 @@
 
 Copyright (c) 1999 Ng Pheng Siong. All rights reserved."""
 
-from cStringIO import StringIO
+from io import BytesIO
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
 
-from M2Crypto import EVP, PGP
+from M2Crypto import EVP, PGP, Rand, six
 
 
+@unittest.skipIf(
+    six.PY3,
+    'IGNORED for python3 porting effort as PGP module is unmaintained ' +
+    'and not well covered by tests')
 class PGPTestCase(unittest.TestCase):
 
     def test_simple(self):
@@ -23,14 +27,15 @@ class PGPTestCase(unittest.TestCase):
         s1.update(daft_pkt)
         s1f = repr(s1.final())
 
-        buf = StringIO(daft_pkt)
-        ps = PGP.packet_stream(buf)
+        buf = BytesIO(daft_pkt)
+        ps = PGP.PacketStream(buf)
         dift_pkt = ps.read()
         s2 = EVP.MessageDigest('sha1')
         s2.update(dift_pkt.pack())
         s2f = repr(s2.final())
 
         self.assertEqual(s1f, s2f)
+
 
 def suite():
     suite = unittest.TestSuite()
