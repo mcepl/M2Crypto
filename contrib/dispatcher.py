@@ -45,7 +45,7 @@ class dispatcher(asyncore.dispatcher_with_send):
         else:
             self.create_socket (socket.AF_INET, socket.SOCK_STREAM)
 
-        self.ctx = SSL.Context('sslv23')
+        self.ctx = SSL.Context()
         self.ctx.set_verify(SSL.verify_none, 10)
         self.ctx.load_cert(cert, key)
         self.ctx.set_info_callback()

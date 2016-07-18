@@ -22,8 +22,6 @@ if six.PY3:
 else:
     from urllib import *  # noqa
 
-DEFAULT_PROTOCOL = 'sslv23'
-
 
 def open_https(self, url, data=None, ssl_context=None):
     # type: (AnyStr, Optional[bytes], Optional[SSL.Context]) -> addinfourl
@@ -38,7 +36,7 @@ def open_https(self, url, data=None, ssl_context=None):
     if ssl_context is not None and isinstance(ssl_context, SSL.Context):
         self.ctx = ssl_context
     else:
-        self.ctx = SSL.Context(DEFAULT_PROTOCOL)
+        self.ctx = SSL.Context()
     user_passwd = None
     if isinstance(url, six.string_types):
         try:               # python 2

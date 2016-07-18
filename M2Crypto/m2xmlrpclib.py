@@ -31,7 +31,7 @@ class SSL_Transport(Transport):  # noqa
         # type: (Optional[SSL.Context], *List[Any], **Dict[Any, Any]) -> None
         Transport.__init__(self, *args, **kw)
         if ssl_context is None:
-            self.ssl_ctx = SSL.Context('sslv23')
+            self.ssl_ctx = SSL.Context()
         else:
             self.ssl_ctx = ssl_context
 

@@ -36,12 +36,9 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 # We want to import whole stdlib ftplib objects, because our users want
 # to use them.
 from ftplib import *  # noqa
-import socket  # noqa
 
 # M2Crypto
 from M2Crypto import SSL
-
-DEFAULT_PROTOCOL = 'sslv23'  # type: str
 
 
 class FTP_TLS(FTP):  # noqa
@@ -53,7 +50,7 @@ class FTP_TLS(FTP):  # noqa
         if ssl_ctx is not None:
             self.ssl_ctx = ssl_ctx
         else:
-            self.ssl_ctx = SSL.Context(DEFAULT_PROTOCOL)
+            self.ssl_ctx = SSL.Context()
         FTP.__init__(self, host)
         self.prot = 0
 

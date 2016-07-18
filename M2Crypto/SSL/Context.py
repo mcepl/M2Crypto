@@ -51,21 +51,25 @@ class Context:
 
     m2_ssl_ctx_free = m2.ssl_ctx_free
 
-    def __init__(self, protocol='sslv23', weak_crypto=None,
+    def __init__(self, protocol='tls', weak_crypto=None,
                  post_connection_check=None):
         # type: (str, Optional[int], Optional[Callable]) -> None
         proto = getattr(m2, protocol + '_method', None)
         if proto is None:
-            raise ValueError("no such protocol '%s'" % protocol)
+            # default is 'sslv23' for older versions of OpenSSL
+            if protocol == 'tls':
+                proto = getattr(m2, 'sslv23_method')
+            else:
+                raise ValueError("no such protocol '%s'" % protocol)
         self.ctx = m2.ssl_ctx_new(proto())
         self.allow_unknown_ca = 0  # type: Union[int, bool]
         self.post_connection_check = post_connection_check
         ctxmap()[int(self.ctx)] = self
-        m2.ssl_ctx_set_cache_size(self.ctx, long(128))
+        m2.ssl_ctx_set_cache_size(self.ctx, 128)
         if weak_crypto is None:
             if protocol == 'sslv23':
-                self.set_options(m2.SSL_OP_ALL | m2.SSL_OP_NO_SSLv2)
-            self.set_cipher_list('ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH')
+                self.set_options(m2.SSL_OP_ALL | m2.SSL_OP_NO_SSLv2 |
+                                 m2.SSL_OP_NO_SSLv3)
 
     def __del__(self):
         # type: () -> None
