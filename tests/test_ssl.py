@@ -920,7 +920,8 @@ class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
         finally:
             self.stop_server(pid)
 
-
+@unittest.skipIf(not util.py27plus,
+                 "Twisted doesn't test well with Python 2.6")
 class TwistedSSLClientTestCase(BaseSSLClientTestCase):
 
     def test_timeout(self):
@@ -1091,8 +1092,9 @@ def suite():
     suite.addTest(unittest.makeSuite(MiscSSLClientTestCase))
     suite.addTest(unittest.makeSuite(FtpslibTestCase))
     try:
-        import M2Crypto.SSL.TwistedProtocolWrapper as wrapper  # noqa
-        suite.addTest(unittest.makeSuite(TwistedSSLClientTestCase))
+        if util.py27plus:
+            import M2Crypto.SSL.TwistedProtocolWrapper as wrapper  # noqa
+            suite.addTest(unittest.makeSuite(TwistedSSLClientTestCase))
     except ImportError:
         pass
     return suite
