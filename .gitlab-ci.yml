@@ -1,5 +1,5 @@
 stages:
-    # - centos6
+    - centos6
     # - python26
     - python27
     - python34
@@ -11,15 +11,16 @@ stages:
     script:
         - python setup.py clean build test
 
-.centos6:
+centos6:
     stage: centos6
     image: centos:6
     when: always
-    allow_failure: yes
     script:
         - yum upgrade -y
-        - yum install -y swig python-devel openssl-devel openssl python-setuptools python-twisted
-        - python setup.py clean build test
+        - yum groupinstall -y "Development tools"
+        - yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm
+        - yum install -y swig python-devel openssl-devel openssl python-setuptools python-twisted python-unittest2
+        - python setup.py build test
 
 python27:
     stage: python27
