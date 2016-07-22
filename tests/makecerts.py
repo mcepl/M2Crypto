@@ -75,8 +75,9 @@ def save_text_pem_key(cert, name, with_key=True):
         for line in cert.as_pem():
             f.write(line)
         if with_key:
-            for line in open(name + '_key.pem', 'rb'):
-                f.write(line)
+            with open(name + '_key.pem', 'rb') as key_f:
+                for line in key_f:
+                    f.write(line)
 
 
 def issue(request, ca, capk):

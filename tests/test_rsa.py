@@ -77,7 +77,8 @@ class RSATestCase(unittest.TestCase):
         self.assertEqual(rsa.check_key(), 1)
 
     def test_loadkey_bio(self):
-        keybio = BIO.MemoryBuffer(open(self.privkey, "rb").read())
+        with open(self.privkey, "rb") as f:
+            keybio = BIO.MemoryBuffer(f.read())
         rsa = RSA.load_key_bio(keybio)
         self.assertEqual(len(rsa), 1024)
         self.assertEqual(rsa.e,

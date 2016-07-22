@@ -17,6 +17,7 @@ try:
     import unittest2 as unittest
 except ImportError:
     import unittest
+import warnings
 
 from M2Crypto import ASN1, BIO, EVP, RSA, Rand, X509, m2  # noqa
 
@@ -448,17 +449,18 @@ class X509TestCase(unittest.TestCase):
         self.assertEqual(fp, self.expected_hash)
 
     def test_load_der_string(self):
-        f = open('tests/x509.der', 'rb')
-        x509 = X509.load_cert_der_string(f.read())
+        with open('tests/x509.der', 'rb') as f:
+            x509 = X509.load_cert_der_string(f.read())
+
         fp = x509.get_fingerprint('sha1')
         self.assertEqual(fp, self.expected_hash)
 
     def test_save_der_string(self):
         x509 = X509.load_cert('tests/x509.pem')
         s = x509.as_der()
-        f = open('tests/x509.der', 'rb')
-        s2 = f.read()
-        f.close()
+        with open('tests/x509.der', 'rb') as f:
+            s2 = f.read()
+
         self.assertEqual(s, s2)
 
     def test_load(self):
@@ -470,10 +472,10 @@ class X509TestCase(unittest.TestCase):
         return
 
     def test_load_bio(self):
-        bio = BIO.openfile('tests/x509.pem')
-        bio2 = BIO.openfile('tests/x509.der')
-        x509 = X509.load_cert_bio(bio)
-        x5092 = X509.load_cert_bio(bio2, format=X509.FORMAT_DER)
+        with BIO.openfile('tests/x509.pem') as bio:
+            with BIO.openfile('tests/x509.der') as bio2:
+                x509 = X509.load_cert_bio(bio)
+                x5092 = X509.load_cert_bio(bio2, format=X509.FORMAT_DER)
 
         with self.assertRaises(ValueError):
             X509.load_cert_bio(bio2, format=45678)
@@ -483,12 +485,12 @@ class X509TestCase(unittest.TestCase):
         self.assertEqual(x509.as_der(), x5092.as_der())
 
     def test_load_string(self):
-        f = open('tests/x509.pem')
-        s = f.read()
-        f.close()
-        f2 = open('tests/x509.der', 'rb')
-        s2 = f2.read()
-        f2.close()
+        with open('tests/x509.pem') as f:
+            s = f.read()
+
+        with open('tests/x509.der', 'rb') as f2:
+            s2 = f2.read()
+
         x509 = X509.load_cert_string(s)
         x5092 = X509.load_cert_string(s2, X509.FORMAT_DER)
         self.assertEqual(x509.as_text(), x5092.as_text())
@@ -515,26 +517,26 @@ class X509TestCase(unittest.TestCase):
 
     def test_save(self):
         x509 = X509.load_cert('tests/x509.pem')
-        f = open('tests/x509.pem', 'r')
-        l_tmp = f.readlines()
-        # -----BEGIN CERTIFICATE----- : -----END CERTIFICATE-----
-        beg_idx = l_tmp.index('-----BEGIN CERTIFICATE-----\n')
-        end_idx = l_tmp.index('-----END CERTIFICATE-----\n')
-        x509_pem = ''.join(l_tmp[beg_idx:end_idx + 1])
-        f.close()
-        f = open('tests/x509.der', 'rb')
-        x509_der = f.read()
-        f.close()
+        with open('tests/x509.pem', 'r') as f:
+            l_tmp = f.readlines()
+            # -----BEGIN CERTIFICATE----- : -----END CERTIFICATE-----
+            beg_idx = l_tmp.index('-----BEGIN CERTIFICATE-----\n')
+            end_idx = l_tmp.index('-----END CERTIFICATE-----\n')
+            x509_pem = ''.join(l_tmp[beg_idx:end_idx + 1])
+
+        with open('tests/x509.der', 'rb') as f:
+            x509_der = f.read()
+
         x509.save('tests/tmpcert.pem')
-        f = open('tests/tmpcert.pem')
-        s = f.read()
-        f.close()
+        with open('tests/tmpcert.pem') as f:
+            s = f.read()
+
         self.assertEqual(s, x509_pem)
         os.remove('tests/tmpcert.pem')
         x509.save('tests/tmpcert.der', format=X509.FORMAT_DER)
-        f = open('tests/tmpcert.der', 'rb')
-        s = f.read()
-        f.close()
+        with open('tests/tmpcert.der', 'rb') as f:
+            s = f.read()
+
         self.assertEqual(s, x509_der)
         os.remove('tests/tmpcert.der')
 
@@ -571,9 +573,13 @@ class X509TestCase(unittest.TestCase):
 
 class X509StackTestCase(unittest.TestCase):
     def test_make_stack_from_der(self):
-        f = open("tests/der_encoded_seq.b64", 'rb')
-        b64 = f.read(1304)
-        seq = base64.decodestring(b64)
+        with open("tests/der_encoded_seq.b64", 'rb') as f:
+            b64 = f.read(1304)
+
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore', DeprecationWarning)
+            seq = base64.decodestring(b64)
+
         stack = X509.new_stack_from_der(seq)
         cert = stack.pop()
         self.assertIsNone(stack.pop())
@@ -587,9 +593,13 @@ class X509StackTestCase(unittest.TestCase):
             "/DC=org/DC=doegrids/OU=Services/CN=host/bosshog.lbl.gov")
 
     def test_make_stack_check_num(self):
-        f = open("tests/der_encoded_seq.b64", 'rb')
-        b64 = f.read(1304)
-        seq = base64.decodestring(b64)
+        with open("tests/der_encoded_seq.b64", 'rb') as f:
+            b64 = f.read(1304)
+
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore', DeprecationWarning)
+            seq = base64.decodestring(b64)
+
         stack = X509.new_stack_from_der(seq)
         num = len(stack)
         self.assertEqual(num, 1)

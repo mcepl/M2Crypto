@@ -92,6 +92,7 @@ class PublicKeyRing:
 
 def load_pubring(filename='pubring.pgp'):
     # type: (AnyStr) -> PublicKeyRing
-    pkr = PublicKeyRing(open(filename, 'rb'))
-    pkr.load()
-    return pkr
+    with open(filename, 'rb') as pkr_f:
+        pkr = PublicKeyRing(pkr_f)
+        pkr.load()
+        return pkr

@@ -319,15 +319,13 @@ class WriteLoadTestCase(unittest.TestCase):
         s.load_key('tests/signer_key.pem', 'tests/signer.pem')
         p7 = s.sign(BIO.MemoryBuffer(b'some text'))
         self.filename = 'tests/sig.p7'
-        f = BIO.openfile(self.filename, 'wb')
-        self.assertEqual(p7.write(f), 1)
-        f.close()
+        with BIO.openfile(self.filename, 'wb') as f:
+            self.assertEqual(p7.write(f), 1)
 
         p7 = s.sign(BIO.MemoryBuffer(b'some text'), SMIME.PKCS7_DETACHED)
         self.filenameSmime = 'tests/sig.p7s'
-        f = BIO.openfile(self.filenameSmime, 'wb')
-        self.assertEqual(s.write(f, p7, BIO.MemoryBuffer(b'some text')), 1)
-        f.close()
+        with BIO.openfile(self.filenameSmime, 'wb') as f:
+            self.assertEqual(s.write(f, p7, BIO.MemoryBuffer(b'some text')), 1)
 
     def test_write_pkcs7_der(self):
         buf = BIO.MemoryBuffer()
@@ -339,9 +337,8 @@ class WriteLoadTestCase(unittest.TestCase):
         self.assertEqual(SMIME.load_pkcs7(self.filename).type(), SMIME.PKCS7_SIGNED)
 
     def test_load_pkcs7_bio(self):
-        f = open(self.filename, 'rb')
-        buf = BIO.MemoryBuffer(f.read())
-        f.close()
+        with open(self.filename, 'rb') as f:
+            buf = BIO.MemoryBuffer(f.read())
 
         self.assertEqual(SMIME.load_pkcs7_bio(buf).type(), SMIME.PKCS7_SIGNED)
 
@@ -352,9 +349,8 @@ class WriteLoadTestCase(unittest.TestCase):
         self.assertEqual(a.type(), SMIME.PKCS7_SIGNED)
 
     def test_load_smime_bio(self):
-        f = open(self.filenameSmime, 'rb')
-        buf = BIO.MemoryBuffer(f.read())
-        f.close()
+        with open(self.filenameSmime, 'rb') as f:
+            buf = BIO.MemoryBuffer(f.read())
 
         a, b = SMIME.smime_load_pkcs7_bio(buf)
         self.assertIsInstance(a, SMIME.PKCS7, a)

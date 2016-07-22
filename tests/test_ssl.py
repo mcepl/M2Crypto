@@ -955,12 +955,9 @@ class TwistedSSLClientTestCase(BaseSSLClientTestCase):
         try:
             if pipe_pid == 0:
                 try:
-                    f = open('tests/' + FIFO_NAME, 'w')
-                    try:
+                    with open('tests/' + FIFO_NAME, 'w') as f:
                         time.sleep(sleepTime + 1)
                         f.write('Content\n')
-                    finally:
-                        f.close()
                 finally:
                     os._exit(0)
             self.args[self.args.index('-www')] = '-WWW'
@@ -1089,16 +1086,15 @@ def zap_servers():
     fn = tempfile.mktemp()
     cmd = 'ps | egrep %s > %s' % (s, fn)
     os.system(cmd)
-    f = open(fn)
-    while 1:
-        ps = f.readline()
-        if not ps:
-            break
-        chunk = ps.split()
-        pid, cmd = chunk[0], chunk[4]
-        if cmd == s:
-            os.kill(int(pid), signal.SIGTERM)
-    f.close()
+    with open(fn) as f:
+        while 1:
+            ps = f.readline()
+            if not ps:
+                break
+            chunk = ps.split()
+            pid, cmd = chunk[0], chunk[4]
+            if cmd == s:
+                os.kill(int(pid), signal.SIGTERM)
     os.unlink(fn)
 
 

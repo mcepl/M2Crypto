@@ -1,8 +1,5 @@
 try:
-    f = open('/proc/sys/crypto/fips_enabled')
-    try:
+    with open('/proc/sys/crypto/fips_enabled') as f:
         fips_mode = int(f.read())
-    finally:
-        f.close()
-except Exception as e:
+except (IOError, OSError):
     fips_mode = 0
