@@ -221,8 +221,7 @@ class Clean(clean):
         clean.run(self)
         garbage_list = [
             "M2Crypto/__m2crypto*.so",
-            "M2Crypto/__m2crypto*.pyd",
-            "M2Crypto/_m2crypto.py",
+            "M2Crypto/__m2crypto*.pyd"
         ]
         for p in garbage_list:
             for f in glob.glob(p):
