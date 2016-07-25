@@ -3,6 +3,7 @@ stages:
     # - python26
     - python27
     - python34
+    - fedora
 
 .python26:
     stage: python26
@@ -10,6 +11,16 @@ stages:
     when: always
     script:
         - python setup.py clean build test
+
+fedora:
+    stage: fedora
+    image: fedora:latest
+    when: always
+    script:
+        # - dnf upgrade --refresh -y
+        - dnf install -y @development-tools fedora-packager rpmdevtools
+        - dnf install -y swig python-devel openssl-devel openssl python-setuptools python-twisted
+        - python setup.py build test
 
 centos6:
     stage: centos6
