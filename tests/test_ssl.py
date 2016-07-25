@@ -32,7 +32,7 @@ except ImportError:
     import unittest
 
 from M2Crypto import Err, Rand, SSL, m2, util
-from tests import plat_debian, plat_fedora
+from tests import plat_fedora
 from tests.fips import fips_mode
 
 logging.basicConfig(format='%(levelname)s:%(funcName)s:%(message)s',
@@ -362,7 +362,8 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
 
     # TLS is required in FIPS mode
     @unittest.skipIf(fips_mode, "Can't be run in FIPS mode")
-    @unittest.skipIf(plat_debian, "Debian distros don't allow weak ciphers")
+    @unittest.skipUnless(hasattr(m2, "sslv2_method"),
+                         "This platform doesn't support SSLv2")
     def test_sslv23_weak_crypto(self):
         self.args = self.args + ['-ssl2']
         pid = self.start_server(self.args)
