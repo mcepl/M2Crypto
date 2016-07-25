@@ -28,6 +28,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import warnings
 try:
     import unittest2 as unittest
 except ImportError:
@@ -827,7 +828,9 @@ class UrllibSSLClientTestCase(BaseSSLClientTestCase):
     def test_urllib(self):
         pid = self.start_server(self.args)
         try:
-            url = m2urllib.FancyURLopener()
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", DeprecationWarning)
+                url = m2urllib.FancyURLopener()
             url.addheader('Connection', 'close')
             u = url.open('https://%s:%s/' % (srv_host, self.srv_port))
             data = u.read()
@@ -1009,7 +1012,7 @@ class TwistedSSLClientTestCase(BaseSSLClientTestCase):
         # TODO Class must implement all abstract methods
         class EchoClient(LineReceiver):
             def connectionMade(self):
-                self.sendLine('GET / HTTP/1.0\n\n')
+                self.sendLine(b'GET / HTTP/1.0\n\n')
 
             def lineReceived(self, line):
                 global twisted_data
@@ -1033,7 +1036,7 @@ class TwistedSSLClientTestCase(BaseSSLClientTestCase):
 
         try:
             global twisted_data
-            twisted_data = ''
+            twisted_data = b''
 
             context_factory = ContextFactory()
             factory = EchoClientFactory()
