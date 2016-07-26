@@ -4,6 +4,7 @@ M2Crypto
 
 :Maintainer: Matěj Cepl
 :Web-Site: https://gitlab.com/m2crypto/m2crypto
+:IRC channel: `#m2crypto`_ on Freenode
 
 M2Crypto = Python + OpenSSL + SWIG
 ------------------------------------
@@ -62,5 +63,7 @@ Note these caveats:
   Python does not provide the features needed. On the C (OpenSSL) side
   things are cleared when the Python objects are deleted.
 
-
 Have fun! Your feedback is welcome.
+
+.. _`#m2crypto`:
+    irc://Freenode/#m2crypto
