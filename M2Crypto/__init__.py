@@ -27,8 +27,6 @@ from M2Crypto import (ASN1, AuthCookie, BIO, BN, DH, DSA, EVP, Engine, Err,
                       PGP, RSA, Rand, SMIME, SSL, X509, m2crypto,
                       ftpslib, httpslib, m2, m2urllib, m2xmlrpclib,
                       threading, util)
-if util.py27plus:
-    from typing import Tuple  # noqa
 
 if m2.OPENSSL_VERSION_NUMBER >= 0x90800F and m2.OPENSSL_NO_EC == 0:
     from M2Crypto import EC

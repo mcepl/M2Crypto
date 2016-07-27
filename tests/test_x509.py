@@ -18,7 +18,7 @@ try:
 except ImportError:
     import unittest
 
-from M2Crypto import ASN1, BIO, EVP, RSA, Rand, X509, m2, util  # noqa
+from M2Crypto import ASN1, BIO, EVP, RSA, Rand, X509, m2  # noqa
 
 log = logging.getLogger(__name__)
 

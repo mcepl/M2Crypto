@@ -9,8 +9,10 @@ import socket
 # M2Crypto
 from M2Crypto import m2
 
+
 class SSLError(Exception):
     pass
+
 
 class SSLTimeoutError(SSLError, socket.timeout):
     pass

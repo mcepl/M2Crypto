@@ -152,7 +152,7 @@ class SMIME_Error(Exception):  # noqa
 
 m2.smime_init(SMIME_Error)
 
-
+# FIXME class has no __init__ method
 class SMIME:
     def load_key(self, keyfile, certfile=None,
                  callback=util.passphrase_callback):

@@ -7,7 +7,7 @@ try:
 except ImportError:
     import unittest
 
-from M2Crypto import Engine, m2
+from M2Crypto import Engine
 
 class EngineTestCase(unittest.TestCase):
 

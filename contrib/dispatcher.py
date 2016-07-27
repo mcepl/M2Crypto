@@ -22,6 +22,7 @@ class NBConnection(SSL.Connection):
 
     def connect(self, addr):
         self._setup_ssl(addr)
+        # FIXME SSL.Connection doesn't have _check_ssl_return method
         return self._check_ssl_return(SSL.m2.ssl_connect(self.ssl))
 
     def accept(self, addr):

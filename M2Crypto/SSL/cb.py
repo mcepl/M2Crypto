@@ -8,7 +8,7 @@ import sys
 
 from M2Crypto import m2, util
 if util.py27plus:
-    from typing import Any  # noqa
+    from typing import Any, List  # noqa
 
 __all__ = ['unknown_issuer', 'ssl_verify_callback_stub', 'ssl_verify_callback',
            'ssl_verify_callback_allow_unknown_ca', 'ssl_info_callback']
@@ -60,20 +60,20 @@ def ssl_info_callback(where, ret, ssl_ptr):
     # type: (int, int, bytes) -> None
 
     w = where & ~m2.SSL_ST_MASK
-    if (w & m2.SSL_ST_CONNECT):
+    if w & m2.SSL_ST_CONNECT:
         state = "SSL connect"
-    elif (w & m2.SSL_ST_ACCEPT):
+    elif w & m2.SSL_ST_ACCEPT:
         state = "SSL accept"
     else:
         state = "SSL state unknown"
 
-    if (where & m2.SSL_CB_LOOP):
+    if where & m2.SSL_CB_LOOP:
         sys.stderr.write("LOOP: %s: %s\n" %
                          (state, m2.ssl_get_state_v(ssl_ptr)))
         sys.stderr.flush()
         return
 
-    if (where & m2.SSL_CB_EXIT):
+    if where & m2.SSL_CB_EXIT:
         if not ret:
             sys.stderr.write("FAILED: %s: %s\n" %
                              (state, m2.ssl_get_state_v(ssl_ptr)))
@@ -84,8 +84,8 @@ def ssl_info_callback(where, ret, ssl_ptr):
             sys.stderr.flush()
         return
 
-    if (where & m2.SSL_CB_ALERT):
-        if (where & m2.SSL_CB_READ):
+    if where & m2.SSL_CB_ALERT:
+        if where & m2.SSL_CB_READ:
             w = 'read'
         else:
             w = 'write'

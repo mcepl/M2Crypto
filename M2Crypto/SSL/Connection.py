@@ -598,7 +598,7 @@ class Connection:
 
     def get_version(self):
         # type: () -> str
-        "Return the TLS/SSL protocol version for this connection."
+        """Return the TLS/SSL protocol version for this connection."""
         return m2.ssl_get_version(self.ssl)
 
     def set_post_connection_check_callback(self, postConnectionCheck):  # noqa

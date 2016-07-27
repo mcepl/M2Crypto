@@ -3,7 +3,7 @@
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
 from M2Crypto import m2, util
-from M2Crypto.RSA import RSA, RSA_pub  # noqa
+from M2Crypto.RSA import RSA_pub  # noqa
 if util.py27plus:
     from typing import Tuple  # noqa
 

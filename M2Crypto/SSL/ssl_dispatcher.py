@@ -9,7 +9,7 @@ import asyncore
 import socket
 
 # M2Crypto
-from M2Crypto import Err, m2, util  # noqa
+from M2Crypto import util  # noqa
 from M2Crypto.SSL.Connection import Connection
 from M2Crypto.SSL.Context import Context  # noqa
 

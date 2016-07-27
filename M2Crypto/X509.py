@@ -760,7 +760,7 @@ class X509:
         return m2.x509_check_purpose(self.x509, id, ca)
 
     def get_fingerprint(self, md='md5'):
-        # type: (int) -> str
+        # type: (str) -> str
         """
         Get the fingerprint of the certificate.
 

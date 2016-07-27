@@ -374,7 +374,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
                 if r <= 0:
                     assert(m2bio_should_retry(sslBioPtr))
                 else:
-                    assert(self.checked)
+                    assert self.checked
                     self.data = self.data[r:]
 
             pending = m2bio_ctrl_pending(networkBio)

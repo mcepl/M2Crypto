@@ -37,10 +37,10 @@ except AttributeError:
 
 
 class _closing_fileobject(mother_class):  # noqa
-    '''socket._fileobject that propagates self.close() to the socket.
+    """socket._fileobject that propagates self.close() to the socket.
 
     Python 2.5 provides this as socket._fileobject(sock, close=True).
-    '''
+    """
 
 # for python 3
 try:
@@ -87,7 +87,7 @@ class HTTPSHandler(AbstractHTTPHandler):
         full_url = req.get_full_url()
         target_host = url_parse(full_url)[1]
 
-        if (target_host != host):
+        if target_host != host:
             request_uri = urldefrag(full_url)[0]
             h = httpslib.ProxyHTTPSConnection(host=host, ssl_context=self.ctx)
         else:

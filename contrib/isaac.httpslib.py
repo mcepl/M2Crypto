@@ -6,7 +6,7 @@ Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
 import string
 
-import SSL
+from M2Crypto import SSL
 
 from httplib import FakeSocket, HTTP, HTTPConnection, HTTPResponse, HTTPS_PORT
 

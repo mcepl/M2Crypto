@@ -9,7 +9,7 @@ try:
 except ImportError:
     import unittest
 
-from M2Crypto import DH, BIO, Rand, m2
+from M2Crypto import DH, BIO, Rand
 
 class DHTestCase(unittest.TestCase):
 

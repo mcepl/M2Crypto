@@ -13,7 +13,7 @@ try:
 except ImportError:
     import unittest
 
-from M2Crypto import EC, Rand, m2
+from M2Crypto import EC, Rand
 
 from tests.test_ec_curves import tested_curve
 

@@ -52,7 +52,7 @@ class Engine:
         return m2.engine_finish(self._ptr)
 
     def ctrl_cmd_string(self, cmd, arg, optional=0):
-        # type: (bytes, bytes, int) -> int
+        # type: (bytes, Optional[bytes], int) -> int
         """Call ENGINE_ctrl_cmd_string"""
         if not m2.engine_ctrl_cmd_string(self._ptr, cmd, arg, optional):
             raise EngineError(Err.get_error())

@@ -84,7 +84,7 @@ class Checker:
 
         if self.fingerprint:
             if self.digest not in ('sha1', 'md5'):
-                raise ValueError('unsupported digest "%s"' % (self.digest))
+                raise ValueError('unsupported digest "%s"' % self.digest)
 
             if self.digest == 'sha1':
                 expected_len = 40
@@ -256,7 +256,7 @@ class Checker:
         # Massage certHost so that it can be used in regex
         certHost = certHost.replace('.', '\.')
         certHost = certHost.replace('*', '[^\.]*')
-        if re.compile('^%s$' % (certHost)).match(host):
+        if re.compile('^%s$' % certHost).match(host):
             return True
 
         return False

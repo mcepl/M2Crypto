@@ -93,12 +93,12 @@ class Packet:
     def _llf(self, lenf):
         # type: (int) -> Tuple[int, bytes]
         if lenf < 256:
-            return (0, chr(lenf))
+            return 0, chr(lenf)
         elif lenf < 65536:
-            return (1, struct.pack('>H', lenf))
+            return 1, struct.pack('>H', lenf)
         else:
             assert lenf < 2**32
-            return (2, struct.pack('>L', lenf))
+            return 2, struct.pack('>L', lenf)
 
     def _ctb(self, llf):
         # type: (int) -> int
@@ -157,7 +157,7 @@ class TrustPacket(Packet):  # noqa
 
 class UserIDPacket(Packet):  # noqa
     def __init__(self, ctb, body=None):
-        # type: (int, Optional[int]) -> None
+        # type: (int, Optional[str]) -> None
         Packet.__init__(self, ctb, body)
         if body is not None:
             self._userid = body
@@ -313,7 +313,7 @@ class CompressedPacket(Packet):  # noqa
 
     def validate(self):
         # type: () -> bool
-        return (self.algo == '\001')
+        return self.algo == '\001'
 
     def uncompress(self):
         # type: () -> IO[bytes]
