@@ -35,7 +35,7 @@ except ImportError:
     import unittest
 
 from M2Crypto import (Err, Rand, SSL, X509, ftpslib, httpslib, m2, m2urllib,
-                      m2urllib2, m2xmlrpclib, util)
+                      m2urllib2, m2xmlrpclib, six, util)
 from tests import plat_fedora
 from tests.fips import fips_mode
 
@@ -875,12 +875,11 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
 
 class UrllibSSLClientTestCase(BaseSSLClientTestCase):
 
+    @unittest.skipIf(six.PY3, "urllib.URLOpener is deprecated in py3k")
     def test_urllib(self):
         pid = self.start_server(self.args)
         try:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", DeprecationWarning)
-                url = m2urllib.FancyURLopener()
+            url = m2urllib.FancyURLopener()
             url.addheader('Connection', 'close')
             u = url.open('https://%s:%s/' % (srv_host, self.srv_port))
             data = u.read()
