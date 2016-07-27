@@ -33,6 +33,7 @@ log = logging.getLogger('setup')
 REQUIRED_SWIG_VERSION = '2.0.4'
 MAXIMUM_OPENSSL_VERSION = '1.0.1'
 
+
 if sys.version_info[:2] <= (2, 6):
     # This covers hopefully only RHEL-6 (users of any other 2.6 Pythons
     # ... Solaris?, *BSD? ... should file an issue and be prepared to
@@ -145,8 +146,11 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         """Append custom openssl include file and library linking options."""
         build_ext.build_ext.finalize_options(self)
 
-        if self.swig_opts is None:
-            self.swig_opts = []
+        if not self.swig_opts:
+            if sys.version_info[:1] >= (3,):
+                self.swig_opts = ['-py3']
+            else:
+                self.swig_opts = []
 
         _openssl = next((x.split('=')[1] for x in sys.argv
                          if '--openssl=' in x), None)
