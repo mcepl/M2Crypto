@@ -17,26 +17,31 @@
 %inline %{
 PyObject *bn_rand(int bits, int top, int bottom)
 {
-    BIGNUM rnd;
+    BIGNUM* rnd;
     PyObject *ret;
     char *randhex;
 
-    BN_init(&rnd);
-    if (!BN_rand(&rnd, bits, top, bottom)) {
+    rnd = BN_new();
+    if (rnd == NULL) {
+        PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+        }
+
+    if (!BN_rand(rnd, bits, top, bottom)) {
         /*Custom errors?*/
         PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
-        BN_free(&rnd);
+        BN_free(rnd);
         return NULL;
     }
 
-    randhex = BN_bn2hex(&rnd);
+    randhex = BN_bn2hex(rnd);
     if (!randhex) {
         /*Custom errors?*/
         PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
-        BN_free(&rnd);
+        BN_free(rnd);
         return NULL;
     }
-    BN_free(&rnd);
+    BN_free(rnd);
 
     ret = PyLong_FromString(randhex, NULL, 16);
     OPENSSL_free(randhex);
@@ -46,7 +51,7 @@ PyObject *bn_rand(int bits, int top, int bottom)
 
 PyObject *bn_rand_range(PyObject *range)
 {
-    BIGNUM rnd;
+    BIGNUM* rnd;
     BIGNUM *rng = NULL;
     PyObject *ret, *tuple;
     PyObject *format, *rangePyString;
@@ -101,26 +106,29 @@ PyObject *bn_rand_range(PyObject *range)
 
     Py_DECREF(rangePyString);
 
-    BN_init(&rnd);
+    if (!(rnd = BN_new())) {
+        PyErr_SetString(PyExc_MemoryError, "bn_rand_range");
+        return NULL;
+    }
 
-    if (!BN_rand_range(&rnd, rng)) {
+    if (!BN_rand_range(rnd, rng)) {
         /*Custom errors?*/
         PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
-        BN_free(&rnd);
+        BN_free(rnd);
         BN_free(rng);
         return NULL;
     }
 
     BN_free(rng);
 
-    randhex = BN_bn2hex(&rnd);
+    randhex = BN_bn2hex(rnd);
     if (!randhex) {
         /*Custom errors?*/
         PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
-        BN_free(&rnd);
+        BN_free(rnd);
         return NULL;
     }
-    BN_free(&rnd);
+    BN_free(rnd);
 
     ret = PyLong_FromString(randhex, NULL, 16);
     OPENSSL_free(randhex);
