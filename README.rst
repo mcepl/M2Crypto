@@ -7,7 +7,7 @@ M2Crypto
 :IRC channel: `#m2crypto`_ on Freenode
 
 M2Crypto = Python + OpenSSL + SWIG
-------------------------------------
+----------------------------------
 
 M2Crypto is a crypto and SSL toolkit for Python.
 
