@@ -60,6 +60,7 @@ extern BIO *BIO_pop(BIO *);
 %constant int BIO_FLAGS_SHOULD_RETRY  = 0x08;
 %constant int BIO_FLAGS_MEM_RDONLY    = 0x200;
 
+%warnfilter(454) _bio_err;
 %inline %{
 static PyObject *_bio_err;
 

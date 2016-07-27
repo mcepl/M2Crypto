@@ -40,6 +40,8 @@ extern void PKCS7_add_certificate(PKCS7 *, X509 *);
 %constant int PKCS7_SIGNED_ENVELOPED  = NID_pkcs7_signedAndEnveloped;
 %constant int PKCS7_DATA              = NID_pkcs7_data;
 
+%warnfilter(454) _pkcs7_err;
+%warnfilter(454) _smime_err;
 %inline %{
 static PyObject *_pkcs7_err, *_smime_err;
 

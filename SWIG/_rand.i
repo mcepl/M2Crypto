@@ -19,6 +19,7 @@ extern int RAND_status(void);
 %rename(rand_cleanup) RAND_cleanup;
 extern void RAND_cleanup(void);
 
+%warnfilter(454) _rand_err;
 %inline %{
 static PyObject *_rand_err;
 

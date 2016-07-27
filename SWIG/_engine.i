@@ -164,6 +164,7 @@ extern EVP_PKEY *ENGINE_load_public_key(ENGINE *e, const char *key_id,
  * This function may be not implemented in engine.
  * pkcs11 engine has this control.
  */
+%warnfilter(454) _engine_err;
 %inline %{
 static PyObject *_engine_err;
 

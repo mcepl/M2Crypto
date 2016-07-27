@@ -7,6 +7,7 @@
 #include <openssl/x509v3.h>
 %}
 
+%warnfilter(454) _util_err;
 %inline %{
 static PyObject *_util_err;
 
