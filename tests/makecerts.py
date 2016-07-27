@@ -71,9 +71,8 @@ def req(name):
 def save_text_pem_key(cert, name, with_key=True):
     with open(name + '.pem', 'wb') as f:
         for line in cert.as_text():
-            f.write(line)
-        for line in cert.as_pem():
-            f.write(line)
+            f.write(line.encode("ascii"))
+        f.write(cert.as_pem())
         if with_key:
             with open(name + '_key.pem', 'rb') as key_f:
                 for line in key_f:
