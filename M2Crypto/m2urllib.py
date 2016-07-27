@@ -8,6 +8,7 @@ FIXME: it is questionable whether we need this old-style module at all. urllib
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
+import base64
 import warnings
 
 from M2Crypto import SSL, httpslib, six, util
@@ -87,8 +88,10 @@ def open_https(self, url, data=None, ssl_context=None):
     if not host:
         raise IOError('http error', 'no host given')
     if user_passwd:
-        import base64
-        auth = base64.encodestring(user_passwd).strip()
+        if six.PY3:
+            auth = base64.encodebytes(user_passwd).strip()
+        else:
+            auth = base64.encodestring(user_passwd).strip()
     else:
         auth = None
     # Start here!

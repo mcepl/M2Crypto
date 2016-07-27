@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+import warnings
+
 """M2Crypto support for Python's httplib.
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
@@ -261,5 +263,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
             return None
         # Authenticated proxy
         userpass = "%s:%s" % (self._username, self._password)
-        enc_userpass = base64.encodestring(userpass).replace("\n", "")
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            enc_userpass = base64.encodestring(userpass).replace("\n", "")
         return util.py3bytes("Basic %s" % enc_userpass)
