@@ -239,8 +239,7 @@ class X509_Name_Entry:  # noqa
         :param data: data in a binary form to be set
         :return: 0 on failure, 1 on success
         """
-        return m2.x509_name_entry_set_data(self.x509_name_entry,
-                                           type, util.py3bytes(data))
+        return m2.x509_name_entry_set_data(self.x509_name_entry, type, data)
 
     def get_object(self):
         # type: () -> ASN1.ASN1_Object
@@ -384,7 +383,7 @@ class X509_Name:  # noqa
         :return: 1 for success of 0 if an error occurred.
         """
         return m2.x509_name_add_entry_by_txt(self.x509_name,
-                                             util.py3bytes(field), type,
+                                             util.py3str(field), type,
                                              entry, len, loc, set)
 
     def entry_count(self):

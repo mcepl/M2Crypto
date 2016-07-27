@@ -198,7 +198,7 @@ class X509TestCase(unittest.TestCase):
         #        /compound_stmts.html#the-for-statement
         # so this checks what are the attributes of the last value of
         # ``cn`` variable.
-        cn.set_data("Hello There!")
+        cn.set_data(b"Hello There!")
         self.assertEqual(cn.get_data().as_text(), "Hello There!")
 
         # OpenSSL 1.0.1h switched from encoding strings as PRINTABLESTRING (the
