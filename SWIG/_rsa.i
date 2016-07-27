@@ -39,6 +39,7 @@ extern int RSA_check_key(const RSA *);
 
 %constant int NID_ripemd160 = NID_ripemd160;
 
+%warnfilter(454) _rsa_err;
 %inline %{
 static PyObject *_rsa_err;
 
@@ -103,60 +104,45 @@ int rsa_write_pub_key(RSA *rsa, BIO *f) {
 }
 
 PyObject *rsa_get_e(RSA *rsa) {
-    if (!rsa->e) {
+    BIGNUM* e = NULL;
+    RSA_get0_key(rsa, NULL, &e, NULL);
+    if (!e) {
         PyErr_SetString(_rsa_err, "'e' is unset");
         return NULL;
     }
-    return bn_to_mpi(rsa->e);
+    return bn_to_mpi(e);
 }
 
 PyObject *rsa_get_n(RSA *rsa) {
-    if (!rsa->n) {
+    BIGNUM* n = NULL;
+    RSA_get0_key(rsa, &n, NULL, NULL);
+    if (!n) {
         PyErr_SetString(_rsa_err, "'n' is unset");
         return NULL;
     }
-    return bn_to_mpi(rsa->n);
+    return bn_to_mpi(n);
 }
 
-PyObject *rsa_set_e(RSA *rsa, PyObject *value) {
-    BIGNUM *bn;
-    const void *vbuf;
-    int vlen;
+PyObject *rsa_set_en(RSA *rsa, PyObject *eval, PyObject* nval) {
+    BIGNUM* e, *n;
 
-    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
-        return NULL;
-
-    if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+    if (!(e = m2_PyObject_AsBIGNUM(eval, _rsa_err)) || 
+        !(n = m2_PyObject_AsBIGNUM(nval, _rsa_err))) {
         return NULL;
     }
-    if (rsa->e)
-        BN_free(rsa->e);
-    rsa->e = bn;
+
+    if (!RSA_set0_key(rsa, n, e, NULL)) {
+        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        BN_free(e);
+        BN_free(n);
+        return NULL;
+    }
     Py_RETURN_NONE;
 }
 
-PyObject *rsa_set_n(RSA *rsa, PyObject *value) {
-    BIGNUM *bn;
-    const void *vbuf;
-    int vlen;
-
-    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
-        return NULL;
-
-    if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
-        return NULL;
-    }
-    if (rsa->n)
-        BN_free(rsa->n);
-    rsa->n = bn;
-    Py_RETURN_NONE;
-}
-
-PyObject *rsa_set_e_bin(RSA *rsa, PyObject *value) {
-    BIGNUM *bn;
-    const void *vbuf;
+static BIGNUM* PyObject_Bin_AsBIGNUM(PyObject* value) {
+    BIGNUM* bn;
+    const void* vbuf;
     int vlen;
 
     if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
@@ -165,28 +151,25 @@ PyObject *rsa_set_e_bin(RSA *rsa, PyObject *value) {
     if (!(bn = BN_bin2bn((unsigned char *)vbuf, vlen, NULL))) {
         PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
-    }
-    if (rsa->e)
-        BN_free(rsa->e);
-    rsa->e = bn;
-    Py_RETURN_NONE;
+        }
+
+    return bn;
 }
 
-PyObject *rsa_set_n_bin(RSA *rsa, PyObject *value) {
-    BIGNUM *bn;
-    const void *vbuf;
-    int vlen;
+PyObject *rsa_set_en_bin(RSA *rsa, PyObject *eval, PyObject* nval) {
+    BIGNUM* e, *n;
 
-    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
-        return NULL;
-
-    if (!(bn = BN_bin2bn((unsigned char *)vbuf, vlen, NULL))) {
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+    if (!(e = PyObject_Bin_AsBIGNUM(eval)) || 
+        !(n = PyObject_Bin_AsBIGNUM(nval))) {
         return NULL;
     }
-    if (rsa->n)
-        BN_free(rsa->n);
-    rsa->n = bn;
+
+    if (!RSA_set0_key(rsa, e, n, NULL)) {
+        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        BN_free(e);
+        BN_free(n);
+        return NULL;
+    }
     Py_RETURN_NONE;
 }
 
@@ -199,7 +182,7 @@ PyObject *rsa_private_encrypt(RSA *rsa, PyObject *from, int padding) {
     if (m2_PyObject_AsReadBufferInt(from, &fbuf, &flen) == -1)
         return NULL;
 
-    if (!(tbuf = PyMem_Malloc(BN_num_bytes(rsa->n)))) {
+    if (!(tbuf = PyMem_Malloc(RSA_size(rsa)))) {
         PyErr_SetString(PyExc_MemoryError, "rsa_private_encrypt");
         return NULL;
     }
@@ -230,7 +213,7 @@ PyObject *rsa_public_decrypt(RSA *rsa, PyObject *from, int padding) {
     if (m2_PyObject_AsReadBufferInt(from, &fbuf, &flen) == -1)
         return NULL;
 
-    if (!(tbuf = PyMem_Malloc(BN_num_bytes(rsa->n)))) {
+    if (!(tbuf = PyMem_Malloc(RSA_size(rsa) - 11))) {
         PyErr_SetString(PyExc_MemoryError, "rsa_public_decrypt");
         return NULL;
     }
@@ -261,7 +244,7 @@ PyObject *rsa_public_encrypt(RSA *rsa, PyObject *from, int padding) {
     if (m2_PyObject_AsReadBufferInt(from, &fbuf, &flen) == -1)
         return NULL;
 
-    if (!(tbuf = PyMem_Malloc(BN_num_bytes(rsa->n)))) {
+    if (!(tbuf = PyMem_Malloc(RSA_size(rsa)))) {
         PyErr_SetString(PyExc_MemoryError, "rsa_public_encrypt");
         return NULL;
     }
@@ -292,7 +275,7 @@ PyObject *rsa_private_decrypt(RSA *rsa, PyObject *from, int padding) {
     if (m2_PyObject_AsReadBufferInt(from, &fbuf, &flen) == -1)
         return NULL;
 
-    if (!(tbuf = PyMem_Malloc(BN_num_bytes(rsa->n)))) {
+    if (!(tbuf = PyMem_Malloc(RSA_size(rsa)))) {
         PyErr_SetString(PyExc_MemoryError, "rsa_private_decrypt");
         return NULL;
     }
@@ -471,7 +454,9 @@ int rsa_type_check(RSA *rsa) {
 }
 
 int rsa_check_pub_key(RSA *rsa) {
-    return (rsa->e) && (rsa->n);
+    BIGNUM* n, *e;
+    RSA_get0_key(rsa, &n, &e, NULL);
+    return n && e;
 }
 %}
 

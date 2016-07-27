@@ -3492,16 +3492,17 @@ SwigPyBuiltin_SetMetaType (PyTypeObject *type, PyTypeObject *metatype)
 #define SWIGTYPE_p_p_X509_NAME_ENTRY swig_types[48]
 #define SWIGTYPE_p_p_char swig_types[49]
 #define SWIGTYPE_p_p_unsigned_char swig_types[50]
-#define SWIGTYPE_p_stack_st swig_types[51]
-#define SWIGTYPE_p_stack_st_OPENSSL_BLOCK swig_types[52]
-#define SWIGTYPE_p_stack_st_OPENSSL_STRING swig_types[53]
-#define SWIGTYPE_p_stack_st_SSL_CIPHER swig_types[54]
-#define SWIGTYPE_p_stack_st_X509 swig_types[55]
-#define SWIGTYPE_p_stack_st_X509_EXTENSION swig_types[56]
-#define SWIGTYPE_p_unsigned_char swig_types[57]
-#define SWIGTYPE_p_void swig_types[58]
-static swig_type_info *swig_types[60];
-static swig_module_info swig_module = {swig_types, 59, 0, 0, 0, 0};
+#define SWIGTYPE_p_pyfd_struct swig_types[51]
+#define SWIGTYPE_p_stack_st swig_types[52]
+#define SWIGTYPE_p_stack_st_OPENSSL_BLOCK swig_types[53]
+#define SWIGTYPE_p_stack_st_OPENSSL_STRING swig_types[54]
+#define SWIGTYPE_p_stack_st_SSL_CIPHER swig_types[55]
+#define SWIGTYPE_p_stack_st_X509 swig_types[56]
+#define SWIGTYPE_p_stack_st_X509_EXTENSION swig_types[57]
+#define SWIGTYPE_p_unsigned_char swig_types[58]
+#define SWIGTYPE_p_void swig_types[59]
+static swig_type_info *swig_types[61];
+static swig_module_info swig_module = {swig_types, 60, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -4654,6 +4655,10 @@ int bio_seek(BIO *bio, int offset) {
     return (int)BIO_seek(bio, offset);
 }
 
+int bio_tell(BIO* bio) {
+    return BIO_tell(bio);
+}
+
 void bio_set_flags(BIO *bio, int flags) {
     BIO_set_flags(bio, flags);
 }
@@ -4714,6 +4719,240 @@ int bio_should_write(BIO* a) {
     return BIO_should_write(a);
 }
 
+/* implement custom BIO_s_pyfd */
+
+#ifdef WIN32
+#  define clear_sys_error()       SetLastError(0)
+#else
+#  define clear_sys_error()       errno=0
+#endif
+
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+void BIO_set_data(BIO *a, void *ptr) {
+    a->ptr = ptr;
+}
+void *BIO_get_data(BIO *a) {
+    return a->ptr;
+}
+void BIO_set_init(BIO *a, int init) {
+    a->init = init;
+}
+int BIO_get_init(BIO *a) {
+    return a->init;
+}
+int BIO_get_shutdown(BIO *a) {
+    return a->shutdown;
+}
+void BIO_set_shutdown(BIO *a, int shutdown) {
+    a->shutdown = shutdown;
+}
+#endif
+
+typedef struct pyfd_struct {
+    int fd;
+} BIO_PYFD_CTX;
+
+
+static int pyfd_write(BIO *b, const char *in, int inl) {
+    int ret, fd;
+
+    if (BIO_get_fd(b, &fd) == -1)
+        return -1;
+    clear_sys_error();
+    ret = write(fd, in, inl);
+    BIO_clear_retry_flags(b);
+    if (ret <= 0) {
+        if (BIO_fd_should_retry(ret))
+            BIO_set_retry_write(b);
+    }
+    return ret;
+}
+
+static int pyfd_read(BIO *b, char *out, int outl) {
+    int ret = 0, fd;
+
+    if (BIO_get_fd(b, &fd) == -1)
+        return -1;
+    if (out != NULL) {
+        clear_sys_error();
+        ret = read(fd, out, outl);
+        BIO_clear_retry_flags(b);
+        if (ret <= 0) {
+            if (BIO_fd_should_retry(ret))
+                BIO_set_retry_read(b);
+        }
+    }
+    return ret;
+}
+
+static int pyfd_puts(BIO *bp, const char *str) {
+    int n, ret;
+
+    n = strlen(str);
+    ret = pyfd_write(bp, str, n);
+    return ret;
+}
+
+static int pyfd_gets(BIO *bp, char *buf, int size) {
+    int ret = 0;
+    char *ptr = buf;
+    char *end = buf + size - 1;
+
+    while ((ptr < end) && (pyfd_read(bp, ptr, 1) > 0) && (ptr[0] != '\n'))
+        ptr++;
+
+    ptr[0] = '\0';
+
+    if (buf[0] != '\0')
+        ret = strlen(buf);
+    return ret;
+}
+
+static int pyfd_new(BIO* b) {
+    BIO_PYFD_CTX* ctx;
+
+    ctx = OPENSSL_malloc(sizeof(*ctx));
+    if (ctx == NULL)
+        return 0;
+
+    ctx->fd = -1;
+
+    BIO_set_data(b, ctx);
+    BIO_set_shutdown(b, 0);
+    BIO_set_init(b, 1);
+
+    return 1;
+    }
+
+static int pyfd_free(BIO* b) {
+    BIO_PYFD_CTX* ctx;
+
+    if (b == 0)
+        return 0;
+
+    ctx = BIO_get_data(b);
+    if (ctx == NULL)
+        return 0;
+
+    if (BIO_get_shutdown(b) && BIO_get_init(b))
+        close(ctx->fd);
+
+    BIO_set_data(b, NULL);
+    BIO_set_shutdown(b, 0);
+    BIO_set_init(b, 0);
+
+    OPENSSL_free(ctx);
+
+    return 1;
+}
+
+static long pyfd_ctrl(BIO *b, int cmd, long num, void *ptr) {
+    BIO_PYFD_CTX* ctx;
+    int *ip;
+    long ret = 1;
+
+    ctx = BIO_get_data(b);
+    if (ctx == NULL)
+        return 0;
+
+    switch (cmd) {
+    case BIO_CTRL_RESET:
+        num = 0;
+    case BIO_C_FILE_SEEK:
+        ret = (long)lseek(ctx->fd, num, 0);
+        break;
+    case BIO_C_FILE_TELL:
+    case BIO_CTRL_INFO:
+        ret = (long)lseek(ctx->fd, 0, 1);
+        break;
+    case BIO_C_SET_FD:
+        pyfd_free(b);
+        if (*((int *)ptr) > -1) {
+            if (!pyfd_new(b) || !(ctx = BIO_get_data(b)))
+                return 0;
+            ctx->fd = *((int *)ptr);
+            BIO_set_shutdown(b, (int)num);
+            BIO_set_init(b, 1);
+            }
+        break;
+    case BIO_C_GET_FD:
+        if (BIO_get_init(b)) {
+            ip = (int *)ptr;
+            if (ip != NULL)
+                *ip = ctx->fd;
+            ret = ctx->fd;
+        } else
+            ret = -1;
+        break;
+    case BIO_CTRL_GET_CLOSE:
+        ret = BIO_get_shutdown(b);
+        break;
+    case BIO_CTRL_SET_CLOSE:
+        BIO_set_shutdown(b, (int)num);
+        break;
+    case BIO_CTRL_PENDING:
+    case BIO_CTRL_WPENDING:
+        ret = 0;
+        break;
+    case BIO_CTRL_DUP:
+    case BIO_CTRL_FLUSH:
+        ret = 1;
+        break;
+    default:
+        ret = 0;
+        break;
+    }
+    return ret;
+}
+
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+BIO* BIO_new_pyfd(int fd, int close_flag) {
+    BIO *ret;
+    BIO_METHOD *methods_fdp;
+
+    methods_fdp = BIO_meth_new(35|0x400|0x100, 
+            "python file descriptor");
+
+    BIO_meth_set_write(methods_fdp, pyfd_write);
+    BIO_meth_set_read(methods_fdp, pyfd_read);
+    BIO_meth_set_puts(methods_fdp, pyfd_puts);
+    BIO_meth_set_gets(methods_fdp, pyfd_gets);
+    BIO_meth_set_ctrl(methods_fdp, pyfd_ctrl);
+    BIO_meth_set_create(methods_fdp, pyfd_new);
+    BIO_meth_set_destroy(methods_fdp, pyfd_free);
+
+    ret = BIO_new(methods_fdp);
+    BIO_set_fd(ret, fd, close_flag);
+    return ret;
+    }
+#else
+static BIO_METHOD methods_pyfdp = {
+    35|0x400|0x100,
+    "python file descriptor",
+    pyfd_write,
+    pyfd_read,
+    pyfd_puts,
+    pyfd_gets,
+    pyfd_ctrl,
+    pyfd_new,
+    pyfd_free,
+    NULL
+};
+BIO_METHOD *BIO_s_pyfd(void) {
+    return (&methods_pyfdp);
+}
+
+BIO *BIO_new_pyfd(int fd, int close_flag) {
+    BIO *ret;
+    ret = BIO_new(BIO_s_pyfd());
+    if (ret == NULL)
+        return NULL;
+    BIO_set_fd(ret, fd, close_flag);
+    return ret;
+}
+#endif
+
 
 SWIGINTERNINLINE int
 SWIG_AsVal_size_t (PyObject * obj, size_t *val)
@@ -4730,26 +4969,31 @@ SWIG_AsVal_size_t (PyObject * obj, size_t *val)
 
 PyObject *bn_rand(int bits, int top, int bottom)
 {
-    BIGNUM rnd;
+    BIGNUM* rnd;
     PyObject *ret;
     char *randhex;
 
-    BN_init(&rnd);
-    if (!BN_rand(&rnd, bits, top, bottom)) {
+    rnd = BN_new();
+    if (rnd == NULL) {
+        PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+        }
+
+    if (!BN_rand(rnd, bits, top, bottom)) {
         /*Custom errors?*/
         PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
-        BN_free(&rnd);
+        BN_free(rnd);
         return NULL;
     }
 
-    randhex = BN_bn2hex(&rnd);
+    randhex = BN_bn2hex(rnd);
     if (!randhex) {
         /*Custom errors?*/
         PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
-        BN_free(&rnd);
+        BN_free(rnd);
         return NULL;
     }
-    BN_free(&rnd);
+    BN_free(rnd);
 
     ret = PyLong_FromString(randhex, NULL, 16);
     OPENSSL_free(randhex);
@@ -4759,7 +5003,7 @@ PyObject *bn_rand(int bits, int top, int bottom)
 
 PyObject *bn_rand_range(PyObject *range)
 {
-    BIGNUM rnd;
+    BIGNUM* rnd;
     BIGNUM *rng = NULL;
     PyObject *ret, *tuple;
     PyObject *format, *rangePyString;
@@ -4814,26 +5058,29 @@ PyObject *bn_rand_range(PyObject *range)
 
     Py_DECREF(rangePyString);
 
-    BN_init(&rnd);
+    if (!(rnd = BN_new())) {
+        PyErr_SetString(PyExc_MemoryError, "bn_rand_range");
+        return NULL;
+    }
 
-    if (!BN_rand_range(&rnd, rng)) {
+    if (!BN_rand_range(rnd, rng)) {
         /*Custom errors?*/
         PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
-        BN_free(&rnd);
+        BN_free(rnd);
         BN_free(rng);
         return NULL;
     }
 
     BN_free(rng);
 
-    randhex = BN_bn2hex(&rnd);
+    randhex = BN_bn2hex(rnd);
     if (!randhex) {
         /*Custom errors?*/
         PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
-        BN_free(&rnd);
+        BN_free(rnd);
         return NULL;
     }
-    BN_free(&rnd);
+    BN_free(rnd);
 
     ret = PyLong_FromString(randhex, NULL, 16);
     OPENSSL_free(randhex);
@@ -5050,7 +5297,7 @@ PyObject *digest_final(EVP_MD_CTX *ctx) {
     int blen;
     PyObject *ret;
 
-    if (!(blob = PyMem_Malloc(ctx->digest->md_size))) {
+    if (!(blob = PyMem_Malloc(EVP_MD_CTX_size(ctx)))) {
         PyErr_SetString(PyExc_MemoryError, "digest_final");
         return NULL;
     }
@@ -5073,17 +5320,16 @@ PyObject *digest_final(EVP_MD_CTX *ctx) {
 HMAC_CTX *hmac_ctx_new(void) {
     HMAC_CTX *ctx;
 
-    if (!(ctx = (HMAC_CTX *)PyMem_Malloc(sizeof(HMAC_CTX)))) {
+    if (!(ctx = HMAC_CTX_new())) {
         PyErr_SetString(PyExc_MemoryError, "hmac_ctx_new");
         return NULL;
     }
-    HMAC_CTX_init(ctx);
+    HMAC_CTX_reset(ctx);
     return ctx;
 }
 
 void hmac_ctx_free(HMAC_CTX *ctx) {
-    HMAC_CTX_cleanup(ctx);
-    PyMem_Free((void *)ctx);
+    HMAC_CTX_free(ctx);
 }
 
 PyObject *hmac_init(HMAC_CTX *ctx, PyObject *key, const EVP_MD *md) {
@@ -5119,7 +5365,7 @@ PyObject *hmac_final(HMAC_CTX *ctx) {
     int blen;
     PyObject *ret;
 
-    if (!(blob = PyMem_Malloc(ctx->md->md_size))) {
+    if (!(blob = PyMem_Malloc(HMAC_size(ctx)))) {
         PyErr_SetString(PyExc_MemoryError, "hmac_final");
         return NULL;
     }
@@ -5171,17 +5417,16 @@ PyObject *hmac(PyObject *key, PyObject *data, const EVP_MD *md) {
 EVP_CIPHER_CTX *cipher_ctx_new(void) {
     EVP_CIPHER_CTX *ctx;
 
-    if (!(ctx = (EVP_CIPHER_CTX *)PyMem_Malloc(sizeof(EVP_CIPHER_CTX)))) {
+    if (!(ctx = EVP_CIPHER_CTX_new())) {
         PyErr_SetString(PyExc_MemoryError, "cipher_ctx_new");
         return NULL;
     }
-    EVP_CIPHER_CTX_init(ctx);
+    EVP_CIPHER_CTX_reset(ctx);
     return ctx;
 }
 
 void cipher_ctx_free(EVP_CIPHER_CTX *ctx) {
-    EVP_CIPHER_CTX_cleanup(ctx);
-    PyMem_Free((void *)ctx);
+    EVP_CIPHER_CTX_free(ctx);
 }
 
 PyObject *bytes_to_key(const EVP_CIPHER *cipher, EVP_MD *md,
@@ -5263,7 +5508,7 @@ PyObject *cipher_final(EVP_CIPHER_CTX *ctx) {
     int olen;
     PyObject *ret;
 
-    if (!(obuf = PyMem_Malloc(ctx->cipher->block_size))) {
+    if (!(obuf = PyMem_Malloc(EVP_CIPHER_CTX_block_size(ctx)))) {
         PyErr_SetString(PyExc_MemoryError, "cipher_final");
         return NULL;
     }
@@ -5427,8 +5672,9 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
     BIO *bio;
     BUF_MEM *bptr;
     PyObject *ret;
+    BIGNUM* bn;
 
-    switch (pkey->type) {
+    switch (EVP_PKEY_base_id(pkey)) {
         case EVP_PKEY_RSA:
             rsa = EVP_PKEY_get1_RSA(pkey);
 
@@ -5439,7 +5685,8 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
                 return NULL;
             }
 
-            if (!BN_print(bio, rsa->n)) {
+            RSA_get0_key(rsa, &bn, NULL, NULL);
+            if (!BN_print(bio, bn)) {
                 PyErr_SetString(PyExc_RuntimeError,
                       ERR_error_string(ERR_get_error(), NULL));
                 BIO_free(bio);
@@ -5471,7 +5718,8 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
                 return NULL;
             }
 
-            if (!BN_print(bio, dsa->pub_key)) {
+            DSA_get0_key(dsa, &bn, NULL);
+            if (!BN_print(bio, bn)) {
                 PyErr_SetString(PyExc_RuntimeError,
                       ERR_error_string(ERR_get_error(), NULL));
                 BIO_free(bio);
@@ -5734,70 +5982,60 @@ PyObject *dh_compute_key(DH *dh, PyObject *pubkey) {
 }
         
 PyObject *dh_get_p(DH *dh) {
-    if (!dh->p) {
+    BIGNUM* p = NULL;
+    DH_get0_pqg(dh, &p, NULL, NULL);
+    if (!p) {
         PyErr_SetString(_dh_err, "'p' is unset");
         return NULL;
     }
-    return bn_to_mpi(dh->p);
+    return bn_to_mpi(p);
 }
 
 PyObject *dh_get_g(DH *dh) {
-    if (!dh->g) {
+    BIGNUM* g = NULL;
+    DH_get0_pqg(dh, NULL, NULL, &g);
+    if (!g) {
         PyErr_SetString(_dh_err, "'g' is unset");
         return NULL;
     }
-    return bn_to_mpi(dh->g);
+    return bn_to_mpi(g);
 }
 
 PyObject *dh_get_pub(DH *dh) {
-    if (!dh->pub_key) {
+    BIGNUM* pub_key = NULL;
+    DH_get0_key(dh, &pub_key, NULL);
+    if (!pub_key) {
         PyErr_SetString(_dh_err, "'pub' is unset");
         return NULL;
     }
-    return bn_to_mpi(dh->pub_key);
+    return bn_to_mpi(pub_key);
 }
 
 PyObject *dh_get_priv(DH *dh) {
-    if (!dh->priv_key) {
+    BIGNUM* priv_key = NULL;
+    DH_get0_key(dh, NULL, &priv_key);
+    if (!priv_key) {
         PyErr_SetString(_dh_err, "'priv' is unset");
         return NULL;
     }
-    return bn_to_mpi(dh->priv_key);
+    return bn_to_mpi(priv_key);
 }
 
-PyObject *dh_set_p(DH *dh, PyObject *value) {
-    BIGNUM *bn;
-    const void *vbuf;
-    int vlen;
+/* FIXME nezrušit??? */
+PyObject *dh_set_pg(DH *dh, PyObject *pval, PyObject* gval) {
+    BIGNUM* p, *g;
 
-    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
+    if (!(p = m2_PyObject_AsBIGNUM(pval, _dh_err))
+        || !(g = m2_PyObject_AsBIGNUM(gval, _dh_err)))
         return NULL;
 
-    if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
+    if (!DH_set0_pqg(dh, p, NULL, g)) {
         PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+        BN_free(p);
+        BN_free(g);
         return NULL;
-    }
-    if (dh->p)
-        BN_free(dh->p);
-    dh->p = bn;
-    Py_RETURN_NONE;
-}
+        }
 
-PyObject *dh_set_g(DH *dh, PyObject *value) {
-    BIGNUM *bn;
-    const void *vbuf;
-    int vlen;
-
-    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
-        return NULL;
-
-    if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
-        PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
-        return NULL;
-    }
-    if (dh->g)
-        BN_free(dh->g);
-    dh->g = bn;
     Py_RETURN_NONE;
 }
 
@@ -5865,60 +6103,45 @@ int rsa_write_pub_key(RSA *rsa, BIO *f) {
 }
 
 PyObject *rsa_get_e(RSA *rsa) {
-    if (!rsa->e) {
+    BIGNUM* e = NULL;
+    RSA_get0_key(rsa, NULL, &e, NULL);
+    if (!e) {
         PyErr_SetString(_rsa_err, "'e' is unset");
         return NULL;
     }
-    return bn_to_mpi(rsa->e);
+    return bn_to_mpi(e);
 }
 
 PyObject *rsa_get_n(RSA *rsa) {
-    if (!rsa->n) {
+    BIGNUM* n = NULL;
+    RSA_get0_key(rsa, &n, NULL, NULL);
+    if (!n) {
         PyErr_SetString(_rsa_err, "'n' is unset");
         return NULL;
     }
-    return bn_to_mpi(rsa->n);
+    return bn_to_mpi(n);
 }
 
-PyObject *rsa_set_e(RSA *rsa, PyObject *value) {
-    BIGNUM *bn;
-    const void *vbuf;
-    int vlen;
+PyObject *rsa_set_en(RSA *rsa, PyObject *eval, PyObject* nval) {
+    BIGNUM* e, *n;
 
-    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
-        return NULL;
-
-    if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+    if (!(e = m2_PyObject_AsBIGNUM(eval, _rsa_err)) || 
+        !(n = m2_PyObject_AsBIGNUM(nval, _rsa_err))) {
         return NULL;
     }
-    if (rsa->e)
-        BN_free(rsa->e);
-    rsa->e = bn;
+
+    if (!RSA_set0_key(rsa, n, e, NULL)) {
+        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        BN_free(e);
+        BN_free(n);
+        return NULL;
+    }
     Py_RETURN_NONE;
 }
 
-PyObject *rsa_set_n(RSA *rsa, PyObject *value) {
-    BIGNUM *bn;
-    const void *vbuf;
-    int vlen;
-
-    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
-        return NULL;
-
-    if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
-        return NULL;
-    }
-    if (rsa->n)
-        BN_free(rsa->n);
-    rsa->n = bn;
-    Py_RETURN_NONE;
-}
-
-PyObject *rsa_set_e_bin(RSA *rsa, PyObject *value) {
-    BIGNUM *bn;
-    const void *vbuf;
+static BIGNUM* PyObject_Bin_AsBIGNUM(PyObject* value) {
+    BIGNUM* bn;
+    const void* vbuf;
     int vlen;
 
     if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
@@ -5927,28 +6150,25 @@ PyObject *rsa_set_e_bin(RSA *rsa, PyObject *value) {
     if (!(bn = BN_bin2bn((unsigned char *)vbuf, vlen, NULL))) {
         PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
-    }
-    if (rsa->e)
-        BN_free(rsa->e);
-    rsa->e = bn;
-    Py_RETURN_NONE;
+        }
+
+    return bn;
 }
 
-PyObject *rsa_set_n_bin(RSA *rsa, PyObject *value) {
-    BIGNUM *bn;
-    const void *vbuf;
-    int vlen;
+PyObject *rsa_set_en_bin(RSA *rsa, PyObject *eval, PyObject* nval) {
+    BIGNUM* e, *n;
 
-    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
-        return NULL;
-
-    if (!(bn = BN_bin2bn((unsigned char *)vbuf, vlen, NULL))) {
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+    if (!(e = PyObject_Bin_AsBIGNUM(eval)) || 
+        !(n = PyObject_Bin_AsBIGNUM(nval))) {
         return NULL;
     }
-    if (rsa->n)
-        BN_free(rsa->n);
-    rsa->n = bn;
+
+    if (!RSA_set0_key(rsa, e, n, NULL)) {
+        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        BN_free(e);
+        BN_free(n);
+        return NULL;
+    }
     Py_RETURN_NONE;
 }
 
@@ -5961,7 +6181,7 @@ PyObject *rsa_private_encrypt(RSA *rsa, PyObject *from, int padding) {
     if (m2_PyObject_AsReadBufferInt(from, &fbuf, &flen) == -1)
         return NULL;
 
-    if (!(tbuf = PyMem_Malloc(BN_num_bytes(rsa->n)))) {
+    if (!(tbuf = PyMem_Malloc(RSA_size(rsa)))) {
         PyErr_SetString(PyExc_MemoryError, "rsa_private_encrypt");
         return NULL;
     }
@@ -5992,7 +6212,7 @@ PyObject *rsa_public_decrypt(RSA *rsa, PyObject *from, int padding) {
     if (m2_PyObject_AsReadBufferInt(from, &fbuf, &flen) == -1)
         return NULL;
 
-    if (!(tbuf = PyMem_Malloc(BN_num_bytes(rsa->n)))) {
+    if (!(tbuf = PyMem_Malloc(RSA_size(rsa) - 11))) {
         PyErr_SetString(PyExc_MemoryError, "rsa_public_decrypt");
         return NULL;
     }
@@ -6023,7 +6243,7 @@ PyObject *rsa_public_encrypt(RSA *rsa, PyObject *from, int padding) {
     if (m2_PyObject_AsReadBufferInt(from, &fbuf, &flen) == -1)
         return NULL;
 
-    if (!(tbuf = PyMem_Malloc(BN_num_bytes(rsa->n)))) {
+    if (!(tbuf = PyMem_Malloc(RSA_size(rsa)))) {
         PyErr_SetString(PyExc_MemoryError, "rsa_public_encrypt");
         return NULL;
     }
@@ -6054,7 +6274,7 @@ PyObject *rsa_private_decrypt(RSA *rsa, PyObject *from, int padding) {
     if (m2_PyObject_AsReadBufferInt(from, &fbuf, &flen) == -1)
         return NULL;
 
-    if (!(tbuf = PyMem_Malloc(BN_num_bytes(rsa->n)))) {
+    if (!(tbuf = PyMem_Malloc(RSA_size(rsa)))) {
         PyErr_SetString(PyExc_MemoryError, "rsa_private_decrypt");
         return NULL;
     }
@@ -6233,7 +6453,9 @@ int rsa_type_check(RSA *rsa) {
 }
 
 int rsa_check_pub_key(RSA *rsa) {
-    return (rsa->e) && (rsa->n);
+    BIGNUM* n, *e;
+    RSA_get0_key(rsa, &n, &e, NULL);
+    return n && e;
 }
 
 
@@ -6248,11 +6470,15 @@ int rsa_write_key_der(RSA *rsa, BIO *bio) {
 #include <openssl/dsa.h>
 
 PyObject *dsa_sig_get_r(DSA_SIG *dsa_sig) {
-    return bn_to_mpi(dsa_sig->r);
+    BIGNUM* pr;
+    DSA_SIG_get0(dsa_sig, &pr, NULL);
+    return bn_to_mpi(pr);
 }
 
 PyObject *dsa_sig_get_s(DSA_SIG *dsa_sig) {
-    return bn_to_mpi(dsa_sig->s);
+    BIGNUM* qs;
+    DSA_SIG_get0(dsa_sig, NULL, &qs);
+    return bn_to_mpi(qs);
 }
 
 
@@ -6286,98 +6512,73 @@ DSA *dsa_generate_parameters(int bits, PyObject *pyfunc) {
 }
 
 PyObject *dsa_get_p(DSA *dsa) {
-    if (!dsa->p) {
+    BIGNUM* p = NULL;
+    DSA_get0_pqg(dsa, &p, NULL, NULL);
+    if (!p) {
         PyErr_SetString(_dsa_err, "'p' is unset");
         return NULL;
     }
-    return bn_to_mpi(dsa->p);
+    return bn_to_mpi(p);
 }
 
 PyObject *dsa_get_q(DSA *dsa) {
-    if (!dsa->q) {
+    BIGNUM* q = NULL;
+    DSA_get0_pqg(dsa, NULL, &q, NULL);
+    if (!q) {
         PyErr_SetString(_dsa_err, "'q' is unset");
         return NULL;
     }
-    return bn_to_mpi(dsa->q);
+    return bn_to_mpi(q);
 }
 
 PyObject *dsa_get_g(DSA *dsa) {
-    if (!dsa->g) {
+    BIGNUM* g = NULL;
+    DSA_get0_pqg(dsa, NULL, NULL, &g);
+    if (!g) {
         PyErr_SetString(_dsa_err, "'g' is unset");
         return NULL;
     }
-    return bn_to_mpi(dsa->g);
+    return bn_to_mpi(g);
 }
 
 PyObject *dsa_get_pub(DSA *dsa) {
-    if (!dsa->pub_key) {
+    BIGNUM* pub_key = NULL;
+    DSA_get0_key(dsa, &pub_key, NULL);
+    if (!pub_key) {
         PyErr_SetString(_dsa_err, "'pub' is unset");
         return NULL;
     }
-    return bn_to_mpi(dsa->pub_key);
+    return bn_to_mpi(pub_key);
 }
 
 PyObject *dsa_get_priv(DSA *dsa) {
-    if (!dsa->priv_key) {
+    BIGNUM* priv_key = NULL;
+    DSA_get0_key(dsa, NULL, &priv_key);
+    if (!priv_key) {
         PyErr_SetString(_dsa_err, "'priv' is unset");
         return NULL;
     }
-    return bn_to_mpi(dsa->priv_key);
+    return bn_to_mpi(priv_key);
 }
 
-PyObject *dsa_set_p(DSA *dsa, PyObject *value) {
-    BIGNUM *bn;
-    const void *vbuf;
-    int vlen;
+PyObject *dsa_set_pqg(DSA *dsa, PyObject *pval, PyObject* qval, PyObject* gval) {
+    BIGNUM* p, *q, *g;
 
-    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
+    if (!(p = m2_PyObject_AsBIGNUM(pval, _dsa_err))
+        || !(q = m2_PyObject_AsBIGNUM(qval, _dsa_err))
+        || !(g = m2_PyObject_AsBIGNUM(gval, _dsa_err)))
         return NULL;
 
-    if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
+    if (!DSA_set0_pqg(dsa, p, q, g)) {
         PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        BN_free(p);
+        BN_free(q);
+        BN_free(g);
         return NULL;
-    }
-    if (dsa->p)
-        BN_free(dsa->p);
-    dsa->p = bn;
+        }
+
     Py_RETURN_NONE;
-}
-
-PyObject *dsa_set_q(DSA *dsa, PyObject *value) {
-    BIGNUM *bn;
-    const void *vbuf;
-    int vlen;
-
-    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
-        return NULL;
-
-    if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
-        return NULL;
     }
-    if (dsa->q)
-        BN_free(dsa->q);
-    dsa->q = bn;
-    Py_RETURN_NONE;
-}
-
-PyObject *dsa_set_g(DSA *dsa, PyObject *value) {
-    BIGNUM *bn;
-    const void *vbuf;
-    int vlen;
-
-    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
-        return NULL;
-
-    if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
-        return NULL;
-    }
-    if (dsa->g)
-        BN_free(dsa->g);
-    dsa->g = bn;
-    Py_RETURN_NONE;
-}
 
 PyObject *dsa_set_pub(DSA *dsa, PyObject *value) {
     BIGNUM *bn;
@@ -6391,9 +6592,10 @@ PyObject *dsa_set_pub(DSA *dsa, PyObject *value) {
         PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
-    if (dsa->pub_key)
-        BN_free(dsa->pub_key);
-    dsa->pub_key = bn;
+    if (!DSA_set0_key(dsa, bn, NULL)) {
+        BN_free(bn);
+        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+    }
     Py_RETURN_NONE;
 }
 
@@ -6497,6 +6699,7 @@ int dsa_verify(DSA *dsa, PyObject *value, PyObject *r, PyObject *s) {
     const void *vbuf, *rbuf, *sbuf;
     int vlen, rlen, slen;
     DSA_SIG *sig;
+    BIGNUM* pr, *ps;
     int ret;
 
     if ((m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
@@ -6508,16 +6711,25 @@ int dsa_verify(DSA *dsa, PyObject *value, PyObject *r, PyObject *s) {
         PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
         return -1;
     }
-    if (!(sig->r = BN_mpi2bn((unsigned char *)rbuf, rlen, NULL))) {
+    if (!(pr = BN_mpi2bn((unsigned char *)rbuf, rlen, NULL))) {
         PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
         DSA_SIG_free(sig);
         return -1;
     }
-    if (!(sig->s = BN_mpi2bn((unsigned char *)sbuf, slen, NULL))) {
+    if (!(ps = BN_mpi2bn((unsigned char *)sbuf, slen, NULL))) {
         PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
         DSA_SIG_free(sig);
+        BN_free(pr);
         return -1;
     }
+    if (!DSA_SIG_set0(sig, pr, ps)) {
+        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        DSA_SIG_free(sig);
+        BN_free(pr);
+        BN_free(ps);
+        return -1;
+    }
+
     ret = DSA_do_verify(vbuf, vlen, sig, dsa);
     DSA_SIG_free(sig);
     if (ret == -1)
@@ -6571,15 +6783,21 @@ int dsa_verify_asn1(DSA *dsa, PyObject *value, PyObject *sig) {
 }
 
 int dsa_check_key(DSA *dsa) {
-    return (dsa->pub_key) && (dsa->priv_key);
+    BIGNUM* pub_key, *priv_key;
+    DSA_get0_key(dsa, &pub_key, &priv_key);
+    return pub_key != NULL && priv_key != NULL;
 }
 
 int dsa_check_pub_key(DSA *dsa) {
-    return dsa->pub_key ? 1 : 0;
+    BIGNUM* pub_key;
+    DSA_get0_key(dsa, &pub_key, NULL);
+    return pub_key ? 1 : 0;
 }
 
 int dsa_keylen(DSA *dsa) {
-    return BN_num_bits(dsa->p);
+    BIGNUM* p;
+    DSA_get0_pqg(dsa, &p, NULL, NULL);
+    return BN_num_bits(p);
 }
 
 int dsa_type_check(DSA *dsa) {
@@ -7246,8 +7464,19 @@ int ssl_is_init_finished(SSL *ssl)
 }
 
 
+#include <openssl/asn1.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
+
+#include <openssl/asn1t.h>
+
+typedef STACK_OF(X509) SEQ_CERT;
+
+ASN1_ITEM_TEMPLATE(SEQ_CERT) =
+    ASN1_EX_TEMPLATE_TYPE(ASN1_TFLG_SEQUENCE_OF, 0, SeqCert, X509)
+ASN1_ITEM_TEMPLATE_END(SEQ_CERT)
+
+IMPLEMENT_ASN1_FUNCTIONS(SEQ_CERT)
 
 
 static PyObject *_x509_err;
@@ -7389,11 +7618,17 @@ int x509_name_add_entry_by_txt(X509_NAME *name, char *field, int type, char *byt
 
 PyObject *x509_name_get_der(X509_NAME *name)
 {
+    unsigned char* pder;
+    size_t pderlen;
     i2d_X509_NAME(name, 0);
+    if (!X509_NAME_get0_der(&pder, &pderlen, name)) {
+        PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
 #if PY_MAJOR_VERSION >= 3 
-    return PyBytes_FromStringAndSize(name->bytes->data, name->bytes->length);
+    return PyBytes_FromStringAndSize(pder, pderlen);
 #else
-    return PyString_FromStringAndSize(name->bytes->data, name->bytes->length);
+    return PyString_FromStringAndSize(pder, pderlen);
 #endif // PY_MAJOR_VERSION >= 3 
 }
 
@@ -7546,6 +7781,21 @@ Used in the wrapping of ASN1_seq_unpack and ASN1_seq_pack functions.
 #define I2DTYPE int (*)()
 #endif   
 
+// STACK_OF(X509)* ASN1_seq_unpack(const unsigned char *pp, long length, 
+//         X509* (*d2i)(X509**, unsigned char**, long),
+//         void (*f2)()) {
+//     /* WARNING - tmpbuf is required! See d2i_X509 docs for explanation */
+//     const unsigned char* tmpbuf = pp;
+//     return d2i_SEQ_CERT(NULL, &tmpbuf, length); 
+//     }
+// 
+// unsigned char* ASN1_seq_pack_X509(STACK_OF(X509) *stack, void (*f)(), void* p,
+//         int* len) {
+//     unsigned char* buf = NULL;
+//     *len = i2d_SEQ_CERT(stack, &buf);
+//     return buf;
+//     }
+
 STACK_OF(X509) *
 make_stack_from_der_sequence(PyObject * pyEncodedString){
     STACK_OF(X509) *certs;
@@ -7573,12 +7823,12 @@ make_stack_from_der_sequence(PyObject * pyEncodedString){
         return NULL;
     }
 
-    certs = ASN1_seq_unpack_X509((unsigned char *)encoded_string, encoded_string_len, d2i_X509, X509_free ); 
+    certs = ASN1_seq_unpack((unsigned char *)encoded_string, encoded_string_len, d2i_X509, X509_free );
     if (!certs) {
-       PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
-       return NULL;
+        PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
     }
- 
+
     return certs;
 }
 
@@ -8229,11 +8479,15 @@ int ec_key_write_bio_no_cipher(EC_KEY *key, BIO *f, PyObject *pyfunc) {
 
 
 PyObject *ecdsa_sig_get_r(ECDSA_SIG *ecdsa_sig) {
-    return bn_to_mpi(ecdsa_sig->r);
+    BIGNUM* pr;
+    ECDSA_SIG_get0(ecdsa_sig, &pr, NULL);
+    return bn_to_mpi(pr);
 }
 
 PyObject *ecdsa_sig_get_s(ECDSA_SIG *ecdsa_sig) {
-    return bn_to_mpi(ecdsa_sig->s);
+    BIGNUM* ps;
+    ECDSA_SIG_get0(ecdsa_sig, NULL, &ps);
+    return bn_to_mpi(ps);
 }
 
 PyObject *ecdsa_sign(EC_KEY *key, PyObject *value) {
@@ -8265,24 +8519,34 @@ int ecdsa_verify(EC_KEY *key, PyObject *value, PyObject *r, PyObject *s) {
     int vlen, rlen, slen;
     ECDSA_SIG *sig;
     int ret;
+    BIGNUM* pr, *ps;
 
     if ((m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         || (m2_PyObject_AsReadBufferInt(r, &rbuf, &rlen) == -1)
         || (m2_PyObject_AsReadBufferInt(s, &sbuf, &slen) == -1))
         return -1;
 
+    if (!(pr = BN_mpi2bn((unsigned char *)rbuf, rlen, NULL))) {
+        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        return -1;
+    }
+    if (!(ps = BN_mpi2bn((unsigned char *)sbuf, slen, NULL))) {
+        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        BN_free(pr);
+        return -1;
+    }
+
     if (!(sig = ECDSA_SIG_new())) {
         PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        BN_free(pr);
+        BN_free(ps);
         return -1;
     }
-    if (!BN_mpi2bn((unsigned char *)rbuf, rlen, sig->r)) {
+    if (!ECDSA_SIG_set0(sig, pr, ps)) {
         PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
         ECDSA_SIG_free(sig);
-        return -1;
-    }
-    if (!BN_mpi2bn((unsigned char *)sbuf, slen, sig->s)) {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
-        ECDSA_SIG_free(sig);
+        BN_free(pr);
+        BN_free(ps);
         return -1;
     }
     ret = ECDSA_do_verify(vbuf, vlen, sig, key);
@@ -10674,6 +10938,36 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_bio_tell(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  BIO *arg1 = (BIO *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"bio_tell",1,1,&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_BIO, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "bio_tell" "', argument " "1"" of type '" "BIO *""'"); 
+  }
+  arg1 = (BIO *)(argp1);
+  {
+    if (!arg1) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  result = (int)bio_tell(arg1);
+  {
+    resultobj=PyInt_FromLong(result);
+    if (PyErr_Occurred()) SWIG_fail;
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_bio_set_flags(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   BIO *arg1 = (BIO *) 0 ;
@@ -11066,6 +11360,658 @@ SWIGINTERN PyObject *_wrap_bio_should_write(PyObject *self, PyObject *args) {
     resultobj=PyInt_FromLong(result);
     if (PyErr_Occurred()) SWIG_fail;
   }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BIO_set_data(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  BIO *arg1 = (BIO *) 0 ;
+  void *arg2 = (void *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"BIO_set_data",2,2,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_BIO, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BIO_set_data" "', argument " "1"" of type '" "BIO *""'"); 
+  }
+  arg1 = (BIO *)(argp1);
+  res2 = SWIG_ConvertPtr(obj1,SWIG_as_voidptrptr(&arg2), 0, 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "BIO_set_data" "', argument " "2"" of type '" "void *""'"); 
+  }
+  {
+    if (!arg1) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  BIO_set_data(arg1,arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BIO_get_data(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  BIO *arg1 = (BIO *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  void *result = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"BIO_get_data",1,1,&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_BIO, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BIO_get_data" "', argument " "1"" of type '" "BIO *""'"); 
+  }
+  arg1 = (BIO *)(argp1);
+  {
+    if (!arg1) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  result = (void *)BIO_get_data(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_void, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BIO_set_init(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  BIO *arg1 = (BIO *) 0 ;
+  int arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"BIO_set_init",2,2,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_BIO, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BIO_set_init" "', argument " "1"" of type '" "BIO *""'"); 
+  }
+  arg1 = (BIO *)(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "BIO_set_init" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = (int)(val2);
+  {
+    if (!arg1) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  BIO_set_init(arg1,arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BIO_get_init(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  BIO *arg1 = (BIO *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"BIO_get_init",1,1,&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_BIO, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BIO_get_init" "', argument " "1"" of type '" "BIO *""'"); 
+  }
+  arg1 = (BIO *)(argp1);
+  {
+    if (!arg1) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  result = (int)BIO_get_init(arg1);
+  {
+    resultobj=PyInt_FromLong(result);
+    if (PyErr_Occurred()) SWIG_fail;
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BIO_get_shutdown(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  BIO *arg1 = (BIO *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"BIO_get_shutdown",1,1,&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_BIO, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BIO_get_shutdown" "', argument " "1"" of type '" "BIO *""'"); 
+  }
+  arg1 = (BIO *)(argp1);
+  {
+    if (!arg1) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  result = (int)BIO_get_shutdown(arg1);
+  {
+    resultobj=PyInt_FromLong(result);
+    if (PyErr_Occurred()) SWIG_fail;
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BIO_set_shutdown(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  BIO *arg1 = (BIO *) 0 ;
+  int arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"BIO_set_shutdown",2,2,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_BIO, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BIO_set_shutdown" "', argument " "1"" of type '" "BIO *""'"); 
+  }
+  arg1 = (BIO *)(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "BIO_set_shutdown" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = (int)(val2);
+  {
+    if (!arg1) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  BIO_set_shutdown(arg1,arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BIO_PYFD_CTX_fd_set(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  struct pyfd_struct *arg1 = (struct pyfd_struct *) 0 ;
+  int arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"BIO_PYFD_CTX_fd_set",1,1,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_pyfd_struct, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BIO_PYFD_CTX_fd_set" "', argument " "1"" of type '" "struct pyfd_struct *""'"); 
+  }
+  arg1 = (struct pyfd_struct *)(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "BIO_PYFD_CTX_fd_set" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = (int)(val2);
+  if (arg1) (arg1)->fd = arg2;
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BIO_PYFD_CTX_fd_get(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  struct pyfd_struct *arg1 = (struct pyfd_struct *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int result;
+  
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_pyfd_struct, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "BIO_PYFD_CTX_fd_get" "', argument " "1"" of type '" "struct pyfd_struct *""'"); 
+  }
+  arg1 = (struct pyfd_struct *)(argp1);
+  result = (int) ((arg1)->fd);
+  {
+    resultobj=PyInt_FromLong(result);
+    if (PyErr_Occurred()) SWIG_fail;
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN int _wrap_new_BIO_PYFD_CTX(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  struct pyfd_struct *result = 0 ;
+  
+  result = (struct pyfd_struct *)calloc(1, sizeof(struct pyfd_struct));
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_pyfd_struct, SWIG_BUILTIN_INIT |  0 );
+  return resultobj == Py_None ? -1 : 0;
+fail:
+  return -1;
+}
+
+
+SWIGINTERN PyObject *_wrap_delete_BIO_PYFD_CTX(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  struct pyfd_struct *arg1 = (struct pyfd_struct *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  
+  res1 = SWIG_ConvertPtr(self, &argp1,SWIGTYPE_p_pyfd_struct, SWIG_POINTER_DISOWN |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_BIO_PYFD_CTX" "', argument " "1"" of type '" "struct pyfd_struct *""'"); 
+  }
+  arg1 = (struct pyfd_struct *)(argp1);
+  free((char *) arg1);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pyfd_write(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  BIO *arg1 = (BIO *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  int result;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"pyfd_write",3,3,&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_BIO, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pyfd_write" "', argument " "1"" of type '" "BIO *""'"); 
+  }
+  arg1 = (BIO *)(argp1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pyfd_write" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = (char *)(buf2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pyfd_write" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = (int)(val3);
+  {
+    if (!arg1) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  result = (int)pyfd_write(arg1,(char const *)arg2,arg3);
+  {
+    resultobj=PyInt_FromLong(result);
+    if (PyErr_Occurred()) SWIG_fail;
+  }
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pyfd_read(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  BIO *arg1 = (BIO *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  int result;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"pyfd_read",3,3,&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_BIO, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pyfd_read" "', argument " "1"" of type '" "BIO *""'"); 
+  }
+  arg1 = (BIO *)(argp1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pyfd_read" "', argument " "2"" of type '" "char *""'");
+  }
+  arg2 = (char *)(buf2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pyfd_read" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = (int)(val3);
+  {
+    if (!arg1) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  result = (int)pyfd_read(arg1,arg2,arg3);
+  {
+    resultobj=PyInt_FromLong(result);
+    if (PyErr_Occurred()) SWIG_fail;
+  }
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pyfd_puts(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  BIO *arg1 = (BIO *) 0 ;
+  char *arg2 = (char *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  int result;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"pyfd_puts",2,2,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_BIO, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pyfd_puts" "', argument " "1"" of type '" "BIO *""'"); 
+  }
+  arg1 = (BIO *)(argp1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pyfd_puts" "', argument " "2"" of type '" "char const *""'");
+  }
+  arg2 = (char *)(buf2);
+  {
+    if (!arg1) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  result = (int)pyfd_puts(arg1,(char const *)arg2);
+  {
+    resultobj=PyInt_FromLong(result);
+    if (PyErr_Occurred()) SWIG_fail;
+  }
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pyfd_gets(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  BIO *arg1 = (BIO *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  int result;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"pyfd_gets",3,3,&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_BIO, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pyfd_gets" "', argument " "1"" of type '" "BIO *""'"); 
+  }
+  arg1 = (BIO *)(argp1);
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pyfd_gets" "', argument " "2"" of type '" "char *""'");
+  }
+  arg2 = (char *)(buf2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pyfd_gets" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = (int)(val3);
+  {
+    if (!arg1) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  result = (int)pyfd_gets(arg1,arg2,arg3);
+  {
+    resultobj=PyInt_FromLong(result);
+    if (PyErr_Occurred()) SWIG_fail;
+  }
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) free((char*)buf2);
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pyfd_new(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  BIO *arg1 = (BIO *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"pyfd_new",1,1,&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_BIO, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pyfd_new" "', argument " "1"" of type '" "BIO *""'"); 
+  }
+  arg1 = (BIO *)(argp1);
+  {
+    if (!arg1) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  result = (int)pyfd_new(arg1);
+  {
+    resultobj=PyInt_FromLong(result);
+    if (PyErr_Occurred()) SWIG_fail;
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pyfd_free(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  BIO *arg1 = (BIO *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"pyfd_free",1,1,&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_BIO, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pyfd_free" "', argument " "1"" of type '" "BIO *""'"); 
+  }
+  arg1 = (BIO *)(argp1);
+  {
+    if (!arg1) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  result = (int)pyfd_free(arg1);
+  {
+    resultobj=PyInt_FromLong(result);
+    if (PyErr_Occurred()) SWIG_fail;
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pyfd_ctrl(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  BIO *arg1 = (BIO *) 0 ;
+  int arg2 ;
+  long arg3 ;
+  void *arg4 = (void *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  long val3 ;
+  int ecode3 = 0 ;
+  int res4 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  long result;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"pyfd_ctrl",4,4,&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_BIO, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pyfd_ctrl" "', argument " "1"" of type '" "BIO *""'"); 
+  }
+  arg1 = (BIO *)(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "pyfd_ctrl" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = (int)(val2);
+  ecode3 = SWIG_AsVal_long(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "pyfd_ctrl" "', argument " "3"" of type '" "long""'");
+  } 
+  arg3 = (long)(val3);
+  res4 = SWIG_ConvertPtr(obj3,SWIG_as_voidptrptr(&arg4), 0, 0);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "pyfd_ctrl" "', argument " "4"" of type '" "void *""'"); 
+  }
+  {
+    if (!arg1) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  result = (long)pyfd_ctrl(arg1,arg2,arg3,arg4);
+  resultobj = SWIG_From_long((long)(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN int Swig_var_methods_pyfdp_set(PyObject *_val) {
+  {
+    void *argp = 0;
+    int res = SWIG_ConvertPtr(_val, &argp, SWIGTYPE_p_BIO_METHOD,  0 );
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in variable '""methods_pyfdp""' of type '""BIO_METHOD""'");
+    }
+    if (!argp) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in variable '""methods_pyfdp""' of type '""BIO_METHOD""'");
+    } else {
+      methods_pyfdp = *((BIO_METHOD *)(argp));
+    }
+  }
+  return 0;
+fail:
+  return 1;
+}
+
+
+SWIGINTERN PyObject *Swig_var_methods_pyfdp_get(void) {
+  PyObject *pyobj = 0;
+  PyObject *self = 0;
+  
+  (void)self;
+  pyobj = SWIG_NewPointerObj(SWIG_as_voidptr(&methods_pyfdp), SWIGTYPE_p_BIO_METHOD,  0 );
+  return pyobj;
+}
+
+
+SWIGINTERN PyObject *_wrap_BIO_s_pyfd(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  BIO_METHOD *result = 0 ;
+  
+  result = (BIO_METHOD *)BIO_s_pyfd();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_BIO_METHOD, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_BIO_new_pyfd(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  int arg1 ;
+  int arg2 ;
+  int val1 ;
+  int ecode1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  BIO *result = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"BIO_new_pyfd",2,2,&obj0,&obj1)) SWIG_fail;
+  ecode1 = SWIG_AsVal_int(obj0, &val1);
+  if (!SWIG_IsOK(ecode1)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "BIO_new_pyfd" "', argument " "1"" of type '" "int""'");
+  } 
+  arg1 = (int)(val1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "BIO_new_pyfd" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = (int)(val2);
+  result = (BIO *)BIO_new_pyfd(arg1,arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_BIO, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -14345,65 +15291,36 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_dh_set_p(PyObject *self, PyObject *args) {
+SWIGINTERN PyObject *_wrap_dh_set_pg(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   DH *arg1 = (DH *) 0 ;
   PyObject *arg2 = (PyObject *) 0 ;
+  PyObject *arg3 = (PyObject *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
   PyObject *result = 0 ;
   
-  if(!PyArg_UnpackTuple(args,(char *)"dh_set_p",2,2,&obj0,&obj1)) SWIG_fail;
+  if(!PyArg_UnpackTuple(args,(char *)"dh_set_pg",3,3,&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_DH, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "dh_set_p" "', argument " "1"" of type '" "DH *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "dh_set_pg" "', argument " "1"" of type '" "DH *""'"); 
   }
   arg1 = (DH *)(argp1);
   {
     arg2=obj1;
   }
   {
-    if (!arg1) {
-      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
-    }
-  }
-  result = (PyObject *)dh_set_p(arg1,arg2);
-  {
-    resultobj=result;
-  }
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_dh_set_g(PyObject *self, PyObject *args) {
-  PyObject *resultobj = 0;
-  DH *arg1 = (DH *) 0 ;
-  PyObject *arg2 = (PyObject *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject *result = 0 ;
-  
-  if(!PyArg_UnpackTuple(args,(char *)"dh_set_g",2,2,&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_DH, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "dh_set_g" "', argument " "1"" of type '" "DH *""'"); 
-  }
-  arg1 = (DH *)(argp1);
-  {
-    arg2=obj1;
+    arg3=obj2;
   }
   {
     if (!arg1) {
       SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
     }
   }
-  result = (PyObject *)dh_set_g(arg1,arg2);
+  result = (PyObject *)dh_set_pg(arg1,arg2,arg3);
   {
     resultobj=result;
   }
@@ -14861,31 +15778,36 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_rsa_set_e(PyObject *self, PyObject *args) {
+SWIGINTERN PyObject *_wrap_rsa_set_en(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   RSA *arg1 = (RSA *) 0 ;
   PyObject *arg2 = (PyObject *) 0 ;
+  PyObject *arg3 = (PyObject *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
   PyObject *result = 0 ;
   
-  if(!PyArg_UnpackTuple(args,(char *)"rsa_set_e",2,2,&obj0,&obj1)) SWIG_fail;
+  if(!PyArg_UnpackTuple(args,(char *)"rsa_set_en",3,3,&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_RSA, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "rsa_set_e" "', argument " "1"" of type '" "RSA *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "rsa_set_en" "', argument " "1"" of type '" "RSA *""'"); 
   }
   arg1 = (RSA *)(argp1);
   {
     arg2=obj1;
   }
   {
+    arg3=obj2;
+  }
+  {
     if (!arg1) {
       SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
     }
   }
-  result = (PyObject *)rsa_set_e(arg1,arg2);
+  result = (PyObject *)rsa_set_en(arg1,arg2,arg3);
   {
     resultobj=result;
   }
@@ -14895,99 +15817,54 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_rsa_set_n(PyObject *self, PyObject *args) {
+SWIGINTERN PyObject *_wrap_PyObject_Bin_AsBIGNUM(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
-  RSA *arg1 = (RSA *) 0 ;
-  PyObject *arg2 = (PyObject *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
+  PyObject *arg1 = (PyObject *) 0 ;
   PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject *result = 0 ;
+  BIGNUM *result = 0 ;
   
-  if(!PyArg_UnpackTuple(args,(char *)"rsa_set_n",2,2,&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_RSA, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "rsa_set_n" "', argument " "1"" of type '" "RSA *""'"); 
-  }
-  arg1 = (RSA *)(argp1);
+  if(!PyArg_UnpackTuple(args,(char *)"PyObject_Bin_AsBIGNUM",1,1,&obj0)) SWIG_fail;
   {
-    arg2=obj1;
+    arg1=obj0;
   }
-  {
-    if (!arg1) {
-      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
-    }
-  }
-  result = (PyObject *)rsa_set_n(arg1,arg2);
-  {
-    resultobj=result;
-  }
+  result = (BIGNUM *)PyObject_Bin_AsBIGNUM(arg1);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_BIGNUM, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
 }
 
 
-SWIGINTERN PyObject *_wrap_rsa_set_e_bin(PyObject *self, PyObject *args) {
+SWIGINTERN PyObject *_wrap_rsa_set_en_bin(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   RSA *arg1 = (RSA *) 0 ;
   PyObject *arg2 = (PyObject *) 0 ;
+  PyObject *arg3 = (PyObject *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
   PyObject *result = 0 ;
   
-  if(!PyArg_UnpackTuple(args,(char *)"rsa_set_e_bin",2,2,&obj0,&obj1)) SWIG_fail;
+  if(!PyArg_UnpackTuple(args,(char *)"rsa_set_en_bin",3,3,&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_RSA, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "rsa_set_e_bin" "', argument " "1"" of type '" "RSA *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "rsa_set_en_bin" "', argument " "1"" of type '" "RSA *""'"); 
   }
   arg1 = (RSA *)(argp1);
   {
     arg2=obj1;
   }
   {
-    if (!arg1) {
-      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
-    }
-  }
-  result = (PyObject *)rsa_set_e_bin(arg1,arg2);
-  {
-    resultobj=result;
-  }
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_rsa_set_n_bin(PyObject *self, PyObject *args) {
-  PyObject *resultobj = 0;
-  RSA *arg1 = (RSA *) 0 ;
-  PyObject *arg2 = (PyObject *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject *result = 0 ;
-  
-  if(!PyArg_UnpackTuple(args,(char *)"rsa_set_n_bin",2,2,&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_RSA, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "rsa_set_n_bin" "', argument " "1"" of type '" "RSA *""'"); 
-  }
-  arg1 = (RSA *)(argp1);
-  {
-    arg2=obj1;
+    arg3=obj2;
   }
   {
     if (!arg1) {
       SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
     }
   }
-  result = (PyObject *)rsa_set_n_bin(arg1,arg2);
+  result = (PyObject *)rsa_set_en_bin(arg1,arg2,arg3);
   {
     resultobj=result;
   }
@@ -15931,99 +16808,41 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_dsa_set_p(PyObject *self, PyObject *args) {
+SWIGINTERN PyObject *_wrap_dsa_set_pqg(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   DSA *arg1 = (DSA *) 0 ;
   PyObject *arg2 = (PyObject *) 0 ;
+  PyObject *arg3 = (PyObject *) 0 ;
+  PyObject *arg4 = (PyObject *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
   PyObject *result = 0 ;
   
-  if(!PyArg_UnpackTuple(args,(char *)"dsa_set_p",2,2,&obj0,&obj1)) SWIG_fail;
+  if(!PyArg_UnpackTuple(args,(char *)"dsa_set_pqg",4,4,&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_DSA, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "dsa_set_p" "', argument " "1"" of type '" "DSA *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "dsa_set_pqg" "', argument " "1"" of type '" "DSA *""'"); 
   }
   arg1 = (DSA *)(argp1);
   {
     arg2=obj1;
   }
   {
-    if (!arg1) {
-      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
-    }
+    arg3=obj2;
   }
-  result = (PyObject *)dsa_set_p(arg1,arg2);
   {
-    resultobj=result;
-  }
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_dsa_set_q(PyObject *self, PyObject *args) {
-  PyObject *resultobj = 0;
-  DSA *arg1 = (DSA *) 0 ;
-  PyObject *arg2 = (PyObject *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject *result = 0 ;
-  
-  if(!PyArg_UnpackTuple(args,(char *)"dsa_set_q",2,2,&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_DSA, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "dsa_set_q" "', argument " "1"" of type '" "DSA *""'"); 
-  }
-  arg1 = (DSA *)(argp1);
-  {
-    arg2=obj1;
+    arg4=obj3;
   }
   {
     if (!arg1) {
       SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
     }
   }
-  result = (PyObject *)dsa_set_q(arg1,arg2);
-  {
-    resultobj=result;
-  }
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_dsa_set_g(PyObject *self, PyObject *args) {
-  PyObject *resultobj = 0;
-  DSA *arg1 = (DSA *) 0 ;
-  PyObject *arg2 = (PyObject *) 0 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject *result = 0 ;
-  
-  if(!PyArg_UnpackTuple(args,(char *)"dsa_set_g",2,2,&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_DSA, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "dsa_set_g" "', argument " "1"" of type '" "DSA *""'"); 
-  }
-  arg1 = (DSA *)(argp1);
-  {
-    arg2=obj1;
-  }
-  {
-    if (!arg1) {
-      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
-    }
-  }
-  result = (PyObject *)dsa_set_g(arg1,arg2);
+  result = (PyObject *)dsa_set_pqg(arg1,arg2,arg3,arg4);
   {
     resultobj=result;
   }
@@ -28286,6 +29105,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"bio_reset", _wrap_bio_reset, METH_VARARGS, NULL},
 	 { (char *)"bio_flush", _wrap_bio_flush, METH_VARARGS, NULL},
 	 { (char *)"bio_seek", _wrap_bio_seek, METH_VARARGS, NULL},
+	 { (char *)"bio_tell", _wrap_bio_tell, METH_VARARGS, NULL},
 	 { (char *)"bio_set_flags", _wrap_bio_set_flags, METH_VARARGS, NULL},
 	 { (char *)"bio_get_flags", _wrap_bio_get_flags, METH_VARARGS, NULL},
 	 { (char *)"bio_set_cipher", _wrap_bio_set_cipher, METH_VARARGS, NULL},
@@ -28297,6 +29117,21 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"bio_should_retry", _wrap_bio_should_retry, METH_VARARGS, NULL},
 	 { (char *)"bio_should_read", _wrap_bio_should_read, METH_VARARGS, NULL},
 	 { (char *)"bio_should_write", _wrap_bio_should_write, METH_VARARGS, NULL},
+	 { (char *)"BIO_set_data", _wrap_BIO_set_data, METH_VARARGS, NULL},
+	 { (char *)"BIO_get_data", _wrap_BIO_get_data, METH_VARARGS, NULL},
+	 { (char *)"BIO_set_init", _wrap_BIO_set_init, METH_VARARGS, NULL},
+	 { (char *)"BIO_get_init", _wrap_BIO_get_init, METH_VARARGS, NULL},
+	 { (char *)"BIO_get_shutdown", _wrap_BIO_get_shutdown, METH_VARARGS, NULL},
+	 { (char *)"BIO_set_shutdown", _wrap_BIO_set_shutdown, METH_VARARGS, NULL},
+	 { (char *)"pyfd_write", _wrap_pyfd_write, METH_VARARGS, NULL},
+	 { (char *)"pyfd_read", _wrap_pyfd_read, METH_VARARGS, NULL},
+	 { (char *)"pyfd_puts", _wrap_pyfd_puts, METH_VARARGS, NULL},
+	 { (char *)"pyfd_gets", _wrap_pyfd_gets, METH_VARARGS, NULL},
+	 { (char *)"pyfd_new", _wrap_pyfd_new, METH_VARARGS, NULL},
+	 { (char *)"pyfd_free", _wrap_pyfd_free, METH_VARARGS, NULL},
+	 { (char *)"pyfd_ctrl", _wrap_pyfd_ctrl, METH_VARARGS, NULL},
+	 { (char *)"BIO_s_pyfd", _wrap_BIO_s_pyfd, METH_VARARGS, NULL},
+	 { (char *)"BIO_new_pyfd", _wrap_BIO_new_pyfd, METH_VARARGS, NULL},
 	 { (char *)"bn_rand", _wrap_bn_rand, METH_VARARGS, NULL},
 	 { (char *)"bn_rand_range", _wrap_bn_rand_range, METH_VARARGS, NULL},
 	 { (char *)"rand_load_file", _wrap_rand_load_file, METH_VARARGS, NULL},
@@ -28423,8 +29258,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"dh_get_g", _wrap_dh_get_g, METH_VARARGS, NULL},
 	 { (char *)"dh_get_pub", _wrap_dh_get_pub, METH_VARARGS, NULL},
 	 { (char *)"dh_get_priv", _wrap_dh_get_priv, METH_VARARGS, NULL},
-	 { (char *)"dh_set_p", _wrap_dh_set_p, METH_VARARGS, NULL},
-	 { (char *)"dh_set_g", _wrap_dh_set_g, METH_VARARGS, NULL},
+	 { (char *)"dh_set_pg", _wrap_dh_set_pg, METH_VARARGS, NULL},
 	 { (char *)"rsa_new", _wrap_rsa_new, METH_VARARGS, NULL},
 	 { (char *)"rsa_free", _wrap_rsa_free, METH_VARARGS, NULL},
 	 { (char *)"rsa_size", _wrap_rsa_size, METH_VARARGS, NULL},
@@ -28437,10 +29271,9 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"rsa_write_pub_key", _wrap_rsa_write_pub_key, METH_VARARGS, NULL},
 	 { (char *)"rsa_get_e", _wrap_rsa_get_e, METH_VARARGS, NULL},
 	 { (char *)"rsa_get_n", _wrap_rsa_get_n, METH_VARARGS, NULL},
-	 { (char *)"rsa_set_e", _wrap_rsa_set_e, METH_VARARGS, NULL},
-	 { (char *)"rsa_set_n", _wrap_rsa_set_n, METH_VARARGS, NULL},
-	 { (char *)"rsa_set_e_bin", _wrap_rsa_set_e_bin, METH_VARARGS, NULL},
-	 { (char *)"rsa_set_n_bin", _wrap_rsa_set_n_bin, METH_VARARGS, NULL},
+	 { (char *)"rsa_set_en", _wrap_rsa_set_en, METH_VARARGS, NULL},
+	 { (char *)"PyObject_Bin_AsBIGNUM", _wrap_PyObject_Bin_AsBIGNUM, METH_VARARGS, NULL},
+	 { (char *)"rsa_set_en_bin", _wrap_rsa_set_en_bin, METH_VARARGS, NULL},
 	 { (char *)"rsa_private_encrypt", _wrap_rsa_private_encrypt, METH_VARARGS, NULL},
 	 { (char *)"rsa_public_decrypt", _wrap_rsa_public_decrypt, METH_VARARGS, NULL},
 	 { (char *)"rsa_public_encrypt", _wrap_rsa_public_encrypt, METH_VARARGS, NULL},
@@ -28466,9 +29299,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"dsa_get_g", _wrap_dsa_get_g, METH_VARARGS, NULL},
 	 { (char *)"dsa_get_pub", _wrap_dsa_get_pub, METH_VARARGS, NULL},
 	 { (char *)"dsa_get_priv", _wrap_dsa_get_priv, METH_VARARGS, NULL},
-	 { (char *)"dsa_set_p", _wrap_dsa_set_p, METH_VARARGS, NULL},
-	 { (char *)"dsa_set_q", _wrap_dsa_set_q, METH_VARARGS, NULL},
-	 { (char *)"dsa_set_g", _wrap_dsa_set_g, METH_VARARGS, NULL},
+	 { (char *)"dsa_set_pqg", _wrap_dsa_set_pqg, METH_VARARGS, NULL},
 	 { (char *)"dsa_set_pub", _wrap_dsa_set_pub, METH_VARARGS, NULL},
 	 { (char *)"dsa_read_params", _wrap_dsa_read_params, METH_VARARGS, NULL},
 	 { (char *)"dsa_write_params_bio", _wrap_dsa_write_params_bio, METH_VARARGS, NULL},
@@ -29405,6 +30236,200 @@ static PyHeapTypeObject SwigPyBuiltin__stack_st_OPENSSL_BLOCK_type = {
 
 SWIGINTERN SwigPyClientData SwigPyBuiltin__stack_st_OPENSSL_BLOCK_clientdata = {0, 0, 0, 0, 0, 0, (PyTypeObject *)&SwigPyBuiltin__stack_st_OPENSSL_BLOCK_type};
 
+SWIGPY_DESTRUCTOR_CLOSURE(_wrap_delete_BIO_PYFD_CTX)
+static SwigPyGetSet BIO_PYFD_CTX_fd_getset = { _wrap_BIO_PYFD_CTX_fd_get, _wrap_BIO_PYFD_CTX_fd_set };
+SWIGINTERN PyGetSetDef SwigPyBuiltin__pyfd_struct_getset[] = {
+    { (char*) "fd", (getter) SwigPyBuiltin_GetterClosure, (setter) SwigPyBuiltin_SetterClosure, (char*)"pyfd_struct.fd", (void*) &BIO_PYFD_CTX_fd_getset }
+,
+    {NULL, NULL, NULL, NULL, NULL} /* Sentinel */
+};
+
+SWIGINTERN PyObject *
+SwigPyBuiltin__pyfd_struct_richcompare(PyObject *self, PyObject *other, int op) {
+  PyObject *result = NULL;
+  PyObject *tuple = PyTuple_New(1);
+  assert(tuple);
+  PyTuple_SET_ITEM(tuple, 0, other);
+  Py_XINCREF(other);
+  if (!result) {
+    if (SwigPyObject_Check(self) && SwigPyObject_Check(other)) {
+      result = SwigPyObject_richcompare((SwigPyObject *)self, (SwigPyObject *)other, op);
+    } else {
+      result = Py_NotImplemented;
+      Py_INCREF(result);
+    }
+  }
+  Py_DECREF(tuple);
+  return result;
+}
+
+SWIGINTERN PyMethodDef SwigPyBuiltin__pyfd_struct_methods[] = {
+  { NULL, NULL, 0, NULL } /* Sentinel */
+};
+
+static PyHeapTypeObject SwigPyBuiltin__pyfd_struct_type = {
+  {
+#if PY_VERSION_HEX >= 0x03000000
+    PyVarObject_HEAD_INIT(NULL, 0)
+#else
+    PyObject_HEAD_INIT(NULL)
+    0,                                        /* ob_size */
+#endif
+    "BIO_PYFD_CTX",                           /* tp_name */
+    sizeof(SwigPyObject),                     /* tp_basicsize */
+    0,                                        /* tp_itemsize */
+    (destructor) _wrap_delete_BIO_PYFD_CTX_closure, /* tp_dealloc */
+    (printfunc) 0,                            /* tp_print */
+    (getattrfunc) 0,                          /* tp_getattr */
+    (setattrfunc) 0,                          /* tp_setattr */
+#if PY_VERSION_HEX >= 0x03000000
+    0,                                        /* tp_compare */
+#else
+    (cmpfunc) 0,                              /* tp_compare */
+#endif
+    (reprfunc) 0,                             /* tp_repr */
+    &SwigPyBuiltin__pyfd_struct_type.as_number,      /* tp_as_number */
+    &SwigPyBuiltin__pyfd_struct_type.as_sequence,    /* tp_as_sequence */
+    &SwigPyBuiltin__pyfd_struct_type.as_mapping,     /* tp_as_mapping */
+    (hashfunc) 0,                             /* tp_hash */
+    (ternaryfunc) 0,                          /* tp_call */
+    (reprfunc) 0,                             /* tp_str */
+    (getattrofunc) 0,                         /* tp_getattro */
+    (setattrofunc) 0,                         /* tp_setattro */
+    &SwigPyBuiltin__pyfd_struct_type.as_buffer,      /* tp_as_buffer */
+#if PY_VERSION_HEX >= 0x03000000
+    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE,   /* tp_flags */
+#else
+    Py_TPFLAGS_DEFAULT|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_CHECKTYPES, /* tp_flags */
+#endif
+    "::pyfd_struct",                          /* tp_doc */
+    (traverseproc) 0,                         /* tp_traverse */
+    (inquiry) 0,                              /* tp_clear */
+    (richcmpfunc) SwigPyBuiltin__pyfd_struct_richcompare, /* feature:python:tp_richcompare */
+    0,                                        /* tp_weaklistoffset */
+    (getiterfunc) 0,                          /* tp_iter */
+    (iternextfunc) 0,                         /* tp_iternext */
+    SwigPyBuiltin__pyfd_struct_methods,       /* tp_methods */
+    0,                                        /* tp_members */
+    SwigPyBuiltin__pyfd_struct_getset,        /* tp_getset */
+    0,                                        /* tp_base */
+    0,                                        /* tp_dict */
+    (descrgetfunc) 0,                         /* tp_descr_get */
+    (descrsetfunc) 0,                         /* tp_descr_set */
+    (size_t)(((char*)&((SwigPyObject *) 64L)->dict) - (char*) 64L), /* tp_dictoffset */
+    (initproc) _wrap_new_BIO_PYFD_CTX,        /* tp_init */
+    (allocfunc) 0,                            /* tp_alloc */
+    (newfunc) 0,                              /* tp_new */
+    (freefunc) 0,                             /* tp_free */
+    (inquiry) 0,                              /* tp_is_gc */
+    (PyObject*) 0,                            /* tp_bases */
+    (PyObject*) 0,                            /* tp_mro */
+    (PyObject*) 0,                            /* tp_cache */
+    (PyObject*) 0,                            /* tp_subclasses */
+    (PyObject*) 0,                            /* tp_weaklist */
+    (destructor) 0,                           /* tp_del */
+#if PY_VERSION_HEX >= 0x02060000
+    (int) 0,                                  /* tp_version_tag */
+#endif
+  },
+  {
+    (binaryfunc) 0,                           /* nb_add */
+    (binaryfunc) 0,                           /* nb_subtract */
+    (binaryfunc) 0,                           /* nb_multiply */
+#if PY_VERSION_HEX < 0x03000000
+    (binaryfunc) 0,                           /* nb_divide */
+#endif
+    (binaryfunc) 0,                           /* nb_remainder */
+    (binaryfunc) 0,                           /* nb_divmod */
+    (ternaryfunc) 0,                          /* nb_power */
+    (unaryfunc) 0,                            /* nb_negative */
+    (unaryfunc) 0,                            /* nb_positive */
+    (unaryfunc) 0,                            /* nb_absolute */
+    (inquiry) 0,                              /* nb_nonzero */
+    (unaryfunc) 0,                            /* nb_invert */
+    (binaryfunc) 0,                           /* nb_lshift */
+    (binaryfunc) 0,                           /* nb_rshift */
+    (binaryfunc) 0,                           /* nb_and */
+    (binaryfunc) 0,                           /* nb_xor */
+    (binaryfunc) 0,                           /* nb_or */
+#if PY_VERSION_HEX < 0x03000000
+    (coercion) 0,                             /* nb_coerce */
+#endif
+    (unaryfunc) 0,                            /* nb_int */
+#if PY_VERSION_HEX >= 0x03000000
+    (void*) 0,                                /* nb_reserved */
+#else
+    (unaryfunc) 0,                            /* nb_long */
+#endif
+    (unaryfunc) 0,                            /* nb_float */
+#if PY_VERSION_HEX < 0x03000000
+    (unaryfunc) 0,                            /* nb_oct */
+    (unaryfunc) 0,                            /* nb_hex */
+#endif
+    (binaryfunc) 0,                           /* nb_inplace_add */
+    (binaryfunc) 0,                           /* nb_inplace_subtract */
+    (binaryfunc) 0,                           /* nb_inplace_multiply */
+#if PY_VERSION_HEX < 0x03000000
+    (binaryfunc) 0,                           /* nb_inplace_divide */
+#endif
+    (binaryfunc) 0,                           /* nb_inplace_remainder */
+    (ternaryfunc) 0,                          /* nb_inplace_power */
+    (binaryfunc) 0,                           /* nb_inplace_lshift */
+    (binaryfunc) 0,                           /* nb_inplace_rshift */
+    (binaryfunc) 0,                           /* nb_inplace_and */
+    (binaryfunc) 0,                           /* nb_inplace_xor */
+    (binaryfunc) 0,                           /* nb_inplace_or */
+    (binaryfunc) 0,                           /* nb_floor_divide */
+    (binaryfunc) 0,                           /* nb_true_divide */
+    (binaryfunc) 0,                           /* nb_inplace_floor_divide */
+    (binaryfunc) 0,                           /* nb_inplace_true_divide */
+#if PY_VERSION_HEX >= 0x02050000
+    (unaryfunc) 0,                            /* nb_index */
+#endif
+  },
+  {
+    (lenfunc) 0,                              /* mp_length */
+    (binaryfunc) 0,                           /* mp_subscript */
+    (objobjargproc) 0,                        /* mp_ass_subscript */
+  },
+  {
+    (lenfunc) 0,                              /* sq_length */
+    (binaryfunc) 0,                           /* sq_concat */
+    (ssizeargfunc) 0,                         /* sq_repeat */
+    (ssizeargfunc) 0,                         /* sq_item */
+#if PY_VERSION_HEX >= 0x03000000
+    (void*) 0,                                /* was_sq_slice */
+#else
+    (ssizessizeargfunc) 0,                    /* sq_slice */
+#endif
+    (ssizeobjargproc) 0,                      /* sq_ass_item */
+#if PY_VERSION_HEX >= 0x03000000
+    (void*) 0,                                /* was_sq_ass_slice */
+#else
+    (ssizessizeobjargproc) 0,                 /* sq_ass_slice */
+#endif
+    (objobjproc) 0,                           /* sq_contains */
+    (binaryfunc) 0,                           /* sq_inplace_concat */
+    (ssizeargfunc) 0,                         /* sq_inplace_repeat */
+  },
+  {
+#if PY_VERSION_HEX < 0x03000000
+    (readbufferproc) 0,                       /* bf_getreadbuffer */
+    (writebufferproc) 0,                      /* bf_getwritebuffer */
+    (segcountproc) 0,                         /* bf_getsegcount */
+    (charbufferproc) 0,                       /* bf_getcharbuffer */
+#endif
+#if PY_VERSION_HEX >= 0x02060000
+    (getbufferproc) 0,                        /* bf_getbuffer */
+    (releasebufferproc) 0,                    /* bf_releasebuffer */
+#endif
+  },
+    (PyObject*) 0,                            /* ht_name */
+    (PyObject*) 0,                            /* ht_slots */
+};
+
+SWIGINTERN SwigPyClientData SwigPyBuiltin__pyfd_struct_clientdata = {0, 0, 0, 0, 0, 0, (PyTypeObject *)&SwigPyBuiltin__pyfd_struct_type};
+
 SWIGPY_DESTRUCTOR_CLOSURE(_wrap_delete__cbd_t)
 static SwigPyGetSet _cbd_t_password_getset = { _wrap__cbd_t_password_get, _wrap__cbd_t_password_set };
 static SwigPyGetSet _cbd_t_prompt_getset = { _wrap__cbd_t_prompt_get, _wrap__cbd_t_prompt_set };
@@ -29656,6 +30681,7 @@ static swig_type_info _swigt__p_p_ASN1_OBJECT = {"_p_p_ASN1_OBJECT", "ASN1_OBJEC
 static swig_type_info _swigt__p_p_X509_NAME_ENTRY = {"_p_p_X509_NAME_ENTRY", "X509_NAME_ENTRY **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_char = {"_p_p_char", "char **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_unsigned_char = {"_p_p_unsigned_char", "unsigned char **", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_pyfd_struct = {"_p_pyfd_struct", "BIO_PYFD_CTX *|struct pyfd_struct *|pyfd_struct *", 0, 0, (void*)&SwigPyBuiltin__pyfd_struct_clientdata, 0};
 static swig_type_info _swigt__p_stack_st = {"_p_stack_st", "struct stack_st *|stack_st *|_STACK *", 0, 0, (void*)&SwigPyBuiltin__stack_st_clientdata, 0};
 static swig_type_info _swigt__p_stack_st_OPENSSL_BLOCK = {"_p_stack_st_OPENSSL_BLOCK", "struct stack_st_OPENSSL_BLOCK *|stack_st_OPENSSL_BLOCK *", 0, 0, (void*)&SwigPyBuiltin__stack_st_OPENSSL_BLOCK_clientdata, 0};
 static swig_type_info _swigt__p_stack_st_OPENSSL_STRING = {"_p_stack_st_OPENSSL_STRING", "struct stack_st_OPENSSL_STRING *|stack_st_OPENSSL_STRING *", 0, 0, (void*)&SwigPyBuiltin__stack_st_OPENSSL_STRING_clientdata, 0};
@@ -29717,6 +30743,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_p_X509_NAME_ENTRY,
   &_swigt__p_p_char,
   &_swigt__p_p_unsigned_char,
+  &_swigt__p_pyfd_struct,
   &_swigt__p_stack_st,
   &_swigt__p_stack_st_OPENSSL_BLOCK,
   &_swigt__p_stack_st_OPENSSL_STRING,
@@ -29778,6 +30805,7 @@ static swig_cast_info _swigc__p_p_ASN1_OBJECT[] = {  {&_swigt__p_p_ASN1_OBJECT, 
 static swig_cast_info _swigc__p_p_X509_NAME_ENTRY[] = {  {&_swigt__p_p_X509_NAME_ENTRY, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_char[] = {  {&_swigt__p_p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_unsigned_char[] = {  {&_swigt__p_p_unsigned_char, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_pyfd_struct[] = {  {&_swigt__p_pyfd_struct, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_stack_st[] = {  {&_swigt__p_stack_st, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_stack_st_OPENSSL_BLOCK[] = {  {&_swigt__p_stack_st_OPENSSL_BLOCK, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_stack_st_OPENSSL_STRING[] = {  {&_swigt__p_stack_st_OPENSSL_STRING, 0, 0, 0},{0, 0, 0, 0}};
@@ -29839,6 +30867,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_p_X509_NAME_ENTRY,
   _swigc__p_p_char,
   _swigc__p_p_unsigned_char,
+  _swigc__p_pyfd_struct,
   _swigc__p_stack_st,
   _swigc__p_stack_st_OPENSSL_BLOCK,
   _swigc__p_stack_st_OPENSSL_STRING,
@@ -30618,6 +31647,30 @@ SWIG_init(void) {
   PyDict_SetItemString(md,(char*)"cvar", SWIG_globals());
   SwigPyBuiltin_AddPublicSymbol(public_interface, "cvar");
   SWIG_addvarlink(SWIG_globals(),(char*)"_bio_err",Swig_var__bio_err_get, Swig_var__bio_err_set);
+  
+  /* type '::pyfd_struct' */
+  builtin_pytype = (PyTypeObject *)&SwigPyBuiltin__pyfd_struct_type;
+  builtin_pytype->tp_dict = d = PyDict_New();
+  SwigPyBuiltin_SetMetaType(builtin_pytype, metatype);
+  builtin_pytype->tp_new = PyType_GenericNew;
+  builtin_base_count = 0;
+  builtin_bases[builtin_base_count] = NULL;
+  SwigPyBuiltin_InitBases(builtin_pytype, builtin_bases);
+  PyDict_SetItemString(d, "this", this_descr);
+  PyDict_SetItemString(d, "thisown", thisown_descr);
+  if (PyType_Ready(builtin_pytype) < 0) {
+    PyErr_SetString(PyExc_TypeError, "Could not create type 'BIO_PYFD_CTX'.");
+#if PY_VERSION_HEX >= 0x03000000
+    return NULL;
+#else
+    return;
+#endif
+  }
+  Py_INCREF(builtin_pytype);
+  PyModule_AddObject(m, "BIO_PYFD_CTX", (PyObject*) builtin_pytype);
+  SwigPyBuiltin_AddPublicSymbol(public_interface, "BIO_PYFD_CTX");
+  d = md;
+  SWIG_addvarlink(SWIG_globals(),(char*)"methods_pyfdp",Swig_var_methods_pyfdp_get, Swig_var_methods_pyfdp_set);
   SWIG_addvarlink(SWIG_globals(),(char*)"_rand_err",Swig_var__rand_err_get, Swig_var__rand_err_set);
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "PKCS5_SALT_LEN",SWIG_From_int((int)(8)));
   SWIG_addvarlink(SWIG_globals(),(char*)"_evp_err",Swig_var__evp_err_get, Swig_var__evp_err_set);

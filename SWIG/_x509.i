@@ -10,8 +10,19 @@
 /* $Id$   */
 
 %{
+#include <openssl/asn1.h>
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
+
+#include <openssl/asn1t.h>
+
+typedef STACK_OF(X509) SEQ_CERT;
+
+ASN1_ITEM_TEMPLATE(SEQ_CERT) =
+    ASN1_EX_TEMPLATE_TYPE(ASN1_TFLG_SEQUENCE_OF, 0, SeqCert, X509)
+ASN1_ITEM_TEMPLATE_END(SEQ_CERT)
+
+IMPLEMENT_ASN1_FUNCTIONS(SEQ_CERT)
 %}
 
 %apply Pointer NONNULL { BIO * };
@@ -331,6 +342,7 @@ extern int X509_EXTENSION_set_critical(X509_EXTENSION *, int);
 %constant int RSA_3                           = 0x3L;
 %constant int RSA_F4                          = 0x10001L;
 
+%warnfilter(454) _x509_err;
 %inline %{
 static PyObject *_x509_err;
 
@@ -483,11 +495,17 @@ int x509_name_add_entry_by_txt(X509_NAME *name, char *field, int type, char *byt
 
 PyObject *x509_name_get_der(X509_NAME *name)
 {
+    unsigned char* pder;
+    size_t pderlen;
     i2d_X509_NAME(name, 0);
+    if (!X509_NAME_get0_der(&pder, &pderlen, name)) {
+        PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
 #if PY_MAJOR_VERSION >= 3 
-    return PyBytes_FromStringAndSize(name->bytes->data, name->bytes->length);
+    return PyBytes_FromStringAndSize(pder, pderlen);
 #else
-    return PyString_FromStringAndSize(name->bytes->data, name->bytes->length);
+    return PyString_FromStringAndSize(pder, pderlen);
 #endif // PY_MAJOR_VERSION >= 3 
 }
 
@@ -640,6 +658,21 @@ Used in the wrapping of ASN1_seq_unpack and ASN1_seq_pack functions.
 #define I2DTYPE int (*)()
 #endif   
 
+// STACK_OF(X509)* ASN1_seq_unpack(const unsigned char *pp, long length, 
+//         X509* (*d2i)(X509**, unsigned char**, long),
+//         void (*f2)()) {
+//     /* WARNING - tmpbuf is required! See d2i_X509 docs for explanation */
+//     const unsigned char* tmpbuf = pp;
+//     return d2i_SEQ_CERT(NULL, &tmpbuf, length); 
+//     }
+// 
+// unsigned char* ASN1_seq_pack_X509(STACK_OF(X509) *stack, void (*f)(), void* p,
+//         int* len) {
+//     unsigned char* buf = NULL;
+//     *len = i2d_SEQ_CERT(stack, &buf);
+//     return buf;
+//     }
+
 STACK_OF(X509) *
 make_stack_from_der_sequence(PyObject * pyEncodedString){
     STACK_OF(X509) *certs;
@@ -667,12 +700,12 @@ make_stack_from_der_sequence(PyObject * pyEncodedString){
         return NULL;
     }
 
-    certs = ASN1_seq_unpack_X509((unsigned char *)encoded_string, encoded_string_len, d2i_X509, X509_free ); 
+    certs = ASN1_seq_unpack((unsigned char *)encoded_string, encoded_string_len, d2i_X509, X509_free );
     if (!certs) {
-       PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
-       return NULL;
+        PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
     }
- 
+
     return certs;
 }
 

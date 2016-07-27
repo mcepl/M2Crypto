@@ -35,6 +35,34 @@ typedef struct evp_md_ctx_st EVP_MD_CTX;
 %apply Pointer NONNULL { EVP_CIPHER * };
 %apply Pointer NONNULL { RSA * };
 
+/* FIXME
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#define EVP_MD_CTX_size(ctx)        ((ctx)->digest->md_size)
+#define HMAC_size(ctx)              ((ctx)->md->md_size)
+
+#define HMAC_CTX_new()              \
+    ((HMAC_CTX *)PyMem_Malloc(sizeof(HMAC_CTX)))
+#define HMAC_CTX_init(ctx)          HMAC_CTX_reset(ctx)
+#define HMAC_CTX_free(ctx)          \
+    do  {                           \
+        HMAC_CTX_cleanup(ctx);      \
+        PyMem_Free((void *)ctx);    \
+    } while(0)
+
+#define EVP_CIPHER_CTX_new()        \
+    ((EVP_CIPHER_CTX *)PyMem_Malloc(sizeof(EVP_CIPHER_CTX)))
+#define EVP_CIPHER_CTX_init(ctx)    EVP_CIPHER_CTX_reset(ctx)
+#define EVP_CIPHER_CTX_free(ctx)    \
+    do  {                           \
+        EVP_CIPHER_CTX_cleanup(ctx);\
+        PyMem_Free((void *)ctx);    \
+    } while(0)
+#define EVP_CIPHER_CTX_block_size(ctx)  \
+    ((ctx)->cipher->block_size)
+#define EVP_PKEY_base_id(pkey)      ((pkey)->type)
+#endif
+*/
+
 %rename(md5) EVP_md5;
 extern const EVP_MD *EVP_md5(void);
 %rename(sha1) EVP_sha1;
@@ -178,6 +206,7 @@ extern int EVP_VerifyInit(EVP_MD_CTX *, const EVP_MD *);
 %rename(pkey_size) EVP_PKEY_size;
 extern int EVP_PKEY_size(EVP_PKEY *);
 
+%warnfilter(454) _evp_err;
 %inline %{
 #define PKCS5_SALT_LEN  8
 
@@ -248,7 +277,7 @@ PyObject *digest_final(EVP_MD_CTX *ctx) {
     int blen;
     PyObject *ret;
 
-    if (!(blob = PyMem_Malloc(ctx->digest->md_size))) {
+    if (!(blob = PyMem_Malloc(EVP_MD_CTX_size(ctx)))) {
         PyErr_SetString(PyExc_MemoryError, "digest_final");
         return NULL;
     }
@@ -271,17 +300,16 @@ PyObject *digest_final(EVP_MD_CTX *ctx) {
 HMAC_CTX *hmac_ctx_new(void) {
     HMAC_CTX *ctx;
 
-    if (!(ctx = (HMAC_CTX *)PyMem_Malloc(sizeof(HMAC_CTX)))) {
+    if (!(ctx = HMAC_CTX_new())) {
         PyErr_SetString(PyExc_MemoryError, "hmac_ctx_new");
         return NULL;
     }
-    HMAC_CTX_init(ctx);
+    HMAC_CTX_reset(ctx);
     return ctx;
 }
 
 void hmac_ctx_free(HMAC_CTX *ctx) {
-    HMAC_CTX_cleanup(ctx);
-    PyMem_Free((void *)ctx);
+    HMAC_CTX_free(ctx);
 }
 
 PyObject *hmac_init(HMAC_CTX *ctx, PyObject *key, const EVP_MD *md) {
@@ -317,7 +345,7 @@ PyObject *hmac_final(HMAC_CTX *ctx) {
     int blen;
     PyObject *ret;
 
-    if (!(blob = PyMem_Malloc(ctx->md->md_size))) {
+    if (!(blob = PyMem_Malloc(HMAC_size(ctx)))) {
         PyErr_SetString(PyExc_MemoryError, "hmac_final");
         return NULL;
     }
@@ -369,17 +397,16 @@ PyObject *hmac(PyObject *key, PyObject *data, const EVP_MD *md) {
 EVP_CIPHER_CTX *cipher_ctx_new(void) {
     EVP_CIPHER_CTX *ctx;
 
-    if (!(ctx = (EVP_CIPHER_CTX *)PyMem_Malloc(sizeof(EVP_CIPHER_CTX)))) {
+    if (!(ctx = EVP_CIPHER_CTX_new())) {
         PyErr_SetString(PyExc_MemoryError, "cipher_ctx_new");
         return NULL;
     }
-    EVP_CIPHER_CTX_init(ctx);
+    EVP_CIPHER_CTX_reset(ctx);
     return ctx;
 }
 
 void cipher_ctx_free(EVP_CIPHER_CTX *ctx) {
-    EVP_CIPHER_CTX_cleanup(ctx);
-    PyMem_Free((void *)ctx);
+    EVP_CIPHER_CTX_free(ctx);
 }
 
 PyObject *bytes_to_key(const EVP_CIPHER *cipher, EVP_MD *md,
@@ -461,7 +488,7 @@ PyObject *cipher_final(EVP_CIPHER_CTX *ctx) {
     int olen;
     PyObject *ret;
 
-    if (!(obuf = PyMem_Malloc(ctx->cipher->block_size))) {
+    if (!(obuf = PyMem_Malloc(EVP_CIPHER_CTX_block_size(ctx)))) {
         PyErr_SetString(PyExc_MemoryError, "cipher_final");
         return NULL;
     }
@@ -628,8 +655,9 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
     BIO *bio;
     BUF_MEM *bptr;
     PyObject *ret;
+    BIGNUM* bn;
 
-    switch (pkey->type) {
+    switch (EVP_PKEY_base_id(pkey)) {
         case EVP_PKEY_RSA:
             rsa = EVP_PKEY_get1_RSA(pkey);
 
@@ -640,7 +668,8 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
                 return NULL;
             }
 
-            if (!BN_print(bio, rsa->n)) {
+            RSA_get0_key(rsa, &bn, NULL, NULL);
+            if (!BN_print(bio, bn)) {
                 PyErr_SetString(PyExc_RuntimeError,
                       ERR_error_string(ERR_get_error(), NULL));
                 BIO_free(bio);
@@ -672,7 +701,8 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
                 return NULL;
             }
 
-            if (!BN_print(bio, dsa->pub_key)) {
+            DSA_get0_key(dsa, &bn, NULL);
+            if (!BN_print(bio, bn)) {
                 PyErr_SetString(PyExc_RuntimeError,
                       ERR_error_string(ERR_get_error(), NULL));
                 BIO_free(bio);

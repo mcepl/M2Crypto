@@ -32,6 +32,7 @@ extern int DHparams_print(BIO *, const DH *);
 %constant DH_GENERATOR_2          = 2;
 %constant DH_GENERATOR_5          = 5;
 
+%warnfilter(454) _dh_err;
 %inline %{
 static PyObject *_dh_err;
 
@@ -120,70 +121,60 @@ PyObject *dh_compute_key(DH *dh, PyObject *pubkey) {
 }
         
 PyObject *dh_get_p(DH *dh) {
-    if (!dh->p) {
+    BIGNUM* p = NULL;
+    DH_get0_pqg(dh, &p, NULL, NULL);
+    if (!p) {
         PyErr_SetString(_dh_err, "'p' is unset");
         return NULL;
     }
-    return bn_to_mpi(dh->p);
+    return bn_to_mpi(p);
 }
 
 PyObject *dh_get_g(DH *dh) {
-    if (!dh->g) {
+    BIGNUM* g = NULL;
+    DH_get0_pqg(dh, NULL, NULL, &g);
+    if (!g) {
         PyErr_SetString(_dh_err, "'g' is unset");
         return NULL;
     }
-    return bn_to_mpi(dh->g);
+    return bn_to_mpi(g);
 }
 
 PyObject *dh_get_pub(DH *dh) {
-    if (!dh->pub_key) {
+    BIGNUM* pub_key = NULL;
+    DH_get0_key(dh, &pub_key, NULL);
+    if (!pub_key) {
         PyErr_SetString(_dh_err, "'pub' is unset");
         return NULL;
     }
-    return bn_to_mpi(dh->pub_key);
+    return bn_to_mpi(pub_key);
 }
 
 PyObject *dh_get_priv(DH *dh) {
-    if (!dh->priv_key) {
+    BIGNUM* priv_key = NULL;
+    DH_get0_key(dh, NULL, &priv_key);
+    if (!priv_key) {
         PyErr_SetString(_dh_err, "'priv' is unset");
         return NULL;
     }
-    return bn_to_mpi(dh->priv_key);
+    return bn_to_mpi(priv_key);
 }
 
-PyObject *dh_set_p(DH *dh, PyObject *value) {
-    BIGNUM *bn;
-    const void *vbuf;
-    int vlen;
+/* FIXME nezrušit??? */
+PyObject *dh_set_pg(DH *dh, PyObject *pval, PyObject* gval) {
+    BIGNUM* p, *g;
 
-    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
+    if (!(p = m2_PyObject_AsBIGNUM(pval, _dh_err))
+        || !(g = m2_PyObject_AsBIGNUM(gval, _dh_err)))
         return NULL;
 
-    if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
+    if (!DH_set0_pqg(dh, p, NULL, g)) {
         PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+        BN_free(p);
+        BN_free(g);
         return NULL;
-    }
-    if (dh->p)
-        BN_free(dh->p);
-    dh->p = bn;
-    Py_RETURN_NONE;
-}
+        }
 
-PyObject *dh_set_g(DH *dh, PyObject *value) {
-    BIGNUM *bn;
-    const void *vbuf;
-    int vlen;
-
-    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
-        return NULL;
-
-    if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
-        PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
-        return NULL;
-    }
-    if (dh->g)
-        BN_free(dh->g);
-    dh->g = bn;
     Py_RETURN_NONE;
 }
 %}
