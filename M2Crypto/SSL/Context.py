@@ -66,10 +66,9 @@ class Context:
         self.post_connection_check = post_connection_check
         ctxmap()[int(self.ctx)] = self
         m2.ssl_ctx_set_cache_size(self.ctx, 128)
-        if weak_crypto is None:
-            if protocol == 'sslv23':
-                self.set_options(m2.SSL_OP_ALL | m2.SSL_OP_NO_SSLv2 |
-                                 m2.SSL_OP_NO_SSLv3)
+        if weak_crypto is None and protocol in ('sslv23', 'tls'):
+            self.set_options(m2.SSL_OP_ALL | m2.SSL_OP_NO_SSLv2 |
+                             m2.SSL_OP_NO_SSLv3)
 
     def __del__(self):
         # type: () -> None
