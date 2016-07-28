@@ -1103,6 +1103,7 @@ class Request:
             self._pyfree = _pyfree
         else:
             self.req = m2.x509_req_new()
+            m2.x509_req_set_version(self.req, 0)
             self._pyfree = 1
 
     def __del__(self):
