@@ -80,14 +80,14 @@ class SSLTestCase(unittest.TestCase):
         conn.set_connect_state()
         self.sslbio.set_ssl(conn)
         ret = self.sslbio.do_handshake()
-        self.assertEqual(ret, 0)
+        self.assertIn(ret, (-1, 0))
 
     def test_should_retry_fail(self):  # XXX leaks 64/1312 bytes
         ctx = SSL.Context()
         conn = SSL.Connection(ctx)
         self.sslbio.set_ssl(conn)
         ret = self.sslbio.do_handshake()
-        self.assertEqual(ret, -1)
+        self.assertIn(ret, (-1, 0))
         ret = self.sslbio.should_retry()
         self.assertEqual(ret, 0)
 
@@ -96,7 +96,7 @@ class SSLTestCase(unittest.TestCase):
         conn = SSL.Connection(ctx)
         self.sslbio.set_ssl(conn)
         ret = self.sslbio.do_handshake()
-        self.assertEqual(ret, -1)
+        self.assertIn(ret, (-1, 0))
         ret = self.sslbio.should_write()
         self.assertEqual(ret, 0)
 
@@ -105,7 +105,7 @@ class SSLTestCase(unittest.TestCase):
         conn = SSL.Connection(ctx)
         self.sslbio.set_ssl(conn)
         ret = self.sslbio.do_handshake()
-        self.assertEqual(ret, -1)
+        self.assertIn(ret, (-1, 0))
         ret = self.sslbio.should_read()
         self.assertEqual(ret, 0)
 
