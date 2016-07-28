@@ -5,6 +5,7 @@
 Copyright (C) 2006 Open Source Applications Foundation. All Rights Reserved.
 """
 
+import os.path
 try:
     import unittest2 as unittest
 except ImportError:
@@ -63,7 +64,8 @@ class SMIMETestCase(unittest.TestCase):
 
     def test_crlf(self):
         self.assertEqual(SMIME.text_crlf(b'foobar'), b'Content-Type: text/plain\r\n\r\nfoobar')
-        self.assertEqual(SMIME.text_crlf_bio(BIO.MemoryBuffer(b'foobar')).read(), b'Content-Type: text/plain\r\n\r\nfoobar')
+        self.assertEqual(SMIME.text_crlf_bio(
+            BIO.MemoryBuffer(b'foobar')).read(), b'Content-Type: text/plain\r\n\r\nfoobar')
 
     def test_sign(self):
         buf = BIO.MemoryBuffer(self.cleartext)
@@ -170,7 +172,6 @@ class SMIMETestCase(unittest.TestCase):
         st.set_verify_cb()
         v = s.verify(p7, data)
         self.assertEqual(v, self.cleartext)
-
 
     def verify_cb_dummy_method(self, ok, store):
         return verify_cb_dummy_function(ok, store)
@@ -336,6 +337,10 @@ class WriteLoadTestCase(unittest.TestCase):
         self.filenameSmime = 'tests/sig.p7s'
         with BIO.openfile(self.filenameSmime, 'wb') as f:
             self.assertEqual(s.write(f, p7, BIO.MemoryBuffer(b'some text')), 1)
+
+    def tearDown(self):
+        if os.path.exists(self.filename_der):
+            os.unlink(self.filename_der)
 
     def test_load_pkcs7(self):
         self.assertEqual(SMIME.load_pkcs7(self.filename).type(), SMIME.PKCS7_SIGNED)
