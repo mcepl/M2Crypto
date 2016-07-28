@@ -176,10 +176,10 @@ class RSATestCase(unittest.TestCase):
 
     def test_set_bn(self):
         rsa = RSA.load_pub_key(self.pubkey)
-        self.assertIsNone(m2.rsa_set_e(rsa.rsa,
-                          b'\000\000\000\003\001\000\001'))
         with self.assertRaises(RSA.RSAError):
-            m2.rsa_set_e(rsa.rsa, b'\000\000\000\003\001')
+            m2.rsa_set_en(rsa.rsa,
+                b'\000\000\000\003\001\000\001',
+                b'\000\000\000\003\001')
 
     def test_newpub(self):
         old = RSA.load_pub_key(self.pubkey)

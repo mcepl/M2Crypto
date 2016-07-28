@@ -429,6 +429,5 @@ def new_pub_key(e_n):
     """
     (e, n) = e_n
     rsa = m2.rsa_new()
-    m2.rsa_set_e(rsa, e)
-    m2.rsa_set_n(rsa, n)
+    m2.rsa_set_en(rsa, e, n)
     return RSA_pub(rsa, 1)
