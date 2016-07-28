@@ -93,7 +93,6 @@ def load_params(file):
     with BIO.openfile(file) as bio:
         return load_params_bio(bio)
 
-
 def load_params_bio(bio):
     # type: (BIO.BIO) -> DH
     return DH(m2.dh_read_parameters(bio._ptr()), 1)
@@ -102,8 +101,7 @@ def load_params_bio(bio):
 def set_params(p, g):
     # type: (bytes, bytes) -> DH
     dh = m2.dh_new()
-    m2.dh_set_p(dh, p)
-    m2.dh_set_g(dh, g)
+    m2.dh_set_pg(dh, p, g)
     return DH(dh, 1)
 
 
