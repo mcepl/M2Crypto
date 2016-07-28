@@ -24,8 +24,6 @@ extern ASN1_OBJECT *ASN1_OBJECT_create( int, unsigned char *, int, const char *,
 extern void ASN1_OBJECT_free( ASN1_OBJECT *);
 %rename(i2d_asn1_object) i2d_ASN1_OBJECT;
 extern int i2d_ASN1_OBJECT( ASN1_OBJECT *, unsigned char **);
-%rename(c2i_asn1_object) c2i_ASN1_OBJECT;
-extern ASN1_OBJECT *c2i_ASN1_OBJECT( ASN1_OBJECT **, CONST098 unsigned char **, long);
 %rename(d2i_asn1_object) d2i_ASN1_OBJECT;
 extern ASN1_OBJECT *d2i_ASN1_OBJECT( ASN1_OBJECT **, CONST098 unsigned char **, long);
 
