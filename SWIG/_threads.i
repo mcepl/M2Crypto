@@ -6,8 +6,11 @@
 #include <openssl/crypto.h>
 
 #ifdef THREADING
-static PyThread_type_lock lock_cs[CRYPTO_NUM_LOCKS];
-static long lock_count[CRYPTO_NUM_LOCKS];
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#define CRYPTO_num_locks()      (CRYPTO_NUM_LOCKS)
+#endif
+static PyThread_type_lock lock_cs[CRYPTO_num_locks()];
+static long lock_count[CRYPTO_num_locks()];
 static int thread_mode = 0;
 #endif
 
@@ -37,7 +40,7 @@ void threading_init(void) {
 #ifdef THREADING
     int i;
     if (!thread_mode) {
-        for (i=0; i<CRYPTO_NUM_LOCKS; i++) {
+        for (i=0; i<CRYPTO_num_locks(); i++) {
             lock_count[i]=0;
             lock_cs[i]=PyThread_allocate_lock();
         }
@@ -53,7 +56,7 @@ void threading_cleanup(void) {
     int i;
     if (thread_mode) {
         CRYPTO_set_locking_callback(NULL);
-        for (i=0; i<CRYPTO_NUM_LOCKS; i++) {
+        for (i=0; i<CRYPTO_num_locks(); i++) {
             lock_count[i]=0;
             PyThread_release_lock(lock_cs[i]);
             PyThread_free_lock(lock_cs[i]);
