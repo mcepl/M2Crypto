@@ -13,6 +13,7 @@ Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 import glob
 import os
 import platform
+import re
 import string
 import subprocess
 import sys
@@ -110,8 +111,20 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         # openssl is the attribute corresponding to openssl directory prefix
         # command line option
         if os.name == 'nt':
-            self.libraries = ['ssleay32', 'libeay32']
-            self.openssl = 'c:\\pkg'
+            if openssl_version('1.1.0'):
+                self.libraries = ['ssleay32', 'libeay32']
+                self.openssl = 'c:\\pkg'
+            else:
+                self.libraries = ['libssl', 'libcrypto']
+                if platform.architecture()[0] == '32bit':
+                    self.openssl = os.environ.get('ProgramFiles(86)')
+                    if not self.openssl:
+                        self.openssl = os.environ.get('ProgramFiles')
+                else:
+                    self.openssl = os.environ.get('ProgramW6432')
+                if not self.openssl:
+                    raise RuntimeError('cannot detect platform')
+                self.openssl = os.path.join(self.openssl, 'OpenSSL')
         else:
             self.libraries = ['ssl', 'crypto']
             self.openssl = '/usr'
@@ -158,6 +171,13 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         self.swig_opts.append('-includeall')
         self.swig_opts.append('-modern')
         self.swig_opts.append('-builtin')
+
+        # Swig doesn't know the version of MSVC, which causes errors in e_os2.h
+        # trying to import stdint.h. Since python 2.7 is intimately tied to
+        # MSVC 2008, it's harmless for now to define this. Will come back to
+        # this shortly to come up with a better fix.
+        if os.name == 'nt':
+            self.swig_opts.append('-D_MSC_VER=1500')
 
         # These two lines are a workaround for
         # http://bugs.python.org/issue2624 , hard-coding that we are only
@@ -214,9 +234,12 @@ def swig_version(req_ver):
 
 
 if sys.platform == 'darwin':
-    my_extra_compile_args = ["-Wno-deprecated-declarations"]
+    x_comp_args = ["-Wno-deprecated-declarations"]
+elif sys.platform == 'win32':
+    x_comp_args = ['-DTHREADING', '-D_CRT_SECURE_NO_WARNINGS']
 else:
-    my_extra_compile_args = []
+    x_comp_args = ['-DTHREADING']
+
 
 # Don't try to run swig on the ancient platforms
 if swig_version(REQUIRED_SWIG_VERSION):
@@ -227,7 +250,7 @@ else:
 
 m2crypto = setuptools.Extension(name='M2Crypto._m2crypto',
                                 sources=lib_sources,
-                                extra_compile_args=['-DTHREADING'],
+                                extra_compile_args=x_comp_args,
                                 # Uncomment to build Universal Mac binaries
                                 # extra_link_args =
                                 #     ['-Wl,-search_paths_first'],

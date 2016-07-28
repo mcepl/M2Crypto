@@ -44,6 +44,9 @@ static PyObject *x509_store_verify_cb_func;
 #endif
 
 /* Bring in STACK_OF macro definition */
+#ifdef _MSC_VER
+%include <windows.i>
+#endif
 %include <openssl/safestack.h>
 
 /* Bring in LHASH_OF macro definition */
