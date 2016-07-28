@@ -114,9 +114,7 @@ class DSA:
                   unsafe to use this method. It is better to use
                   gen_params function to create a new DSA object.
         """
-        m2.dsa_set_p(self.dsa, p)
-        m2.dsa_set_q(self.dsa, q)
-        m2.dsa_set_g(self.dsa, g)
+        m2.dsa_set_pqg(self.dsa, p, q, g)
 
     def gen_key(self):
         # type: () -> None
@@ -319,9 +317,7 @@ def set_params(p, q, g):
     @return:  instance of DSA.
     """
     dsa = m2.dsa_new()
-    m2.dsa_set_p(dsa, p)
-    m2.dsa_set_q(dsa, q)
-    m2.dsa_set_g(dsa, g)
+    m2.dsa_set_pqg(dsa, p, q, g)
     return DSA(dsa, 1)
 
 
@@ -414,9 +410,7 @@ def pub_key_from_params(p, q, g, pub):
     @return:  instance of DSA_pub.
     """
     dsa = m2.dsa_new()
-    m2.dsa_set_p(dsa, p)
-    m2.dsa_set_q(dsa, q)
-    m2.dsa_set_g(dsa, g)
+    m2.dsa_set_pqg(dsa, p, q, g)
     m2.dsa_set_pub(dsa, pub)
     return DSA_pub(dsa, 1)
 
