@@ -32,12 +32,14 @@ class RandTestCase(unittest.TestCase):
         self.assertEqual(b, 1)
 
     def test_file_name(self):
-        if "RANDFILE" in os.environ:
-            self.assertEqual(Rand.rand_file_name(),
-                             os.environ["RANDFILE"])
+        if os.name == 'nt':
+            rand_env = ('RANDFILE', 'HOME', 'USERPROFILE', 'SYSTEMROOT')
         else:
-            self.assertEqual(Rand.rand_file_name(),
-                             os.path.join(os.environ["HOME"], ".rnd"))
+            rand_env = ('RANDFILE', 'HOME')
+        key = next((k for k in rand_env if os.environ.get(k)), None)
+        self.assertIsNotNone(key, "Could not find required environment")
+        rand_file = os.path.abspath(os.path.join(os.environ[key], '.rnd'))
+        self.assertEqual(os.path.abspath(Rand.rand_file_name()), rand_file)
 
     def test_load_save(self):
         try:
