@@ -14,6 +14,8 @@ static int m2_PyObject_AsReadBufferInt(PyObject *obj, const void **buffer,
                                        int *buffer_len);
 static int m2_PyString_AsStringAndSizeInt(PyObject *obj, char **s, int *len);
 
+static BIGNUM* m2_PyObject_AsBIGNUM(PyObject* value, PyObject* _py_exc) ;
+
 /* Always use these two together, to correctly handle non-memoryview objects. */
 static int m2_PyObject_GetBufferInt(PyObject *obj, Py_buffer *view, int flags);
 static void m2_PyBuffer_Release(PyObject *obj, Py_buffer *view);

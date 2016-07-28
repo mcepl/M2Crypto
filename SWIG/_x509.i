@@ -495,7 +495,7 @@ int x509_name_add_entry_by_txt(X509_NAME *name, char *field, int type, char *byt
 
 PyObject *x509_name_get_der(X509_NAME *name)
 {
-    unsigned char* pder;
+    const char* pder;
     size_t pderlen;
     i2d_X509_NAME(name, 0);
     if (!X509_NAME_get0_der(&pder, &pderlen, name)) {

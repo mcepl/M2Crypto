@@ -102,6 +102,24 @@ static int m2_PyObject_GetBufferInt(PyObject *obj, Py_buffer *view, int flags)
     return 0;
 }
 
+static BIGNUM*
+m2_PyObject_AsBIGNUM(PyObject* value, PyObject* _py_exc) 
+{
+    BIGNUM* bn;
+    const void* vbuf;
+    int vlen;
+
+    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
+        return NULL;
+
+    if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
+        PyErr_SetString(_py_exc, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+        }
+
+    return bn;
+}
+
 static void m2_PyBuffer_Release(PyObject *obj, Py_buffer *view)
 {
     if (PyObject_CheckBuffer(obj))
@@ -407,9 +425,12 @@ int passphrase_callback(char *buf, int num, int v, void *arg) {
 %}
 
 %inline %{
+
 void lib_init() {
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
     SSLeay_add_all_algorithms();
     ERR_load_ERR_strings();
+#endif
 }
 
 /* Bignum routines that aren't not numerous enough to
@@ -662,9 +683,6 @@ http://stackoverflow.com/questions/8195383/pyfile-type-replaced-by
 
 /* A bunch of "straight-thru" functions. */
 
-%rename(err_print_errors_fp) ERR_print_errors_fp;
-%threadallow ERR_print_errors_fp;
-extern void ERR_print_errors_fp(FILE *);
 %rename(err_print_errors) ERR_print_errors;
 %threadallow ERR_print_errors;
 extern void ERR_print_errors(BIO *);
