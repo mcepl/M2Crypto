@@ -39,7 +39,7 @@ if win32process:
     srv_host = 'localhost'
     srv_port = 64000
 
-    class SSLWinClientTestCase(test_ssl.SSLClientTestCase):
+    class SSLWinClientTestCase(test_ssl.BaseSSLClientTestCase):
 
         startupinfo = win32process.STARTUPINFO()
         openssl = find_openssl()
