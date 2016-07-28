@@ -582,7 +582,7 @@ class X509TestCase(unittest.TestCase):
 class X509StackTestCase(unittest.TestCase):
     def test_make_stack_from_der(self):
         with open("tests/der_encoded_seq.b64", 'rb') as f:
-            b64 = f.read(1304)
+            b64 = f.read()
 
         with warnings.catch_warnings():
             warnings.simplefilter('ignore', DeprecationWarning)
@@ -602,7 +602,7 @@ class X509StackTestCase(unittest.TestCase):
 
     def test_make_stack_check_num(self):
         with open("tests/der_encoded_seq.b64", 'rb') as f:
-            b64 = f.read(1304)
+            b64 = f.read()
 
         with warnings.catch_warnings():
             warnings.simplefilter('ignore', DeprecationWarning)
