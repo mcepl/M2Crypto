@@ -8,7 +8,13 @@
 **
 */
 /* $Id$ */
-
+%begin %{
+#ifdef _MSC_VER
+#include <Winsock2.h>
+#pragma comment(lib, "Ws2_32")
+typedef unsigned __int64 uint64_t;
+#endif
+%}
 %{
 #include <pythread.h>
 #include <limits.h>
@@ -17,9 +23,15 @@
 #include <openssl/ssl.h>
 #include <openssl/tls1.h>
 #include <openssl/x509.h>
+#ifndef _MSC_VER
 #include <poll.h>
 #include <sys/time.h>
+#endif
 %}
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100005L
+%include <openssl/safestack.h>
+#endif
 
 %apply Pointer NONNULL { SSL_CTX * };
 %apply Pointer NONNULL { SSL * };
@@ -198,7 +210,9 @@ extern int ssl_write(SSL *ssl, PyObject *blob, double timeout = -1);
 %constant int SSL_ST_INIT                     = (SSL_ST_CONNECT|SSL_ST_ACCEPT);
 %constant int SSL_ST_BEFORE                   = 0x4000;
 %constant int SSL_ST_OK                       = 0x03;
-%constant int SSL_ST_RENEGOTIATE              = (0x04|SSL_ST_INIT);
+/* SWIG 3.0.1 complains about the next line -- simplified declaration for now */
+/*%constant int SSL_ST_RENEGOTIATE            = (0x04|SSL_ST_INIT);*/
+%constant int SSL_ST_RENEGOTIATE              = (0x04|SSL_ST_CONNECT|SSL_ST_ACCEPT);
 
 %constant int SSL_CB_LOOP                     = 0x01;
 %constant int SSL_CB_EXIT                     = 0x02;
@@ -235,6 +249,8 @@ extern int ssl_write(SSL *ssl, PyObject *blob, double timeout = -1);
 
 %ignore ssl_handle_error;
 %ignore ssl_sleep_with_timeout;
+%warnfilter(454) _ssl_err;
+%warnfilter(454) _ssl_timeout_err;
 %inline %{
 static PyObject *_ssl_err;
 static PyObject *_ssl_timeout_err;
@@ -466,6 +482,28 @@ static void ssl_handle_error(int ssl_err, int ret) {
      }
 }
 
+#ifdef _MSC_VER
+//http://stackoverflow.com/questions/10905892/equivalent-of-gettimeday-for-windows
+int gettimeofday(struct timeval * tp, struct timezone * tzp)
+{
+    // Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
+    static const uint64_t EPOCH = ((uint64_t) 116444736000000000ULL);
+
+    SYSTEMTIME  system_time;
+    FILETIME    file_time;
+    uint64_t    time;
+
+    GetSystemTime( &system_time );
+    SystemTimeToFileTime( &system_time, &file_time );
+    time =  ((uint64_t)file_time.dwLowDateTime )      ;
+    time += ((uint64_t)file_time.dwHighDateTime) << 32;
+
+    tp->tv_sec  = (long) ((time - EPOCH) / 10000000L);
+    tp->tv_usec = (long) (system_time.wMilliseconds * 1000);
+    return 0;
+}
+#endif
+
 static int ssl_sleep_with_timeout(SSL *ssl, const struct timeval *start,
                                   double timeout, int ssl_err) {
     struct pollfd fd;
@@ -482,8 +520,8 @@ static int ssl_sleep_with_timeout(SSL *ssl, const struct timeval *start,
         int fract;
 
         ms = ((start->tv_sec + (int)timeout) - tv.tv_sec) * 1000;
-        fract = (start->tv_usec + (timeout - (int)timeout) * 1000000
-                 - tv.tv_usec + 999) / 1000;
+        fract = (int)((start->tv_usec + (timeout - (int)timeout) * 1000000
+                 - tv.tv_usec + 999) / 1000);
         if (ms > 0 && fract > INT_MAX - ms)
             ms = -1;
         else {
@@ -514,7 +552,11 @@ static int ssl_sleep_with_timeout(SSL *ssl, const struct timeval *start,
         return -1;
     }
     Py_BEGIN_ALLOW_THREADS
+#ifdef _MSC_VER
+    tmp = WSAPoll(&fd, 1, ms);
+#else
     tmp = poll(&fd, 1, ms);
+#endif
     Py_END_ALLOW_THREADS
     switch (tmp) {
     	case 1:
@@ -522,7 +564,11 @@ static int ssl_sleep_with_timeout(SSL *ssl, const struct timeval *start,
     	case 0:
             goto timeout;
     	case -1:
+#ifdef _MSC_VER
+            if (WSAGetLastError() == EINTR)
+#else
             if (errno == EINTR)
+#endif
                 goto again;
             PyErr_SetFromErrno(_ssl_err);
             return -1;
@@ -832,7 +878,7 @@ int sk_ssl_cipher_num(STACK_OF(SSL_CIPHER) *stack) {
     return sk_SSL_CIPHER_num(stack);
 }
 
-SSL_CIPHER *sk_ssl_cipher_value(STACK_OF(SSL_CIPHER) *stack, int idx) {
+const SSL_CIPHER *sk_ssl_cipher_value(STACK_OF(SSL_CIPHER) *stack, int idx) {
     return sk_SSL_CIPHER_value(stack, idx);
 }
 
