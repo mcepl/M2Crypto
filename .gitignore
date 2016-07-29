@@ -1,11 +1,9 @@
 *.pyc
 *~
-SWIG/_m2crypto.py
-SWIG/_m2crypto_wrap.c
 build/
 /dist
 /M2Crypto/__m2crypto*.so
-/SWIG/_m2crypto.py
+/M2Crypto/_m2crypto.py
 /M2Crypto.egg-info
 .eggs/
 /EGG-INFO
@@ -13,4 +11,3 @@ tests/randpool.dat
 tests/sig.p7
 tests/sig.p7s
 tests/tmpcert.der
-M2Crypto/_m2crypto.py
