@@ -31,10 +31,8 @@ extern BIO_METHOD *BIO_f_cipher(void);
 extern BIO *BIO_new(BIO_METHOD *);
 %rename(bio_new_socket) BIO_new_socket;
 extern BIO *BIO_new_socket(int, int);
-%rename(bio_new_fd) BIO_new_fd;
-extern BIO *BIO_new_fd(int, int);
-%rename(bio_new_fp) BIO_new_fp;
-extern BIO *BIO_new_fp(FILE *, int);
+%rename(bio_new_fd) BIO_new_pyfd;
+%rename(bio_new_pyfd) BIO_new_pyfd;
 %rename(bio_new_file) BIO_new_file;
 extern BIO *BIO_new_file(const char *, const char *);
 %rename(bio_free) BIO_free;
@@ -288,33 +286,13 @@ int bio_should_write(BIO* a) {
     return BIO_should_write(a);
 }
 
-/* implement custom BIO_s_pyfd */
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+/* implment custom BIO_s_pyfd */
 
 #ifdef WIN32
 #  define clear_sys_error()       SetLastError(0)
 #else
 #  define clear_sys_error()       errno=0
-#endif
-
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
-void BIO_set_data(BIO *a, void *ptr) {
-    a->ptr = ptr;
-}
-void *BIO_get_data(BIO *a) {
-    return a->ptr;
-}
-void BIO_set_init(BIO *a, int init) {
-    a->init = init;
-}
-int BIO_get_init(BIO *a) {
-    return a->init;
-}
-int BIO_get_shutdown(BIO *a) {
-    return a->shutdown;
-}
-void BIO_set_shutdown(BIO *a, int shutdown) {
-    a->shutdown = shutdown;
-}
 #endif
 
 typedef struct pyfd_struct {
@@ -367,8 +345,14 @@ static int pyfd_gets(BIO *bp, char *buf, int size) {
     char *ptr = buf;
     char *end = buf + size - 1;
 
-    while ((ptr < end) && (pyfd_read(bp, ptr, 1) > 0) && (ptr[0] != '\n'))
-        ptr++;
+    /* See
+    https://github.com/openssl/openssl/pull/3442
+    We were here just repeating a bug from OpenSSL
+    */
+    while (ptr < end && pyfd_read(bp, ptr, 1) > 0) {
+        if (*ptr++ == '\n')
+           break;
+    }
 
     ptr[0] = '\0';
 
@@ -380,7 +364,7 @@ static int pyfd_gets(BIO *bp, char *buf, int size) {
 static int pyfd_new(BIO* b) {
     BIO_PYFD_CTX* ctx;
 
-    ctx = OPENSSL_malloc(sizeof(*ctx));
+    ctx = OPENSSL_zalloc(sizeof(*ctx));
     if (ctx == NULL)
         return 0;
 
@@ -475,7 +459,6 @@ static long pyfd_ctrl(BIO *b, int cmd, long num, void *ptr) {
 }
 
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
 BIO* BIO_new_pyfd(int fd, int close_flag) {
     BIO *ret;
     BIO_METHOD *methods_fdp;
@@ -495,31 +478,6 @@ BIO* BIO_new_pyfd(int fd, int close_flag) {
     BIO_set_fd(ret, fd, close_flag);
     return ret;
     }
-#else
-static BIO_METHOD methods_pyfdp = {
-    35|0x400|0x100,
-    "python file descriptor",
-    pyfd_write,
-    pyfd_read,
-    pyfd_puts,
-    pyfd_gets,
-    pyfd_ctrl,
-    pyfd_new,
-    pyfd_free,
-    NULL
-};
-BIO_METHOD *BIO_s_pyfd(void) {
-    return (&methods_pyfdp);
-}
-
-BIO *BIO_new_pyfd(int fd, int close_flag) {
-    BIO *ret;
-    ret = BIO_new(BIO_s_pyfd());
-    if (ret == NULL)
-        return NULL;
-    BIO_set_fd(ret, fd, close_flag);
-    return ret;
-}
 #endif
 %}
 
