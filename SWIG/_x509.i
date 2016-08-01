@@ -160,8 +160,6 @@ extern int X509_NAME_add_entry_by_NID(X509_NAME *, int, int, unsigned char *, in
 %rename(x509_name_print_ex) X509_NAME_print_ex;
 %threadallow X509_NAME_print_ex;
 extern int X509_NAME_print_ex(BIO *, X509_NAME *, int, unsigned long);
-%rename(x509_name_print_ex_fp) X509_NAME_print_ex_fp;
-extern int X509_NAME_print_ex_fp(FILE *, X509_NAME *, int, unsigned long);
 
 #if OPENSSL_VERSION_NUMBER >= 0x10000000L
 %rename(x509_name_hash) X509_NAME_hash_old;
