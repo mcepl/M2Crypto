@@ -158,6 +158,18 @@ class BIO(object):
         """
         return m2.bio_should_write(self.bio)
 
+    def tell(self):
+        """
+        Return the current offset.
+        """
+        return m2.bio_tell(self.bio)
+
+    def seek(self, off):
+        """
+        Seek to the specified absolute offset.
+        """
+        return m2.bio_seek(self.bio, off)
+
     def __enter__(self):
         return self
 
