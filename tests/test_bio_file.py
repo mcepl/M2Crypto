@@ -6,6 +6,7 @@ Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
 import os
 import sys
+import tempfile
 try:
     import unittest2 as unittest
 except ImportError:
@@ -18,11 +19,8 @@ class FileTestCase(unittest.TestCase):
 
     def setUp(self):
         self.data = 'abcdef' * 64
-        if sys.platform != 'win32':
-            self.fname = os.tmpnam()
-        else:
-            import tempfile
-            self.fname = tempfile.mktemp()
+        self.tmpfile = tempfile.NamedTemporaryFile(delete=False)
+        self.fname = self.tmpfile.name
 
     def tearDown(self):
         try:
