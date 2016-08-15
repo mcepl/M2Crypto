@@ -270,6 +270,31 @@ class EVPTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             util.pkcs7_pad('Hello', 256)
 
+    def test_pkey_verify_crash(self):
+        SIGN_PRIVATE = EVP.load_key('tests/rsa.priv.pem')
+        SIGN_PUBLIC = RSA.load_pub_key('tests/rsa.pub.pem')
+
+        def sign(data):
+            SIGN_PRIVATE.sign_init()
+            SIGN_PRIVATE.sign_update(data)
+            signed_data = SIGN_PRIVATE.sign_final()
+            signed_data_base64 = signed_data.encode('base64')
+            return signed_data_base64
+
+        def verify(response):
+            signature = response['sign'].decode('base64')
+            data = response['data']
+            verify_evp = EVP.PKey()
+            verify_evp.assign_rsa(SIGN_PUBLIC)
+            verify_evp.verify_init()
+            verify_evp.verify_update(data)
+            return verify_evp.verify_final(signature) == 1
+
+        data = "test message"
+        signature = sign(data)
+        res = {"data": data, "sign": signature}
+        self.assertTrue(verify(res))  # works fine
+        self.assertTrue(verify(res))  # segmentation fault in *verify_final*
 
 class CipherTestCase(unittest.TestCase):
     def cipher_filter(self, cipher, inf, outf):
