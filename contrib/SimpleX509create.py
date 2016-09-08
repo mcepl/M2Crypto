@@ -96,7 +96,7 @@ class Cert:
         # time notBefore
         #
 
-        ASN1 = M2Crypto.ASN1.ASN1_UTCTIME ()
+        ASN1 = M2Crypto.ASN1.ASN1_TIME ()
         ASN1.set_time ( 500 )
         self.X509Certificate.set_not_before( ASN1 )
 
@@ -104,7 +104,7 @@ class Cert:
         # time notAfter
         #
 
-        ASN1 = M2Crypto.ASN1.ASN1_UTCTIME ()
+        ASN1 = M2Crypto.ASN1.ASN1_TIME ()
         ASN1.set_time ( 500 )
         self.X509Certificate.set_not_after( ASN1 )
 

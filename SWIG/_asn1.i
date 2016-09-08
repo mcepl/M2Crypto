@@ -14,7 +14,7 @@
 %apply Pointer NONNULL { ASN1_OBJECT * };
 %apply Pointer NONNULL { ASN1_STRING * };
 %apply Pointer NONNULL { ASN1_INTEGER * };
-%apply Pointer NONNULL { ASN1_UTCTIME * };
+%apply Pointer NONNULL { ASN1_TIME * };
 
 %rename(asn1_object_new) ASN1_OBJECT_new;
 extern ASN1_OBJECT *ASN1_OBJECT_new( void );
@@ -77,19 +77,19 @@ extern int ASN1_STRING_print(BIO *, ASN1_STRING *);
 %rename(asn1_string_print_ex) ASN1_STRING_print_ex;
 extern int ASN1_STRING_print_ex(BIO *, ASN1_STRING *, unsigned long);
 
-%rename(asn1_utctime_new) ASN1_UTCTIME_new;
-extern ASN1_UTCTIME *ASN1_UTCTIME_new( void );
-%rename(asn1_utctime_free) ASN1_UTCTIME_free;
-extern void ASN1_UTCTIME_free(ASN1_UTCTIME *);
-%rename(asn1_utctime_check) ASN1_UTCTIME_check;
-extern int ASN1_UTCTIME_check(ASN1_UTCTIME *);
-%rename(asn1_utctime_set) ASN1_UTCTIME_set;
-extern ASN1_UTCTIME *ASN1_UTCTIME_set(ASN1_UTCTIME *, long);
-%rename(asn1_utctime_set_string) ASN1_UTCTIME_set_string;
-extern int ASN1_UTCTIME_set_string(ASN1_UTCTIME *, CONST098 char *);
-%rename(asn1_utctime_print) ASN1_UTCTIME_print;
-%threadallow ASN1_UTCTIME_print;
-extern int ASN1_UTCTIME_print(BIO *, ASN1_UTCTIME *);
+%rename(asn1_time_new) ASN1_TIME_new;
+extern ASN1_TIME *ASN1_TIME_new( void );
+%rename(asn1_time_free) ASN1_TIME_free;
+extern void ASN1_TIME_free(ASN1_TIME *);
+%rename(asn1_time_check) ASN1_TIME_check;
+extern int ASN1_TIME_check(ASN1_TIME *);
+%rename(asn1_time_set) ASN1_TIME_set;
+extern ASN1_TIME *ASN1_TIME_set(ASN1_TIME *, long);
+%rename(asn1_time_set_string) ASN1_TIME_set_string;
+extern int ASN1_TIME_set_string(ASN1_TIME *, CONST098 char *);
+%rename(asn1_time_print) ASN1_TIME_print;
+%threadallow ASN1_TIME_print;
+extern int ASN1_TIME_print(BIO *, ASN1_TIME *);
 
 %rename(asn1_integer_new) ASN1_INTEGER_new;
 extern ASN1_INTEGER *ASN1_INTEGER_new( void );
@@ -117,8 +117,8 @@ extern int ASN1_INTEGER_cmp(ASN1_INTEGER *, ASN1_INTEGER *);
                 ASN1_STRFLGS_DUMP_DER);
 
 %inline %{
-/* ASN1_UTCTIME_set_string () is a macro */
-int asn1_utctime_type_check(ASN1_UTCTIME *ASN1_UTCTIME) {
+/* ASN1_TIME_set_string () is a macro */
+int asn1_time_type_check(ASN1_TIME *ASN1_TIME) {
     return 1;
 }
 

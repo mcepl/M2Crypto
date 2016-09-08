@@ -62,7 +62,7 @@ extern X509_NAME *X509_get_subject_name(X509 *);
 %rename(x509_set_subject_name) X509_set_subject_name;
 extern int X509_set_subject_name(X509 *, X509_NAME *);
 %rename(x509_cmp_current_time) X509_cmp_current_time;
-extern int X509_cmp_current_time(ASN1_UTCTIME *);
+extern int X509_cmp_current_time(ASN1_TIME *);
 
                             
 /* From x509.h */
@@ -411,22 +411,22 @@ long x509_get_version(X509 *x) {
 }
 
 /* X509_set_notBefore() is a macro. */
-int x509_set_not_before(X509 *x, ASN1_UTCTIME *tm) {
+int x509_set_not_before(X509 *x, ASN1_TIME *tm) {
     return X509_set_notBefore(x, tm);
 }
 
 /* X509_get_notBefore() is a macro. */
-ASN1_UTCTIME *x509_get_not_before(X509 *x) {
+ASN1_TIME *x509_get_not_before(X509 *x) {
     return X509_get_notBefore(x);
 }
 
 /* X509_set_notAfter() is a macro. */
-int x509_set_not_after(X509 *x, ASN1_UTCTIME *tm) {
+int x509_set_not_after(X509 *x, ASN1_TIME *tm) {
     return X509_set_notAfter(x, tm);
 }
 
 /* X509_get_notAfter() is a macro. */
-ASN1_UTCTIME *x509_get_not_after(X509 *x) {
+ASN1_TIME *x509_get_not_after(X509 *x) {
     return X509_get_notAfter(x);
 }
 
@@ -434,8 +434,8 @@ int x509_sign(X509 *x, EVP_PKEY *pkey, EVP_MD *md) {
     return X509_sign(x, pkey, md);
 }
 
-/* XXX The first parameter is really ASN1_TIME, does it matter? */
-ASN1_TIME *x509_gmtime_adj(ASN1_UTCTIME *s, long adj) {
+/* x509_gmtime_adj() is a macro. */
+ASN1_TIME *x509_gmtime_adj(ASN1_TIME *s, long adj) {
     return X509_gmtime_adj(s, adj);
 }
 

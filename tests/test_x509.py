@@ -249,9 +249,9 @@ class X509TestCase(unittest.TestCase):
         cert.set_version(2)
         cert.set_subject(sub)
         t = int(time.time()) + time.timezone
-        now = ASN1.ASN1_UTCTIME()
+        now = ASN1.ASN1_TIME()
         now.set_time(t)
-        now_plus_year = ASN1.ASN1_UTCTIME()
+        now_plus_year = ASN1.ASN1_TIME()
         now_plus_year.set_time(t + 60 * 60 * 24 * 365)
         cert.set_not_before(now)
         cert.set_not_after(now_plus_year)
@@ -314,9 +314,9 @@ class X509TestCase(unittest.TestCase):
         cert.set_version(2)
         cert.set_subject(sub)
         t = int(time.time()) + time.timezone
-        now = ASN1.ASN1_UTCTIME()
+        now = ASN1.ASN1_TIME()
         now.set_time(t)
-        now_plus_year = ASN1.ASN1_UTCTIME()
+        now_plus_year = ASN1.ASN1_TIME()
         now_plus_year.set_time(t + 60 * 60 * 24 * 365)
         cert.set_not_before(now)
         cert.set_not_after(now_plus_year)
@@ -381,9 +381,9 @@ class X509TestCase(unittest.TestCase):
         eecert.set_serial_number(2)
         eecert.set_version(2)
         t = int(time.time()) + time.timezone
-        now = ASN1.ASN1_UTCTIME()
+        now = ASN1.ASN1_TIME()
         now.set_time(t)
-        now_plus_year = ASN1.ASN1_UTCTIME()
+        now_plus_year = ASN1.ASN1_TIME()
         now_plus_year.set_time(t + 60 * 60 * 24 * 365)
         eecert.set_not_before(now)
         eecert.set_not_after(now_plus_year)
@@ -397,8 +397,8 @@ class X509TestCase(unittest.TestCase):
         pk2.assign_rsa(proxykey)
         proxycert.set_pubkey(pk2)
         proxycert.set_version(2)
-        not_before = ASN1.ASN1_UTCTIME()
-        not_after = ASN1.ASN1_UTCTIME()
+        not_before = ASN1.ASN1_TIME()
+        not_after = ASN1.ASN1_TIME()
         not_before.set_time(int(time.time()))
         offset = 12 * 3600
         not_after.set_time(int(time.time()) + offset)
@@ -548,10 +548,9 @@ class X509TestCase(unittest.TestCase):
         self.assertEqual(cert.get_serial_number(),
                          127614157056681299805556476275995414779)
 
-    def test_date_after_2050_not_working(self):
+    def test_date_after_2050_working(self):
         cert = X509.load_cert('tests/bad_date_cert.crt')
-        with self.assertRaises(X509.X509Error):
-            cert.get_not_after()
+        self.assertEqual(str(cert.get_not_after()), 'Feb  9 14:57:46 2116 GMT')
 
 
 class X509StackTestCase(unittest.TestCase):

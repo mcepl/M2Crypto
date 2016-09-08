@@ -41,8 +41,8 @@ class ASN1TestCase(unittest.TestCase):
     def test_Object(self):
         pass  # XXX Dunno how to test
 
-    def test_UTCTIME(self):
-        asn1 = ASN1.ASN1_UTCTIME()
+    def test_TIME(self):
+        asn1 = ASN1.ASN1_TIME()
         self.assertEqual(str(asn1), 'Bad time value')
 
         format = '%b %d %H:%M:%S %Y GMT'
@@ -67,8 +67,8 @@ class ASN1TestCase(unittest.TestCase):
         t2 = time.strftime(format, time.gmtime(t))
         self.assertEqual(t1, t2)
 
-    def test_UTCTIME_datetime(self):
-        asn1 = ASN1.ASN1_UTCTIME()
+    def test_TIME_datetime(self):
+        asn1 = ASN1.ASN1_TIME()
         # Test get_datetime and set_datetime
         t = time.time()
         dt = datetime.datetime.fromtimestamp(int(t))

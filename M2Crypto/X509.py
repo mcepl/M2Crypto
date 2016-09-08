@@ -529,21 +529,21 @@ class X509:
         assert m2.x509_type_check(self.x509), "'x509' type error"
         return m2.x509_set_version(self.x509, version)
 
-    def set_not_before(self, asn1_utctime):
-        # type: (ASN1.ASN1_UTCTIME) -> int
+    def set_not_before(self, asn1_time):
+        # type: (ASN1.ASN1_TIME) -> int
         """
         @return: 1 on success, 0 on failure
         """
         assert m2.x509_type_check(self.x509), "'x509' type error"
-        return m2.x509_set_not_before(self.x509, asn1_utctime._ptr())
+        return m2.x509_set_not_before(self.x509, asn1_time._ptr())
 
-    def set_not_after(self, asn1_utctime):
-        # type: (ASN1.ASN1_UTCTIME) -> int
+    def set_not_after(self, asn1_time):
+        # type: (ASN1.ASN1_TIME) -> int
         """
         @return: 1 on success, 0 on failure
         """
         assert m2.x509_type_check(self.x509), "'x509' type error"
-        return m2.x509_set_not_after(self.x509, asn1_utctime._ptr())
+        return m2.x509_set_not_after(self.x509, asn1_time._ptr())
 
     def set_subject_name(self, name):
         # type: (X509_Name) -> int
@@ -591,14 +591,14 @@ class X509:
         # return m2.x509_set_serial_number(self.x509, asn1_integer)
 
     def get_not_before(self):
-        # type: () -> ASN1.ASN1_UTCTIME
+        # type: () -> ASN1.ASN1_TIME
         assert m2.x509_type_check(self.x509), "'x509' type error"
-        return ASN1.ASN1_UTCTIME(m2.x509_get_not_before(self.x509))
+        return ASN1.ASN1_TIME(m2.x509_get_not_before(self.x509))
 
     def get_not_after(self):
-        # type: () -> ASN1.ASN1_UTCTIME
+        # type: () -> ASN1.ASN1_TIME
         assert m2.x509_type_check(self.x509), "'x509' type error"
-        out = ASN1.ASN1_UTCTIME(m2.x509_get_not_after(self.x509))
+        out = ASN1.ASN1_TIME(m2.x509_get_not_after(self.x509))
         if 'Bad time value' in str(out):
             raise X509Error(
                 '''M2Crypto cannot handle dates after year 2050.
