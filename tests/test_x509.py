@@ -237,75 +237,79 @@ class X509TestCase(unittest.TestCase):
         self.assertEqual(req.get_version(), 0)
 
     def test_mkcert(self):
-        req, pk = self.mkreq(1024)
-        pkey = req.get_pubkey()
-        self.assertTrue(req.verify(pkey))
-        sub = req.get_subject()
-        self.assertEqual(len(sub), 2,
-                         'Subject should be long 2 items not %d' % len(sub))
+        for utc in (True, False):
+            req, pk = self.mkreq(1024)
+            pkey = req.get_pubkey()
+            self.assertTrue(req.verify(pkey))
+            sub = req.get_subject()
+            self.assertEqual(len(sub), 2,
+                             'Subject should be long 2 items not %d' % len(sub))
 
-        cert = X509.X509()
-        cert.set_serial_number(1)
-        cert.set_version(2)
-        cert.set_subject(sub)
-        t = int(time.time()) + time.timezone
-        now = ASN1.ASN1_TIME()
-        now.set_time(t)
-        now_plus_year = ASN1.ASN1_TIME()
-        now_plus_year.set_time(t + 60 * 60 * 24 * 365)
-        cert.set_not_before(now)
-        cert.set_not_after(now_plus_year)
-        self.assertEqual(str(cert.get_not_before()), str(now))
-        self.assertEqual(str(cert.get_not_after()), str(now_plus_year))
+            cert = X509.X509()
+            cert.set_serial_number(1)
+            cert.set_version(2)
+            cert.set_subject(sub)
+            t = int(time.time()) + time.timezone
+            if utc:
+                now = ASN1.ASN1_UTCTIME()
+            else:
+                now = ASN1.ASN1_TIME()
+            now.set_time(t)
+            now_plus_year = ASN1.ASN1_TIME()
+            now_plus_year.set_time(t + 60 * 60 * 24 * 365)
+            cert.set_not_before(now)
+            cert.set_not_after(now_plus_year)
+            self.assertEqual(str(cert.get_not_before()), str(now))
+            self.assertEqual(str(cert.get_not_after()), str(now_plus_year))
 
-        issuer = X509.X509_Name()
-        issuer.CN = 'The Issuer Monkey'
-        issuer.O = 'The Organization Otherwise Known as My CA, Inc.'
-        cert.set_issuer(issuer)
-        cert.set_pubkey(pkey)
-        cert.set_pubkey(cert.get_pubkey())  # Make sure get/set work
+            issuer = X509.X509_Name()
+            issuer.CN = 'The Issuer Monkey'
+            issuer.O = 'The Organization Otherwise Known as My CA, Inc.'
+            cert.set_issuer(issuer)
+            cert.set_pubkey(pkey)
+            cert.set_pubkey(cert.get_pubkey())  # Make sure get/set work
 
-        ext = X509.new_extension('subjectAltName', 'DNS:foobar.example.com')
-        ext.set_critical(0)
-        self.assertEqual(ext.get_critical(), 0)
-        cert.add_ext(ext)
+            ext = X509.new_extension('subjectAltName', 'DNS:foobar.example.com')
+            ext.set_critical(0)
+            self.assertEqual(ext.get_critical(), 0)
+            cert.add_ext(ext)
 
-        cert.sign(pk, 'sha1')
-        with self.assertRaises(ValueError):
-            cert.sign(pk, 'nosuchalgo')
+            cert.sign(pk, 'sha1')
+            with self.assertRaises(ValueError):
+                cert.sign(pk, 'nosuchalgo')
 
-        self.assertTrue(cert.get_ext('subjectAltName').get_name(),
-                        'subjectAltName')
-        self.assertTrue(cert.get_ext_at(0).get_name(),
-                        'subjectAltName')
-        self.assertTrue(cert.get_ext_at(0).get_value(),
-                        'DNS:foobar.example.com')
-        self.assertEqual(cert.get_ext_count(), 1,
-                         'Certificate should have now 1 extension not %d' %
-                         cert.get_ext_count())
-        with self.assertRaises(IndexError):
-            cert.get_ext_at(1)
-        self.assertTrue(cert.verify())
-        self.assertTrue(cert.verify(pkey))
-        self.assertTrue(cert.verify(cert.get_pubkey()))
-        self.assertEqual(cert.get_version(), 2)
-        self.assertEqual(cert.get_serial_number(), 1)
-        self.assertEqual(cert.get_issuer().CN, 'The Issuer Monkey')
+            self.assertTrue(cert.get_ext('subjectAltName').get_name(),
+                            'subjectAltName')
+            self.assertTrue(cert.get_ext_at(0).get_name(),
+                            'subjectAltName')
+            self.assertTrue(cert.get_ext_at(0).get_value(),
+                            'DNS:foobar.example.com')
+            self.assertEqual(cert.get_ext_count(), 1,
+                             'Certificate should have now 1 extension not %d' %
+                             cert.get_ext_count())
+            with self.assertRaises(IndexError):
+                cert.get_ext_at(1)
+            self.assertTrue(cert.verify())
+            self.assertTrue(cert.verify(pkey))
+            self.assertTrue(cert.verify(cert.get_pubkey()))
+            self.assertEqual(cert.get_version(), 2)
+            self.assertEqual(cert.get_serial_number(), 1)
+            self.assertEqual(cert.get_issuer().CN, 'The Issuer Monkey')
 
-        if m2.OPENSSL_VERSION_NUMBER >= 0x90800f:
-            self.assertFalse(cert.check_ca())
-            self.assertFalse(cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 1))
-            self.assertFalse(cert.check_purpose(m2.X509_PURPOSE_NS_SSL_SERVER,
-                                                1))
-            self.assertTrue(cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 0))
-            self.assertTrue(cert.check_purpose(m2.X509_PURPOSE_NS_SSL_SERVER,
-                                               0))
-            self.assertTrue(cert.check_purpose(m2.X509_PURPOSE_ANY, 0))
-        else:
-            with self.assertRaises(AttributeError):
-                cert.check_ca()
+            if m2.OPENSSL_VERSION_NUMBER >= 0x90800f:
+                self.assertFalse(cert.check_ca())
+                self.assertFalse(cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 1))
+                self.assertFalse(cert.check_purpose(m2.X509_PURPOSE_NS_SSL_SERVER,
+                                                    1))
+                self.assertTrue(cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 0))
+                self.assertTrue(cert.check_purpose(m2.X509_PURPOSE_NS_SSL_SERVER,
+                                                   0))
+                self.assertTrue(cert.check_purpose(m2.X509_PURPOSE_ANY, 0))
+            else:
+                with self.assertRaises(AttributeError):
+                    cert.check_ca()
 
-    def mkcacert(self):
+    def mkcacert(self, utc):
         req, pk = self.mkreq(1024, ca=1)
         pkey = req.get_pubkey()
         sub = req.get_subject()
@@ -314,7 +318,10 @@ class X509TestCase(unittest.TestCase):
         cert.set_version(2)
         cert.set_subject(sub)
         t = int(time.time()) + time.timezone
-        now = ASN1.ASN1_TIME()
+        if utc:
+            now = ASN1.ASN1_UTCTIME()
+        else:
+            now = ASN1.ASN1_TIME()
         now.set_time(t)
         now_plus_year = ASN1.ASN1_TIME()
         now_plus_year.set_time(t + 60 * 60 * 24 * 365)
@@ -348,40 +355,45 @@ class X509TestCase(unittest.TestCase):
         return cert, pk, pkey
 
     def test_mkcacert(self):
-        cacert, _, pkey = self.mkcacert()
-        self.assertTrue(cacert.verify(pkey))
+        for utc in (True, False):
+            cacert, _, pkey = self.mkcacert(utc)
+            self.assertTrue(cacert.verify(pkey))
 
     def test_mkproxycert(self):
-        cacert, pk1, _ = self.mkcacert()
-        end_entity_cert_req, pk2 = self.mkreq(1024)
-        end_entity_cert = self.make_eecert(cacert)
-        end_entity_cert.set_subject(end_entity_cert_req.get_subject())
-        end_entity_cert.set_pubkey(end_entity_cert_req.get_pubkey())
-        end_entity_cert.sign(pk1, 'sha1')
-        proxycert = self.make_proxycert(end_entity_cert)
-        proxycert.sign(pk2, 'sha1')
-        self.assertTrue(proxycert.verify(pk2))
-        self.assertEqual(proxycert.get_ext_at(0).get_name(),
-                         'proxyCertInfo')
-        self.assertEqual(proxycert.get_ext_at(0).get_value(),
-                         'Path Length Constraint: infinite\n' +
-                         'Policy Language: Inherit all\n')
-        self.assertEqual(proxycert.get_ext_count(), 1,
-                         proxycert.get_ext_count())
-        self.assertEqual(proxycert.get_subject().as_text(),
-                         'C=UK, CN=OpenSSL Group, CN=Proxy')
-        self.assertEqual(
-            proxycert.get_subject().as_text(indent=2,
-                                            flags=m2.XN_FLAG_RFC2253),
-            '  CN=Proxy,CN=OpenSSL Group,C=UK')
+        for utc in (True, False):
+            cacert, pk1, _ = self.mkcacert(utc)
+            end_entity_cert_req, pk2 = self.mkreq(1024)
+            end_entity_cert = self.make_eecert(cacert, utc)
+            end_entity_cert.set_subject(end_entity_cert_req.get_subject())
+            end_entity_cert.set_pubkey(end_entity_cert_req.get_pubkey())
+            end_entity_cert.sign(pk1, 'sha1')
+            proxycert = self.make_proxycert(end_entity_cert, utc)
+            proxycert.sign(pk2, 'sha1')
+            self.assertTrue(proxycert.verify(pk2))
+            self.assertEqual(proxycert.get_ext_at(0).get_name(),
+                             'proxyCertInfo')
+            self.assertEqual(proxycert.get_ext_at(0).get_value(),
+                             'Path Length Constraint: infinite\n' +
+                             'Policy Language: Inherit all\n')
+            self.assertEqual(proxycert.get_ext_count(), 1,
+                             proxycert.get_ext_count())
+            self.assertEqual(proxycert.get_subject().as_text(),
+                             'C=UK, CN=OpenSSL Group, CN=Proxy')
+            self.assertEqual(
+                proxycert.get_subject().as_text(indent=2,
+                                                flags=m2.XN_FLAG_RFC2253),
+                '  CN=Proxy,CN=OpenSSL Group,C=UK')
 
     @staticmethod
-    def make_eecert(cacert):
+    def make_eecert(cacert, utc):
         eecert = X509.X509()
         eecert.set_serial_number(2)
         eecert.set_version(2)
         t = int(time.time()) + time.timezone
-        now = ASN1.ASN1_TIME()
+        if utc:
+            now = ASN1.ASN1_UTCTIME()
+        else:
+            now = ASN1.ASN1_TIME()
         now.set_time(t)
         now_plus_year = ASN1.ASN1_TIME()
         now_plus_year.set_time(t + 60 * 60 * 24 * 365)
@@ -390,15 +402,19 @@ class X509TestCase(unittest.TestCase):
         eecert.set_issuer(cacert.get_subject())
         return eecert
 
-    def make_proxycert(self, eecert):
+    def make_proxycert(self, eecert, utc):
         proxycert = X509.X509()
         pk2 = EVP.PKey()
         proxykey = RSA.gen_key(1024, 65537, self.callback)
         pk2.assign_rsa(proxykey)
         proxycert.set_pubkey(pk2)
         proxycert.set_version(2)
-        not_before = ASN1.ASN1_TIME()
-        not_after = ASN1.ASN1_TIME()
+        if utc:
+            not_before = ASN1.ASN1_UTCTIME()
+            not_after = ASN1.ASN1_UTCTIME()
+        else:
+            not_before = ASN1.ASN1_TIME()
+            not_after = ASN1.ASN1_TIME()
         not_before.set_time(int(time.time()))
         offset = 12 * 3600
         not_after.set_time(int(time.time()) + offset)

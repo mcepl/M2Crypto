@@ -169,8 +169,11 @@ class ASN1_TIME:  # noqa
                    "Sep", "Oct", "Nov", "Dec"]
     m2_asn1_time_free = m2.asn1_time_free
 
-    def __init__(self, asn1_time=None, _pyfree=0):
+    def __init__(self, asn1_time=None, _pyfree=0, asn1_utctime=None):
         # type: (Optional[ASN1_TIME], int) -> None
+        # handle old keyword parameter
+        if asn1_time is None:
+            asn1_time = asn1_utctime
         if asn1_time is not None:
             assert m2.asn1_time_type_check(asn1_time), \
                 "'asn1_time' type error'"
@@ -246,3 +249,5 @@ class ASN1_TIME:  # noqa
             date = date.replace(tzinfo=local)
         date = date.astimezone(local)
         return self.set_time(int(time.mktime(date.timetuple())))
+
+ASN1_UTCTIME = ASN1_TIME
