@@ -35,8 +35,6 @@ from M2Crypto import Err, Rand, SSL, m2, util
 from tests import plat_fedora
 from tests.fips import fips_mode
 
-logging.basicConfig(format='%(levelname)s:%(funcName)s:%(message)s',
-                    level=logging.DEBUG)
 log = logging.getLogger('test_SSL')
 
 # FIXME

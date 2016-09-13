@@ -1,10 +1,5 @@
 from __future__ import absolute_import, print_function
 
-import logging
-
-logging.basicConfig(format='%(levelname)s:%(funcName)s:%(message)s',
-                    level=logging.DEBUG)
-
 
 def suite():
     from M2Crypto import m2  # noqa
