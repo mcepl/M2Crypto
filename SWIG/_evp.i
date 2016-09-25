@@ -113,8 +113,10 @@ extern const EVP_CIPHER *EVP_cast5_ofb(void);
 */
 %rename(rc4) EVP_rc4;
 extern const EVP_CIPHER *EVP_rc4(void);
+#if !defined(OPENSSL_NO_RC2)
 %rename(rc2_40_cbc) EVP_rc2_40_cbc;
 extern const EVP_CIPHER *EVP_rc2_40_cbc(void);
+#endif
 %rename(aes_128_ecb) EVP_aes_128_ecb;
 extern const EVP_CIPHER *EVP_aes_128_ecb(void);
 %rename(aes_128_cbc) EVP_aes_128_cbc;
