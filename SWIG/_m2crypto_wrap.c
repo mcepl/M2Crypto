@@ -30299,6 +30299,7 @@ SWIG_init(void) {
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "PKCS5_SALT_LEN",SWIG_From_int((int)(8)));
   SWIG_addvarlink(SWIG_globals(),(char*)"_evp_err",Swig_var__evp_err_get, Swig_var__evp_err_set);
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "AES_BLOCK_SIZE",SWIG_From_int((int)(AES_BLOCK_SIZE)));
+  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "OPENSSL_NO_RC4",SWIG_From_int((int)(0)));
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "dh_check_ok",SWIG_From_int((int)(0)));
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "dh_check_p_not_prime",SWIG_From_int((int)(DH_CHECK_P_NOT_PRIME)));
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "dh_check_p_not_strong",SWIG_From_int((int)(DH_CHECK_P_NOT_STRONG_PRIME)));

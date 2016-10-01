@@ -111,8 +111,10 @@ extern const EVP_CIPHER *EVP_cast5_ofb(void);
 %rename(rc5_cfb) extern const EVP_CIPHER *EVP_rc5_32_12_16_cfb(void);
 %rename(rc5_ofb) extern const EVP_CIPHER *EVP_rc5_32_12_16_ofb(void);
 */
+#if !defined(OPENSSL_NO_RC4)
 %rename(rc4) EVP_rc4;
 extern const EVP_CIPHER *EVP_rc4(void);
+#endif
 #if !defined(OPENSSL_NO_RC2)
 %rename(rc2_40_cbc) EVP_rc2_40_cbc;
 extern const EVP_CIPHER *EVP_rc2_40_cbc(void);

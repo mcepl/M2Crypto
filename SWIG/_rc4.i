@@ -2,6 +2,14 @@
 /* Copyright (c) 1999 Ng Pheng Siong. All rights reserved. */
 /* $Id$ */
 
+%include <openssl/opensslconf.h>
+
+#if defined(OPENSSL_NO_RC4)
+#undef OPENSSL_NO_RC4
+%constant OPENSSL_NO_RC4 = 1;
+#else
+%constant OPENSSL_NO_RC4 = 0;
+
 %{
 #include <openssl/rc4.h>
 %}
@@ -62,3 +70,5 @@ int rc4_type_check(RC4_KEY *key) {
     return 1;
 }
 %}
+
+#endif

@@ -24,7 +24,7 @@ version = __version__  # type: str
 version_info = StrictVersion(__version__).version
 
 from M2Crypto import (ASN1, AuthCookie, BIO, BN, DH, DSA, EVP, Engine, Err,
-                      PGP, RC4, RSA, Rand, SMIME, SSL, X509, _m2crypto,
+                      PGP, RSA, Rand, SMIME, SSL, X509, _m2crypto,
                       ftpslib, httpslib, m2, m2urllib, m2xmlrpclib,
                       threading, util)
 if util.py27plus:
@@ -32,6 +32,8 @@ if util.py27plus:
 
 if m2.OPENSSL_VERSION_NUMBER >= 0x90800F and m2.OPENSSL_NO_EC == 0:
     from M2Crypto import EC
+if m2.OPENSSL_NO_RC4 == 0:
+    from M2Crypto import RC4
 # Backwards compatibility.
 urllib2 = m2urllib
 
