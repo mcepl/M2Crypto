@@ -285,7 +285,9 @@ class EVPTestCase(unittest.TestCase):
             signature = response['sign'].decode('base64')
             data = response['data']
             verify_evp = EVP.PKey()
-            verify_evp.assign_rsa(SIGN_PUBLIC)
+            # capture parameter on the following line is required by
+            # the documentation
+            verify_evp.assign_rsa(SIGN_PUBLIC, capture=False)
             verify_evp.verify_init()
             verify_evp.verify_update(data)
             return verify_evp.verify_final(signature) == 1
