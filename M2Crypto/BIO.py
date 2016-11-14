@@ -221,7 +221,7 @@ class File(BIO):
     """
 
     def __init__(self, pyfile, close_pyfile=1):
-        # type: (io.BinaryIO, int) -> None
+        # type: (io.BytesIO, int) -> None
         BIO.__init__(self, _pyfree=1)
         self.pyfile = pyfile
         self.close_pyfile = close_pyfile
