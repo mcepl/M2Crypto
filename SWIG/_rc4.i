@@ -37,8 +37,7 @@ PyObject *rc4_set_key(RC4_KEY *key, PyObject *value) {
         return NULL;
 
     RC4_set_key(key, vlen, vbuf);
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *rc4_update(RC4_KEY *key, PyObject *in) {

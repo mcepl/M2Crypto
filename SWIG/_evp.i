@@ -295,8 +295,7 @@ PyObject *hmac_init(HMAC_CTX *ctx, PyObject *key, const EVP_MD *md) {
         PyErr_SetString(_evp_err, "HMAC_Init failed");
         return NULL;
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *hmac_update(HMAC_CTX *ctx, PyObject *blob) {
@@ -310,8 +309,7 @@ PyObject *hmac_update(HMAC_CTX *ctx, PyObject *blob) {
         PyErr_SetString(_evp_err, "HMAC_Update failed");
         return NULL;
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *hmac_final(HMAC_CTX *ctx) {
@@ -426,8 +424,7 @@ PyObject *cipher_init(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
         PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *cipher_update(EVP_CIPHER_CTX *ctx, PyObject *blob) {
@@ -495,8 +492,7 @@ PyObject *sign_update(EVP_MD_CTX *ctx, PyObject *blob) {
         PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *sign_final(EVP_MD_CTX *ctx, EVP_PKEY *pkey) {

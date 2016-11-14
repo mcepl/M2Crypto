@@ -86,8 +86,7 @@ PyObject *bio_read(BIO *bio, int num) {
             PyErr_SetString(_bio_err, ERR_reason_error_string(ERR_get_error()));
             return NULL;
         }
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
 #if PY_MAJOR_VERSION >= 3
@@ -118,8 +117,7 @@ PyObject *bio_gets(BIO *bio, int num) {
             PyErr_SetString(_bio_err, ERR_reason_error_string(ERR_get_error()));
             return NULL;
         }
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
 #if PY_MAJOR_VERSION >= 3
@@ -201,8 +199,7 @@ PyObject *bio_set_cipher(BIO *b, EVP_CIPHER *c, PyObject *key, PyObject *iv, int
 
     BIO_set_cipher(b, (const EVP_CIPHER *)c, 
         (unsigned char *)kbuf, (unsigned char *)ibuf, op);
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 int bio_set_mem_eof_return(BIO *b, int v) {

@@ -133,8 +133,7 @@ PyObject *rsa_set_e(RSA *rsa, PyObject *value) {
     if (rsa->e)
         BN_free(rsa->e);
     rsa->e = bn;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *rsa_set_n(RSA *rsa, PyObject *value) {
@@ -152,8 +151,7 @@ PyObject *rsa_set_n(RSA *rsa, PyObject *value) {
     if (rsa->n)
         BN_free(rsa->n);
     rsa->n = bn;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *rsa_set_e_bin(RSA *rsa, PyObject *value) {
@@ -171,8 +169,7 @@ PyObject *rsa_set_e_bin(RSA *rsa, PyObject *value) {
     if (rsa->e)
         BN_free(rsa->e);
     rsa->e = bn;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *rsa_set_n_bin(RSA *rsa, PyObject *value) {
@@ -190,8 +187,7 @@ PyObject *rsa_set_n_bin(RSA *rsa, PyObject *value) {
     if (rsa->n)
         BN_free(rsa->n);
     rsa->n = bn;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *rsa_private_encrypt(RSA *rsa, PyObject *from, int padding) {

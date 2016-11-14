@@ -52,8 +52,7 @@ PyObject *AES_set_key(AES_KEY *key, PyObject *value, int bits, int op) {
         AES_set_encrypt_key(vbuf, bits, key);
     else
         AES_set_decrypt_key(vbuf, bits, key);
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 /* 

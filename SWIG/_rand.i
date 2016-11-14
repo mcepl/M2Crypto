@@ -35,8 +35,7 @@ PyObject *rand_seed(PyObject *seed) {
         return NULL;
 
     RAND_seed(buf, len);
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *rand_add(PyObject *blob, double entropy) {
@@ -47,8 +46,7 @@ PyObject *rand_add(PyObject *blob, double entropy) {
         return NULL;
 
     RAND_add(buf, len, entropy);
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *rand_bytes(int n) {
@@ -69,8 +67,7 @@ PyObject *rand_bytes(int n) {
         return obj;
     } else {
         PyMem_Free(blob);
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 }
 
@@ -92,8 +89,7 @@ PyObject *rand_pseudo_bytes(int n) {
     if (ret == -1) {
         PyMem_Free(blob);
         Py_DECREF(tuple);
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     } else {
 #if PY_MAJOR_VERSION >= 3
         PyTuple_SET_ITEM(tuple, 0, PyBytes_FromStringAndSize((char*)blob, n));

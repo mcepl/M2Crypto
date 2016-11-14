@@ -166,8 +166,7 @@ PyObject *dh_set_p(DH *dh, PyObject *value) {
     if (dh->p)
         BN_free(dh->p);
     dh->p = bn;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *dh_set_g(DH *dh, PyObject *value) {
@@ -185,8 +184,7 @@ PyObject *dh_set_g(DH *dh, PyObject *value) {
     if (dh->g)
         BN_free(dh->g);
     dh->g = bn;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 %}
 

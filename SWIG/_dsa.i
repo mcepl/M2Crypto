@@ -112,8 +112,7 @@ PyObject *dsa_set_p(DSA *dsa, PyObject *value) {
     if (dsa->p)
         BN_free(dsa->p);
     dsa->p = bn;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *dsa_set_q(DSA *dsa, PyObject *value) {
@@ -131,8 +130,7 @@ PyObject *dsa_set_q(DSA *dsa, PyObject *value) {
     if (dsa->q)
         BN_free(dsa->q);
     dsa->q = bn;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *dsa_set_g(DSA *dsa, PyObject *value) {
@@ -150,8 +148,7 @@ PyObject *dsa_set_g(DSA *dsa, PyObject *value) {
     if (dsa->g)
         BN_free(dsa->g);
     dsa->g = bn;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *dsa_set_pub(DSA *dsa, PyObject *value) {
@@ -169,8 +166,7 @@ PyObject *dsa_set_pub(DSA *dsa, PyObject *value) {
     if (dsa->pub_key)
         BN_free(dsa->pub_key);
     dsa->pub_key = bn;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 %}
 

@@ -448,8 +448,7 @@ PyObject *x509_name_by_nid(X509_NAME *name, int nid) {
     PyObject *ret;
 
     if ((len = X509_NAME_get_text_by_NID(name, nid, NULL, 0)) == -1) {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     len++;
     if (!(buf = PyMem_Malloc(len))) {

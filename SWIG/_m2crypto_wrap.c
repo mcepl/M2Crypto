@@ -4516,8 +4516,7 @@ PyObject *bio_read(BIO *bio, int num) {
             PyErr_SetString(_bio_err, ERR_reason_error_string(ERR_get_error()));
             return NULL;
         }
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
 #if PY_MAJOR_VERSION >= 3
@@ -4548,8 +4547,7 @@ PyObject *bio_gets(BIO *bio, int num) {
             PyErr_SetString(_bio_err, ERR_reason_error_string(ERR_get_error()));
             return NULL;
         }
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 
 #if PY_MAJOR_VERSION >= 3
@@ -4629,8 +4627,7 @@ PyObject *bio_set_cipher(BIO *b, EVP_CIPHER *c, PyObject *key, PyObject *iv, int
 
     BIO_set_cipher(b, (const EVP_CIPHER *)c, 
         (unsigned char *)kbuf, (unsigned char *)ibuf, op);
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 int bio_set_mem_eof_return(BIO *b, int v) {
@@ -4810,8 +4807,7 @@ PyObject *rand_seed(PyObject *seed) {
         return NULL;
 
     RAND_seed(buf, len);
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *rand_add(PyObject *blob, double entropy) {
@@ -4822,8 +4818,7 @@ PyObject *rand_add(PyObject *blob, double entropy) {
         return NULL;
 
     RAND_add(buf, len, entropy);
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *rand_bytes(int n) {
@@ -4844,8 +4839,7 @@ PyObject *rand_bytes(int n) {
         return obj;
     } else {
         PyMem_Free(blob);
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
 }
 
@@ -4867,8 +4861,7 @@ PyObject *rand_pseudo_bytes(int n) {
     if (ret == -1) {
         PyMem_Free(blob);
         Py_DECREF(tuple);
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     } else {
 #if PY_MAJOR_VERSION >= 3
         PyTuple_SET_ITEM(tuple, 0, PyBytes_FromStringAndSize((char*)blob, n));
@@ -5054,8 +5047,7 @@ PyObject *hmac_init(HMAC_CTX *ctx, PyObject *key, const EVP_MD *md) {
         PyErr_SetString(_evp_err, "HMAC_Init failed");
         return NULL;
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *hmac_update(HMAC_CTX *ctx, PyObject *blob) {
@@ -5069,8 +5061,7 @@ PyObject *hmac_update(HMAC_CTX *ctx, PyObject *blob) {
         PyErr_SetString(_evp_err, "HMAC_Update failed");
         return NULL;
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *hmac_final(HMAC_CTX *ctx) {
@@ -5185,8 +5176,7 @@ PyObject *cipher_init(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
         PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *cipher_update(EVP_CIPHER_CTX *ctx, PyObject *blob) {
@@ -5254,8 +5244,7 @@ PyObject *sign_update(EVP_MD_CTX *ctx, PyObject *blob) {
         PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *sign_final(EVP_MD_CTX *ctx, EVP_PKEY *pkey) {
@@ -5509,8 +5498,7 @@ PyObject *AES_set_key(AES_KEY *key, PyObject *value, int bits, int op) {
         AES_set_encrypt_key(vbuf, bits, key);
     else
         AES_set_decrypt_key(vbuf, bits, key);
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 /* 
@@ -5571,8 +5559,7 @@ PyObject *rc4_set_key(RC4_KEY *key, PyObject *value) {
         return NULL;
 
     RC4_set_key(key, vlen, vbuf);
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *rc4_update(RC4_KEY *key, PyObject *in) {
@@ -5743,8 +5730,7 @@ PyObject *dh_set_p(DH *dh, PyObject *value) {
     if (dh->p)
         BN_free(dh->p);
     dh->p = bn;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *dh_set_g(DH *dh, PyObject *value) {
@@ -5762,8 +5748,7 @@ PyObject *dh_set_g(DH *dh, PyObject *value) {
     if (dh->g)
         BN_free(dh->g);
     dh->g = bn;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 
@@ -5860,8 +5845,7 @@ PyObject *rsa_set_e(RSA *rsa, PyObject *value) {
     if (rsa->e)
         BN_free(rsa->e);
     rsa->e = bn;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *rsa_set_n(RSA *rsa, PyObject *value) {
@@ -5879,8 +5863,7 @@ PyObject *rsa_set_n(RSA *rsa, PyObject *value) {
     if (rsa->n)
         BN_free(rsa->n);
     rsa->n = bn;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *rsa_set_e_bin(RSA *rsa, PyObject *value) {
@@ -5898,8 +5881,7 @@ PyObject *rsa_set_e_bin(RSA *rsa, PyObject *value) {
     if (rsa->e)
         BN_free(rsa->e);
     rsa->e = bn;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *rsa_set_n_bin(RSA *rsa, PyObject *value) {
@@ -5917,8 +5899,7 @@ PyObject *rsa_set_n_bin(RSA *rsa, PyObject *value) {
     if (rsa->n)
         BN_free(rsa->n);
     rsa->n = bn;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *rsa_private_encrypt(RSA *rsa, PyObject *from, int padding) {
@@ -6309,8 +6290,7 @@ PyObject *dsa_set_p(DSA *dsa, PyObject *value) {
     if (dsa->p)
         BN_free(dsa->p);
     dsa->p = bn;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *dsa_set_q(DSA *dsa, PyObject *value) {
@@ -6328,8 +6308,7 @@ PyObject *dsa_set_q(DSA *dsa, PyObject *value) {
     if (dsa->q)
         BN_free(dsa->q);
     dsa->q = bn;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *dsa_set_g(DSA *dsa, PyObject *value) {
@@ -6347,8 +6326,7 @@ PyObject *dsa_set_g(DSA *dsa, PyObject *value) {
     if (dsa->g)
         BN_free(dsa->g);
     dsa->g = bn;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 PyObject *dsa_set_pub(DSA *dsa, PyObject *value) {
@@ -6366,8 +6344,7 @@ PyObject *dsa_set_pub(DSA *dsa, PyObject *value) {
     if (dsa->pub_key)
         BN_free(dsa->pub_key);
     dsa->pub_key = bn;
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_RETURN_NONE;
 }
 
 
@@ -7327,8 +7304,7 @@ PyObject *x509_name_by_nid(X509_NAME *name, int nid) {
     PyObject *ret;
 
     if ((len = X509_NAME_get_text_by_NID(name, nid, NULL, 0)) == -1) {
-        Py_INCREF(Py_None);
-        return Py_None;
+        Py_RETURN_NONE;
     }
     len++;
     if (!(buf = PyMem_Malloc(len))) {
