@@ -225,7 +225,7 @@ class File(BIO):
         BIO.__init__(self, _pyfree=1)
         self.pyfile = pyfile
         self.close_pyfile = close_pyfile
-        self.bio = m2.bio_new_fd(pyfile.fileno(), m2.bio_noclose)
+        self.bio = m2.bio_new_pyfile(pyfile, m2.bio_noclose)
 
     def close(self):
         # type: () -> None
