@@ -103,7 +103,7 @@ class MemoryBufferTestCase(unittest.TestCase):
         # http://stackoverflow.com/questions/9280550/
         timeout_secs = 10
 
-        def run_test():
+        def run_test(*args, **kwargs):
             with MemoryBuffer('hello\nworld\n') as mb:
                 self.assertTrue(mb.readable())
                 self.assertEqual(mb.readline().rstrip(), 'hello')
