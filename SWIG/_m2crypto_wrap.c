@@ -3564,23 +3564,24 @@ SwigPyBuiltin_SetMetaType (PyTypeObject *type, PyTypeObject *metatype)
 #define SWIGTYPE_p_X509_STORE_CTX swig_types[40]
 #define SWIGTYPE_p__cbd_t swig_types[41]
 #define SWIGTYPE_p_char swig_types[42]
-#define SWIGTYPE_p_f_p_q_const__void_p_q_const__void__int swig_types[43]
-#define SWIGTYPE_p_f_p_void__p_void swig_types[44]
-#define SWIGTYPE_p_f_p_void__void swig_types[45]
-#define SWIGTYPE_p_p_ASN1_OBJECT swig_types[46]
-#define SWIGTYPE_p_p_X509_NAME_ENTRY swig_types[47]
-#define SWIGTYPE_p_p_char swig_types[48]
-#define SWIGTYPE_p_p_unsigned_char swig_types[49]
-#define SWIGTYPE_p_stack_st swig_types[50]
-#define SWIGTYPE_p_stack_st_OPENSSL_BLOCK swig_types[51]
-#define SWIGTYPE_p_stack_st_OPENSSL_STRING swig_types[52]
-#define SWIGTYPE_p_stack_st_SSL_CIPHER swig_types[53]
-#define SWIGTYPE_p_stack_st_X509 swig_types[54]
-#define SWIGTYPE_p_stack_st_X509_EXTENSION swig_types[55]
-#define SWIGTYPE_p_unsigned_char swig_types[56]
-#define SWIGTYPE_p_void swig_types[57]
-static swig_type_info *swig_types[59];
-static swig_module_info swig_module = {swig_types, 58, 0, 0, 0, 0};
+#define SWIGTYPE_p_f_int_p_X509_STORE_CTX__int swig_types[43]
+#define SWIGTYPE_p_f_p_q_const__void_p_q_const__void__int swig_types[44]
+#define SWIGTYPE_p_f_p_void__p_void swig_types[45]
+#define SWIGTYPE_p_f_p_void__void swig_types[46]
+#define SWIGTYPE_p_p_ASN1_OBJECT swig_types[47]
+#define SWIGTYPE_p_p_X509_NAME_ENTRY swig_types[48]
+#define SWIGTYPE_p_p_char swig_types[49]
+#define SWIGTYPE_p_p_unsigned_char swig_types[50]
+#define SWIGTYPE_p_stack_st swig_types[51]
+#define SWIGTYPE_p_stack_st_OPENSSL_BLOCK swig_types[52]
+#define SWIGTYPE_p_stack_st_OPENSSL_STRING swig_types[53]
+#define SWIGTYPE_p_stack_st_SSL_CIPHER swig_types[54]
+#define SWIGTYPE_p_stack_st_X509 swig_types[55]
+#define SWIGTYPE_p_stack_st_X509_EXTENSION swig_types[56]
+#define SWIGTYPE_p_unsigned_char swig_types[57]
+#define SWIGTYPE_p_void swig_types[58]
+static swig_type_info *swig_types[60];
+static swig_module_info swig_module = {swig_types, 59, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -3631,6 +3632,7 @@ static PyObject *ssl_verify_cb_func;
 static PyObject *ssl_info_cb_func;
 static PyObject *ssl_set_tmp_dh_cb_func;
 static PyObject *ssl_set_tmp_rsa_cb_func;
+static PyObject *x509_store_verify_cb_func;
 
 
   #define SWIG_From_long   PyLong_FromLong 
@@ -3906,6 +3908,7 @@ void threading_cleanup(void) {
 #include <openssl/rsa.h>
 #include <openssl/ssl.h>
 #include <openssl/x509.h>
+#include <openssl/x509_vfy.h>
 #include <ceval.h>
 
 /* Blob interface. Deprecated. */
@@ -4119,6 +4122,52 @@ int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
 
     PyGILState_Release(gilstate);
 
+    return cret;
+}
+
+int x509_store_verify_callback(int ok, X509_STORE_CTX *ctx) {
+    PyGILState_STATE gilstate;
+    PyObject *argv, *ret;
+    PyObject *_x509_store_ctx_swigptr=0, *_x509_store_ctx_obj=0, *_x509_store_ctx_inst=0, *_klass=0;
+    int cret;
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
+
+
+    gilstate = PyGILState_Ensure();
+
+    /* Below, handle only what is called 'new style callback' in ssl_verify_callback().
+       TODO: does 'old style callback' exist any more? */
+    PyObject *x509mod = PyDict_GetItemString(PyImport_GetModuleDict(), "M2Crypto.X509");
+    _klass = PyObject_GetAttrString(x509mod, "X509_Store_Context");
+    _x509_store_ctx_swigptr = SWIG_NewPointerObj((void *)ctx, SWIGTYPE_p_X509_STORE_CTX, 0);
+    _x509_store_ctx_obj = Py_BuildValue("(Oi)", _x509_store_ctx_swigptr, 0);
+
+#if PY_MAJOR_VERSION >= 3
+        _x509_store_ctx_inst = PyType_GenericNew(_klass, _x509_store_ctx_obj, NULL);
+#else
+        _x509_store_ctx_inst = PyInstance_New(_klass, _x509_store_ctx_obj, NULL);
+#endif // PY_MAJOR_VERSION >= 3
+
+    argv = Py_BuildValue("(iO)", ok, _x509_store_ctx_inst);
+
+    ret = PyEval_CallObject(x509_store_verify_cb_func, argv);
+    if (!ret) {
+        /* Got an exception in PyEval_CallObject(), let's fail verification
+         * to be safe.
+         */
+        cret = 0;
+    } else {
+        cret = (int)PyInt_AsLong(ret);
+    }
+
+    Py_XDECREF(ret);
+    Py_XDECREF(argv);
+    Py_XDECREF(_x509_store_ctx_inst);
+    Py_XDECREF(_x509_store_ctx_obj);
+    Py_XDECREF(_x509_store_ctx_swigptr);
+    Py_XDECREF(_klass);
+
+    PyGILState_Release(gilstate);
     return cret;
 }
 
@@ -7557,6 +7606,13 @@ void *x509_store_ctx_get_app_data(X509_STORE_CTX *ctx) {
   return X509_STORE_CTX_get_app_data(ctx);
 }
 
+void x509_store_set_verify_cb(X509_STORE *store, PyObject *pyfunc) {
+    Py_XDECREF(x509_store_verify_cb_func);
+    Py_INCREF(pyfunc);
+    x509_store_verify_cb_func = pyfunc;
+    X509_STORE_set_verify_cb(store, x509_store_verify_callback);
+}
+
 /*#defines for i2d and d2i types, which are typed differently
 in openssl-0.9.8 than they are in openssl-0.9.7. This will
 be picked up by the C preprocessor, not the SWIG preprocessor.
@@ -7800,26 +7856,6 @@ PyObject *pkcs7_decrypt(PKCS7 *pkcs7, EVP_PKEY *pkey, X509 *cert, int flags) {
 }
 
 
-PKCS7 *pkcs7_sign0(X509 *x509, EVP_PKEY *pkey, BIO *bio, EVP_MD *hash, int flags) {
-
-    // should 'bio' be BIO_NOCLOSE?
-    PKCS7 *p7 = PKCS7_sign(NULL, NULL, NULL, bio, flags | PKCS7_STREAM);
-    if (p7 == NULL) {
-        PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
-        return NULL;
-    }
-    if (PKCS7_sign_add_signer(p7, x509, pkey, hash, flags) == NULL) {
-        PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
-        return NULL;
-    }
-    if (PKCS7_final(p7, bio, flags) != 1) {
-        PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
-        return NULL;
-    }
-    return p7;
-}
-
-
 PKCS7 *pkcs7_sign1(X509 *x509, EVP_PKEY *pkey, STACK_OF(X509) *stack, BIO *bio, EVP_MD *hash, int flags) {
 
     PKCS7 *p7 = PKCS7_sign(NULL, NULL, stack, bio, flags | PKCS7_STREAM);
@@ -7836,6 +7872,11 @@ PKCS7 *pkcs7_sign1(X509 *x509, EVP_PKEY *pkey, STACK_OF(X509) *stack, BIO *bio, 
         return NULL;
     }
     return p7;
+}
+
+
+PKCS7 *pkcs7_sign0(X509 *x509, EVP_PKEY *pkey, BIO *bio, EVP_MD *hash, int flags) {
+    return pkcs7_sign1(x509, pkey, NULL, bio, hash, flags);
 }
 
 
@@ -22543,6 +22584,35 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_x509_store_set_verify_cb__SWIG_0(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  X509_STORE *arg1 = (X509_STORE *) 0 ;
+  int (*arg2)(int,X509_STORE_CTX *) = (int (*)(int,X509_STORE_CTX *)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"x509_store_set_verify_cb",2,2,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_X509_STORE, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "x509_store_set_verify_cb" "', argument " "1"" of type '" "X509_STORE *""'"); 
+  }
+  arg1 = (X509_STORE *)(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(obj1, (void**)(&arg2), SWIGTYPE_p_f_int_p_X509_STORE_CTX__int);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "x509_store_set_verify_cb" "', argument " "2"" of type '" "int (*)(int,X509_STORE_CTX *)""'"); 
+    }
+  }
+  X509_STORE_set_verify_cb(arg1,arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_x509_store_ctx_get_current_cert(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   X509_STORE_CTX *arg1 = (X509_STORE_CTX *) 0 ;
@@ -24161,6 +24231,89 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_x509_store_set_verify_cb__SWIG_1(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  X509_STORE *arg1 = (X509_STORE *) 0 ;
+  PyObject *arg2 = (PyObject *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"x509_store_set_verify_cb",2,2,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_X509_STORE, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "x509_store_set_verify_cb" "', argument " "1"" of type '" "X509_STORE *""'"); 
+  }
+  arg1 = (X509_STORE *)(argp1);
+  {
+    if (!PyCallable_Check(obj1)) {
+      PyErr_SetString(PyExc_TypeError, "expected PyCallable");
+      return NULL;
+    }
+    arg2=obj1;
+  }
+  {
+    if (!arg2) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  x509_store_set_verify_cb(arg1,arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_x509_store_set_verify_cb(PyObject *self, PyObject *args) {
+  Py_ssize_t argc;
+  PyObject *argv[3] = {
+    0
+  };
+  Py_ssize_t ii;
+  
+  if (!PyTuple_Check(args)) SWIG_fail;
+  argc = args ? PyObject_Length(args) : 0;
+  for (ii = 0; (ii < 2) && (ii < argc); ii++) {
+    argv[ii] = PyTuple_GET_ITEM(args,ii);
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_X509_STORE, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      void *ptr = 0;
+      int res = SWIG_ConvertFunctionPtr(argv[1], &ptr, SWIGTYPE_p_f_int_p_X509_STORE_CTX__int);
+      _v = SWIG_CheckState(res);
+      if (_v) {
+        return _wrap_x509_store_set_verify_cb__SWIG_0(self, args);
+      }
+    }
+  }
+  if (argc == 2) {
+    int _v;
+    void *vptr = 0;
+    int res = SWIG_ConvertPtr(argv[0], &vptr, SWIGTYPE_p_X509_STORE, 0);
+    _v = SWIG_CheckState(res);
+    if (_v) {
+      _v = (argv[1] != 0);
+      if (_v) {
+        return _wrap_x509_store_set_verify_cb__SWIG_1(self, args);
+      }
+    }
+  }
+  
+fail:
+  SWIG_SetErrorMsg(PyExc_NotImplementedError,"Wrong number or type of arguments for overloaded function 'x509_store_set_verify_cb'.\n"
+    "  Possible C/C++ prototypes are:\n"
+    "    X509_STORE_set_verify_cb(X509_STORE *,int (*)(int,X509_STORE_CTX *))\n"
+    "    x509_store_set_verify_cb(X509_STORE *,PyObject *)\n");
+  return 0;
+}
+
+
 SWIGINTERN PyObject *_wrap_make_stack_from_der_sequence(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   PyObject *arg1 = (PyObject *) 0 ;
@@ -25340,88 +25493,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_pkcs7_sign0(PyObject *self, PyObject *args) {
-  PyObject *resultobj = 0;
-  X509 *arg1 = (X509 *) 0 ;
-  EVP_PKEY *arg2 = (EVP_PKEY *) 0 ;
-  BIO *arg3 = (BIO *) 0 ;
-  EVP_MD *arg4 = (EVP_MD *) 0 ;
-  int arg5 ;
-  void *argp1 = 0 ;
-  int res1 = 0 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
-  void *argp3 = 0 ;
-  int res3 = 0 ;
-  void *argp4 = 0 ;
-  int res4 = 0 ;
-  int val5 ;
-  int ecode5 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
-  PyObject * obj4 = 0 ;
-  PKCS7 *result = 0 ;
-  
-  if(!PyArg_UnpackTuple(args,(char *)"pkcs7_sign0",5,5,&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_X509, 0 |  0 );
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pkcs7_sign0" "', argument " "1"" of type '" "X509 *""'"); 
-  }
-  arg1 = (X509 *)(argp1);
-  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_EVP_PKEY, 0 |  0 );
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pkcs7_sign0" "', argument " "2"" of type '" "EVP_PKEY *""'"); 
-  }
-  arg2 = (EVP_PKEY *)(argp2);
-  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_BIO, 0 |  0 );
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pkcs7_sign0" "', argument " "3"" of type '" "BIO *""'"); 
-  }
-  arg3 = (BIO *)(argp3);
-  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_EVP_MD, 0 |  0 );
-  if (!SWIG_IsOK(res4)) {
-    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "pkcs7_sign0" "', argument " "4"" of type '" "EVP_MD *""'"); 
-  }
-  arg4 = (EVP_MD *)(argp4);
-  ecode5 = SWIG_AsVal_int(obj4, &val5);
-  if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "pkcs7_sign0" "', argument " "5"" of type '" "int""'");
-  } 
-  arg5 = (int)(val5);
-  {
-    if (!arg1) {
-      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
-    }
-  }
-  {
-    if (!arg2) {
-      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
-    }
-  }
-  {
-    if (!arg3) {
-      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
-    }
-  }
-  {
-    if (!arg4) {
-      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
-    }
-  }
-  {
-    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
-    result = (PKCS7 *)pkcs7_sign0(arg1,arg2,arg3,arg4,arg5);
-    SWIG_PYTHON_THREAD_END_ALLOW;
-  }
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_PKCS7, 0 |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_pkcs7_sign1(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   X509 *arg1 = (X509 *) 0 ;
@@ -25509,6 +25580,88 @@ SWIGINTERN PyObject *_wrap_pkcs7_sign1(PyObject *self, PyObject *args) {
   {
     SWIG_PYTHON_THREAD_BEGIN_ALLOW;
     result = (PKCS7 *)pkcs7_sign1(arg1,arg2,arg3,arg4,arg5,arg6);
+    SWIG_PYTHON_THREAD_END_ALLOW;
+  }
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_PKCS7, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_pkcs7_sign0(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  X509 *arg1 = (X509 *) 0 ;
+  EVP_PKEY *arg2 = (EVP_PKEY *) 0 ;
+  BIO *arg3 = (BIO *) 0 ;
+  EVP_MD *arg4 = (EVP_MD *) 0 ;
+  int arg5 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
+  void *argp4 = 0 ;
+  int res4 = 0 ;
+  int val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  PKCS7 *result = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"pkcs7_sign0",5,5,&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_X509, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "pkcs7_sign0" "', argument " "1"" of type '" "X509 *""'"); 
+  }
+  arg1 = (X509 *)(argp1);
+  res2 = SWIG_ConvertPtr(obj1, &argp2,SWIGTYPE_p_EVP_PKEY, 0 |  0 );
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "pkcs7_sign0" "', argument " "2"" of type '" "EVP_PKEY *""'"); 
+  }
+  arg2 = (EVP_PKEY *)(argp2);
+  res3 = SWIG_ConvertPtr(obj2, &argp3,SWIGTYPE_p_BIO, 0 |  0 );
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "pkcs7_sign0" "', argument " "3"" of type '" "BIO *""'"); 
+  }
+  arg3 = (BIO *)(argp3);
+  res4 = SWIG_ConvertPtr(obj3, &argp4,SWIGTYPE_p_EVP_MD, 0 |  0 );
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "pkcs7_sign0" "', argument " "4"" of type '" "EVP_MD *""'"); 
+  }
+  arg4 = (EVP_MD *)(argp4);
+  ecode5 = SWIG_AsVal_int(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "pkcs7_sign0" "', argument " "5"" of type '" "int""'");
+  } 
+  arg5 = (int)(val5);
+  {
+    if (!arg1) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  {
+    if (!arg2) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  {
+    if (!arg3) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  {
+    if (!arg4) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  {
+    SWIG_PYTHON_THREAD_BEGIN_ALLOW;
+    result = (PKCS7 *)pkcs7_sign0(arg1,arg2,arg3,arg4,arg5);
     SWIG_PYTHON_THREAD_END_ALLOW;
   }
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_PKCS7, 0 |  0 );
@@ -28631,6 +28784,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"sk_x509_extension_num", _wrap_sk_x509_extension_num, METH_VARARGS, NULL},
 	 { (char *)"sk_x509_extension_value", _wrap_sk_x509_extension_value, METH_VARARGS, NULL},
 	 { (char *)"x509_store_ctx_get_app_data", _wrap_x509_store_ctx_get_app_data, METH_VARARGS, NULL},
+	 { (char *)"x509_store_set_verify_cb", _wrap_x509_store_set_verify_cb, METH_VARARGS, NULL},
 	 { (char *)"make_stack_from_der_sequence", _wrap_make_stack_from_der_sequence, METH_VARARGS, NULL},
 	 { (char *)"get_der_encoding_stack", _wrap_get_der_encoding_stack, METH_VARARGS, NULL},
 	 { (char *)"x509_name_oneline", _wrap_x509_name_oneline, METH_VARARGS, NULL},
@@ -28665,8 +28819,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"smime_init", _wrap_smime_init, METH_VARARGS, NULL},
 	 { (char *)"pkcs7_encrypt", _wrap_pkcs7_encrypt, METH_VARARGS, NULL},
 	 { (char *)"pkcs7_decrypt", _wrap_pkcs7_decrypt, METH_VARARGS, NULL},
-	 { (char *)"pkcs7_sign0", _wrap_pkcs7_sign0, METH_VARARGS, NULL},
 	 { (char *)"pkcs7_sign1", _wrap_pkcs7_sign1, METH_VARARGS, NULL},
+	 { (char *)"pkcs7_sign0", _wrap_pkcs7_sign0, METH_VARARGS, NULL},
 	 { (char *)"pkcs7_verify1", _wrap_pkcs7_verify1, METH_VARARGS, NULL},
 	 { (char *)"pkcs7_verify0", _wrap_pkcs7_verify0, METH_VARARGS, NULL},
 	 { (char *)"smime_write_pkcs7_multi", _wrap_smime_write_pkcs7_multi, METH_VARARGS, NULL},
@@ -29699,6 +29853,7 @@ static swig_type_info _swigt__p_X509_STORE = {"_p_X509_STORE", "X509_STORE *", 0
 static swig_type_info _swigt__p_X509_STORE_CTX = {"_p_X509_STORE_CTX", "X509_STORE_CTX *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p__cbd_t = {"_p__cbd_t", "_cbd_t *", 0, 0, (void*)&SwigPyBuiltin___cbd_t_clientdata, 0};
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_int_p_X509_STORE_CTX__int = {"_p_f_int_p_X509_STORE_CTX__int", "int (*)(int,X509_STORE_CTX *)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p_q_const__void_p_q_const__void__int = {"_p_f_p_q_const__void_p_q_const__void__int", "int (*)(void const *,void const *)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p_void__p_void = {"_p_f_p_void__p_void", "void *(*)(void *)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p_void__void = {"_p_f_p_void__void", "void (*)(void *)", 0, 0, (void*)0, 0};
@@ -29759,6 +29914,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_X509_STORE_CTX,
   &_swigt__p__cbd_t,
   &_swigt__p_char,
+  &_swigt__p_f_int_p_X509_STORE_CTX__int,
   &_swigt__p_f_p_q_const__void_p_q_const__void__int,
   &_swigt__p_f_p_void__p_void,
   &_swigt__p_f_p_void__void,
@@ -29819,6 +29975,7 @@ static swig_cast_info _swigc__p_X509_STORE[] = {  {&_swigt__p_X509_STORE, 0, 0, 
 static swig_cast_info _swigc__p_X509_STORE_CTX[] = {  {&_swigt__p_X509_STORE_CTX, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p__cbd_t[] = {  {&_swigt__p__cbd_t, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_int_p_X509_STORE_CTX__int[] = {  {&_swigt__p_f_int_p_X509_STORE_CTX__int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p_q_const__void_p_q_const__void__int[] = {  {&_swigt__p_f_p_q_const__void_p_q_const__void__int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p_void__p_void[] = {  {&_swigt__p_f_p_void__p_void, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p_void__void[] = {  {&_swigt__p_f_p_void__void, 0, 0, 0},{0, 0, 0, 0}};
@@ -29879,6 +30036,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_X509_STORE_CTX,
   _swigc__p__cbd_t,
   _swigc__p_char,
+  _swigc__p_f_int_p_X509_STORE_CTX__int,
   _swigc__p_f_p_q_const__void_p_q_const__void__int,
   _swigc__p_f_p_void__p_void,
   _swigc__p_f_p_void__void,
