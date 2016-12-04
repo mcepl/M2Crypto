@@ -30,6 +30,11 @@ m2.x509_init(X509Error)
 V_OK = m2.X509_V_OK  # type: int
 
 
+def x509_store_default_cb(ok, ctx):
+    # type: (int, X509_Store_Context) -> int
+    return ok
+
+
 def new_extension(name, value, critical=0, _pyfree=1):
     # type: (str, bytes, int, int) -> X509_Extension
     """
@@ -957,6 +962,31 @@ class X509_Store:  # noqa
         # type: (X509) -> int
         assert isinstance(x509, X509)
         return m2.x509_store_add_cert(self.store, x509._ptr())
+
+
+    def set_verify_cb(self, callback=None):
+        # type: (Optional[callable]) -> None
+        """
+        Set callback which will be called when the store is verified.
+        Wrapper over OpenSSL X509_STORE_set_verify_cb().
+
+        @param callback:    Callable to specify verification options.
+                            Type of the callable must be:
+                            (int, X509_Store_Context) -> int.
+                            If None: set the standard options.
+        @note compile-time or run-time errors in the callback would result
+               in mysterious errors during verification, which could be hard
+               to trace.
+        @note  Python exceptions raised in callbacks do not propagate to
+               verify() call.
+        @return: None
+        """
+        if callback is None:
+            return self.set_verify_cb(x509_store_default_cb)
+
+        if not callable(callback):
+            raise X509Error("set_verify(): callback is not callable")
+        return m2.x509_store_set_verify_cb(self.store, callback)
 
     add_cert = add_x509
 

@@ -12,6 +12,22 @@ except ImportError:
 
 from M2Crypto import BIO, EVP, Rand, SMIME, X509
 
+
+# Various callbacks to set by X509_Store.set_verify_cb() for
+# testing with SMIME.verify() afterwards.
+# NOTE: if the Python callback function contains compile-time or run-time
+# errors, then SMIME.verify() can fail with a mysterious error which can be
+# hard to trace back.
+# Python exceptions in callbacks do *not* propagate to verify() call.
+def verify_cb_dummy_function(ok, ctx):
+    return ok
+
+
+def verify_cb_rejects_cert_from_heikki_toivonen(ok, ctx):
+    cert = ctx.get_current_cert()
+    return "Heikki Toivonen" not in cert.get_issuer().as_text()
+
+
 class SMIMETestCase(unittest.TestCase):
     cleartext = b'some text to manipulate'
 
@@ -111,14 +127,65 @@ class SMIMETestCase(unittest.TestCase):
         s.set_x509_store(st)
 
         p7, data = SMIME.smime_load_pkcs7_bio(self.signed)
-
         self.assertIsInstance(p7, SMIME.PKCS7, p7)
+
         v = s.verify(p7, data)
         self.assertEqual(v, self.cleartext)
 
         t = p7.get0_signers(sk)
         self.assertEqual(len(t), 1)
         self.assertEqual(t[0].as_pem(), x509.as_pem(), t[0].as_text())
+
+    def test_verify_with_static_callback(self):
+        s = SMIME.SMIME()
+
+        x509 = X509.load_cert('tests/signer.pem')
+        sk = X509.X509_Stack()
+        sk.push(x509)
+        s.set_x509_stack(sk)
+
+        st = X509.X509_Store()
+        st.load_info('tests/ca.pem')
+        st.set_verify_cb(verify_cb_rejects_cert_from_heikki_toivonen)
+        s.set_x509_store(st)
+
+        p7, data = SMIME.smime_load_pkcs7_bio(self.signed)
+        self.assertIsInstance(p7, SMIME.PKCS7, p7)
+
+        # Should reject certificate issued by Heikki Toivonen:
+        with self.assertRaises(SMIME.PKCS7_Error):
+            s.verify(p7, data)
+
+        st.set_verify_cb(verify_cb_dummy_function)
+        v = s.verify(p7, data)
+        self.assertEqual(v, self.cleartext)
+
+        st.set_verify_cb()
+        v = s.verify(p7, data)
+        self.assertEqual(v, self.cleartext)
+
+
+    def verify_cb_dummy_method(self, ok, store):
+        return verify_cb_dummy_function(ok, store)
+
+    def test_verify_with_method_callback(self):
+        s = SMIME.SMIME()
+
+        x509 = X509.load_cert('tests/signer.pem')
+        sk = X509.X509_Stack()
+        sk.push(x509)
+        s.set_x509_stack(sk)
+
+        st = X509.X509_Store()
+        st.load_info('tests/ca.pem')
+        st.set_verify_cb(self.verify_cb_dummy_method)
+        s.set_x509_store(st)
+
+        p7, data = SMIME.smime_load_pkcs7_bio(self.signed)
+
+        self.assertIsInstance(p7, SMIME.PKCS7, p7)
+        v = s.verify(p7, data)
+        self.assertEqual(v, self.cleartext)
 
     def test_verifyBad(self):
         s = SMIME.SMIME()

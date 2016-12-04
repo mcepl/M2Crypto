@@ -239,6 +239,9 @@ extern X509_STORE *X509_STORE_new(void);
 extern void X509_STORE_free(X509_STORE *);
 %rename(x509_store_add_cert) X509_STORE_add_cert;
 extern int X509_STORE_add_cert(X509_STORE *, X509 *);
+%rename(x509_store_set_verify_cb) X509_STORE_set_verify_cb;
+extern void X509_STORE_set_verify_cb(X509_STORE *st,
+                                     int (*verify_cb)(int ok, X509_STORE_CTX *ctx));
 
 %rename(x509_store_ctx_get_current_cert) X509_STORE_CTX_get_current_cert;
 extern X509 *X509_STORE_CTX_get_current_cert(X509_STORE_CTX *);
@@ -616,6 +619,13 @@ X509_EXTENSION *sk_x509_extension_value(STACK_OF(X509_EXTENSION) *stack, int i) 
 /* X509_STORE_CTX_get_app_data is a macro. */
 void *x509_store_ctx_get_app_data(X509_STORE_CTX *ctx) {
   return X509_STORE_CTX_get_app_data(ctx);
+}
+
+void x509_store_set_verify_cb(X509_STORE *store, PyObject *pyfunc) {
+    Py_XDECREF(x509_store_verify_cb_func);
+    Py_INCREF(pyfunc);
+    x509_store_verify_cb_func = pyfunc;
+    X509_STORE_set_verify_cb(store, x509_store_verify_callback);
 }
 
 /*#defines for i2d and d2i types, which are typed differently

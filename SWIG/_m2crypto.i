@@ -26,6 +26,7 @@ static PyObject *ssl_verify_cb_func;
 static PyObject *ssl_info_cb_func;
 static PyObject *ssl_set_tmp_dh_cb_func;
 static PyObject *ssl_set_tmp_rsa_cb_func;
+static PyObject *x509_store_verify_cb_func;
 %}
 
 %include <openssl/opensslv.h>
