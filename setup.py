@@ -17,17 +17,18 @@ import string
 import subprocess
 import sys
 
-import setuptools
-
-from distutils.command import build
+from distutils.command import build, sdist
 from distutils.command.clean import clean
 from distutils.dir_util import mkpath
 from distutils.file_util import copy_file
 from distutils.version import StrictVersion
 
+import setuptools
+
 from setuptools.command import build_ext
 
 REQUIRED_SWIG_VERSION = '2.0.4'
+MAXIMUM_OPENSSL_VERSION = '1.0.1'
 
 if sys.version_info[:2] <= (2, 6):
     # This covers hopefully only RHEL-6 (users of any other 2.6 Pythons
@@ -39,6 +40,48 @@ else:
     requires_list = ['typing']
     import sysconfig
     _multiarch = sysconfig.get_config_var("MULTIARCH")
+
+
+def openssl_version(req_ver):
+    # type: (str) -> bool
+    """
+    Compare version of the installed OpenSSL with the maximum required version.
+
+    @param req_ver: required version as a str (e.g., '1.0.1')
+    @return: Boolean indicating whether the satisfying version of
+             OpenSSL has been installed.
+    """
+    ver_str = None
+
+    try:
+        pid = subprocess.Popen(['openssl', 'version', '-v'],
+                               stdout=subprocess.PIPE)
+    except OSError:
+        return False
+
+    out, _ = pid.communicate()
+    if hasattr(out, 'decode'):
+        out = out.decode('utf8')
+
+    ver_str = out.split()[1].strip(string.letters + string.punctuation +
+                                   string.whitespace)
+
+    if not ver_str:
+        raise OSError('Unknown format of openssl version -v output:\n%s' % out)
+
+    return StrictVersion(ver_str) <= StrictVersion(req_ver)
+
+
+class _M2CryptoSDist(sdist.sdist):
+    '''Specialization of build to enable swig_opts to inherit any
+    include_dirs settings made at the command line or in a setup.cfg file'''
+    def run(self):
+        if openssl_version(MAXIMUM_OPENSSL_VERSION):
+            sdist.sdist.run(self)
+        else:
+            raise OSError(
+                'We cannot use OpenSSL version more recent than %s!' %
+                MAXIMUM_OPENSSL_VERSION)
 
 
 class _M2CryptoBuild(build.build):
@@ -277,6 +320,7 @@ setuptools.setup(
     cmdclass={
         'build_ext': _M2CryptoBuildExt,
         'build': _M2CryptoBuild,
+        'sdist': _M2CryptoSDist,
         'clean': Clean
     }
 )
