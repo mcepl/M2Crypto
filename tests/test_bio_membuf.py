@@ -12,8 +12,10 @@ except ImportError:
 
 from M2Crypto.BIO import MemoryBuffer
 
+
 class TimeLimitExpired(Exception):
     pass
+
 
 def time_limit(timeout, func, exc_msg, *args, **kwargs):
     class FuncProc(multiprocessing.Process):
@@ -22,7 +24,7 @@ def time_limit(timeout, func, exc_msg, *args, **kwargs):
             self.result = None
 
         def run(self):
-            self.result = func(args, kwargs)
+            self.result = func(*args, **kwargs)
 
     it = FuncProc()
     it.start()
@@ -32,6 +34,7 @@ def time_limit(timeout, func, exc_msg, *args, **kwargs):
         raise TimeLimitExpired(exc_msg)
     else:
         return it.result
+
 
 class MemoryBufferTestCase(unittest.TestCase):
 
