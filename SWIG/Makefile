@@ -17,7 +17,7 @@ all:	_m2crypto
 _m2crypto: 	_m2crypto.i
 	swig -python -shadow _m2crypto.i
 	cc -c -fpic $(CFLAGS) $(INCLUDE) $(PYINCLUDE) _m2crypto_wrap.c
-	ld -Bshareable -o _m2crypto.so _m2crypto_wrap.o $(LIBS) 
+	ld -Bshareable -o _m2crypto.so _m2crypto_wrap.o $(LIBS)
 	cp m2crypto.py _m2crypto.so ../M2Crypto
 
 clean:

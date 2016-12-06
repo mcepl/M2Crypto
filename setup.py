@@ -156,8 +156,6 @@ class _M2CryptoBuildExt(build_ext.build_ext):
 
         self.swig_opts.extend(['-I%s' % i for i in self.include_dirs])
         self.swig_opts.append('-includeall')
-        self.swig_opts.extend(['-outdir',
-                              os.path.join(os.getcwd(), 'M2Crypto')])
         self.swig_opts.append('-modern')
         self.swig_opts.append('-builtin')
 
@@ -166,9 +164,8 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         # building a single extension with a known path; a proper patch to
         # distutils would be in the run phase, when extension name and path are
         # known.
-        self.swig_opts.append('-outdir')
-        self.swig_opts.append(os.path.join(self.build_lib, 'M2Crypto'))
-
+        self.swig_opts.extend(['-outdir',
+                              os.path.join(os.getcwd(), 'M2Crypto')])
         self.include_dirs.append(os.path.join(os.getcwd(), 'SWIG'))
 
         if sys.platform == 'cygwin':
@@ -181,20 +178,6 @@ class _M2CryptoBuildExt(build_ext.build_ext):
 
         self.library_dirs += [os.path.join(self.openssl, openssl_library_dir)]
         mkpath(os.path.join(self.build_lib, 'M2Crypto'))
-
-    def run(self):
-        '''Overloaded build_ext implementation to allow inplace=1 to work,
-        which is needed for (python setup.py test).'''
-        # This is another workaround for http://bugs.python.org/issue2624 + the
-        # corresponding lack of support in setuptools' test command. Note that
-        # just using self.inplace in finalize_options() above does not work
-        # because swig is not rerun if the __m2crypto.so extension exists.
-        # Again, hard-coding our extension name and location.
-        build_ext.build_ext.run(self)
-        if self.inplace:
-            copy_file(os.path.join(self.build_lib, 'M2Crypto', '_m2crypto.py'),
-                      os.path.join('M2Crypto', '_m2crypto.py'),
-                      verbose=self.verbose, dry_run=self.dry_run)
 
 
 def swig_version(req_ver):

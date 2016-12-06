@@ -10,4 +10,4 @@ include CHANGES
 include epydoc.conf
 include LICENCE
 include SWIG/_m2crypto_wrap.c
-include M2Crypto/_m2crypto.py
+include M2Crypto/m2crypto.py
