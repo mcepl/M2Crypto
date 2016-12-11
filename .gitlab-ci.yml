@@ -18,7 +18,7 @@ fedora:
     when: always
     script:
         # - dnf upgrade --refresh -y
-        - dnf install -y @development-tools fedora-packager rpmdevtools
+        - dnf install --refresh -y @development-tools fedora-packager rpmdevtools
         - dnf install -y swig python-devel openssl-devel openssl python-setuptools python-twisted
         - python setup.py build test
 
