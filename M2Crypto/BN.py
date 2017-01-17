@@ -45,6 +45,10 @@ def randfname(length):
     @param length: Length of filename to return.
     @return:       random filename string
     """
+    import warnings
+    warnings.warn(
+        "Don't use BN.randfname(), use tempfile methods instead.",
+        DeprecationWarning, stacklevel=2)
     letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890'
     lettersLen = len(letters)
     fname = []  # type: list
