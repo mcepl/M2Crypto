@@ -65,7 +65,7 @@ class BIO(object):
                 buf += data
             return buf
         elif size == 0:
-            return ''
+            return b''
         elif size < 0:
             raise ValueError('read count is negative')
         else:

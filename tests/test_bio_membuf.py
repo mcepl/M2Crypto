@@ -62,6 +62,12 @@ class MemoryBufferTestCase(unittest.TestCase):
         out = mb.read()
         self.assertEqual(out, self.data)
 
+    def test_init_something_result_bytes(self):
+        mb = MemoryBuffer(self.data)
+        self.assertEqual(len(mb), len(self.data))
+        out = mb.read()
+        self.assertIsInstance(out, bytes)
+
     def test_init_something_cm(self):
         with MemoryBuffer(self.data) as mb:
             self.assertEqual(len(mb), len(self.data))
