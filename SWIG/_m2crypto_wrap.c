@@ -16881,18 +16881,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_sslv2_method(PyObject *self, PyObject *args) {
-  PyObject *resultobj = 0;
-  SSL_METHOD *result = 0 ;
-  
-  result = (SSL_METHOD *)SSLv2_method();
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_SSL_METHOD, 0 |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_sslv3_method(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   SSL_METHOD *result = 0 ;
@@ -28432,7 +28420,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"ssl_get_alert_type_v", _wrap_ssl_get_alert_type_v, METH_VARARGS, NULL},
 	 { (char *)"ssl_get_alert_desc", _wrap_ssl_get_alert_desc, METH_VARARGS, NULL},
 	 { (char *)"ssl_get_alert_desc_v", _wrap_ssl_get_alert_desc_v, METH_VARARGS, NULL},
-	 { (char *)"sslv2_method", _wrap_sslv2_method, METH_VARARGS, NULL},
 	 { (char *)"sslv3_method", _wrap_sslv3_method, METH_VARARGS, NULL},
 	 { (char *)"sslv23_method", _wrap_sslv23_method, METH_VARARGS, NULL},
 	 { (char *)"tlsv1_method", _wrap_tlsv1_method, METH_VARARGS, NULL},
