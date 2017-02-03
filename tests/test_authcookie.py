@@ -93,7 +93,7 @@ class AuthCookieTestCase(unittest.TestCase):
     def test_mix_unmix3(self):
         c = self.jar.makeCookie(self.exp, self.data)
         s = SimpleCookie()
-        s.load(c.output())
+        s.load(c.output(header=""))
         exp, data, digest = unmix3(s[self._token].value)
         self.assertEqual(data, self.data)
         # see comment in test_mix_unmix
@@ -105,53 +105,52 @@ class AuthCookieTestCase(unittest.TestCase):
 
     def test_cookie_str(self):
         c = self.jar.makeCookie(self.exp, self.data)
-        self.assertTrue(self.jar.isGoodCookieString(c.output()))
+        self.assertTrue(self.jar.isGoodCookieString(c.output(header="")))
 
     def test_cookie_str2(self):
         c = self.jar.makeCookie(self.exp, self.data)
         s = SimpleCookie()
-        s.load(c.output())
-        self.assertTrue(self.jar.isGoodCookieString(s.output()))
+        s.load(c.output(header=""))
+        self.assertTrue(self.jar.isGoodCookieString(s.output(header="")))
 
     def test_cookie_str_expired(self):
         t = self.exp - 7200
         c = self.jar.makeCookie(t, self.data)
         s = SimpleCookie()
-        s.load(c.output())
-        self.assertFalse(self.jar.isGoodCookieString(s.output()))
+        s.load(c.output(header=""))
+        self.assertFalse(self.jar.isGoodCookieString(s.output(header="")))
 
     def test_cookie_str_arbitrary_change(self):
         c = self.jar.makeCookie(self.exp, self.data)
-        cout = c.output()
-        cout_str = cout[:32] + 'this is bad' + cout[32:]
+        cout = c.output(header="")
+        cout_str = cout[:20] + 'this is bad' + cout[20:]
         s = SimpleCookie()
         s.load(cout_str)
-        self.assertFalse(self.jar.isGoodCookieString(s.output()))
+        self.assertFalse(self.jar.isGoodCookieString(s.output(header="")))
 
     def test_cookie_str_changed_exp(self):
         c = self.jar.makeCookie(self.exp, self.data)
-        cout = c.output()
-        cout_str = cout[:26] + '2' + cout[27:]
+        cout = c.output(header="")
+        cout_str = cout[:14] + '2' + cout[15:]
         s = SimpleCookie()
         s.load(cout_str)
-        self.assertFalse(self.jar.isGoodCookieString(s.output()))
+        self.assertFalse(self.jar.isGoodCookieString(s.output(header="")))
 
     def test_cookie_str_changed_data(self):
         c = self.jar.makeCookie(self.exp, self.data)
-        cout = c.output()
-        cout_str = cout[:36] + 'X' + cout[37:]
+        cout = c.output(header="")
+        cout_str = cout[:24] + 'X' + cout[25:]
         s = SimpleCookie()
         s.load(cout_str)
-        self.assertFalse(self.jar.isGoodCookieString(s.output()))
+        self.assertFalse(self.jar.isGoodCookieString(s.output(header="")))
 
     def test_cookie_str_changed_mac(self):
         c = self.jar.makeCookie(self.exp, self.data)
-        cout = c.output()
-        cout_str = cout[:76] + 'X' + cout[77:]
+        cout = c.output(header="")
+        cout_str = cout[:64] + 'X' + cout[65:]
         s = SimpleCookie()
         s.load(cout_str)
-        observed = self.jar.isGoodCookieString(s.output(), _debug=True)
-        self.assertFalse(observed)
+        self.assertFalse(self.jar.isGoodCookieString(s.output(header="")))
 
 
 def suite():
