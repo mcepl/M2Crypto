@@ -18,6 +18,13 @@ environment, C compiler, header files for OpenSSL, etc.) also:
 
 -  SWIG 2.0.4 or newer
 
+Debian
+~~~~~~
+
+For Py2 & Py3 support install::
+
+    sudo apt-get install build-essential python3-dev python-dev libssl-dev swig
+
 
 Installing on Unix-like systems, including Cygwin
 -------------------------------------------------
