@@ -3,6 +3,7 @@ stages:
     # - python26
     - python27
     - python34
+    - python36
     - fedora
 
 .python26:
@@ -45,6 +46,17 @@ python27:
 python34:
     stage: python34
     image: python:3.4
+    when: always
+    allow_failure: yes
+    script:
+        - apt-get update -q -y
+        - apt-get install -y swig libssl-dev libssl1.0.0 python3-dev openssl python3-setuptools
+        - easy_install3 Twisted
+        - python3 setup.py clean build test
+
+python36:
+    stage: python36
+    image: python:3.6
     when: always
     allow_failure: yes
     script:
