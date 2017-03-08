@@ -48,20 +48,40 @@ def pkcs7_pad(data, blklen):
 # was just using args as-is
 if six.PY2:
     def py3bytes(x):
-        # type: (bytes) -> bytes
-        return x
+        # type: (AnyStr) -> Optional[bytes,bytearray]
+        if isinstance(x, unicode):
+            return x.encode('utf8')
+        elif isinstance(x, (bytearray, str)):
+            return x
+        else:
+            raise TypeError('No string argument provided')
 
     def py3str(x):
-        # type: (str) -> str
-        return x
+        # type: (Optional[str,bytearray]) -> str
+        if isinstance(x, bytearray):
+            return str(x)
+        elif isinstance(x, (str, unicode)):
+            return x
+        else:
+            raise TypeError('No string argument provided')
 else:
     def py3bytes(x):
-        # type: (AnyStr) -> bytes
-        return x if isinstance(x, bytes) else x is not None and bytes(x, encoding="utf8") or x
+        # type: (AnyStr) -> Optional[bytes,bytearray]
+        if isinstance(x, str):
+            return bytes(x, encoding='utf8')
+        elif isinstance(x, (bytes, bytearray)):
+            return x
+        else:
+            raise TypeError('No string argument provided')
 
     def py3str(x):
-        # type: (AnyStr) -> str
-        return x if isinstance(x, str) else x is not None and x.decode("utf8") or x
+        # type: (Optional[AnyStr,bytearray]) -> str
+        if isinstance(x, (bytes, bytearray)):
+            return x.decode('utf8')
+        elif isinstance(x, str):
+            return x
+        else:
+            raise TypeError('No string argument provided')
 
 
 def bin_to_hex(b):
