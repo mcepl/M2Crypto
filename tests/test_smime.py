@@ -49,6 +49,13 @@ class SMIMETestCase(unittest.TestCase):
         with self.assertRaises(SMIME.PKCS7_Error):
             SMIME.load_pkcs7_bio(BIO.MemoryBuffer(b'no pkcs7'))
 
+        with self.assertRaises(BIO.BIOError):
+            SMIME.load_pkcs7_der('nosuchfile-dfg456')
+        with self.assertRaises(SMIME.PKCS7_Error):
+            SMIME.load_pkcs7_der('tests/signer.pem')
+        with self.assertRaises(SMIME.PKCS7_Error):
+            SMIME.load_pkcs7_bio_der(BIO.MemoryBuffer(b'no pkcs7'))
+
         with self.assertRaises(SMIME.SMIME_Error):
             SMIME.smime_load_pkcs7('tests/signer.pem')
         with self.assertRaises(SMIME.SMIME_Error):
@@ -321,17 +328,14 @@ class WriteLoadTestCase(unittest.TestCase):
         self.filename = 'tests/sig.p7'
         with BIO.openfile(self.filename, 'wb') as f:
             self.assertEqual(p7.write(f), 1)
+        self.filename_der = 'tests/sig.p7.der'
+        with BIO.openfile(self.filename_der, 'wb') as f:
+            self.assertEqual(p7.write_der(f), 1)
 
         p7 = s.sign(BIO.MemoryBuffer(b'some text'), SMIME.PKCS7_DETACHED)
         self.filenameSmime = 'tests/sig.p7s'
         with BIO.openfile(self.filenameSmime, 'wb') as f:
             self.assertEqual(s.write(f, p7, BIO.MemoryBuffer(b'some text')), 1)
-
-    def test_write_pkcs7_der(self):
-        buf = BIO.MemoryBuffer()
-        self.assertEqual(SMIME.load_pkcs7(self.filename).write_der(buf), 1)
-        s = buf.read()
-        assert len(s) in (1188, 1204, 1433, 1243, 1263, 1148, 1168), len(s)
 
     def test_load_pkcs7(self):
         self.assertEqual(SMIME.load_pkcs7(self.filename).type(), SMIME.PKCS7_SIGNED)
@@ -341,6 +345,15 @@ class WriteLoadTestCase(unittest.TestCase):
             buf = BIO.MemoryBuffer(f.read())
 
         self.assertEqual(SMIME.load_pkcs7_bio(buf).type(), SMIME.PKCS7_SIGNED)
+
+    def test_load_pkcs7_der(self):
+        self.assertEqual(SMIME.load_pkcs7_der(self.filename_der).type(), SMIME.PKCS7_SIGNED)
+
+    def test_load_pkcs7_bio_der(self):
+        with open(self.filename_der, 'rb') as f:
+            buf = BIO.MemoryBuffer(f.read())
+
+        self.assertEqual(SMIME.load_pkcs7_bio_der(buf).type(), SMIME.PKCS7_SIGNED)
 
     def test_load_smime(self):
         a, b = SMIME.smime_load_pkcs7(self.filenameSmime)
