@@ -22,5 +22,5 @@ rand_status = m2.rand_status  # type: () -> int
 
 
 def rand_file_name():
-    # type: () -> bytes
-    return m2.rand_file_name()
+    # type: () -> str
+    return util.py3str(m2.rand_file_name())
