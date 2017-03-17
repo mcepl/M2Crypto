@@ -13,7 +13,7 @@ except ImportError:
 
 from M2Crypto import EVP, Rand, util
 from M2Crypto.AuthCookie import AuthCookie, AuthCookieJar, mix, unmix, unmix3
-from M2Crypto.six.moves.http_cookies import SimpleCookie
+from M2Crypto.six.moves.http_cookies import SimpleCookie  # pylint: disable=E0611, E0401
 
 log = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ class AuthCookieTestCase(unittest.TestCase):
         self.assertEqual(c.expiry(), self.exp)
         self.assertEqual(c.data(), self.data)
         # Peek inside the cookie jar...
-        key = self.jar._key
+        key = self.jar._key  # pylint: disable=W0212
         mac = util.bin_to_hex(
             EVP.hmac(key, util.py3bytes(mix(self.exp, self.data)), 'sha1'))
         self.assertEqual(c.mac(), mac)
@@ -71,17 +71,17 @@ class AuthCookieTestCase(unittest.TestCase):
 
     def test_is_invalid_changed_exp(self):
         c = self.jar.makeCookie(self.exp, self.data)
-        c._expiry = 'this is bad'
+        c._expiry = 0  # pylint: disable=W0212
         self.assertFalse(self.jar.isGoodCookie(c))
 
     def test_is_invalid_changed_data(self):
         c = self.jar.makeCookie(self.exp, self.data)
-        c._data = 'this is bad'
+        c._data = 'this is bad'  # pylint: disable=W0212
         self.assertFalse(self.jar.isGoodCookie(c))
 
     def test_is_invalid_changed_mac(self):
         c = self.jar.makeCookie(self.exp, self.data)
-        c._mac = 'this is bad'
+        c._mac = 'this is bad'  # pylint: disable=W0212
         self.assertFalse(self.jar.isGoodCookie(c))
 
     def test_mix_unmix3(self):

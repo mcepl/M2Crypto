@@ -8,23 +8,21 @@ import logging
 import re
 import time
 
-# M2Crypto
 from M2Crypto import Rand, m2, util
-from M2Crypto.six.moves.http_cookies import SimpleCookie
-
+from M2Crypto.six.moves.http_cookies import SimpleCookie  # pylint: disable=no-name-in-module,import-error
 
 if util.py27plus:
     from typing import re as type_re, AnyStr, Dict, Optional, Union  # noqa
 
-_MIX_FORMAT = 'exp=%s&data=%s&digest='
-_MIX_RE = re.compile('exp=(\d+\.\d+)&data=(.+)&digest=(\S*)')
+_MIX_FORMAT = 'exp=%f&data=%s&digest='
+_MIX_RE = re.compile(r'exp=(\d+\.\d+)&data=(.+)&digest=(\S*)')
 
 log = logging.getLogger(__name__)
 
 
 def mix(expiry, data, format=_MIX_FORMAT):
     # type: (float, AnyStr, str) -> AnyStr
-    return format % (repr(expiry), data)
+    return format % (expiry, data)
 
 
 def unmix(dough, regex=_MIX_RE):
@@ -99,7 +97,7 @@ class AuthCookie:
         self._mac = mac
         self._cookie = SimpleCookie()
         self._cookie[_TOKEN] = '%s%s' % (dough, mac)
-        self._name = '%s%s' % (dough, mac)  # XXX WebKit only.
+        self._name = '%s%s' % (dough, mac)  # WebKit only.
 
     def expiry(self):
         # type: () -> float
@@ -133,8 +131,9 @@ class AuthCookie:
         return isinstance(self._expiry, (float, int)) and \
             (time.time() > self._expiry)
 
-    # XXX Following methods are for WebKit only. These should be pushed
-    # to WKAuthCookie.
+    # Following two methods are for WebKit only.
+    # I may wish to push them to WKAuthCookie, but they are part
+    # of the API now. Oh well.
     def name(self):
         # type: () -> str
         return self._name

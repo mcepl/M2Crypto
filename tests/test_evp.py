@@ -282,9 +282,7 @@ class EVPTestCase(unittest.TestCase):
             return codecs.encode(signed_data, 'base64')
 
         def verify(response):
-            log.debug('response = %s', response)
             signature = codecs.decode(response['sign'], 'base64')
-            log.debug('signature = %s', signature)
             data = response['data']
             verify_evp = EVP.PKey()
             # capture parameter on the following line is required by
@@ -292,20 +290,14 @@ class EVPTestCase(unittest.TestCase):
             verify_evp.assign_rsa(SIGN_PUBLIC, capture=False)
             verify_evp.verify_init()
             verify_evp.verify_update(data)
-            log.debug('verify_evp = %s', verify_evp)
-            log.debug('verify_evp.ctx = %s', verify_evp.ctx)
-            log.debug('verify_evp.pkey = %s', verify_evp.pkey)
-            log.debug('verify_evp.pkey = der %s', verify_evp.as_der())
             # m2.verify_final(self.ctx, sign, self.pkey)
             fin_res = verify_evp.verify_final(signature)
-            log.debug('fin_res = %s', fin_res)
             return fin_res == 1
 
         data = b"test message"
         signature = sign(data)
         res = {"data": data, "sign": signature}
         self.assertTrue(verify(res))  # works fine
-        log.debug('AND NOW RUN IT AGAIN!')
         self.assertTrue(verify(res))  # segmentation fault in *verify_final*
 
 class CipherTestCase(unittest.TestCase):

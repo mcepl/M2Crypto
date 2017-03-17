@@ -324,7 +324,6 @@ class TLSProtocolWrapper(ProtocolWrapper):
 
     def connectionLost(self, reason):
         # type: (AnyStr) -> None
-        log.debug('reason = %s (%s)', reason, type(reason))
         self.clear()
         ProtocolWrapper.connectionLost(self, reason)
 
