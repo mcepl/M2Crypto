@@ -13,14 +13,14 @@ except ImportError:
 
 from M2Crypto import EVP, Rand, util
 from M2Crypto.AuthCookie import AuthCookie, AuthCookieJar, mix, unmix, unmix3
-from M2Crypto.six.moves.http_cookies import SimpleCookie  # pylint: disable=E0611, E0401
+from M2Crypto.six.moves.http_cookies import SimpleCookie  # pylint: disable=no-name-in-module,import-error
 
 log = logging.getLogger(__name__)
 
 
 class AuthCookieTestCase(unittest.TestCase):
 
-    _format = 'Set-Cookie: _M2AUTH_="exp=%s&data=%s&digest=%s"'
+    _format = 'Set-Cookie: _M2AUTH_="exp=%f&data=%s&digest=%s"'
     _token = '_M2AUTH_'
 
     def setUp(self):
@@ -35,7 +35,9 @@ class AuthCookieTestCase(unittest.TestCase):
         dough = mix(self.exp, self.data)
         exp, data = unmix(dough)
         self.assertEqual(data, self.data)
-        self.assertEqual(exp, self.exp)
+        # we are comparing seconds here, ten-thousandth
+        # second should be enough.
+        self.assertAlmostEqual(exp, self.exp, places=4)
 
     def test_make_cookie(self):
         c = self.jar.makeCookie(self.exp, self.data)
@@ -43,13 +45,17 @@ class AuthCookieTestCase(unittest.TestCase):
         self.assertEqual(c.expiry(), self.exp)
         self.assertEqual(c.data(), self.data)
         # Peek inside the cookie jar...
-        key = self.jar._key  # pylint: disable=W0212
+        key = self.jar._key  # pylint: disable=protected-access
         mac = util.bin_to_hex(
             EVP.hmac(key, util.py3bytes(mix(self.exp, self.data)), 'sha1'))
         self.assertEqual(c.mac(), mac)
         # Ok, stop peeking now.
-        cookie_str = self._format % (repr(self.exp), self.data, mac)
+        cookie_str = self._format % (self.exp, self.data, mac)
         self.assertEqual(c.output(), cookie_str)
+
+    def test_make_cookie_invalid(self):
+        with self.assertRaises(ValueError):
+            self.jar.makeCookie("complete nonsense", self.data)
 
     def test_expired(self):
         t = self.exp - 7200
@@ -71,17 +77,17 @@ class AuthCookieTestCase(unittest.TestCase):
 
     def test_is_invalid_changed_exp(self):
         c = self.jar.makeCookie(self.exp, self.data)
-        c._expiry = 0  # pylint: disable=W0212
+        c._expiry = 0  # pylint: disable=protected-access
         self.assertFalse(self.jar.isGoodCookie(c))
 
     def test_is_invalid_changed_data(self):
         c = self.jar.makeCookie(self.exp, self.data)
-        c._data = 'this is bad'  # pylint: disable=W0212
+        c._data = 'this is bad'  # pylint: disable=protected-access
         self.assertFalse(self.jar.isGoodCookie(c))
 
     def test_is_invalid_changed_mac(self):
         c = self.jar.makeCookie(self.exp, self.data)
-        c._mac = 'this is bad'  # pylint: disable=W0212
+        c._mac = 'this is bad'  # pylint: disable=protected-access
         self.assertFalse(self.jar.isGoodCookie(c))
 
     def test_mix_unmix3(self):
@@ -90,8 +96,9 @@ class AuthCookieTestCase(unittest.TestCase):
         s.load(c.output())
         exp, data, digest = unmix3(s[self._token].value)
         self.assertEqual(data, self.data)
-        self.assertEqual(float(exp), self.exp)
-        key = self.jar._key     # Peeking...
+        # see comment in test_mix_unmix
+        self.assertAlmostEqual(exp, self.exp, places=4)
+        key = self.jar._key     # pylint: disable=protected-access
         mac = util.bin_to_hex(
             EVP.hmac(key, util.py3bytes(mix(self.exp, self.data)), 'sha1'))
         self.assertEqual(digest, mac)
@@ -143,7 +150,8 @@ class AuthCookieTestCase(unittest.TestCase):
         cout_str = cout[:76] + 'X' + cout[77:]
         s = SimpleCookie()
         s.load(cout_str)
-        self.assertFalse(self.jar.isGoodCookieString(s.output()))
+        observed = self.jar.isGoodCookieString(s.output(), _debug=True)
+        self.assertFalse(observed)
 
 
 def suite():

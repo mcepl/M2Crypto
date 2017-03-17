@@ -8,7 +8,7 @@ import logging
 import re
 import time
 
-from M2Crypto import Rand, m2, util
+from M2Crypto import Rand, m2, util, six
 from M2Crypto.six.moves.http_cookies import SimpleCookie  # pylint: disable=no-name-in-module,import-error
 
 if util.py27plus:
@@ -60,6 +60,15 @@ class AuthCookieJar:
 
     def makeCookie(self, expiry, data):
         # type: (float, str) -> AuthCookie
+        """
+        Make a cookie
+
+        @param expiry: expiration time (float in seconds)
+        @param data: cookie content
+        @return: AuthCookie object
+        """
+        if not isinstance(expiry, (six.integer_types, float)):
+            raise ValueError('Expiration time must be number, not "%s' % expiry)
         dough = mix(expiry, data)
         return AuthCookie(expiry, data, dough, self._hmac(self._key, dough))
 
@@ -74,17 +83,25 @@ class AuthCookieJar:
             and (c._mac == cookie._mac) \
             and (c.output() == cookie.output())
 
-    def isGoodCookieString(self, cookie_str):
-        # type: (Union[dict, bytes]) -> Union[bool, int]
+    def isGoodCookieString(self, cookie_str, _debug=False):
+        # type: (Union[dict, bytes], bool) -> Union[bool, int]
         c = SimpleCookie()
         c.load(cookie_str)
         if _TOKEN not in c:
+            log.error('_TOKEN not in c (keys = %s)', dir(c))
             return 0
         undough = unmix3(c[_TOKEN].value)
         if undough is None:
+            log.error('undough is None')
             return 0
         exp, data, mac = undough
         c2 = self.makeCookie(exp, data)
+        if _debug and (c2._mac == mac):
+            log.error('cookie_str = %s', cookie_str)
+            log.error('c2.isExpired = %s', c2.isExpired())
+            log.error('mac = %s', mac)
+            log.error('c2._mac = %s', c2._mac)
+            log.error('c2._mac == mac: %s', str(c2._mac == mac))
         return (not c2.isExpired()) and (c2._mac == mac)
 
 
@@ -92,6 +109,15 @@ class AuthCookie:
 
     def __init__(self, expiry, data, dough, mac):
         # type: (float, str, str, str) -> None
+        """
+        Create new authentication cookie
+
+        @param expiry: expiration time (in seconds)
+        @param data: cookie payload (as a string)
+        @param dough: expiry & data concatenated to URL compliant
+                      string
+        @param mac: SHA1-based HMAC of dough and random key
+        """
         self._expiry = expiry
         self._data = data
         self._mac = mac
@@ -128,7 +154,7 @@ class AuthCookie:
     def isExpired(self):
         # type: () -> bool
         """Return 1 if the cookie has expired, 0 otherwise."""
-        return isinstance(self._expiry, (float, int)) and \
+        return isinstance(self._expiry, (float, six.integer_types)) and \
             (time.time() > self._expiry)
 
     # Following two methods are for WebKit only.
