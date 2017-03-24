@@ -13,7 +13,7 @@ try:
 except ImportError:
     import unittest
 
-from M2Crypto import util
+from M2Crypto import util, six
 
 
 class UtilTestCase(unittest.TestCase):
@@ -27,7 +27,7 @@ class UtilTestCase(unittest.TestCase):
         self.assertIsInstance(util.py3bytes(u'test'), bytes)
 
     def test_py3str_str(self):
-        self.assertIsInstance(util.py3str(u'test'), str)
+        self.assertIsInstance(util.py3str(u'test'), six.string_types)
 
     def test_py3bytes_bytes(self):
         self.assertIsInstance(util.py3bytes(b'test'), bytes)
