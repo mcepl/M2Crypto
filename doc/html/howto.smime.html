@@ -1,0 +1,847 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>HOWTO: Programming S/MIME in Python with M2Crypto &mdash; M2Crypto  documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="M2Crypto  documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">M2Crypto  documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="howto-programming-s-mime-in-python-with-m2crypto">
+<span id="howto-smime"></span><h1>HOWTO: Programming S/MIME in Python with M2Crypto<a class="headerlink" href="#howto-programming-s-mime-in-python-with-m2crypto" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body">Pheng Siong Ng &lt;<a class="reference external" href="mailto:ngps&#37;&#52;&#48;post1&#46;com">ngps<span>&#64;</span>post1<span>&#46;</span>com</a>&gt;</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body">© 2000, 2001 by Ng Pheng Siong.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://gitlab.com/m2crypto/m2crypto/">M2Crypto</a> is a
+<a class="reference external" href="http://www.python.org">Python</a> interface to
+<a class="reference external" href="http://www.openssl.org">OpenSSL</a>. It makes available to the Python
+programmer SSL functionality to implement clients and servers, S/MIME
+v2, RSA, DSA, DH, symmetric ciphers, message digests and HMACs.</p>
+<p>This document demonstrates programming S/MIME with M2Crypto.</p>
+</div>
+<div class="section" id="s-mime">
+<h1>S/MIME<a class="headerlink" href="#s-mime" title="Permalink to this headline">¶</a></h1>
+<p>S/MIME - Secure Multipurpose Internet Mail Extensions [RFC 2311, RFC
+2312] - provides a consistent way to send and receive secure MIME data.
+Based on the popular Internet MIME standard, S/MIME provides the
+following cryptographic security services for electronic messaging
+applications - <em>authentication</em>, <em>message integrity</em> and
+<em>non-repudiation of origin</em> (using <em>digital signatures</em>), and <em>privacy</em>
+and <em>data security</em> (using <em>encryption</em>).</p>
+</div>
+<div class="section" id="keys-and-certificates">
+<h1>Keys and Certificates<a class="headerlink" href="#keys-and-certificates" title="Permalink to this headline">¶</a></h1>
+<p>To create an S/MIME-signed message, you need an RSA key pair (this
+consists of a public key and a private key) and an X.509 certificate of
+said public key.</p>
+<p>To create an S/MIME-encrypted message, you need an X.509 certificate for
+each recipient.</p>
+<p>To create an S/MIME-signed <em>and</em> -encrypted message, first create a
+signed message, then encrypt the signed message with the recipients&#8217;
+certificates.</p>
+<p>You may generate key pairs and obtain certificates by using a commercial
+<em>certification authority</em> service.</p>
+<p>You can also do so using freely-available software. For many purposes,
+e.g., automated S/MIME messaging by system administration processes,
+this approach is cheap and effective.</p>
+<p>We now work through using OpenSSL to generate key pairs and
+certificates. This assumes you have OpenSSL installed properly on your
+system.</p>
+<p>First, we generate an X.509 certificate to be used for signing:</p>
+<div class="highlight-python"><pre>openssl req -newkey rsa:1024 -nodes -x509 -days 365 -out signer.pem
+
+Using configuration from /usr/local/pkg/openssl/openssl.cnf
+Generating a 1024 bit RSA private key
+..++++++
+....................++++++
+writing new private key to &#x27;privkey.pem&#x27;
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter &#x27;.&#x27;, the field will be left blank.
+-----
+Country Name (2 letter code) [AU]:SG
+State or Province Name (full name) [Some-State]:.
+Locality Name (eg, city) []:.
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:M2Crypto
+Organizational Unit Name (eg, section) []:.
+Common Name (eg, YOUR name) []:S/MIME Sender
+Email Address []:sender@example.dom</pre>
+</div>
+<p>This generates a 1024-bit RSA key pair, unencrypted, into
+<tt class="docutils literal"><span class="pre">privkey.pem</span></tt>; it also generates a self-signed X.509 certificate for
+the public key into <tt class="docutils literal"><span class="pre">signer.pem</span></tt>. The certificate is valid for 365
+days, i.e., a year.</p>
+<p>Let&#8217;s rename <tt class="docutils literal"><span class="pre">privkey.pem</span></tt> so that we know it is a companion of
+<tt class="docutils literal"><span class="pre">signer.pem</span></tt>&#8216;s:</p>
+<div class="highlight-python"><pre>mv privkey.pem signer_key.pem</pre>
+</div>
+<p>To verify the content of <tt class="docutils literal"><span class="pre">signer.pem</span></tt>, execute the following:</p>
+<div class="highlight-python"><pre>openssl x509 -noout -text -in signer.pem
+
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 0 (0x0)
+        Signature Algorithm: md5WithRSAEncryption
+        Issuer: C=SG, O=M2Crypto, CN=S/MIME Sender/Email=sender@example.dom
+        Validity
+            Not Before: Mar 24 12:56:16 2001 GMT
+            Not After : Mar 24 12:56:16 2002 GMT
+        Subject: C=SG, O=M2Crypto, CN=S/MIME Sender/Email=sender@example.dom
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+            RSA Public Key: (1024 bit)
+                Modulus (1024 bit):
+                    00:a9:d6:e2:b5:11:3b:ae:3c:e2:17:31:70:e1:6e:
+                    01:f4:19:6d:bd:2a:42:36:2b:37:34:e2:83:1d:0d:
+                    11:2e:b4:99:44:db:10:67:be:97:5f:5b:1a:26:33:
+                    46:23:2f:95:04:7a:35:da:9d:f9:26:88:39:9e:17:
+                    cd:3e:eb:a8:19:8d:a8:2a:f1:43:da:55:a9:2e:2c:
+                    65:ed:04:71:42:ce:73:53:b8:ea:7e:c7:f0:23:c6:
+                    63:c5:5e:68:96:64:a7:b4:2a:94:26:76:eb:79:ea:
+                    e3:4e:aa:82:09:4f:44:87:4a:12:62:b5:d7:1f:ca:
+                    f2:ce:d5:ba:7e:1f:48:fd:b9
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Subject Key Identifier:
+                29:FB:38:B6:BF:E2:40:BB:FF:D5:71:D7:D5:C4:F0:83:1A:2B:C7:99
+            X509v3 Authority Key Identifier:
+                keyid:29:FB:38:B6:BF:E2:40:BB:FF:D5:71:D7:D5:C4:F0:83:1A:2B:C7:99
+                DirName:/C=SG/O=M2Crypto/CN=S/MIME Sender/Email=sender@example.dom
+                serial:00
+
+            X509v3 Basic Constraints:
+                CA:TRUE
+    Signature Algorithm: md5WithRSAEncryption
+        68:c8:6b:1b:fa:7c:9a:39:35:76:18:15:c9:fd:89:97:62:db:
+        7a:b0:2d:13:dd:97:e8:1b:7a:9f:22:27:83:24:9d:2e:56:ec:
+        97:89:3c:ef:16:55:80:5a:18:7c:22:d0:f6:bb:e3:a4:e8:59:
+        30:ff:99:5a:93:3e:ea:bc:ee:7f:8d:d6:7d:37:8c:ac:3d:74:
+        80:ce:7a:99:ba:27:b9:2a:a3:71:fa:a5:25:ba:47:17:df:07:
+        56:96:36:fd:60:b9:6c:96:06:e8:e3:7b:9f:4b:6a:95:71:a8:
+        34:fc:fc:b5:88:8b:c4:3f:1e:24:f6:52:47:b2:7d:44:67:d9:
+        83:e8</pre>
+</div>
+<p>Next, we generate a self-signed X.509 certificate for the recipient.
+Note that <tt class="docutils literal"><span class="pre">privkey.pem</span></tt> will be recreated:</p>
+<div class="highlight-python"><pre>openssl req -newkey rsa:1024 -nodes -x509 -days 365 -out recipient.pem
+
+Using configuration from /usr/local/pkg/openssl/openssl.cnf
+Generating a 1024 bit RSA private key
+.....................................++++++
+.................++++++
+writing new private key to &#x27;privkey.pem&#x27;
+-----
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter &#x27;.&#x27;, the field will be left blank.
+-----
+Country Name (2 letter code) [AU]:SG
+State or Province Name (full name) [Some-State]:.
+Locality Name (eg, city) []:.
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:M2Crypto
+Organizational Unit Name (eg, section) []:.
+Common Name (eg, YOUR name) []:S/MIME Recipient
+Email Address []:recipient@example.dom</pre>
+</div>
+<p>Again, rename <tt class="docutils literal"><span class="pre">privkey.pem</span></tt>:</p>
+<div class="highlight-python"><pre>mv privkey.pem recipient_key.pem</pre>
+</div>
+<p>In the examples to follow, S/MIME Sender, <tt class="docutils literal"><span class="pre">&lt;sender&#64;example.dom&gt;</span></tt>,
+shall be the sender of S/MIME messages, while S/MIME Recipient,
+<tt class="docutils literal"><span class="pre">&lt;recipient&#64;example.dom&gt;</span></tt>, shall be the recipient of S/MIME messages.</p>
+<p>Armed with the key pairs and certificates, we are now ready to begin
+programming S/MIME in Python.</p>
+<blockquote>
+<div><p><strong>Note:</strong> The private keys generated above are <em>not
+passphrase-protected</em>, i.e., they are <em>in the clear</em>. Anyone who has
+access to such a key can generate S/MIME-signed messages with it,
+and decrypt S/MIME messages encrypted to it&#8217;s corresponding public
+key.</p>
+<p>We may passphrase-protect the keys, if we so choose. M2Crypto will
+prompt the user for the passphrase when such a key is being loaded.</p>
+</div></blockquote>
+</div>
+<div class="section" id="m2crypto-smime">
+<h1>M2Crypto.SMIME<a class="headerlink" href="#m2crypto-smime" title="Permalink to this headline">¶</a></h1>
+<p>The Python programmer accesses M2Crypto&#8217;s S/MIME functionality through
+class <tt class="docutils literal"><span class="pre">SMIME</span></tt> in the module <tt class="docutils literal"><span class="pre">M2Crypto.SMIME</span></tt>. Typically, an
+<tt class="docutils literal"><span class="pre">SMIME</span></tt> object is instantiated; the object is then set up for the
+intended operation: sign, encrypt, decrypt or verify; finally, the
+operation is invoked on the object.</p>
+<p><tt class="docutils literal"><span class="pre">M2Crypto.SMIME</span></tt> makes extensive use of <tt class="docutils literal"><span class="pre">M2Crypto.BIO</span></tt>:
+<tt class="docutils literal"><span class="pre">M2Crypto.BIO</span></tt> is a Python abstraction of the <tt class="docutils literal"><span class="pre">BIO</span></tt> abstraction in
+OpenSSL. A commonly used <tt class="docutils literal"><span class="pre">BIO</span></tt> abstraction in M2Crypto is
+<tt class="docutils literal"><span class="pre">M2Crypto.BIO.MemoryBuffer</span></tt>, which implements a memory-based file-like
+object, similar to Python&#8217;s own <tt class="docutils literal"><span class="pre">StringIO</span></tt>.</p>
+</div>
+<div class="section" id="sign">
+<h1>Sign<a class="headerlink" href="#sign" title="Permalink to this headline">¶</a></h1>
+<p>The following code demonstrates how to generate an S/MIME-signed
+message. <tt class="docutils literal"><span class="pre">randpool.dat</span></tt> contains random data which is used to seed
+OpenSSL&#8217;s pseudo-random number generator via M2Crypto:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">Rand</span><span class="p">,</span> <span class="n">SMIME</span>
+
+<span class="k">def</span> <span class="nf">makebuf</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+<span class="c1"># Make a MemoryBuffer of the message.</span>
+<span class="n">buf</span> <span class="o">=</span> <span class="n">makebuf</span><span class="p">(</span><span class="s1">&#39;a sign of our times&#39;</span><span class="p">)</span>
+
+<span class="c1"># Seed the PRNG.</span>
+<span class="n">Rand</span><span class="o">.</span><span class="n">load_file</span><span class="p">(</span><span class="s1">&#39;randpool.dat&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Instantiate an SMIME object; set it up; sign the buffer.</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">SMIME</span><span class="o">.</span><span class="n">SMIME</span><span class="p">()</span>
+<span class="n">s</span><span class="o">.</span><span class="n">load_key</span><span class="p">(</span><span class="s1">&#39;signer_key.pem&#39;</span><span class="p">,</span> <span class="s1">&#39;signer.pem&#39;</span><span class="p">)</span>
+<span class="n">p7</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">SMIME</span><span class="o">.</span><span class="n">PKCS7_DETACHED</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">p7</span></tt> now contains a <em>PKCS #7 signature blob</em> wrapped in an
+<tt class="docutils literal"><span class="pre">M2Crypto.SMIME.PKCS7</span></tt> object. Note that <tt class="docutils literal"><span class="pre">buf</span></tt> has been consumed by
+<tt class="docutils literal"><span class="pre">sign()</span></tt> and has to be recreated if it is to be used again.</p>
+<p>We may now send the signed message via SMTP. In these examples, we shall
+not do so; instead, we&#8217;ll render the S/MIME output in mail-friendly
+format, and pretend that our messages are sent and received
+correctly:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="c1"># Recreate buf.</span>
+<span class="n">buf</span> <span class="o">=</span> <span class="n">makebuf</span><span class="p">(</span><span class="s1">&#39;a sign of our times&#39;</span><span class="p">)</span>
+
+<span class="c1"># Output p7 in mail-friendly format.</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+<span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;From: sender@example.dom</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;To: recipient@example.dom</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Subject: M2Crypto S/MIME testing</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">p7</span><span class="p">,</span> <span class="n">buf</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+<span class="c1"># Save the PRNG&#39;s state.</span>
+<span class="n">Rand</span><span class="o">.</span><span class="n">save_file</span><span class="p">(</span><span class="s1">&#39;randpool.dat&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here&#8217;s the output:</p>
+<div class="highlight-python"><pre>From: sender@example.dom
+To: recipient@example.dom
+Subject: M2Crypto S/MIME testing
+MIME-Version: 1.0
+Content-Type: multipart/signed ; protocol=&quot;application/x-pkcs7-signature&quot; ; micalg=sha1 ; boundary=&quot;----3C93156FC7B4EBF49FE9C7DB7F503087&quot;
+
+This is an S/MIME signed message
+
+------3C93156FC7B4EBF49FE9C7DB7F503087
+a sign of our times
+------3C93156FC7B4EBF49FE9C7DB7F503087
+Content-Type: application/x-pkcs7-signature; name=&quot;smime.p7s&quot;
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename=&quot;smime.p7s&quot;
+
+MIIE8AYJKoZIhvcNAQcCoIIE4TCCBN0CAQExCzAJBgUrDgMCGgUAMCIGCSqGSIb3
+DQEHAaAVBBNhIHNpZ24gb2Ygb3VyIHRpbWVzoIIC5zCCAuMwggJMoAMCAQICAQAw
+DQYJKoZIhvcNAQEEBQAwWzELMAkGA1UEBhMCU0cxETAPBgNVBAoTCE0yQ3J5cHRv
+MRYwFAYDVQQDEw1TL01JTUUgU2VuZGVyMSEwHwYJKoZIhvcNAQkBFhJzZW5kZXJA
+ZXhhbXBsZS5kb20wHhcNMDEwMzMxMTE0MDMzWhcNMDIwMzMxMTE0MDMzWjBbMQsw
+CQYDVQQGEwJTRzERMA8GA1UEChMITTJDcnlwdG8xFjAUBgNVBAMTDVMvTUlNRSBT
+ZW5kZXIxITAfBgkqhkiG9w0BCQEWEnNlbmRlckBleGFtcGxlLmRvbTCBnzANBgkq
+hkiG9w0BAQEFAAOBjQAwgYkCgYEA5c5Tj1CHTSOxa1q2q0FYiwMWYHptJpJcvtZm
+UwrgU5sHrA8OnCM0cDXEj0KPf3cfNjHffB8HWMzI4UEgNmFXQNsxoGZ+iqwxLlNj
+y9Mh7eFW/Bjq5hNXbouSlQ0rWBRkoxV64y+t6lQehb32WfYXQbKFxFJSXzSxOx3R
+8YhSPd0CAwEAAaOBtjCBszAdBgNVHQ4EFgQUXOyolL1t4jaBwZFRM7MS8nBLzUow
+gYMGA1UdIwR8MHqAFFzsqJS9beI2gcGRUTOzEvJwS81KoV+kXTBbMQswCQYDVQQG
+EwJTRzERMA8GA1UEChMITTJDcnlwdG8xFjAUBgNVBAMTDVMvTUlNRSBTZW5kZXIx
+ITAfBgkqhkiG9w0BCQEWEnNlbmRlckBleGFtcGxlLmRvbYIBADAMBgNVHRMEBTAD
+AQH/MA0GCSqGSIb3DQEBBAUAA4GBAHo3DrCHR86fSTVAvfiXdSswWqKtCEhUHRdC
+TLFGl4hDk2GyZxaFuqZwiURz/H7nMicymI2wkz8H/wyHFg8G3BIehURpj2v/ZWXY
+eovbgS7EZALVVkDj4hNl/IIHWd6Gtv1UODf7URbxtl3hQ9/eTWITrefT1heuPnar
+8czydsOLMYIBujCCAbYCAQEwYDBbMQswCQYDVQQGEwJTRzERMA8GA1UEChMITTJD
+cnlwdG8xFjAUBgNVBAMTDVMvTUlNRSBTZW5kZXIxITAfBgkqhkiG9w0BCQEWEnNl
+bmRlckBleGFtcGxlLmRvbQIBADAJBgUrDgMCGgUAoIGxMBgGCSqGSIb3DQEJAzEL
+BgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTAxMDMzMTExNDUwMlowIwYJKoZI
+hvcNAQkEMRYEFOoeRUd8ExIYXfQq8BTFuKWrSP3iMFIGCSqGSIb3DQEJDzFFMEMw
+CgYIKoZIhvcNAwcwDgYIKoZIhvcNAwICAgCAMA0GCCqGSIb3DQMCAgFAMAcGBSsO
+AwIHMA0GCCqGSIb3DQMCAgEoMA0GCSqGSIb3DQEBAQUABIGAQpU8hFUtLCF6hO2t
+ec9EYJ/Imqqiiw+BxWxkUUVT81Vbjwdn9JST6+sztM5JRP2ZW+b4txEjZriYC8f3
+kv95YMTGbIsuWkJ93GrbvqoJ/CxO23r9WWRnZEm/1EZN9ZmlrYqzBTxnNRmP3Dhj
+cW8kzZwH+2/2zz2G7x1HxRWH95A=
+
+------3C93156FC7B4EBF49FE9C7DB7F503087--</pre>
+</div>
+</div>
+<div class="section" id="verify">
+<h1>Verify<a class="headerlink" href="#verify" title="Permalink to this headline">¶</a></h1>
+<p>Assume the above output has been saved into <tt class="docutils literal"><span class="pre">sign.p7</span></tt>. Let&#8217;s now
+verify the signature:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
+
+<span class="c1"># Instantiate an SMIME object.</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">SMIME</span><span class="o">.</span><span class="n">SMIME</span><span class="p">()</span>
+
+<span class="c1"># Load the signer&#39;s cert.</span>
+<span class="n">x509</span> <span class="o">=</span> <span class="n">X509</span><span class="o">.</span><span class="n">load_cert</span><span class="p">(</span><span class="s1">&#39;signer.pem&#39;</span><span class="p">)</span>
+<span class="n">sk</span> <span class="o">=</span> <span class="n">X509</span><span class="o">.</span><span class="n">X509_Stack</span><span class="p">()</span>
+<span class="n">sk</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">x509</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">set_x509_stack</span><span class="p">(</span><span class="n">sk</span><span class="p">)</span>
+
+<span class="c1"># Load the signer&#39;s CA cert. In this case, because the signer&#39;s</span>
+<span class="c1"># cert is self-signed, it is the signer&#39;s cert itself.</span>
+<span class="n">st</span> <span class="o">=</span> <span class="n">X509</span><span class="o">.</span><span class="n">X509_Store</span><span class="p">()</span>
+<span class="n">st</span><span class="o">.</span><span class="n">load_info</span><span class="p">(</span><span class="s1">&#39;signer.pem&#39;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">set_x509_store</span><span class="p">(</span><span class="n">st</span><span class="p">)</span>
+
+<span class="c1"># Load the data, verify it.</span>
+<span class="n">p7</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">SMIME</span><span class="o">.</span><span class="n">smime_load_pkcs7</span><span class="p">(</span><span class="s1">&#39;sign.p7&#39;</span><span class="p">)</span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">p7</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>Here&#8217;s the output of the above program:</p>
+<div class="highlight-python"><pre>a sign of our times
+&lt;M2Crypto.BIO.BIO instance at 0x822012c&gt;
+a sign of our times</pre>
+</div>
+<p>Suppose, instead of loading <tt class="docutils literal"><span class="pre">signer.pem</span></tt> above, we load
+<tt class="docutils literal"><span class="pre">recipient.pem</span></tt>. That is, we do a global substitution of
+<tt class="docutils literal"><span class="pre">recipient.pem</span></tt> for <tt class="docutils literal"><span class="pre">signer.pem</span></tt> in the above program. Here&#8217;s the
+modified program&#8217;s output:</p>
+<div class="highlight-python"><pre>Traceback (most recent call last):
+  File &quot;./verify.py&quot;, line 22, in ?
+    v = s.verify(p7)
+  File &quot;/usr/local/home/ngps/prog/m2/M2Crypto/SMIME.py&quot;, line 205, in verify
+    raise SMIME_Error, Err.get_error()
+M2Crypto.SMIME.SMIME_Error: 312:error:21075075:PKCS7 routines:PKCS7_verify:certificate verify error:pk7_smime.c:213:Verify error:self signed certificate</pre>
+</div>
+<p>As displayed, the error is generated by line 213 of OpenSSL&#8217;s
+<tt class="docutils literal"><span class="pre">pk7_smime.c</span></tt> (as of OpenSSL 0.9.6); if you are a C programmer, you
+may wish to look up the C source to explore OpenSSL&#8217;s S/MIME
+implementation and understand why the error message is worded thus.</p>
+</div>
+<div class="section" id="encrypt">
+<h1>Encrypt<a class="headerlink" href="#encrypt" title="Permalink to this headline">¶</a></h1>
+<p>We now demonstrate how to generate an S/MIME-encrypted message:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">Rand</span><span class="p">,</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
+
+<span class="k">def</span> <span class="nf">makebuf</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+<span class="c1"># Make a MemoryBuffer of the message.</span>
+<span class="n">buf</span> <span class="o">=</span> <span class="n">makebuf</span><span class="p">(</span><span class="s1">&#39;a sign of our times&#39;</span><span class="p">)</span>
+
+<span class="c1"># Seed the PRNG.</span>
+<span class="n">Rand</span><span class="o">.</span><span class="n">load_file</span><span class="p">(</span><span class="s1">&#39;randpool.dat&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Instantiate an SMIME object.</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">SMIME</span><span class="o">.</span><span class="n">SMIME</span><span class="p">()</span>
+
+<span class="c1"># Load target cert to encrypt to.</span>
+<span class="n">x509</span> <span class="o">=</span> <span class="n">X509</span><span class="o">.</span><span class="n">load_cert</span><span class="p">(</span><span class="s1">&#39;recipient.pem&#39;</span><span class="p">)</span>
+<span class="n">sk</span> <span class="o">=</span> <span class="n">X509</span><span class="o">.</span><span class="n">X509_Stack</span><span class="p">()</span>
+<span class="n">sk</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">x509</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">set_x509_stack</span><span class="p">(</span><span class="n">sk</span><span class="p">)</span>
+
+<span class="c1"># Set cipher: 3-key triple-DES in CBC mode.</span>
+<span class="n">s</span><span class="o">.</span><span class="n">set_cipher</span><span class="p">(</span><span class="n">SMIME</span><span class="o">.</span><span class="n">Cipher</span><span class="p">(</span><span class="s1">&#39;des_ede3_cbc&#39;</span><span class="p">))</span>
+
+<span class="c1"># Encrypt the buffer.</span>
+<span class="n">p7</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
+
+<span class="c1"># Output p7 in mail-friendly format.</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+<span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;From: sender@example.dom</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;To: recipient@example.dom</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Subject: M2Crypto S/MIME testing</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">p7</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+<span class="c1"># Save the PRNG&#39;s state.</span>
+<span class="n">Rand</span><span class="o">.</span><span class="n">save_file</span><span class="p">(</span><span class="s1">&#39;randpool.dat&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here&#8217;s the output of the above program:</p>
+<div class="highlight-python"><pre>From: sender@example.dom
+To: recipient@example.dom
+Subject: M2Crypto S/MIME testing
+MIME-Version: 1.0
+Content-Disposition: attachment; filename=&quot;smime.p7m&quot;
+Content-Type: application/x-pkcs7-mime; name=&quot;smime.p7m&quot;
+Content-Transfer-Encoding: base64
+
+MIIBVwYJKoZIhvcNAQcDoIIBSDCCAUQCAQAxggEAMIH9AgEAMGYwYTELMAkGA1UE
+BhMCU0cxETAPBgNVBAoTCE0yQ3J5cHRvMRkwFwYDVQQDExBTL01JTUUgUmVjaXBp
+ZW50MSQwIgYJKoZIhvcNAQkBFhVyZWNpcGllbnRAZXhhbXBsZS5kb20CAQAwDQYJ
+KoZIhvcNAQEBBQAEgYCBaXZ+qjpBEZwdP7gjfzfAtQitESyMwo3i+LBOw6sSDir6
+FlNDPCnkrTvqDX3Rt6X6vBtTCYOm+qiN7ujPkOU61cN7h8dvHR8YW9+0IPY80/W0
+lZ/HihSRgwTNd7LnxUUcPx8YV1id0dlmP0Hz+Lg+mHf6rqaR//JcYhX9vW4XvjA7
+BgkqhkiG9w0BBwEwFAYIKoZIhvcNAwcECMN+qya6ADywgBgHr9Jkhwn5Gsdu7BwX
+nIQfYTYcdL9I5Sk=</pre>
+</div>
+</div>
+<div class="section" id="decrypt">
+<h1>Decrypt<a class="headerlink" href="#decrypt" title="Permalink to this headline">¶</a></h1>
+<p>Assume the above output has been saved into <tt class="docutils literal"><span class="pre">encrypt.p7</span></tt>. Decrypt the
+message thusly:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
+
+<span class="c1"># Instantiate an SMIME object.</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">SMIME</span><span class="o">.</span><span class="n">SMIME</span><span class="p">()</span>
+
+<span class="c1"># Load private key and cert.</span>
+<span class="n">s</span><span class="o">.</span><span class="n">load_key</span><span class="p">(</span><span class="s1">&#39;recipient_key.pem&#39;</span><span class="p">,</span> <span class="s1">&#39;recipient.pem&#39;</span><span class="p">)</span>
+
+<span class="c1"># Load the encrypted data.</span>
+<span class="n">p7</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">SMIME</span><span class="o">.</span><span class="n">smime_load_pkcs7</span><span class="p">(</span><span class="s1">&#39;encrypt.p7&#39;</span><span class="p">)</span>
+
+<span class="c1"># Decrypt p7.</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">p7</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here&#8217;s the output:</p>
+<div class="highlight-python"><pre>a sign of our times</pre>
+</div>
+</div>
+<div class="section" id="sign-and-encrypt">
+<h1>Sign and Encrypt<a class="headerlink" href="#sign-and-encrypt" title="Permalink to this headline">¶</a></h1>
+<p>Here&#8217;s how to generate an S/MIME-signed/encrypted message:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">Rand</span><span class="p">,</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
+
+<span class="k">def</span> <span class="nf">makebuf</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+<span class="c1"># Make a MemoryBuffer of the message.</span>
+<span class="n">buf</span> <span class="o">=</span> <span class="n">makebuf</span><span class="p">(</span><span class="s1">&#39;a sign of our times&#39;</span><span class="p">)</span>
+
+<span class="c1"># Seed the PRNG.</span>
+<span class="n">Rand</span><span class="o">.</span><span class="n">load_file</span><span class="p">(</span><span class="s1">&#39;randpool.dat&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Instantiate an SMIME object.</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">SMIME</span><span class="o">.</span><span class="n">SMIME</span><span class="p">()</span>
+
+<span class="c1"># Load signer&#39;s key and cert. Sign the buffer.</span>
+<span class="n">s</span><span class="o">.</span><span class="n">load_key</span><span class="p">(</span><span class="s1">&#39;signer_key.pem&#39;</span><span class="p">,</span> <span class="s1">&#39;signer.pem&#39;</span><span class="p">)</span>
+<span class="n">p7</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
+
+<span class="c1"># Load target cert to encrypt the signed message to.</span>
+<span class="n">x509</span> <span class="o">=</span> <span class="n">X509</span><span class="o">.</span><span class="n">load_cert</span><span class="p">(</span><span class="s1">&#39;recipient.pem&#39;</span><span class="p">)</span>
+<span class="n">sk</span> <span class="o">=</span> <span class="n">X509</span><span class="o">.</span><span class="n">X509_Stack</span><span class="p">()</span>
+<span class="n">sk</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">x509</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">set_x509_stack</span><span class="p">(</span><span class="n">sk</span><span class="p">)</span>
+
+<span class="c1"># Set cipher: 3-key triple-DES in CBC mode.</span>
+<span class="n">s</span><span class="o">.</span><span class="n">set_cipher</span><span class="p">(</span><span class="n">SMIME</span><span class="o">.</span><span class="n">Cipher</span><span class="p">(</span><span class="s1">&#39;des_ede3_cbc&#39;</span><span class="p">))</span>
+
+<span class="c1"># Create a temporary buffer.</span>
+<span class="n">tmp</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+
+<span class="c1"># Write the signed message into the temporary buffer.</span>
+<span class="n">s</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">p7</span><span class="p">)</span>
+
+<span class="c1"># Encrypt the temporary buffer.</span>
+<span class="n">p7</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+
+<span class="c1"># Output p7 in mail-friendly format.</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+<span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;From: sender@example.dom</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;To: recipient@example.dom</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Subject: M2Crypto S/MIME testing</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">p7</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+<span class="c1"># Save the PRNG&#39;s state.</span>
+<span class="n">Rand</span><span class="o">.</span><span class="n">save_file</span><span class="p">(</span><span class="s1">&#39;randpool.dat&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here&#8217;s the output of the above program:</p>
+<div class="highlight-python"><pre>From: sender@example.dom
+To: recipient@example.dom
+Subject: M2Crypto S/MIME testing
+MIME-Version: 1.0
+Content-Disposition: attachment; filename=&quot;smime.p7m&quot;
+Content-Type: application/x-pkcs7-mime; name=&quot;smime.p7m&quot;
+Content-Transfer-Encoding: base64
+
+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</pre>
+</div>
+</div>
+<div class="section" id="decrypt-and-verify">
+<h1>Decrypt and Verify<a class="headerlink" href="#decrypt-and-verify" title="Permalink to this headline">¶</a></h1>
+<p>Suppose the above output has been saved into <tt class="docutils literal"><span class="pre">se.p7</span></tt>. The following
+demonstrates how to decrypt and verify it:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
+
+<span class="c1"># Instantiate an SMIME object.</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">SMIME</span><span class="o">.</span><span class="n">SMIME</span><span class="p">()</span>
+
+<span class="c1"># Load private key and cert.</span>
+<span class="n">s</span><span class="o">.</span><span class="n">load_key</span><span class="p">(</span><span class="s1">&#39;recipient_key.pem&#39;</span><span class="p">,</span> <span class="s1">&#39;recipient.pem&#39;</span><span class="p">)</span>
+
+<span class="c1"># Load the signed/encrypted data.</span>
+<span class="n">p7</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">SMIME</span><span class="o">.</span><span class="n">smime_load_pkcs7</span><span class="p">(</span><span class="s1">&#39;se.p7&#39;</span><span class="p">)</span>
+
+<span class="c1"># After the above step, &#39;data&#39; == None.</span>
+<span class="c1"># Decrypt p7. &#39;out&#39; now contains a PKCS #7 signed blob.</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">p7</span><span class="p">)</span>
+
+<span class="c1"># Load the signer&#39;s cert.</span>
+<span class="n">x509</span> <span class="o">=</span> <span class="n">X509</span><span class="o">.</span><span class="n">load_cert</span><span class="p">(</span><span class="s1">&#39;signer.pem&#39;</span><span class="p">)</span>
+<span class="n">sk</span> <span class="o">=</span> <span class="n">X509</span><span class="o">.</span><span class="n">X509_Stack</span><span class="p">()</span>
+<span class="n">sk</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">x509</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">set_x509_stack</span><span class="p">(</span><span class="n">sk</span><span class="p">)</span>
+
+<span class="c1"># Load the signer&#39;s CA cert. In this case, because the signer&#39;s</span>
+<span class="c1"># cert is self-signed, it is the signer&#39;s cert itself.</span>
+<span class="n">st</span> <span class="o">=</span> <span class="n">X509</span><span class="o">.</span><span class="n">X509_Store</span><span class="p">()</span>
+<span class="n">st</span><span class="o">.</span><span class="n">load_info</span><span class="p">(</span><span class="s1">&#39;signer.pem&#39;</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">set_x509_store</span><span class="p">(</span><span class="n">st</span><span class="p">)</span>
+
+<span class="c1"># Recall &#39;out&#39; contains a PKCS #7 blob.</span>
+<span class="c1"># Transform &#39;out&#39;; verify the resulting PKCS #7 blob.</span>
+<span class="n">p7_bio</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+<span class="n">p7</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">SMIME</span><span class="o">.</span><span class="n">smime_load_pkcs7_bio</span><span class="p">(</span><span class="n">p7_bio</span><span class="p">)</span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">verify</span><span class="p">(</span><span class="n">p7</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The output is as follows:</p>
+<div class="highlight-python"><pre>a sign of our times</pre>
+</div>
+</div>
+<div class="section" id="sending-s-mime-messages-via-smtp">
+<h1>Sending S/MIME messages via SMTP<a class="headerlink" href="#sending-s-mime-messages-via-smtp" title="Permalink to this headline">¶</a></h1>
+<p>In the above examples, we&#8217;ve assumed that our S/MIME messages are sent
+and received automagically. The following is a Python function that
+generates S/MIME-signed/encrypted messages and sends them via
+SMTP:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
+<span class="kn">import</span> <span class="nn">smtplib</span><span class="o">,</span> <span class="nn">string</span><span class="o">,</span> <span class="nn">sys</span>
+
+<span class="k">def</span> <span class="nf">sendsmime</span><span class="p">(</span><span class="n">from_addr</span><span class="p">,</span> <span class="n">to_addrs</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">from_key</span><span class="p">,</span> <span class="n">from_cert</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">to_certs</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">smtpd</span><span class="o">=</span><span class="s1">&#39;localhost&#39;</span><span class="p">):</span>
+
+    <span class="n">msg_bio</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="n">sign</span> <span class="o">=</span> <span class="n">from_key</span>
+    <span class="n">encrypt</span> <span class="o">=</span> <span class="n">to_certs</span>
+
+    <span class="n">s</span> <span class="o">=</span> <span class="n">SMIME</span><span class="o">.</span><span class="n">SMIME</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">sign</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">load_key</span><span class="p">(</span><span class="n">from_key</span><span class="p">,</span> <span class="n">from_cert</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">encrypt</span><span class="p">:</span>
+            <span class="n">p7</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">msg_bio</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">SMIME</span><span class="o">.</span><span class="n">PKCS7_TEXT</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">p7</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">msg_bio</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">SMIME</span><span class="o">.</span><span class="n">PKCS7_TEXT</span><span class="o">|</span><span class="n">SMIME</span><span class="o">.</span><span class="n">PKCS7_DETACHED</span><span class="p">)</span>
+        <span class="n">msg_bio</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="c1"># Recreate coz sign() has consumed it.</span>
+
+    <span class="k">if</span> <span class="n">encrypt</span><span class="p">:</span>
+        <span class="n">sk</span> <span class="o">=</span> <span class="n">X509</span><span class="o">.</span><span class="n">X509_Stack</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">to_certs</span><span class="p">:</span>
+            <span class="n">sk</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">X509</span><span class="o">.</span><span class="n">load_cert</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">set_x509_stack</span><span class="p">(</span><span class="n">sk</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">set_cipher</span><span class="p">(</span><span class="n">SMIME</span><span class="o">.</span><span class="n">Cipher</span><span class="p">(</span><span class="s1">&#39;des_ede3_cbc&#39;</span><span class="p">))</span>
+        <span class="n">tmp_bio</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sign</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tmp_bio</span><span class="p">,</span> <span class="n">p7</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">tmp_bio</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">p7</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">tmp_bio</span><span class="p">)</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;From: </span><span class="si">%s</span><span class="se">\r\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">from_addr</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;To: </span><span class="si">%s</span><span class="se">\r\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">string</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">to_addrs</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="p">))</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Subject: </span><span class="si">%s</span><span class="se">\r\n</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">subject</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">encrypt</span><span class="p">:</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">p7</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">sign</span><span class="p">:</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">p7</span><span class="p">,</span> <span class="n">msg_bio</span><span class="p">,</span> <span class="n">SMIME</span><span class="o">.</span><span class="n">PKCS7_TEXT</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\r\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="n">smtp</span> <span class="o">=</span> <span class="n">smtplib</span><span class="o">.</span><span class="n">SMTP</span><span class="p">()</span>
+    <span class="n">smtp</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">smtpd</span><span class="p">)</span>
+    <span class="n">smtp</span><span class="o">.</span><span class="n">sendmail</span><span class="p">(</span><span class="n">from_addr</span><span class="p">,</span> <span class="n">to_addrs</span><span class="p">,</span> <span class="n">out</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+    <span class="n">smtp</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This function sends plain, S/MIME-signed, S/MIME-encrypted, and
+S/MIME-signed/encrypted messages, depending on the parameters
+<tt class="docutils literal"><span class="pre">from_key</span></tt> and <tt class="docutils literal"><span class="pre">to_certs</span></tt>. The function&#8217;s output interoperates with
+Netscape Messenger.</p>
+</div>
+<div class="section" id="verifying-origin-of-s-mime-messages">
+<h1>Verifying origin of S/MIME messages<a class="headerlink" href="#verifying-origin-of-s-mime-messages" title="Permalink to this headline">¶</a></h1>
+<p>In our examples above that decrypt or verify messages, we skipped a
+step: verifying that the <tt class="docutils literal"><span class="pre">from</span></tt> address of the message matches the
+<tt class="docutils literal"><span class="pre">email</span> <span class="pre">address</span></tt> attribute in the sender&#8217;s certificate.</p>
+<p>The premise of current X.509 certification practice is that the CA is
+supposed to verify your identity, and to issue a certificate with
+<tt class="docutils literal"><span class="pre">email</span> <span class="pre">address</span></tt> that matches your actual mail address. (Verisign&#8217;s
+March 2001 failure in identity verification resulting in Microsoft
+certificates being issued to spoofers notwithstanding.)</p>
+<p>If you run your own CA, your certification practice is up to you, of
+course, and it would probably be part of your security policy.</p>
+<p>Whether your S/MIME messaging application needs to verify the <tt class="docutils literal"><span class="pre">from</span></tt>
+addresses of S/MIME messages depends on your security policy and your
+system&#8217;s threat model, as always.</p>
+</div>
+<div class="section" id="interoperating-with-netscape-messenger">
+<h1>Interoperating with Netscape Messenger<a class="headerlink" href="#interoperating-with-netscape-messenger" title="Permalink to this headline">¶</a></h1>
+<p>Suppose S/MIME Recipient uses Netscape Messenger. To enable Messenger to
+handle S/MIME messages from S/MIME Sender, S/MIME Recipient needs to
+configure Messenger with his private key and certificate, as well as
+S/MIME Sender&#8217;s certificate.</p>
+<blockquote>
+<div><strong>Note:</strong> Configuring Messenger&#8217;s POP or IMAP settings so that it
+retrieves mail correctly is beyond the scope of this HOWTO.</div></blockquote>
+<p>The following steps demonstrate how to import S/MIME Recipient&#8217;s private
+key and certificate for Messenger:</p>
+<ol class="arabic">
+<li><p class="first">Transform S/MIME Recipient&#8217;s private key and certificate into <em>PKCS
+#12</em> format:</p>
+<div class="highlight-python"><pre>openssl pkcs12 -export -in recipient.pem -inkey recipient_key.pem \
+    -name &quot;S/MIME Recipient&quot; -out recipient.p12
+
+Enter Export Password:&lt;enter&gt;
+Verifying password - Enter Export Password:&lt;enter&gt;</pre>
+</div>
+</li>
+<li><p class="first">Start Messenger.</p>
+</li>
+<li><p class="first">Click on the (open) &#8220;lock&#8221; icon at the bottom left corner of
+Messenger&#8217;s window. This brings up the &#8220;Security Info&#8221; dialog box.</p>
+</li>
+<li><p class="first">Click on &#8220;Yours&#8221; under &#8220;Certificates&#8221;.</p>
+</li>
+<li><p class="first">Select &#8220;Import a certificate&#8221;, then pick <tt class="docutils literal"><span class="pre">recipient.p12</span></tt> from the
+ensuing file selection dialog box.</p>
+</li>
+</ol>
+<p>Next, you need to import <tt class="docutils literal"><span class="pre">signer.pem</span></tt> as a CA certificate, so that
+Messenger will mark messages signed by S/MIME Sender as &#8220;trusted&#8221;:</p>
+<ol class="arabic">
+<li><p class="first">Create a DER encoding of <tt class="docutils literal"><span class="pre">signer.pem</span></tt>:</p>
+<div class="highlight-python"><pre>openssl x509 -inform pem -outform der -in signer.pem -out signer.der</pre>
+</div>
+</li>
+<li><p class="first">Install <tt class="docutils literal"><span class="pre">signer.der</span></tt> into Messenger as MIME type
+<tt class="docutils literal"><span class="pre">application/x-x509-ca-cert</span></tt>. You do this by downloading
+<tt class="docutils literal"><span class="pre">signer.der</span></tt> via Navigator from a HTTP or HTTPS server, with the
+correct MIME type mapping. (You may use <tt class="docutils literal"><span class="pre">demo/ssl/https_srv.py</span></tt>,
+bundled with M2Crypto, for this purpose.) Follow the series of dialog
+boxes to accept <tt class="docutils literal"><span class="pre">signer.der</span></tt> as a CA for certifying email users.</p>
+</li>
+</ol>
+<p>S/MIME Recipient is now able to decrypt and read S/MIME Sender&#8217;s
+messages with Messenger. Messenger will indicate that S/MIME Sender&#8217;s
+messages are signed, encrypted, or encrypted <em>and</em> signed, as the case
+may be, via the &#8220;stamp&#8221; icon on the message window&#8217;s top right corner.</p>
+<p>Clicking on the &#8220;stamp&#8221; icon brings you to the Security Info dialog box.
+Messenger informs you that the message is, say, encrypted with 168-bit
+DES-EDE3-CBC and that it is digitally signed by the private key
+corresponding to the public key contained in the certificate
+<tt class="docutils literal"><span class="pre">signer.pem</span></tt>.</p>
+</div>
+<div class="section" id="interoperating-with-microsoft-outlook">
+<h1>Interoperating with Microsoft Outlook<a class="headerlink" href="#interoperating-with-microsoft-outlook" title="Permalink to this headline">¶</a></h1>
+<p>I do not know how to do this, as I do not use Outlook. (Nor do I use
+Netscape Messenger, actually. I use Mutt, top dog of MUAs. ;-)
+Information on how to configure Outlook with keys and certificates so
+that it handles S/MIME mail is gratefully accepted.</p>
+</div>
+<div class="section" id="zsmime">
+<h1>ZSmime<a class="headerlink" href="#zsmime" title="Permalink to this headline">¶</a></h1>
+<p>ZSmime is a <a class="reference external" href="http://www.zope.org">Zope</a> <em>product</em> that enables Zope
+to generate S/MIME-signed/encrypted messages. ZSmime demonstrates how to
+invoke M2Crypto in a web application server extension.</p>
+<p>ZSmime has its own
+<a class="reference external" href="http://sandbox.rulemaker.net/ngps/zope/zsmime/howto.html">HOWTO</a>
+explaining its usage. (That HOWTO has some overlap in content with this
+document.)</p>
+</div>
+<div class="section" id="resources">
+<h1>Resources<a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li>IETF S/MIME Working Group - <a class="reference external" href="http://www.imc.org/ietf-smime">http://www.imc.org/ietf-smime</a></li>
+<li>S/MIME and OpenPGP - <a class="reference external" href="http://www.imc.org/smime-pgpmime.html">http://www.imc.org/smime-pgpmime.html</a></li>
+<li>S/MIME Freeware Library -
+<a class="reference external" href="http://www.getronicsgov.com/hot/sfl_home.htm">http://www.getronicsgov.com/hot/sfl_home.htm</a></li>
+<li>Mozilla Network Security Services -
+<a class="reference external" href="http://www.mozilla.org/projects/security/pkg/nss">http://www.mozilla.org/projects/security/pkg/nss</a></li>
+<li>S/MIME Cracking Screen Saver - <a class="reference external" href="http://www.counterpane.com/smime.html">http://www.counterpane.com/smime.html</a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">HOWTO: Programming S/MIME in Python with M2Crypto</a></li>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#s-mime">S/MIME</a></li>
+<li><a class="reference internal" href="#keys-and-certificates">Keys and Certificates</a></li>
+<li><a class="reference internal" href="#m2crypto-smime">M2Crypto.SMIME</a></li>
+<li><a class="reference internal" href="#sign">Sign</a></li>
+<li><a class="reference internal" href="#verify">Verify</a></li>
+<li><a class="reference internal" href="#encrypt">Encrypt</a></li>
+<li><a class="reference internal" href="#decrypt">Decrypt</a></li>
+<li><a class="reference internal" href="#sign-and-encrypt">Sign and Encrypt</a></li>
+<li><a class="reference internal" href="#decrypt-and-verify">Decrypt and Verify</a></li>
+<li><a class="reference internal" href="#sending-s-mime-messages-via-smtp">Sending S/MIME messages via SMTP</a></li>
+<li><a class="reference internal" href="#verifying-origin-of-s-mime-messages">Verifying origin of S/MIME messages</a></li>
+<li><a class="reference internal" href="#interoperating-with-netscape-messenger">Interoperating with Netscape Messenger</a></li>
+<li><a class="reference internal" href="#interoperating-with-microsoft-outlook">Interoperating with Microsoft Outlook</a></li>
+<li><a class="reference internal" href="#zsmime">ZSmime</a></li>
+<li><a class="reference internal" href="#resources">Resources</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/howto.smime.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">M2Crypto  documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

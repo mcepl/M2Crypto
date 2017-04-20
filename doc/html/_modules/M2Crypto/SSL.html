@@ -1,0 +1,134 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>M2Crypto.SSL &mdash; M2Crypto  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="M2Crypto  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for M2Crypto.SSL</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="sd">&quot;&quot;&quot;M2Crypto SSL services.</span>
+
+<span class="sd">Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="c1"># M2Crypto</span>
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">m2</span>
+
+
+<div class="viewcode-block" id="SSLError"><a class="viewcode-back" href="../../M2Crypto.SSL.html#M2Crypto.SSL.SSLError">[docs]</a><span class="k">class</span> <span class="nc">SSLError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="SSLTimeoutError"><a class="viewcode-back" href="../../M2Crypto.SSL.html#M2Crypto.SSL.SSLTimeoutError">[docs]</a><span class="k">class</span> <span class="nc">SSLTimeoutError</span><span class="p">(</span><span class="n">SSLError</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">timeout</span><span class="p">):</span>
+    <span class="k">pass</span>
+</div>
+<span class="n">m2</span><span class="o">.</span><span class="n">ssl_init</span><span class="p">(</span><span class="n">SSLError</span><span class="p">,</span> <span class="n">SSLTimeoutError</span><span class="p">)</span>
+
+<span class="c1"># M2Crypto.SSL</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.SSL.Cipher</span> <span class="kn">import</span> <span class="n">Cipher</span><span class="p">,</span> <span class="n">Cipher_Stack</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.SSL.Connection</span> <span class="kn">import</span> <span class="n">Connection</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.SSL.Context</span> <span class="kn">import</span> <span class="n">Context</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.SSL.SSLServer</span> <span class="kn">import</span> <span class="p">(</span><span class="n">ForkingSSLServer</span><span class="p">,</span> <span class="n">SSLServer</span><span class="p">,</span>
+                                    <span class="n">ThreadingSSLServer</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.SSL.ssl_dispatcher</span> <span class="kn">import</span> <span class="n">ssl_dispatcher</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.SSL.timeout</span> <span class="kn">import</span> <span class="n">timeout</span>
+
+<span class="n">verify_none</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">SSL_VERIFY_NONE</span>  <span class="c1"># type: int</span>
+<span class="n">verify_peer</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">SSL_VERIFY_PEER</span>  <span class="c1"># type: int</span>
+<span class="n">verify_fail_if_no_peer_cert</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">SSL_VERIFY_FAIL_IF_NO_PEER_CERT</span>  <span class="c1"># type: int</span>
+<span class="n">verify_client_once</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">SSL_VERIFY_CLIENT_ONCE</span>  <span class="c1"># type: int</span>
+
+<span class="n">SSL_SENT_SHUTDOWN</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">SSL_SENT_SHUTDOWN</span>  <span class="c1"># type: int</span>
+<span class="n">SSL_RECEIVED_SHUTDOWN</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">SSL_RECEIVED_SHUTDOWN</span>  <span class="c1"># type: int</span>
+
+<span class="n">op_all</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">SSL_OP_ALL</span>  <span class="c1"># type: int</span>
+<span class="n">op_no_sslv2</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">SSL_OP_NO_SSLv2</span>  <span class="c1"># type: int</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

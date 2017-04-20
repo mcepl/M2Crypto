@@ -1,0 +1,355 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>M2Crypto.httpslib &mdash; M2Crypto  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="M2Crypto  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for M2Crypto.httpslib</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="sd">&quot;&quot;&quot;M2Crypto support for Python&#39;s httplib.</span>
+
+<span class="sd">Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">SSL</span><span class="p">,</span> <span class="n">six</span><span class="p">,</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.six.moves.urllib_parse</span> <span class="kn">import</span> <span class="n">urlsplit</span><span class="p">,</span> <span class="n">urlunsplit</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.six.moves.http_client</span> <span class="kn">import</span> <span class="o">*</span>  <span class="c1"># noqa</span>
+<span class="c1"># This is not imported with just &#39;*&#39;</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.six.moves.http_client</span> <span class="kn">import</span> <span class="n">HTTPS_PORT</span>
+<span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>  <span class="c1"># noqa</span>
+
+
+<div class="viewcode-block" id="HTTPSConnection"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.httpslib.HTTPSConnection">[docs]</a><span class="k">class</span> <span class="nc">HTTPSConnection</span><span class="p">(</span><span class="n">HTTPConnection</span><span class="p">):</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class allows communication via SSL using M2Crypto.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">default_port</span> <span class="o">=</span> <span class="n">HTTPS_PORT</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">ssl</span><span class="p">):</span>
+        <span class="c1"># type: (str, Optional[int], Optional[bool], **Dict[Any, Any]) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Represents one transaction with an HTTP server over the SSL</span>
+<span class="sd">        connection.</span>
+
+<span class="sd">        :param host: host name</span>
+<span class="sd">        :param port: port number</span>
+<span class="sd">        :param strict: if switched on, it raises BadStatusLine to be</span>
+<span class="sd">                       raised if the status line can&#39;t be parsed as</span>
+<span class="sd">                       a valid HTTP/1.0 or 1.1 status line.</span>
+<span class="sd">        :param ssl: dict with all remaining named real parameters of the</span>
+<span class="sd">                    function. Specifically, ``ssl_context`` is expected</span>
+<span class="sd">                    to be included with SSL.Context; if it is not</span>
+<span class="sd">                    default ``&#39;sslv23&#39;`` is substituted).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># type: bytes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">port</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">ssl</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">-</span> <span class="nb">set</span><span class="p">((</span><span class="s1">&#39;key_file&#39;</span><span class="p">,</span> <span class="s1">&#39;cert_file&#39;</span><span class="p">,</span> <span class="s1">&#39;ssl_context&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">keys</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown keyword argument: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">keys</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ssl_ctx</span> <span class="o">=</span> <span class="n">ssl</span><span class="p">[</span><span class="s1">&#39;ssl_context&#39;</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl_ctx</span><span class="p">,</span> <span class="n">SSL</span><span class="o">.</span><span class="n">Context</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssl_ctx</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ssl_ctx</span> <span class="o">=</span> <span class="n">SSL</span><span class="o">.</span><span class="n">Context</span><span class="p">()</span>
+        <span class="n">HTTPConnection</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">strict</span><span class="p">)</span>
+
+<div class="viewcode-block" id="HTTPSConnection.connect"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.httpslib.HTTPSConnection.connect">[docs]</a>    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="c1"># We ignore the returned sockaddr because SSL.Connection.connect needs</span>
+        <span class="c1"># a host name.</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">family</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> \
+                <span class="n">socket</span><span class="o">.</span><span class="n">getaddrinfo</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
+                                   <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">):</span>
+            <span class="n">sock</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">sock</span> <span class="o">=</span> <span class="n">SSL</span><span class="o">.</span><span class="n">Connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl_ctx</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="n">family</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">sock</span><span class="o">.</span><span class="n">set_session</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">)</span>
+                <span class="n">sock</span><span class="o">.</span><span class="n">connect</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">port</span><span class="p">))</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">sock</span> <span class="o">=</span> <span class="n">sock</span>
+                <span class="n">sock</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="k">return</span>
+            <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="c1"># Other exception are probably SSL-related, in that case we</span>
+                <span class="c1"># abort and the exception is forwarded to the caller.</span>
+                <span class="n">error</span> <span class="o">=</span> <span class="n">e</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">sock</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                    <span class="n">sock</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">error</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AssertionError</span><span class="p">(</span><span class="s2">&quot;Empty list returned by getaddrinfo&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">error</span>
+</div>
+<div class="viewcode-block" id="HTTPSConnection.close"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.httpslib.HTTPSConnection.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="c1"># This kludges around line 545 of httplib.py,</span>
+        <span class="c1"># which closes the connection in this object;</span>
+        <span class="c1"># the connection remains open in the response</span>
+        <span class="c1"># object.</span>
+        <span class="c1">#</span>
+        <span class="c1"># M2Crypto doesn&#39;t close-here-keep-open-there,</span>
+        <span class="c1"># so, in effect, we don&#39;t close until the whole</span>
+        <span class="c1"># business is over and gc kicks in.</span>
+        <span class="c1">#</span>
+        <span class="c1"># XXX Long-running callers beware leakage.</span>
+        <span class="c1">#</span>
+        <span class="c1"># XXX 05-Jan-2002: This module works with Python 2.2,</span>
+        <span class="c1"># XXX but I&#39;ve not investigated if the above conditions</span>
+        <span class="c1"># XXX remain.</span>
+        <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="HTTPSConnection.get_session"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.httpslib.HTTPSConnection.get_session">[docs]</a>    <span class="k">def</span> <span class="nf">get_session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; SSL.Session.Session</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sock</span><span class="o">.</span><span class="n">get_session</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="HTTPSConnection.set_session"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.httpslib.HTTPSConnection.set_session">[docs]</a>    <span class="k">def</span> <span class="nf">set_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">):</span>
+        <span class="c1"># type: (SSL.Session.Session) -&gt; None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">session</span>
+
+</div></div>
+<div class="viewcode-block" id="ProxyHTTPSConnection"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.httpslib.ProxyHTTPSConnection">[docs]</a><span class="k">class</span> <span class="nc">ProxyHTTPSConnection</span><span class="p">(</span><span class="n">HTTPSConnection</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    An HTTPS Connection that uses a proxy and the CONNECT request.</span>
+
+<span class="sd">    When the connection is initiated, CONNECT is first sent to the proxy (along</span>
+<span class="sd">    with authorization headers, if supplied). If successful, an SSL connection</span>
+<span class="sd">    will be established over the socket through the proxy and to the target</span>
+<span class="sd">    host.</span>
+
+<span class="sd">    Finally, the actual request is sent over the SSL connection tunneling</span>
+<span class="sd">    through the proxy.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_ports</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;http&#39;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span> <span class="s1">&#39;https&#39;</span><span class="p">:</span> <span class="mi">443</span><span class="p">}</span>
+    <span class="n">_AUTH_HEADER</span> <span class="o">=</span> <span class="s2">&quot;Proxy-Authorization&quot;</span>
+    <span class="n">_UA_HEADER</span> <span class="o">=</span> <span class="s2">&quot;User-Agent&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">password</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">ssl</span><span class="p">):</span>
+        <span class="c1"># type: (str, Optional[int], Optional[bool], Optional[AnyStr], Optional[AnyStr], **Dict[Any, Any]) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create the ProxyHTTPSConnection object.</span>
+
+<span class="sd">        :param host: host name of the proxy server</span>
+<span class="sd">        :param port: port number of the proxy server</span>
+<span class="sd">        :param strict: if switched on, it raises BadStatusLine to be</span>
+<span class="sd">                       raised if the status line can&#39;t be parsed as</span>
+<span class="sd">                       a valid HTTP/1.0 or 1.1 status line.</span>
+<span class="sd">        :param username: username on the proxy server, when required</span>
+<span class="sd">                         Username can be ``str``, but preferred type</span>
+<span class="sd">                         is ``bytes``. M2Crypto does some conversion to</span>
+<span class="sd">                         ``bytes`` when necessary, but it&#39;s better when</span>
+<span class="sd">                         the user of the library does it on its own.</span>
+<span class="sd">        :param password: password on the proxy server, when required</span>
+<span class="sd">                         The same as with ``username``, ``str`` is accepted,</span>
+<span class="sd">                         but ``bytes`` are preferred.</span>
+<span class="sd">        :param ssl: dict with all remaining named real parameters of the</span>
+<span class="sd">                    function. Specifically, ``ssl_context`` is expected</span>
+<span class="sd">                    to be included with SSL.Context; if it is not</span>
+<span class="sd">                    default ``&#39;sslv23&#39;`` is substituted).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">HTTPSConnection</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">strict</span><span class="p">,</span> <span class="o">**</span><span class="n">ssl</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_username</span> <span class="o">=</span> <span class="n">username</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">)</span> \
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="k">else</span> <span class="n">username</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_password</span> <span class="o">=</span> <span class="n">password</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">)</span> \
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span> <span class="k">else</span> <span class="n">password</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_auth</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># type: str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_UA</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># type: str</span>
+
+<div class="viewcode-block" id="ProxyHTTPSConnection.putrequest"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.httpslib.ProxyHTTPSConnection.putrequest">[docs]</a>    <span class="k">def</span> <span class="nf">putrequest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">skip_host</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">skip_accept_encoding</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (AnyStr, AnyStr, int, int) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        putrequest is called before connect, so can interpret url and get</span>
+<span class="sd">        real host/port to be used to make CONNECT request to proxy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">proto</span><span class="p">,</span> <span class="n">netloc</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">fragment</span> <span class="o">=</span> <span class="n">urlsplit</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">proto</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unknown URL type: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">url</span><span class="p">)</span>
+
+        <span class="c1"># get host &amp; port</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">username_password</span><span class="p">,</span> <span class="n">host_port</span> <span class="o">=</span> <span class="n">netloc</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;@&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">host_port</span> <span class="o">=</span> <span class="n">netloc</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">host</span><span class="p">,</span> <span class="n">port_s</span> <span class="o">=</span> <span class="n">host_port</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+            <span class="n">port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">port_s</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">host</span> <span class="o">=</span> <span class="n">host_port</span>
+            <span class="c1"># try to get port from proto</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ports</span><span class="p">[</span><span class="n">proto</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unknown protocol for: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">url</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_real_host</span> <span class="o">=</span> <span class="n">host</span>  <span class="c1"># type: str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_real_port</span> <span class="o">=</span> <span class="n">port</span>  <span class="c1"># type: int</span>
+        <span class="n">rest</span> <span class="o">=</span> <span class="n">urlunsplit</span><span class="p">((</span><span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">fragment</span><span class="p">))</span>
+        <span class="n">HTTPSConnection</span><span class="o">.</span><span class="n">putrequest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">rest</span><span class="p">,</span> <span class="n">skip_host</span><span class="p">,</span>
+                                   <span class="n">skip_accept_encoding</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ProxyHTTPSConnection.putheader"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.httpslib.ProxyHTTPSConnection.putheader">[docs]</a>    <span class="k">def</span> <span class="nf">putheader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="c1"># type: (AnyStr, AnyStr) -&gt; None</span>
+        <span class="c1"># Store the auth header if passed in.</span>
+        <span class="k">if</span> <span class="n">header</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_UA_HEADER</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_UA</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">if</span> <span class="n">header</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_AUTH_HEADER</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_auth</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">HTTPSConnection</span><span class="o">.</span><span class="n">putheader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ProxyHTTPSConnection.endheaders"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.httpslib.ProxyHTTPSConnection.endheaders">[docs]</a>    <span class="k">def</span> <span class="nf">endheaders</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># type: (*List[Any], **Dict[Any, Any]) -&gt; None</span>
+        <span class="c1"># We&#39;ve recieved all of hte headers. Use the supplied username</span>
+        <span class="c1"># and password for authorization, possibly overriding the authstring</span>
+        <span class="c1"># supplied in the headers.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_auth</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_auth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encode_auth</span><span class="p">()</span>
+
+        <span class="n">HTTPSConnection</span><span class="o">.</span><span class="n">endheaders</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ProxyHTTPSConnection.connect"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.httpslib.ProxyHTTPSConnection.connect">[docs]</a>    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="n">HTTPConnection</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="c1"># send proxy CONNECT request</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sock</span><span class="o">.</span><span class="n">sendall</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_connect_msg</span><span class="p">())</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">HTTPResponse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sock</span><span class="p">)</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span>
+
+        <span class="n">code</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span>
+        <span class="k">if</span> <span class="n">code</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="c1"># proxy returned and error, abort connection, and raise exception</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="n">socket</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Proxy connection failed: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">code</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_start_ssl</span><span class="p">()</span>
+</div>
+    <span class="k">def</span> <span class="nf">_get_connect_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="sd">&quot;&quot;&quot; Return an HTTP CONNECT request to send to the proxy. &quot;&quot;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;CONNECT </span><span class="si">%s</span><span class="s2">:</span><span class="si">%d</span><span class="s2"> HTTP/1.1</span><span class="se">\r\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_real_host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_real_port</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="s2">&quot;Host: </span><span class="si">%s</span><span class="s2">:</span><span class="si">%d</span><span class="se">\r\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_real_host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_real_port</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_UA</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="se">\r\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_UA_HEADER</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_UA</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_auth</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="se">\r\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_AUTH_HEADER</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_auth</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">py3bytes</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_start_ssl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot; Make this connection&#39;s socket SSL-aware. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sock</span> <span class="o">=</span> <span class="n">SSL</span><span class="o">.</span><span class="n">Connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl_ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sock</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sock</span><span class="o">.</span><span class="n">setup_ssl</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sock</span><span class="o">.</span><span class="n">set_connect_state</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sock</span><span class="o">.</span><span class="n">connect_ssl</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_encode_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; Optional[bytes]</span>
+        <span class="sd">&quot;&quot;&quot; Encode the username and password for use in the auth header. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_username</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_password</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="c1"># Authenticated proxy</span>
+        <span class="n">userpass</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_username</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_password</span><span class="p">)</span>
+        <span class="n">enc_userpass</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">encodestring</span><span class="p">(</span><span class="n">userpass</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">py3bytes</span><span class="p">(</span><span class="s2">&quot;Basic </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">enc_userpass</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

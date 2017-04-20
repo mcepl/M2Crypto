@@ -1,0 +1,347 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>M2Crypto.ASN1 &mdash; M2Crypto  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="M2Crypto  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for M2Crypto.ASN1</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">M2Crypto wrapper for OpenSSL ASN1 API.</span>
+
+<span class="sd">Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.</span>
+
+<span class="sd">Portions created by Open Source Applications Foundation (OSAF) are</span>
+<span class="sd">Copyright (C) 2005 OSAF. All Rights Reserved.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>
+<span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>  <span class="c1"># noqa</span>
+
+<span class="n">MBSTRING_FLAG</span> <span class="o">=</span> <span class="mh">0x1000</span>
+<span class="n">MBSTRING_ASC</span> <span class="o">=</span> <span class="n">MBSTRING_FLAG</span> <span class="o">|</span> <span class="mi">1</span>
+<span class="n">MBSTRING_BMP</span> <span class="o">=</span> <span class="n">MBSTRING_FLAG</span> <span class="o">|</span> <span class="mi">2</span>
+
+
+<div class="viewcode-block" id="ASN1_Integer"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ASN1.ASN1_Integer">[docs]</a><span class="k">class</span> <span class="nc">ASN1_Integer</span><span class="p">:</span>  <span class="c1"># noqa</span>
+
+    <span class="n">m2_asn1_integer_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_integer_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asn1int</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (ASN1_Integer, int) -&gt; None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">asn1int</span> <span class="o">=</span> <span class="n">asn1int</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
+
+    <span class="k">def</span> <span class="nf">__cmp__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="c1"># type: (ASN1_Integer) -&gt; int</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">ASN1_Integer</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;Comparisons supported only between ANS1_Integer objects&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_integer_cmp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asn1int</span><span class="p">,</span> <span class="n">other</span><span class="o">.</span><span class="n">asn1int</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_asn1_integer_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asn1int</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__int__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_integer_get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asn1int</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="ASN1_String"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ASN1.ASN1_String">[docs]</a><span class="k">class</span> <span class="nc">ASN1_String</span><span class="p">:</span>  <span class="c1"># noqa</span>
+
+    <span class="n">m2_asn1_string_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_string_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asn1str</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (ASN1_String, int) -&gt; None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">asn1str</span> <span class="o">=</span> <span class="n">asn1str</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
+
+    <span class="k">def</span> <span class="nf">__bytes__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">asn1_string_print</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">asn1str</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">buf</span><span class="o">.</span><span class="n">read_all</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; str</span>
+        <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">py3str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__bytes__</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_asn1_string_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asn1str</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">asn1str</span>
+
+<div class="viewcode-block" id="ASN1_String.as_text"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ASN1.ASN1_String.as_text">[docs]</a>    <span class="k">def</span> <span class="nf">as_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; str</span>
+        <span class="sd">&quot;&quot;&quot;output an ASN1_STRING structure according to the set flags.</span>
+
+<span class="sd">        :param flags: determine the format of the output by using</span>
+<span class="sd">               predetermined constants, see ASN1_STRING_print_ex(3)</span>
+<span class="sd">               manpage for their meaning.</span>
+<span class="sd">        :return: output an ASN1_STRING structure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">asn1_string_print_ex</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">asn1str</span><span class="p">,</span> <span class="n">flags</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">py3str</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">read_all</span><span class="p">())</span>
+
+</div></div>
+<div class="viewcode-block" id="ASN1_Object"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ASN1.ASN1_Object">[docs]</a><span class="k">class</span> <span class="nc">ASN1_Object</span><span class="p">:</span>  <span class="c1"># noqa</span>
+
+    <span class="n">m2_asn1_object_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_object_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asn1obj</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (ASN1_Object, int) -&gt; None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">asn1obj</span> <span class="o">=</span> <span class="n">asn1obj</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_asn1_object_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asn1obj</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">asn1obj</span>
+
+</div>
+<span class="k">class</span> <span class="nc">_UTC</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">tzinfo</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">tzname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="c1"># type: (Optional[datetime.datetime]) -&gt; str</span>
+        <span class="k">return</span> <span class="s2">&quot;UTC&quot;</span>
+
+    <span class="k">def</span> <span class="nf">dst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="c1"># type: (Optional[datetime.datetime]) -&gt; datetime.timedelta</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">utcoffset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="c1"># type: (Optional[datetime.datetime]) -&gt; datetime.timedelta</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;&lt;Timezone: </span><span class="si">%s</span><span class="s2">&gt;&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">tzname</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+<span class="n">UTC</span> <span class="o">=</span> <span class="n">_UTC</span><span class="p">()</span>  <span class="c1"># type: _UTC</span>
+
+
+<div class="viewcode-block" id="LocalTimezone"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ASN1.LocalTimezone">[docs]</a><span class="k">class</span> <span class="nc">LocalTimezone</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">tzinfo</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Localtimezone from datetime manual &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stdoffset</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=-</span><span class="n">time</span><span class="o">.</span><span class="n">timezone</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">daylight</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dstoffset</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=-</span><span class="n">time</span><span class="o">.</span><span class="n">altzone</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dstoffset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stdoffset</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dstdiff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dstoffset</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stdoffset</span>
+
+<div class="viewcode-block" id="LocalTimezone.utcoffset"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ASN1.LocalTimezone.utcoffset">[docs]</a>    <span class="k">def</span> <span class="nf">utcoffset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="c1"># type: (datetime.datetime) -&gt; datetime.timedelta</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isdst</span><span class="p">(</span><span class="n">dt</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dstoffset</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stdoffset</span>
+</div>
+<div class="viewcode-block" id="LocalTimezone.dst"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ASN1.LocalTimezone.dst">[docs]</a>    <span class="k">def</span> <span class="nf">dst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="c1"># type: (datetime.datetime) -&gt; datetime.timedelta</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_isdst</span><span class="p">(</span><span class="n">dt</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dstdiff</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LocalTimezone.tzname"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ASN1.LocalTimezone.tzname">[docs]</a>    <span class="k">def</span> <span class="nf">tzname</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="c1"># type: (datetime.datetime) -&gt; str</span>
+        <span class="k">return</span> <span class="n">time</span><span class="o">.</span><span class="n">tzname</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_isdst</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span><span class="o">.</span><span class="n">real</span><span class="p">]</span>
+</div>
+    <span class="k">def</span> <span class="nf">_isdst</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+        <span class="c1"># type: (datetime.datetime) -&gt; bool</span>
+        <span class="n">tt</span> <span class="o">=</span> <span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">dt</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">dt</span><span class="o">.</span><span class="n">day</span><span class="p">,</span>
+              <span class="n">dt</span><span class="o">.</span><span class="n">hour</span><span class="p">,</span> <span class="n">dt</span><span class="o">.</span><span class="n">minute</span><span class="p">,</span> <span class="n">dt</span><span class="o">.</span><span class="n">second</span><span class="p">,</span>
+              <span class="n">dt</span><span class="o">.</span><span class="n">weekday</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">stamp</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">mktime</span><span class="p">(</span><span class="n">tt</span><span class="p">)</span>
+        <span class="n">tt</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">localtime</span><span class="p">(</span><span class="n">stamp</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tt</span><span class="o">.</span><span class="n">tm_isdst</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+</div>
+<div class="viewcode-block" id="ASN1_TIME"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ASN1.ASN1_TIME">[docs]</a><span class="k">class</span> <span class="nc">ASN1_TIME</span><span class="p">:</span>  <span class="c1"># noqa</span>
+    <span class="n">_ssl_months</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Jan&quot;</span><span class="p">,</span> <span class="s2">&quot;Feb&quot;</span><span class="p">,</span> <span class="s2">&quot;Mar&quot;</span><span class="p">,</span> <span class="s2">&quot;Apr&quot;</span><span class="p">,</span> <span class="s2">&quot;May&quot;</span><span class="p">,</span> <span class="s2">&quot;Jun&quot;</span><span class="p">,</span> <span class="s2">&quot;Jul&quot;</span><span class="p">,</span> <span class="s2">&quot;Aug&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;Sep&quot;</span><span class="p">,</span> <span class="s2">&quot;Oct&quot;</span><span class="p">,</span> <span class="s2">&quot;Nov&quot;</span><span class="p">,</span> <span class="s2">&quot;Dec&quot;</span><span class="p">]</span>
+    <span class="n">m2_asn1_time_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_time_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asn1_time</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">asn1_utctime</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="c1"># type: (Optional[ASN1_TIME], int) -&gt; None</span>
+        <span class="c1"># handle old keyword parameter</span>
+        <span class="k">if</span> <span class="n">asn1_time</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">asn1_time</span> <span class="o">=</span> <span class="n">asn1_utctime</span>
+        <span class="k">if</span> <span class="n">asn1_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_time_type_check</span><span class="p">(</span><span class="n">asn1_time</span><span class="p">),</span> \
+                <span class="s2">&quot;&#39;asn1_time&#39; type error&#39;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">asn1_time</span> <span class="o">=</span> <span class="n">asn1_time</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">asn1_time</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_time_new</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_asn1_time_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asn1_time</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; str</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_time_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asn1_time</span><span class="p">),</span> \
+            <span class="s2">&quot;&#39;asn1_time&#39; type error&#39;&quot;</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">asn1_time_print</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">asn1_time</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">py3str</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">read_all</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_time_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asn1_time</span><span class="p">),</span> \
+            <span class="s2">&quot;&#39;asn1_time&#39; type error&#39;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">asn1_time</span>
+
+<div class="viewcode-block" id="ASN1_TIME.set_string"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ASN1.ASN1_TIME.set_string">[docs]</a>    <span class="k">def</span> <span class="nf">set_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
+        <span class="c1"># type: (bytes) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set time from UTC string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_time_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asn1_time</span><span class="p">),</span> \
+            <span class="s2">&quot;&#39;asn1_time&#39; type error&#39;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_time_set_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asn1_time</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ASN1_TIME.set_time"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ASN1.ASN1_TIME.set_time">[docs]</a>    <span class="k">def</span> <span class="nf">set_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; ASN1_TIME</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set time from seconds since epoch (int).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_time_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asn1_time</span><span class="p">),</span> \
+            <span class="s2">&quot;&#39;asn1_time&#39; type error&#39;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_time_set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asn1_time</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ASN1_TIME.get_datetime"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ASN1.ASN1_TIME.get_datetime">[docs]</a>    <span class="k">def</span> <span class="nf">get_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; ASN1_TIME</span>
+        <span class="n">date</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="n">timezone</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="s1">&#39; &#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">date</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid date: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">date</span><span class="p">)</span>
+        <span class="n">month</span><span class="p">,</span> <span class="n">rest</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">month</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ssl_months</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid date </span><span class="si">%s</span><span class="s2">: Invalid month: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="n">month</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">rest</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39; GMT&#39;</span><span class="p">):</span>
+            <span class="n">timezone</span> <span class="o">=</span> <span class="n">UTC</span>
+            <span class="n">rest</span> <span class="o">=</span> <span class="n">rest</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;.&#39;</span> <span class="ow">in</span> <span class="n">rest</span><span class="p">:</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">rest</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> %H:%M:%S.</span><span class="si">%f</span><span class="s2"> %Y&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">rest</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> %H:%M:%S %Y&quot;</span><span class="p">)</span>
+        <span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">month</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ssl_months</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">month</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">timezone</span><span class="p">:</span>
+            <span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">UTC</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dt</span>
+</div>
+<div class="viewcode-block" id="ASN1_TIME.set_datetime"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ASN1.ASN1_TIME.set_datetime">[docs]</a>    <span class="k">def</span> <span class="nf">set_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="c1"># type: (datetime.datetime) -&gt; ASN1_TIME</span>
+        <span class="n">local</span> <span class="o">=</span> <span class="n">LocalTimezone</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">date</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">local</span><span class="p">)</span>
+        <span class="n">date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">local</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_time</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">mktime</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">timetuple</span><span class="p">())))</span>
+</div></div>
+<span class="n">ASN1_UTCTIME</span> <span class="o">=</span> <span class="n">ASN1_TIME</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

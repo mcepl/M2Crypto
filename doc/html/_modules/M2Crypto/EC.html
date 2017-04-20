@@ -1,0 +1,553 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>M2Crypto.EC &mdash; M2Crypto  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="M2Crypto  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for M2Crypto.EC</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">M2Crypto wrapper for OpenSSL ECDH/ECDSA API.</span>
+
+<span class="sd">@requires: OpenSSL 0.9.8 or newer</span>
+
+<span class="sd">Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.</span>
+
+<span class="sd">Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam.</span>
+<span class="sd">All rights reserved.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>
+<span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>  <span class="c1"># noqa</span>
+
+<span class="n">EC_Key</span> <span class="o">=</span> <span class="nb">bytes</span>
+
+
+<div class="viewcode-block" id="ECError"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.ECError">[docs]</a><span class="k">class</span> <span class="nc">ECError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+</div>
+<span class="n">m2</span><span class="o">.</span><span class="n">ec_init</span><span class="p">(</span><span class="n">ECError</span><span class="p">)</span>
+
+<span class="c1"># Curve identifier constants</span>
+<span class="n">NID_secp112r1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_secp112r1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_secp112r2</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_secp112r2</span>  <span class="c1"># type: int</span>
+<span class="n">NID_secp128r1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_secp128r1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_secp128r2</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_secp128r2</span>  <span class="c1"># type: int</span>
+<span class="n">NID_secp160k1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_secp160k1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_secp160r1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_secp160r1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_secp160r2</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_secp160r2</span>  <span class="c1"># type: int</span>
+<span class="n">NID_secp192k1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_secp192k1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_secp224k1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_secp224k1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_secp224r1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_secp224r1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_secp256k1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_secp256k1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_secp384r1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_secp384r1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_secp521r1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_secp521r1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_sect113r1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_sect113r1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_sect113r2</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_sect113r2</span>  <span class="c1"># type: int</span>
+<span class="n">NID_sect131r1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_sect131r1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_sect131r2</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_sect131r2</span>  <span class="c1"># type: int</span>
+<span class="n">NID_sect163k1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_sect163k1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_sect163r1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_sect163r1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_sect163r2</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_sect163r2</span>  <span class="c1"># type: int</span>
+<span class="n">NID_sect193r1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_sect193r1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_sect193r2</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_sect193r2</span>  <span class="c1"># type: int</span>
+<span class="c1"># default for secg.org TLS test server</span>
+<span class="n">NID_sect233k1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_sect233k1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_sect233r1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_sect233r1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_sect239k1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_sect239k1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_sect283k1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_sect283k1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_sect283r1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_sect283r1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_sect409k1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_sect409k1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_sect409r1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_sect409r1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_sect571k1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_sect571k1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_sect571r1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_sect571r1</span>  <span class="c1"># type: int</span>
+
+<span class="n">NID_prime192v1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_prime192v1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_prime192v2</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_prime192v2</span>  <span class="c1"># type: int</span>
+<span class="n">NID_prime192v3</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_prime192v3</span>  <span class="c1"># type: int</span>
+<span class="n">NID_prime239v1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_prime239v1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_prime239v2</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_prime239v2</span>  <span class="c1"># type: int</span>
+<span class="n">NID_prime239v3</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_prime239v3</span>  <span class="c1"># type: int</span>
+<span class="n">NID_prime256v1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_prime256v1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_c2pnb163v1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_c2pnb163v1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_c2pnb163v2</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_c2pnb163v2</span>  <span class="c1"># type: int</span>
+<span class="n">NID_c2pnb163v3</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_c2pnb163v3</span>  <span class="c1"># type: int</span>
+<span class="n">NID_c2pnb176v1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_c2pnb176v1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_c2tnb191v1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_c2tnb191v1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_c2tnb191v2</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_c2tnb191v2</span>  <span class="c1"># type: int</span>
+<span class="n">NID_c2tnb191v3</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_c2tnb191v3</span>  <span class="c1"># type: int</span>
+<span class="n">NID_c2pnb208w1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_c2pnb208w1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_c2tnb239v1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_c2tnb239v1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_c2tnb239v2</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_c2tnb239v2</span>  <span class="c1"># type: int</span>
+<span class="n">NID_c2tnb239v3</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_c2tnb239v3</span>  <span class="c1"># type: int</span>
+<span class="n">NID_c2pnb272w1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_c2pnb272w1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_c2pnb304w1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_c2pnb304w1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_c2tnb359v1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_c2tnb359v1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_c2pnb368w1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_c2pnb368w1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_c2tnb431r1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_X9_62_c2tnb431r1</span>  <span class="c1"># type: int</span>
+
+<span class="c1"># To preserve compatibility with older names</span>
+<span class="n">NID_X9_62_prime192v1</span> <span class="o">=</span> <span class="n">NID_prime192v1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_prime192v2</span> <span class="o">=</span> <span class="n">NID_prime192v2</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_prime192v3</span> <span class="o">=</span> <span class="n">NID_prime192v3</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_prime239v1</span> <span class="o">=</span> <span class="n">NID_prime239v1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_prime239v2</span> <span class="o">=</span> <span class="n">NID_prime239v2</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_prime239v3</span> <span class="o">=</span> <span class="n">NID_prime239v3</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_prime256v1</span> <span class="o">=</span> <span class="n">NID_prime256v1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_c2pnb163v1</span> <span class="o">=</span> <span class="n">NID_c2pnb163v1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_c2pnb163v2</span> <span class="o">=</span> <span class="n">NID_c2pnb163v2</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_c2pnb163v3</span> <span class="o">=</span> <span class="n">NID_c2pnb163v3</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_c2pnb176v1</span> <span class="o">=</span> <span class="n">NID_c2pnb176v1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_c2tnb191v1</span> <span class="o">=</span> <span class="n">NID_c2tnb191v1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_c2tnb191v2</span> <span class="o">=</span> <span class="n">NID_c2tnb191v2</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_c2tnb191v3</span> <span class="o">=</span> <span class="n">NID_c2tnb191v3</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_c2pnb208w1</span> <span class="o">=</span> <span class="n">NID_c2pnb208w1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_c2tnb239v1</span> <span class="o">=</span> <span class="n">NID_c2tnb239v1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_c2tnb239v2</span> <span class="o">=</span> <span class="n">NID_c2tnb239v2</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_c2tnb239v3</span> <span class="o">=</span> <span class="n">NID_c2tnb239v3</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_c2pnb272w1</span> <span class="o">=</span> <span class="n">NID_c2pnb272w1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_c2pnb304w1</span> <span class="o">=</span> <span class="n">NID_c2pnb304w1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_c2tnb359v1</span> <span class="o">=</span> <span class="n">NID_c2tnb359v1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_c2pnb368w1</span> <span class="o">=</span> <span class="n">NID_c2pnb368w1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_X9_62_c2tnb431r1</span> <span class="o">=</span> <span class="n">NID_c2tnb431r1</span>  <span class="c1"># type: int</span>
+
+<span class="n">NID_wap_wsg_idm_ecid_wtls1</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_wap_wsg_idm_ecid_wtls1</span>  <span class="c1"># type: int</span>
+<span class="n">NID_wap_wsg_idm_ecid_wtls3</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_wap_wsg_idm_ecid_wtls3</span>  <span class="c1"># type: int</span>
+<span class="n">NID_wap_wsg_idm_ecid_wtls4</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_wap_wsg_idm_ecid_wtls4</span>  <span class="c1"># type: int</span>
+<span class="n">NID_wap_wsg_idm_ecid_wtls5</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_wap_wsg_idm_ecid_wtls5</span>  <span class="c1"># type: int</span>
+<span class="n">NID_wap_wsg_idm_ecid_wtls6</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_wap_wsg_idm_ecid_wtls6</span>  <span class="c1"># type: int</span>
+<span class="n">NID_wap_wsg_idm_ecid_wtls7</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_wap_wsg_idm_ecid_wtls7</span>  <span class="c1"># type: int</span>
+<span class="n">NID_wap_wsg_idm_ecid_wtls8</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_wap_wsg_idm_ecid_wtls8</span>  <span class="c1"># type: int</span>
+<span class="n">NID_wap_wsg_idm_ecid_wtls9</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_wap_wsg_idm_ecid_wtls9</span>  <span class="c1"># type: int</span>
+<span class="n">NID_wap_wsg_idm_ecid_wtls10</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_wap_wsg_idm_ecid_wtls10</span>  <span class="c1"># type: int</span>
+<span class="n">NID_wap_wsg_idm_ecid_wtls11</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_wap_wsg_idm_ecid_wtls11</span>  <span class="c1"># type: int</span>
+<span class="n">NID_wap_wsg_idm_ecid_wtls12</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_wap_wsg_idm_ecid_wtls12</span>  <span class="c1"># type: int</span>
+
+<span class="c1"># The following two curves, according to OpenSSL, have a</span>
+<span class="c1"># &quot;Questionable extension field!&quot; and are not supported by</span>
+<span class="c1"># the OpenSSL inverse function.  ECError: no inverse.</span>
+<span class="c1"># As such they cannot be used for signing.  They might,</span>
+<span class="c1"># however, be usable for encryption but that has not</span>
+<span class="c1"># been tested.  Until thir usefulness can be established,</span>
+<span class="c1"># they are not supported at this time.</span>
+<span class="c1"># NID_ipsec3 = m2.NID_ipsec3</span>
+<span class="c1"># NID_ipsec4 = m2.NID_ipsec4</span>
+
+
+<div class="viewcode-block" id="EC"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.EC">[docs]</a><span class="k">class</span> <span class="nc">EC</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Object interface to a EC key pair.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">m2_ec_key_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">ec_key_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ec</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (EC, int) -&gt; None</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">ec_key_type_check</span><span class="p">(</span><span class="n">ec</span><span class="p">),</span> <span class="s2">&quot;&#39;ec&#39; type error&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ec</span> <span class="o">=</span> <span class="n">ec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_ec_key_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">ec_key_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">),</span> <span class="s2">&quot;&#39;ec&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ec_key_keylen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EC.gen_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.EC.gen_key">[docs]</a>    <span class="k">def</span> <span class="nf">gen_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates the key pair from its parameters. Use::</span>
+
+<span class="sd">            keypair = EC.gen_params(curve)</span>
+<span class="sd">            keypair.gen_key()</span>
+
+<span class="sd">        to create an EC key pair.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">ec_key_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">),</span> <span class="s2">&quot;&#39;ec&#39; type error&quot;</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">ec_key_gen_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="EC.pub"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.EC.pub">[docs]</a>    <span class="k">def</span> <span class="nf">pub</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; EC_pub</span>
+        <span class="c1"># Don&#39;t let python free</span>
+        <span class="k">return</span> <span class="n">EC_pub</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="EC.sign_dsa"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.EC.sign_dsa">[docs]</a>    <span class="k">def</span> <span class="nf">sign_dsa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">digest</span><span class="p">):</span>
+        <span class="c1"># type: (bytes) -&gt; Tuple[bytes, bytes]</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sign the given digest using ECDSA. Returns a tuple (r,s), the two</span>
+<span class="sd">        ECDSA signature parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_key_type</span><span class="p">(),</span> <span class="s2">&quot;&#39;ec&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ecdsa_sign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">,</span> <span class="n">digest</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="EC.verify_dsa"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.EC.verify_dsa">[docs]</a>    <span class="k">def</span> <span class="nf">verify_dsa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">digest</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, bytes, bytes) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Verify the given digest using ECDSA. r and s are the ECDSA</span>
+<span class="sd">        signature parameters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_key_type</span><span class="p">(),</span> <span class="s2">&quot;&#39;ec&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ecdsa_verify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">,</span> <span class="n">digest</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="EC.sign_dsa_asn1"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.EC.sign_dsa_asn1">[docs]</a>    <span class="k">def</span> <span class="nf">sign_dsa_asn1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">digest</span><span class="p">):</span>
+        <span class="c1"># type: (bytes) -&gt; bytes</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_key_type</span><span class="p">(),</span> <span class="s2">&quot;&#39;ec&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ecdsa_sign_asn1</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">,</span> <span class="n">digest</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="EC.verify_dsa_asn1"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.EC.verify_dsa_asn1">[docs]</a>    <span class="k">def</span> <span class="nf">verify_dsa_asn1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">digest</span><span class="p">,</span> <span class="n">blob</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_key_type</span><span class="p">(),</span> <span class="s2">&quot;&#39;ec&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ecdsa_verify_asn1</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">,</span> <span class="n">digest</span><span class="p">,</span> <span class="n">blob</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="EC.compute_dh_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.EC.compute_dh_key">[docs]</a>    <span class="k">def</span> <span class="nf">compute_dh_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pub_key</span><span class="p">):</span>
+        <span class="c1"># type: (EC) -&gt; Optional[bytes]</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the ECDH shared key of this key pair and the given public</span>
+<span class="sd">        key object. They must both use the same curve. Returns the</span>
+<span class="sd">        shared key in binary as a buffer object. No Key Derivation Function is</span>
+<span class="sd">        applied.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_key</span><span class="p">(),</span> <span class="s1">&#39;key is not initialised&#39;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ecdh_compute_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">,</span> <span class="n">pub_key</span><span class="o">.</span><span class="n">ec</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="EC.save_key_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.EC.save_key_bio">[docs]</a>    <span class="k">def</span> <span class="nf">save_key_bio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bio</span><span class="p">,</span> <span class="n">cipher</span><span class="o">=</span><span class="s1">&#39;aes_128_cbc&#39;</span><span class="p">,</span>
+                     <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
+        <span class="c1"># type: (BIO.BIO, Optional[str], Callable) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the key pair to an M2Crypto.BIO.BIO object in PEM format.</span>
+
+<span class="sd">        :param bio: M2Crypto.BIO.BIO object to save key to.</span>
+
+<span class="sd">        :param cipher: Symmetric cipher to protect the key. The default</span>
+<span class="sd">                       cipher is &#39;aes_128_cbc&#39;. If cipher is None, then</span>
+<span class="sd">                       the key is saved in the clear.</span>
+
+<span class="sd">        :param callback: A Python callable object that is invoked</span>
+<span class="sd">                         to acquire a passphrase with which to protect</span>
+<span class="sd">                         the key. The default is</span>
+<span class="sd">                         util.passphrase_callback.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cipher</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ec_key_write_bio_no_cipher</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">,</span> <span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="n">callback</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ciph</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="n">cipher</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ciph</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;not such cipher </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">cipher</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ec_key_write_bio</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">,</span> <span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="n">ciph</span><span class="p">(),</span> <span class="n">callback</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="EC.save_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.EC.save_key">[docs]</a>    <span class="k">def</span> <span class="nf">save_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">file</span><span class="p">,</span> <span class="n">cipher</span><span class="o">=</span><span class="s1">&#39;aes_128_cbc&#39;</span><span class="p">,</span>
+                 <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
+        <span class="c1"># type: (AnyStr, Optional[str], Callable) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the key pair to a file in PEM format.</span>
+
+<span class="sd">        :param file: Name of filename to save key to.</span>
+
+<span class="sd">        :param cipher: Symmetric cipher to protect the key. The default</span>
+<span class="sd">                       cipher is &#39;aes_128_cbc&#39;. If cipher is None, then</span>
+<span class="sd">                       the key is saved in the clear.</span>
+
+<span class="sd">        :param callback: A Python callable object that is invoked</span>
+<span class="sd">                         to acquire a passphrase with which to protect</span>
+<span class="sd">                         the key.  The default is</span>
+<span class="sd">                         util.passphrase_callback.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">openfile</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">bio</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_key_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">,</span> <span class="n">cipher</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="EC.save_pub_key_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.EC.save_pub_key_bio">[docs]</a>    <span class="k">def</span> <span class="nf">save_pub_key_bio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bio</span><span class="p">):</span>
+        <span class="c1"># type: (BIO.BIO) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the public key to an M2Crypto.BIO.BIO object in PEM format.</span>
+
+<span class="sd">        :param bio: M2Crypto.BIO.BIO object to save key to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ec_key_write_pubkey</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">,</span> <span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="EC.save_pub_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.EC.save_pub_key">[docs]</a>    <span class="k">def</span> <span class="nf">save_pub_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">file</span><span class="p">):</span>
+        <span class="c1"># type: (AnyStr) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the public key to a filename in PEM format.</span>
+
+<span class="sd">        :param file: Name of filename to save key to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">openfile</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">bio</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ec_key_write_pubkey</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">,</span> <span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="EC.as_pem"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.EC.as_pem">[docs]</a>    <span class="k">def</span> <span class="nf">as_pem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cipher</span><span class="o">=</span><span class="s1">&#39;aes_128_cbc&#39;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the key(pair) as a string in PEM format.</span>
+<span class="sd">        If no password is passed and the cipher is set</span>
+<span class="sd">        it exits with error</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span> <span class="k">as</span> <span class="n">bio</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_key_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">,</span> <span class="n">cipher</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">bio</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</div>
+    <span class="k">def</span> <span class="nf">_check_key_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ec_key_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EC.check_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.EC.check_key">[docs]</a>    <span class="k">def</span> <span class="nf">check_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">ec_key_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">),</span> <span class="s2">&quot;&#39;ec&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ec_key_check_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="EC_pub"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.EC_pub">[docs]</a><span class="k">class</span> <span class="nc">EC_pub</span><span class="p">(</span><span class="n">EC</span><span class="p">):</span>  <span class="c1"># noqa</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Object interface to an EC public key.</span>
+<span class="sd">    ((don&#39;t like this implementation inheritance))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ec</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (EC, int) -&gt; None</span>
+        <span class="n">EC</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ec</span><span class="p">,</span> <span class="n">_pyfree</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">der</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># type: Optional[bytes]</span>
+
+<div class="viewcode-block" id="EC_pub.get_der"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.EC_pub.get_der">[docs]</a>    <span class="k">def</span> <span class="nf">get_der</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the public key in DER format as a buffer object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_key</span><span class="p">(),</span> <span class="s1">&#39;key is not initialised&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">der</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">der</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">ec_key_get_public_der</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">der</span>
+</div>
+<div class="viewcode-block" id="EC_pub.get_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.EC_pub.get_key">[docs]</a>    <span class="k">def</span> <span class="nf">get_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the public key as a byte string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_key</span><span class="p">(),</span> <span class="s1">&#39;key is not initialised&#39;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ec_key_get_public_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ec</span><span class="p">)</span>
+</div>
+    <span class="n">save_key</span> <span class="o">=</span> <span class="n">EC</span><span class="o">.</span><span class="n">save_pub_key</span>
+
+    <span class="n">save_key_bio</span> <span class="o">=</span> <span class="n">EC</span><span class="o">.</span><span class="n">save_pub_key_bio</span>
+
+</div>
+<div class="viewcode-block" id="gen_params"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.gen_params">[docs]</a><span class="k">def</span> <span class="nf">gen_params</span><span class="p">(</span><span class="n">curve</span><span class="p">):</span>
+    <span class="c1"># type: (int) -&gt; EC</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Factory function that generates EC parameters and</span>
+<span class="sd">    instantiates a EC object from the output.</span>
+
+<span class="sd">    :param curve: This is the OpenSSL nid of the curve to use.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">curve</span> <span class="ow">in</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;NID&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">m2</span><span class="o">.</span><span class="n">ec_get_builtin_curves</span><span class="p">()],</span> \
+        <span class="s1">&#39;Elliptic curve </span><span class="si">%s</span><span class="s1"> is not available on this system.&#39;</span> <span class="o">%</span> \
+        <span class="n">m2</span><span class="o">.</span><span class="n">obj_nid2sn</span><span class="p">(</span><span class="n">curve</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">EC</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">ec_key_new_by_curve_name</span><span class="p">(</span><span class="n">curve</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="load_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.load_key">[docs]</a><span class="k">def</span> <span class="nf">load_key</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
+    <span class="c1"># type: (AnyStr, Callable) -&gt; EC</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Factory function that instantiates a EC object.</span>
+
+<span class="sd">    :param file: Names the filename that contains the PEM representation</span>
+<span class="sd">                 of the EC key pair.</span>
+
+<span class="sd">    :param callback: Python callback object that will be invoked</span>
+<span class="sd">                     if the EC key pair is passphrase-protected.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">openfile</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span> <span class="k">as</span> <span class="n">bio</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">load_key_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="load_key_string"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.load_key_string">[docs]</a><span class="k">def</span> <span class="nf">load_key_string</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
+    <span class="c1"># type: (str, Callable) -&gt; EC</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load an EC key pair from a string.</span>
+
+<span class="sd">    :param string: String containing EC key pair in PEM format.</span>
+
+<span class="sd">    :param callback: A Python callable object that is invoked</span>
+<span class="sd">                     to acquire a passphrase with which to unlock the</span>
+<span class="sd">                     key. The default is util.passphrase_callback.</span>
+
+<span class="sd">    :return: M2Crypto.EC.EC object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="k">as</span> <span class="n">bio</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">load_key_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="load_key_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.load_key_bio">[docs]</a><span class="k">def</span> <span class="nf">load_key_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
+    <span class="c1"># type: (BIO.BIO, Callable) -&gt; EC</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Factory function that instantiates a EC object.</span>
+
+<span class="sd">    :param bio: M2Crypto.BIO object that contains the PEM</span>
+<span class="sd">                representation of the EC key pair.</span>
+
+<span class="sd">    :param callback: Python callback object that will be invoked</span>
+<span class="sd">                     if the EC key pair is passphrase-protected.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">EC</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">ec_key_read_bio</span><span class="p">(</span><span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="n">callback</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="load_pub_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.load_pub_key">[docs]</a><span class="k">def</span> <span class="nf">load_pub_key</span><span class="p">(</span><span class="nb">file</span><span class="p">):</span>
+    <span class="c1"># type: (AnyStr) -&gt; EC_pub</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load an EC public key from filename.</span>
+
+<span class="sd">    :param file: Name of filename containing EC public key in PEM</span>
+<span class="sd">                 format.</span>
+
+<span class="sd">    :return: M2Crypto.EC.EC_pub object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">openfile</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span> <span class="k">as</span> <span class="n">bio</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">load_pub_key_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="load_key_string_pubkey"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.load_key_string_pubkey">[docs]</a><span class="k">def</span> <span class="nf">load_key_string_pubkey</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
+    <span class="c1"># type: (str, Callable) -&gt; PKey</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load an M2Crypto.EC.PKey from a public key as a string.</span>
+
+<span class="sd">    :param string: String containing the key in PEM format.</span>
+
+<span class="sd">    :param callback: A Python callable object that is invoked</span>
+<span class="sd">                     to acquire a passphrase with which to protect the</span>
+<span class="sd">                     key.</span>
+
+<span class="sd">    :return: M2Crypto.EC.PKey object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="k">as</span> <span class="n">bio</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">load_key_bio_pubkey</span><span class="p">(</span><span class="n">bio</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="load_pub_key_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.load_pub_key_bio">[docs]</a><span class="k">def</span> <span class="nf">load_pub_key_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">):</span>
+    <span class="c1"># type: (BIO.BIO) -&gt; EC_pub</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load an EC public key from an M2Crypto.BIO.BIO object.</span>
+
+<span class="sd">    :param bio: M2Crypto.BIO.BIO object containing EC public key in PEM</span>
+<span class="sd">                format.</span>
+
+<span class="sd">    :return: M2Crypto.EC.EC_pub object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ec</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">ec_key_read_pubkey</span><span class="p">(</span><span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">ec</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">ec_error</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">EC_pub</span><span class="p">(</span><span class="n">ec</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="ec_error"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.ec_error">[docs]</a><span class="k">def</span> <span class="nf">ec_error</span><span class="p">():</span>
+    <span class="c1"># type: () -&gt; ECError</span>
+    <span class="k">raise</span> <span class="n">ECError</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">err_reason_error_string</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">err_get_error</span><span class="p">()))</span>
+
+</div>
+<div class="viewcode-block" id="pub_key_from_der"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.pub_key_from_der">[docs]</a><span class="k">def</span> <span class="nf">pub_key_from_der</span><span class="p">(</span><span class="n">der</span><span class="p">):</span>
+    <span class="c1"># type: (bytes) -&gt; EC_pub</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create EC_pub from DER.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">EC_pub</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">ec_key_from_pubkey_der</span><span class="p">(</span><span class="n">der</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="pub_key_from_params"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.pub_key_from_params">[docs]</a><span class="k">def</span> <span class="nf">pub_key_from_params</span><span class="p">(</span><span class="n">curve</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+    <span class="c1"># type: (bytes, bytes) -&gt; EC_pub</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create EC_pub from curve name and octet string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">EC_pub</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">ec_key_from_pubkey_params</span><span class="p">(</span><span class="n">curve</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="get_builtin_curves"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EC.get_builtin_curves">[docs]</a><span class="k">def</span> <span class="nf">get_builtin_curves</span><span class="p">():</span>
+    <span class="c1"># type: () -&gt; Tuple[Dict[str, Union[int, str]]]</span>
+    <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ec_get_builtin_curves</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

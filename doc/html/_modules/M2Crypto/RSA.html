@@ -1,0 +1,557 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>M2Crypto.RSA &mdash; M2Crypto  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="M2Crypto  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for M2Crypto.RSA</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="sd">&quot;&quot;&quot;M2Crypto wrapper for OpenSSL RSA API.</span>
+
+<span class="sd">Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>
+<span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">IO</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>  <span class="c1"># noqa</span>
+
+
+<div class="viewcode-block" id="RSAError"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSAError">[docs]</a><span class="k">class</span> <span class="nc">RSAError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+</div>
+<span class="n">m2</span><span class="o">.</span><span class="n">rsa_init</span><span class="p">(</span><span class="n">RSAError</span><span class="p">)</span>
+
+<span class="n">no_padding</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">no_padding</span>
+<span class="n">pkcs1_padding</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkcs1_padding</span>
+<span class="n">sslv23_padding</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">sslv23_padding</span>
+<span class="n">pkcs1_oaep_padding</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkcs1_oaep_padding</span>
+
+
+<div class="viewcode-block" id="RSA"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA">[docs]</a><span class="k">class</span> <span class="nc">RSA</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    RSA Key Pair.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">m2_rsa_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rsa</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, int) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param rsa: binary representation of OpenSSL RSA type</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_type_check</span><span class="p">(</span><span class="n">rsa</span><span class="p">),</span> <span class="s2">&quot;&#39;rsa&#39; type error&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rsa</span> <span class="o">=</span> <span class="n">rsa</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_rsa_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="c1"># type: (str) -&gt; bytes</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;e&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_get_e</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;n&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_get_n</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span>
+
+<div class="viewcode-block" id="RSA.pub"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA.pub">[docs]</a>    <span class="k">def</span> <span class="nf">pub</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; Tuple[bytes, bytes]</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_key</span><span class="p">(),</span> <span class="s1">&#39;key is not initialised&#39;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_get_e</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">),</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_get_n</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RSA.public_encrypt"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA.public_encrypt">[docs]</a>    <span class="k">def</span> <span class="nf">public_encrypt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">padding</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, int) -&gt; bytes</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_key</span><span class="p">(),</span> <span class="s1">&#39;key is not initialised&#39;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_public_encrypt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">padding</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RSA.public_decrypt"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA.public_decrypt">[docs]</a>    <span class="k">def</span> <span class="nf">public_decrypt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">padding</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, int) -&gt; bytes</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_key</span><span class="p">(),</span> <span class="s1">&#39;key is not initialised&#39;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_public_decrypt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">padding</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RSA.private_encrypt"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA.private_encrypt">[docs]</a>    <span class="k">def</span> <span class="nf">private_encrypt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">padding</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, int) -&gt; bytes</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_key</span><span class="p">(),</span> <span class="s1">&#39;key is not initialised&#39;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_private_encrypt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">padding</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RSA.private_decrypt"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA.private_decrypt">[docs]</a>    <span class="k">def</span> <span class="nf">private_decrypt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">padding</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, int) -&gt; bytes</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_key</span><span class="p">(),</span> <span class="s1">&#39;key is not initialised&#39;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_private_decrypt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">padding</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RSA.save_key_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA.save_key_bio">[docs]</a>    <span class="k">def</span> <span class="nf">save_key_bio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bio</span><span class="p">,</span> <span class="n">cipher</span><span class="o">=</span><span class="s1">&#39;aes_128_cbc&#39;</span><span class="p">,</span>
+                     <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
+        <span class="c1"># type: (BIO.BIO, Optional[str], Callable) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the key pair to an M2Crypto.BIO.BIO object in PEM format.</span>
+
+<span class="sd">        :param bio: M2Crypto.BIO.BIO object to save key to.</span>
+
+<span class="sd">        :param cipher: Symmetric cipher to protect the key. The default</span>
+<span class="sd">                       cipher is &#39;aes_128_cbc&#39;. If cipher is None, then</span>
+<span class="sd">                       the key is saved in the clear.</span>
+
+<span class="sd">        :param callback: A Python callable object that is invoked</span>
+<span class="sd">                         to acquire a passphrase with which to protect</span>
+<span class="sd">                         the key.  The default is</span>
+<span class="sd">                         util.passphrase_callback.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">cipher</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_write_key_no_cipher</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">,</span> <span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="n">callback</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ciph</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="n">cipher</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">ciph</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">RSAError</span><span class="p">(</span><span class="s1">&#39;not such cipher </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">cipher</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ciph</span> <span class="o">=</span> <span class="n">ciph</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_write_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">,</span> <span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="n">ciph</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RSA.save_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA.save_key">[docs]</a>    <span class="k">def</span> <span class="nf">save_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">file</span><span class="p">,</span> <span class="n">cipher</span><span class="o">=</span><span class="s1">&#39;aes_128_cbc&#39;</span><span class="p">,</span>
+                 <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
+        <span class="c1"># type: (AnyStr, Optional[str], Callable) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the key pair to a file in PEM format.</span>
+
+<span class="sd">        :param file: Name of file to save key to.</span>
+
+<span class="sd">        :param cipher: Symmetric cipher to protect the key. The default</span>
+<span class="sd">                       cipher is &#39;aes_128_cbc&#39;. If cipher is None, then</span>
+<span class="sd">                       the key is saved in the clear.</span>
+
+<span class="sd">        :param callback: A Python callable object that is invoked</span>
+<span class="sd">                         to acquire a passphrase with which to protect</span>
+<span class="sd">                         the key.  The default is</span>
+<span class="sd">                         util.passphrase_callback.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">openfile</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">bio</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_key_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">,</span> <span class="n">cipher</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+</div>
+    <span class="n">save_pem</span> <span class="o">=</span> <span class="n">save_key</span>
+
+<div class="viewcode-block" id="RSA.as_pem"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA.as_pem">[docs]</a>    <span class="k">def</span> <span class="nf">as_pem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cipher</span><span class="o">=</span><span class="s1">&#39;aes_128_cbc&#39;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
+        <span class="c1"># type: (Optional[str], Callable) -&gt; bytes</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the key(pair) as a string in PEM format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bio</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_key_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">,</span> <span class="n">cipher</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">bio</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="RSA.save_key_der_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA.save_key_der_bio">[docs]</a>    <span class="k">def</span> <span class="nf">save_key_der_bio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bio</span><span class="p">):</span>
+        <span class="c1"># type: (BIO.BIO) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the key pair to an M2Crypto.BIO.BIO object in DER format.</span>
+
+<span class="sd">        :param bio: M2Crypto.BIO.BIO object to save key to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_write_key_der</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">,</span> <span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="RSA.save_key_der"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA.save_key_der">[docs]</a>    <span class="k">def</span> <span class="nf">save_key_der</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">file</span><span class="p">):</span>
+        <span class="c1"># type: (AnyStr) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the key pair to a file in DER format.</span>
+
+<span class="sd">        :param file: Filename to save key to</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">openfile</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">bio</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_key_der_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RSA.save_pub_key_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA.save_pub_key_bio">[docs]</a>    <span class="k">def</span> <span class="nf">save_pub_key_bio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bio</span><span class="p">):</span>
+        <span class="c1"># type: (BIO.BIO) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the public key to an M2Crypto.BIO.BIO object in PEM format.</span>
+
+<span class="sd">        :param bio: M2Crypto.BIO.BIO object to save key to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_write_pub_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">,</span> <span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="RSA.save_pub_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA.save_pub_key">[docs]</a>    <span class="k">def</span> <span class="nf">save_pub_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">file</span><span class="p">):</span>
+        <span class="c1"># type: (AnyStr) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the public key to a file in PEM format.</span>
+
+<span class="sd">        :param file: Name of file to save key to.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">openfile</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">bio</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_write_pub_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">,</span> <span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="RSA.check_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA.check_key">[docs]</a>    <span class="k">def</span> <span class="nf">check_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :return: returns 1 if rsa is a valid RSA key, and 0 otherwise.</span>
+<span class="sd">                 -1 is returned if an error occurs while checking the key.</span>
+<span class="sd">                 If the key is invalid or an error occurred, the reason</span>
+<span class="sd">                 code can be obtained using ERR_get_error(3).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_check_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RSA.sign_rsassa_pss"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA.sign_rsassa_pss">[docs]</a>    <span class="k">def</span> <span class="nf">sign_rsassa_pss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">digest</span><span class="p">,</span> <span class="n">algo</span><span class="o">=</span><span class="s1">&#39;sha1&#39;</span><span class="p">,</span> <span class="n">salt_length</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, str, int) -&gt; bytes</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Signs a digest with the private key using RSASSA-PSS</span>
+
+<span class="sd">        :param digest: A digest created by using the digest method</span>
+
+<span class="sd">        :param salt_length: The length of the salt to use</span>
+
+<span class="sd">        :param algo: The hash algorithm to use</span>
+<span class="sd">                     Legal values like &#39;sha1&#39;,&#39;sha224&#39;, &#39;sha256&#39;,</span>
+<span class="sd">                     &#39;ripemd160&#39;, and &#39;md5&#39;.</span>
+
+<span class="sd">        :return: a string which is the signature</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">hash</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="n">algo</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">hash</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">RSAError</span><span class="p">(</span><span class="s1">&#39;not such hash algorithm </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">algo</span><span class="p">)</span>
+
+        <span class="n">signature</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_padding_add_pkcs1_pss</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">,</span> <span class="n">digest</span><span class="p">,</span> <span class="nb">hash</span><span class="p">(),</span> <span class="n">salt_length</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">private_encrypt</span><span class="p">(</span><span class="n">signature</span><span class="p">,</span> <span class="n">m2</span><span class="o">.</span><span class="n">no_padding</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RSA.verify_rsassa_pss"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA.verify_rsassa_pss">[docs]</a>    <span class="k">def</span> <span class="nf">verify_rsassa_pss</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">signature</span><span class="p">,</span> <span class="n">algo</span><span class="o">=</span><span class="s1">&#39;sha1&#39;</span><span class="p">,</span> <span class="n">salt_length</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, bytes, str, int) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Verifies the signature RSASSA-PSS</span>
+
+<span class="sd">        :param data: Data that has been signed</span>
+
+<span class="sd">        :param signature: The signature signed with RSASSA-PSS</span>
+
+<span class="sd">        :param salt_length: The length of the salt that was used</span>
+
+<span class="sd">        :param algo: The hash algorithm to use</span>
+<span class="sd">                     Legal values are for example &#39;sha1&#39;,&#39;sha224&#39;,</span>
+<span class="sd">                     &#39;sha256&#39;, &#39;ripemd160&#39;, and &#39;md5&#39;.</span>
+
+<span class="sd">        :return: 1 or 0, depending on whether the signature was</span>
+<span class="sd">                 verified or not.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">hash</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="n">algo</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">hash</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">RSAError</span><span class="p">(</span><span class="s1">&#39;not such hash algorithm </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">algo</span><span class="p">)</span>
+
+        <span class="n">plain_signature</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">public_decrypt</span><span class="p">(</span><span class="n">signature</span><span class="p">,</span> <span class="n">m2</span><span class="o">.</span><span class="n">no_padding</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_verify_pkcs1_pss</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">plain_signature</span><span class="p">,</span> <span class="nb">hash</span><span class="p">(),</span> <span class="n">salt_length</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RSA.sign"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA.sign">[docs]</a>    <span class="k">def</span> <span class="nf">sign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">digest</span><span class="p">,</span> <span class="n">algo</span><span class="o">=</span><span class="s1">&#39;sha1&#39;</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, str) -&gt; bytes</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Signs a digest with the private key</span>
+
+<span class="sd">        :param digest: A digest created by using the digest method</span>
+
+<span class="sd">        :param algo: The method that created the digest.</span>
+<span class="sd">                     Legal values like &#39;sha1&#39;,&#39;sha224&#39;, &#39;sha256&#39;,</span>
+<span class="sd">                     &#39;ripemd160&#39;, and &#39;md5&#39;.</span>
+
+<span class="sd">        :return: a string which is the signature</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">digest_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="s1">&#39;NID_&#39;</span> <span class="o">+</span> <span class="n">algo</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">digest_type</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown algorithm&#39;</span><span class="p">,</span> <span class="n">algo</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_sign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">,</span> <span class="n">digest</span><span class="p">,</span> <span class="n">digest_type</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RSA.verify"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA.verify">[docs]</a>    <span class="k">def</span> <span class="nf">verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">signature</span><span class="p">,</span> <span class="n">algo</span><span class="o">=</span><span class="s1">&#39;sha1&#39;</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, bytes, str) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Verifies the signature with the public key</span>
+
+<span class="sd">        :param data: Data that has been signed</span>
+
+<span class="sd">        :param signature: The signature signed with the private key</span>
+
+<span class="sd">        :param algo: The method use to create digest from the data</span>
+<span class="sd">                     before it was signed.  Legal values like</span>
+<span class="sd">                     &#39;sha1&#39;,&#39;sha224&#39;, &#39;sha256&#39;, &#39;ripemd160&#39;, and &#39;md5&#39;.</span>
+
+<span class="sd">        :return: 1 or 0, depending on whether the signature was</span>
+<span class="sd">                 verified or not.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">digest_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="s1">&#39;NID_&#39;</span> <span class="o">+</span> <span class="n">algo</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">digest_type</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown algorithm&#39;</span><span class="p">,</span> <span class="n">algo</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_verify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">signature</span><span class="p">,</span> <span class="n">digest_type</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="RSA_pub"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA_pub">[docs]</a><span class="k">class</span> <span class="nc">RSA_pub</span><span class="p">(</span><span class="n">RSA</span><span class="p">):</span>  <span class="c1"># noqa</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Object interface to an RSA public key.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="c1"># type: (str, bytes) -&gt; None</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;e&#39;</span><span class="p">,</span> <span class="s1">&#39;n&#39;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="n">RSAError</span><span class="p">(</span><span class="s1">&#39;use factory function new_pub_key() to set (e, n)&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+<div class="viewcode-block" id="RSA_pub.private_encrypt"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA_pub.private_encrypt">[docs]</a>    <span class="k">def</span> <span class="nf">private_encrypt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">argv</span><span class="p">):</span>
+        <span class="c1"># type: (*List[Any]) -&gt; None</span>
+        <span class="k">raise</span> <span class="n">RSAError</span><span class="p">(</span><span class="s1">&#39;RSA_pub object has no private key&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RSA_pub.private_decrypt"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA_pub.private_decrypt">[docs]</a>    <span class="k">def</span> <span class="nf">private_decrypt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">argv</span><span class="p">):</span>
+        <span class="c1"># type: (*List[Any]) -&gt; None</span>
+        <span class="k">raise</span> <span class="n">RSAError</span><span class="p">(</span><span class="s1">&#39;RSA_pub object has no private key&#39;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RSA_pub.save_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA_pub.save_key">[docs]</a>    <span class="k">def</span> <span class="nf">save_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">file</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="c1"># type: (AnyStr, *List[Any], **Dict[Any, Any]) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save public key to file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_pub_key</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="RSA_pub.save_key_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA_pub.save_key_bio">[docs]</a>    <span class="k">def</span> <span class="nf">save_key_bio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bio</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="c1"># type: (BIO.BIO, *List[Any], **Dict[Any, Any]) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save public key to BIO.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_pub_key_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">)</span>
+
+    <span class="c1"># save_key_der</span>
+
+    <span class="c1"># save_key_der_bio</span>
+</div>
+<div class="viewcode-block" id="RSA_pub.check_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA_pub.check_key">[docs]</a>    <span class="k">def</span> <span class="nf">check_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_check_pub_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="rsa_error"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.rsa_error">[docs]</a><span class="k">def</span> <span class="nf">rsa_error</span><span class="p">():</span>
+    <span class="c1"># type: () -&gt; None</span>
+    <span class="k">raise</span> <span class="n">RSAError</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">err_reason_error_string</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">err_get_error</span><span class="p">()))</span>
+
+</div>
+<div class="viewcode-block" id="keygen_callback"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.keygen_callback">[docs]</a><span class="k">def</span> <span class="nf">keygen_callback</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">):</span>
+    <span class="c1"># type: (int, Any, IO[str]) -&gt; None</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Default callback for gen_key().</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ch</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">]</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ch</span><span class="p">[</span><span class="n">p</span><span class="p">])</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="gen_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.gen_key">[docs]</a><span class="k">def</span> <span class="nf">gen_key</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">keygen_callback</span><span class="p">):</span>
+    <span class="c1"># type: (int, int, Callable) -&gt; RSA</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate an RSA key pair.</span>
+
+<span class="sd">    :param bits: Key length, in bits.</span>
+
+<span class="sd">    :param e: The RSA public exponent.</span>
+
+<span class="sd">    :param callback: A Python callable object that is invoked</span>
+<span class="sd">                     during key generation; its usual purpose is to</span>
+<span class="sd">                     provide visual feedback. The default callback is</span>
+<span class="sd">                     keygen_callback.</span>
+
+<span class="sd">    :return: M2Crypto.RSA.RSA object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">RSA</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">rsa_generate_key</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">callback</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="load_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.load_key">[docs]</a><span class="k">def</span> <span class="nf">load_key</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
+    <span class="c1"># type: (AnyStr, Callable) -&gt; RSA</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load an RSA key pair from file.</span>
+
+<span class="sd">    :param file: Name of file containing RSA public key in PEM format.</span>
+
+<span class="sd">    :param callback: A Python callable object that is invoked</span>
+<span class="sd">                     to acquire a passphrase with which to unlock the</span>
+<span class="sd">                     key.  The default is util.passphrase_callback.</span>
+
+<span class="sd">    :return: M2Crypto.RSA.RSA object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">openfile</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span> <span class="k">as</span> <span class="n">bio</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">load_key_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="load_key_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.load_key_bio">[docs]</a><span class="k">def</span> <span class="nf">load_key_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
+    <span class="c1"># type: (BIO.BIO, Callable) -&gt; RSA</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load an RSA key pair from an M2Crypto.BIO.BIO object.</span>
+
+<span class="sd">    :param bio: M2Crypto.BIO.BIO object containing RSA key pair in PEM</span>
+<span class="sd">                format.</span>
+
+<span class="sd">    :param callback: A Python callable object that is invoked</span>
+<span class="sd">                     to acquire a passphrase with which to unlock the</span>
+<span class="sd">                     key.  The default is util.passphrase_callback.</span>
+
+<span class="sd">    :return: M2Crypto.RSA.RSA object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rsa</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_read_key</span><span class="p">(</span><span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="n">callback</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">rsa</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">rsa_error</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">RSA</span><span class="p">(</span><span class="n">rsa</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="load_key_string"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.load_key_string">[docs]</a><span class="k">def</span> <span class="nf">load_key_string</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
+    <span class="c1"># type: (AnyStr, Callable) -&gt; RSA</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load an RSA key pair from a string.</span>
+
+<span class="sd">    :param string: String containing RSA key pair in PEM format.</span>
+
+<span class="sd">    :param callback: A Python callable object that is invoked</span>
+<span class="sd">                     to acquire a passphrase with which to unlock the</span>
+<span class="sd">                     key. The default is util.passphrase_callback.</span>
+
+<span class="sd">    :return: M2Crypto.RSA.RSA object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bio</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">load_key_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="load_pub_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.load_pub_key">[docs]</a><span class="k">def</span> <span class="nf">load_pub_key</span><span class="p">(</span><span class="nb">file</span><span class="p">):</span>
+    <span class="c1"># type: (AnyStr) -&gt; RSA_pub</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load an RSA public key from file.</span>
+
+<span class="sd">    :param file: Name of file containing RSA public key in PEM format.</span>
+
+<span class="sd">    :return: M2Crypto.RSA.RSA_pub object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">openfile</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span> <span class="k">as</span> <span class="n">bio</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">load_pub_key_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="load_pub_key_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.load_pub_key_bio">[docs]</a><span class="k">def</span> <span class="nf">load_pub_key_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">):</span>
+    <span class="c1"># type: (BIO.BIO) -&gt; RSA_pub</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load an RSA public key from an M2Crypto.BIO.BIO object.</span>
+
+<span class="sd">    :param bio: M2Crypto.BIO.BIO object containing RSA public key in PEM</span>
+<span class="sd">                format.</span>
+
+<span class="sd">    :return: M2Crypto.RSA.RSA_pub object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rsa</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_read_pub_key</span><span class="p">(</span><span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">rsa</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">rsa_error</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">RSA_pub</span><span class="p">(</span><span class="n">rsa</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="new_pub_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.new_pub_key">[docs]</a><span class="k">def</span> <span class="nf">new_pub_key</span><span class="p">(</span><span class="n">e_n</span><span class="p">):</span>
+    <span class="c1"># type: (Tuple[bytes, bytes]) -&gt; RSA_pub</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Instantiate an RSA_pub object from an (e, n) tuple.</span>
+
+<span class="sd">    :param e: The RSA public exponent; it is a string in OpenSSL&#39;s MPINT</span>
+<span class="sd">              format - 4-byte big-endian bit-count followed by the</span>
+<span class="sd">              appropriate number of bits.</span>
+
+<span class="sd">    :param n: The RSA composite of primes; it is a string in OpenSSL&#39;s</span>
+<span class="sd">              MPINT format - 4-byte big-endian bit-count followed by the</span>
+<span class="sd">              appropriate number of bits.</span>
+
+<span class="sd">    :return: M2Crypto.RSA.RSA_pub object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span> <span class="o">=</span> <span class="n">e_n</span>
+    <span class="n">rsa</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_new</span><span class="p">()</span>
+    <span class="n">m2</span><span class="o">.</span><span class="n">rsa_set_en</span><span class="p">(</span><span class="n">rsa</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">RSA_pub</span><span class="p">(</span><span class="n">rsa</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

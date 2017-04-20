@@ -1,0 +1,239 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>M2Crypto.Engine &mdash; M2Crypto  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="M2Crypto  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for M2Crypto.Engine</h1><div class="highlight"><pre>
+<span></span><span class="c1"># vim: sts=4 sw=4 et</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">M2Crypto wrapper for OpenSSL ENGINE API.</span>
+
+<span class="sd">Pavel Shramov</span>
+<span class="sd">IMEC MSU</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">EVP</span><span class="p">,</span> <span class="n">Err</span><span class="p">,</span> <span class="n">X509</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">six</span><span class="p">,</span> <span class="n">util</span>
+<span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>  <span class="c1"># noqa</span>
+
+
+<div class="viewcode-block" id="EngineError"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.Engine.EngineError">[docs]</a><span class="k">class</span> <span class="nc">EngineError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+</div>
+<span class="n">m2</span><span class="o">.</span><span class="n">engine_init_error</span><span class="p">(</span><span class="n">EngineError</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Engine"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.Engine.Engine">[docs]</a><span class="k">class</span> <span class="nc">Engine</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Wrapper for ENGINE object.&quot;&quot;&quot;</span>
+
+    <span class="n">m2_engine_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">engine_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">_ptr</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="c1"># type: (Optional[bytes], Optional[bytes], int) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;Create new Engine from ENGINE pointer or obtain by id&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_ptr</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">id</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No engine id specified&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span> <span class="o">=</span> <span class="n">_ptr</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">engine_by_id</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown engine: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="nb">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_engine_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Engine.init"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.Engine.Engine.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;Obtain a functional reference to the engine.</span>
+
+<span class="sd">        :return: 0 on error, non-zero on success.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">engine_init</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Engine.finish"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.Engine.Engine.finish">[docs]</a>    <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;Release a functional and structural reference to the engine.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">engine_finish</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Engine.ctrl_cmd_string"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.Engine.Engine.ctrl_cmd_string">[docs]</a>    <span class="k">def</span> <span class="nf">ctrl_cmd_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">optional</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, Optional[bytes], int) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;Call ENGINE_ctrl_cmd_string&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">m2</span><span class="o">.</span><span class="n">engine_ctrl_cmd_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">arg</span><span class="p">,</span> <span class="n">optional</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">EngineError</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="Engine.get_name"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.Engine.Engine.get_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="sd">&quot;&quot;&quot;Return engine name&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">engine_get_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Engine.get_id"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.Engine.Engine.get_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="sd">&quot;&quot;&quot;Return engine id&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">engine_get_id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Engine.set_default"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.Engine.Engine.set_default">[docs]</a>    <span class="k">def</span> <span class="nf">set_default</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="n">m2</span><span class="o">.</span><span class="n">ENGINE_METHOD_ALL</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use this engine as default for methods specified in argument</span>
+
+<span class="sd">        :param methods: Possible values are bitwise OR of m2.ENGINE_METHOD_*</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">engine_set_default</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">methods</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_engine_load_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">pin</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="c1"># type: (Callable, bytes, Optional[bytes]) -&gt; EVP.PKey</span>
+        <span class="sd">&quot;&quot;&quot;Helper function for loading keys&quot;&quot;&quot;</span>
+        <span class="n">ui</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">ui_openssl</span><span class="p">()</span>
+        <span class="n">cbd</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">engine_pkcs11_data_new</span><span class="p">(</span><span class="n">pin</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">kptr</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ui</span><span class="p">,</span> <span class="n">cbd</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">kptr</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">EngineError</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">EVP</span><span class="o">.</span><span class="n">PKey</span><span class="p">(</span><span class="n">kptr</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">m2</span><span class="o">.</span><span class="n">engine_pkcs11_data_free</span><span class="p">(</span><span class="n">cbd</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">key</span>
+
+<div class="viewcode-block" id="Engine.load_private_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.Engine.Engine.load_private_key">[docs]</a>    <span class="k">def</span> <span class="nf">load_private_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">pin</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, Optional[bytes]) -&gt; X509.X509</span>
+        <span class="sd">&quot;&quot;&quot;Load private key with engine methods (e.g from smartcard).</span>
+<span class="sd">            If pin is not set it will be asked</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine_load_key</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">engine_load_private_key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">pin</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Engine.load_public_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.Engine.Engine.load_public_key">[docs]</a>    <span class="k">def</span> <span class="nf">load_public_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">pin</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, Optional[bytes]) -&gt; EVP.PKey</span>
+        <span class="sd">&quot;&quot;&quot;Load public key with engine methods (e.g from smartcard).&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine_load_key</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">engine_load_public_key</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">pin</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Engine.load_certificate"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.Engine.Engine.load_certificate">[docs]</a>    <span class="k">def</span> <span class="nf">load_certificate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="c1"># type: (bytes) -&gt; X509.X509</span>
+        <span class="sd">&quot;&quot;&quot;Load certificate from engine (e.g from smartcard).</span>
+<span class="sd">        NOTE: This function may be not implemented by engine!&quot;&quot;&quot;</span>
+        <span class="n">cptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">engine_load_certificate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">cptr</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EngineError</span><span class="p">(</span><span class="s2">&quot;Certificate or card not found&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">X509</span><span class="o">.</span><span class="n">X509</span><span class="p">(</span><span class="n">cptr</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="load_dynamic_engine"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.Engine.load_dynamic_engine">[docs]</a><span class="k">def</span> <span class="nf">load_dynamic_engine</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">sopath</span><span class="p">):</span>
+    <span class="c1"># type: (bytes, AnyStr) -&gt; Engine</span>
+    <span class="sd">&quot;&quot;&quot;Load and return dymanic engine from sopath and assign id to it&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sopath</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">text_type</span><span class="p">):</span>
+        <span class="n">sopath</span> <span class="o">=</span> <span class="n">sopath</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf8&#39;</span><span class="p">)</span>
+    <span class="n">m2</span><span class="o">.</span><span class="n">engine_load_dynamic</span><span class="p">()</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">Engine</span><span class="p">(</span><span class="s1">&#39;dynamic&#39;</span><span class="p">)</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">ctrl_cmd_string</span><span class="p">(</span><span class="n">b</span><span class="s1">&#39;SO_PATH&#39;</span><span class="p">,</span> <span class="n">sopath</span><span class="p">)</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">ctrl_cmd_string</span><span class="p">(</span><span class="n">b</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">ctrl_cmd_string</span><span class="p">(</span><span class="n">b</span><span class="s1">&#39;LIST_ADD&#39;</span><span class="p">,</span> <span class="s1">&#39;1&#39;</span><span class="p">)</span>
+    <span class="n">e</span><span class="o">.</span><span class="n">ctrl_cmd_string</span><span class="p">(</span><span class="n">b</span><span class="s1">&#39;LOAD&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">e</span>
+
+</div>
+<div class="viewcode-block" id="load_dynamic"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.Engine.load_dynamic">[docs]</a><span class="k">def</span> <span class="nf">load_dynamic</span><span class="p">():</span>
+    <span class="c1"># type: () -&gt; None</span>
+    <span class="sd">&quot;&quot;&quot;Load dynamic engine&quot;&quot;&quot;</span>
+    <span class="n">m2</span><span class="o">.</span><span class="n">engine_load_dynamic</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="load_openssl"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.Engine.load_openssl">[docs]</a><span class="k">def</span> <span class="nf">load_openssl</span><span class="p">():</span>
+    <span class="c1"># type: () -&gt; None</span>
+    <span class="sd">&quot;&quot;&quot;Load openssl engine&quot;&quot;&quot;</span>
+    <span class="n">m2</span><span class="o">.</span><span class="n">engine_load_openssl</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="cleanup"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.Engine.cleanup">[docs]</a><span class="k">def</span> <span class="nf">cleanup</span><span class="p">():</span>
+    <span class="c1"># type: () -&gt; None</span>
+    <span class="sd">&quot;&quot;&quot;If you load any engines, you need to clean up after your application</span>
+<span class="sd">    is finished with the engines.&quot;&quot;&quot;</span>
+    <span class="n">m2</span><span class="o">.</span><span class="n">engine_cleanup</span><span class="p">()</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

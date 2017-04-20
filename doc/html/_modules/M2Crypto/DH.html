@@ -1,0 +1,209 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>M2Crypto.DH &mdash; M2Crypto  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="M2Crypto  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for M2Crypto.DH</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="sd">&quot;&quot;&quot;M2Crypto wrapper for OpenSSL DH API.</span>
+
+<span class="sd">Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.util</span> <span class="kn">import</span> <span class="n">genparam_callback</span>
+<span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Callable</span>  <span class="c1"># noqa</span>
+
+
+<div class="viewcode-block" id="DHError"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DH.DHError">[docs]</a><span class="k">class</span> <span class="nc">DHError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+</div>
+<span class="n">m2</span><span class="o">.</span><span class="n">dh_init</span><span class="p">(</span><span class="n">DHError</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="DH"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DH.DH">[docs]</a><span class="k">class</span> <span class="nc">DH</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Object interface to the Diffie-Hellman key exchange</span>
+<span class="sd">    protocol.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">m2_dh_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">dh_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dh</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, int) -&gt; None</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">dh_type_check</span><span class="p">(</span><span class="n">dh</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dh</span> <span class="o">=</span> <span class="n">dh</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_dh_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dh</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">dh_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dh</span><span class="p">),</span> <span class="s2">&quot;&#39;dh&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">dh_size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dh</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="c1"># type: (str) -&gt; bytes</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;pub&#39;</span><span class="p">,</span> <span class="s1">&#39;priv&#39;</span><span class="p">):</span>
+            <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="s1">&#39;dh_get_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
+            <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">dh_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dh</span><span class="p">),</span> <span class="s2">&quot;&#39;dh&#39; type error&quot;</span>
+            <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dh</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span>
+
+    <span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="c1"># type: (str, bytes) -&gt; bytes</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">DHError</span><span class="p">(</span><span class="s1">&#39;set (p, g) via set_params()&#39;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;pub&#39;</span><span class="p">,</span> <span class="s1">&#39;priv&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">DHError</span><span class="p">(</span><span class="s1">&#39;generate (pub, priv) via gen_key()&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dh</span>
+
+<div class="viewcode-block" id="DH.check_params"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DH.DH.check_params">[docs]</a>    <span class="k">def</span> <span class="nf">check_params</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">dh_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dh</span><span class="p">),</span> <span class="s2">&quot;&#39;dh&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">dh_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dh</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="DH.gen_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DH.DH.gen_key">[docs]</a>    <span class="k">def</span> <span class="nf">gen_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">dh_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dh</span><span class="p">),</span> <span class="s2">&quot;&#39;dh&#39; type error&quot;</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">dh_generate_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dh</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="DH.compute_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DH.DH.compute_key">[docs]</a>    <span class="k">def</span> <span class="nf">compute_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pubkey</span><span class="p">):</span>
+        <span class="c1"># type: (bytes) -&gt; bytes</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">dh_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dh</span><span class="p">),</span> <span class="s2">&quot;&#39;dh&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">dh_compute_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dh</span><span class="p">,</span> <span class="n">pubkey</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="DH.print_params"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DH.DH.print_params">[docs]</a>    <span class="k">def</span> <span class="nf">print_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bio</span><span class="p">):</span>
+        <span class="c1"># type: (BIO.BIO) -&gt; int</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">dh_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dh</span><span class="p">),</span> <span class="s2">&quot;&#39;dh&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">dhparams_print</span><span class="p">(</span><span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">dh</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="gen_params"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DH.gen_params">[docs]</a><span class="k">def</span> <span class="nf">gen_params</span><span class="p">(</span><span class="n">plen</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">genparam_callback</span><span class="p">):</span>
+    <span class="c1"># type: (int, int, Optional[Callable]) -&gt; DH</span>
+    <span class="n">dh_parms</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">dh_generate_parameters</span><span class="p">(</span><span class="n">plen</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+    <span class="n">dh_obj</span> <span class="o">=</span> <span class="n">DH</span><span class="p">(</span><span class="n">dh_parms</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">dh_obj</span>
+
+</div>
+<div class="viewcode-block" id="load_params"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DH.load_params">[docs]</a><span class="k">def</span> <span class="nf">load_params</span><span class="p">(</span><span class="nb">file</span><span class="p">):</span>
+    <span class="c1"># type: (AnyStr) -&gt; DH</span>
+    <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">openfile</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span> <span class="k">as</span> <span class="n">bio</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">load_params_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="load_params_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DH.load_params_bio">[docs]</a><span class="k">def</span> <span class="nf">load_params_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">):</span>
+    <span class="c1"># type: (BIO.BIO) -&gt; DH</span>
+    <span class="k">return</span> <span class="n">DH</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">dh_read_parameters</span><span class="p">(</span><span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">()),</span> <span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="set_params"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DH.set_params">[docs]</a><span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">g</span><span class="p">):</span>
+    <span class="c1"># type: (bytes, bytes) -&gt; DH</span>
+    <span class="n">dh</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">dh_new</span><span class="p">()</span>
+    <span class="n">m2</span><span class="o">.</span><span class="n">dh_set_pg</span><span class="p">(</span><span class="n">dh</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">DH</span><span class="p">(</span><span class="n">dh</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+
+<span class="c1"># def free_params(cptr):</span>
+<span class="c1">#    m2.dh_free(cptr)</span>
+
+</div>
+<span class="n">DH_GENERATOR_2</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">DH_GENERATOR_2</span>
+<span class="n">DH_GENERATOR_5</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">DH_GENERATOR_5</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

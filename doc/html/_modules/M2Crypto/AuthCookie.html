@@ -1,0 +1,263 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>M2Crypto.AuthCookie &mdash; M2Crypto  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="M2Crypto  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for M2Crypto.AuthCookie</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="sd">&quot;&quot;&quot;Secure Authenticator Cookies</span>
+
+<span class="sd">Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">Rand</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span><span class="p">,</span> <span class="n">six</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.six.moves.http_cookies</span> <span class="kn">import</span> <span class="n">SimpleCookie</span>  <span class="c1"># pylint: disable=no-name-in-module,import-error</span>
+
+<span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">re</span> <span class="k">as</span> <span class="n">type_re</span><span class="p">,</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>  <span class="c1"># noqa</span>
+
+<span class="n">_MIX_FORMAT</span> <span class="o">=</span> <span class="s1">&#39;exp=</span><span class="si">%f</span><span class="s1">&amp;data=</span><span class="si">%s</span><span class="s1">&amp;digest=&#39;</span>
+<span class="n">_MIX_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">r&#39;exp=(\d+\.\d+)&amp;data=(.+)&amp;digest=(\S*)&#39;</span><span class="p">)</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="mix"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.AuthCookie.mix">[docs]</a><span class="k">def</span> <span class="nf">mix</span><span class="p">(</span><span class="n">expiry</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="n">_MIX_FORMAT</span><span class="p">):</span>
+    <span class="c1"># type: (float, AnyStr, str) -&gt; AnyStr</span>
+    <span class="k">return</span> <span class="n">format</span> <span class="o">%</span> <span class="p">(</span><span class="n">expiry</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="unmix"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.AuthCookie.unmix">[docs]</a><span class="k">def</span> <span class="nf">unmix</span><span class="p">(</span><span class="n">dough</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="n">_MIX_RE</span><span class="p">):</span>
+    <span class="c1"># type: (AnyStr, type_re) -&gt; object</span>
+    <span class="n">mo</span> <span class="o">=</span> <span class="n">regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">dough</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mo</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">mo</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="n">mo</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+</div>
+<div class="viewcode-block" id="unmix3"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.AuthCookie.unmix3">[docs]</a><span class="k">def</span> <span class="nf">unmix3</span><span class="p">(</span><span class="n">dough</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="n">_MIX_RE</span><span class="p">):</span>
+    <span class="c1"># type: (AnyStr, type_re) -&gt; Optional[tuple[float, AnyStr, AnyStr]]</span>
+    <span class="n">mo</span> <span class="o">=</span> <span class="n">regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">dough</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mo</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">mo</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="n">mo</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">mo</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+</div>
+<span class="n">_TOKEN</span> <span class="o">=</span> <span class="s1">&#39;_M2AUTH_&#39;</span>  <span class="c1"># type: str</span>
+
+
+<div class="viewcode-block" id="AuthCookieJar"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.AuthCookie.AuthCookieJar">[docs]</a><span class="k">class</span> <span class="nc">AuthCookieJar</span><span class="p">:</span>
+
+    <span class="n">_keylen</span> <span class="o">=</span> <span class="mi">20</span>  <span class="c1"># type: int</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_key</span> <span class="o">=</span> <span class="n">Rand</span><span class="o">.</span><span class="n">rand_bytes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_keylen</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_hmac</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, str) -&gt; str</span>
+        <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">bin_to_hex</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">hmac</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">util</span><span class="o">.</span><span class="n">py3bytes</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="n">m2</span><span class="o">.</span><span class="n">sha1</span><span class="p">()))</span>
+
+<div class="viewcode-block" id="AuthCookieJar.makeCookie"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.AuthCookie.AuthCookieJar.makeCookie">[docs]</a>    <span class="k">def</span> <span class="nf">makeCookie</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expiry</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># type: (float, str) -&gt; AuthCookie</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Make a cookie</span>
+
+<span class="sd">        :param expiry: expiration time (float in seconds)</span>
+<span class="sd">        :param data: cookie content</span>
+<span class="sd">        :return: AuthCookie object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expiry</span><span class="p">,</span> <span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">integer_types</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Expiration time must be number, not &quot;</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">expiry</span><span class="p">)</span>
+        <span class="n">dough</span> <span class="o">=</span> <span class="n">mix</span><span class="p">(</span><span class="n">expiry</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">AuthCookie</span><span class="p">(</span><span class="n">expiry</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dough</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hmac</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_key</span><span class="p">,</span> <span class="n">dough</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="AuthCookieJar.isGoodCookie"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.AuthCookie.AuthCookieJar.isGoodCookie">[docs]</a>    <span class="k">def</span> <span class="nf">isGoodCookie</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cookie</span><span class="p">):</span>
+        <span class="c1"># type: (AuthCookie) -&gt; Union[bool, int]</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cookie</span><span class="p">,</span> <span class="n">AuthCookie</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cookie</span><span class="o">.</span><span class="n">isExpired</span><span class="p">():</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">makeCookie</span><span class="p">(</span><span class="n">cookie</span><span class="o">.</span><span class="n">_expiry</span><span class="p">,</span> <span class="n">cookie</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">_expiry</span> <span class="o">==</span> <span class="n">cookie</span><span class="o">.</span><span class="n">_expiry</span><span class="p">)</span> \
+            <span class="ow">and</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">_data</span> <span class="o">==</span> <span class="n">cookie</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span> \
+            <span class="ow">and</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">_mac</span> <span class="o">==</span> <span class="n">cookie</span><span class="o">.</span><span class="n">_mac</span><span class="p">)</span> \
+            <span class="ow">and</span> <span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">output</span><span class="p">()</span> <span class="o">==</span> <span class="n">cookie</span><span class="o">.</span><span class="n">output</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="AuthCookieJar.isGoodCookieString"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.AuthCookie.AuthCookieJar.isGoodCookieString">[docs]</a>    <span class="k">def</span> <span class="nf">isGoodCookieString</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cookie_str</span><span class="p">,</span> <span class="n">_debug</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="c1"># type: (Union[dict, bytes], bool) -&gt; Union[bool, int]</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">SimpleCookie</span><span class="p">()</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">cookie_str</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_TOKEN</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">c</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;_TOKEN not in c (keys = </span><span class="si">%s</span><span class="s1">)&#39;</span><span class="p">,</span> <span class="nb">dir</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="n">undough</span> <span class="o">=</span> <span class="n">unmix3</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="n">_TOKEN</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">undough</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;undough is None&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">0</span>
+        <span class="n">exp</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">mac</span> <span class="o">=</span> <span class="n">undough</span>
+        <span class="n">c2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">makeCookie</span><span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_debug</span> <span class="ow">and</span> <span class="p">(</span><span class="n">c2</span><span class="o">.</span><span class="n">_mac</span> <span class="o">==</span> <span class="n">mac</span><span class="p">):</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;cookie_str = </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">cookie_str</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;c2.isExpired = </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">c2</span><span class="o">.</span><span class="n">isExpired</span><span class="p">())</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;mac = </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">mac</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;c2._mac = </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">c2</span><span class="o">.</span><span class="n">_mac</span><span class="p">)</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;c2._mac == mac: </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">c2</span><span class="o">.</span><span class="n">_mac</span> <span class="o">==</span> <span class="n">mac</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">(</span><span class="ow">not</span> <span class="n">c2</span><span class="o">.</span><span class="n">isExpired</span><span class="p">())</span> <span class="ow">and</span> <span class="p">(</span><span class="n">c2</span><span class="o">.</span><span class="n">_mac</span> <span class="o">==</span> <span class="n">mac</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="AuthCookie"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.AuthCookie.AuthCookie">[docs]</a><span class="k">class</span> <span class="nc">AuthCookie</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expiry</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dough</span><span class="p">,</span> <span class="n">mac</span><span class="p">):</span>
+        <span class="c1"># type: (float, str, str, str) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create new authentication cookie</span>
+
+<span class="sd">        :param expiry: expiration time (in seconds)</span>
+<span class="sd">        :param data: cookie payload (as a string)</span>
+<span class="sd">        :param dough: expiry &amp; data concatenated to URL compliant</span>
+<span class="sd">                      string</span>
+<span class="sd">        :param mac: SHA1-based HMAC of dough and random key</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_expiry</span> <span class="o">=</span> <span class="n">expiry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mac</span> <span class="o">=</span> <span class="n">mac</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cookie</span> <span class="o">=</span> <span class="n">SimpleCookie</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cookie</span><span class="p">[</span><span class="n">_TOKEN</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dough</span><span class="p">,</span> <span class="n">mac</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dough</span><span class="p">,</span> <span class="n">mac</span><span class="p">)</span>  <span class="c1"># WebKit only.</span>
+
+<div class="viewcode-block" id="AuthCookie.expiry"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.AuthCookie.AuthCookie.expiry">[docs]</a>    <span class="k">def</span> <span class="nf">expiry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; float</span>
+        <span class="sd">&quot;&quot;&quot;Return the cookie&#39;s expiry time.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expiry</span>
+</div>
+<div class="viewcode-block" id="AuthCookie.data"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.AuthCookie.AuthCookie.data">[docs]</a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; str</span>
+        <span class="sd">&quot;&quot;&quot;Return the data portion of the cookie.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
+</div>
+<div class="viewcode-block" id="AuthCookie.mac"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.AuthCookie.AuthCookie.mac">[docs]</a>    <span class="k">def</span> <span class="nf">mac</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; str</span>
+        <span class="sd">&quot;&quot;&quot;Return the cookie&#39;s MAC.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mac</span>
+</div>
+<div class="viewcode-block" id="AuthCookie.output"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.AuthCookie.AuthCookie.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; str</span>
+        <span class="sd">&quot;&quot;&quot;Return the cookie&#39;s output in &quot;Set-Cookie&quot; format.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cookie</span><span class="o">.</span><span class="n">output</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="AuthCookie.value"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.AuthCookie.AuthCookie.value">[docs]</a>    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; str</span>
+        <span class="sd">&quot;&quot;&quot;Return the cookie&#39;s output minus the &quot;Set-Cookie: &quot; portion.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cookie</span><span class="p">[</span><span class="n">_TOKEN</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+</div>
+<div class="viewcode-block" id="AuthCookie.isExpired"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.AuthCookie.AuthCookie.isExpired">[docs]</a>    <span class="k">def</span> <span class="nf">isExpired</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bool</span>
+        <span class="sd">&quot;&quot;&quot;Return 1 if the cookie has expired, 0 otherwise.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_expiry</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">integer_types</span><span class="p">))</span> <span class="ow">and</span> \
+            <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expiry</span><span class="p">)</span>
+
+    <span class="c1"># Following two methods are for WebKit only.</span>
+    <span class="c1"># I may wish to push them to WKAuthCookie, but they are part</span>
+    <span class="c1"># of the API now. Oh well.</span></div>
+<div class="viewcode-block" id="AuthCookie.name"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.AuthCookie.AuthCookie.name">[docs]</a>    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; str</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+</div>
+<div class="viewcode-block" id="AuthCookie.headerValue"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.AuthCookie.AuthCookie.headerValue">[docs]</a>    <span class="k">def</span> <span class="nf">headerValue</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; str</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">()</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

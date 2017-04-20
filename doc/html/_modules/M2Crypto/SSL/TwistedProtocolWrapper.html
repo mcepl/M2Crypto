@@ -1,0 +1,518 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>M2Crypto.SSL.TwistedProtocolWrapper &mdash; M2Crypto  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="M2Crypto  documentation" href="../../../index.html" />
+    <link rel="up" title="M2Crypto.SSL" href="../SSL.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../SSL.html" accesskey="U">M2Crypto.SSL</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for M2Crypto.SSL.TwistedProtocolWrapper</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Make Twisted use M2Crypto for SSL</span>
+
+<span class="sd">Copyright (c) 2004-2007 Open Source Applications Foundation.</span>
+<span class="sd">All rights reserved.</span>
+
+<span class="sd">FIXME THIS HAS NOT BEEN FINISHED. NEITHER PEP484 NOR PORT PYTHON3 HAS</span>
+<span class="sd">BEEN FINISHED. THE FURTHER WORK WILL BE DONE WHEN THE STATUS OF TWISTED</span>
+<span class="sd">IN THE PYTHON 3 (AND ASYNCIO) WORLD WILL BE CLEAR.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;connectSSL&#39;</span><span class="p">,</span> <span class="s1">&#39;connectTCP&#39;</span><span class="p">,</span> <span class="s1">&#39;listenSSL&#39;</span><span class="p">,</span> <span class="s1">&#39;listenTCP&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;TLSProtocolWrapper&#39;</span><span class="p">]</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">import</span> <span class="nn">twisted.internet.reactor</span>
+<span class="kn">import</span> <span class="nn">twisted.protocols.policies</span> <span class="kn">as</span> <span class="nn">policies</span>
+
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">X509</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.SSL.Checker</span> <span class="kn">import</span> <span class="n">Checker</span><span class="p">,</span> <span class="n">SSLVerificationError</span>
+
+<span class="kn">from</span> <span class="nn">twisted.internet.interfaces</span> <span class="kn">import</span> <span class="n">ITLSTransport</span>
+<span class="kn">from</span> <span class="nn">twisted.protocols.policies</span> <span class="kn">import</span> <span class="n">ProtocolWrapper</span>
+<span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>  <span class="c1"># noqa</span>
+    <span class="kn">from</span> <span class="nn">zope.interface</span> <span class="kn">import</span> <span class="n">implementer</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_alwaysSucceedsPostConnectionCheck</span><span class="p">(</span><span class="n">peerX509</span><span class="p">,</span> <span class="n">expectedHost</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">1</span>
+
+
+<div class="viewcode-block" id="connectSSL"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.TwistedProtocolWrapper.connectSSL">[docs]</a><span class="k">def</span> <span class="nf">connectSSL</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">factory</span><span class="p">,</span> <span class="n">contextFactory</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+               <span class="n">bindAddress</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+               <span class="n">reactor</span><span class="o">=</span><span class="n">twisted</span><span class="o">.</span><span class="n">internet</span><span class="o">.</span><span class="n">reactor</span><span class="p">,</span>
+               <span class="n">postConnectionCheck</span><span class="o">=</span><span class="n">Checker</span><span class="p">()):</span>
+    <span class="c1"># type: (str, int, object, object, int, Optional[str], twisted.internet.reactor, Checker) -&gt; reactor.connectTCP</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A convenience function to start an SSL/TLS connection using Twisted.</span>
+
+<span class="sd">    See IReactorSSL interface in Twisted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">wrappingFactory</span> <span class="o">=</span> <span class="n">policies</span><span class="o">.</span><span class="n">WrappingFactory</span><span class="p">(</span><span class="n">factory</span><span class="p">)</span>
+    <span class="n">wrappingFactory</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">factory</span><span class="p">,</span> <span class="n">wrappedProtocol</span><span class="p">:</span> \
+        <span class="n">TLSProtocolWrapper</span><span class="p">(</span><span class="n">factory</span><span class="p">,</span>
+                           <span class="n">wrappedProtocol</span><span class="p">,</span>
+                           <span class="n">startPassThrough</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                           <span class="n">client</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                           <span class="n">contextFactory</span><span class="o">=</span><span class="n">contextFactory</span><span class="p">,</span>
+                           <span class="n">postConnectionCheck</span><span class="o">=</span><span class="n">postConnectionCheck</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">reactor</span><span class="o">.</span><span class="n">connectTCP</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">wrappingFactory</span><span class="p">,</span> <span class="n">timeout</span><span class="p">,</span> <span class="n">bindAddress</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="connectTCP"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.TwistedProtocolWrapper.connectTCP">[docs]</a><span class="k">def</span> <span class="nf">connectTCP</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">factory</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">bindAddress</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+               <span class="n">reactor</span><span class="o">=</span><span class="n">twisted</span><span class="o">.</span><span class="n">internet</span><span class="o">.</span><span class="n">reactor</span><span class="p">,</span>
+               <span class="n">postConnectionCheck</span><span class="o">=</span><span class="n">Checker</span><span class="p">()):</span>
+    <span class="c1"># type: (str, int, object, int, Optional[util.AddrType], object, Callable) -&gt; object</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A convenience function to start a TCP connection using Twisted.</span>
+
+<span class="sd">    NOTE: You must call startTLS(ctx) to go into SSL/TLS mode.</span>
+
+<span class="sd">    See IReactorTCP interface in Twisted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">wrappingFactory</span> <span class="o">=</span> <span class="n">policies</span><span class="o">.</span><span class="n">WrappingFactory</span><span class="p">(</span><span class="n">factory</span><span class="p">)</span>
+    <span class="n">wrappingFactory</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">factory</span><span class="p">,</span> <span class="n">wrappedProtocol</span><span class="p">:</span> \
+        <span class="n">TLSProtocolWrapper</span><span class="p">(</span><span class="n">factory</span><span class="p">,</span>
+                           <span class="n">wrappedProtocol</span><span class="p">,</span>
+                           <span class="n">startPassThrough</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                           <span class="n">client</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                           <span class="n">contextFactory</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                           <span class="n">postConnectionCheck</span><span class="o">=</span><span class="n">postConnectionCheck</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">reactor</span><span class="o">.</span><span class="n">connectTCP</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">wrappingFactory</span><span class="p">,</span> <span class="n">timeout</span><span class="p">,</span> <span class="n">bindAddress</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="listenSSL"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.TwistedProtocolWrapper.listenSSL">[docs]</a><span class="k">def</span> <span class="nf">listenSSL</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">factory</span><span class="p">,</span> <span class="n">contextFactory</span><span class="p">,</span> <span class="n">backlog</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">interface</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+              <span class="n">reactor</span><span class="o">=</span><span class="n">twisted</span><span class="o">.</span><span class="n">internet</span><span class="o">.</span><span class="n">reactor</span><span class="p">,</span>
+              <span class="n">postConnectionCheck</span><span class="o">=</span><span class="n">_alwaysSucceedsPostConnectionCheck</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A convenience function to listen for SSL/TLS connections using Twisted.</span>
+
+<span class="sd">    See IReactorSSL interface in Twisted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">wrappingFactory</span> <span class="o">=</span> <span class="n">policies</span><span class="o">.</span><span class="n">WrappingFactory</span><span class="p">(</span><span class="n">factory</span><span class="p">)</span>
+    <span class="n">wrappingFactory</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">factory</span><span class="p">,</span> <span class="n">wrappedProtocol</span><span class="p">:</span> \
+        <span class="n">TLSProtocolWrapper</span><span class="p">(</span><span class="n">factory</span><span class="p">,</span>
+                           <span class="n">wrappedProtocol</span><span class="p">,</span>
+                           <span class="n">startPassThrough</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                           <span class="n">client</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                           <span class="n">contextFactory</span><span class="o">=</span><span class="n">contextFactory</span><span class="p">,</span>
+                           <span class="n">postConnectionCheck</span><span class="o">=</span><span class="n">postConnectionCheck</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">reactor</span><span class="o">.</span><span class="n">listenTCP</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">wrappingFactory</span><span class="p">,</span> <span class="n">backlog</span><span class="p">,</span> <span class="n">interface</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="listenTCP"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.TwistedProtocolWrapper.listenTCP">[docs]</a><span class="k">def</span> <span class="nf">listenTCP</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">factory</span><span class="p">,</span> <span class="n">backlog</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">interface</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+              <span class="n">reactor</span><span class="o">=</span><span class="n">twisted</span><span class="o">.</span><span class="n">internet</span><span class="o">.</span><span class="n">reactor</span><span class="p">,</span>
+              <span class="n">postConnectionCheck</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A convenience function to listen for TCP connections using Twisted.</span>
+
+<span class="sd">    NOTE: You must call startTLS(ctx) to go into SSL/TLS mode.</span>
+
+<span class="sd">    See IReactorTCP interface in Twisted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">wrappingFactory</span> <span class="o">=</span> <span class="n">policies</span><span class="o">.</span><span class="n">WrappingFactory</span><span class="p">(</span><span class="n">factory</span><span class="p">)</span>
+    <span class="n">wrappingFactory</span><span class="o">.</span><span class="n">protocol</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">factory</span><span class="p">,</span> <span class="n">wrappedProtocol</span><span class="p">:</span> \
+        <span class="n">TLSProtocolWrapper</span><span class="p">(</span><span class="n">factory</span><span class="p">,</span>
+                           <span class="n">wrappedProtocol</span><span class="p">,</span>
+                           <span class="n">startPassThrough</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                           <span class="n">client</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                           <span class="n">contextFactory</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                           <span class="n">postConnectionCheck</span><span class="o">=</span><span class="n">postConnectionCheck</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">reactor</span><span class="o">.</span><span class="n">listenTCP</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="n">wrappingFactory</span><span class="p">,</span> <span class="n">backlog</span><span class="p">,</span> <span class="n">interface</span><span class="p">)</span>
+
+</div>
+<span class="k">class</span> <span class="nc">_BioProxy</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The purpose of this class is to eliminate the __del__ method from</span>
+<span class="sd">    TLSProtocolWrapper, and thus letting it be garbage collected.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">m2_bio_free_all</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_free_all</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bio</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bio</span> <span class="o">=</span> <span class="n">bio</span>
+
+    <span class="k">def</span> <span class="nf">_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bio</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bio</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_bio_free_all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bio</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_SSLProxy</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The purpose of this class is to eliminate the __del__ method from</span>
+<span class="sd">    TLSProtocolWrapper, and thus letting it be garbage collected.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">m2_ssl_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ssl</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ssl</span> <span class="o">=</span> <span class="n">ssl</span>
+
+    <span class="k">def</span> <span class="nf">_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssl</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_ssl_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+
+
+<span class="nd">@implementer</span><span class="p">(</span><span class="n">ITLSTransport</span><span class="p">)</span>
+<div class="viewcode-block" id="TLSProtocolWrapper"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.TwistedProtocolWrapper.TLSProtocolWrapper">[docs]</a><span class="k">class</span> <span class="nc">TLSProtocolWrapper</span><span class="p">(</span><span class="n">ProtocolWrapper</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A SSL/TLS protocol wrapper to be used with Twisted. Typically</span>
+<span class="sd">    you would not use this class directly. Use connectTCP,</span>
+<span class="sd">    connectSSL, listenTCP, listenSSL functions defined above,</span>
+<span class="sd">    which will hook in this class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">factory</span><span class="p">,</span> <span class="n">wrappedProtocol</span><span class="p">,</span> <span class="n">startPassThrough</span><span class="p">,</span> <span class="n">client</span><span class="p">,</span>
+                 <span class="n">contextFactory</span><span class="p">,</span> <span class="n">postConnectionCheck</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param factory:</span>
+<span class="sd">        :param wrappedProtocol:</span>
+<span class="sd">        :param startPassThrough:    If true we won&#39;t encrypt at all. Need to</span>
+<span class="sd">                                    call startTLS() later to switch to SSL/TLS.</span>
+<span class="sd">        :param client:              True if this should be a client protocol.</span>
+<span class="sd">        :param contextFactory:      Factory that creates SSL.Context objects.</span>
+<span class="sd">                                    The called function is getContext().</span>
+<span class="sd">        :param postConnectionCheck: The post connection check callback that</span>
+<span class="sd">                                    will be called just after connection has</span>
+<span class="sd">                                    been established but before any real data</span>
+<span class="sd">                                    has been exchanged. The first argument to</span>
+<span class="sd">                                    this function is an X509 object, the second</span>
+<span class="sd">                                    is the expected host name string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># ProtocolWrapper.__init__(self, factory, wrappedProtocol)</span>
+        <span class="c1"># XXX: Twisted 2.0 has a new addition where the wrappingFactory is</span>
+        <span class="c1">#      set as the factory of the wrappedProtocol. This is an issue</span>
+        <span class="c1">#      as the wrap should be transparent. What we want is</span>
+        <span class="c1">#      the factory of the wrappedProtocol to be the wrappedFactory and</span>
+        <span class="c1">#      not the outer wrappingFactory. This is how it was implemented in</span>
+        <span class="c1">#      Twisted 1.3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">factory</span> <span class="o">=</span> <span class="n">factory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wrappedProtocol</span> <span class="o">=</span> <span class="n">wrappedProtocol</span>
+
+        <span class="c1"># wrappedProtocol == client/server instance</span>
+        <span class="c1"># factory.wrappedFactory == client/server factory</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">b</span><span class="s1">&#39;&#39;</span>  <span class="c1"># Clear text to encrypt and send</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encrypted</span> <span class="o">=</span> <span class="n">b</span><span class="s1">&#39;&#39;</span>  <span class="c1"># Encrypted data we need to decrypt and pass on</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tlsStarted</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># SSL/TLS mode or pass through</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checked</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Post connection check done or not</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isClient</span> <span class="o">=</span> <span class="n">client</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helloDone</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># True when hello has been sent</span>
+        <span class="k">if</span> <span class="n">postConnectionCheck</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">postConnectionCheck</span> <span class="o">=</span> <span class="n">_alwaysSucceedsPostConnectionCheck</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">postConnectionCheck</span> <span class="o">=</span> <span class="n">postConnectionCheck</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">startPassThrough</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">startTLS</span><span class="p">(</span><span class="n">contextFactory</span><span class="o">.</span><span class="n">getContext</span><span class="p">())</span>
+
+<div class="viewcode-block" id="TLSProtocolWrapper.clear"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.TwistedProtocolWrapper.TLSProtocolWrapper.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Clear this instance, after which it is ready for reuse.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;tlsStarted&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sslBio</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ssl</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">internalBio</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">networkBio</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encrypted</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tlsStarted</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">checked</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isClient</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">helloDone</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># We can reuse self.ctx and it will be deleted automatically</span>
+        <span class="c1"># when this instance dies</span>
+</div>
+<div class="viewcode-block" id="TLSProtocolWrapper.startTLS"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.TwistedProtocolWrapper.TLSProtocolWrapper.startTLS">[docs]</a>    <span class="k">def</span> <span class="nf">startTLS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Start SSL/TLS. If this is not called, this instance just passes data</span>
+<span class="sd">        through untouched.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># NOTE: This method signature must match the startTLS() method Twisted</span>
+        <span class="c1">#       expects transports to have. This will be called automatically</span>
+        <span class="c1">#       by Twisted in STARTTLS situations, for example with SMTP.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tlsStarted</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;TLS already started&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span> <span class="o">=</span> <span class="n">ctx</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">internalBio</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_new</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">bio_s_bio</span><span class="p">())</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">bio_set_write_buf_size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">internalBio</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">networkBio</span> <span class="o">=</span> <span class="n">_BioProxy</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">bio_new</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">bio_s_bio</span><span class="p">()))</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">bio_set_write_buf_size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">networkBio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">bio_make_bio_pair</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">internalBio</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">networkBio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sslBio</span> <span class="o">=</span> <span class="n">_BioProxy</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">bio_new</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">bio_f_ssl</span><span class="p">()))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ssl</span> <span class="o">=</span> <span class="n">_SSLProxy</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">ssl_new</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">ctx</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isClient</span><span class="p">:</span>
+            <span class="n">m2</span><span class="o">.</span><span class="n">ssl_set_connect_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">m2</span><span class="o">.</span><span class="n">ssl_set_accept_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+
+        <span class="n">m2</span><span class="o">.</span><span class="n">ssl_set_bio</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">internalBio</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">internalBio</span><span class="p">)</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">bio_set_ssl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sslBio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_noclose</span><span class="p">)</span>
+
+        <span class="c1"># Need this for writes that are larger than BIO pair buffers</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_mode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">ssl_set_mode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span>
+                        <span class="n">mode</span> <span class="o">|</span>
+                        <span class="n">m2</span><span class="o">.</span><span class="n">SSL_MODE_ENABLE_PARTIAL_WRITE</span> <span class="o">|</span>
+                        <span class="n">m2</span><span class="o">.</span><span class="n">SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">tlsStarted</span> <span class="o">=</span> <span class="mi">1</span>
+</div>
+<div class="viewcode-block" id="TLSProtocolWrapper.write"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.TwistedProtocolWrapper.TLSProtocolWrapper.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">tlsStarted</span><span class="p">:</span>
+            <span class="n">ProtocolWrapper</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">encryptedData</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encrypt</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="n">ProtocolWrapper</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encryptedData</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">helloDone</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">except</span> <span class="n">BIO</span><span class="o">.</span><span class="n">BIOError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># See http://www.openssl.org/docs/apps/verify.html#DIAGNOSTICS</span>
+            <span class="c1"># for the error codes returned by SSL_get_verify_result.</span>
+            <span class="n">e</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_verify_result</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="o">.</span><span class="n">_ptr</span><span class="p">()),</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">raise</span> <span class="n">e</span>
+</div>
+<div class="viewcode-block" id="TLSProtocolWrapper.writeSequence"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.TwistedProtocolWrapper.TLSProtocolWrapper.writeSequence">[docs]</a>    <span class="k">def</span> <span class="nf">writeSequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">tlsStarted</span><span class="p">:</span>
+            <span class="n">ProtocolWrapper</span><span class="o">.</span><span class="n">writeSequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="TLSProtocolWrapper.loseConnection"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.TwistedProtocolWrapper.TLSProtocolWrapper.loseConnection">[docs]</a>    <span class="k">def</span> <span class="nf">loseConnection</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># XXX Do we need to do m2.ssl_shutdown(self.ssl._ptr())?</span>
+        <span class="n">ProtocolWrapper</span><span class="o">.</span><span class="n">loseConnection</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="TLSProtocolWrapper.connectionMade"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.TwistedProtocolWrapper.TLSProtocolWrapper.connectionMade">[docs]</a>    <span class="k">def</span> <span class="nf">connectionMade</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ProtocolWrapper</span><span class="o">.</span><span class="n">connectionMade</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tlsStarted</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">isClient</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">helloDone</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_clientHello</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="TLSProtocolWrapper.dataReceived"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.TwistedProtocolWrapper.TLSProtocolWrapper.dataReceived">[docs]</a>    <span class="k">def</span> <span class="nf">dataReceived</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">tlsStarted</span><span class="p">:</span>
+            <span class="n">ProtocolWrapper</span><span class="o">.</span><span class="n">dataReceived</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">encrypted</span> <span class="o">+=</span> <span class="n">data</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">decryptedData</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decrypt</span><span class="p">()</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_check</span><span class="p">()</span>
+
+                <span class="n">encryptedData</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encrypt</span><span class="p">()</span>
+                <span class="n">ProtocolWrapper</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encryptedData</span><span class="p">)</span>
+
+                <span class="n">ProtocolWrapper</span><span class="o">.</span><span class="n">dataReceived</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decryptedData</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">decryptedData</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span> <span class="ow">and</span> <span class="n">encryptedData</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                    <span class="k">break</span>
+        <span class="k">except</span> <span class="n">BIO</span><span class="o">.</span><span class="n">BIOError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># See http://www.openssl.org/docs/apps/verify.html#DIAGNOSTICS</span>
+            <span class="c1"># for the error codes returned by SSL_get_verify_result.</span>
+            <span class="n">e</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_verify_result</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="o">.</span><span class="n">_ptr</span><span class="p">()),</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">raise</span> <span class="n">e</span>
+</div>
+<div class="viewcode-block" id="TLSProtocolWrapper.connectionLost"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.TwistedProtocolWrapper.TLSProtocolWrapper.connectionLost">[docs]</a>    <span class="k">def</span> <span class="nf">connectionLost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reason</span><span class="p">):</span>
+        <span class="c1"># type: (AnyStr) -&gt; None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="n">ProtocolWrapper</span><span class="o">.</span><span class="n">connectionLost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reason</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">checked</span> <span class="ow">and</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_is_init_finished</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="o">.</span><span class="n">_ptr</span><span class="p">()):</span>
+            <span class="n">x509</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_peer_cert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">x509</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="n">x509</span> <span class="o">=</span> <span class="n">X509</span><span class="o">.</span><span class="n">X509</span><span class="p">(</span><span class="n">x509</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isClient</span><span class="p">:</span>
+                <span class="n">host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">addr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">host</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transport</span><span class="o">.</span><span class="n">getPeer</span><span class="p">()</span><span class="o">.</span><span class="n">host</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">postConnectionCheck</span><span class="p">(</span><span class="n">x509</span><span class="p">,</span> <span class="n">host</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">SSLVerificationError</span><span class="p">(</span><span class="s1">&#39;post connection check&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">checked</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">_clientHello</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># We rely on OpenSSL implicitly starting with client hello</span>
+            <span class="c1"># when we haven&#39;t yet established an SSL connection</span>
+            <span class="n">encryptedData</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_encrypt</span><span class="p">(</span><span class="n">clientHello</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">ProtocolWrapper</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">encryptedData</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">helloDone</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">except</span> <span class="n">BIO</span><span class="o">.</span><span class="n">BIOError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># See http://www.openssl.org/docs/apps/verify.html#DIAGNOSTICS</span>
+            <span class="c1"># for the error codes returned by SSL_get_verify_result.</span>
+            <span class="n">e</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_verify_result</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="o">.</span><span class="n">_ptr</span><span class="p">()),</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="k">raise</span> <span class="n">e</span>
+
+    <span class="k">def</span> <span class="nf">_encrypt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">clientHello</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># XXX near mirror image of _decrypt - refactor</span>
+        <span class="n">encryptedData</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">+=</span> <span class="n">data</span>
+        <span class="c1"># Optimizations to reduce attribute accesses</span>
+        <span class="n">sslBioPtr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sslBio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">()</span>
+        <span class="n">networkBio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">networkBio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">()</span>
+        <span class="n">m2bio_ctrl_get_write_guarantee</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_ctrl_get_write_guarantee</span>
+        <span class="n">m2bio_write</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_write</span>
+        <span class="n">m2bio_should_retry</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_should_retry</span>
+        <span class="n">m2bio_ctrl_pending</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_ctrl_pending</span>
+        <span class="n">m2bio_read</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_read</span>
+
+        <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">m2bio_ctrl_get_write_guarantee</span><span class="p">(</span><span class="n">sslBioPtr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">g</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span> <span class="ow">or</span> <span class="n">clientHello</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">m2bio_write</span><span class="p">(</span><span class="n">sslBioPtr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">assert</span><span class="p">(</span><span class="n">m2bio_should_retry</span><span class="p">(</span><span class="n">sslBioPtr</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">checked</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">r</span><span class="p">:]</span>
+
+            <span class="n">pending</span> <span class="o">=</span> <span class="n">m2bio_ctrl_pending</span><span class="p">(</span><span class="n">networkBio</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pending</span><span class="p">:</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">m2bio_read</span><span class="p">(</span><span class="n">networkBio</span><span class="p">,</span> <span class="n">pending</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>  <span class="c1"># This is strange, but d can be None</span>
+                    <span class="n">encryptedData</span> <span class="o">+=</span> <span class="n">d</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">assert</span><span class="p">(</span><span class="n">m2bio_should_retry</span><span class="p">(</span><span class="n">networkBio</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">encryptedData</span>
+
+    <span class="k">def</span> <span class="nf">_decrypt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+        <span class="c1"># XXX near mirror image of _encrypt - refactor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encrypted</span> <span class="o">+=</span> <span class="n">data</span>
+        <span class="n">decryptedData</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="c1"># Optimizations to reduce attribute accesses</span>
+        <span class="n">sslBioPtr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sslBio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">()</span>
+        <span class="n">networkBio</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">networkBio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">()</span>
+        <span class="n">m2bio_ctrl_get_write_guarantee</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_ctrl_get_write_guarantee</span>
+        <span class="n">m2bio_write</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_write</span>
+        <span class="n">m2bio_should_retry</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_should_retry</span>
+        <span class="n">m2bio_ctrl_pending</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_ctrl_pending</span>
+        <span class="n">m2bio_read</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_read</span>
+
+        <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">m2bio_ctrl_get_write_guarantee</span><span class="p">(</span><span class="n">networkBio</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">g</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">encrypted</span> <span class="o">!=</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">m2bio_write</span><span class="p">(</span><span class="n">networkBio</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">encrypted</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">r</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">assert</span><span class="p">(</span><span class="n">m2bio_should_retry</span><span class="p">(</span><span class="n">networkBio</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">encrypted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encrypted</span><span class="p">[</span><span class="n">r</span><span class="p">:]</span>
+
+            <span class="n">pending</span> <span class="o">=</span> <span class="n">m2bio_ctrl_pending</span><span class="p">(</span><span class="n">sslBioPtr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pending</span><span class="p">:</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">m2bio_read</span><span class="p">(</span><span class="n">sslBioPtr</span><span class="p">,</span> <span class="n">pending</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">d</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>  <span class="c1"># This is strange, but d can be None</span>
+                    <span class="n">decryptedData</span> <span class="o">+=</span> <span class="n">d</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">assert</span><span class="p">(</span><span class="n">m2bio_should_retry</span><span class="p">(</span><span class="n">sslBioPtr</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="k">return</span> <span class="n">decryptedData</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../SSL.html" >M2Crypto.SSL</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

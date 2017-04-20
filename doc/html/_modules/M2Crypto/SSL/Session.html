@@ -1,0 +1,167 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>M2Crypto.SSL.Session &mdash; M2Crypto  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="M2Crypto  documentation" href="../../../index.html" />
+    <link rel="up" title="M2Crypto.SSL" href="../SSL.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../SSL.html" accesskey="U">M2Crypto.SSL</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for M2Crypto.SSL.Session</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;SSL Session</span>
+
+<span class="sd">Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.&quot;&quot;&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Session&#39;</span><span class="p">,</span> <span class="s1">&#39;load_session&#39;</span><span class="p">]</span>
+
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">Err</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.SSL</span> <span class="kn">import</span> <span class="n">SSLError</span>
+<span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">AnyStr</span>  <span class="c1"># noqa</span>
+
+
+<div class="viewcode-block" id="Session"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Session.Session">[docs]</a><span class="k">class</span> <span class="nc">Session</span><span class="p">:</span>
+
+    <span class="n">m2_ssl_session_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_session_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, int) -&gt; None</span>
+        <span class="k">assert</span> <span class="n">session</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">session</span> <span class="o">=</span> <span class="n">session</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_ssl_session_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span>
+
+<div class="viewcode-block" id="Session.as_text"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Session.Session.as_text">[docs]</a>    <span class="k">def</span> <span class="nf">as_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">ssl_session_print</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">buf</span><span class="o">.</span><span class="n">read_all</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Session.as_der"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Session.Session.as_der">[docs]</a>    <span class="k">def</span> <span class="nf">as_der</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">i2d_ssl_session</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">buf</span><span class="o">.</span><span class="n">read_all</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Session.write_bio"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Session.Session.write_bio">[docs]</a>    <span class="k">def</span> <span class="nf">write_bio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bio</span><span class="p">):</span>
+        <span class="c1"># type: (BIO.BIO) -&gt; int</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_session_write_bio</span><span class="p">(</span><span class="n">bio</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Session.get_time"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Session.Session.get_time">[docs]</a>    <span class="k">def</span> <span class="nf">get_time</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_session_get_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Session.set_time"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Session.Session.set_time">[docs]</a>    <span class="k">def</span> <span class="nf">set_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; int</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_session_set_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Session.get_timeout"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Session.Session.get_timeout">[docs]</a>    <span class="k">def</span> <span class="nf">get_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_session_get_timeout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Session.set_timeout"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Session.Session.set_timeout">[docs]</a>    <span class="k">def</span> <span class="nf">set_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; int</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_session_set_timeout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">session</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="load_session"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Session.load_session">[docs]</a><span class="k">def</span> <span class="nf">load_session</span><span class="p">(</span><span class="n">pemfile</span><span class="p">):</span>
+    <span class="c1"># type: (AnyStr) -&gt; Session</span>
+    <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">openfile</span><span class="p">(</span><span class="n">pemfile</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">cptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_session_read_pem</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">cptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">SSLError</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">Session</span><span class="p">(</span><span class="n">cptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../SSL.html" >M2Crypto.SSL</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

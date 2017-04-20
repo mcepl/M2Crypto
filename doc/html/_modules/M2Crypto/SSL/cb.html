@@ -1,0 +1,192 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>M2Crypto.SSL.cb &mdash; M2Crypto  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="M2Crypto  documentation" href="../../../index.html" />
+    <link rel="up" title="M2Crypto.SSL" href="../SSL.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../SSL.html" accesskey="U">M2Crypto.SSL</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for M2Crypto.SSL.cb</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="sd">&quot;&quot;&quot;SSL callbacks</span>
+
+<span class="sd">Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>
+<span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">List</span>  <span class="c1"># noqa</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;unknown_issuer&#39;</span><span class="p">,</span> <span class="s1">&#39;ssl_verify_callback_stub&#39;</span><span class="p">,</span> <span class="s1">&#39;ssl_verify_callback&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;ssl_verify_callback_allow_unknown_ca&#39;</span><span class="p">,</span> <span class="s1">&#39;ssl_info_callback&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="ssl_verify_callback_stub"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.cb.ssl_verify_callback_stub">[docs]</a><span class="k">def</span> <span class="nf">ssl_verify_callback_stub</span><span class="p">(</span><span class="n">ssl_ctx_ptr</span><span class="p">,</span> <span class="n">x509_ptr</span><span class="p">,</span> <span class="n">errnum</span><span class="p">,</span> <span class="n">errdepth</span><span class="p">,</span> <span class="n">ok</span><span class="p">):</span>
+    <span class="c1"># Deprecated</span>
+    <span class="k">return</span> <span class="n">ok</span>
+</div>
+<span class="n">unknown_issuer</span> <span class="o">=</span> <span class="p">[</span>  <span class="c1"># type: List[int]</span>
+    <span class="n">m2</span><span class="o">.</span><span class="n">X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT</span><span class="p">,</span>
+    <span class="n">m2</span><span class="o">.</span><span class="n">X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY</span><span class="p">,</span>
+    <span class="n">m2</span><span class="o">.</span><span class="n">X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE</span><span class="p">,</span>
+    <span class="n">m2</span><span class="o">.</span><span class="n">X509_V_ERR_CERT_UNTRUSTED</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="ssl_verify_callback"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.cb.ssl_verify_callback">[docs]</a><span class="k">def</span> <span class="nf">ssl_verify_callback</span><span class="p">(</span><span class="n">ssl_ctx_ptr</span><span class="p">,</span> <span class="n">x509_ptr</span><span class="p">,</span> <span class="n">errnum</span><span class="p">,</span> <span class="n">errdepth</span><span class="p">,</span> <span class="n">ok</span><span class="p">):</span>
+    <span class="c1"># type: (bytes, bytes, int, int, int) -&gt; int</span>
+    <span class="c1"># Deprecated</span>
+
+    <span class="kn">from</span> <span class="nn">M2Crypto.SSL.Context</span> <span class="kn">import</span> <span class="n">Context</span>
+    <span class="n">ssl_ctx</span> <span class="o">=</span> <span class="n">Context</span><span class="o">.</span><span class="n">ctxmap</span><span class="p">()[</span><span class="nb">int</span><span class="p">(</span><span class="n">ssl_ctx_ptr</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">errnum</span> <span class="ow">in</span> <span class="n">unknown_issuer</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ssl_ctx</span><span class="o">.</span><span class="n">get_allow_unknown_ca</span><span class="p">():</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;policy: </span><span class="si">%s</span><span class="s2">: permitted...</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">x509_get_verify_error</span><span class="p">(</span><span class="n">errnum</span><span class="p">)))</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="n">ok</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="c1"># CRL checking goes here...</span>
+    <span class="k">if</span> <span class="n">ok</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ssl_ctx</span><span class="o">.</span><span class="n">get_verify_depth</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="n">errdepth</span><span class="p">:</span>
+            <span class="n">ok</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ok</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">ok</span>
+
+</div>
+<div class="viewcode-block" id="ssl_verify_callback_allow_unknown_ca"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.cb.ssl_verify_callback_allow_unknown_ca">[docs]</a><span class="k">def</span> <span class="nf">ssl_verify_callback_allow_unknown_ca</span><span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">store</span><span class="p">):</span>
+    <span class="c1"># type: (int, Any) -&gt; int</span>
+    <span class="n">errnum</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">get_error</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">errnum</span> <span class="ow">in</span> <span class="n">unknown_issuer</span><span class="p">:</span>
+        <span class="n">ok</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">ok</span>
+
+
+<span class="c1"># Cribbed from OpenSSL&#39;s apps/s_cb.c.</span></div>
+<div class="viewcode-block" id="ssl_info_callback"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.cb.ssl_info_callback">[docs]</a><span class="k">def</span> <span class="nf">ssl_info_callback</span><span class="p">(</span><span class="n">where</span><span class="p">,</span> <span class="n">ret</span><span class="p">,</span> <span class="n">ssl_ptr</span><span class="p">):</span>
+    <span class="c1"># type: (int, int, bytes) -&gt; None</span>
+
+    <span class="n">w</span> <span class="o">=</span> <span class="n">where</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">m2</span><span class="o">.</span><span class="n">SSL_ST_MASK</span>
+    <span class="k">if</span> <span class="n">w</span> <span class="o">&amp;</span> <span class="n">m2</span><span class="o">.</span><span class="n">SSL_ST_CONNECT</span><span class="p">:</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="s2">&quot;SSL connect&quot;</span>
+    <span class="k">elif</span> <span class="n">w</span> <span class="o">&amp;</span> <span class="n">m2</span><span class="o">.</span><span class="n">SSL_ST_ACCEPT</span><span class="p">:</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="s2">&quot;SSL accept&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="s2">&quot;SSL state unknown&quot;</span>
+
+    <span class="k">if</span> <span class="n">where</span> <span class="o">&amp;</span> <span class="n">m2</span><span class="o">.</span><span class="n">SSL_CB_LOOP</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;LOOP: </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span>
+                         <span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_state_v</span><span class="p">(</span><span class="n">ssl_ptr</span><span class="p">)))</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">where</span> <span class="o">&amp;</span> <span class="n">m2</span><span class="o">.</span><span class="n">SSL_CB_EXIT</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ret</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;FAILED: </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_state_v</span><span class="p">(</span><span class="n">ssl_ptr</span><span class="p">)))</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;INFO: </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_state_v</span><span class="p">(</span><span class="n">ssl_ptr</span><span class="p">)))</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">where</span> <span class="o">&amp;</span> <span class="n">m2</span><span class="o">.</span><span class="n">SSL_CB_ALERT</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">where</span> <span class="o">&amp;</span> <span class="n">m2</span><span class="o">.</span><span class="n">SSL_CB_READ</span><span class="p">:</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="s1">&#39;read&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="s1">&#39;write&#39;</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;ALERT: </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span>
+                         <span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_alert_type_v</span><span class="p">(</span><span class="n">ret</span><span class="p">),</span>
+                          <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_alert_desc_v</span><span class="p">(</span><span class="n">ret</span><span class="p">)))</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="k">return</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../SSL.html" >M2Crypto.SSL</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

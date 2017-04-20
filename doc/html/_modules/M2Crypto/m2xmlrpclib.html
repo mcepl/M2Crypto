@@ -1,0 +1,173 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>M2Crypto.m2xmlrpclib &mdash; M2Crypto  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="M2Crypto  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for M2Crypto.m2xmlrpclib</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="sd">&quot;&quot;&quot;M2Crypto enhancement to xmlrpclib.</span>
+
+<span class="sd">Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">base64</span>
+
+<span class="kn">import</span> <span class="nn">M2Crypto</span>
+
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">SSL</span><span class="p">,</span> <span class="n">httpslib</span><span class="p">,</span> <span class="n">m2urllib</span><span class="p">,</span> <span class="n">six</span><span class="p">,</span> <span class="n">util</span>
+<span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>  <span class="c1"># noqa</span>
+
+<span class="kn">from</span> <span class="nn">M2Crypto.six.moves.xmlrpc_client</span> <span class="kn">import</span> <span class="n">ProtocolError</span><span class="p">,</span> <span class="n">Transport</span>
+<span class="c1"># six.moves doesn&#39;t support star imports</span>
+<span class="k">if</span> <span class="n">six</span><span class="o">.</span><span class="n">PY3</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">xmlrpc.client</span> <span class="kn">import</span> <span class="o">*</span>  <span class="c1"># noqa</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">xmlrpclib</span> <span class="kn">import</span> <span class="o">*</span>  <span class="c1"># noqa</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="n">M2Crypto</span><span class="o">.</span><span class="n">__version__</span>
+
+
+<div class="viewcode-block" id="SSL_Transport"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.m2xmlrpclib.SSL_Transport">[docs]</a><span class="k">class</span> <span class="nc">SSL_Transport</span><span class="p">(</span><span class="n">Transport</span><span class="p">):</span>  <span class="c1"># noqa</span>
+
+    <span class="n">user_agent</span> <span class="o">=</span> <span class="s2">&quot;M2Crypto_XMLRPC/</span><span class="si">%s</span><span class="s2"> - </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">__version__</span><span class="p">,</span>
+                                              <span class="n">Transport</span><span class="o">.</span><span class="n">user_agent</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ssl_context</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="c1"># type: (Optional[SSL.Context], *List[Any], **Dict[Any, Any]) -&gt; None</span>
+        <span class="n">Transport</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ssl_context</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ssl_ctx</span> <span class="o">=</span> <span class="n">SSL</span><span class="o">.</span><span class="n">Context</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ssl_ctx</span> <span class="o">=</span> <span class="n">ssl_context</span>
+
+<div class="viewcode-block" id="SSL_Transport.request"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.m2xmlrpclib.SSL_Transport.request">[docs]</a>    <span class="k">def</span> <span class="nf">request</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">handler</span><span class="p">,</span> <span class="n">request_body</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (AnyStr, Callable, bytes, int) -&gt; object</span>
+        <span class="c1"># Handle username and password.</span>
+        <span class="n">user_passwd</span><span class="p">,</span> <span class="n">host_port</span> <span class="o">=</span> <span class="n">m2urllib</span><span class="o">.</span><span class="n">splituser</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+        <span class="n">_host</span><span class="p">,</span> <span class="n">_port</span> <span class="o">=</span> <span class="n">m2urllib</span><span class="o">.</span><span class="n">splitport</span><span class="p">(</span><span class="n">host_port</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">httpslib</span><span class="o">.</span><span class="n">HTTPSConnection</span><span class="p">(</span><span class="n">_host</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">_port</span><span class="p">),</span>
+                                     <span class="n">ssl_context</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl_ctx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">h</span><span class="o">.</span><span class="n">set_debuglevel</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># What follows is as in xmlrpclib.Transport. (Except the authz bit.)</span>
+        <span class="n">h</span><span class="o">.</span><span class="n">putrequest</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
+
+        <span class="c1"># required by HTTP/1.1</span>
+        <span class="n">h</span><span class="o">.</span><span class="n">putheader</span><span class="p">(</span><span class="s2">&quot;Host&quot;</span><span class="p">,</span> <span class="n">_host</span><span class="p">)</span>
+
+        <span class="c1"># required by XML-RPC</span>
+        <span class="n">h</span><span class="o">.</span><span class="n">putheader</span><span class="p">(</span><span class="s2">&quot;User-Agent&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_agent</span><span class="p">)</span>
+        <span class="n">h</span><span class="o">.</span><span class="n">putheader</span><span class="p">(</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">,</span> <span class="s2">&quot;text/xml&quot;</span><span class="p">)</span>
+        <span class="n">h</span><span class="o">.</span><span class="n">putheader</span><span class="p">(</span><span class="s2">&quot;Content-Length&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">request_body</span><span class="p">)))</span>
+
+        <span class="c1"># Authorisation.</span>
+        <span class="k">if</span> <span class="n">user_passwd</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">auth</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">encodestring</span><span class="p">(</span><span class="n">user_passwd</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="n">h</span><span class="o">.</span><span class="n">putheader</span><span class="p">(</span><span class="s1">&#39;Authorization&#39;</span><span class="p">,</span> <span class="s1">&#39;Basic </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">auth</span><span class="p">)</span>
+
+        <span class="n">h</span><span class="o">.</span><span class="n">endheaders</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">request_body</span><span class="p">:</span>
+            <span class="n">h</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">request_body</span><span class="p">)</span>
+
+        <span class="n">errcode</span><span class="p">,</span> <span class="n">errmsg</span><span class="p">,</span> <span class="n">headers</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="n">getreply</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">errcode</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ProtocolError</span><span class="p">(</span>
+                <span class="n">host</span> <span class="o">+</span> <span class="n">handler</span><span class="p">,</span>
+                <span class="n">errcode</span><span class="p">,</span> <span class="n">errmsg</span><span class="p">,</span>
+                <span class="n">headers</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_response</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">getfile</span><span class="p">())</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

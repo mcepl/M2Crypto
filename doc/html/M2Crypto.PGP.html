@@ -1,0 +1,414 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PGP Package &mdash; M2Crypto  documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="M2Crypto  documentation" href="index.html" />
+    <link rel="up" title="M2Crypto Package" href="M2Crypto.html" />
+    <link rel="next" title="SSL Package" href="M2Crypto.SSL.html" />
+    <link rel="prev" title="M2Crypto Package" href="M2Crypto.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="M2Crypto.SSL.html" title="SSL Package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="M2Crypto.html" title="M2Crypto Package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="M2Crypto.html" accesskey="U">M2Crypto Package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pgp-package">
+<h1>PGP Package<a class="headerlink" href="#pgp-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id1">
+<h2><tt class="xref py py-mod docutils literal"><span class="pre">PGP</span></tt> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-M2Crypto.PGP"></span></div>
+<div class="section" id="module-M2Crypto.PGP.PublicKey">
+<span id="publickey-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">PublicKey</span></tt> Module<a class="headerlink" href="#module-M2Crypto.PGP.PublicKey" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="M2Crypto.PGP.PublicKey.PublicKey">
+<em class="property">class </em><tt class="descclassname">M2Crypto.PGP.PublicKey.</tt><tt class="descname">PublicKey</tt><big>(</big><em>pubkey_pkt</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/PublicKey.html#PublicKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.PublicKey.PublicKey" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="M2Crypto.PGP.PublicKey.PublicKey.add_signature">
+<tt class="descname">add_signature</tt><big>(</big><em>userid</em>, <em>s_pkt</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/PublicKey.html#PublicKey.add_signature"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.PublicKey.PublicKey.add_signature" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="M2Crypto.PGP.PublicKey.PublicKey.add_userid">
+<tt class="descname">add_userid</tt><big>(</big><em>u_pkt</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/PublicKey.html#PublicKey.add_userid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.PublicKey.PublicKey.add_userid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="M2Crypto.PGP.PublicKey.PublicKey.decrypt">
+<tt class="descname">decrypt</tt><big>(</big><em>ctxt</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/PublicKey.html#PublicKey.decrypt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.PublicKey.PublicKey.decrypt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="M2Crypto.PGP.PublicKey.PublicKey.encrypt">
+<tt class="descname">encrypt</tt><big>(</big><em>ptxt</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/PublicKey.html#PublicKey.encrypt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.PublicKey.PublicKey.encrypt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="M2Crypto.PGP.PublicKey.PublicKey.keyid">
+<tt class="descname">keyid</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/PublicKey.html#PublicKey.keyid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.PublicKey.PublicKey.keyid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="M2Crypto.PGP.PublicKey.PublicKey.remove_userid">
+<tt class="descname">remove_userid</tt><big>(</big><em>userid</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/PublicKey.html#PublicKey.remove_userid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.PublicKey.PublicKey.remove_userid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="M2Crypto.PGP.PublicKey.PublicKey.write">
+<tt class="descname">write</tt><big>(</big><em>stream</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/PublicKey.html#PublicKey.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.PublicKey.PublicKey.write" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-M2Crypto.PGP.PublicKeyRing">
+<span id="publickeyring-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">PublicKeyRing</span></tt> Module<a class="headerlink" href="#module-M2Crypto.PGP.PublicKeyRing" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="M2Crypto.PGP.PublicKeyRing.PublicKeyRing">
+<em class="property">class </em><tt class="descclassname">M2Crypto.PGP.PublicKeyRing.</tt><tt class="descname">PublicKeyRing</tt><big>(</big><em>keyring</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/PublicKeyRing.html#PublicKeyRing"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.PublicKeyRing.PublicKeyRing" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="M2Crypto.PGP.PublicKeyRing.PublicKeyRing.load">
+<tt class="descname">load</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/PublicKeyRing.html#PublicKeyRing.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.PublicKeyRing.PublicKeyRing.load" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="M2Crypto.PGP.PublicKeyRing.PublicKeyRing.save">
+<tt class="descname">save</tt><big>(</big><em>keyring</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/PublicKeyRing.html#PublicKeyRing.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.PublicKeyRing.PublicKeyRing.save" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="M2Crypto.PGP.PublicKeyRing.PublicKeyRing.spurious">
+<tt class="descname">spurious</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/PublicKeyRing.html#PublicKeyRing.spurious"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.PublicKeyRing.PublicKeyRing.spurious" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="M2Crypto.PGP.PublicKeyRing.load_pubring">
+<tt class="descclassname">M2Crypto.PGP.PublicKeyRing.</tt><tt class="descname">load_pubring</tt><big>(</big><em>filename='pubring.pgp'</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/PublicKeyRing.html#load_pubring"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.PublicKeyRing.load_pubring" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-M2Crypto.PGP.RSA">
+<span id="rsa-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">RSA</span></tt> Module<a class="headerlink" href="#module-M2Crypto.PGP.RSA" title="Permalink to this headline">¶</a></h2>
+<p>M2Crypto PGP2 RSA.</p>
+<p>Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.</p>
+<dl class="function">
+<dt id="M2Crypto.PGP.RSA.new_pub_key">
+<tt class="descclassname">M2Crypto.PGP.RSA.</tt><tt class="descname">new_pub_key</tt><big>(</big><em>e_n</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/RSA.html#new_pub_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.RSA.new_pub_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Factory function that instantiates an RSA_pub object from a (e, n) tuple.</p>
+<p>&#8216;e&#8217; is the RSA public exponent; it is a string in OpenSSL&#8217;s binary format,
+i.e., a number of bytes in big-endian.</p>
+<dl class="docutils">
+<dt>&#8216;n&#8217; is the RSA composite of primes; it is a string in OpenSSL&#8217;s</dt>
+<dd>binary format, i.e., a number of bytes in big-endian.</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-M2Crypto.PGP.constants">
+<span id="constants-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">constants</span></tt> Module<a class="headerlink" href="#module-M2Crypto.PGP.constants" title="Permalink to this headline">¶</a></h2>
+<p>M2Crypto PGP2.</p>
+<p>Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.</p>
+</div>
+<div class="section" id="module-M2Crypto.PGP.packet">
+<span id="packet-module"></span><h2><tt class="xref py py-mod docutils literal"><span class="pre">packet</span></tt> Module<a class="headerlink" href="#module-M2Crypto.PGP.packet" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="M2Crypto.PGP.packet.CKEPacket">
+<em class="property">class </em><tt class="descclassname">M2Crypto.PGP.packet.</tt><tt class="descname">CKEPacket</tt><big>(</big><em>ctb</em>, <em>body=None</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#CKEPacket"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.CKEPacket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#M2Crypto.PGP.packet.Packet" title="M2Crypto.PGP.packet.Packet"><tt class="xref py py-class docutils literal"><span class="pre">M2Crypto.PGP.packet.Packet</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="M2Crypto.PGP.packet.CommentPacket">
+<em class="property">class </em><tt class="descclassname">M2Crypto.PGP.packet.</tt><tt class="descname">CommentPacket</tt><big>(</big><em>ctb</em>, <em>body=None</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#CommentPacket"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.CommentPacket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#M2Crypto.PGP.packet.Packet" title="M2Crypto.PGP.packet.Packet"><tt class="xref py py-class docutils literal"><span class="pre">M2Crypto.PGP.packet.Packet</span></tt></a></p>
+<dl class="method">
+<dt id="M2Crypto.PGP.packet.CommentPacket.pack">
+<tt class="descname">pack</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#CommentPacket.pack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.CommentPacket.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="M2Crypto.PGP.packet.CompressedPacket">
+<em class="property">class </em><tt class="descclassname">M2Crypto.PGP.packet.</tt><tt class="descname">CompressedPacket</tt><big>(</big><em>ctb</em>, <em>stream</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#CompressedPacket"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.CompressedPacket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#M2Crypto.PGP.packet.Packet" title="M2Crypto.PGP.packet.Packet"><tt class="xref py py-class docutils literal"><span class="pre">M2Crypto.PGP.packet.Packet</span></tt></a></p>
+<dl class="method">
+<dt id="M2Crypto.PGP.packet.CompressedPacket.uncompress">
+<tt class="descname">uncompress</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#CompressedPacket.uncompress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.CompressedPacket.uncompress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="M2Crypto.PGP.packet.CompressedPacket.validate">
+<tt class="descname">validate</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#CompressedPacket.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.CompressedPacket.validate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="M2Crypto.PGP.packet.LiteralPacket">
+<em class="property">class </em><tt class="descclassname">M2Crypto.PGP.packet.</tt><tt class="descname">LiteralPacket</tt><big>(</big><em>ctb</em>, <em>body=None</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#LiteralPacket"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.LiteralPacket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#M2Crypto.PGP.packet.Packet" title="M2Crypto.PGP.packet.Packet"><tt class="xref py py-class docutils literal"><span class="pre">M2Crypto.PGP.packet.Packet</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="M2Crypto.PGP.packet.PKEPacket">
+<em class="property">class </em><tt class="descclassname">M2Crypto.PGP.packet.</tt><tt class="descname">PKEPacket</tt><big>(</big><em>ctb</em>, <em>body=None</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#PKEPacket"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.PKEPacket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#M2Crypto.PGP.packet.Packet" title="M2Crypto.PGP.packet.Packet"><tt class="xref py py-class docutils literal"><span class="pre">M2Crypto.PGP.packet.Packet</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="M2Crypto.PGP.packet.Packet">
+<em class="property">class </em><tt class="descclassname">M2Crypto.PGP.packet.</tt><tt class="descname">Packet</tt><big>(</big><em>ctb</em>, <em>body=None</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#Packet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.Packet" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="M2Crypto.PGP.packet.Packet.pack">
+<tt class="descname">pack</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#Packet.pack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.Packet.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="M2Crypto.PGP.packet.Packet.pkc">
+<tt class="descname">pkc</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#Packet.pkc"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.Packet.pkc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="M2Crypto.PGP.packet.Packet.timestamp">
+<tt class="descname">timestamp</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#Packet.timestamp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.Packet.timestamp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="M2Crypto.PGP.packet.Packet.validate">
+<tt class="descname">validate</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#Packet.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.Packet.validate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="M2Crypto.PGP.packet.Packet.validity">
+<tt class="descname">validity</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#Packet.validity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.Packet.validity" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="M2Crypto.PGP.packet.Packet.version">
+<tt class="descname">version</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#Packet.version"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.Packet.version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="M2Crypto.PGP.packet.PacketStream">
+<em class="property">class </em><tt class="descclassname">M2Crypto.PGP.packet.</tt><tt class="descname">PacketStream</tt><big>(</big><em>input</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#PacketStream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.PacketStream" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="M2Crypto.PGP.packet.PacketStream.close">
+<tt class="descname">close</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#PacketStream.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.PacketStream.close" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="M2Crypto.PGP.packet.PacketStream.count">
+<tt class="descname">count</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#PacketStream.count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.PacketStream.count" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="M2Crypto.PGP.packet.PacketStream.read">
+<tt class="descname">read</tt><big>(</big><em>keep_trying=0</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#PacketStream.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.PacketStream.read" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="M2Crypto.PGP.packet.PrivateKeyPacket">
+<em class="property">class </em><tt class="descclassname">M2Crypto.PGP.packet.</tt><tt class="descname">PrivateKeyPacket</tt><big>(</big><em>ctb</em>, <em>body=None</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#PrivateKeyPacket"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.PrivateKeyPacket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#M2Crypto.PGP.packet.Packet" title="M2Crypto.PGP.packet.Packet"><tt class="xref py py-class docutils literal"><span class="pre">M2Crypto.PGP.packet.Packet</span></tt></a></p>
+<dl class="method">
+<dt id="M2Crypto.PGP.packet.PrivateKeyPacket.is_encrypted">
+<tt class="descname">is_encrypted</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#PrivateKeyPacket.is_encrypted"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.PrivateKeyPacket.is_encrypted" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="M2Crypto.PGP.packet.PublicKeyPacket">
+<em class="property">class </em><tt class="descclassname">M2Crypto.PGP.packet.</tt><tt class="descname">PublicKeyPacket</tt><big>(</big><em>ctb</em>, <em>body=None</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#PublicKeyPacket"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.PublicKeyPacket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#M2Crypto.PGP.packet.Packet" title="M2Crypto.PGP.packet.Packet"><tt class="xref py py-class docutils literal"><span class="pre">M2Crypto.PGP.packet.Packet</span></tt></a></p>
+<dl class="method">
+<dt id="M2Crypto.PGP.packet.PublicKeyPacket.pack">
+<tt class="descname">pack</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#PublicKeyPacket.pack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.PublicKeyPacket.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="M2Crypto.PGP.packet.PublicKeyPacket.pubkey">
+<tt class="descname">pubkey</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#PublicKeyPacket.pubkey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.PublicKeyPacket.pubkey" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="M2Crypto.PGP.packet.SignaturePacket">
+<em class="property">class </em><tt class="descclassname">M2Crypto.PGP.packet.</tt><tt class="descname">SignaturePacket</tt><big>(</big><em>ctb</em>, <em>body=None</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#SignaturePacket"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.SignaturePacket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#M2Crypto.PGP.packet.Packet" title="M2Crypto.PGP.packet.Packet"><tt class="xref py py-class docutils literal"><span class="pre">M2Crypto.PGP.packet.Packet</span></tt></a></p>
+<dl class="method">
+<dt id="M2Crypto.PGP.packet.SignaturePacket.pack">
+<tt class="descname">pack</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#SignaturePacket.pack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.SignaturePacket.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="M2Crypto.PGP.packet.SignaturePacket.validate">
+<tt class="descname">validate</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#SignaturePacket.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.SignaturePacket.validate" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="M2Crypto.PGP.packet.TrustPacket">
+<em class="property">class </em><tt class="descclassname">M2Crypto.PGP.packet.</tt><tt class="descname">TrustPacket</tt><big>(</big><em>ctb</em>, <em>body=None</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#TrustPacket"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.TrustPacket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#M2Crypto.PGP.packet.Packet" title="M2Crypto.PGP.packet.Packet"><tt class="xref py py-class docutils literal"><span class="pre">M2Crypto.PGP.packet.Packet</span></tt></a></p>
+</dd></dl>
+
+<dl class="class">
+<dt id="M2Crypto.PGP.packet.UserIDPacket">
+<em class="property">class </em><tt class="descclassname">M2Crypto.PGP.packet.</tt><tt class="descname">UserIDPacket</tt><big>(</big><em>ctb</em>, <em>body=None</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#UserIDPacket"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.UserIDPacket" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#M2Crypto.PGP.packet.Packet" title="M2Crypto.PGP.packet.Packet"><tt class="xref py py-class docutils literal"><span class="pre">M2Crypto.PGP.packet.Packet</span></tt></a></p>
+<dl class="method">
+<dt id="M2Crypto.PGP.packet.UserIDPacket.pack">
+<tt class="descname">pack</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#UserIDPacket.pack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.UserIDPacket.pack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="M2Crypto.PGP.packet.UserIDPacket.userid">
+<tt class="descname">userid</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#UserIDPacket.userid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.UserIDPacket.userid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="M2Crypto.PGP.packet.XXXError">
+<em class="property">exception </em><tt class="descclassname">M2Crypto.PGP.packet.</tt><tt class="descname">XXXError</tt><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#XXXError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.XXXError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></tt></p>
+</dd></dl>
+
+<dl class="function">
+<dt id="M2Crypto.PGP.packet.is_ctb">
+<tt class="descclassname">M2Crypto.PGP.packet.</tt><tt class="descname">is_ctb</tt><big>(</big><em>ctb</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#is_ctb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.is_ctb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="M2Crypto.PGP.packet.make_ctb">
+<tt class="descclassname">M2Crypto.PGP.packet.</tt><tt class="descname">make_ctb</tt><big>(</big><em>value</em>, <em>llf</em><big>)</big><a class="reference internal" href="_modules/M2Crypto/PGP/packet.html#make_ctb"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.PGP.packet.make_ctb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">PGP Package</a><ul>
+<li><a class="reference internal" href="#id1"><tt class="docutils literal"><span class="pre">PGP</span></tt> Package</a></li>
+<li><a class="reference internal" href="#module-M2Crypto.PGP.PublicKey"><tt class="docutils literal"><span class="pre">PublicKey</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-M2Crypto.PGP.PublicKeyRing"><tt class="docutils literal"><span class="pre">PublicKeyRing</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-M2Crypto.PGP.RSA"><tt class="docutils literal"><span class="pre">RSA</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-M2Crypto.PGP.constants"><tt class="docutils literal"><span class="pre">constants</span></tt> Module</a></li>
+<li><a class="reference internal" href="#module-M2Crypto.PGP.packet"><tt class="docutils literal"><span class="pre">packet</span></tt> Module</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="M2Crypto.html"
+                        title="previous chapter">M2Crypto Package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="M2Crypto.SSL.html"
+                        title="next chapter">SSL Package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/M2Crypto.PGP.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="M2Crypto.SSL.html" title="SSL Package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="M2Crypto.html" title="M2Crypto Package"
+             >previous</a> |</li>
+        <li><a href="index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="M2Crypto.html" >M2Crypto Package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

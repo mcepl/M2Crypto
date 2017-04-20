@@ -1,0 +1,152 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>M2Crypto.BN &mdash; M2Crypto  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="M2Crypto  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for M2Crypto.BN</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">M2Crypto wrapper for OpenSSL BN (BIGNUM) API.</span>
+
+<span class="sd">Copyright (c) 2005 Open Source Applications Foundation. All rights reserved.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>
+<span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>  <span class="c1"># noqa</span>
+
+
+<div class="viewcode-block" id="rand"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.BN.rand">[docs]</a><span class="k">def</span> <span class="nf">rand</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="n">top</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="c1"># type: (int, int, int) -&gt; Optional[int]</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate cryptographically strong random number.</span>
+
+<span class="sd">    :param bits:   Length of random number in bits.</span>
+<span class="sd">    :param top:    If -1, the most significant bit can be 0. If 0, the most</span>
+<span class="sd">                   significant bit is 1, and if 1, the two most significant</span>
+<span class="sd">                   bits will be 1.</span>
+<span class="sd">    :param bottom: If bottom is true, the number will be odd.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">bn_rand</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">bottom</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="rand_range"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.BN.rand_range">[docs]</a><span class="k">def</span> <span class="nf">rand_range</span><span class="p">(</span><span class="nb">range</span><span class="p">):</span>
+    <span class="c1"># type: (int) -&gt; int</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a random number in a range.</span>
+
+<span class="sd">    :param range: Upper limit for range.</span>
+<span class="sd">    :return:      A random number in the range [0, range)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">bn_rand_range</span><span class="p">(</span><span class="nb">range</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="randfname"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.BN.randfname">[docs]</a><span class="k">def</span> <span class="nf">randfname</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
+    <span class="c1"># type: (int) -&gt; str</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a random filename, which is simply a string where all</span>
+<span class="sd">    the characters are from the set [a-zA-Z0-9].</span>
+
+<span class="sd">    :param length: Length of filename to return.</span>
+<span class="sd">    :return:       random filename string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span> <span class="nn">warnings</span>
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="s2">&quot;Don&#39;t use BN.randfname(), use tempfile methods instead.&quot;</span><span class="p">,</span>
+        <span class="ne">DeprecationWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">letters</span> <span class="o">=</span> <span class="s1">&#39;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890&#39;</span>
+    <span class="n">lettersLen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">letters</span><span class="p">)</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: list</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
+        <span class="n">fname</span> <span class="o">+=</span> <span class="p">[</span><span class="n">letters</span><span class="p">[</span><span class="n">m2</span><span class="o">.</span><span class="n">bn_rand_range</span><span class="p">(</span><span class="n">lettersLen</span><span class="p">)]]</span>
+
+    <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fname</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

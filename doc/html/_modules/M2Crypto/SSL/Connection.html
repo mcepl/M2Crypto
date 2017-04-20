@@ -1,0 +1,719 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>M2Crypto.SSL.Connection &mdash; M2Crypto  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="M2Crypto  documentation" href="../../../index.html" />
+    <link rel="up" title="M2Crypto.SSL" href="../SSL.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../SSL.html" accesskey="U">M2Crypto.SSL</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for M2Crypto.SSL.Connection</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="sd">&quot;&quot;&quot;SSL Connection aka socket</span>
+
+<span class="sd">Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.</span>
+
+<span class="sd">Portions created by Open Source Applications Foundation (OSAF) are</span>
+<span class="sd">Copyright (C) 2004-2007 OSAF. All Rights Reserved.</span>
+
+<span class="sd">Copyright 2008 Heikki Toivonen. All rights reserved.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">socket</span>
+
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">X509</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.SSL</span> <span class="kn">import</span> <span class="n">Checker</span><span class="p">,</span> <span class="n">Context</span><span class="p">,</span> <span class="n">timeout</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.SSL</span> <span class="kn">import</span> <span class="n">SSLError</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.SSL.Cipher</span> <span class="kn">import</span> <span class="n">Cipher</span><span class="p">,</span> <span class="n">Cipher_Stack</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.SSL.Session</span> <span class="kn">import</span> <span class="n">Session</span>
+<span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>  <span class="c1"># noqa</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Connection&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;timeout&#39;</span><span class="p">,</span>  <span class="c1"># XXX Not really, but for documentation purposes</span>
+           <span class="p">]</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_serverPostConnectionCheck</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+    <span class="c1"># type: (*List[Any], **Dict[Any, Any]) -&gt; int</span>
+    <span class="k">return</span> <span class="mi">1</span>
+
+
+<div class="viewcode-block" id="Connection"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection">[docs]</a><span class="k">class</span> <span class="nc">Connection</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;An SSL connection.&quot;&quot;&quot;</span>
+
+    <span class="n">clientPostConnectionCheck</span> <span class="o">=</span> <span class="n">Checker</span><span class="o">.</span><span class="n">Checker</span><span class="p">()</span>
+    <span class="n">serverPostConnectionCheck</span> <span class="o">=</span> <span class="n">_serverPostConnectionCheck</span>
+
+    <span class="n">m2_bio_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_free</span>
+    <span class="n">m2_ssl_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">sock</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">):</span>
+        <span class="c1"># type: (Context, socket.socket, int) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param ctx: SSL.Context</span>
+<span class="sd">        :param sock: socket to be used</span>
+<span class="sd">        :param family: socket family</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span> <span class="o">=</span> <span class="n">ctx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ssl</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_new</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">sock</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="n">sock</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">family</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_REUSEADDR</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fileno</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">fileno</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">gettimeout</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ssl_close_flag</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_noclose</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">post_connection_check</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_post_connection_check_callback</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">post_connection_check</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;sslbio&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_bio_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sslbio</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;sockbio&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_bio_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sockbio</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssl_close_flag</span> <span class="o">==</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_noclose</span> <span class="ow">and</span> \
+                <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;ssl&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_ssl_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Connection.close"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">ssl_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.clear"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        If there were errors in this connection, call clear() rather</span>
+<span class="sd">        than close() to end it, so that bad sessions will be cleared</span>
+<span class="sd">        from cache.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_clear</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.set_shutdown"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.set_shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">set_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;Sets the shutdown state of the Connection to mode.</span>
+
+<span class="sd">        The shutdown state of an ssl connection is a bitmask of (use</span>
+<span class="sd">        m2.SSL_* constants):</span>
+
+<span class="sd">        0   No shutdown setting, yet.</span>
+
+<span class="sd">        SSL_SENT_SHUTDOWN</span>
+<span class="sd">            A &quot;close notify&quot; shutdown alert was sent to the peer, the</span>
+<span class="sd">            connection is being considered closed and the session is</span>
+<span class="sd">            closed and correct.</span>
+
+<span class="sd">        SSL_RECEIVED_SHUTDOWN</span>
+<span class="sd">            A shutdown alert was received form the peer, either a normal</span>
+<span class="sd">            &quot;close notify&quot; or a fatal error.</span>
+
+<span class="sd">        SSL_SENT_SHUTDOWN and SSL_RECEIVED_SHUTDOWN can be set at the</span>
+<span class="sd">        same time.</span>
+
+<span class="sd">        :param mode: set the mode bitmask.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">ssl_set_shutdown1</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.get_shutdown"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.get_shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">get_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;Get the current shutdown mode of the Connection.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.bind"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.bind">[docs]</a>    <span class="k">def</span> <span class="nf">bind</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
+        <span class="c1"># type: (util.AddrType) -&gt; None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.listen"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.listen">[docs]</a>    <span class="k">def</span> <span class="nf">listen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qlen</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="n">qlen</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.ssl_get_error"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.ssl_get_error">[docs]</a>    <span class="k">def</span> <span class="nf">ssl_get_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ret</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; int</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">,</span> <span class="n">ret</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.set_bio"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.set_bio">[docs]</a>    <span class="k">def</span> <span class="nf">set_bio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">readbio</span><span class="p">,</span> <span class="n">writebio</span><span class="p">):</span>
+        <span class="c1"># type: (BIO.BIO, BIO.BIO) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;Explicitly set read and write bios</span>
+
+<span class="sd">        Connects the BIOs for the read and write operations of the</span>
+<span class="sd">        TLS/SSL (encrypted) side of ssl.</span>
+
+<span class="sd">        The SSL engine inherits the behaviour of both BIO objects,</span>
+<span class="sd">        respectively. If a BIO is non-blocking, the Connection will also</span>
+<span class="sd">        have non-blocking behaviour.</span>
+
+<span class="sd">        If there was already a BIO connected to Connection, BIO_free()</span>
+<span class="sd">        will be called (for both the reading and writing side, if</span>
+<span class="sd">        different).</span>
+
+<span class="sd">        :param readbio: BIO for reading</span>
+<span class="sd">        :param writebio: BIO for writing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">ssl_set_bio</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">,</span> <span class="n">readbio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="n">writebio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="Connection.set_client_CA_list_from_file"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.set_client_CA_list_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">set_client_CA_list_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cafile</span><span class="p">):</span>
+        <span class="c1"># type: (AnyStr) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;Set the acceptable client CA list.</span>
+
+<span class="sd">        If the client returns a certificate, it must have been issued by</span>
+<span class="sd">        one of the CAs listed in cafile.</span>
+
+<span class="sd">        Makes sense only for servers.</span>
+
+<span class="sd">        :param cafile: Filename from which to load the CA list.</span>
+
+<span class="sd">        :return: 0 A failure while manipulating the STACK_OF(X509_NAME)</span>
+<span class="sd">                   object occurred or the X509_NAME could not be</span>
+<span class="sd">                   extracted from cacert. Check the error stack to find</span>
+<span class="sd">                   out the reason.</span>
+
+<span class="sd">                 1 The operation succeeded.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">ssl_set_client_CA_list_from_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">,</span> <span class="n">cafile</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.set_client_CA_list_from_context"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.set_client_CA_list_from_context">[docs]</a>    <span class="k">def</span> <span class="nf">set_client_CA_list_from_context</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the acceptable client CA list. If the client</span>
+<span class="sd">        returns a certificate, it must have been issued by</span>
+<span class="sd">        one of the CAs listed in context.</span>
+
+<span class="sd">        Makes sense only for servers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">ssl_set_client_CA_list_from_context</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.setup_addr"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.setup_addr">[docs]</a>    <span class="k">def</span> <span class="nf">setup_addr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
+        <span class="c1"># type: (util.AddrType) -&gt; None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="n">addr</span>
+</div>
+<div class="viewcode-block" id="Connection.set_ssl_close_flag"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.set_ssl_close_flag">[docs]</a>    <span class="k">def</span> <span class="nf">set_ssl_close_flag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        By default, SSL struct will be freed in __del__. Call with</span>
+<span class="sd">        m2.bio_close to override this default.</span>
+
+<span class="sd">        :param flag: either m2.bio_close or m2.bio_noclose</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">flag</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">bio_close</span><span class="p">,</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_noclose</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;flag must be m2.bio_close or m2.bio_noclose&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ssl_close_flag</span> <span class="o">=</span> <span class="n">flag</span>
+</div>
+<div class="viewcode-block" id="Connection.setup_ssl"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.setup_ssl">[docs]</a>    <span class="k">def</span> <span class="nf">setup_ssl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="c1"># Make a BIO_s_socket.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sockbio</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_new_socket</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">fileno</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="c1"># Link SSL struct with the BIO_socket.</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">ssl_set_bio</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sockbio</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sockbio</span><span class="p">)</span>
+        <span class="c1"># Make a BIO_f_ssl.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sslbio</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_new</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">bio_f_ssl</span><span class="p">())</span>
+        <span class="c1"># Link BIO_f_ssl with the SSL struct.</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">bio_set_ssl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sslbio</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">,</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_noclose</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_setup_ssl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
+        <span class="c1"># type: (util.AddrType) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;Deprecated&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_addr</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_ssl</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Connection.set_accept_state"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.set_accept_state">[docs]</a>    <span class="k">def</span> <span class="nf">set_accept_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;Sets Connection to work in the server mode.&quot;&quot;&quot;</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">ssl_set_accept_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.accept_ssl"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.accept_ssl">[docs]</a>    <span class="k">def</span> <span class="nf">accept_ssl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; Optional[int]</span>
+        <span class="sd">&quot;&quot;&quot;Waits for a TLS/SSL client to initiate the TLS/SSL handshake.</span>
+
+<span class="sd">        The communication channel must already have been set and</span>
+<span class="sd">        assigned to the ssl by setting an underlying BIO.</span>
+
+<span class="sd">        :return: 0 The TLS/SSL handshake was not successful but was shut</span>
+<span class="sd">                   down controlled and by the specifications of the</span>
+<span class="sd">                   TLS/SSL protocol. Call get_error() with the return</span>
+<span class="sd">                   value ret to find out the reason.</span>
+
+<span class="sd">                 1 The TLS/SSL handshake was successfully completed,</span>
+<span class="sd">                   a TLS/SSL connection has been established.</span>
+
+<span class="sd">                 &lt;0 The TLS/SSL handshake was not successful because</span>
+<span class="sd">                    a fatal error occurred either at the protocol level</span>
+<span class="sd">                    or a connection failure occurred. The shutdown was</span>
+<span class="sd">                    not clean. It can also occur of action is need to</span>
+<span class="sd">                    continue the operation for non-blocking BIOs. Call</span>
+<span class="sd">                    get_error() with the return value ret to find</span>
+<span class="sd">                    out the reason.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_accept</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.accept"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.accept">[docs]</a>    <span class="k">def</span> <span class="nf">accept</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; Tuple[Connection, util.AddrType]</span>
+        <span class="sd">&quot;&quot;&quot;Accept an SSL connection.</span>
+
+<span class="sd">        The return value is a pair (ssl, addr) where ssl is a new SSL</span>
+<span class="sd">        connection object and addr is the address bound to the other end</span>
+<span class="sd">        of the SSL connection.</span>
+
+<span class="sd">        :return: tuple of Connection and addr. Address can take very</span>
+<span class="sd">                 various forms (see socket documentation), for IPv4 it</span>
+<span class="sd">                 is tuple(str, int), for IPv6 a tuple of four (host,</span>
+<span class="sd">                 port, flowinfo, scopeid), where the last two are</span>
+<span class="sd">                 optional ints.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">sock</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+        <span class="n">ssl</span> <span class="o">=</span> <span class="n">Connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">sock</span><span class="p">)</span>
+        <span class="n">ssl</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="n">addr</span>
+        <span class="n">ssl</span><span class="o">.</span><span class="n">setup_ssl</span><span class="p">()</span>
+        <span class="n">ssl</span><span class="o">.</span><span class="n">set_accept_state</span><span class="p">()</span>
+        <span class="n">ssl</span><span class="o">.</span><span class="n">accept_ssl</span><span class="p">()</span>
+        <span class="n">check</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;postConnectionCheck&#39;</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">serverPostConnectionCheck</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">check</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">check</span><span class="p">(</span><span class="n">ssl</span><span class="o">.</span><span class="n">get_peer_cert</span><span class="p">(),</span> <span class="n">ssl</span><span class="o">.</span><span class="n">addr</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="k">raise</span> <span class="n">Checker</span><span class="o">.</span><span class="n">SSLVerificationError</span><span class="p">(</span>
+                    <span class="s1">&#39;post connection check failed&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ssl</span><span class="p">,</span> <span class="n">addr</span>
+</div>
+<div class="viewcode-block" id="Connection.set_connect_state"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.set_connect_state">[docs]</a>    <span class="k">def</span> <span class="nf">set_connect_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;Sets Connection to work in the client mode.&quot;&quot;&quot;</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">ssl_set_connect_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.connect_ssl"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.connect_ssl">[docs]</a>    <span class="k">def</span> <span class="nf">connect_ssl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; Optional[int]</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.connect"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.connect">[docs]</a>    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">addr</span><span class="p">):</span>
+        <span class="c1"># type: (util.AddrType) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;Overloading socket.connect()</span>
+
+<span class="sd">        :param addr: addresses have various depending on their type</span>
+
+<span class="sd">        :return:status of ssl_connect()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addr</span> <span class="o">=</span> <span class="n">addr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_ssl</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_connect_state</span><span class="p">()</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connect_ssl</span><span class="p">()</span>
+        <span class="n">check</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;postConnectionCheck&#39;</span><span class="p">,</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">clientPostConnectionCheck</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">check</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_peer_cert</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">addr</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="k">raise</span> <span class="n">Checker</span><span class="o">.</span><span class="n">SSLVerificationError</span><span class="p">(</span>
+                    <span class="s1">&#39;post connection check failed&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
+</div>
+<div class="viewcode-block" id="Connection.shutdown"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">how</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; None</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">ssl_set_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">,</span> <span class="n">how</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.renegotiate"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.renegotiate">[docs]</a>    <span class="k">def</span> <span class="nf">renegotiate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;Renegotiate this connection&#39;s SSL parameters.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_renegotiate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.pending"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.pending">[docs]</a>    <span class="k">def</span> <span class="nf">pending</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;Return the numbers of octets that can be read from the connection.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_pending</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_write_bio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># type: (bytes) -&gt; int</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_write_nbio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># type: (bytes) -&gt; int</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_write_nbio</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_read_bio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1024</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; bytes</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;size &lt;= 0&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_read_nbio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1024</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; bytes</span>
+        <span class="k">if</span> <span class="n">size</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;size &lt;= 0&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_read_nbio</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Connection.write"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># type: (bytes) -&gt; int</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_bio</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_nbio</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+    <span class="n">sendall</span> <span class="o">=</span> <span class="n">send</span> <span class="o">=</span> <span class="n">write</span>
+
+<div class="viewcode-block" id="Connection.read"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">1024</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; bytes</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span> <span class="o">!=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_bio</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_nbio</span><span class="p">(</span><span class="n">size</span><span class="p">)</span></div>
+    <span class="n">recv</span> <span class="o">=</span> <span class="n">read</span>
+
+<div class="viewcode-block" id="Connection.setblocking"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.setblocking">[docs]</a>    <span class="k">def</span> <span class="nf">setblocking</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;Set this connection&#39;s underlying socket to _mode_.</span>
+
+<span class="sd">        Set blocking or non-blocking mode of the socket: if flag is 0,</span>
+<span class="sd">        the socket is set to non-blocking, else to blocking mode.</span>
+<span class="sd">        Initially all sockets are in blocking mode. In non-blocking mode,</span>
+<span class="sd">        if a recv() call doesn&#39;t find any data, or if a send() call can&#39;t</span>
+<span class="sd">        immediately dispose of the data, a error exception is raised;</span>
+<span class="sd">        in blocking mode, the calls block until they can proceed.</span>
+<span class="sd">        s.setblocking(0) is equivalent to s.settimeout(0.0);</span>
+<span class="sd">        s.setblocking(1) is equivalent to s.settimeout(None).</span>
+
+<span class="sd">        :param mode: new mode to be set</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">setblocking</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span> <span class="o">=</span> <span class="mf">0.0</span>
+</div>
+<div class="viewcode-block" id="Connection.settimeout"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.settimeout">[docs]</a>    <span class="k">def</span> <span class="nf">settimeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
+        <span class="c1"># type: (float) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;Set this connection&#39;s underlying socket&#39;s timeout to _timeout_.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">settimeout</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span> <span class="o">=</span> <span class="n">timeout</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_timeout</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+</div>
+<div class="viewcode-block" id="Connection.fileno"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.fileno">[docs]</a>    <span class="k">def</span> <span class="nf">fileno</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">fileno</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Connection.getsockopt"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.getsockopt">[docs]</a>    <span class="k">def</span> <span class="nf">getsockopt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">optname</span><span class="p">,</span> <span class="n">buflen</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="c1"># type: (int, int, Optional[int]) -&gt; Union[int, bytes]</span>
+        <span class="sd">&quot;&quot;&quot;Get the value of the given socket option.</span>
+
+<span class="sd">        :param level: level at which the option resides.</span>
+<span class="sd">               To manipulate options at the sockets API level, level is</span>
+<span class="sd">               specified as socket.SOL_SOCKET. To manipulate options at</span>
+<span class="sd">               any other level the protocol number of the appropriate</span>
+<span class="sd">               protocol controlling the option is supplied. For example,</span>
+<span class="sd">               to indicate that an option is to be interpreted by the</span>
+<span class="sd">               TCP protocol, level should be set to the protocol number</span>
+<span class="sd">               of socket.SOL_TCP; see getprotoent(3).</span>
+
+<span class="sd">        :param optname: The value of the given socket option is</span>
+<span class="sd">               described in the Unix man page getsockopt(2)). The needed</span>
+<span class="sd">               symbolic constants (SO_* etc.) are defined in the socket</span>
+<span class="sd">               module.</span>
+<span class="sd">        </span>
+<span class="sd">        :param buflen: If it is absent, an integer option is assumed</span>
+<span class="sd">               and its integer value is returned by the function. If</span>
+<span class="sd">               buflen is present, it specifies the maximum length of the</span>
+<span class="sd">               buffer used to receive the option in, and this buffer is</span>
+<span class="sd">               returned as a bytes object.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: Either integer or bytes value of the option. It is up</span>
+<span class="sd">                 to the caller to decode the contents of the buffer (see</span>
+<span class="sd">                 the optional built-in module struct for a way to decode</span>
+<span class="sd">                 C structures encoded as byte strings).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">getsockopt</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="n">optname</span><span class="p">,</span> <span class="n">buflen</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.setsockopt"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.setsockopt">[docs]</a>    <span class="k">def</span> <span class="nf">setsockopt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">optname</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="c1"># type: (int, int, Union[int, bytes, None]) -&gt; Optional[bytes]</span>
+        <span class="sd">&quot;&quot;&quot;Set the value of the given socket option.</span>
+
+<span class="sd">        :param level: same as with getsockopt() above</span>
+<span class="sd">        </span>
+<span class="sd">        :param optname: same as with getsockopt() above</span>
+<span class="sd">        </span>
+<span class="sd">        :param value: an integer or a string representing a buffer. In</span>
+<span class="sd">                      the latter case it is up to the caller to ensure</span>
+<span class="sd">                      that the string contains the proper bits (see the</span>
+<span class="sd">                      optional built-in module struct for a way to</span>
+<span class="sd">                      encode C structures as strings).</span>
+<span class="sd">        </span>
+<span class="sd">        :return: None for success or the error handler for failure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="n">optname</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.get_context"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.get_context">[docs]</a>    <span class="k">def</span> <span class="nf">get_context</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; SSL.Context</span>
+        <span class="sd">&quot;&quot;&quot;Return the SSL.Context object associated with this connection.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_ssl_ctx</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.get_state"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.get_state">[docs]</a>    <span class="k">def</span> <span class="nf">get_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="sd">&quot;&quot;&quot;Return the SSL state of this connection.</span>
+
+<span class="sd">        During its use, an SSL objects passes several states. The state</span>
+<span class="sd">        is internally maintained. Querying the state information is not</span>
+<span class="sd">        very informative before or when a connection has been</span>
+<span class="sd">        established. It however can be of significant interest during</span>
+<span class="sd">        the handshake.</span>
+
+<span class="sd">        :return: 6 letter string indicating the current state of the SSL</span>
+<span class="sd">                 object ssl.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.verify_ok"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.verify_ok">[docs]</a>    <span class="k">def</span> <span class="nf">verify_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bool</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_verify_result</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span> <span class="o">==</span> <span class="n">m2</span><span class="o">.</span><span class="n">X509_V_OK</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.get_verify_mode"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.get_verify_mode">[docs]</a>    <span class="k">def</span> <span class="nf">get_verify_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;Return the peer certificate verification mode.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_verify_mode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.get_verify_depth"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.get_verify_depth">[docs]</a>    <span class="k">def</span> <span class="nf">get_verify_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;Return the peer certificate verification depth.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_verify_depth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.get_verify_result"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.get_verify_result">[docs]</a>    <span class="k">def</span> <span class="nf">get_verify_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;Return the peer certificate verification result.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_verify_result</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.get_peer_cert"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.get_peer_cert">[docs]</a>    <span class="k">def</span> <span class="nf">get_peer_cert</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; X509.X509</span>
+        <span class="sd">&quot;&quot;&quot;Return the peer certificate.</span>
+
+<span class="sd">        If the peer did not provide a certificate, return None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_peer_cert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="c1"># Need to free the pointer coz OpenSSL doesn&#39;t.</span>
+        <span class="k">return</span> <span class="n">X509</span><span class="o">.</span><span class="n">X509</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.get_peer_cert_chain"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.get_peer_cert_chain">[docs]</a>    <span class="k">def</span> <span class="nf">get_peer_cert_chain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; Optional[X509.X509_Stack]</span>
+        <span class="sd">&quot;&quot;&quot;Return the peer certificate chain; if the peer did not provide</span>
+<span class="sd">        a certificate chain, return None.</span>
+
+<span class="sd">        :warning: The returned chain will be valid only for as long as the</span>
+<span class="sd">                  connection object is alive. Once the connection object</span>
+<span class="sd">                  gets freed, the chain will be freed as well.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_peer_cert_chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="c1"># No need to free the pointer coz OpenSSL does.</span>
+        <span class="k">return</span> <span class="n">X509</span><span class="o">.</span><span class="n">X509_Stack</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.get_cipher"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.get_cipher">[docs]</a>    <span class="k">def</span> <span class="nf">get_cipher</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; Optional[SSL.Cipher]</span>
+        <span class="sd">&quot;&quot;&quot;Return an M2Crypto.SSL.Cipher object for this connection; if the</span>
+<span class="sd">        connection has not been initialised with a cipher suite, return None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_current_cipher</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="n">Cipher</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.get_ciphers"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.get_ciphers">[docs]</a>    <span class="k">def</span> <span class="nf">get_ciphers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; Optional[SSL:Cipher_Stack]</span>
+        <span class="sd">&quot;&quot;&quot;Return an M2Crypto.SSL.Cipher_Stack object for this</span>
+<span class="sd">        connection; if the connection has not been initialised with</span>
+<span class="sd">        cipher suites, return None.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_ciphers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">c</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="n">Cipher_Stack</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.get_cipher_list"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.get_cipher_list">[docs]</a>    <span class="k">def</span> <span class="nf">get_cipher_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; str</span>
+        <span class="sd">&quot;&quot;&quot;Return the cipher suites for this connection as a string object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_cipher_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.set_cipher_list"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.set_cipher_list">[docs]</a>    <span class="k">def</span> <span class="nf">set_cipher_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cipher_list</span><span class="p">):</span>
+        <span class="c1"># type: (str) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;Set the cipher suites for this connection.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_set_cipher_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">,</span> <span class="n">cipher_list</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.makefile"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.makefile">[docs]</a>    <span class="k">def</span> <span class="nf">makefile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">,</span> <span class="n">bufsize</span><span class="o">=-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="c1"># type: (AnyStr, int) -&gt; socket._fileobject</span>
+        <span class="k">return</span> <span class="n">socket</span><span class="o">.</span><span class="n">_fileobject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">bufsize</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.getsockname"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.getsockname">[docs]</a>    <span class="k">def</span> <span class="nf">getsockname</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; util.AddrType</span>
+        <span class="sd">&quot;&quot;&quot;Return the socket&#39;s own address.</span>
+
+<span class="sd">        This is useful to find out the port number of an IPv4/v6 socket,</span>
+<span class="sd">        for instance. (The format of the address returned depends</span>
+<span class="sd">        on the address family -- see above.)</span>
+
+<span class="sd">        :return:socket&#39;s address as addr type</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">getsockname</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Connection.getpeername"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.getpeername">[docs]</a>    <span class="k">def</span> <span class="nf">getpeername</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; util.AddrType</span>
+        <span class="sd">&quot;&quot;&quot;Return the remote address to which the socket is connected.</span>
+
+<span class="sd">        This is useful to find out the port number of a remote IPv4/v6 socket,</span>
+<span class="sd">        for instance.</span>
+<span class="sd">        On some systems this function is not supported.</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">getpeername</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Connection.set_session_id_ctx"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.set_session_id_ctx">[docs]</a>    <span class="k">def</span> <span class="nf">set_session_id_ctx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="c1"># type: (bytes) -&gt; int</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_set_session_id_context</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ret</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">SSLError</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">err_reason_error_string</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">err_get_error</span><span class="p">()))</span>
+</div>
+<div class="viewcode-block" id="Connection.get_session"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.get_session">[docs]</a>    <span class="k">def</span> <span class="nf">get_session</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; SSL.Session</span>
+        <span class="n">sess</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_session</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Session</span><span class="p">(</span><span class="n">sess</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.set_session"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.set_session">[docs]</a>    <span class="k">def</span> <span class="nf">set_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">):</span>
+        <span class="c1"># type: (SSL.Session) -&gt; None</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">ssl_set_session</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="Connection.get_default_session_timeout"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.get_default_session_timeout">[docs]</a>    <span class="k">def</span> <span class="nf">get_default_session_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_default_session_timeout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.get_socket_read_timeout"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.get_socket_read_timeout">[docs]</a>    <span class="k">def</span> <span class="nf">get_socket_read_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; SSL.timeout</span>
+        <span class="k">return</span> <span class="n">timeout</span><span class="o">.</span><span class="n">struct_to_timeout</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">getsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_RCVTIMEO</span><span class="p">,</span>
+                                   <span class="n">timeout</span><span class="o">.</span><span class="n">struct_size</span><span class="p">()))</span>
+</div>
+<div class="viewcode-block" id="Connection.get_socket_write_timeout"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.get_socket_write_timeout">[docs]</a>    <span class="k">def</span> <span class="nf">get_socket_write_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; SSL.timeout</span>
+        <span class="k">return</span> <span class="n">timeout</span><span class="o">.</span><span class="n">struct_to_timeout</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">getsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_SNDTIMEO</span><span class="p">,</span>
+                                   <span class="n">timeout</span><span class="o">.</span><span class="n">struct_size</span><span class="p">()))</span>
+</div>
+<div class="viewcode-block" id="Connection.set_socket_read_timeout"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.set_socket_read_timeout">[docs]</a>    <span class="k">def</span> <span class="nf">set_socket_read_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeo</span><span class="p">):</span>
+        <span class="c1"># type: (SSL.timeout) -&gt; None</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">timeo</span><span class="p">,</span> <span class="n">timeout</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span>
+            <span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_RCVTIMEO</span><span class="p">,</span> <span class="n">timeo</span><span class="o">.</span><span class="n">pack</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="Connection.set_socket_write_timeout"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.set_socket_write_timeout">[docs]</a>    <span class="k">def</span> <span class="nf">set_socket_write_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeo</span><span class="p">):</span>
+        <span class="c1"># type: (SSL.timeout) -&gt; None</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">timeo</span><span class="p">,</span> <span class="n">timeout</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">socket</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span>
+            <span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SO_SNDTIMEO</span><span class="p">,</span> <span class="n">timeo</span><span class="o">.</span><span class="n">pack</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="Connection.get_version"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.get_version">[docs]</a>    <span class="k">def</span> <span class="nf">get_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; str</span>
+        <span class="sd">&quot;&quot;&quot;Return the TLS/SSL protocol version for this connection.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_get_version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Connection.set_post_connection_check_callback"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.set_post_connection_check_callback">[docs]</a>    <span class="k">def</span> <span class="nf">set_post_connection_check_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">postConnectionCheck</span><span class="p">):</span>  <span class="c1"># noqa</span>
+        <span class="c1"># type: (Callable) -&gt; None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">postConnectionCheck</span> <span class="o">=</span> <span class="n">postConnectionCheck</span>
+</div>
+<div class="viewcode-block" id="Connection.set_tlsext_host_name"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.set_tlsext_host_name">[docs]</a>    <span class="k">def</span> <span class="nf">set_tlsext_host_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="c1"># type: (bytes) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;Set the requested hostname for the SNI (Server Name Indication)</span>
+<span class="sd">        extension.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">ssl_set_tlsext_host_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../SSL.html" >M2Crypto.SSL</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

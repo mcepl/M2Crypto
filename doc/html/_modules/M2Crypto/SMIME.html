@@ -1,0 +1,416 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>M2Crypto.SMIME &mdash; M2Crypto  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="M2Crypto  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for M2Crypto.SMIME</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="sd">&quot;&quot;&quot;M2Crypto wrapper for OpenSSL S/MIME API.</span>
+
+<span class="sd">Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">EVP</span><span class="p">,</span> <span class="n">Err</span><span class="p">,</span> <span class="n">X509</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>
+<span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>  <span class="c1"># noqa</span>
+
+<span class="n">PKCS7_TEXT</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">PKCS7_TEXT</span>  <span class="c1"># type: int</span>
+<span class="n">PKCS7_NOCERTS</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">PKCS7_NOCERTS</span>  <span class="c1"># type: int</span>
+<span class="n">PKCS7_NOSIGS</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">PKCS7_NOSIGS</span>  <span class="c1"># type: int</span>
+<span class="n">PKCS7_NOCHAIN</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">PKCS7_NOCHAIN</span>  <span class="c1"># type: int</span>
+<span class="n">PKCS7_NOINTERN</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">PKCS7_NOINTERN</span>  <span class="c1"># type: int</span>
+<span class="n">PKCS7_NOVERIFY</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">PKCS7_NOVERIFY</span>  <span class="c1"># type: int</span>
+<span class="n">PKCS7_DETACHED</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">PKCS7_DETACHED</span>  <span class="c1"># type: int</span>
+<span class="n">PKCS7_BINARY</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">PKCS7_BINARY</span>  <span class="c1"># type: int</span>
+<span class="n">PKCS7_NOATTR</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">PKCS7_NOATTR</span>  <span class="c1"># type: int</span>
+
+<span class="n">PKCS7_SIGNED</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">PKCS7_SIGNED</span>  <span class="c1"># type: int</span>
+<span class="n">PKCS7_ENVELOPED</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">PKCS7_ENVELOPED</span>  <span class="c1"># type: int</span>
+<span class="n">PKCS7_SIGNED_ENVELOPED</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">PKCS7_SIGNED_ENVELOPED</span>  <span class="c1"># Deprecated</span>
+<span class="n">PKCS7_DATA</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">PKCS7_DATA</span>  <span class="c1"># type: int</span>
+
+
+<div class="viewcode-block" id="PKCS7_Error"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.PKCS7_Error">[docs]</a><span class="k">class</span> <span class="nc">PKCS7_Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>  <span class="c1"># noqa</span>
+    <span class="k">pass</span>
+</div>
+<span class="n">m2</span><span class="o">.</span><span class="n">pkcs7_init</span><span class="p">(</span><span class="n">PKCS7_Error</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="PKCS7"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.PKCS7">[docs]</a><span class="k">class</span> <span class="nc">PKCS7</span><span class="p">:</span>
+
+    <span class="n">m2_pkcs7_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkcs7_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkcs7</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (Optional[bytes], int) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param pkcs7: binary representation of</span>
+<span class="sd">               the OpenSSL type PKCS7</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">pkcs7</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pkcs7</span> <span class="o">=</span> <span class="n">pkcs7</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pkcs7</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkcs7_new</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_pkcs7_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkcs7</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkcs7</span>
+
+<div class="viewcode-block" id="PKCS7.type"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.PKCS7.type">[docs]</a>    <span class="k">def</span> <span class="nf">type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text_name</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; int</span>
+        <span class="k">if</span> <span class="n">text_name</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkcs7_type_sn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkcs7</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkcs7_type_nid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkcs7</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="PKCS7.write"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.PKCS7.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bio</span><span class="p">):</span>
+        <span class="c1"># type: (BIO.BIO) -&gt; int</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkcs7_write_bio</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkcs7</span><span class="p">,</span> <span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="PKCS7.write_der"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.PKCS7.write_der">[docs]</a>    <span class="k">def</span> <span class="nf">write_der</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bio</span><span class="p">):</span>
+        <span class="c1"># type: (BIO.BIO) -&gt; int</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkcs7_write_bio_der</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkcs7</span><span class="p">,</span> <span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="PKCS7.get0_signers"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.PKCS7.get0_signers">[docs]</a>    <span class="k">def</span> <span class="nf">get0_signers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">certs</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (X509.X509_Stack, int) -&gt; X509.X509_Stack</span>
+        <span class="k">return</span> <span class="n">X509</span><span class="o">.</span><span class="n">X509_Stack</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">pkcs7_get0_signers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkcs7</span><span class="p">,</span>
+                                                     <span class="n">certs</span><span class="o">.</span><span class="n">stack</span><span class="p">,</span> <span class="n">flags</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="load_pkcs7"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.load_pkcs7">[docs]</a><span class="k">def</span> <span class="nf">load_pkcs7</span><span class="p">(</span><span class="n">p7file</span><span class="p">):</span>
+    <span class="c1"># type: (AnyStr) -&gt; PKCS7</span>
+    <span class="n">bio</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_new_file</span><span class="p">(</span><span class="n">p7file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bio</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">BIO</span><span class="o">.</span><span class="n">BIOError</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">p7_ptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkcs7_read_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">bio_free</span><span class="p">(</span><span class="n">bio</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">p7_ptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">PKCS7_Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">PKCS7</span><span class="p">(</span><span class="n">p7_ptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="load_pkcs7_der"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.load_pkcs7_der">[docs]</a><span class="k">def</span> <span class="nf">load_pkcs7_der</span><span class="p">(</span><span class="n">p7file</span><span class="p">):</span>
+    <span class="c1"># type: (AnyStr) -&gt; PKCS7</span>
+    <span class="n">bio</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_new_file</span><span class="p">(</span><span class="n">p7file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bio</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">BIO</span><span class="o">.</span><span class="n">BIOError</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">p7_ptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkcs7_read_bio_der</span><span class="p">(</span><span class="n">bio</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">bio_free</span><span class="p">(</span><span class="n">bio</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">p7_ptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">PKCS7_Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">PKCS7</span><span class="p">(</span><span class="n">p7_ptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="load_pkcs7_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.load_pkcs7_bio">[docs]</a><span class="k">def</span> <span class="nf">load_pkcs7_bio</span><span class="p">(</span><span class="n">p7_bio</span><span class="p">):</span>
+    <span class="c1"># type: (BIO.BIO) -&gt; PKCS7</span>
+    <span class="n">p7_ptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkcs7_read_bio</span><span class="p">(</span><span class="n">p7_bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">p7_ptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">PKCS7_Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">PKCS7</span><span class="p">(</span><span class="n">p7_ptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="load_pkcs7_bio_der"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.load_pkcs7_bio_der">[docs]</a><span class="k">def</span> <span class="nf">load_pkcs7_bio_der</span><span class="p">(</span><span class="n">p7_bio</span><span class="p">):</span>
+    <span class="c1"># type: (BIO.BIO) -&gt; PKCS7</span>
+    <span class="n">p7_ptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkcs7_read_bio_der</span><span class="p">(</span><span class="n">p7_bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">p7_ptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">PKCS7_Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">PKCS7</span><span class="p">(</span><span class="n">p7_ptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="smime_load_pkcs7"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.smime_load_pkcs7">[docs]</a><span class="k">def</span> <span class="nf">smime_load_pkcs7</span><span class="p">(</span><span class="n">p7file</span><span class="p">):</span>
+    <span class="c1"># type: (AnyStr) -&gt; PKCS7</span>
+    <span class="n">bio</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_new_file</span><span class="p">(</span><span class="n">p7file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bio</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">BIO</span><span class="o">.</span><span class="n">BIOError</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">p7_ptr</span><span class="p">,</span> <span class="n">bio_ptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">smime_read_pkcs7</span><span class="p">(</span><span class="n">bio</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">bio_free</span><span class="p">(</span><span class="n">bio</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">p7_ptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">SMIME_Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">bio_ptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">PKCS7</span><span class="p">(</span><span class="n">p7_ptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="bp">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">PKCS7</span><span class="p">(</span><span class="n">p7_ptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">BIO</span><span class="o">.</span><span class="n">BIO</span><span class="p">(</span><span class="n">bio_ptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="smime_load_pkcs7_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.smime_load_pkcs7_bio">[docs]</a><span class="k">def</span> <span class="nf">smime_load_pkcs7_bio</span><span class="p">(</span><span class="n">p7_bio</span><span class="p">):</span>
+    <span class="c1"># type: (BIO.BIO) -&gt; PKCS7</span>
+    <span class="n">p7_ptr</span><span class="p">,</span> <span class="n">bio_ptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">smime_read_pkcs7</span><span class="p">(</span><span class="n">p7_bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">p7_ptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">SMIME_Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">bio_ptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">PKCS7</span><span class="p">(</span><span class="n">p7_ptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="bp">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">PKCS7</span><span class="p">(</span><span class="n">p7_ptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">BIO</span><span class="o">.</span><span class="n">BIO</span><span class="p">(</span><span class="n">bio_ptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Cipher"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.Cipher">[docs]</a><span class="k">class</span> <span class="nc">Cipher</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;Object interface to EVP_CIPHER without all the frills of</span>
+<span class="sd">    M2Crypto.EVP.Cipher.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algo</span><span class="p">):</span>
+        <span class="c1"># type: (str) -&gt; None</span>
+        <span class="n">cipher</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="n">algo</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cipher</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown cipher&#39;</span><span class="p">,</span> <span class="n">algo</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cipher</span> <span class="o">=</span> <span class="n">cipher</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cipher</span>
+
+</div>
+<div class="viewcode-block" id="SMIME_Error"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.SMIME_Error">[docs]</a><span class="k">class</span> <span class="nc">SMIME_Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>  <span class="c1"># noqa</span>
+    <span class="k">pass</span>
+</div>
+<span class="n">m2</span><span class="o">.</span><span class="n">smime_init</span><span class="p">(</span><span class="n">SMIME_Error</span><span class="p">)</span>
+
+<span class="c1"># FIXME class has no __init__ method</span>
+<div class="viewcode-block" id="SMIME"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.SMIME">[docs]</a><span class="k">class</span> <span class="nc">SMIME</span><span class="p">:</span>
+<div class="viewcode-block" id="SMIME.load_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.SMIME.load_key">[docs]</a>    <span class="k">def</span> <span class="nf">load_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keyfile</span><span class="p">,</span> <span class="n">certfile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
+        <span class="c1"># type: (AnyStr, Optional[AnyStr], Callable) -&gt; None</span>
+        <span class="k">if</span> <span class="n">certfile</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">certfile</span> <span class="o">=</span> <span class="n">keyfile</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pkey</span> <span class="o">=</span> <span class="n">EVP</span><span class="o">.</span><span class="n">load_key</span><span class="p">(</span><span class="n">keyfile</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x509</span> <span class="o">=</span> <span class="n">X509</span><span class="o">.</span><span class="n">load_cert</span><span class="p">(</span><span class="n">certfile</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SMIME.load_key_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.SMIME.load_key_bio">[docs]</a>    <span class="k">def</span> <span class="nf">load_key_bio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keybio</span><span class="p">,</span> <span class="n">certbio</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                     <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
+        <span class="c1"># type: (BIO.BIO, Optional[BIO.BIO], Callable) -&gt; None</span>
+        <span class="k">if</span> <span class="n">certbio</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">certbio</span> <span class="o">=</span> <span class="n">keybio</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pkey</span> <span class="o">=</span> <span class="n">EVP</span><span class="o">.</span><span class="n">load_key_bio</span><span class="p">(</span><span class="n">keybio</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x509</span> <span class="o">=</span> <span class="n">X509</span><span class="o">.</span><span class="n">load_cert_bio</span><span class="p">(</span><span class="n">certbio</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SMIME.set_x509_stack"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.SMIME.set_x509_stack">[docs]</a>    <span class="k">def</span> <span class="nf">set_x509_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stack</span><span class="p">):</span>
+        <span class="c1"># type: (X509.X509_Stack) -&gt; None</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="n">X509</span><span class="o">.</span><span class="n">X509_Stack</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x509_stack</span> <span class="o">=</span> <span class="n">stack</span>
+</div>
+<div class="viewcode-block" id="SMIME.set_x509_store"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.SMIME.set_x509_store">[docs]</a>    <span class="k">def</span> <span class="nf">set_x509_store</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">store</span><span class="p">):</span>
+        <span class="c1"># type: (X509.X509_Store) -&gt; None</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">store</span><span class="p">,</span> <span class="n">X509</span><span class="o">.</span><span class="n">X509_Store</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x509_store</span> <span class="o">=</span> <span class="n">store</span>
+</div>
+<div class="viewcode-block" id="SMIME.set_cipher"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.SMIME.set_cipher">[docs]</a>    <span class="k">def</span> <span class="nf">set_cipher</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cipher</span><span class="p">):</span>
+        <span class="c1"># type: (Cipher) -&gt; None</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cipher</span><span class="p">,</span> <span class="n">Cipher</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cipher</span> <span class="o">=</span> <span class="n">cipher</span>
+</div>
+<div class="viewcode-block" id="SMIME.unset_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.SMIME.unset_key">[docs]</a>    <span class="k">def</span> <span class="nf">unset_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkey</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">x509</span>
+</div>
+<div class="viewcode-block" id="SMIME.unset_x509_stack"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.SMIME.unset_x509_stack">[docs]</a>    <span class="k">def</span> <span class="nf">unset_x509_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">x509_stack</span>
+</div>
+<div class="viewcode-block" id="SMIME.unset_x509_store"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.SMIME.unset_x509_store">[docs]</a>    <span class="k">def</span> <span class="nf">unset_x509_store</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">x509_store</span>
+</div>
+<div class="viewcode-block" id="SMIME.unset_cipher"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.SMIME.unset_cipher">[docs]</a>    <span class="k">def</span> <span class="nf">unset_cipher</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">cipher</span>
+</div>
+<div class="viewcode-block" id="SMIME.encrypt"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.SMIME.encrypt">[docs]</a>    <span class="k">def</span> <span class="nf">encrypt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_bio</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (BIO.BIO, int) -&gt; PKCS7</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;cipher&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">SMIME_Error</span><span class="p">(</span><span class="s1">&#39;no cipher: use set_cipher()&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;x509_stack&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">SMIME_Error</span><span class="p">(</span><span class="s1">&#39;no recipient certs: use set_x509_stack()&#39;</span><span class="p">)</span>
+        <span class="n">pkcs7</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkcs7_encrypt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_stack</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="n">data_bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span>
+                                 <span class="bp">self</span><span class="o">.</span><span class="n">cipher</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="n">flags</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pkcs7</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">SMIME_Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">PKCS7</span><span class="p">(</span><span class="n">pkcs7</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SMIME.decrypt"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.SMIME.decrypt">[docs]</a>    <span class="k">def</span> <span class="nf">decrypt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkcs7</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (PKCS7, int) -&gt; Optional[bytes]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;pkey&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">SMIME_Error</span><span class="p">(</span><span class="s1">&#39;no private key: use load_key()&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;x509&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">SMIME_Error</span><span class="p">(</span><span class="s1">&#39;no certificate: load_key() used incorrectly?&#39;</span><span class="p">)</span>
+        <span class="n">blob</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkcs7_decrypt</span><span class="p">(</span><span class="n">pkcs7</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkey</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="n">flags</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">blob</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">SMIME_Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">blob</span>
+</div>
+<div class="viewcode-block" id="SMIME.sign"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.SMIME.sign">[docs]</a>    <span class="k">def</span> <span class="nf">sign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_bio</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">algo</span><span class="o">=</span><span class="s1">&#39;sha1&#39;</span><span class="p">):</span>
+        <span class="c1"># type: (BIO.BIO, int, Optional[str]) -&gt; PKCS7</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;pkey&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">SMIME_Error</span><span class="p">(</span><span class="s1">&#39;no private key: use load_key()&#39;</span><span class="p">)</span>
+
+        <span class="nb">hash</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="n">algo</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">hash</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">SMIME_Error</span><span class="p">(</span><span class="s1">&#39;no such hash algorithm </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">algo</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;x509_stack&#39;</span><span class="p">):</span>
+            <span class="n">pkcs7</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkcs7_sign1</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkey</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">x509_stack</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span>
+                                   <span class="n">data_bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="nb">hash</span><span class="p">(),</span> <span class="n">flags</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pkcs7</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">SMIME_Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+            <span class="k">return</span> <span class="n">PKCS7</span><span class="p">(</span><span class="n">pkcs7</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">pkcs7</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkcs7_sign0</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkey</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span>
+                                   <span class="n">data_bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="nb">hash</span><span class="p">(),</span> <span class="n">flags</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">pkcs7</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">SMIME_Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+            <span class="k">return</span> <span class="n">PKCS7</span><span class="p">(</span><span class="n">pkcs7</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SMIME.verify"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.SMIME.verify">[docs]</a>    <span class="k">def</span> <span class="nf">verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkcs7</span><span class="p">,</span> <span class="n">data_bio</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (PKCS7, BIO.BIO, int) -&gt; Optional[bytes]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;x509_stack&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">SMIME_Error</span><span class="p">(</span><span class="s1">&#39;no signer certs: use set_x509_stack()&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;x509_store&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">SMIME_Error</span><span class="p">(</span><span class="s1">&#39;no x509 cert store: use set_x509_store()&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pkcs7</span><span class="p">,</span> <span class="n">PKCS7</span><span class="p">),</span> <span class="s1">&#39;pkcs7 not an instance of PKCS7&#39;</span>
+        <span class="n">p7</span> <span class="o">=</span> <span class="n">pkcs7</span><span class="o">.</span><span class="n">_ptr</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">data_bio</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">blob</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkcs7_verify0</span><span class="p">(</span><span class="n">p7</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x509_stack</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">x509_store</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="n">flags</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">blob</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkcs7_verify1</span><span class="p">(</span><span class="n">p7</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x509_stack</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">x509_store</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span>
+                                    <span class="n">data_bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="n">flags</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">blob</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">SMIME_Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">blob</span>
+</div>
+<div class="viewcode-block" id="SMIME.write"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.SMIME.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">out_bio</span><span class="p">,</span> <span class="n">pkcs7</span><span class="p">,</span> <span class="n">data_bio</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (BIO.BIO, PKCS7, Optional[BIO.BIO], int) -&gt; int</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pkcs7</span><span class="p">,</span> <span class="n">PKCS7</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data_bio</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">smime_write_pkcs7</span><span class="p">(</span><span class="n">out_bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="n">pkcs7</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="n">flags</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">smime_write_pkcs7_multi</span><span class="p">(</span><span class="n">out_bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="n">pkcs7</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span>
+                                              <span class="n">data_bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="n">flags</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="text_crlf"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.text_crlf">[docs]</a><span class="k">def</span> <span class="nf">text_crlf</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="c1"># type: (bytes) -&gt; bytes</span>
+    <span class="n">bio_in</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">bio_out</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">m2</span><span class="o">.</span><span class="n">smime_crlf_copy</span><span class="p">(</span><span class="n">bio_in</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="n">bio_out</span><span class="o">.</span><span class="n">_ptr</span><span class="p">()):</span>
+        <span class="k">return</span> <span class="n">bio_out</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">SMIME_Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+
+</div>
+<div class="viewcode-block" id="text_crlf_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.SMIME.text_crlf_bio">[docs]</a><span class="k">def</span> <span class="nf">text_crlf_bio</span><span class="p">(</span><span class="n">bio_in</span><span class="p">):</span>
+    <span class="c1"># type: (BIO.BIO) -&gt; BIO.BIO</span>
+    <span class="n">bio_out</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">m2</span><span class="o">.</span><span class="n">smime_crlf_copy</span><span class="p">(</span><span class="n">bio_in</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="n">bio_out</span><span class="o">.</span><span class="n">_ptr</span><span class="p">()):</span>
+        <span class="k">return</span> <span class="n">bio_out</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">SMIME_Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

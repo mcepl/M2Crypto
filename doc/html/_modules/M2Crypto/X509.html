@@ -1,0 +1,1504 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>M2Crypto.X509 &mdash; M2Crypto  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="M2Crypto  documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for M2Crypto.X509</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+
+<span class="sd">&quot;&quot;&quot;M2Crypto wrapper for OpenSSL X509 API.</span>
+
+<span class="sd">Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.</span>
+
+<span class="sd">Portions created by Open Source Applications Foundation (OSAF) are</span>
+<span class="sd">Copyright (C) 2004-2007 OSAF. All Rights Reserved.</span>
+<span class="sd">Author: Heikki Toivonen</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">binascii</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">ASN1</span><span class="p">,</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">EVP</span><span class="p">,</span> <span class="n">Err</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>  <span class="c1"># noqa</span>
+<span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Optional</span>  <span class="c1"># noqa</span>
+
+<span class="n">FORMAT_DER</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">FORMAT_PEM</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="X509Error"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509Error">[docs]</a><span class="k">class</span> <span class="nc">X509Error</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="k">pass</span>
+</div>
+<span class="n">m2</span><span class="o">.</span><span class="n">x509_init</span><span class="p">(</span><span class="n">X509Error</span><span class="p">)</span>
+
+<span class="n">V_OK</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">X509_V_OK</span>  <span class="c1"># type: int</span>
+
+
+<div class="viewcode-block" id="x509_store_default_cb"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.x509_store_default_cb">[docs]</a><span class="k">def</span> <span class="nf">x509_store_default_cb</span><span class="p">(</span><span class="n">ok</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+    <span class="c1"># type: (int, X509_Store_Context) -&gt; int</span>
+    <span class="k">return</span> <span class="n">ok</span>
+
+</div>
+<div class="viewcode-block" id="new_extension"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.new_extension">[docs]</a><span class="k">def</span> <span class="nf">new_extension</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">critical</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="c1"># type: (str, bytes, int, int) -&gt; X509_Extension</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create new X509_Extension instance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;subjectKeyIdentifier&#39;</span> <span class="ow">and</span> \
+            <span class="n">value</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;0123456789abcdefABCDEF:&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;value must be precomputed hash&#39;</span><span class="p">)</span>
+    <span class="n">ctx</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509v3_set_nconf</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">ctx</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">MemoryError</span><span class="p">(</span>
+            <span class="s1">&#39;Not enough memory when creating a new X509 extension&#39;</span><span class="p">)</span>
+    <span class="n">x509_ext_ptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509v3_ext_conf</span><span class="p">(</span><span class="bp">None</span><span class="p">,</span> <span class="n">ctx</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">x509_ext_ptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">X509Error</span><span class="p">(</span>
+            <span class="s2">&quot;Cannot create X509_Extension with name &#39;</span><span class="si">%s</span><span class="s2">&#39; and value &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span>
+            <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+    <span class="n">x509_ext</span> <span class="o">=</span> <span class="n">X509_Extension</span><span class="p">(</span><span class="n">x509_ext_ptr</span><span class="p">,</span> <span class="n">_pyfree</span><span class="p">)</span>
+    <span class="n">x509_ext</span><span class="o">.</span><span class="n">set_critical</span><span class="p">(</span><span class="n">critical</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">x509_ext</span>
+
+</div>
+<div class="viewcode-block" id="X509_Extension"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Extension">[docs]</a><span class="k">class</span> <span class="nc">X509_Extension</span><span class="p">:</span>  <span class="c1"># noqa</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    X509 Extension</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">m2_x509_extension_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_extension_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x509_ext_ptr</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="c1"># type: (Optional[bytes], int) -&gt; None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x509_ext</span> <span class="o">=</span> <span class="n">x509_ext_ptr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">x509_ext</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_x509_extension_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_ext</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x509_ext</span>
+
+<div class="viewcode-block" id="X509_Extension.set_critical"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Extension.set_critical">[docs]</a>    <span class="k">def</span> <span class="nf">set_critical</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">critical</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Mark this extension critical or noncritical. By default an</span>
+<span class="sd">        extension is not critical.</span>
+
+<span class="sd">        :param critical: Nonzero sets this extension as critical.</span>
+<span class="sd">                         Calling this method without arguments will</span>
+<span class="sd">                         set this extension to critical.</span>
+<span class="sd">        :return: 1 for success, 0 for failure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_extension_set_critical</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_ext</span><span class="p">,</span> <span class="n">critical</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509_Extension.get_critical"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Extension.get_critical">[docs]</a>    <span class="k">def</span> <span class="nf">get_critical</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return whether or not this is a critical extension.</span>
+
+<span class="sd">        :return:  Nonzero if this is a critical extension.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_extension_get_critical</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_ext</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509_Extension.get_name"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Extension.get_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; str</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the extension name, for example &#39;subjectAltName&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">py3str</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">x509_extension_get_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_ext</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="X509_Extension.get_value"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Extension.get_value">[docs]</a>    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flag</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (int, int) -&gt; str</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the extension value, for example &#39;DNS:www.example.com&#39;.</span>
+
+<span class="sd">        :param flag:   Flag to control what and how to print.</span>
+<span class="sd">        :param indent: How many spaces to print before actual value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">x509_ext_print</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">x509_ext</span><span class="p">,</span> <span class="n">flag</span><span class="p">,</span> <span class="n">indent</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">py3str</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">read_all</span><span class="p">())</span>
+
+</div></div>
+<div class="viewcode-block" id="X509_Extension_Stack"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Extension_Stack">[docs]</a><span class="k">class</span> <span class="nc">X509_Extension_Stack</span><span class="p">:</span>  <span class="c1"># noqa</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    X509 Extension Stack</span>
+
+<span class="sd">    :warning: Do not modify the underlying OpenSSL stack</span>
+<span class="sd">              except through this interface, or use any OpenSSL</span>
+<span class="sd">              functions that do so indirectly. Doing so will get the</span>
+<span class="sd">              OpenSSL stack and the internal pystack of this class out</span>
+<span class="sd">              of sync, leading to python memory leaks, exceptions or</span>
+<span class="sd">              even python crashes!</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">m2_sk_x509_extension_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">sk_x509_extension_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stack</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (Optional[bytes], int) -&gt; None</span>
+        <span class="k">if</span> <span class="n">stack</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stack</span> <span class="o">=</span> <span class="n">stack</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
+            <span class="n">num</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">sk_x509_extension_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pystack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">X509_Extension</span><span class="p">(</span>
+                    <span class="n">m2</span><span class="o">.</span><span class="n">sk_x509_extension_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                    <span class="n">_pyfree</span><span class="o">=</span><span class="n">_pyfree</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stack</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">sk_x509_extension_new_null</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pystack</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># This must be kept in sync with self.stack</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="c1"># see BIO.py - unbalanced __init__ / __del__</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_sk_x509_extension_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">sk_x509_extension_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pystack</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pystack</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; X509_Extension</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pystack</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pystack</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stack</span>
+
+<div class="viewcode-block" id="X509_Extension_Stack.push"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Extension_Stack.push">[docs]</a>    <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x509_ext</span><span class="p">):</span>
+        <span class="c1"># type: (X509_Extension) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Push X509_Extension object onto the stack.</span>
+
+<span class="sd">        :param x509_ext: X509_Extension object to be pushed onto the stack.</span>
+<span class="sd">        :return: The number of extensions on the stack.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pystack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x509_ext</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">sk_x509_extension_push</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">,</span> <span class="n">x509_ext</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+        <span class="k">assert</span> <span class="n">ret</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pystack</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
+</div>
+<div class="viewcode-block" id="X509_Extension_Stack.pop"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Extension_Stack.pop">[docs]</a>    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; X509_Extension</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pop X509_Extension object from the stack.</span>
+
+<span class="sd">        :return: X509_Extension popped</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x509_ext_ptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">sk_x509_extension_pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">x509_ext_ptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pystack</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pystack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+
+</div></div>
+<div class="viewcode-block" id="X509_Name_Entry"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Name_Entry">[docs]</a><span class="k">class</span> <span class="nc">X509_Name_Entry</span><span class="p">:</span>  <span class="c1"># noqa</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    X509 Name Entry</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">m2_x509_name_entry_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_entry_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x509_name_entry</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, int) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            :param x509_name_entry: this should be OpenSSL X509_NAME_ENTRY binary</span>
+<span class="sd">            :param _pyfree:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x509_name_entry</span> <span class="o">=</span> <span class="n">x509_name_entry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_x509_name_entry_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name_entry</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x509_name_entry</span>
+
+<div class="viewcode-block" id="X509_Name_Entry.set_object"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Name_Entry.set_object">[docs]</a>    <span class="k">def</span> <span class="nf">set_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asn1obj</span><span class="p">):</span>
+        <span class="c1"># type: (ASN1.ASN1_Object) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the field name to asn1obj</span>
+
+<span class="sd">        :param asn1obj:</span>
+<span class="sd">        :return: 0 on failure, 1 on success</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_entry_set_object</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name_entry</span><span class="p">,</span>
+                                             <span class="n">asn1obj</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="X509_Name_Entry.set_data"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Name_Entry.set_data">[docs]</a>    <span class="k">def</span> <span class="nf">set_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">ASN1</span><span class="o">.</span><span class="n">MBSTRING_ASC</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, int) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the field name to asn1obj</span>
+
+<span class="sd">        :param data: data in a binary form to be set</span>
+<span class="sd">        :return: 0 on failure, 1 on success</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_entry_set_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name_entry</span><span class="p">,</span>
+                                           <span class="nb">type</span><span class="p">,</span> <span class="n">util</span><span class="o">.</span><span class="n">py3bytes</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="X509_Name_Entry.get_object"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Name_Entry.get_object">[docs]</a>    <span class="k">def</span> <span class="nf">get_object</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; ASN1.ASN1_Object</span>
+        <span class="k">return</span> <span class="n">ASN1</span><span class="o">.</span><span class="n">ASN1_Object</span><span class="p">(</span>
+            <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_entry_get_object</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name_entry</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="X509_Name_Entry.get_data"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Name_Entry.get_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; ASN1.ASN1_String</span>
+        <span class="k">return</span> <span class="n">ASN1</span><span class="o">.</span><span class="n">ASN1_String</span><span class="p">(</span>
+            <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_entry_get_data</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name_entry</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="X509_Name_Entry.create_by_txt"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Name_Entry.create_by_txt">[docs]</a>    <span class="k">def</span> <span class="nf">create_by_txt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="nb">len</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_entry_create_by_txt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name_entry</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span>
+                                                <span class="n">field</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="nb">len</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="X509_Name"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Name">[docs]</a><span class="k">class</span> <span class="nc">X509_Name</span><span class="p">:</span>  <span class="c1"># noqa</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    X509 Name</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">nid</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_countryName</span><span class="p">,</span>
+           <span class="s1">&#39;SP&#39;</span><span class="p">:</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_stateOrProvinceName</span><span class="p">,</span>
+           <span class="s1">&#39;ST&#39;</span><span class="p">:</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_stateOrProvinceName</span><span class="p">,</span>
+           <span class="s1">&#39;stateOrProvinceName&#39;</span><span class="p">:</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_stateOrProvinceName</span><span class="p">,</span>
+           <span class="s1">&#39;L&#39;</span><span class="p">:</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_localityName</span><span class="p">,</span>
+           <span class="s1">&#39;localityName&#39;</span><span class="p">:</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_localityName</span><span class="p">,</span>
+           <span class="s1">&#39;O&#39;</span><span class="p">:</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_organizationName</span><span class="p">,</span>
+           <span class="s1">&#39;organizationName&#39;</span><span class="p">:</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_organizationName</span><span class="p">,</span>
+           <span class="s1">&#39;OU&#39;</span><span class="p">:</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_organizationalUnitName</span><span class="p">,</span>
+           <span class="s1">&#39;organizationUnitName&#39;</span><span class="p">:</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_organizationalUnitName</span><span class="p">,</span>
+           <span class="s1">&#39;CN&#39;</span><span class="p">:</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_commonName</span><span class="p">,</span>
+           <span class="s1">&#39;commonName&#39;</span><span class="p">:</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_commonName</span><span class="p">,</span>
+           <span class="s1">&#39;Email&#39;</span><span class="p">:</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_pkcs9_emailAddress</span><span class="p">,</span>
+           <span class="s1">&#39;emailAddress&#39;</span><span class="p">:</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_pkcs9_emailAddress</span><span class="p">,</span>
+           <span class="s1">&#39;serialNumber&#39;</span><span class="p">:</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_serialNumber</span><span class="p">,</span>
+           <span class="s1">&#39;SN&#39;</span><span class="p">:</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_surname</span><span class="p">,</span>
+           <span class="s1">&#39;surname&#39;</span><span class="p">:</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_surname</span><span class="p">,</span>
+           <span class="s1">&#39;GN&#39;</span><span class="p">:</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_givenName</span><span class="p">,</span>
+           <span class="s1">&#39;givenName&#39;</span><span class="p">:</span> <span class="n">m2</span><span class="o">.</span><span class="n">NID_givenName</span>
+           <span class="p">}</span>
+
+    <span class="n">m2_x509_name_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x509_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, int) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param x509_name: this should be OpenSSL X509_NAME binary</span>
+<span class="sd">        :param _pyfree:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">x509_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_type_check</span><span class="p">(</span><span class="n">x509_name</span><span class="p">),</span> <span class="s2">&quot;&#39;x509_name&#39; type error&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span> <span class="o">=</span> <span class="n">x509_name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_new</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_x509_name_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span><span class="p">),</span> \
+            <span class="s2">&quot;&#39;x509_name&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_oneline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="c1"># type: (str) -&gt; str</span>
+        <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nid</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span><span class="p">),</span> \
+                <span class="s2">&quot;&#39;x509_name&#39; type error&quot;</span>
+            <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">py3str</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">x509_name_by_nid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nid</span><span class="p">[</span><span class="n">attr</span><span class="p">]))</span>
+
+        <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span>
+
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="c1"># type: (str, AnyStr) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: 1 for success of 0 if an error occurred.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nid</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span><span class="p">),</span> \
+                <span class="s2">&quot;&#39;x509_name&#39; type error&quot;</span>
+            <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_set_by_nid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nid</span><span class="p">[</span><span class="n">attr</span><span class="p">],</span>
+                                           <span class="n">util</span><span class="o">.</span><span class="n">py3bytes</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_entry_count</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; X509_Name_Entry</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">entry_count</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;index out of range&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">X509_Name_Entry</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">x509_name_get_entry</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span><span class="p">,</span> <span class="n">idx</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entry_count</span><span class="p">()):</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span><span class="p">),</span> \
+            <span class="s2">&quot;&#39;x509_name&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span>
+
+<div class="viewcode-block" id="X509_Name.add_entry_by_txt"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Name.add_entry_by_txt">[docs]</a>    <span class="k">def</span> <span class="nf">add_entry_by_txt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">entry</span><span class="p">,</span> <span class="nb">len</span><span class="p">,</span> <span class="n">loc</span><span class="p">,</span> <span class="nb">set</span><span class="p">):</span>
+        <span class="c1"># entry_type: (str, int, bytes, int, int, int) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add X509_Name field whose name is identified by its name.</span>
+
+<span class="sd">        :param field: name of the entry</span>
+<span class="sd">        :param type: use MBSTRING_ASC or MBSTRING_UTF8</span>
+<span class="sd">               (or standard ASN1 type like V_ASN1_IA5STRING)</span>
+<span class="sd">        :param entry: value</span>
+<span class="sd">        :param len: buf_len of the entry</span>
+<span class="sd">               (-1 and the length is computed automagically)</span>
+
+<span class="sd">        The ``loc`` and ``set`` parameters determine where a new entry</span>
+<span class="sd">        should be added.</span>
+<span class="sd">        For almost all applications loc can be set to -1 and set to 0.</span>
+<span class="sd">        This adds a new entry to the end of name as a single valued</span>
+<span class="sd">        RelativeDistinguishedName (RDN).</span>
+
+<span class="sd">        :param loc: determines the index where the new entry is</span>
+<span class="sd">               inserted: if it is -1 it is appended.</span>
+<span class="sd">        :param set: determines how the new type is added. If it is zero</span>
+<span class="sd">               a new RDN is created.</span>
+<span class="sd">               If set is -1 or 1 it is added to the previous or next RDN</span>
+<span class="sd">               structure respectively. This will then be a multivalued</span>
+<span class="sd">               RDN: since multivalues RDNs are very seldom used set is</span>
+<span class="sd">               almost always set to zero.</span>
+
+<span class="sd">        :return: 1 for success of 0 if an error occurred.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_add_entry_by_txt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span><span class="p">,</span>
+                                             <span class="n">util</span><span class="o">.</span><span class="n">py3bytes</span><span class="p">(</span><span class="n">field</span><span class="p">),</span> <span class="nb">type</span><span class="p">,</span>
+                                             <span class="n">entry</span><span class="p">,</span> <span class="nb">len</span><span class="p">,</span> <span class="n">loc</span><span class="p">,</span> <span class="nb">set</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509_Name.entry_count"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Name.entry_count">[docs]</a>    <span class="k">def</span> <span class="nf">entry_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_entry_count</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509_Name.get_entries_by_nid"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Name.get_entries_by_nid">[docs]</a>    <span class="k">def</span> <span class="nf">get_entries_by_nid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nid</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; List[X509_Name_Entry]</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve the next index matching nid.</span>
+
+<span class="sd">        :param nid: name of the entry (as m2.NID* constants)</span>
+
+<span class="sd">        :return: list of X509_Name_Entry items</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">lastpos</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">lastpos</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_get_index_by_nid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span><span class="p">,</span> <span class="n">nid</span><span class="p">,</span>
+                                                    <span class="n">lastpos</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">lastpos</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="n">ret</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">lastpos</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">ret</span>
+</div>
+<div class="viewcode-block" id="X509_Name.as_text"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Name.as_text">[docs]</a>    <span class="k">def</span> <span class="nf">as_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">m2</span><span class="o">.</span><span class="n">XN_FLAG_COMPAT</span><span class="p">):</span>
+        <span class="c1"># type: (int, int) -&gt; str</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        as_text returns the name as a string.</span>
+
+<span class="sd">        :param indent: Each line in multiline format is indented</span>
+<span class="sd">                       by this many spaces.</span>
+<span class="sd">        :param flags:  Flags that control how the output should be formatted.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span><span class="p">),</span> \
+            <span class="s2">&quot;&#39;x509_name&#39; type error&quot;</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_print_ex</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span><span class="p">,</span> <span class="n">indent</span><span class="p">,</span> <span class="n">flags</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">py3str</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">read_all</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="X509_Name.as_der"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Name.as_der">[docs]</a>    <span class="k">def</span> <span class="nf">as_der</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span><span class="p">),</span> \
+            <span class="s2">&quot;&#39;x509_name&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_get_der</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509_Name.as_hash"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Name.as_hash">[docs]</a>    <span class="k">def</span> <span class="nf">as_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span><span class="p">),</span> \
+            <span class="s2">&quot;&#39;x509_name&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_name_hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509_name</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="X509"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509">[docs]</a><span class="k">class</span> <span class="nc">X509</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    X.509 Certificate</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">m2_x509_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x509</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (Optional[bytes], int) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param x509: binary representation of</span>
+<span class="sd">               the underlying OpenSSL X509 object.</span>
+<span class="sd">        :param _pyfree:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">x509</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x509</span> <span class="o">=</span> <span class="n">x509</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x509</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_new</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_x509_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x509</span>
+
+<div class="viewcode-block" id="X509.as_text"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.as_text">[docs]</a>    <span class="k">def</span> <span class="nf">as_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; str</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">x509_print</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">py3str</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">read_all</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="X509.as_der"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.as_der">[docs]</a>    <span class="k">def</span> <span class="nf">as_der</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">i2d_x509</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509.as_pem"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.as_pem">[docs]</a>    <span class="k">def</span> <span class="nf">as_pem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">x509_write_pem</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">buf</span><span class="o">.</span><span class="n">read_all</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="X509.save_pem"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.save_pem">[docs]</a>    <span class="k">def</span> <span class="nf">save_pem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="c1"># type: (AnyStr) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param filename: name of the file to be loaded</span>
+<span class="sd">        :return: 1 for success or 0 for failure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">openfile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">bio</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_write_pem</span><span class="p">(</span><span class="n">bio</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509.save"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="n">FORMAT_PEM</span><span class="p">):</span>
+        <span class="c1"># type: (AnyStr, int) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Saves X.509 certificate to a file. Default output</span>
+<span class="sd">        format is PEM.</span>
+
+<span class="sd">        :param filename: Name of the file the cert will be saved to.</span>
+
+<span class="sd">        :param format: Controls what output format is used to save the cert.</span>
+<span class="sd">                       Either FORMAT_PEM or FORMAT_DER to save in PEM or</span>
+<span class="sd">                       DER format.  Raises a ValueError if an unknow</span>
+<span class="sd">                       format is used.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: 1 for success or 0 for failure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">openfile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">bio</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">format</span> <span class="o">==</span> <span class="n">FORMAT_PEM</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_write_pem</span><span class="p">(</span><span class="n">bio</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">format</span> <span class="o">==</span> <span class="n">FORMAT_DER</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">i2d_x509_bio</span><span class="p">(</span><span class="n">bio</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Unknown filetype. Must be either FORMAT_PEM or FORMAT_DER&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509.set_version"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.set_version">[docs]</a>    <span class="k">def</span> <span class="nf">set_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set version of the certificate.</span>
+
+<span class="sd">        :param version: Version number.</span>
+<span class="sd">        :return:        Returns 0 on failure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_set_version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509.set_not_before"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.set_not_before">[docs]</a>    <span class="k">def</span> <span class="nf">set_not_before</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asn1_time</span><span class="p">):</span>
+        <span class="c1"># type: (ASN1.ASN1_TIME) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: 1 on success, 0 on failure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_set_not_before</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">,</span> <span class="n">asn1_time</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="X509.set_not_after"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.set_not_after">[docs]</a>    <span class="k">def</span> <span class="nf">set_not_after</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">asn1_time</span><span class="p">):</span>
+        <span class="c1"># type: (ASN1.ASN1_TIME) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: 1 on success, 0 on failure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_set_not_after</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">,</span> <span class="n">asn1_time</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="X509.set_subject_name"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.set_subject_name">[docs]</a>    <span class="k">def</span> <span class="nf">set_subject_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="c1"># type: (X509_Name) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: 1 on success, 0 on failure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_set_subject_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">,</span> <span class="n">name</span><span class="o">.</span><span class="n">x509_name</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509.set_issuer_name"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.set_issuer_name">[docs]</a>    <span class="k">def</span> <span class="nf">set_issuer_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="c1"># type: (X509_Name) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: 1 on success, 0 on failure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_set_issuer_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">,</span> <span class="n">name</span><span class="o">.</span><span class="n">x509_name</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509.get_version"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.get_version">[docs]</a>    <span class="k">def</span> <span class="nf">get_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_get_version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509.get_serial_number"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.get_serial_number">[docs]</a>    <span class="k">def</span> <span class="nf">get_serial_number</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; ASN1.ASN1_Integer</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="n">asn1_integer</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_get_serial_number</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_integer_get</span><span class="p">(</span><span class="n">asn1_integer</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509.set_serial_number"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.set_serial_number">[docs]</a>    <span class="k">def</span> <span class="nf">set_serial_number</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">serial</span><span class="p">):</span>
+        <span class="c1"># type: (ASN1.ASN1_Integer) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set serial number.</span>
+
+<span class="sd">        :param serial:  Serial number.</span>
+
+<span class="sd">        :return 1 for success and 0 for failure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="c1"># This &quot;magically&quot; changes serial since asn1_integer</span>
+        <span class="c1"># is C pointer to x509&#39;s internal serial number.</span>
+        <span class="n">asn1_integer</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_get_serial_number</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_integer_set</span><span class="p">(</span><span class="n">asn1_integer</span><span class="p">,</span> <span class="n">serial</span><span class="p">)</span>
+        <span class="c1"># XXX Or should I do this?</span>
+        <span class="c1"># asn1_integer = m2.asn1_integer_new()</span>
+        <span class="c1"># m2.asn1_integer_set(asn1_integer, serial)</span>
+        <span class="c1"># return m2.x509_set_serial_number(self.x509, asn1_integer)</span>
+</div>
+<div class="viewcode-block" id="X509.get_not_before"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.get_not_before">[docs]</a>    <span class="k">def</span> <span class="nf">get_not_before</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; ASN1.ASN1_TIME</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">ASN1</span><span class="o">.</span><span class="n">ASN1_TIME</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">x509_get_not_before</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="X509.get_not_after"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.get_not_after">[docs]</a>    <span class="k">def</span> <span class="nf">get_not_after</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; ASN1.ASN1_TIME</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">ASN1</span><span class="o">.</span><span class="n">ASN1_TIME</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">x509_get_not_after</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">))</span>
+        <span class="k">if</span> <span class="s1">&#39;Bad time value&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">out</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">X509Error</span><span class="p">(</span>
+                <span class="sd">&#39;&#39;&#39;M2Crypto cannot handle dates after year 2050.</span>
+<span class="sd">                See RFC 5280 4.1.2.5 for more information.</span>
+<span class="sd">                &#39;&#39;&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
+</div>
+<div class="viewcode-block" id="X509.get_pubkey"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.get_pubkey">[docs]</a>    <span class="k">def</span> <span class="nf">get_pubkey</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; EVP.PKey</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">EVP</span><span class="o">.</span><span class="n">PKey</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">x509_get_pubkey</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509.set_pubkey"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.set_pubkey">[docs]</a>    <span class="k">def</span> <span class="nf">set_pubkey</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkey</span><span class="p">):</span>
+        <span class="c1"># type: (EVP.PKey) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the public key for the certificate</span>
+
+<span class="sd">        :param pkey: Public key</span>
+<span class="sd">        </span>
+<span class="sd">        :return 1 for success and 0 for failure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_set_pubkey</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">,</span> <span class="n">pkey</span><span class="o">.</span><span class="n">pkey</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509.get_issuer"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.get_issuer">[docs]</a>    <span class="k">def</span> <span class="nf">get_issuer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; X509_Name</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">X509_Name</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">x509_get_issuer_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="X509.set_issuer"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.set_issuer">[docs]</a>    <span class="k">def</span> <span class="nf">set_issuer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="c1"># type: (X509_Name) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set issuer name.</span>
+
+<span class="sd">        :param name:    subjectName field.</span>
+
+<span class="sd">        :return 1 for success and 0 for failure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_set_issuer_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">,</span> <span class="n">name</span><span class="o">.</span><span class="n">x509_name</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509.get_subject"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.get_subject">[docs]</a>    <span class="k">def</span> <span class="nf">get_subject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; X509_Name</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">X509_Name</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">x509_get_subject_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="X509.set_subject"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.set_subject">[docs]</a>    <span class="k">def</span> <span class="nf">set_subject</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="c1"># type: (X509_Name) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set subject name.</span>
+
+<span class="sd">        :param name:    subjectName field.</span>
+<span class="sd">        </span>
+<span class="sd">        :return 1 for success and 0 for failure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_set_subject_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">,</span> <span class="n">name</span><span class="o">.</span><span class="n">x509_name</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509.add_ext"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.add_ext">[docs]</a>    <span class="k">def</span> <span class="nf">add_ext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ext</span><span class="p">):</span>
+        <span class="c1"># type: (X509_Extension) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add X509 extension to this certificate.</span>
+
+<span class="sd">        :param ext:    Extension</span>
+
+<span class="sd">        :return 1 for success and 0 for failure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_add_ext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">,</span> <span class="n">ext</span><span class="o">.</span><span class="n">x509_ext</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509.get_ext"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.get_ext">[docs]</a>    <span class="k">def</span> <span class="nf">get_ext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="c1"># type: (str) -&gt; X509_Extension</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get X509 extension by name.</span>
+
+<span class="sd">        :param name:    Name of the extension</span>
+
+<span class="sd">        :return:       X509_Extension</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Optimizations to reduce attribute accesses</span>
+        <span class="n">m2x509_get_ext</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_get_ext</span>
+        <span class="n">m2x509_extension_get_name</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_extension_get_name</span>
+        <span class="n">x509</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x509</span>
+
+        <span class="n">name</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">py3bytes</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">x509_get_ext_count</span><span class="p">(</span><span class="n">x509</span><span class="p">)):</span>
+            <span class="n">ext_ptr</span> <span class="o">=</span> <span class="n">m2x509_get_ext</span><span class="p">(</span><span class="n">x509</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">m2x509_extension_get_name</span><span class="p">(</span><span class="n">ext_ptr</span><span class="p">)</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">X509_Extension</span><span class="p">(</span><span class="n">ext_ptr</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">raise</span> <span class="ne">LookupError</span>
+</div>
+<div class="viewcode-block" id="X509.get_ext_at"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.get_ext_at">[docs]</a>    <span class="k">def</span> <span class="nf">get_ext_at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; X509_Extension</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get X509 extension by index.</span>
+
+<span class="sd">        :param index:    Name of the extension</span>
+
+<span class="sd">        :return:        X509_Extension</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ext_count</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span>
+
+        <span class="k">return</span> <span class="n">X509_Extension</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">x509_get_ext</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">,</span> <span class="n">index</span><span class="p">),</span>
+                              <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509.get_ext_count"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.get_ext_count">[docs]</a>    <span class="k">def</span> <span class="nf">get_ext_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get X509 extension count.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_get_ext_count</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509.sign"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.sign">[docs]</a>    <span class="k">def</span> <span class="nf">sign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkey</span><span class="p">,</span> <span class="n">md</span><span class="p">):</span>
+        <span class="c1"># type: (EVP.PKey, str) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sign the certificate.</span>
+
+<span class="sd">        :param pkey: Public key</span>
+<span class="sd">        </span>
+<span class="sd">        :param md:   Message digest algorithm to use for signing,</span>
+<span class="sd">                     for example &#39;sha1&#39;.</span>
+<span class="sd">        </span>
+<span class="sd">        :return int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="n">mda</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="n">md</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mda</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown message digest&#39;</span><span class="p">,</span> <span class="n">md</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_sign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">,</span> <span class="n">pkey</span><span class="o">.</span><span class="n">pkey</span><span class="p">,</span> <span class="n">mda</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="X509.verify"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.verify">[docs]</a>    <span class="k">def</span> <span class="nf">verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkey</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="c1"># type: (Optional[EVP.PKey]) -&gt; int</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">),</span> <span class="s2">&quot;&#39;x509&#39; type error&quot;</span>
+        <span class="k">if</span> <span class="n">pkey</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_verify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">,</span> <span class="n">pkey</span><span class="o">.</span><span class="n">pkey</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_verify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pubkey</span><span class="p">()</span><span class="o">.</span><span class="n">pkey</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509.check_ca"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.check_ca">[docs]</a>    <span class="k">def</span> <span class="nf">check_ca</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the certificate is a Certificate Authority (CA) certificate.</span>
+
+<span class="sd">        :return: 0 if the certificate is not CA, nonzero otherwise.</span>
+
+<span class="sd">        :requires: OpenSSL 0.9.8 or newer</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_check_ca</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509.check_purpose"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.check_purpose">[docs]</a>    <span class="k">def</span> <span class="nf">check_purpose</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">ca</span><span class="p">):</span>
+        <span class="c1"># type: (int, int) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the certificate&#39;s purpose matches the asked purpose.</span>
+
+<span class="sd">        :param id: Purpose id. See X509_PURPOSE_* constants.</span>
+<span class="sd">        </span>
+<span class="sd">        :param ca: 1 if the certificate should be CA, 0 otherwise.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: 0 if the certificate purpose does not match, nonzero</span>
+<span class="sd">                 otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_check_purpose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x509</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">ca</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509.get_fingerprint"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509.get_fingerprint">[docs]</a>    <span class="k">def</span> <span class="nf">get_fingerprint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">md</span><span class="o">=</span><span class="s1">&#39;md5&#39;</span><span class="p">):</span>
+        <span class="c1"># type: (str) -&gt; str</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the fingerprint of the certificate.</span>
+
+<span class="sd">        :param md: Message digest algorithm to use.</span>
+<span class="sd">        </span>
+<span class="sd">        :return:   String containing the fingerprint in hex format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">der</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">as_der</span><span class="p">()</span>
+        <span class="n">md</span> <span class="o">=</span> <span class="n">EVP</span><span class="o">.</span><span class="n">MessageDigest</span><span class="p">(</span><span class="n">md</span><span class="p">)</span>
+        <span class="n">md</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">der</span><span class="p">)</span>
+        <span class="n">digest</span> <span class="o">=</span> <span class="n">md</span><span class="o">.</span><span class="n">final</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">py3str</span><span class="p">(</span><span class="n">binascii</span><span class="o">.</span><span class="n">hexlify</span><span class="p">(</span><span class="n">digest</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+
+</div></div>
+<div class="viewcode-block" id="load_cert"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.load_cert">[docs]</a><span class="k">def</span> <span class="nf">load_cert</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="n">FORMAT_PEM</span><span class="p">):</span>
+    <span class="c1"># type: (AnyStr, int) -&gt; X509</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load certificate from file.</span>
+
+<span class="sd">    :param file: Name of file containing certificate in either DER or</span>
+<span class="sd">                 PEM format.</span>
+<span class="sd">    </span>
+<span class="sd">    :param format: Describes the format of the file to be loaded,</span>
+<span class="sd">                   either PEM or DER.</span>
+
+<span class="sd">    :return: M2Crypto.X509.X509 object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">openfile</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span> <span class="k">as</span> <span class="n">bio</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">format</span> <span class="o">==</span> <span class="n">FORMAT_PEM</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">load_cert_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">format</span> <span class="o">==</span> <span class="n">FORMAT_DER</span><span class="p">:</span>
+            <span class="n">cptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">d2i_x509</span><span class="p">(</span><span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">cptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">X509Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+            <span class="k">return</span> <span class="n">X509</span><span class="p">(</span><span class="n">cptr</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Unknown format. Must be either FORMAT_DER or FORMAT_PEM&quot;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="load_cert_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.load_cert_bio">[docs]</a><span class="k">def</span> <span class="nf">load_cert_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="n">FORMAT_PEM</span><span class="p">):</span>
+    <span class="c1"># type: (BIO.BIO, int) -&gt; X509</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load certificate from a bio.</span>
+
+<span class="sd">    :param bio: BIO pointing at a certificate in either DER or PEM format.</span>
+<span class="sd">    </span>
+<span class="sd">    :param format: Describes the format of the cert to be loaded,</span>
+<span class="sd">                   either PEM or DER (via constants FORMAT_PEM</span>
+<span class="sd">                   and FORMAT_FORMAT_DER)</span>
+
+<span class="sd">    :return: M2Crypto.X509.X509 object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">format</span> <span class="o">==</span> <span class="n">FORMAT_PEM</span><span class="p">:</span>
+        <span class="n">cptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_read_pem</span><span class="p">(</span><span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+    <span class="k">elif</span> <span class="n">format</span> <span class="o">==</span> <span class="n">FORMAT_DER</span><span class="p">:</span>
+        <span class="n">cptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">d2i_x509</span><span class="p">(</span><span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Unknown format. Must be either FORMAT_DER or FORMAT_PEM&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">X509Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">X509</span><span class="p">(</span><span class="n">cptr</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="load_cert_string"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.load_cert_string">[docs]</a><span class="k">def</span> <span class="nf">load_cert_string</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="n">FORMAT_PEM</span><span class="p">):</span>
+    <span class="c1"># type: (AnyStr, int) -&gt; X509</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load certificate from a string.</span>
+
+<span class="sd">    :param string: String containing a certificate in either DER or PEM format.</span>
+
+<span class="sd">    :param format: Describes the format of the cert to be loaded,</span>
+<span class="sd">                   either PEM or DER (via constants FORMAT_PEM</span>
+<span class="sd">                   and FORMAT_FORMAT_DER)</span>
+<span class="sd">    </span>
+<span class="sd">    :return: M2Crypto.X509.X509 object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">string</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">py3bytes</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+    <span class="n">bio</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">load_cert_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">,</span> <span class="n">format</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="load_cert_der_string"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.load_cert_der_string">[docs]</a><span class="k">def</span> <span class="nf">load_cert_der_string</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="c1"># type: (AnyStr) -&gt; X509</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load certificate from a string.</span>
+
+<span class="sd">    :param string: String containing a certificate in DER format.</span>
+<span class="sd">    </span>
+<span class="sd">    :return: M2Crypto.X509.X509 object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">string</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">py3bytes</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+    <span class="n">bio</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+    <span class="n">cptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">d2i_x509</span><span class="p">(</span><span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">cptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">X509Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">X509</span><span class="p">(</span><span class="n">cptr</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="X509_Store_Context"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Store_Context">[docs]</a><span class="k">class</span> <span class="nc">X509_Store_Context</span><span class="p">:</span>  <span class="c1"># noqa</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    X509 Store Context</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">m2_x509_store_ctx_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_store_ctx_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x509_store_ctx</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, int) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param x509_store_ctx: binary data for</span>
+<span class="sd">              OpenSSL X509_STORE_CTX type</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span> <span class="o">=</span> <span class="n">x509_store_ctx</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="c1"># see BIO.py - unbalanced __init__ / __del__</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">):</span>
+            <span class="k">pass</span>  <span class="c1"># print(&quot;OOPS&quot;)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_x509_store_ctx_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span>
+
+<div class="viewcode-block" id="X509_Store_Context.get_current_cert"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Store_Context.get_current_cert">[docs]</a>    <span class="k">def</span> <span class="nf">get_current_cert</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; X509</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get current X.509 certificate.</span>
+
+<span class="sd">        :warning: The returned certificate is NOT refcounted, so you can not</span>
+<span class="sd">                  rely on it being valid once the store context goes</span>
+<span class="sd">                  away or is modified.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">X509</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">x509_store_ctx_get_current_cert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">),</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509_Store_Context.get_error"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Store_Context.get_error">[docs]</a>    <span class="k">def</span> <span class="nf">get_error</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get error code.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_store_ctx_get_error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509_Store_Context.get_error_depth"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Store_Context.get_error_depth">[docs]</a>    <span class="k">def</span> <span class="nf">get_error_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get error depth.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_store_ctx_get_error_depth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="X509_Store_Context.get1_chain"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Store_Context.get1_chain">[docs]</a>    <span class="k">def</span> <span class="nf">get1_chain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; X509_Stack</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get certificate chain.</span>
+
+<span class="sd">        :return: Reference counted (i.e. safe to use even after the store</span>
+<span class="sd">                 context goes away) stack of certificates in the chain.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">X509_Stack</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">x509_store_ctx_get1_chain</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="X509_Store"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Store">[docs]</a><span class="k">class</span> <span class="nc">X509_Store</span><span class="p">:</span>  <span class="c1"># noqa</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    X509 Store</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">m2_x509_store_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_store_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">store</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (Optional[bytes], int) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param store: binary data for OpenSSL X509_STORE_CTX type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">store</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="n">store</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_store_new</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_x509_store_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span>
+
+<div class="viewcode-block" id="X509_Store.load_info"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Store.load_info">[docs]</a>    <span class="k">def</span> <span class="nf">load_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">file</span><span class="p">):</span>
+        <span class="c1"># type: (AnyStr) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param file: filename</span>
+<span class="sd">    </span>
+<span class="sd">        :return: 1 on success, 0 on failure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_store_load_locations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">,</span> <span class="nb">file</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ret</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">X509Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">ret</span>
+</div>
+    <span class="n">load_locations</span> <span class="o">=</span> <span class="n">load_info</span>
+
+<div class="viewcode-block" id="X509_Store.add_x509"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Store.add_x509">[docs]</a>    <span class="k">def</span> <span class="nf">add_x509</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x509</span><span class="p">):</span>
+        <span class="c1"># type: (X509) -&gt; int</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x509</span><span class="p">,</span> <span class="n">X509</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_store_add_cert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">,</span> <span class="n">x509</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="X509_Store.set_verify_cb"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Store.set_verify_cb">[docs]</a>    <span class="k">def</span> <span class="nf">set_verify_cb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="c1"># type: (Optional[callable]) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set callback which will be called when the store is verified.</span>
+<span class="sd">        Wrapper over OpenSSL X509_STORE_set_verify_cb().</span>
+
+<span class="sd">        :param callback:    Callable to specify verification options.</span>
+<span class="sd">                            Type of the callable must be:</span>
+<span class="sd">                            (int, X509_Store_Context) -&gt; int.</span>
+<span class="sd">                            If None: set the standard options.</span>
+<span class="sd">        </span>
+<span class="sd">        :note: compile-time or run-time errors in the callback would result</span>
+<span class="sd">               in mysterious errors during verification, which could be hard</span>
+<span class="sd">               to trace.</span>
+
+<span class="sd">        :note: Python exceptions raised in callbacks do not propagate to</span>
+<span class="sd">               verify() call.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_verify_cb</span><span class="p">(</span><span class="n">x509_store_default_cb</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">callback</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">X509Error</span><span class="p">(</span><span class="s2">&quot;set_verify(): callback is not callable&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_store_set_verify_cb</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+</div>
+    <span class="n">add_cert</span> <span class="o">=</span> <span class="n">add_x509</span>
+
+</div>
+<div class="viewcode-block" id="X509_Stack"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Stack">[docs]</a><span class="k">class</span> <span class="nc">X509_Stack</span><span class="p">:</span>  <span class="c1"># noqa</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    X509 Stack</span>
+
+<span class="sd">    :warning: Do not modify the underlying OpenSSL stack</span>
+<span class="sd">              except through this interface, or use any OpenSSL</span>
+<span class="sd">              functions that do so indirectly. Doing so will get the</span>
+<span class="sd">              OpenSSL stack and the internal pystack of this class out</span>
+<span class="sd">              of sync, leading to python memory leaks, exceptions or</span>
+<span class="sd">              even python crashes!</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">m2_sk_x509_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">sk_x509_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stack</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">_pyfree_x509</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (bytes, int, int) -&gt; None</span>
+        <span class="k">if</span> <span class="n">stack</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stack</span> <span class="o">=</span> <span class="n">stack</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pystack</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># This must be kept in sync with self.stack</span>
+            <span class="n">num</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">sk_x509_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">pystack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">X509</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">sk_x509_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">,</span> <span class="n">i</span><span class="p">),</span>
+                                         <span class="n">_pyfree</span><span class="o">=</span><span class="n">_pyfree_x509</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">stack</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">sk_x509_new_null</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pystack</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># This must be kept in sync with self.stack</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_sk_x509_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">sk_x509_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pystack</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pystack</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">idx</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; X509</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pystack</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pystack</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stack</span>
+
+<div class="viewcode-block" id="X509_Stack.push"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Stack.push">[docs]</a>    <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x509</span><span class="p">):</span>
+        <span class="c1"># type: (X509) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        push an X509 certificate onto the stack.</span>
+
+<span class="sd">        :param x509: X509 object.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: The number of X509 objects currently on the stack.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x509</span><span class="p">,</span> <span class="n">X509</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pystack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">x509</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">sk_x509_push</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">,</span> <span class="n">x509</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+        <span class="k">assert</span> <span class="n">ret</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pystack</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ret</span>
+</div>
+<div class="viewcode-block" id="X509_Stack.pop"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Stack.pop">[docs]</a>    <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; X509</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        pop a certificate from the stack.</span>
+
+<span class="sd">        :return: X509 object that was popped, or None if there is</span>
+<span class="sd">                 nothing to pop.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x509_ptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">sk_x509_pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">x509_ptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pystack</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pystack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="X509_Stack.as_der"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.X509_Stack.as_der">[docs]</a>    <span class="k">def</span> <span class="nf">as_der</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return the stack as a DER encoded string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">get_der_encoding_stack</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stack</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="new_stack_from_der"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.new_stack_from_der">[docs]</a><span class="k">def</span> <span class="nf">new_stack_from_der</span><span class="p">(</span><span class="n">der_string</span><span class="p">):</span>
+    <span class="c1"># type: (bytes) -&gt; X509_Stack</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a new X509_Stack from DER string.</span>
+
+<span class="sd">    :return: X509_Stack</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">der_string</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">py3bytes</span><span class="p">(</span><span class="n">der_string</span><span class="p">)</span>
+    <span class="n">stack_ptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">make_stack_from_der_sequence</span><span class="p">(</span><span class="n">der_string</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">stack_ptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">X509Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">X509_Stack</span><span class="p">(</span><span class="n">stack_ptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="Request"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.Request">[docs]</a><span class="k">class</span> <span class="nc">Request</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    X509 Certificate Request.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">m2_x509_req_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_req_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">req</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (Optional[int], int) -&gt; None</span>
+        <span class="k">if</span> <span class="n">req</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">req</span> <span class="o">=</span> <span class="n">req</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">req</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_req_new</span><span class="p">()</span>
+            <span class="n">m2</span><span class="o">.</span><span class="n">x509_req_set_version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">req</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_x509_req_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">req</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Request.as_text"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.Request.as_text">[docs]</a>    <span class="k">def</span> <span class="nf">as_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; str</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">x509_req_print</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">req</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">py3str</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">read_all</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="Request.as_pem"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.Request.as_pem">[docs]</a>    <span class="k">def</span> <span class="nf">as_pem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">x509_req_write_pem</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">req</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">buf</span><span class="o">.</span><span class="n">read_all</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Request.as_der"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.Request.as_der">[docs]</a>    <span class="k">def</span> <span class="nf">as_der</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">i2d_x509_req_bio</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">req</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">buf</span><span class="o">.</span><span class="n">read_all</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="Request.save_pem"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.Request.save_pem">[docs]</a>    <span class="k">def</span> <span class="nf">save_pem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="c1"># type: (AnyStr) -&gt; int</span>
+        <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">openfile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">bio</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_req_write_pem</span><span class="p">(</span><span class="n">bio</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">req</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Request.save"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.Request.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="n">FORMAT_PEM</span><span class="p">):</span>
+        <span class="c1"># type: (AnyStr, int) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Saves X.509 certificate request to a file. Default output</span>
+<span class="sd">        format is PEM.</span>
+
+<span class="sd">        :param filename: Name of the file the request will be saved to.</span>
+
+<span class="sd">        :param format: Controls what output format is used to save the</span>
+<span class="sd">                       request. Either FORMAT_PEM or FORMAT_DER to save</span>
+<span class="sd">                       in PEM or DER format. Raises ValueError if an</span>
+<span class="sd">                       unknown format is used.</span>
+
+<span class="sd">        :return: 1 for success, 0 for failure.</span>
+<span class="sd">                 The error code can be obtained by ERR_get_error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">openfile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">bio</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">format</span> <span class="o">==</span> <span class="n">FORMAT_PEM</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_req_write_pem</span><span class="p">(</span><span class="n">bio</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">req</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">format</span> <span class="o">==</span> <span class="n">FORMAT_DER</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">i2d_x509_req_bio</span><span class="p">(</span><span class="n">bio</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">req</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Unknown filetype. Must be either FORMAT_DER or FORMAT_PEM&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Request.get_pubkey"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.Request.get_pubkey">[docs]</a>    <span class="k">def</span> <span class="nf">get_pubkey</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; EVP.PKey</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the public key for the request.</span>
+
+<span class="sd">        :return:     Public key from the request.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">EVP</span><span class="o">.</span><span class="n">PKey</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">x509_req_get_pubkey</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">req</span><span class="p">),</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Request.set_pubkey"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.Request.set_pubkey">[docs]</a>    <span class="k">def</span> <span class="nf">set_pubkey</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkey</span><span class="p">):</span>
+        <span class="c1"># type: (EVP.PKey) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the public key for the request.</span>
+
+<span class="sd">        :param pkey: Public key</span>
+
+<span class="sd">        :return:     Return 1 for success and 0 for failure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_req_set_pubkey</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">req</span><span class="p">,</span> <span class="n">pkey</span><span class="o">.</span><span class="n">pkey</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Request.get_version"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.Request.get_version">[docs]</a>    <span class="k">def</span> <span class="nf">get_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get version.</span>
+
+<span class="sd">        :return:        Returns version.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_req_get_version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">req</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Request.set_version"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.Request.set_version">[docs]</a>    <span class="k">def</span> <span class="nf">set_version</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">):</span>
+        <span class="c1"># type: (int) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set version.</span>
+
+<span class="sd">        :param version: Version number.</span>
+<span class="sd">        :return:        Returns 0 on failure.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_req_set_version</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">req</span><span class="p">,</span> <span class="n">version</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Request.get_subject"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.Request.get_subject">[docs]</a>    <span class="k">def</span> <span class="nf">get_subject</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; X509_Name</span>
+        <span class="k">return</span> <span class="n">X509_Name</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">x509_req_get_subject_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">req</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="Request.set_subject_name"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.Request.set_subject_name">[docs]</a>    <span class="k">def</span> <span class="nf">set_subject_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="c1"># type: (X509_Name) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set subject name.</span>
+
+<span class="sd">        :param name:    subjectName field.</span>
+<span class="sd">        :return:    1 for success and 0 for failure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_req_set_subject_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">req</span><span class="p">,</span> <span class="n">name</span><span class="o">.</span><span class="n">x509_name</span><span class="p">)</span>
+</div>
+    <span class="n">set_subject</span> <span class="o">=</span> <span class="n">set_subject_name</span>
+
+<div class="viewcode-block" id="Request.add_extensions"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.Request.add_extensions">[docs]</a>    <span class="k">def</span> <span class="nf">add_extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ext_stack</span><span class="p">):</span>
+        <span class="c1"># type: (X509_Extension_Stack) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add X509 extensions to this request.</span>
+
+<span class="sd">        :param ext_stack: Stack of extensions to add.</span>
+<span class="sd">        :return: 1 for success and 0 for failure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_req_add_extensions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">req</span><span class="p">,</span> <span class="n">ext_stack</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+</div>
+<div class="viewcode-block" id="Request.verify"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.Request.verify">[docs]</a>    <span class="k">def</span> <span class="nf">verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkey</span><span class="p">):</span>
+        <span class="c1"># type: (EVP.PKey) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param pkey: PKey to be verified</span>
+<span class="sd">        :return: 1 for success and 0 for failure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_req_verify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">req</span><span class="p">,</span> <span class="n">pkey</span><span class="o">.</span><span class="n">pkey</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Request.sign"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.Request.sign">[docs]</a>    <span class="k">def</span> <span class="nf">sign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkey</span><span class="p">,</span> <span class="n">md</span><span class="p">):</span>
+        <span class="c1"># type: (EVP.PKey, str) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param pkey: PKey to be signed</span>
+<span class="sd">        :param md: used algorigthm</span>
+<span class="sd">        :return: 1 for success and 0 for failure</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mda</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="n">md</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mda</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown message digest&#39;</span><span class="p">,</span> <span class="n">md</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_req_sign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">req</span><span class="p">,</span> <span class="n">pkey</span><span class="o">.</span><span class="n">pkey</span><span class="p">,</span> <span class="n">mda</span><span class="p">())</span>
+
+</div></div>
+<div class="viewcode-block" id="load_request"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.load_request">[docs]</a><span class="k">def</span> <span class="nf">load_request</span><span class="p">(</span><span class="nb">file</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="n">FORMAT_PEM</span><span class="p">):</span>
+    <span class="c1"># type: (AnyStr, int) -&gt; Request</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load certificate request from file.</span>
+
+<span class="sd">    :param file: Name of file containing certificate request in</span>
+<span class="sd">                 either PEM or DER format.</span>
+<span class="sd">    :param format: Describes the format of the file to be loaded,</span>
+<span class="sd">                   either PEM or DER. (using constants FORMAT_PEM</span>
+<span class="sd">                   and FORMAT_DER)</span>
+<span class="sd">    :return: Request object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">openfile</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">format</span> <span class="o">==</span> <span class="n">FORMAT_PEM</span><span class="p">:</span>
+            <span class="n">cptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_req_read_pem</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">())</span>
+        <span class="k">elif</span> <span class="n">format</span> <span class="o">==</span> <span class="n">FORMAT_DER</span><span class="p">:</span>
+            <span class="n">cptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">d2i_x509_req</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Unknown filetype. Must be either FORMAT_PEM or FORMAT_DER&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">cptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">X509Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">Request</span><span class="p">(</span><span class="n">cptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="load_request_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.load_request_bio">[docs]</a><span class="k">def</span> <span class="nf">load_request_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="n">FORMAT_PEM</span><span class="p">):</span>
+    <span class="c1"># type: (BIO.BIO, int) -&gt; Request</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load certificate request from a bio.</span>
+
+<span class="sd">    :param bio: BIO pointing at a certificate request in</span>
+<span class="sd">                either DER or PEM format.</span>
+<span class="sd">    :param format: Describes the format of the request to be loaded,</span>
+<span class="sd">                   either PEM or DER. (using constants FORMAT_PEM</span>
+<span class="sd">                   and FORMAT_DER)</span>
+<span class="sd">    :return: M2Crypto.X509.Request object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">format</span> <span class="o">==</span> <span class="n">FORMAT_PEM</span><span class="p">:</span>
+        <span class="n">cptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_req_read_pem</span><span class="p">(</span><span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+    <span class="k">elif</span> <span class="n">format</span> <span class="o">==</span> <span class="n">FORMAT_DER</span><span class="p">:</span>
+        <span class="n">cptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">d2i_x509_req</span><span class="p">(</span><span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Unknown format. Must be either FORMAT_DER or FORMAT_PEM&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">X509Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">Request</span><span class="p">(</span><span class="n">cptr</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="load_request_string"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.load_request_string">[docs]</a><span class="k">def</span> <span class="nf">load_request_string</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="n">FORMAT_PEM</span><span class="p">):</span>
+    <span class="c1"># type: (AnyStr, int) -&gt; Request</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load certificate request from a string.</span>
+
+<span class="sd">    :param string: String containing a certificate request in</span>
+<span class="sd">                   either DER or PEM format.</span>
+<span class="sd">    :param format: Describes the format of the request to be loaded,</span>
+<span class="sd">                   either PEM or DER. (using constants FORMAT_PEM</span>
+<span class="sd">                   and FORMAT_DER)</span>
+
+<span class="sd">    :return: M2Crypto.X509.Request object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">string</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">py3bytes</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+    <span class="n">bio</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">load_request_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">,</span> <span class="n">format</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="load_request_der_string"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.load_request_der_string">[docs]</a><span class="k">def</span> <span class="nf">load_request_der_string</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+    <span class="c1"># type: (AnyStr) -&gt; Request</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load certificate request from a string.</span>
+
+<span class="sd">    :param string: String containing a certificate request in DER format.</span>
+<span class="sd">    :return: M2Crypto.X509.Request object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">string</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">py3bytes</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+    <span class="n">bio</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">load_request_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">,</span> <span class="n">FORMAT_DER</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="CRL"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.CRL">[docs]</a><span class="k">class</span> <span class="nc">CRL</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    X509 Certificate Revocation List</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">m2_x509_crl_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_crl_free</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crl</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># type: (Optional[bytes], int) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param crl: binary representation of</span>
+<span class="sd">               the underlying OpenSSL X509_CRL object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">crl</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">crl</span> <span class="o">=</span> <span class="n">crl</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">crl</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_crl_new</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">m2_x509_crl_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crl</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CRL.as_text"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.CRL.as_text">[docs]</a>    <span class="k">def</span> <span class="nf">as_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; str</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return CRL in PEM format in a string.</span>
+
+<span class="sd">        :return: String containing the CRL in PEM format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">()</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">x509_crl_print</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">crl</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">py3str</span><span class="p">(</span><span class="n">buf</span><span class="o">.</span><span class="n">read_all</span><span class="p">())</span>
+
+</div></div>
+<div class="viewcode-block" id="load_crl"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.X509.load_crl">[docs]</a><span class="k">def</span> <span class="nf">load_crl</span><span class="p">(</span><span class="nb">file</span><span class="p">):</span>
+    <span class="c1"># type: (AnyStr) -&gt; CRL</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load CRL from file.</span>
+
+<span class="sd">    :param file: Name of file containing CRL in PEM format.</span>
+
+<span class="sd">    :return: M2Crypto.X509.CRL object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">openfile</span><span class="p">(</span><span class="nb">file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">cptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">x509_crl_read_pem</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">())</span>
+
+    <span class="k">if</span> <span class="n">cptr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">X509Error</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">CRL</span><span class="p">(</span><span class="n">cptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,220 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>HOWTO: Programming SSL in Python with M2Crypto &mdash; M2Crypto  documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="M2Crypto  documentation" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">M2Crypto  documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="howto-programming-ssl-in-python-with-m2crypto">
+<span id="howto-ssl"></span><h1>HOWTO: Programming SSL in Python with M2Crypto<a class="headerlink" href="#howto-programming-ssl-in-python-with-m2crypto" title="Permalink to this headline">¶</a></h1>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body">Pheng Siong Ng &lt;<a class="reference external" href="mailto:ngps&#37;&#52;&#48;netmemetic&#46;com">ngps<span>&#64;</span>netmemetic<span>&#46;</span>com</a>&gt; and Heikki Toivonen (<a class="reference external" href="mailto:heikki&#37;&#52;&#48;osafoundation&#46;org">heikki<span>&#64;</span>osafoundation<span>&#46;</span>org</a>)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body">© 2000, 2001 by Ng Pheng Siong,
+portions © 2006 by Open Source Applications Foundation</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="https://gitlab.com/m2crypto/m2crypto/">M2Crypto</a> is a
+<a class="reference external" href="http://www.python.org">Python</a> interface to
+<a class="reference external" href="http://www.openssl.org">OpenSSL</a>. It makes available to the Python
+programmer SSL functionality to implement clients and servers, S/MIME
+v2, RSA, DSA, DH, symmetric ciphers, message digests and HMACs.</p>
+<p>This document demonstrates programming HTTPS with M2Crypto.</p>
+</div>
+<div class="section" id="a-bit-of-history">
+<h1>A bit of history<a class="headerlink" href="#a-bit-of-history" title="Permalink to this headline">¶</a></h1>
+<p>M2Crypto was created during the time of Python 1.5, which features a
+module httplib providing client-side HTTP functionality. M2Crypto sports
+a httpslib based on httplib.</p>
+<p>Beginning with version 2.0, Python&#8217;s socket module provided
+(rudimentary) SSL support. Also in the same version, httplib was
+enhanced with class HTTPConnection, which is more sophisticated than the
+old class HTTP, and HTTPSConnection, which does HTTPS.</p>
+<p>Subsequently, M2Crypto.httpslib grew a compatible (but not identical)
+class HTTPSConnection.</p>
+<p>The primary interface difference between the two HTTPSConnection classes
+is that M2Crypto&#8217;s version accepts an M2Crypto.SSL.Context instance as a
+parameter, whereas Python 2.x&#8217;s SSL support does not permit Pythonic
+control of the SSL context.</p>
+<p>Within the implementations, Python&#8217;s <tt class="docutils literal"><span class="pre">HTTPSConnection</span></tt> employs a
+<tt class="docutils literal"><span class="pre">FakeSocket</span></tt> object, which collects all input from the SSL connection
+before returning it to the application as a <tt class="docutils literal"><span class="pre">StringIO</span></tt> buffer, whereas
+M2Crypto&#8217;s <tt class="docutils literal"><span class="pre">HTTPSConnection</span></tt> uses a buffering
+<tt class="docutils literal"><span class="pre">M2Crypto.BIO.IOBuffer</span></tt> object that works over the underlying
+M2Crypto.SSL.Connection directly.</p>
+<p>Since then M2Crypto has gained a Twisted wrapper that allows securing
+Twisted SSL connections with M2Crypto.</p>
+</div>
+<div class="section" id="secure-ssl">
+<h1>Secure SSL<a class="headerlink" href="#secure-ssl" title="Permalink to this headline">¶</a></h1>
+<p>It is recommended that you read the book Network Security with OpenSSL
+by John Viega, Matt Messier and Pravir Chandra, ISBN 059600270X.</p>
+<p>Using M2Crypto does not automatically make an SSL connection secure.
+There are various steps that need to be made before we can make that
+claim. Let&#8217;s see how a simple client can establish a secure
+connection:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">ctx</span> <span class="o">=</span> <span class="n">SSL</span><span class="o">.</span><span class="n">Context</span><span class="p">()</span>
+<span class="n">ctx</span><span class="o">.</span><span class="n">set_verify</span><span class="p">(</span><span class="n">SSL</span><span class="o">.</span><span class="n">verify_peer</span> <span class="o">|</span> <span class="n">SSL</span><span class="o">.</span><span class="n">verify_fail_if_no_peer_cert</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">ctx</span><span class="o">.</span><span class="n">load_verify_locations</span><span class="p">(</span><span class="s1">&#39;ca.pem&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;No CA certs&#39;</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">SSL</span><span class="o">.</span><span class="n">Connection</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+<span class="n">s</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">server_address</span><span class="p">)</span>
+<span class="c1"># Normal protocol (for example HTTP) commands follow</span>
+</pre></div>
+</div>
+<p>The first line creates an SSL context. The defaults allow any SSL
+version (except SSL version 2 which has known weaknesses) and sets the
+allowed ciphers to secure ones.</p>
+<p>The second line tells M2Crypto to perform certificate validation. The
+flags shown above are typical for clients, and requires the server to
+send a certificate. The depth parameter tells how long certificate
+chains are allowed - 9 is pretty common default, although probably too
+long in practice.</p>
+<p>The third line loads the allowed root (certificate authority or CA)
+certificates. Most Linux distributions come with CA certificates in
+suitable format. You could also download the
+<a class="reference external" href="http://mxr.mozilla.org/seamonkey/source//security/nss/lib/ckfw/builtins/certdata.txt?raw=1">certdata.txt</a>
+file from the
+<a class="reference external" href="http://www.mozilla.org/projects/security/pki/nss/">NSS</a> project and
+convert it with the little M2Crypto utility script
+<a class="reference external" href="http://svn.osafoundation.org/m2crypto/trunk/demo/x509/certdata2pem.py">demo/x509/certdata2pem.py</a>.</p>
+<p>The fourth line creates an SSL connection object with the secure
+context.</p>
+<p>The fifth line connects to the server. During this time we perform the
+last security step: just after connection, but before exchanging any
+data, we compare the commonName (or subjectAltName DNS field) field in
+the certificate the server returned to the server address we tried to
+connect to. This happens automatically with SSL.Connection and the
+Twisted wrapper class, and anything that uses those. In all other cases
+you must do the check manually. It is recommended you call the
+SSL.Checker to do the actual check.</p>
+<p>SSL servers are different in that they typically do not require the
+client to send a certificate, so there is usually no certificate
+checking. Also, it is typically useless to perform host name checking.</p>
+</div>
+<div class="section" id="code-samples">
+<h1>Code Samples<a class="headerlink" href="#code-samples" title="Permalink to this headline">¶</a></h1>
+<p>The best samples of how to use the various SSL objects are in the tests
+directory, and the test_ssl.py file specifically. There are additional
+samples in the demo directory, but they are not quaranteed to be up to
+date.</p>
+<p>NOTE: The tests and demos may not be secure as is. Use the information
+above on how to make them secure.</p>
+</div>
+<div class="section" id="ssldump">
+<h1>ssldump<a class="headerlink" href="#ssldump" title="Permalink to this headline">¶</a></h1>
+<p>ssldump &#8220;is an SSLv3/TLS network protocol analyser. It identifies TCP
+connections on the chosen network interface and attempts to interpret
+them as SSLv3/TLS traffic. When it identifies SSLv3/TLS traffic, it
+decodes the records and displays them in a textual form to stdout. If
+provided with the appropriate keying material, it will also decrypt the
+connections and display the application data traffic.</p>
+<p>If linked with OpenSSL, ssldump can display certificates in decoded form
+and decrypt traffic (provided that it has the appropriate keying
+material).&#8221;</p>
+<p>ssldump is written by Eric Rescorla.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">HOWTO: Programming SSL in Python with M2Crypto</a></li>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#a-bit-of-history">A bit of history</a></li>
+<li><a class="reference internal" href="#secure-ssl">Secure SSL</a></li>
+<li><a class="reference internal" href="#code-samples">Code Samples</a></li>
+<li><a class="reference internal" href="#ssldump">ssldump</a></li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/howto.ssl.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="index.html">M2Crypto  documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>

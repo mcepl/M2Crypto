@@ -1,0 +1,157 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>M2Crypto.SSL.SSLServer &mdash; M2Crypto  documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="M2Crypto  documentation" href="../../../index.html" />
+    <link rel="up" title="M2Crypto.SSL" href="../SSL.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../SSL.html" accesskey="U">M2Crypto.SSL</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for M2Crypto.SSL.SSLServer</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">print_function</span>
+
+<span class="sd">&quot;&quot;&quot;SSLServer</span>
+
+<span class="sd">Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved.&quot;&quot;&quot;</span>
+
+<span class="c1"># M2Crypto</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.SSL</span> <span class="kn">import</span> <span class="n">SSLError</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.SSL.Connection</span> <span class="kn">import</span> <span class="n">Connection</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.SSL.Context</span> <span class="kn">import</span> <span class="n">Context</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">six</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">util</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.six.moves.socketserver</span> <span class="kn">import</span> <span class="p">(</span><span class="n">BaseServer</span><span class="p">,</span> <span class="n">ForkingMixIn</span><span class="p">,</span>
+                                             <span class="n">TCPServer</span><span class="p">,</span> <span class="n">ThreadingMixIn</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">socket</span> <span class="kn">import</span> <span class="n">socket</span>  <span class="c1"># noqa</span>
+<span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>  <span class="c1"># noqa</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;SSLServer&#39;</span><span class="p">,</span> <span class="s1">&#39;ForkingSSLServer&#39;</span><span class="p">,</span> <span class="s1">&#39;ThreadingSSLServer&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="SSLServer"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.SSLServer.SSLServer">[docs]</a><span class="k">class</span> <span class="nc">SSLServer</span><span class="p">(</span><span class="n">TCPServer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server_address</span><span class="p">,</span> <span class="n">RequestHandlerClass</span><span class="p">,</span> <span class="n">ssl_context</span><span class="p">,</span>  <span class="c1"># noqa</span>
+                 <span class="n">bind_and_activate</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="c1"># type: (util.AddrType, socketserver.BaseRequestHandler, Context, bool) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Superclass says: Constructor. May be extended, do not override.</span>
+<span class="sd">        This class says: Ho-hum.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">BaseServer</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server_address</span><span class="p">,</span> <span class="n">RequestHandlerClass</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ssl_ctx</span> <span class="o">=</span> <span class="n">ssl_context</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">socket</span> <span class="o">=</span> <span class="n">Connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl_ctx</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">bind_and_activate</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">server_bind</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">server_activate</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SSLServer.handle_request"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.SSLServer.SSLServer.handle_request">[docs]</a>    <span class="k">def</span> <span class="nf">handle_request</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">client_address</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">request</span><span class="p">,</span> <span class="n">client_address</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_request</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verify_request</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">client_address</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">process_request</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">client_address</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">SSLError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">handle_error</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">client_address</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SSLServer.handle_error"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.SSLServer.SSLServer.handle_error">[docs]</a>    <span class="k">def</span> <span class="nf">handle_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">client_address</span><span class="p">):</span>
+        <span class="c1"># type: (Union[socket, Connection], util.AddrType) -&gt; None</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+        <span class="kn">import</span> <span class="nn">traceback</span>
+        <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;-&#39;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+
+</div></div>
+<div class="viewcode-block" id="ForkingSSLServer"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.SSLServer.ForkingSSLServer">[docs]</a><span class="k">class</span> <span class="nc">ForkingSSLServer</span><span class="p">(</span><span class="n">ForkingMixIn</span><span class="p">,</span> <span class="n">SSLServer</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="ThreadingSSLServer"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.SSLServer.ThreadingSSLServer">[docs]</a><span class="k">class</span> <span class="nc">ThreadingSSLServer</span><span class="p">(</span><span class="n">ThreadingMixIn</span><span class="p">,</span> <span class="n">SSLServer</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">M2Crypto  documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../SSL.html" >M2Crypto.SSL</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
