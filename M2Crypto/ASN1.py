@@ -79,10 +79,10 @@ class ASN1_String:  # noqa
         # type: (int) -> str
         """output an ASN1_STRING structure according to the set flags.
 
-        @param flags: determine the format of the output by using
+        :param flags: determine the format of the output by using
                predetermined constants, see ASN1_STRING_print_ex(3)
                manpage for their meaning.
-        @return: output an ASN1_STRING structure.
+        :return: output an ASN1_STRING structure.
         """
         buf = BIO.MemoryBuffer()
         m2.asn1_string_print_ex(buf.bio_ptr(), self.asn1str, flags)

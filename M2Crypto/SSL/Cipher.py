@@ -39,7 +39,7 @@ class Cipher_Stack:  # noqa
     def __init__(self, stack):
         # type: (bytes) -> None
         """
-        @param stack: binary of the C-type STACK_OF(SSL_CIPHER)
+        :param stack: binary of the C-type STACK_OF(SSL_CIPHER)
         """
         self.stack = stack
 

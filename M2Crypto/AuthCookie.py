@@ -63,9 +63,9 @@ class AuthCookieJar:
         """
         Make a cookie
 
-        @param expiry: expiration time (float in seconds)
-        @param data: cookie content
-        @return: AuthCookie object
+        :param expiry: expiration time (float in seconds)
+        :param data: cookie content
+        :return: AuthCookie object
         """
         if not isinstance(expiry, (six.integer_types, float)):
             raise ValueError('Expiration time must be number, not "%s' % expiry)
@@ -112,11 +112,11 @@ class AuthCookie:
         """
         Create new authentication cookie
 
-        @param expiry: expiration time (in seconds)
-        @param data: cookie payload (as a string)
-        @param dough: expiry & data concatenated to URL compliant
+        :param expiry: expiration time (in seconds)
+        :param data: cookie payload (as a string)
+        :param dough: expiry & data concatenated to URL compliant
                       string
-        @param mac: SHA1-based HMAC of dough and random key
+        :param mac: SHA1-based HMAC of dough and random key
         """
         self._expiry = expiry
         self._data = data

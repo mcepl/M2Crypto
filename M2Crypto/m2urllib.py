@@ -28,10 +28,10 @@ def open_https(self, url, data=None, ssl_context=None):
     """
     Open URL over the SSL connection.
 
-    @param url: URL to be opened
-    @param data: data for the POST request
-    @param ssl_context: SSL.Context to be used
-    @return:
+    :param url: URL to be opened
+    :param data: data for the POST request
+    :param ssl_context: SSL.Context to be used
+    :return:
     """
     if ssl_context is not None and isinstance(ssl_context, SSL.Context):
         self.ctx = ssl_context

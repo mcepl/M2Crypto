@@ -30,12 +30,12 @@ class HTTPSConnection(HTTPConnection):
         Represents one transaction with an HTTP server over the SSL
         connection.
 
-        @param host: host name
-        @param port: port number
-        @param strict: if switched on, it raises BadStatusLine to be
+        :param host: host name
+        :param port: port number
+        :param strict: if switched on, it raises BadStatusLine to be
                        raised if the status line can't be parsed as
                        a valid HTTP/1.0 or 1.1 status line.
-        @param ssl: dict with all remaining named real parameters of the
+        :param ssl: dict with all remaining named real parameters of the
                     function. Specifically, ``ssl_context`` is expected
                     to be included with SSL.Context; if it is not
                     default ``'sslv23'`` is substituted).
@@ -133,20 +133,20 @@ class ProxyHTTPSConnection(HTTPSConnection):
         """
         Create the ProxyHTTPSConnection object.
 
-        @param host: host name of the proxy server
-        @param port: port number of the proxy server
-        @param strict: if switched on, it raises BadStatusLine to be
+        :param host: host name of the proxy server
+        :param port: port number of the proxy server
+        :param strict: if switched on, it raises BadStatusLine to be
                        raised if the status line can't be parsed as
                        a valid HTTP/1.0 or 1.1 status line.
-        @param username: username on the proxy server, when required
+        :param username: username on the proxy server, when required
                          Username can be ``str``, but preferred type
                          is ``bytes``. M2Crypto does some conversion to
                          ``bytes`` when necessary, but it's better when
                          the user of the library does it on its own.
-        @param password: password on the proxy server, when required
+        :param password: password on the proxy server, when required
                          The same as with ``username``, ``str`` is accepted,
                          but ``bytes`` are preferred.
-        @param ssl: dict with all remaining named real parameters of the
+        :param ssl: dict with all remaining named real parameters of the
                     function. Specifically, ``ssl_context`` is expected
                     to be included with SSL.Context; if it is not
                     default ``'sslv23'`` is substituted).

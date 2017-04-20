@@ -84,10 +84,10 @@ class X509_Extension:  # noqa
         Mark this extension critical or noncritical. By default an
         extension is not critical.
 
-        @param critical: Nonzero sets this extension as critical.
+        :param critical: Nonzero sets this extension as critical.
                          Calling this method without arguments will
                          set this extension to critical.
-        @return: 1 for success, 0 for failure
+        :return: 1 for success, 0 for failure
         """
         return m2.x509_extension_set_critical(self.x509_ext, critical)
 
@@ -96,7 +96,7 @@ class X509_Extension:  # noqa
         """
         Return whether or not this is a critical extension.
 
-        @return:  Nonzero if this is a critical extension.
+        :return:  Nonzero if this is a critical extension.
         """
         return m2.x509_extension_get_critical(self.x509_ext)
 
@@ -112,8 +112,8 @@ class X509_Extension:  # noqa
         """
         Get the extension value, for example 'DNS:www.example.com'.
 
-        @param flag:   Flag to control what and how to print.
-        @param indent: How many spaces to print before actual value.
+        :param flag:   Flag to control what and how to print.
+        :param indent: How many spaces to print before actual value.
         """
         buf = BIO.MemoryBuffer()
         m2.x509_ext_print(buf.bio_ptr(), self.x509_ext, flag, indent)
@@ -124,11 +124,12 @@ class X509_Extension_Stack:  # noqa
     """
     X509 Extension Stack
 
-    @warning: Do not modify the underlying OpenSSL stack
-    except through this interface, or use any OpenSSL functions that do so
-    indirectly. Doing so will get the OpenSSL stack and the internal pystack
-    of this class out of sync, leading to python memory leaks, exceptions
-    or even python crashes!
+    :warning: Do not modify the underlying OpenSSL stack
+              except through this interface, or use any OpenSSL
+              functions that do so indirectly. Doing so will get the
+              OpenSSL stack and the internal pystack of this class out
+              of sync, leading to python memory leaks, exceptions or
+              even python crashes!
     """
 
     m2_sk_x509_extension_free = m2.sk_x509_extension_free
@@ -175,8 +176,8 @@ class X509_Extension_Stack:  # noqa
         """
         Push X509_Extension object onto the stack.
 
-        @param x509_ext: X509_Extension object to be pushed onto the stack.
-        @return: The number of extensions on the stack.
+        :param x509_ext: X509_Extension object to be pushed onto the stack.
+        :return: The number of extensions on the stack.
         """
         self.pystack.append(x509_ext)
         ret = m2.sk_x509_extension_push(self.stack, x509_ext._ptr())
@@ -188,7 +189,7 @@ class X509_Extension_Stack:  # noqa
         """
         Pop X509_Extension object from the stack.
 
-        @return: X509_Extension popped
+        :return: X509_Extension popped
         """
         x509_ext_ptr = m2.sk_x509_extension_pop(self.stack)
         if x509_ext_ptr is None:
@@ -207,8 +208,8 @@ class X509_Name_Entry:  # noqa
     def __init__(self, x509_name_entry, _pyfree=0):
         # type: (bytes, int) -> None
         """
-            @param x509_name_entry: this should be OpenSSL X509_NAME_ENTRY binary
-            @param _pyfree:
+            :param x509_name_entry: this should be OpenSSL X509_NAME_ENTRY binary
+            :param _pyfree:
         """
         self.x509_name_entry = x509_name_entry
         self._pyfree = _pyfree
@@ -227,8 +228,8 @@ class X509_Name_Entry:  # noqa
         """
         Sets the field name to asn1obj
 
-        @param asn1obj:
-        @return: 0 on failure, 1 on success
+        :param asn1obj:
+        :return: 0 on failure, 1 on success
         """
         return m2.x509_name_entry_set_object(self.x509_name_entry,
                                              asn1obj._ptr())
@@ -238,8 +239,8 @@ class X509_Name_Entry:  # noqa
         """
         Sets the field name to asn1obj
 
-        @param data: data in a binary form to be set
-        @return: 0 on failure, 1 on success
+        :param data: data in a binary form to be set
+        :return: 0 on failure, 1 on success
         """
         return m2.x509_name_entry_set_data(self.x509_name_entry,
                                            type, util.py3bytes(data))
@@ -290,8 +291,8 @@ class X509_Name:  # noqa
     def __init__(self, x509_name=None, _pyfree=0):
         # type: (bytes, int) -> None
         """
-        @param x509_name: this should be OpenSSL X509_NAME binary
-        @param _pyfree:
+        :param x509_name: this should be OpenSSL X509_NAME binary
+        :param _pyfree:
         """
         if x509_name is not None:
             assert m2.x509_name_type_check(x509_name), "'x509_name' type error"
@@ -327,7 +328,7 @@ class X509_Name:  # noqa
     def __setattr__(self, attr, value):
         # type: (str, AnyStr) -> int
         """
-        @return: 1 for success of 0 if an error occurred.
+        :return: 1 for success of 0 if an error occurred.
         """
         if attr in self.nid:
             assert m2.x509_name_type_check(self.x509_name), \
@@ -361,11 +362,11 @@ class X509_Name:  # noqa
         """
         Add X509_Name field whose name is identified by its name.
 
-        @param field: name of the entry
-        @param type: use MBSTRING_ASC or MBSTRING_UTF8
+        :param field: name of the entry
+        :param type: use MBSTRING_ASC or MBSTRING_UTF8
                (or standard ASN1 type like V_ASN1_IA5STRING)
-        @param entry: value
-        @param len: buf_len of the entry
+        :param entry: value
+        :param len: buf_len of the entry
                (-1 and the length is computed automagically)
 
         The ``loc`` and ``set`` parameters determine where a new entry
@@ -374,16 +375,16 @@ class X509_Name:  # noqa
         This adds a new entry to the end of name as a single valued
         RelativeDistinguishedName (RDN).
 
-        @param loc: determines the index where the new entry is
+        :param loc: determines the index where the new entry is
                inserted: if it is -1 it is appended.
-        @param set: determines how the new type is added. If it is zero
+        :param set: determines how the new type is added. If it is zero
                a new RDN is created.
                If set is -1 or 1 it is added to the previous or next RDN
                structure respectively. This will then be a multivalued
                RDN: since multivalues RDNs are very seldom used set is
                almost always set to zero.
 
-        @return: 1 for success of 0 if an error occurred.
+        :return: 1 for success of 0 if an error occurred.
         """
         return m2.x509_name_add_entry_by_txt(self.x509_name,
                                              util.py3bytes(field), type,
@@ -398,9 +399,9 @@ class X509_Name:  # noqa
         """
         Retrieve the next index matching nid.
 
-        @param nid: name of the entry (as m2.NID* constants)
+        :param nid: name of the entry (as m2.NID* constants)
 
-        @return: list of X509_Name_Entry items
+        :return: list of X509_Name_Entry items
         """
         ret = []
         lastpos = -1
@@ -420,9 +421,9 @@ class X509_Name:  # noqa
         """
         as_text returns the name as a string.
 
-        @param indent: Each line in multiline format is indented
+        :param indent: Each line in multiline format is indented
                        by this many spaces.
-        @param flags:  Flags that control how the output should be formatted.
+        :param flags:  Flags that control how the output should be formatted.
         """
         assert m2.x509_name_type_check(self.x509_name), \
             "'x509_name' type error"
@@ -453,9 +454,9 @@ class X509:
     def __init__(self, x509=None, _pyfree=0):
         # type: (Optional[bytes], int) -> None
         """
-        @param x509: binary representation of
+        :param x509: binary representation of
                the underlying OpenSSL X509 object.
-        @param _pyfree:
+        :param _pyfree:
         """
         if x509 is not None:
             assert m2.x509_type_check(x509), "'x509' type error"
@@ -496,8 +497,8 @@ class X509:
     def save_pem(self, filename):
         # type: (AnyStr) -> int
         """
-        @param filename: name of the file to be loaded
-        @return: 1 for success or 0 for failure
+        :param filename: name of the file to be loaded
+        :return: 1 for success or 0 for failure
         """
         with BIO.openfile(filename, 'wb') as bio:
             return m2.x509_write_pem(bio.bio_ptr(), self.x509)
@@ -508,11 +509,14 @@ class X509:
         Saves X.509 certificate to a file. Default output
         format is PEM.
 
-        @param filename: Name of the file the cert will be saved to.
-        @param format: Controls what output format is used to save the cert.
-        Either FORMAT_PEM or FORMAT_DER to save in PEM or DER format.
-        Raises a ValueError if an unknow format is used.
-        @return: 1 for success or 0 for failure
+        :param filename: Name of the file the cert will be saved to.
+
+        :param format: Controls what output format is used to save the cert.
+                       Either FORMAT_PEM or FORMAT_DER to save in PEM or
+                       DER format.  Raises a ValueError if an unknow
+                       format is used.
+        
+        :return: 1 for success or 0 for failure
         """
         with BIO.openfile(filename, 'wb') as bio:
             if format == FORMAT_PEM:
@@ -528,8 +532,8 @@ class X509:
         """
         Set version of the certificate.
 
-        @param version: Version number.
-        @return:        Returns 0 on failure.
+        :param version: Version number.
+        :return:        Returns 0 on failure.
         """
         assert m2.x509_type_check(self.x509), "'x509' type error"
         return m2.x509_set_version(self.x509, version)
@@ -537,7 +541,7 @@ class X509:
     def set_not_before(self, asn1_time):
         # type: (ASN1.ASN1_TIME) -> int
         """
-        @return: 1 on success, 0 on failure
+        :return: 1 on success, 0 on failure
         """
         assert m2.x509_type_check(self.x509), "'x509' type error"
         return m2.x509_set_not_before(self.x509, asn1_time._ptr())
@@ -545,7 +549,7 @@ class X509:
     def set_not_after(self, asn1_time):
         # type: (ASN1.ASN1_TIME) -> int
         """
-        @return: 1 on success, 0 on failure
+        :return: 1 on success, 0 on failure
         """
         assert m2.x509_type_check(self.x509), "'x509' type error"
         return m2.x509_set_not_after(self.x509, asn1_time._ptr())
@@ -553,7 +557,7 @@ class X509:
     def set_subject_name(self, name):
         # type: (X509_Name) -> int
         """
-        @return: 1 on success, 0 on failure
+        :return: 1 on success, 0 on failure
         """
         assert m2.x509_type_check(self.x509), "'x509' type error"
         return m2.x509_set_subject_name(self.x509, name.x509_name)
@@ -561,7 +565,7 @@ class X509:
     def set_issuer_name(self, name):
         # type: (X509_Name) -> int
         """
-        @return: 1 on success, 0 on failure
+        :return: 1 on success, 0 on failure
         """
         assert m2.x509_type_check(self.x509), "'x509' type error"
         return m2.x509_set_issuer_name(self.x509, name.x509_name)
@@ -582,8 +586,9 @@ class X509:
         """
         Set serial number.
 
-        @param serial:  Serial number.
-        @return 1 for success and 0 for failure.
+        :param serial:  Serial number.
+
+        :return 1 for success and 0 for failure.
         """
         assert m2.x509_type_check(self.x509), "'x509' type error"
         # This "magically" changes serial since asn1_integer
@@ -621,8 +626,9 @@ class X509:
         """
         Set the public key for the certificate
 
-        @param pkey: Public key
-        @return 1 for success and 0 for failure
+        :param pkey: Public key
+        
+        :return 1 for success and 0 for failure
         """
         assert m2.x509_type_check(self.x509), "'x509' type error"
         return m2.x509_set_pubkey(self.x509, pkey.pkey)
@@ -637,8 +643,9 @@ class X509:
         """
         Set issuer name.
 
-        @param name:    subjectName field.
-        @return 1 for success and 0 for failure
+        :param name:    subjectName field.
+
+        :return 1 for success and 0 for failure
         """
         assert m2.x509_type_check(self.x509), "'x509' type error"
         return m2.x509_set_issuer_name(self.x509, name.x509_name)
@@ -653,8 +660,9 @@ class X509:
         """
         Set subject name.
 
-        @param name:    subjectName field.
-        @return 1 for success and 0 for failure
+        :param name:    subjectName field.
+        
+        :return 1 for success and 0 for failure
         """
         assert m2.x509_type_check(self.x509), "'x509' type error"
         return m2.x509_set_subject_name(self.x509, name.x509_name)
@@ -664,8 +672,9 @@ class X509:
         """
         Add X509 extension to this certificate.
 
-        @param ext:    Extension
-        @return 1 for success and 0 for failure
+        :param ext:    Extension
+
+        :return 1 for success and 0 for failure
         """
         assert m2.x509_type_check(self.x509), "'x509' type error"
         return m2.x509_add_ext(self.x509, ext.x509_ext, -1)
@@ -675,8 +684,9 @@ class X509:
         """
         Get X509 extension by name.
 
-        @param name:    Name of the extension
-        @return:       X509_Extension
+        :param name:    Name of the extension
+
+        :return:       X509_Extension
         """
         # Optimizations to reduce attribute accesses
         m2x509_get_ext = m2.x509_get_ext
@@ -696,8 +706,9 @@ class X509:
         """
         Get X509 extension by index.
 
-        @param index:    Name of the extension
-        @return:        X509_Extension
+        :param index:    Name of the extension
+
+        :return:        X509_Extension
         """
         if index < 0 or index >= self.get_ext_count():
             raise IndexError
@@ -717,10 +728,12 @@ class X509:
         """
         Sign the certificate.
 
-        @param pkey: Public key
-        @param md:   Message digest algorithm to use for signing,
+        :param pkey: Public key
+        
+        :param md:   Message digest algorithm to use for signing,
                      for example 'sha1'.
-        @return int
+        
+        :return int
         """
         assert m2.x509_type_check(self.x509), "'x509' type error"
         mda = getattr(m2, md, None)
@@ -741,9 +754,9 @@ class X509:
         """
         Check if the certificate is a Certificate Authority (CA) certificate.
 
-        @return: 0 if the certificate is not CA, nonzero otherwise.
+        :return: 0 if the certificate is not CA, nonzero otherwise.
 
-        @requires: OpenSSL 0.9.8 or newer
+        :requires: OpenSSL 0.9.8 or newer
         """
         return m2.x509_check_ca(self.x509)
 
@@ -752,9 +765,11 @@ class X509:
         """
         Check if the certificate's purpose matches the asked purpose.
 
-        @param id: Purpose id. See X509_PURPOSE_* constants.
-        @param ca: 1 if the certificate should be CA, 0 otherwise.
-        @return: 0 if the certificate purpose does not match, nonzero
+        :param id: Purpose id. See X509_PURPOSE_* constants.
+        
+        :param ca: 1 if the certificate should be CA, 0 otherwise.
+        
+        :return: 0 if the certificate purpose does not match, nonzero
                  otherwise.
         """
         return m2.x509_check_purpose(self.x509, id, ca)
@@ -764,8 +779,9 @@ class X509:
         """
         Get the fingerprint of the certificate.
 
-        @param md: Message digest algorithm to use.
-        @return:   String containing the fingerprint in hex format.
+        :param md: Message digest algorithm to use.
+        
+        :return:   String containing the fingerprint in hex format.
         """
         der = self.as_der()
         md = EVP.MessageDigest(md)
@@ -779,12 +795,13 @@ def load_cert(file, format=FORMAT_PEM):
     """
     Load certificate from file.
 
-    @param file: Name of file containing certificate in either DER or
+    :param file: Name of file containing certificate in either DER or
                  PEM format.
-    @param format: Describes the format of the file to be loaded,
+    
+    :param format: Describes the format of the file to be loaded,
                    either PEM or DER.
 
-    @return: M2Crypto.X509.X509 object.
+    :return: M2Crypto.X509.X509 object.
     """
     with BIO.openfile(file) as bio:
         if format == FORMAT_PEM:
@@ -804,12 +821,13 @@ def load_cert_bio(bio, format=FORMAT_PEM):
     """
     Load certificate from a bio.
 
-    @param bio: BIO pointing at a certificate in either DER or PEM format.
-    @param format: Describes the format of the cert to be loaded,
+    :param bio: BIO pointing at a certificate in either DER or PEM format.
+    
+    :param format: Describes the format of the cert to be loaded,
                    either PEM or DER (via constants FORMAT_PEM
                    and FORMAT_FORMAT_DER)
 
-    @return: M2Crypto.X509.X509 object.
+    :return: M2Crypto.X509.X509 object.
     """
     if format == FORMAT_PEM:
         cptr = m2.x509_read_pem(bio._ptr())
@@ -828,11 +846,13 @@ def load_cert_string(string, format=FORMAT_PEM):
     """
     Load certificate from a string.
 
-    @param string: String containing a certificate in either DER or PEM format.
-    @param format: Describes the format of the cert to be loaded,
+    :param string: String containing a certificate in either DER or PEM format.
+
+    :param format: Describes the format of the cert to be loaded,
                    either PEM or DER (via constants FORMAT_PEM
                    and FORMAT_FORMAT_DER)
-    @return: M2Crypto.X509.X509 object.
+    
+    :return: M2Crypto.X509.X509 object.
     """
     string = util.py3bytes(string)
     bio = BIO.MemoryBuffer(string)
@@ -844,8 +864,9 @@ def load_cert_der_string(string):
     """
     Load certificate from a string.
 
-    @param string: String containing a certificate in DER format.
-    @return: M2Crypto.X509.X509 object.
+    :param string: String containing a certificate in DER format.
+    
+    :return: M2Crypto.X509.X509 object.
     """
     string = util.py3bytes(string)
     bio = BIO.MemoryBuffer(string)
@@ -866,7 +887,7 @@ class X509_Store_Context:  # noqa
         # type: (bytes, int) -> None
         """
 
-        @param x509_store_ctx: binary data for
+        :param x509_store_ctx: binary data for
               OpenSSL X509_STORE_CTX type
         """
         self.ctx = x509_store_ctx
@@ -888,8 +909,9 @@ class X509_Store_Context:  # noqa
         """
         Get current X.509 certificate.
 
-        @warning: The returned certificate is NOT refcounted, so you can not
-        rely on it being valid once the store context goes away or is modified.
+        :warning: The returned certificate is NOT refcounted, so you can not
+                  rely on it being valid once the store context goes
+                  away or is modified.
         """
         return X509(m2.x509_store_ctx_get_current_cert(self.ctx), _pyfree=0)
 
@@ -912,7 +934,7 @@ class X509_Store_Context:  # noqa
         """
         Get certificate chain.
 
-        @return: Reference counted (i.e. safe to use even after the store
+        :return: Reference counted (i.e. safe to use even after the store
                  context goes away) stack of certificates in the chain.
         """
         return X509_Stack(m2.x509_store_ctx_get1_chain(self.ctx), 1, 1)
@@ -928,7 +950,7 @@ class X509_Store:  # noqa
     def __init__(self, store=None, _pyfree=0):
         # type: (Optional[bytes], int) -> None
         """
-        @param store: binary data for OpenSSL X509_STORE_CTX type.
+        :param store: binary data for OpenSSL X509_STORE_CTX type.
         """
         if store is not None:
             self.store = store
@@ -948,8 +970,9 @@ class X509_Store:  # noqa
     def load_info(self, file):
         # type: (AnyStr) -> int
         """
-        @param file: filename
-        @return: 1 on success, 0 on failure
+        :param file: filename
+    
+        :return: 1 on success, 0 on failure
         """
         ret = m2.x509_store_load_locations(self.store, file)
         if ret < 1:
@@ -963,23 +986,25 @@ class X509_Store:  # noqa
         assert isinstance(x509, X509)
         return m2.x509_store_add_cert(self.store, x509._ptr())
 
-
     def set_verify_cb(self, callback=None):
         # type: (Optional[callable]) -> None
         """
         Set callback which will be called when the store is verified.
         Wrapper over OpenSSL X509_STORE_set_verify_cb().
 
-        @param callback:    Callable to specify verification options.
+        :param callback:    Callable to specify verification options.
                             Type of the callable must be:
                             (int, X509_Store_Context) -> int.
                             If None: set the standard options.
-        @note compile-time or run-time errors in the callback would result
+        
+        :note: compile-time or run-time errors in the callback would result
                in mysterious errors during verification, which could be hard
                to trace.
-        @note  Python exceptions raised in callbacks do not propagate to
+
+        :note: Python exceptions raised in callbacks do not propagate to
                verify() call.
-        @return: None
+        
+        :return: None
         """
         if callback is None:
             return self.set_verify_cb(x509_store_default_cb)
@@ -995,11 +1020,12 @@ class X509_Stack:  # noqa
     """
     X509 Stack
 
-    @warning: Do not modify the underlying OpenSSL stack
-    except through this interface, or use any OpenSSL functions that do so
-    indirectly. Doing so will get the OpenSSL stack and the internal pystack
-    of this class out of sync, leading to python memory leaks, exceptions
-    or even python crashes!
+    :warning: Do not modify the underlying OpenSSL stack
+              except through this interface, or use any OpenSSL
+              functions that do so indirectly. Doing so will get the
+              OpenSSL stack and the internal pystack of this class out
+              of sync, leading to python memory leaks, exceptions or
+              even python crashes!
     """
 
     m2_sk_x509_free = m2.sk_x509_free
@@ -1044,8 +1070,9 @@ class X509_Stack:  # noqa
         """
         push an X509 certificate onto the stack.
 
-        @param x509: X509 object.
-        @return: The number of X509 objects currently on the stack.
+        :param x509: X509 object.
+        
+        :return: The number of X509 objects currently on the stack.
         """
         assert isinstance(x509, X509)
         self.pystack.append(x509)
@@ -1058,8 +1085,8 @@ class X509_Stack:  # noqa
         """
         pop a certificate from the stack.
 
-        @return: X509 object that was popped, or None if there is nothing
-        to pop.
+        :return: X509 object that was popped, or None if there is
+                 nothing to pop.
         """
         x509_ptr = m2.sk_x509_pop(self.stack)
         if x509_ptr is None:
@@ -1080,7 +1107,7 @@ def new_stack_from_der(der_string):
     """
     Create a new X509_Stack from DER string.
 
-    @return: X509_Stack
+    :return: X509_Stack
     """
     der_string = util.py3bytes(der_string)
     stack_ptr = m2.make_stack_from_der_sequence(der_string)
@@ -1140,11 +1167,14 @@ class Request:
         Saves X.509 certificate request to a file. Default output
         format is PEM.
 
-        @param filename: Name of the file the request will be saved to.
-        @param format: Controls what output format is used to save the request.
-        Either FORMAT_PEM or FORMAT_DER to save in PEM or DER format.
-        Raises ValueError if an unknown format is used.
-        @return: 1 for success, 0 for failure.
+        :param filename: Name of the file the request will be saved to.
+
+        :param format: Controls what output format is used to save the
+                       request. Either FORMAT_PEM or FORMAT_DER to save
+                       in PEM or DER format. Raises ValueError if an
+                       unknown format is used.
+
+        :return: 1 for success, 0 for failure.
                  The error code can be obtained by ERR_get_error.
         """
         with BIO.openfile(filename, 'wb') as bio:
@@ -1161,7 +1191,7 @@ class Request:
         """
         Get the public key for the request.
 
-        @return:     Public key from the request.
+        :return:     Public key from the request.
         """
         return EVP.PKey(m2.x509_req_get_pubkey(self.req), _pyfree=1)
 
@@ -1170,9 +1200,9 @@ class Request:
         """
         Set the public key for the request.
 
-        @param pkey: Public key
+        :param pkey: Public key
 
-        @return:     Return 1 for success and 0 for failure.
+        :return:     Return 1 for success and 0 for failure.
         """
         return m2.x509_req_set_pubkey(self.req, pkey.pkey)
 
@@ -1181,7 +1211,7 @@ class Request:
         """
         Get version.
 
-        @return:        Returns version.
+        :return:        Returns version.
         """
         return m2.x509_req_get_version(self.req)
 
@@ -1190,8 +1220,8 @@ class Request:
         """
         Set version.
 
-        @param version: Version number.
-        @return:        Returns 0 on failure.
+        :param version: Version number.
+        :return:        Returns 0 on failure.
         """
         return m2.x509_req_set_version(self.req, version)
 
@@ -1204,8 +1234,8 @@ class Request:
         """
         Set subject name.
 
-        @param name:    subjectName field.
-        @return:    1 for success and 0 for failure
+        :param name:    subjectName field.
+        :return:    1 for success and 0 for failure
         """
         return m2.x509_req_set_subject_name(self.req, name.x509_name)
 
@@ -1216,8 +1246,8 @@ class Request:
         """
         Add X509 extensions to this request.
 
-        @param ext_stack: Stack of extensions to add.
-        @return: 1 for success and 0 for failure
+        :param ext_stack: Stack of extensions to add.
+        :return: 1 for success and 0 for failure
         """
         return m2.x509_req_add_extensions(self.req, ext_stack._ptr())
 
@@ -1225,8 +1255,8 @@ class Request:
         # type: (EVP.PKey) -> int
         """
 
-        @param pkey: PKey to be verified
-        @return: 1 for success and 0 for failure
+        :param pkey: PKey to be verified
+        :return: 1 for success and 0 for failure
         """
         return m2.x509_req_verify(self.req, pkey.pkey)
 
@@ -1234,9 +1264,9 @@ class Request:
         # type: (EVP.PKey, str) -> int
         """
 
-        @param pkey: PKey to be signed
-        @param md: used algorigthm
-        @return: 1 for success and 0 for failure
+        :param pkey: PKey to be signed
+        :param md: used algorigthm
+        :return: 1 for success and 0 for failure
         """
         mda = getattr(m2, md, None)
         if mda is None:
@@ -1249,12 +1279,12 @@ def load_request(file, format=FORMAT_PEM):
     """
     Load certificate request from file.
 
-    @param file: Name of file containing certificate request in
+    :param file: Name of file containing certificate request in
                  either PEM or DER format.
-    @param format: Describes the format of the file to be loaded,
+    :param format: Describes the format of the file to be loaded,
                    either PEM or DER. (using constants FORMAT_PEM
                    and FORMAT_DER)
-    @return: Request object.
+    :return: Request object.
     """
     with BIO.openfile(file) as f:
         if format == FORMAT_PEM:
@@ -1275,12 +1305,12 @@ def load_request_bio(bio, format=FORMAT_PEM):
     """
     Load certificate request from a bio.
 
-    @param bio: BIO pointing at a certificate request in
+    :param bio: BIO pointing at a certificate request in
                 either DER or PEM format.
-    @param format: Describes the format of the request to be loaded,
+    :param format: Describes the format of the request to be loaded,
                    either PEM or DER. (using constants FORMAT_PEM
                    and FORMAT_DER)
-    @return: M2Crypto.X509.Request object.
+    :return: M2Crypto.X509.Request object.
     """
     if format == FORMAT_PEM:
         cptr = m2.x509_req_read_pem(bio._ptr())
@@ -1299,13 +1329,13 @@ def load_request_string(string, format=FORMAT_PEM):
     """
     Load certificate request from a string.
 
-    @param string: String containing a certificate request in
+    :param string: String containing a certificate request in
                    either DER or PEM format.
-    @param format: Describes the format of the request to be loaded,
+    :param format: Describes the format of the request to be loaded,
                    either PEM or DER. (using constants FORMAT_PEM
                    and FORMAT_DER)
 
-    @return: M2Crypto.X509.Request object.
+    :return: M2Crypto.X509.Request object.
     """
     string = util.py3bytes(string)
     bio = BIO.MemoryBuffer(string)
@@ -1317,8 +1347,8 @@ def load_request_der_string(string):
     """
     Load certificate request from a string.
 
-    @param string: String containing a certificate request in DER format.
-    @return: M2Crypto.X509.Request object.
+    :param string: String containing a certificate request in DER format.
+    :return: M2Crypto.X509.Request object.
     """
     string = util.py3bytes(string)
     bio = BIO.MemoryBuffer(string)
@@ -1336,7 +1366,7 @@ class CRL:
         # type: (Optional[bytes], int) -> None
         """
 
-        @param crl: binary representation of
+        :param crl: binary representation of
                the underlying OpenSSL X509_CRL object.
         """
         if crl is not None:
@@ -1356,7 +1386,7 @@ class CRL:
         """
         Return CRL in PEM format in a string.
 
-        @return: String containing the CRL in PEM format.
+        :return: String containing the CRL in PEM format.
         """
         buf = BIO.MemoryBuffer()
         m2.x509_crl_print(buf.bio_ptr(), self.crl)
@@ -1368,9 +1398,9 @@ def load_crl(file):
     """
     Load CRL from file.
 
-    @param file: Name of file containing CRL in PEM format.
+    :param file: Name of file containing CRL in PEM format.
 
-    @return: M2Crypto.X509.CRL object.
+    :return: M2Crypto.X509.CRL object.
     """
     with BIO.openfile(file) as f:
         cptr = m2.x509_crl_read_pem(f.bio_ptr())

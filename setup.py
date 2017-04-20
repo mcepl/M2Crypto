@@ -48,9 +48,9 @@ def openssl_version(req_ver, required=False):
     """
     Compare version of the installed OpenSSL with the maximum required version.
 
-    @param req_ver: required version as a str (e.g., '1.0.1')
-    @param required: whether we want bigger-or-equal or less-or-equal
-    @return: Boolean indicating whether the satisfying version of
+    :param req_ver: required version as a str (e.g., '1.0.1')
+    :param required: whether we want bigger-or-equal or less-or-equal
+    :return: Boolean indicating whether the satisfying version of
              OpenSSL has been installed.
     """
     ver_str = None
@@ -209,8 +209,8 @@ def swig_version(req_ver):
     """
     Compare version of the swig with the required version
 
-    @param req_ver: required version as a str (e.g., '2.0.4')
-    @return: Boolean indicating whether the satisfying version of swig
+    :param req_ver: required version as a str (e.g., '2.0.4')
+    :return: Boolean indicating whether the satisfying version of swig
              has been installed.
     """
     ver_str = None

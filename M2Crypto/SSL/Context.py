@@ -84,11 +84,11 @@ class Context:
         # type: (AnyStr, Optional[AnyStr], Callable) -> None
         """Load certificate and private key into the context.
 
-        @param certfile: File that contains the PEM-encoded certificate.
-        @param keyfile:  File that contains the PEM-encoded private key.
+        :param certfile: File that contains the PEM-encoded certificate.
+        :param keyfile:  File that contains the PEM-encoded private key.
                          Default value of None indicates that the private key
                          is to be found in 'certfile'.
-        @param callback: Callable object to be invoked if the private key is
+        :param callback: Callable object to be invoked if the private key is
                          passphrase-protected. Default callback provides a
                          simple terminal-style input for the passphrase.
         """
@@ -105,12 +105,12 @@ class Context:
         # type: (AnyStr, Optional[AnyStr], Callable) -> None
         """Load certificate chain and private key into the context.
 
-        @param certchainfile: File object containing the PEM-encoded
+        :param certchainfile: File object containing the PEM-encoded
                               certificate chain.
-        @param keyfile:       File object containing the PEM-encoded private
+        :param keyfile:       File object containing the PEM-encoded private
                               key. Default value of None indicates that the
                               private key is to be found in 'certchainfile'.
-        @param callback:      Callable object to be invoked if the private key
+        :param callback:      Callable object to be invoked if the private key
                               is passphrase-protected. Default callback
                               provides a simple terminal-style input for the
                               passphrase.
@@ -128,7 +128,7 @@ class Context:
         """Load CA certs into the context. These CA certs are sent to the
         peer during *SSLv3 certificate request*.
 
-        @param cafile: File object containing one or more PEM-encoded CA
+        :param cafile: File object containing one or more PEM-encoded CA
                        certificates concatenated together.
         """
         m2.ssl_ctx_set_client_CA_list_from_file(self.ctx, cafile)
@@ -143,13 +143,16 @@ class Context:
         These CA certs are used during verification of the peer's
         certificate.
 
-        @param cafile: File containing one or more PEM-encoded CA
+        :param cafile: File containing one or more PEM-encoded CA
                        certificates concatenated together.
-        @param capath: Directory containing PEM-encoded CA certificates
+
+        :param capath: Directory containing PEM-encoded CA certificates
                        (one certificate per file).
-        @return 0 if the operation failed because CAfile and CApath are NULL
+
+        :return: 0 if the operation failed because CAfile and CApath are NULL
                   or the processing at one of the locations specified failed.
                   Check the error stack to find out the reason.
+
                 1 The operation succeeded.
         """
         if cafile is None and capath is None:
@@ -163,7 +166,7 @@ class Context:
         # type: (bytes) -> None
         """Sets the session id for the SSL.Context w/in a session can be reused.
 
-        @param id: Sessions are generated within a certain context. When
+        :param id: Sessions are generated within a certain context. When
                    exporting/importing sessions with
                    i2d_SSL_SESSION/d2i_SSL_SESSION it would be possible,
                    to re-import a session generated from another context
@@ -196,6 +199,7 @@ class Context:
 
         @return 0 if the operation failed. A missing default location is
                   still treated as a success. No error code is set.
+
                 1 The operation succeeded.
         """
         ret = m2.ssl_ctx_set_default_verify_paths(self.ctx)
@@ -207,7 +211,7 @@ class Context:
         """Set the context to accept/reject a peer certificate if the
         certificate's CA is unknown.
 
-        @param ok:       True to accept, False to reject.
+        :param ok:       True to accept, False to reject.
         """
         self.allow_unknown_ca = ok
 
@@ -226,12 +230,12 @@ class Context:
         Set verify options. Most applications will need to call this
         method with the right options to make a secure SSL connection.
 
-        @param mode:     The verification mode to use. Typically at least
+        :param mode:     The verification mode to use. Typically at least
                          SSL.verify_peer is used. Clients would also typically
                          add SSL.verify_fail_if_no_peer_cert.
-        @param depth:    The maximum allowed depth of the certificate chain
+        :param depth:    The maximum allowed depth of the certificate chain
                          returned by the peer.
-        @param callback: Callable that can be used to specify custom
+        :param callback: Callable that can be used to specify custom
                          verification checks.
         """
         if callback is None:
@@ -253,7 +257,7 @@ class Context:
         # type: (AnyStr) -> int
         """Load ephemeral DH parameters into the context.
 
-        @param dhpfile: Filename of the file containing the PEM-encoded
+        :param dhpfile: Filename of the file containing the PEM-encoded
                         DH parameters.
         """
         f = BIO.openfile(dhpfile)
@@ -264,7 +268,7 @@ class Context:
         # type: (Optional[Callable]) -> None
         """Sets the callback function for SSL.Context.
 
-        @param callback: Callable to be used when a DH parameters are required.
+        :param callback: Callable to be used when a DH parameters are required.
         """
         if callback is not None:
             m2.ssl_ctx_set_tmp_dh_callback(self.ctx, callback)
@@ -273,7 +277,7 @@ class Context:
         # type: (RSA.RSA) -> int
         """Load ephemeral RSA key into the context.
 
-        @param rsa: RSA.RSA instance.
+        :param rsa: RSA.RSA instance.
         """
         if isinstance(rsa, RSA.RSA):
             return m2.ssl_ctx_set_tmp_rsa(self.ctx, rsa.rsa)
@@ -295,7 +299,7 @@ class Context:
         It can be used to get state information about the SSL
         connections that are created from this context.
 
-        @param callback: Callback function. The default prints
+        :param callback: Callback function. The default prints
                          information to stderr.
         """
         m2.ssl_ctx_set_info_callback(self.ctx, callback)
@@ -304,9 +308,9 @@ class Context:
         # type: (str) -> int
         """Sets the list of available ciphers.
 
-        @param cipher_list: The format of the string is described in
+        :param cipher_list: The format of the string is described in
                             ciphers(1).
-        @return: 1 if any cipher could be selected and 0 on complete
+        :return: 1 if any cipher could be selected and 0 on complete
                  failure.
         """
         return m2.ssl_ctx_set_cipher_list(self.ctx, cipher_list)
@@ -315,10 +319,11 @@ class Context:
         # type: (Session) -> int
         """Add the session to the context.
 
-        @param session: the session to be added.
+        :param session: the session to be added.
 
-        @return: 0 The operation failed. It was tried to add the same
+        :return: 0 The operation failed. It was tried to add the same
                    (identical) session twice.
+
                  1 The operation succeeded.
         """
         return m2.ssl_ctx_add_session(self.ctx, session._ptr())
@@ -327,10 +332,11 @@ class Context:
         # type: (Session) -> int
         """Remove the session from the context.
 
-        @param session: the session to be removed.
+        :param session: the session to be removed.
 
-        @return: 0 The operation failed. The session was not found in
+        :return: 0 The operation failed. The session was not found in
                    the cache.
+
                  1 The operation succeeded.
         """
         return m2.ssl_ctx_remove_session(self.ctx, session._ptr())
@@ -362,7 +368,7 @@ class Context:
 
         SSL_CTX_set_timeout() returns the previously set timeout value.
 
-        @return: the currently set timeout value.
+        :return: the currently set timeout value.
         """
         return m2.ssl_ctx_get_session_timeout(self.ctx)
 
@@ -373,8 +379,9 @@ class Context:
         See self.get_session_timeout() for explanation of the session
         timeouts.
 
-        @param timeout: new timeout value.
-        @return: the previously set timeout value.
+        :param timeout: new timeout value.
+
+        :return: the previously set timeout value.
         """
         return m2.ssl_ctx_set_session_timeout(self.ctx, timeout)
 
@@ -384,8 +391,9 @@ class Context:
 
         The mode is set by using m2.SSL_SESS_CACHE_* constants.
 
-        @param mode: new mode value.
-        @return: the previously set cache mode value.
+        :param mode: new mode value.
+
+        :return: the previously set cache mode value.
         """
         return m2.ssl_ctx_set_session_cache_mode(self.ctx, mode)
 
@@ -395,7 +403,7 @@ class Context:
 
         The mode is set to m2.SSL_SESS_CACHE_* constants.
 
-        @return: the previously set cache mode value.
+        :return: the previously set cache mode value.
         """
         return m2.ssl_ctx_get_session_cache_mode(self.ctx)
 
@@ -420,10 +428,10 @@ class Context:
         do not affect already created SSL objects. SSL.clear() does not
         affect the settings.
 
-        @param op: bitmask of additional options specified in
-        SSL_CTX_set_options(3) manpage.
+        :param op: bitmask of additional options specified in
+                   SSL_CTX_set_options(3) manpage.
 
-        @return: the new options bitmask after adding options.
+        :return: the new options bitmask after adding options.
         """
         return m2.ssl_ctx_set_options(self.ctx, op)
 
@@ -432,7 +440,7 @@ class Context:
         """
         Get the certificate store associated with this context.
 
-        @warning: The store is NOT refcounted, and as such can not be relied
-        to be valid once the context goes away or is changed.
+        :warning: The store is NOT refcounted, and as such can not be relied
+                  to be valid once the context goes away or is changed.
         """
         return X509.X509_Store(m2.ssl_ctx_get_cert_store(self.ctx))

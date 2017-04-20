@@ -24,11 +24,11 @@ def pbkdf2(password, salt, iter, keylen):
     """
     Derive a key from password using PBKDF2 algorithm specified in RFC 2898.
 
-    @param password: Derive the key from this password.
-    @param salt:     Salt.
-    @param iter:     Number of iterations to perform.
-    @param keylen:   Length of key to produce.
-    @return:         Key.
+    :param password: Derive the key from this password.
+    :param salt:     Salt.
+    :param iter:     Number of iterations to perform.
+    :param keylen:   Length of key to produce.
+    :return:         Key.
     """
     return m2.pkcs5_pbkdf2_hmac_sha1(password, salt, iter, keylen)
 
@@ -63,7 +63,7 @@ class MessageDigest:
         """
         Add data to be digested.
 
-        @return: -1 for Python error, 1 for success, 0 for OpenSSL failure.
+        :return: -1 for Python error, 1 for success, 0 for OpenSSL failure.
         """
         return m2.digest_update(self.ctx, data)
 
@@ -198,7 +198,7 @@ class PKey:
         """
         Reset internal message digest context.
 
-        @param md: The message digest algorithm.
+        :param md: The message digest algorithm.
         """
         self._set_context(md)
 
@@ -214,7 +214,7 @@ class PKey:
         """
         Feed data to signing operation.
 
-        @param data: Data to be signed.
+        :param data: Data to be signed.
         """
         m2.sign_update(self.ctx, data)
 
@@ -223,7 +223,7 @@ class PKey:
         """
         Return signature.
 
-        @return: The signature.
+        :return: The signature.
         """
         return m2.sign_final(self.ctx, self.pkey)
 
@@ -243,8 +243,8 @@ class PKey:
         """
         Feed data to verification operation.
 
-        @param data: Data to be verified.
-        @return: -1 on Python error, 1 for success, 0 for OpenSSL error
+        :param data: Data to be verified.
+        :return: -1 on Python error, 1 for success, 0 for OpenSSL error
         """
         return m2.verify_update(self.ctx, data)
 
@@ -253,8 +253,8 @@ class PKey:
         """
         Return result of verification.
 
-        @param sign: Signature to use for verification
-        @return: Result of verification: 1 for success, 0 for failure, -1 on
+        :param sign: Signature to use for verification
+        :return: Result of verification: 1 for success, 0 for failure, -1 on
                  other error.
         """
         return m2.verify_final(self.ctx, sign, self.pkey)
@@ -264,13 +264,13 @@ class PKey:
         """
         Assign the RSA key pair to self.
 
-        @param rsa: M2Crypto.RSA.RSA object to be assigned to self.
+        :param rsa: M2Crypto.RSA.RSA object to be assigned to self.
 
-        @param capture: If true (default), this PKey object will own the RSA
+        :param capture: If true (default), this PKey object will own the RSA
                         object, meaning that once the PKey object gets
                         deleted it is no longer safe to use the RSA object.
 
-        @return: Return 1 for success and 0 for failure.
+        :return: Return 1 for success and 0 for failure.
         """
         if capture:
             ret = m2.pkey_assign_rsa(self.pkey, rsa.rsa)
@@ -299,15 +299,16 @@ class PKey:
         """
         Save the key pair to a file in PEM format.
 
-        @param file: Name of file to save key to.
+        :param file: Name of file to save key to.
 
-        @param cipher: Symmetric cipher to protect the key. The default
-        cipher is 'aes_128_cbc'. If cipher is None, then the key is saved
-        in the clear.
+        :param cipher: Symmetric cipher to protect the key. The default
+                       cipher is 'aes_128_cbc'. If cipher is None, then
+                       the key is saved in the clear.
 
-        @param callback: A Python callable object that is invoked
-        to acquire a passphrase with which to protect the key.
-        The default is util.passphrase_callback.
+        :param callback: A Python callable object that is invoked
+                         to acquire a passphrase with which to protect
+                         the key. The default is
+                         util.passphrase_callback.
         """
         with BIO.openfile(file, 'wb') as bio:
             return self.save_key_bio(bio, cipher, callback)
@@ -318,15 +319,16 @@ class PKey:
         """
         Save the key pair to the M2Crypto.BIO object 'bio' in PEM format.
 
-        @param bio: M2Crypto.BIO object to save key to.
+        :param bio: M2Crypto.BIO object to save key to.
 
-        @param cipher: Symmetric cipher to protect the key. The default
-        cipher is 'aes_128_cbc'. If cipher is None, then the key is saved
-        in the clear.
+        :param cipher: Symmetric cipher to protect the key. The default
+                       cipher is 'aes_128_cbc'. If cipher is None, then
+                       the key is saved in the clear.
 
-        @param callback: A Python callable object that is invoked
-        to acquire a passphrase with which to protect the key.
-        The default is util.passphrase_callback.
+        :param callback: A Python callable object that is invoked
+                         to acquire a passphrase with which to protect
+                         the key. The default is
+                         util.passphrase_callback.
         """
         if cipher is None:
             return m2.pkey_write_pem_no_cipher(self.pkey, bio._ptr(), callback)
@@ -341,13 +343,14 @@ class PKey:
         """
         Return key in PEM format in a string.
 
-        @param cipher: Symmetric cipher to protect the key. The default
-        cipher is 'aes_128_cbc'. If cipher is None, then the key is saved
-        in the clear.
+        :param cipher: Symmetric cipher to protect the key. The default
+                       cipher is ``'aes_128_cbc'``. If cipher is None,
+                       then the key is saved in the clear.
 
-        @param callback: A Python callable object that is invoked
-        to acquire a passphrase with which to protect the key.
-        The default is util.passphrase_callback.
+        :param callback: A Python callable object that is invoked
+                         to acquire a passphrase with which to protect
+                         the key. The default is
+                         util.passphrase_callback.
         """
         bio = BIO.MemoryBuffer()
         self.save_key_bio(bio, cipher, callback)
@@ -382,12 +385,13 @@ def load_key(file, callback=util.passphrase_callback):
     """
     Load an M2Crypto.EVP.PKey from file.
 
-    @param file: Name of file containing the key in PEM format.
+    :param file: Name of file containing the key in PEM format.
 
-    @param callback: A Python callable object that is invoked
-    to acquire a passphrase with which to protect the key.
+    :param callback: A Python callable object that is invoked
+                     to acquire a passphrase with which to protect the
+                     key.
 
-    @return: M2Crypto.EVP.PKey object.
+    :return: M2Crypto.EVP.PKey object.
     """
     bio = m2.bio_new_file(file, 'r')
     if bio is None:
@@ -404,12 +408,13 @@ def load_key_bio(bio, callback=util.passphrase_callback):
     """
     Load an M2Crypto.EVP.PKey from an M2Crypto.BIO object.
 
-    @param bio: M2Crypto.BIO object containing the key in PEM format.
+    :param bio: M2Crypto.BIO object containing the key in PEM format.
 
-    @param callback: A Python callable object that is invoked
-    to acquire a passphrase with which to protect the key.
+    :param callback: A Python callable object that is invoked
+                     to acquire a passphrase with which to protect the
+                     key.
 
-    @return: M2Crypto.EVP.PKey object.
+    :return: M2Crypto.EVP.PKey object.
     """
     cptr = m2.pkey_read_pem(bio._ptr(), callback)
     if cptr is None:
@@ -422,12 +427,13 @@ def load_key_bio_pubkey(bio, callback=util.passphrase_callback):
     """
     Load an M2Crypto.EVP.PKey from a public key as a M2Crypto.BIO object.
 
-    @param bio: M2Crypto.BIO object containing the key in PEM format.
+    :param bio: M2Crypto.BIO object containing the key in PEM format.
 
-    @param callback: A Python callable object that is invoked
-    to acquire a passphrase with which to protect the key.
+    :param callback: A Python callable object that is invoked
+                     to acquire a passphrase with which to protect the
+                     key.
 
-    @return: M2Crypto.EVP.PKey object.
+    :return: M2Crypto.EVP.PKey object.
     """
     cptr = m2.pkey_read_pem_pubkey(bio._ptr(), callback)
     if cptr is None:
@@ -440,12 +446,13 @@ def load_key_string(string, callback=util.passphrase_callback):
     """
     Load an M2Crypto.EVP.PKey from a string.
 
-    @param string: String containing the key in PEM format.
+    :param string: String containing the key in PEM format.
 
-    @param callback: A Python callable object that is invoked
-    to acquire a passphrase with which to protect the key.
+    :param callback: A Python callable object that is invoked
+                     to acquire a passphrase with which to protect the
+                     key.
 
-    @return: M2Crypto.EVP.PKey object.
+    :return: M2Crypto.EVP.PKey object.
     """
     bio = BIO.MemoryBuffer(string)
     return load_key_bio(bio, callback)
@@ -456,12 +463,13 @@ def load_key_string_pubkey(string, callback=util.passphrase_callback):
     """
     Load an M2Crypto.EVP.PKey from a public key as a string.
 
-    @param string: String containing the key in PEM format.
+    :param string: String containing the key in PEM format.
 
-    @param callback: A Python callable object that is invoked
-    to acquire a passphrase with which to protect the key.
+    :param callback: A Python callable object that is invoked
+                     to acquire a passphrase with which to protect the
+                     key.
 
-    @return: M2Crypto.EVP.PKey object.
+    :return: M2Crypto.EVP.PKey object.
     """
     bio = BIO.MemoryBuffer(string)
     return load_key_bio_pubkey(bio, callback)

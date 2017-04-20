@@ -47,9 +47,9 @@ class Connection:
         # type: (Context, socket.socket, int) -> None
         """
 
-        @param ctx: SSL.Context
-        @param sock: socket to be used
-        @param family: socket family
+        :param ctx: SSL.Context
+        :param sock: socket to be used
+        :param family: socket family
         """
         self.ctx = ctx
         self.ssl = m2.ssl_new(self.ctx.ctx)
@@ -115,7 +115,7 @@ class Connection:
         SSL_SENT_SHUTDOWN and SSL_RECEIVED_SHUTDOWN can be set at the
         same time.
 
-        @param mode: set the mode bitmask.
+        :param mode: set the mode bitmask.
         """
         m2.ssl_set_shutdown1(self.ssl, mode)
 
@@ -151,8 +151,8 @@ class Connection:
         will be called (for both the reading and writing side, if
         different).
 
-        @param readbio: BIO for reading
-        @param writebio: BIO for writing.
+        :param readbio: BIO for reading
+        :param writebio: BIO for writing.
         """
         m2.ssl_set_bio(self.ssl, readbio._ptr(), writebio._ptr())
 
@@ -165,11 +165,13 @@ class Connection:
 
         Makes sense only for servers.
 
-        @param cafile: Filename from which to load the CA list.
-        @return: 0 A failure while manipulating the STACK_OF(X509_NAME)
+        :param cafile: Filename from which to load the CA list.
+
+        :return: 0 A failure while manipulating the STACK_OF(X509_NAME)
                    object occurred or the X509_NAME could not be
                    extracted from cacert. Check the error stack to find
                    out the reason.
+
                  1 The operation succeeded.
         """
         m2.ssl_set_client_CA_list_from_file(self.ssl, cafile)
@@ -195,7 +197,7 @@ class Connection:
         By default, SSL struct will be freed in __del__. Call with
         m2.bio_close to override this default.
 
-        @param flag: either m2.bio_close or m2.bio_noclose
+        :param flag: either m2.bio_close or m2.bio_noclose
         """
         if flag not in (m2.bio_close, m2.bio_noclose):
             raise ValueError("flag must be m2.bio_close or m2.bio_noclose")
@@ -230,7 +232,7 @@ class Connection:
         The communication channel must already have been set and
         assigned to the ssl by setting an underlying BIO.
 
-        @return: 0 The TLS/SSL handshake was not successful but was shut
+        :return: 0 The TLS/SSL handshake was not successful but was shut
                    down controlled and by the specifications of the
                    TLS/SSL protocol. Call get_error() with the return
                    value ret to find out the reason.
@@ -256,10 +258,11 @@ class Connection:
         connection object and addr is the address bound to the other end
         of the SSL connection.
 
-        @return: tuple of Connection and addr. Address can take very
-        various forms (see socket documentation), for IPv4 it is
-        tuple(str, int), for IPv6 a tuple of four (host, port, flowinfo,
-        scopeid), where the last two are optional ints.
+        :return: tuple of Connection and addr. Address can take very
+                 various forms (see socket documentation), for IPv4 it
+                 is tuple(str, int), for IPv6 a tuple of four (host,
+                 port, flowinfo, scopeid), where the last two are
+                 optional ints.
         """
         sock, addr = self.socket.accept()
         ssl = Connection(self.ctx, sock)
@@ -288,8 +291,9 @@ class Connection:
         # type: (util.AddrType) -> int
         """Overloading socket.connect()
 
-        @param addr: addresses have various depending on their type
-        @return:status of ssl_connect()
+        :param addr: addresses have various depending on their type
+
+        :return:status of ssl_connect()
         """
         self.socket.connect(addr)
         self.addr = addr
@@ -365,7 +369,7 @@ class Connection:
         s.setblocking(0) is equivalent to s.settimeout(0.0);
         s.setblocking(1) is equivalent to s.settimeout(None).
 
-        @param mode: new mode to be set
+        :param mode: new mode to be set
         """
         self.socket.setblocking(mode)
         if mode:
@@ -389,7 +393,7 @@ class Connection:
         # type: (int, int, Optional[int]) -> Union[int, bytes]
         """Get the value of the given socket option.
 
-        @param level: level at which the option resides.
+        :param level: level at which the option resides.
                To manipulate options at the sockets API level, level is
                specified as socket.SOL_SOCKET. To manipulate options at
                any other level the protocol number of the appropriate
@@ -397,16 +401,19 @@ class Connection:
                to indicate that an option is to be interpreted by the
                TCP protocol, level should be set to the protocol number
                of socket.SOL_TCP; see getprotoent(3).
-        @param optname: The value of the given socket option is
+
+        :param optname: The value of the given socket option is
                described in the Unix man page getsockopt(2)). The needed
                symbolic constants (SO_* etc.) are defined in the socket
                module.
-        @param buflen: If it is absent, an integer option is assumed
+        
+        :param buflen: If it is absent, an integer option is assumed
                and its integer value is returned by the function. If
                buflen is present, it specifies the maximum length of the
                buffer used to receive the option in, and this buffer is
                returned as a bytes object.
-        @return: Either integer or bytes value of the option. It is up
+        
+        :return: Either integer or bytes value of the option. It is up
                  to the caller to decode the contents of the buffer (see
                  the optional built-in module struct for a way to decode
                  C structures encoded as byte strings).
@@ -417,14 +424,17 @@ class Connection:
         # type: (int, int, Union[int, bytes, None]) -> Optional[bytes]
         """Set the value of the given socket option.
 
-        @param level: same as with getsockopt() above
-        @param optname: same as with getsockopt() above
-        @param value: an integer or a string representing a buffer. In
+        :param level: same as with getsockopt() above
+        
+        :param optname: same as with getsockopt() above
+        
+        :param value: an integer or a string representing a buffer. In
                       the latter case it is up to the caller to ensure
                       that the string contains the proper bits (see the
                       optional built-in module struct for a way to
                       encode C structures as strings).
-        @return: None for success or the error handler for failure.
+        
+        :return: None for success or the error handler for failure.
         """
         return self.socket.setsockopt(level, optname, value)
 
@@ -443,8 +453,8 @@ class Connection:
         established. It however can be of significant interest during
         the handshake.
 
-        @return: 6 letter string indicating the current state of the SSL
-        object ssl.
+        :return: 6 letter string indicating the current state of the SSL
+                 object ssl.
         """
         return m2.ssl_get_state(self.ssl)
 
@@ -484,9 +494,9 @@ class Connection:
         """Return the peer certificate chain; if the peer did not provide
         a certificate chain, return None.
 
-        @warning: The returned chain will be valid only for as long as the
-        connection object is alive. Once the connection object gets freed,
-        the chain will be freed as well.
+        :warning: The returned chain will be valid only for as long as the
+                  connection object is alive. Once the connection object
+                  gets freed, the chain will be freed as well.
         """
         c = m2.ssl_get_peer_cert_chain(self.ssl)
         if c is None:
@@ -537,7 +547,7 @@ class Connection:
         for instance. (The format of the address returned depends
         on the address family -- see above.)
 
-        @return:socket's address as addr type
+        :return:socket's address as addr type
         """
         return self.socket.getsockname()
 
@@ -549,7 +559,7 @@ class Connection:
         for instance.
         On some systems this function is not supported.
 
-        @return:
+        :return:
         """
         return self.socket.getpeername()
 

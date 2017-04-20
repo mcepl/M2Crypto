@@ -51,7 +51,7 @@ class DSA:
         # type: (bytes, int) -> None
         """
         Use one of the factory functions to create an instance.
-        @param dsa: binary representation of OpenSSL DSA type
+        :param dsa: binary representation of OpenSSL DSA type
         """
         assert m2.dsa_type_check(dsa), "'dsa' type error"
         self.dsa = dsa
@@ -67,7 +67,7 @@ class DSA:
         """
         Return the key length.
 
-        @return:  the DSA key length in bits
+        :return:  the DSA key length in bits
         """
         assert m2.dsa_type_check(self.dsa), "'dsa' type error"
         return m2.dsa_keylen(self.dsa)
@@ -77,9 +77,9 @@ class DSA:
         """
         Return specified DSA parameters and key values.
 
-        @param name: name of variable to be returned.  Must be
+        :param name: name of variable to be returned.  Must be
                      one of 'p', 'q', 'g', 'pub', 'priv'.
-        @return:     value of specified variable (a "byte string")
+        :return:     value of specified variable (a "byte string")
         """
         if name in ['p', 'q', 'g', 'pub', 'priv']:
             method = getattr(m2, 'dsa_get_%s' % (name,))
@@ -102,14 +102,15 @@ class DSA:
         """
         Set new parameters.
 
-        @param p: MPI binary representation ... format that consists of
+        :param p: MPI binary representation ... format that consists of
                   the number's length in bytes represented as a 4-byte
                   big-endian number, and the number itself in big-endian
                   format, where the most significant bit signals
                   a negative number (the representation of numbers with
                   the MSB set is prefixed with null byte).
-        @param q: ditto
-        @param g: ditto
+        :param q: ditto
+        :param g: ditto
+
         @warning: This does not change the private key, so it may be
                   unsafe to use this method. It is better to use
                   gen_params function to create a new DSA object.
@@ -129,8 +130,8 @@ class DSA:
         """
         Save the DSA parameters to a file.
 
-        @param filename: Save the DSA parameters to this file.
-        @return:         1 (true) if successful
+        :param filename: Save the DSA parameters to this file.
+        :return:         1 (true) if successful
         """
         with BIO.openfile(filename, 'wb') as bio:
             ret = m2.dsa_write_params_bio(self.dsa, bio._ptr())
@@ -142,8 +143,8 @@ class DSA:
         """
         Save DSA parameters to a BIO object.
 
-        @param bio: Save DSA parameters to this object.
-        @return:    1 (true) if successful
+        :param bio: Save DSA parameters to this object.
+        :return:    1 (true) if successful
         """
         return m2.dsa_write_params_bio(self.dsa, bio._ptr())
 
@@ -153,10 +154,10 @@ class DSA:
         """
         Save the DSA key pair to a file.
 
-        @param filename: Save the DSA key pair to this file.
-        @param cipher:   name of symmetric key algorithm and mode
+        :param filename: Save the DSA key pair to this file.
+        :param cipher:   name of symmetric key algorithm and mode
                          to encrypt the private key.
-        @return:         1 (true) if successful
+        :return:         1 (true) if successful
         """
         with BIO.openfile(filename, 'wb') as bio:
             ret = self.save_key_bio(bio, cipher, callback)
@@ -169,10 +170,10 @@ class DSA:
         """
         Save DSA key pair to a BIO object.
 
-        @param bio:    Save DSA parameters to this object.
-        @param cipher: name of symmetric key algorithm and mode
+        :param bio:    Save DSA parameters to this object.
+        :param cipher: name of symmetric key algorithm and mode
                        to encrypt the private key.
-        @return:       1 (true) if successful
+        :return:       1 (true) if successful
         """
         if cipher is None:
             return m2.dsa_write_key_bio_no_cipher(self.dsa,
@@ -190,9 +191,9 @@ class DSA:
         """
         Save the DSA public key (with parameters) to a file.
 
-        @param filename: Save DSA public key (with parameters)
+        :param filename: Save DSA public key (with parameters)
                          to this file.
-        @return:         1 (true) if successful
+        :return:         1 (true) if successful
         """
         with BIO.openfile(filename, 'wb') as bio:
             ret = self.save_pub_key_bio(bio)
@@ -204,9 +205,9 @@ class DSA:
         """
         Save DSA public key (with parameters) to a BIO object.
 
-        @param bio: Save DSA public key (with parameters)
+        :param bio: Save DSA public key (with parameters)
                     to this object.
-        @return:  1 (true) if successful
+        :return:  1 (true) if successful
         """
         return m2.dsa_write_pub_key_bio(self.dsa, bio._ptr())
 
@@ -215,9 +216,9 @@ class DSA:
         """
         Sign the digest.
 
-        @param digest: SHA-1 hash of message (same as output
+        :param digest: SHA-1 hash of message (same as output
                        from MessageDigest, a "byte string")
-        @return:       DSA signature, a tuple of two values, r and s,
+        :return:       DSA signature, a tuple of two values, r and s,
                        both "byte strings".
         """
         assert self.check_key(), 'key is not initialised'
@@ -229,11 +230,11 @@ class DSA:
         Verify a newly calculated digest against the signature
         values r and s.
 
-        @param digest: SHA-1 hash of message (same as output
+        :param digest: SHA-1 hash of message (same as output
                        from MessageDigest, a "byte string")
-        @param r:      r value of the signature, a "byte string"
-        @param s:      s value of the signature, a "byte string"
-        @return:       1 (true) if verify succeeded, 0 if failed
+        :param r:      r value of the signature, a "byte string"
+        :param s:      s value of the signature, a "byte string"
+        :return:       1 (true) if verify succeeded, 0 if failed
         """
         assert self.check_key(), 'key is not initialised'
         return m2.dsa_verify(self.dsa, digest, r, s)
@@ -250,7 +251,7 @@ class DSA:
         """
         Check to be sure the DSA object has a valid private key.
 
-        @return:  1 (true) if a valid private key
+        :return:  1 (true) if a valid private key
         """
         assert m2.dsa_type_check(self.dsa), "'dsa' type error"
         return m2.dsa_check_key(self.dsa)
@@ -274,7 +275,7 @@ class DSA_pub(DSA):  # noqa
     def check_key(self):
         # type: () -> int
         """
-        @return: does DSA_pub contain a pub key?
+        :return: does DSA_pub contain a pub key?
         """
         return m2.dsa_check_pub_key(self.dsa)
 
@@ -292,12 +293,12 @@ def gen_params(bits, callback=util.genparam_callback):
     Factory function that generates DSA parameters and
     instantiates a DSA object from the output.
 
-    @param bits: The length of the prime to be generated. If
+    :param bits: The length of the prime to be generated. If
                  'bits' < 512, it is set to 512.
-    @param callback: A Python callback object that will be
+    :param callback: A Python callback object that will be
                  invoked during parameter generation; it usual
                  purpose is to provide visual feedback.
-    @return:  instance of DSA.
+    :return:  instance of DSA.
     """
     dsa = m2.dsa_generate_parameters(bits, callback)
     if dsa is None:
@@ -311,10 +312,10 @@ def set_params(p, q, g):
     Factory function that instantiates a DSA object with DSA
     parameters.
 
-    @param p: value of p, a "byte string"
-    @param q: value of q, a "byte string"
-    @param g: value of g, a "byte string"
-    @return:  instance of DSA.
+    :param p: value of p, a "byte string"
+    :param q: value of q, a "byte string"
+    :param g: value of g, a "byte string"
+    :return:  instance of DSA.
     """
     dsa = m2.dsa_new()
     m2.dsa_set_pqg(dsa, p, q, g)
@@ -327,12 +328,12 @@ def load_params(file, callback=util.passphrase_callback):
     Factory function that instantiates a DSA object with DSA
     parameters from a file.
 
-    @param file:     Names the file (a path) that contains the PEM
+    :param file:     Names the file (a path) that contains the PEM
                      representation of the DSA parameters.
-    @param callback: A Python callback object that will be
+    :param callback: A Python callback object that will be
                      invoked if the DSA parameters file is
                      passphrase-protected.
-    @return:         instance of DSA.
+    :return:         instance of DSA.
     """
     with BIO.openfile(file) as bio:
         ret = load_params_bio(bio, callback)
@@ -346,12 +347,12 @@ def load_params_bio(bio, callback=util.passphrase_callback):
     Factory function that instantiates a DSA object with DSA
     parameters from a M2Crypto.BIO object.
 
-    @param bio:      Contains the PEM representation of the DSA
+    :param bio:      Contains the PEM representation of the DSA
                      parameters.
-    @param callback: A Python callback object that will be
+    :param callback: A Python callback object that will be
                      invoked if the DSA parameters file is
                      passphrase-protected.
-    @return:         instance of DSA.
+    :return:         instance of DSA.
     """
     dsa = m2.dsa_read_params(bio._ptr(), callback)
     if dsa is None:
@@ -365,12 +366,12 @@ def load_key(file, callback=util.passphrase_callback):
     Factory function that instantiates a DSA object from a
     PEM encoded DSA key pair.
 
-    @param file:     Names the file (a path) that contains the PEM
+    :param file:     Names the file (a path) that contains the PEM
                      representation of the DSA key pair.
-    @param callback: A Python callback object that will be
+    :param callback: A Python callback object that will be
                      invoked if the DSA key pair is
                      passphrase-protected.
-    @return:         instance of DSA.
+    :return:         instance of DSA.
     """
     with BIO.openfile(file) as bio:
         ret = load_key_bio(bio, callback)
@@ -384,12 +385,12 @@ def load_key_bio(bio, callback=util.passphrase_callback):
     Factory function that instantiates a DSA object from a
     PEM encoded DSA key pair.
 
-    @param bio:      Contains the PEM representation of the DSA
+    :param bio:      Contains the PEM representation of the DSA
                      key pair.
-    @param callback: A Python callback object that will be
+    :param callback: A Python callback object that will be
                      invoked if the DSA key pair is
                      passphrase-protected.
-    @return:         instance of DSA.
+    :return:         instance of DSA.
     """
     dsa = m2.dsa_read_key(bio._ptr(), callback)
     if not dsa:
@@ -403,11 +404,11 @@ def pub_key_from_params(p, q, g, pub):
     Factory function that instantiates a DSA_pub object using
     the parameters and public key specified.
 
-    @param p: value of p
-    @param q: value of q
-    @param g: value of g
-    @param pub: value of the public key
-    @return:  instance of DSA_pub.
+    :param p: value of p
+    :param q: value of q
+    :param g: value of g
+    :param pub: value of the public key
+    :return:  instance of DSA_pub.
     """
     dsa = m2.dsa_new()
     m2.dsa_set_pqg(dsa, p, q, g)
@@ -422,12 +423,12 @@ def load_pub_key(file, callback=util.passphrase_callback):
     a DSA public key contained in PEM file.  The PEM file
     must contain the parameters in addition to the public key.
 
-    @param file:     Names the file (a path) that contains the PEM
+    :param file:     Names the file (a path) that contains the PEM
                      representation of the DSA public key.
-    @param callback: A Python callback object that will be
+    :param callback: A Python callback object that will be
                      invoked should the DSA public key be
                      passphrase-protected.
-    @return:         instance of DSA_pub.
+    :return:         instance of DSA_pub.
     """
     with BIO.openfile(file) as bio:
         ret = load_pub_key_bio(bio, callback)
@@ -442,12 +443,12 @@ def load_pub_key_bio(bio, callback=util.passphrase_callback):
     a DSA public key contained in PEM format.  The PEM
     must contain the parameters in addition to the public key.
 
-    @param bio:      Contains the PEM representation of the DSA
+    :param bio:      Contains the PEM representation of the DSA
                      public key (with params).
-    @param callback: A Python callback object that will be
+    :param callback: A Python callback object that will be
                      invoked should the DSA public key be
                      passphrase-protected.
-    @return:         instance of DSA_pub.
+    :return:         instance of DSA_pub.
     """
     dsapub = m2.dsa_read_pub_key(bio._ptr(), callback)
     if not dsapub:

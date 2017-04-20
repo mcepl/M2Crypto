@@ -70,8 +70,11 @@ class HTTPSHandler(AbstractHTTPHandler):
         http_class must implement the HTTPConnection API from httplib.
         The addinfourl return value is a file-like object.  It also
         has methods and attributes including:
+
             - info(): return a mimetools.Message object for the headers
+
             - geturl(): return the original request URL
+
             - code: HTTP status code
         """
         # https://docs.python.org/3.3/library/urllib.request.html#urllib.request.Request.get_host

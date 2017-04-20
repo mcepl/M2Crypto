@@ -43,7 +43,7 @@ class Engine:
         # type: () -> int
         """Obtain a functional reference to the engine.
 
-        @return: 0 on error, non-zero on success."""
+        :return: 0 on error, non-zero on success."""
         return m2.engine_init(self._ptr)
 
     def finish(self):
@@ -72,7 +72,7 @@ class Engine:
         """
         Use this engine as default for methods specified in argument
 
-        @param methods: Possible values are bitwise OR of m2.ENGINE_METHOD_*
+        :param methods: Possible values are bitwise OR of m2.ENGINE_METHOD_*
         """
         return m2.engine_set_default(self._ptr, methods)
 

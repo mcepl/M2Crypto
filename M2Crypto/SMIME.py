@@ -37,7 +37,7 @@ class PKCS7:
     def __init__(self, pkcs7=None, _pyfree=0):
         # type: (Optional[bytes], int) -> None
         """
-        @param pkcs7: binary representation of
+        :param pkcs7: binary representation of
                the OpenSSL type PKCS7
         """
         if pkcs7 is not None:

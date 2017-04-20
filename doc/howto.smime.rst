@@ -1,3 +1,5 @@
+:orphan:
+
 .. _howto-smime:
 
 HOWTO: Programming S/MIME in Python with M2Crypto

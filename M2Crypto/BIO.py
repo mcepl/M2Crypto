@@ -98,7 +98,7 @@ class BIO(object):
         # type: (AnyStr) -> int
         """
 
-        @return: either data written, or [0, -1] for nothing written,
+        :return: either data written, or [0, -1] for nothing written,
                  -2 not implemented
         """
         if not self.writeable():
@@ -115,7 +115,7 @@ class BIO(object):
         # type: () -> None
         """
 
-        @return: 1 for success, and 0 or -1 for failure
+        :return: 1 for success, and 0 or -1 for failure
         """
         m2.bio_flush(self.bio)
 
@@ -123,7 +123,7 @@ class BIO(object):
         # type: () -> int
         """
         Sets the bio to its initial state
-        @return: 1 for success, and 0 or -1 for failure
+        :return: 1 for success, and 0 or -1 for failure
         """
         return m2.bio_reset(self.bio)
 
@@ -228,7 +228,7 @@ class File(BIO):
     """
     Object interface to BIO_s_pyfd
 
-    This class interfaces Python to OpenSSL functions that expect BIO *. For
+    This class interfaces Python to OpenSSL functions that expect BIO \*. For
     general file manipulation in Python, use Python's builtin file object.
     """
 
@@ -254,7 +254,7 @@ class File(BIO):
         # type: () -> int
         """
         Sets the bio to its initial state
-        @return: 0 for success, and -1 for failure
+        :return: 0 for success, and -1 for failure
         """
         return super(File, self).reset()
 

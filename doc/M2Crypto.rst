@@ -193,14 +193,6 @@ M2Crypto Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`six` Module
------------------
-
-.. automodule:: M2Crypto.six
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`threading` Module
 -----------------------
 

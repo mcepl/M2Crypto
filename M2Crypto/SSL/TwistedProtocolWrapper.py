@@ -166,14 +166,14 @@ class TLSProtocolWrapper(ProtocolWrapper):
     def __init__(self, factory, wrappedProtocol, startPassThrough, client,
                  contextFactory, postConnectionCheck):
         """
-        @param factory:
-        @param wrappedProtocol:
-        @param startPassThrough:    If true we won't encrypt at all. Need to
+        :param factory:
+        :param wrappedProtocol:
+        :param startPassThrough:    If true we won't encrypt at all. Need to
                                     call startTLS() later to switch to SSL/TLS.
-        @param client:              True if this should be a client protocol.
-        @param contextFactory:      Factory that creates SSL.Context objects.
+        :param client:              True if this should be a client protocol.
+        :param contextFactory:      Factory that creates SSL.Context objects.
                                     The called function is getContext().
-        @param postConnectionCheck: The post connection check callback that
+        :param postConnectionCheck: The post connection check callback that
                                     will be called just after connection has
                                     been established but before any real data
                                     has been exchanged. The first argument to

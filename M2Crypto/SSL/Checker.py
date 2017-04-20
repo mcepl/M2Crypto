@@ -38,11 +38,11 @@ class WrongHost(SSLVerificationError):
         peer was issued for a different host than we tried to connect to.
         This could be due to a server misconfiguration or an active attack.
 
-        @param expectedHost: The name of the host we expected to find in the
+        :param expectedHost: The name of the host we expected to find in the
                              certificate.
-        @param actualHost:   The name of the host we actually found in the
+        :param actualHost:   The name of the host we actually found in the
                              certificate.
-        @param fieldName:    The field name where we noticed the error. This
+        :param fieldName:    The field name where we noticed the error. This
                              should be either 'commonName' or 'subjectAltName'.
         """
         if fieldName not in ('commonName', 'subjectAltName'):

@@ -32,7 +32,7 @@ class RSA:
     def __init__(self, rsa, _pyfree=0):
         # type: (bytes, int) -> None
         """
-        @param rsa: binary representation of OpenSSL RSA type
+        :param rsa: binary representation of OpenSSL RSA type
         """
         assert m2.rsa_type_check(rsa), "'rsa' type error"
         self.rsa = rsa
@@ -87,13 +87,16 @@ class RSA:
         """
         Save the key pair to an M2Crypto.BIO.BIO object in PEM format.
 
-        @param bio: M2Crypto.BIO.BIO object to save key to.
-        @param cipher: Symmetric cipher to protect the key. The default
-        cipher is 'aes_128_cbc'. If cipher is None, then the key is saved
-        in the clear.
-        @param callback: A Python callable object that is invoked
-        to acquire a passphrase with which to protect the key.
-        The default is util.passphrase_callback.
+        :param bio: M2Crypto.BIO.BIO object to save key to.
+
+        :param cipher: Symmetric cipher to protect the key. The default
+                       cipher is 'aes_128_cbc'. If cipher is None, then
+                       the key is saved in the clear.
+
+        :param callback: A Python callable object that is invoked
+                         to acquire a passphrase with which to protect
+                         the key.  The default is
+                         util.passphrase_callback.
         """
         if cipher is None:
             return m2.rsa_write_key_no_cipher(self.rsa, bio._ptr(), callback)
@@ -111,15 +114,16 @@ class RSA:
         """
         Save the key pair to a file in PEM format.
 
-        @param file: Name of file to save key to.
+        :param file: Name of file to save key to.
 
-        @param cipher: Symmetric cipher to protect the key. The default
-        cipher is 'aes_128_cbc'. If cipher is None, then the key is saved
-        in the clear.
+        :param cipher: Symmetric cipher to protect the key. The default
+                       cipher is 'aes_128_cbc'. If cipher is None, then
+                       the key is saved in the clear.
 
-        @param callback: A Python callable object that is invoked
-        to acquire a passphrase with which to protect the key.
-        The default is util.passphrase_callback.
+        :param callback: A Python callable object that is invoked
+                         to acquire a passphrase with which to protect
+                         the key.  The default is
+                         util.passphrase_callback.
         """
         with BIO.openfile(file, 'wb') as bio:
             return self.save_key_bio(bio, cipher, callback)
@@ -140,7 +144,7 @@ class RSA:
         """
         Save the key pair to an M2Crypto.BIO.BIO object in DER format.
 
-        @param bio: M2Crypto.BIO.BIO object to save key to.
+        :param bio: M2Crypto.BIO.BIO object to save key to.
         """
         return m2.rsa_write_key_der(self.rsa, bio._ptr())
 
@@ -149,7 +153,7 @@ class RSA:
         """
         Save the key pair to a file in DER format.
 
-        @param file: Filename to save key to
+        :param file: Filename to save key to
         """
         with BIO.openfile(file, 'wb') as bio:
             return self.save_key_der_bio(bio)
@@ -159,7 +163,7 @@ class RSA:
         """
         Save the public key to an M2Crypto.BIO.BIO object in PEM format.
 
-        @param bio: M2Crypto.BIO.BIO object to save key to.
+        :param bio: M2Crypto.BIO.BIO object to save key to.
         """
         return m2.rsa_write_pub_key(self.rsa, bio._ptr())
 
@@ -168,7 +172,7 @@ class RSA:
         """
         Save the public key to a file in PEM format.
 
-        @param file: Name of file to save key to.
+        :param file: Name of file to save key to.
         """
         with BIO.openfile(file, 'wb') as bio:
             return m2.rsa_write_pub_key(self.rsa, bio._ptr())
@@ -176,7 +180,8 @@ class RSA:
     def check_key(self):
         # type: () -> int
         """
-        @return: returns 1 if rsa is a valid RSA key, and 0 otherwise.
+
+        :return: returns 1 if rsa is a valid RSA key, and 0 otherwise.
                  -1 is returned if an error occurs while checking the key.
                  If the key is invalid or an error occurred, the reason
                  code can be obtained using ERR_get_error(3).
@@ -188,13 +193,15 @@ class RSA:
         """
         Signs a digest with the private key using RSASSA-PSS
 
-        @param digest: A digest created by using the digest method
-        @param salt_length: The length of the salt to use
-        @param algo: The hash algorithm to use
-        Legal values like 'sha1','sha224', 'sha256', 'ripemd160',
-        and 'md5'.
+        :param digest: A digest created by using the digest method
 
-        @return: a string which is the signature
+        :param salt_length: The length of the salt to use
+
+        :param algo: The hash algorithm to use
+                     Legal values like 'sha1','sha224', 'sha256',
+                     'ripemd160', and 'md5'.
+
+        :return: a string which is the signature
         """
         hash = getattr(m2, algo, None)
 
@@ -210,14 +217,18 @@ class RSA:
         """
         Verifies the signature RSASSA-PSS
 
-        @param data: Data that has been signed
-        @param signature: The signature signed with RSASSA-PSS
-        @param salt_length: The length of the salt that was used
-        @param algo: The hash algorithm to use
-        Legal values are for example 'sha1','sha224', 'sha256',
-        'ripemd160', and 'md5'.
-        @return: 1 or 0, depending on whether the signature was
-        verified or not.
+        :param data: Data that has been signed
+
+        :param signature: The signature signed with RSASSA-PSS
+
+        :param salt_length: The length of the salt that was used
+
+        :param algo: The hash algorithm to use
+                     Legal values are for example 'sha1','sha224',
+                     'sha256', 'ripemd160', and 'md5'.
+
+        :return: 1 or 0, depending on whether the signature was
+                 verified or not.
         """
         hash = getattr(m2, algo, None)
 
@@ -233,11 +244,13 @@ class RSA:
         """
         Signs a digest with the private key
 
-        @param digest: A digest created by using the digest method
-        @param algo: The method that created the digest.
-        Legal values like 'sha1','sha224', 'sha256', 'ripemd160',
-        and 'md5'.
-        @return: a string which is the signature
+        :param digest: A digest created by using the digest method
+
+        :param algo: The method that created the digest.
+                     Legal values like 'sha1','sha224', 'sha256',
+                     'ripemd160', and 'md5'.
+
+        :return: a string which is the signature
         """
         digest_type = getattr(m2, 'NID_' + algo, None)
         if digest_type is None:
@@ -250,13 +263,16 @@ class RSA:
         """
         Verifies the signature with the public key
 
-        @param data: Data that has been signed
-        @param signature: The signature signed with the private key
-        @param algo: The method use to create digest from the data
-        before it was signed.  Legal values like 'sha1','sha224',
-        'sha256', 'ripemd160', and 'md5'.
-        @return: 1 or 0, depending on whether the signature was
-        verified or not.
+        :param data: Data that has been signed
+
+        :param signature: The signature signed with the private key
+
+        :param algo: The method use to create digest from the data
+                     before it was signed.  Legal values like
+                     'sha1','sha224', 'sha256', 'ripemd160', and 'md5'.
+
+        :return: 1 or 0, depending on whether the signature was
+                 verified or not.
         """
         digest_type = getattr(m2, 'NID_' + algo, None)
         if digest_type is None:
@@ -329,12 +345,16 @@ def gen_key(bits, e, callback=keygen_callback):
     """
     Generate an RSA key pair.
 
-    @param bits: Key length, in bits.
-    @param e: The RSA public exponent.
-    @param callback: A Python callable object that is invoked
-    during key generation; its usual purpose is to provide visual
-    feedback. The default callback is keygen_callback.
-    @return: M2Crypto.RSA.RSA object.
+    :param bits: Key length, in bits.
+
+    :param e: The RSA public exponent.
+
+    :param callback: A Python callable object that is invoked
+                     during key generation; its usual purpose is to
+                     provide visual feedback. The default callback is
+                     keygen_callback.
+
+    :return: M2Crypto.RSA.RSA object.
     """
     return RSA(m2.rsa_generate_key(bits, e, callback), 1)
 
@@ -344,11 +364,13 @@ def load_key(file, callback=util.passphrase_callback):
     """
     Load an RSA key pair from file.
 
-    @param file: Name of file containing RSA public key in PEM format.
-    @param callback: A Python callable object that is invoked
-    to acquire a passphrase with which to unlock the key.
-    The default is util.passphrase_callback.
-    @return: M2Crypto.RSA.RSA object.
+    :param file: Name of file containing RSA public key in PEM format.
+
+    :param callback: A Python callable object that is invoked
+                     to acquire a passphrase with which to unlock the
+                     key.  The default is util.passphrase_callback.
+
+    :return: M2Crypto.RSA.RSA object.
     """
     with BIO.openfile(file) as bio:
         return load_key_bio(bio, callback)
@@ -359,12 +381,14 @@ def load_key_bio(bio, callback=util.passphrase_callback):
     """
     Load an RSA key pair from an M2Crypto.BIO.BIO object.
 
-    @param bio: M2Crypto.BIO.BIO object containing RSA key pair in PEM
-    format.
-    @param callback: A Python callable object that is invoked
-    to acquire a passphrase with which to unlock the key.
-    The default is util.passphrase_callback.
-    @return: M2Crypto.RSA.RSA object.
+    :param bio: M2Crypto.BIO.BIO object containing RSA key pair in PEM
+                format.
+
+    :param callback: A Python callable object that is invoked
+                     to acquire a passphrase with which to unlock the
+                     key.  The default is util.passphrase_callback.
+
+    :return: M2Crypto.RSA.RSA object.
     """
     rsa = m2.rsa_read_key(bio._ptr(), callback)
     if rsa is None:
@@ -377,11 +401,13 @@ def load_key_string(string, callback=util.passphrase_callback):
     """
     Load an RSA key pair from a string.
 
-    @param string: String containing RSA key pair in PEM format.
-    @param callback: A Python callable object that is invoked
-    to acquire a passphrase with which to unlock the key.
-    The default is util.passphrase_callback.
-    @return: M2Crypto.RSA.RSA object.
+    :param string: String containing RSA key pair in PEM format.
+
+    :param callback: A Python callable object that is invoked
+                     to acquire a passphrase with which to unlock the
+                     key. The default is util.passphrase_callback.
+
+    :return: M2Crypto.RSA.RSA object.
     """
     bio = BIO.MemoryBuffer(string)
     return load_key_bio(bio, callback)
@@ -392,8 +418,9 @@ def load_pub_key(file):
     """
     Load an RSA public key from file.
 
-    @param file: Name of file containing RSA public key in PEM format.
-    @return: M2Crypto.RSA.RSA_pub object.
+    :param file: Name of file containing RSA public key in PEM format.
+
+    :return: M2Crypto.RSA.RSA_pub object.
     """
     with BIO.openfile(file) as bio:
         return load_pub_key_bio(bio)
@@ -404,9 +431,10 @@ def load_pub_key_bio(bio):
     """
     Load an RSA public key from an M2Crypto.BIO.BIO object.
 
-    @param bio: M2Crypto.BIO.BIO object containing RSA public key in PEM
-    format.
-    @return: M2Crypto.RSA.RSA_pub object.
+    :param bio: M2Crypto.BIO.BIO object containing RSA public key in PEM
+                format.
+
+    :return: M2Crypto.RSA.RSA_pub object.
     """
     rsa = m2.rsa_read_pub_key(bio._ptr())
     if rsa is None:
@@ -419,13 +447,15 @@ def new_pub_key(e_n):
     """
     Instantiate an RSA_pub object from an (e, n) tuple.
 
-    @param e: The RSA public exponent; it is a string in OpenSSL's MPINT
-    format - 4-byte big-endian bit-count followed by the appropriate
-    number of bits.
-    @param n: The RSA composite of primes; it is a string in OpenSSL's MPINT
-    format - 4-byte big-endian bit-count followed by the appropriate
-    number of bits.
-    @return: M2Crypto.RSA.RSA_pub object.
+    :param e: The RSA public exponent; it is a string in OpenSSL's MPINT
+              format - 4-byte big-endian bit-count followed by the
+              appropriate number of bits.
+
+    :param n: The RSA composite of primes; it is a string in OpenSSL's
+              MPINT format - 4-byte big-endian bit-count followed by the
+              appropriate number of bits.
+
+    :return: M2Crypto.RSA.RSA_pub object.
     """
     (e, n) = e_n
     rsa = m2.rsa_new()

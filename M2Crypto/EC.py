@@ -156,8 +156,10 @@ class EC:
         # type: () -> int
         """
         Generates the key pair from its parameters. Use::
+
             keypair = EC.gen_params(curve)
             keypair.gen_key()
+
         to create an EC key pair.
         """
         assert m2.ec_key_type_check(self.ec), "'ec' type error"
@@ -212,15 +214,16 @@ class EC:
         """
         Save the key pair to an M2Crypto.BIO.BIO object in PEM format.
 
-        @param bio: M2Crypto.BIO.BIO object to save key to.
+        :param bio: M2Crypto.BIO.BIO object to save key to.
 
-        @param cipher: Symmetric cipher to protect the key. The default
-        cipher is 'aes_128_cbc'. If cipher is None, then the key is saved
-        in the clear.
+        :param cipher: Symmetric cipher to protect the key. The default
+                       cipher is 'aes_128_cbc'. If cipher is None, then
+                       the key is saved in the clear.
 
-        @param callback: A Python callable object that is invoked
-        to acquire a passphrase with which to protect the key.
-        The default is util.passphrase_callback.
+        :param callback: A Python callable object that is invoked
+                         to acquire a passphrase with which to protect
+                         the key. The default is
+                         util.passphrase_callback.
         """
         if cipher is None:
             return m2.ec_key_write_bio_no_cipher(self.ec, bio._ptr(), callback)
@@ -236,15 +239,16 @@ class EC:
         """
         Save the key pair to a file in PEM format.
 
-        @param file: Name of filename to save key to.
+        :param file: Name of filename to save key to.
 
-        @param cipher: Symmetric cipher to protect the key. The default
-        cipher is 'aes_128_cbc'. If cipher is None, then the key is saved
-        in the clear.
+        :param cipher: Symmetric cipher to protect the key. The default
+                       cipher is 'aes_128_cbc'. If cipher is None, then
+                       the key is saved in the clear.
 
-        @param callback: A Python callable object that is invoked
-        to acquire a passphrase with which to protect the key.
-        The default is util.passphrase_callback.
+        :param callback: A Python callable object that is invoked
+                         to acquire a passphrase with which to protect
+                         the key.  The default is
+                         util.passphrase_callback.
         """
         with BIO.openfile(file, 'wb') as bio:
             return self.save_key_bio(bio, cipher, callback)
@@ -254,7 +258,7 @@ class EC:
         """
         Save the public key to an M2Crypto.BIO.BIO object in PEM format.
 
-        @param bio: M2Crypto.BIO.BIO object to save key to.
+        :param bio: M2Crypto.BIO.BIO object to save key to.
         """
         return m2.ec_key_write_pubkey(self.ec, bio._ptr())
 
@@ -263,7 +267,7 @@ class EC:
         """
         Save the public key to a filename in PEM format.
 
-        @param file: Name of filename to save key to.
+        :param file: Name of filename to save key to.
         """
         with BIO.openfile(file, 'wb') as bio:
             return m2.ec_key_write_pubkey(self.ec, bio._ptr())
@@ -328,7 +332,7 @@ def gen_params(curve):
     Factory function that generates EC parameters and
     instantiates a EC object from the output.
 
-    @param curve: This is the OpenSSL nid of the curve to use.
+    :param curve: This is the OpenSSL nid of the curve to use.
     """
     assert curve in [x['NID'] for x in m2.ec_get_builtin_curves()], \
         'Elliptic curve %s is not available on this system.' % \
@@ -341,30 +345,28 @@ def load_key(file, callback=util.passphrase_callback):
     """
     Factory function that instantiates a EC object.
 
-    @param file: Names the filename that contains the PEM representation
-    of the EC key pair.
+    :param file: Names the filename that contains the PEM representation
+                 of the EC key pair.
 
-    @param callback: Python callback object that will be invoked
-    if the EC key pair is passphrase-protected.
+    :param callback: Python callback object that will be invoked
+                     if the EC key pair is passphrase-protected.
     """
     with BIO.openfile(file) as bio:
         return load_key_bio(bio, callback)
 
 
 def load_key_string(string, callback=util.passphrase_callback):
+    # type: (str, Callable) -> EC
     """
     Load an EC key pair from a string.
 
-    @type string: string
-    @param string: String containing EC key pair in PEM format.
+    :param string: String containing EC key pair in PEM format.
 
-    @type callback: Python callable
-    @param callback: A Python callable object that is invoked
-    to acquire a passphrase with which to unlock the key.
-    The default is util.passphrase_callback.
+    :param callback: A Python callable object that is invoked
+                     to acquire a passphrase with which to unlock the
+                     key. The default is util.passphrase_callback.
 
-    @rtype: M2Crypto.EC.EC
-    @return: M2Crypto.EC.EC object.
+    :return: M2Crypto.EC.EC object.
     """
     with BIO.MemoryBuffer(string) as bio:
         return load_key_bio(bio, callback)
@@ -375,11 +377,11 @@ def load_key_bio(bio, callback=util.passphrase_callback):
     """
     Factory function that instantiates a EC object.
 
-    @param bio: M2Crypto.BIO object that contains the PEM
-    representation of the EC key pair.
+    :param bio: M2Crypto.BIO object that contains the PEM
+                representation of the EC key pair.
 
-    @param callback: Python callback object that will be invoked
-    if the EC key pair is passphrase-protected.
+    :param callback: Python callback object that will be invoked
+                     if the EC key pair is passphrase-protected.
     """
     return EC(m2.ec_key_read_bio(bio._ptr(), callback), 1)
 
@@ -389,27 +391,27 @@ def load_pub_key(file):
     """
     Load an EC public key from filename.
 
-    @param file: Name of filename containing EC public key in PEM format.
+    :param file: Name of filename containing EC public key in PEM
+                 format.
 
-    @return: M2Crypto.EC.EC_pub object.
+    :return: M2Crypto.EC.EC_pub object.
     """
     with BIO.openfile(file) as bio:
         return load_pub_key_bio(bio)
 
 
 def load_key_string_pubkey(string, callback=util.passphrase_callback):
+    # type: (str, Callable) -> PKey
     """
     Load an M2Crypto.EC.PKey from a public key as a string.
 
-    @type string: string
-    @param string: String containing the key in PEM format.
+    :param string: String containing the key in PEM format.
 
-    @type callback: Python callable
-    @param callback: A Python callable object that is invoked
-    to acquire a passphrase with which to protect the key.
+    :param callback: A Python callable object that is invoked
+                     to acquire a passphrase with which to protect the
+                     key.
 
-    @rtype: M2Crypto.EC.PKey
-    @return: M2Crypto.EC.PKey object.
+    :return: M2Crypto.EC.PKey object.
     """
     with BIO.MemoryBuffer(string) as bio:
         return load_key_bio_pubkey(bio, callback)
@@ -420,10 +422,10 @@ def load_pub_key_bio(bio):
     """
     Load an EC public key from an M2Crypto.BIO.BIO object.
 
-    @param bio: M2Crypto.BIO.BIO object containing EC public key in PEM
-    format.
+    :param bio: M2Crypto.BIO.BIO object containing EC public key in PEM
+                format.
 
-    @return: M2Crypto.EC.EC_pub object.
+    :return: M2Crypto.EC.EC_pub object.
     """
     ec = m2.ec_key_read_pubkey(bio._ptr())
     if ec is None:
