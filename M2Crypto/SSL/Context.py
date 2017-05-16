@@ -180,6 +180,28 @@ class Context:
         if not ret:
             raise Err.SSLError(Err.get_error_code(), '')
 
+    def set_default_verify_paths(self):
+        # type: () -> int
+        """
+        Specifies that the default locations from which CA certs are
+        loaded should be used.
+
+        There is one default directory and one default file. The default
+        CA certificates directory is called "certs" in the default
+        OpenSSL directory. Alternatively the SSL_CERT_DIR environment
+        variable can be defined to override this location. The default
+        CA certificates file is called "cert.pem" in the default OpenSSL
+        directory. Alternatively the SSL_CERT_FILE environment variable
+        can be defined to override this location.
+
+        @return 0 if the operation failed. A missing default location is
+                  still treated as a success. No error code is set.
+                1 The operation succeeded.
+        """
+        ret = m2.ssl_ctx_set_default_verify_paths(self.ctx)
+        if not ret:
+            raise ValueError('Cannot use default SSL certificate store!')
+
     def set_allow_unknown_ca(self, ok):
         # type: (Union[int, bool]) -> None
         """Set the context to accept/reject a peer certificate if the

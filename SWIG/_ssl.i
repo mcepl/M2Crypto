@@ -95,6 +95,8 @@ extern long SSL_CTX_set_timeout(SSL_CTX *, long);
 extern long SSL_CTX_get_timeout(CONST SSL_CTX *);
 %rename(ssl_ctx_get_cert_store) SSL_CTX_get_cert_store;
 extern X509_STORE *SSL_CTX_get_cert_store(CONST SSL_CTX *);
+%rename(ssl_ctx_set_default_verify_paths) SSL_CTX_set_default_verify_paths;
+extern int SSL_CTX_set_default_verify_paths(SSL_CTX *ctx);
 
 %rename(bio_new_ssl) BIO_new_ssl;
 extern BIO *BIO_new_ssl(SSL_CTX *, int);

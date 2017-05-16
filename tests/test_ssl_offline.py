@@ -37,6 +37,12 @@ class ContextTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             ctx.load_verify_locations(None, None)
 
+    def test_ctx_set_default_verify_paths(self):
+        ctx = SSL.Context()
+        ctx.set_default_verify_paths()
+        self.assertTrue(True)  # test will get here only if the
+                               # previous won't fail
+
     def test_map(self):
         from M2Crypto.SSL.Context import ctxmap, _ctxmap
         self.assertIsInstance(ctxmap(), _ctxmap)

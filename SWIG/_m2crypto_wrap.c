@@ -17279,6 +17279,36 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_ssl_ctx_set_default_verify_paths(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  SSL_CTX *arg1 = (SSL_CTX *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  int result;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"ssl_ctx_set_default_verify_paths",1,1,&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_SSL_CTX, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "ssl_ctx_set_default_verify_paths" "', argument " "1"" of type '" "SSL_CTX *""'"); 
+  }
+  arg1 = (SSL_CTX *)(argp1);
+  {
+    if (!arg1) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  result = (int)SSL_CTX_set_default_verify_paths(arg1);
+  {
+    resultobj=PyInt_FromLong(result);
+    if (PyErr_Occurred()) SWIG_fail;
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_bio_new_ssl(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   SSL_CTX *arg1 = (SSL_CTX *) 0 ;
@@ -28434,6 +28464,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"ssl_ctx_set_session_timeout", _wrap_ssl_ctx_set_session_timeout, METH_VARARGS, NULL},
 	 { (char *)"ssl_ctx_get_session_timeout", _wrap_ssl_ctx_get_session_timeout, METH_VARARGS, NULL},
 	 { (char *)"ssl_ctx_get_cert_store", _wrap_ssl_ctx_get_cert_store, METH_VARARGS, NULL},
+	 { (char *)"ssl_ctx_set_default_verify_paths", _wrap_ssl_ctx_set_default_verify_paths, METH_VARARGS, NULL},
 	 { (char *)"bio_new_ssl", _wrap_bio_new_ssl, METH_VARARGS, NULL},
 	 { (char *)"ssl_new", _wrap_ssl_new, METH_VARARGS, NULL},
 	 { (char *)"ssl_free", _wrap_ssl_free, METH_VARARGS, NULL},
