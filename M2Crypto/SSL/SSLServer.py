@@ -8,8 +8,10 @@ Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 from M2Crypto.SSL import SSLError
 from M2Crypto.SSL.Connection import Connection
 from M2Crypto.SSL.Context import Context  # noqa
+from M2Crypto import six  # noqa
 from M2Crypto import util  # noqa
-from SocketServer import BaseServer, ForkingMixIn, TCPServer, ThreadingMixIn
+from M2Crypto.six.moves.socketserver import (BaseServer, ForkingMixIn,
+                                             TCPServer, ThreadingMixIn)
 from socket import socket  # noqa
 if util.py27plus:
     from typing import Union  # noqa

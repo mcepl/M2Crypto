@@ -8,9 +8,10 @@ import base64
 import socket
 
 from M2Crypto import SSL, six, util
-from urlparse import urlsplit, urlunsplit
-from httplib import *  # noqa
-from httplib import HTTPS_PORT  # This is not imported with just '*'
+from M2Crypto.six.moves.urllib_parse import urlsplit, urlunsplit
+from M2Crypto.six.moves.http_client import *  # noqa
+# This is not imported with just '*'
+from M2Crypto.six.moves.http_client import HTTPS_PORT
 if util.py27plus:
     from typing import Any, AnyStr, Callable, Dict, List, Optional  # noqa
 
