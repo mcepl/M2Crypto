@@ -34,7 +34,6 @@ typedef struct evp_md_ctx_st EVP_MD_CTX;
 %apply Pointer NONNULL { EVP_CIPHER_CTX * };
 %apply Pointer NONNULL { EVP_CIPHER * };
 %apply Pointer NONNULL { RSA * };
-%}
 
 %rename(md5) EVP_md5;
 extern const EVP_MD *EVP_md5(void);
