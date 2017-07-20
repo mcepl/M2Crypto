@@ -3542,6 +3542,7 @@ static swig_module_info swig_module = {swig_types, 59, 0, 0, 0, 0};
 #include <openssl/err.h>
 #include <openssl/rand.h>
 #include <_lib.h>
+#include <libcrypto-compat.h>
 
 #include "compile.h"
 
@@ -3817,6 +3818,9 @@ void threading_cleanup(void) {
 #include <openssl/x509.h>
 #include <openssl/x509_vfy.h>
 #include <ceval.h>
+
+/* OpenSSL 1.1 compatibility shim */
+#include "libcrypto-compat.c"
 
 /* Blob interface. Deprecated. */
 

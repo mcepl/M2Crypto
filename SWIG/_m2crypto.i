@@ -19,6 +19,7 @@
 #include <openssl/err.h>
 #include <openssl/rand.h>
 #include <_lib.h>
+#include <libcrypto-compat.h>
 
 #include "compile.h"
 
@@ -54,6 +55,7 @@ static PyObject *x509_store_verify_cb_func;
 #if OPENSSL_VERSION_NUMBER >= 0x10000000L
 #define LHASH_OF(type) struct lhash_st_##type
 #endif
+
 
 %include constraints.i
 %include _threads.i

@@ -11,6 +11,9 @@
 #include <openssl/x509_vfy.h>
 #include <ceval.h>
 
+/* OpenSSL 1.1 compatibility shim */
+#include "libcrypto-compat.c"
+
 /* Blob interface. Deprecated. */
 
 Blob *blob_new(int len, const char *errmsg) {
