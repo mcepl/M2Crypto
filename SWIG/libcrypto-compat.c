@@ -404,5 +404,17 @@ RSA *EVP_PKEY_get0_RSA(EVP_PKEY *pkey)
     return pkey->pkey.rsa;
 }
 
+int X509_NAME_get0_der(X509_NAME *nm, const unsigned char **pder,
+                       size_t *pderlen)
+{
+    /* Make sure encoding is valid */
+    if (i2d_X509_NAME(nm, NULL) <= 0)
+        return 0;
+    if (pder != NULL)
+        *pder = (unsigned char *)nm->bytes->data;
+    if (pderlen != NULL)
+        *pderlen = nm->bytes->length;
+    return 1;
+}
 
 #endif /* OPENSSL_VERSION_NUMBER */

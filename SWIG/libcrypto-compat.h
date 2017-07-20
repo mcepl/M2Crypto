@@ -52,6 +52,9 @@ int RSA_bits(const RSA *r);
 
 RSA *EVP_PKEY_get0_RSA(EVP_PKEY *pkey);
 
+int X509_NAME_get0_der(X509_NAME *nm, const unsigned char **pder,
+                       size_t *pderlen);
+
 #endif /* OPENSSL_VERSION_NUMBER */
 
 #endif /* LIBCRYPTO_COMPAT_H */
