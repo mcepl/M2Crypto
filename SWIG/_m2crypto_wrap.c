@@ -5274,8 +5274,6 @@ SWIG_AsVal_unsigned_SS_int (PyObject * obj, unsigned int *val)
 #include <openssl/opensslv.h>
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
-// #define EVP_MD_CTX_size(ctx)        ((ctx)->digest->md_size)
-// #define HMAC_size(ctx)              ((ctx)->md->md_size)
 
 #define HMAC_CTX_new()              \
     ((HMAC_CTX *)PyMem_Malloc(sizeof(HMAC_CTX)))
@@ -5286,17 +5284,7 @@ SWIG_AsVal_unsigned_SS_int (PyObject * obj, unsigned int *val)
         PyMem_Free((void *)ctx);    \
     } while(0)
 
-// #define EVP_CIPHER_CTX_new()        \
-//     ((EVP_CIPHER_CTX *)PyMem_Malloc(sizeof(EVP_CIPHER_CTX)))
 #define EVP_CIPHER_CTX_reset(ctx) EVP_CIPHER_CTX_init(ctx)
-// #define EVP_CIPHER_CTX_free(ctx)    \
-//     do  {                           \
-//         EVP_CIPHER_CTX_cleanup(ctx);\
-//         PyMem_Free((void *)ctx);    \
-//     } while(0)
-// #define EVP_CIPHER_CTX_block_size(ctx)  \
-//     ((ctx)->cipher->block_size)
-// #define EVP_PKEY_base_id(pkey)      ((pkey)->type)
 #endif
 
 
@@ -5411,7 +5399,7 @@ PyObject *hmac_init(HMAC_CTX *ctx, PyObject *key, const EVP_MD *md) {
     if (m2_PyObject_AsReadBufferInt(key, &kbuf, &klen) == -1)
         return NULL;
 
-    if (!HMAC_Init(ctx, kbuf, klen, md)) {
+    if (!HMAC_Init_ex(ctx, kbuf, klen, md, NULL)) {
         PyErr_SetString(_evp_err, "HMAC_Init failed");
         return NULL;
     }

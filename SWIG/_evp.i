@@ -305,7 +305,7 @@ PyObject *hmac_init(HMAC_CTX *ctx, PyObject *key, const EVP_MD *md) {
     if (m2_PyObject_AsReadBufferInt(key, &kbuf, &klen) == -1)
         return NULL;
 
-    if (!HMAC_Init(ctx, kbuf, klen, md)) {
+    if (!HMAC_Init_ex(ctx, kbuf, klen, md, NULL)) {
         PyErr_SetString(_evp_err, "HMAC_Init failed");
         return NULL;
     }
