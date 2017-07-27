@@ -10,10 +10,12 @@
 #include <openssl/x509.h>
 #include <openssl/x509_vfy.h>
 #include <ceval.h>
+%}
 
 /* OpenSSL 1.1 compatibility shim */
-#include "libcrypto-compat.c"
+%include _lib11_compat.i
 
+%{
 /* OpenSSL 1.0.2 copmatbility shim */
 #if OPENSSL_VERSION_NUMBER < 0x10002000L
 typedef void (*OPENSSL_sk_freefunc)(void *);

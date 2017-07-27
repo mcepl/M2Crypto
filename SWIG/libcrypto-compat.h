@@ -40,6 +40,7 @@ void EVP_MD_CTX_free(EVP_MD_CTX *ctx);
 #define EVP_CIPHER_impl_ctx_size(e) e->ctx_size
 #define EVP_CIPHER_CTX_get_cipher_data(ctx) ctx->cipher_data
 
+int RSA_size(const RSA* rsa);
 RSA_METHOD *RSA_meth_dup(const RSA_METHOD *meth);
 int RSA_meth_set1_name(RSA_METHOD *meth, const char *name);
 #define RSA_meth_get_finish(meth) meth->finish

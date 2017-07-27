@@ -7,6 +7,7 @@
  * https://www.openssl.org/source/license.html
  */
 
+%{
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 
 #include <string.h>
@@ -328,6 +329,12 @@ void EVP_MD_CTX_free(EVP_MD_CTX *ctx)
     OPENSSL_free(ctx);
 }
 
+int RSA_size(const RSA* rsa) {
+    /* BIGNUM* n = NULL;
+    RSA_get0_key(rsa, n, NULL, NULL); */
+    return BN_num_bytes(rsa->n);
+}
+
 RSA_METHOD *RSA_meth_dup(const RSA_METHOD *meth)
 {
     RSA_METHOD *ret;
@@ -420,3 +427,4 @@ int X509_NAME_get0_der(X509_NAME *nm, const unsigned char **pder,
 }
 
 #endif /* OPENSSL_VERSION_NUMBER */
+%}
