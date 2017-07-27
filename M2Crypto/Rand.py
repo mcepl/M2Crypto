@@ -17,8 +17,15 @@ rand_add = m2.rand_add  # type: (bytes, float) -> None
 load_file = m2.rand_load_file  # type: (AnyStr, int) -> int
 save_file = m2.rand_save_file  # type: (AnyStr) -> int
 rand_bytes = m2.rand_bytes  # type: (int) -> bytes
-rand_pseudo_bytes = m2.rand_pseudo_bytes  # type: (int) -> Tuple[bytes, int]
 rand_status = m2.rand_status  # type: () -> int
+
+
+def rand_pseudo_bytes(n):
+    # type: (int) -> Tuple[bytes, int]
+    import warnings
+    warnings.warn('The underlying OpenSSL method has been ' +
+                  'deprecated. Use Rand.rand_bytes instead.', DeprecationWarning)
+    return m2.rand_pseudo_bytes(n)
 
 
 def rand_file_name():
