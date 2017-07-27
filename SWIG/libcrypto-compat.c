@@ -12,13 +12,15 @@
 #include <string.h>
 #include <openssl/engine.h>
 
-static void *OPENSSL_zalloc(size_t num)
-{
-    void *ret = OPENSSL_malloc(num);
+# define OPENSSL_zalloc(num) \
+        CRYPTO_zalloc(num, __FILE__, __LINE__)
 
-    if (ret != NULL)
-        memset(ret, 0, num);
-    return ret;
+static void *CRYPTO_zalloc(size_t num, const char *file, int line)
+{
+      void *ret = CRYPTO_malloc(num, file, line);
+      if (ret != NULL)
+              memset(ret, 0, num);
+      return ret;
 }
 
 int RSA_set0_key(RSA *r, BIGNUM *n, BIGNUM *e, BIGNUM *d)

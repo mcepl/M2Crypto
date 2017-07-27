@@ -3832,6 +3832,62 @@ void threading_cleanup(void) {
 /* OpenSSL 1.1 compatibility shim */
 #include "libcrypto-compat.c"
 
+/* OpenSSL 1.0.2 copmatbility shim */
+#if OPENSSL_VERSION_NUMBER < 0x10002000L
+typedef void (*OPENSSL_sk_freefunc)(void *);
+typedef void *(*OPENSSL_sk_copyfunc)(const void *);
+typedef struct stack_st OPENSSL_STACK;
+
+# define MIN_NODES       4
+# define sk_deep_copy OPENSSL_sk_deep_copy
+
+void OPENSSL_sk_free(OPENSSL_STACK *st)
+{
+    if (st == NULL)
+        return;
+    OPENSSL_free(st->data);
+    OPENSSL_free(st);
+}
+
+OPENSSL_STACK *OPENSSL_sk_deep_copy(const OPENSSL_STACK *sk,
+                             OPENSSL_sk_copyfunc copy_func,
+                             OPENSSL_sk_freefunc free_func)
+{
+    OPENSSL_STACK *ret;
+    int i;
+
+    if (sk->num < 0)
+        return NULL;
+
+    if ((ret = OPENSSL_malloc(sizeof(*ret))) == NULL)
+        return NULL;
+
+    /* direct structure assignment */
+    *ret = *sk;
+
+    ret->num_alloc = sk->num > MIN_NODES ? (size_t)sk->num : MIN_NODES;
+    ret->data = OPENSSL_zalloc(sizeof(*ret->data) * ret->num_alloc);
+    if (ret->data == NULL) {
+        OPENSSL_free(ret);
+        return NULL;
+    }
+
+    for (i = 0; i < ret->num; ++i) {
+        if (sk->data[i] == NULL)
+            continue;
+        if ((ret->data[i] = copy_func(sk->data[i])) == NULL) {
+            while (--i >= 0)
+                if (ret->data[i] != NULL)
+                    free_func((void *)ret->data[i]);
+            OPENSSL_sk_free(ret);
+            return NULL;
+        }
+    }
+    return ret;
+}
+#endif /* OpenSSL 1.0.2 copmatbility shim */
+
+
 /* Blob interface. Deprecated. */
 
 Blob *blob_new(int len, const char *errmsg) {
