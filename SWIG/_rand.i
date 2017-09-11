@@ -108,7 +108,7 @@ PyObject *rand_pseudo_bytes(int n) {
     }
 }
 
-PyObject *rand_file_name() {
+PyObject *rand_file_name(void) {
     PyObject *obj;
     char *str;
     if ((obj = PyBytes_FromStringAndSize(NULL, BUFSIZ))==NULL) {
