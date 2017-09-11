@@ -15,7 +15,7 @@ stages:
 
 fedora:
     stage: fedora
-    image: fedora:rawhide
+    image: fedora:26
     when: always
     script:
         # - dnf upgrade --refresh -y
