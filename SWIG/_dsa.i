@@ -54,6 +54,10 @@ void genparam_callback(int p, int n, void *arg) {
 DSA *dsa_generate_parameters(int bits, PyObject *pyfunc) {
     DSA *dsa;
 
+#if OPENSSL_VERSION_NUMBER >= 0x11100000L
+    PyErr_WarnEx(PyExc_DeprecationWarning,
+                 "Function DSA_generate_parameters has been deprecated.", 1))
+#endif
     Py_INCREF(pyfunc);
     dsa = DSA_generate_parameters(bits, NULL, 0, NULL, NULL, genparam_callback, (void *)pyfunc);
     Py_DECREF(pyfunc);

@@ -68,6 +68,10 @@ void gendh_callback(int p, int n, void *arg) {
 DH *dh_generate_parameters(int plen, int g, PyObject *pyfunc) {
     DH *dh;
 
+#if OPENSSL_VERSION_NUMBER >= 0x11100000L
+    PyErr_WarnEx(PyExc_DeprecationWarning,
+                 "Function DH_generate_parameters has been deprecated.", 1))
+#endif
     Py_INCREF(pyfunc);
     dh = DH_generate_parameters(plen, g, gendh_callback, (void *)pyfunc);
     Py_DECREF(pyfunc);

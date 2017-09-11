@@ -65,11 +65,19 @@ extern const char *SSL_alert_desc_string(int);
 extern const char *SSL_alert_desc_string_long(int);
 
 #ifndef OPENSSL_NO_SSL3
+#if OPENSSL_VERSION_NUMBER >= 0x11100000L
+PyErr_WarnEx(PyExc_DeprecationWarning,
+             "Function SSLv3_method has been deprecated.", 1))
+#endif
 %rename(sslv3_method) SSLv3_method;
 extern SSL_METHOD *SSLv3_method(void);
 #endif
 %rename(sslv23_method) SSLv23_method;
 extern SSL_METHOD *SSLv23_method(void);
+#if OPENSSL_VERSION_NUMBER >= 0x11100000L
+PyErr_WarnEx(PyExc_DeprecationWarning,
+             "Function TLSv1_method has been deprecated.", 1))
+#endif
 %rename(tlsv1_method) TLSv1_method;
 extern SSL_METHOD *TLSv1_method(void);
 

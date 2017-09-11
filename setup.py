@@ -43,12 +43,13 @@ else:
     _multiarch = sysconfig.get_config_var("MULTIARCH")
 
 
-def openssl_version(req_ver):
-    # type: (str) -> bool
+def openssl_version(req_ver, required=False):
+    # type: (str, bool) -> bool
     """
     Compare version of the installed OpenSSL with the maximum required version.
 
     @param req_ver: required version as a str (e.g., '1.0.1')
+    @param required: whether we want bigger-or-equal or less-or-equal
     @return: Boolean indicating whether the satisfying version of
              OpenSSL has been installed.
     """
@@ -64,13 +65,16 @@ def openssl_version(req_ver):
     if hasattr(out, 'decode'):
         out = out.decode('utf8')
 
-    ver_str = out.split()[1].strip(string.letters + string.punctuation +
+    ver_str = out.split()[1].strip(string.ascii_letters + string.punctuation +
                                    string.whitespace)
 
     if not ver_str:
         raise OSError('Unknown format of openssl version -v output:\n%s' % out)
 
-    return StrictVersion(ver_str) <= StrictVersion(req_ver)
+    if required:
+        return StrictVersion(ver_str) >= StrictVersion(req_ver)
+    else:
+        return StrictVersion(ver_str) <= StrictVersion(req_ver)
 
 
 class _M2CryptoSDist(sdist.sdist):
@@ -232,13 +236,18 @@ def swig_version(req_ver):
 
     return StrictVersion(ver_str) >= StrictVersion(req_ver)
 
-
+x_comp_args = set()
 if sys.platform == 'darwin':
-    x_comp_args = ["-Wno-deprecated-declarations"]
+    x_comp_args.add("-Wno-deprecated-declarations")
 elif sys.platform == 'win32':
-    x_comp_args = ['-DTHREADING', '-D_CRT_SECURE_NO_WARNINGS']
+    x_comp_args.update(['-DTHREADING', '-D_CRT_SECURE_NO_WARNINGS'])
 else:
-    x_comp_args = ['-DTHREADING']
+    x_comp_args.add('-DTHREADING')
+
+# We take care of deprecated functions in OpenSSL with our code, no need
+# to spam compiler output with it.
+if openssl_version('1.1.0', required=True):
+    x_comp_args.add("-Wno-deprecated-declarations")
 
 
 # Don't try to run swig on the ancient platforms
@@ -250,7 +259,7 @@ else:
 
 m2crypto = setuptools.Extension(name='M2Crypto._m2crypto',
                                 sources=lib_sources,
-                                extra_compile_args=x_comp_args,
+                                extra_compile_args=list(x_comp_args),
                                 # Uncomment to build Universal Mac binaries
                                 # extra_link_args =
                                 #     ['-Wl,-search_paths_first'],

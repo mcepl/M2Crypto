@@ -443,6 +443,10 @@ PyObject *rsa_generate_key(int bits, unsigned long e, PyObject *pyfunc) {
     PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
 
     Py_INCREF(pyfunc);
+#if OPENSSL_VERSION_NUMBER >= 0x11100000L
+    PyErr_WarnEx(PyExc_DeprecationWarning,
+                 "Function RSA_generate_key has been deprecated.", 1))
+#endif
     rsa = RSA_generate_key(bits, e, genrsa_callback, (void *)pyfunc);
     Py_DECREF(pyfunc);
     if (!rsa) {
