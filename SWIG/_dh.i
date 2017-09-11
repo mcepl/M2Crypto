@@ -125,7 +125,7 @@ PyObject *dh_compute_key(DH *dh, PyObject *pubkey) {
 }
         
 PyObject *dh_get_p(DH *dh) {
-    BIGNUM* p = NULL;
+    const BIGNUM* p = NULL;
     DH_get0_pqg(dh, &p, NULL, NULL);
     if (!p) {
         PyErr_SetString(_dh_err, "'p' is unset");
@@ -135,7 +135,7 @@ PyObject *dh_get_p(DH *dh) {
 }
 
 PyObject *dh_get_g(DH *dh) {
-    BIGNUM* g = NULL;
+    const BIGNUM* g = NULL;
     DH_get0_pqg(dh, NULL, NULL, &g);
     if (!g) {
         PyErr_SetString(_dh_err, "'g' is unset");
@@ -145,7 +145,7 @@ PyObject *dh_get_g(DH *dh) {
 }
 
 PyObject *dh_get_pub(DH *dh) {
-    BIGNUM* pub_key = NULL;
+    const BIGNUM* pub_key = NULL;
     DH_get0_key(dh, &pub_key, NULL);
     if (!pub_key) {
         PyErr_SetString(_dh_err, "'pub' is unset");
@@ -155,7 +155,7 @@ PyObject *dh_get_pub(DH *dh) {
 }
 
 PyObject *dh_get_priv(DH *dh) {
-    BIGNUM* priv_key = NULL;
+    const BIGNUM* priv_key = NULL;
     DH_get0_key(dh, NULL, &priv_key);
     if (!priv_key) {
         PyErr_SetString(_dh_err, "'priv' is unset");

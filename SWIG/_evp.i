@@ -641,7 +641,7 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
     BIO *bio;
     BUF_MEM *bptr;
     PyObject *ret;
-    BIGNUM* bn;
+    const BIGNUM* bn;
 
     switch (EVP_PKEY_base_id(pkey)) {
         case EVP_PKEY_RSA:

@@ -494,7 +494,7 @@ void lib_init() {
 /* Bignum routines that aren't not numerous enough to
 warrant a separate file. */
 
-PyObject *bn_to_mpi(BIGNUM *bn) {
+PyObject *bn_to_mpi(const BIGNUM *bn) {
     int len;
     unsigned char *mpi;
     PyObject *pyo;
@@ -583,7 +583,7 @@ PyObject *bn_to_hex(BIGNUM *bn) {
     return pyo;
 }
 
-const BIGNUM *hex_to_bn(PyObject *value) {
+BIGNUM *hex_to_bn(PyObject *value) {
     const void *vbuf;
     Py_ssize_t vlen;
     BIGNUM *bn;
@@ -604,7 +604,7 @@ const BIGNUM *hex_to_bn(PyObject *value) {
     return bn;
 }
 
-const BIGNUM *dec_to_bn(PyObject *value) {
+BIGNUM *dec_to_bn(PyObject *value) {
     const void *vbuf;
     Py_ssize_t vlen;
     BIGNUM *bn;

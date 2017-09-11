@@ -104,7 +104,7 @@ int rsa_write_pub_key(RSA *rsa, BIO *f) {
 }
 
 PyObject *rsa_get_e(RSA *rsa) {
-    BIGNUM* e = NULL;
+    const BIGNUM* e = NULL;
     RSA_get0_key(rsa, NULL, &e, NULL);
     if (!e) {
         PyErr_SetString(_rsa_err, "'e' is unset");
@@ -114,7 +114,7 @@ PyObject *rsa_get_e(RSA *rsa) {
 }
 
 PyObject *rsa_get_n(RSA *rsa) {
-    BIGNUM* n = NULL;
+    const BIGNUM* n = NULL;
     RSA_get0_key(rsa, &n, NULL, NULL);
     if (!n) {
         PyErr_SetString(_rsa_err, "'n' is unset");
@@ -461,7 +461,7 @@ int rsa_type_check(RSA *rsa) {
 }
 
 int rsa_check_pub_key(RSA *rsa) {
-    BIGNUM* n, *e;
+    const BIGNUM* n, *e;
     RSA_get0_key(rsa, &n, &e, NULL);
     return n && e;
 }

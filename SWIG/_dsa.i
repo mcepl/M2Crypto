@@ -8,13 +8,13 @@
 #include <openssl/dsa.h>
 
 PyObject *dsa_sig_get_r(DSA_SIG *dsa_sig) {
-    BIGNUM* pr;
+    const BIGNUM* pr;
     DSA_SIG_get0(dsa_sig, &pr, NULL);
     return bn_to_mpi(pr);
 }
 
 PyObject *dsa_sig_get_s(DSA_SIG *dsa_sig) {
-    BIGNUM* qs;
+    const BIGNUM* qs;
     DSA_SIG_get0(dsa_sig, NULL, &qs);
     return bn_to_mpi(qs);
 }
@@ -67,7 +67,7 @@ DSA *dsa_generate_parameters(int bits, PyObject *pyfunc) {
 }
 
 PyObject *dsa_get_p(DSA *dsa) {
-    BIGNUM* p = NULL;
+    const BIGNUM* p = NULL;
     DSA_get0_pqg(dsa, &p, NULL, NULL);
     if (!p) {
         PyErr_SetString(_dsa_err, "'p' is unset");
@@ -77,7 +77,7 @@ PyObject *dsa_get_p(DSA *dsa) {
 }
 
 PyObject *dsa_get_q(DSA *dsa) {
-    BIGNUM* q = NULL;
+    const BIGNUM* q = NULL;
     DSA_get0_pqg(dsa, NULL, &q, NULL);
     if (!q) {
         PyErr_SetString(_dsa_err, "'q' is unset");
@@ -87,7 +87,7 @@ PyObject *dsa_get_q(DSA *dsa) {
 }
 
 PyObject *dsa_get_g(DSA *dsa) {
-    BIGNUM* g = NULL;
+    const BIGNUM* g = NULL;
     DSA_get0_pqg(dsa, NULL, NULL, &g);
     if (!g) {
         PyErr_SetString(_dsa_err, "'g' is unset");
@@ -97,7 +97,7 @@ PyObject *dsa_get_g(DSA *dsa) {
 }
 
 PyObject *dsa_get_pub(DSA *dsa) {
-    BIGNUM* pub_key = NULL;
+    const BIGNUM* pub_key = NULL;
     DSA_get0_key(dsa, &pub_key, NULL);
     if (!pub_key) {
         PyErr_SetString(_dsa_err, "'pub' is unset");
@@ -107,7 +107,7 @@ PyObject *dsa_get_pub(DSA *dsa) {
 }
 
 PyObject *dsa_get_priv(DSA *dsa) {
-    BIGNUM* priv_key = NULL;
+    const BIGNUM* priv_key = NULL;
     DSA_get0_key(dsa, NULL, &priv_key);
     if (!priv_key) {
         PyErr_SetString(_dsa_err, "'priv' is unset");
@@ -347,19 +347,19 @@ int dsa_verify_asn1(DSA *dsa, PyObject *value, PyObject *sig) {
 }
 
 int dsa_check_key(DSA *dsa) {
-    BIGNUM* pub_key, *priv_key;
+    const BIGNUM* pub_key, *priv_key;
     DSA_get0_key(dsa, &pub_key, &priv_key);
     return pub_key != NULL && priv_key != NULL;
 }
 
 int dsa_check_pub_key(DSA *dsa) {
-    BIGNUM* pub_key;
+    const BIGNUM* pub_key;
     DSA_get0_key(dsa, &pub_key, NULL);
     return pub_key ? 1 : 0;
 }
 
 int dsa_keylen(DSA *dsa) {
-    BIGNUM* p;
+    const BIGNUM* p;
     DSA_get0_pqg(dsa, &p, NULL, NULL);
     return BN_num_bits(p);
 }

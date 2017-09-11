@@ -348,13 +348,13 @@ int ec_key_write_bio_no_cipher(EC_KEY *key, BIO *f, PyObject *pyfunc) {
 
 
 PyObject *ecdsa_sig_get_r(ECDSA_SIG *ecdsa_sig) {
-    BIGNUM* pr;
+    const BIGNUM* pr;
     ECDSA_SIG_get0(ecdsa_sig, &pr, NULL);
     return bn_to_mpi(pr);
 }
 
 PyObject *ecdsa_sig_get_s(ECDSA_SIG *ecdsa_sig) {
-    BIGNUM* ps;
+    const BIGNUM* ps;
     ECDSA_SIG_get0(ecdsa_sig, NULL, &ps);
     return bn_to_mpi(ps);
 }
