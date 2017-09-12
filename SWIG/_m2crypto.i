@@ -15,6 +15,11 @@
 %nothreadblock;
 %nothreadallow;
 
+#if SWIG_VERSION >= 0x030000
+#define __WCHAR_MAX__ __WCHAR_MAX
+#define __WCHAR_MIN__ __WCHAR_MIN
+#endif
+
 %{
 #include <openssl/err.h>
 #include <openssl/rand.h>
