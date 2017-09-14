@@ -698,7 +698,8 @@ make_stack_from_der_sequence(PyObject * pyEncodedString){
         return NULL;
     }
 
-    certs = ASN1_seq_unpack((unsigned char *)encoded_string, encoded_string_len, d2i_X509, X509_free );
+    const unsigned char *tmp_str = (unsigned char *)encoded_string;
+    certs = d2i_SEQ_CERT(NULL, &tmp_str, encoded_string_len);
     if (!certs) {
         PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
@@ -714,7 +715,7 @@ get_der_encoding_stack(STACK_OF(X509) *stack){
     unsigned char * encoding;
     int len; 
     
-    encoding = ASN1_seq_pack_X509(stack, i2d_X509, NULL, &len); 
+    len = i2d_SEQ_CERT(stack, &encoding);
     if (!encoding) {
        PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
        return NULL;
@@ -726,7 +727,9 @@ get_der_encoding_stack(STACK_OF(X509) *stack){
     encodedString = PyString_FromStringAndSize((const char *)encoding, len);
 #endif // PY_MAJOR_VERSION >= 3 
 
-    OPENSSL_free(encoding);
+    if (encoding)
+        OPENSSL_free(encoding);
+
     return encodedString; 
 }
 
