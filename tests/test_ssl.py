@@ -335,7 +335,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             ctx = SSL.Context('tlsv1')
             s = SSL.Connection(ctx)
             with self.assertRaisesRegexp(SSL.SSLError,
-                                         r'wrong version number|unexpected eof'):
+                                         r'version|unexpected eof'):
                 s.connect(self.srv_addr)
             s.close()
         finally:
