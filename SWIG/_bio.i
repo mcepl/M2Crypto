@@ -86,13 +86,14 @@ BIO *bio_new_pyfile(PyObject *pyfile, int bio_close) {
             fp = fdopen(fd, mode);
         }
         else {
-            return PyErr_Format(PyExc_ValueError,
-                    "File doesn’t have mode attribute!");
+            PyErr_Format(PyExc_ValueError,
+                         "File doesn’t have mode attribute!");
+            return NULL;
         }
     }
     else {
-        return PyErr_Format(PyExc_ValueError,
-                "File doesn’t have fileno method!");
+        PyErr_Format(PyExc_ValueError, "File doesn’t have fileno method!");
+        return NULL;
     }
 
 #else
@@ -108,14 +109,16 @@ BIO *bio_new_pyfile(PyObject *pyfile, int bio_close) {
                     PyObject_CallMethod(pyfile, "name", NULL), NULL);
         }
         else {
-            return PyErr_Format(PyExc_ValueError,
-                    "File doesn’t have name attribute!");
+            PyErr_Format(PyExc_ValueError,
+                         "File doesn’t have name attribute!");
+            return NULL;
         }
 #else
         name = PyString_AsString(PyFile_Name(pyfile));
 #endif
-        return PyErr_Format(PyExc_MemoryError,
-                "Opening of the new BIO on file %s failed!", name);
+        PyErr_Format(PyExc_MemoryError,
+                     "Opening of the new BIO on file %s failed!", name);
+        return NULL;
     }
     return bio;
 }
