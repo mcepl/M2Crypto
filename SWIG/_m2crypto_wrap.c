@@ -3486,21 +3486,22 @@ SwigPyBuiltin_SetMetaType (PyTypeObject *type, PyTypeObject *metatype)
 #define SWIGTYPE_p_char swig_types[42]
 #define SWIGTYPE_p_f_int_p_X509_STORE_CTX__int swig_types[43]
 #define SWIGTYPE_p_f_p_q_const__void_p_q_const__void__int swig_types[44]
-#define SWIGTYPE_p_f_p_void__void swig_types[45]
-#define SWIGTYPE_p_p_ASN1_OBJECT swig_types[46]
-#define SWIGTYPE_p_p_X509_NAME_ENTRY swig_types[47]
-#define SWIGTYPE_p_p_char swig_types[48]
-#define SWIGTYPE_p_p_unsigned_char swig_types[49]
-#define SWIGTYPE_p_stack_st swig_types[50]
-#define SWIGTYPE_p_stack_st_OPENSSL_BLOCK swig_types[51]
-#define SWIGTYPE_p_stack_st_OPENSSL_STRING swig_types[52]
-#define SWIGTYPE_p_stack_st_SSL_CIPHER swig_types[53]
-#define SWIGTYPE_p_stack_st_X509 swig_types[54]
-#define SWIGTYPE_p_stack_st_X509_EXTENSION swig_types[55]
-#define SWIGTYPE_p_unsigned_char swig_types[56]
-#define SWIGTYPE_p_void swig_types[57]
-static swig_type_info *swig_types[59];
-static swig_module_info swig_module = {swig_types, 58, 0, 0, 0, 0};
+#define SWIGTYPE_p_f_p_void__p_void swig_types[45]
+#define SWIGTYPE_p_f_p_void__void swig_types[46]
+#define SWIGTYPE_p_p_ASN1_OBJECT swig_types[47]
+#define SWIGTYPE_p_p_X509_NAME_ENTRY swig_types[48]
+#define SWIGTYPE_p_p_char swig_types[49]
+#define SWIGTYPE_p_p_unsigned_char swig_types[50]
+#define SWIGTYPE_p_stack_st swig_types[51]
+#define SWIGTYPE_p_stack_st_OPENSSL_BLOCK swig_types[52]
+#define SWIGTYPE_p_stack_st_OPENSSL_STRING swig_types[53]
+#define SWIGTYPE_p_stack_st_SSL_CIPHER swig_types[54]
+#define SWIGTYPE_p_stack_st_X509 swig_types[55]
+#define SWIGTYPE_p_stack_st_X509_EXTENSION swig_types[56]
+#define SWIGTYPE_p_unsigned_char swig_types[57]
+#define SWIGTYPE_p_void swig_types[58]
+static swig_type_info *swig_types[60];
+static swig_module_info swig_module = {swig_types, 59, 0, 0, 0, 0};
 #define SWIG_TypeQuery(name) SWIG_TypeQueryModule(&swig_module, &swig_module, name)
 #define SWIG_MangledTypeQuery(name) SWIG_MangledTypeQueryModule(&swig_module, &swig_module, name)
 
@@ -9027,6 +9028,44 @@ SWIGINTERN PyObject *_wrap_sk_pop_free(PyObject *self, PyObject *args) {
   }
   sk_pop_free(arg1,arg2);
   resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_sk_deep_copy(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  _STACK *arg1 = (_STACK *) 0 ;
+  void *(*arg2)(void *) = (void *(*)(void *)) 0 ;
+  void (*arg3)(void *) = (void (*)(void *)) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  _STACK *result = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"sk_deep_copy",3,3,&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_stack_st, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "sk_deep_copy" "', argument " "1"" of type '" "_STACK *""'"); 
+  }
+  arg1 = (_STACK *)(argp1);
+  {
+    int res = SWIG_ConvertFunctionPtr(obj1, (void**)(&arg2), SWIGTYPE_p_f_p_void__p_void);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "sk_deep_copy" "', argument " "2"" of type '" "void *(*)(void *)""'"); 
+    }
+  }
+  {
+    int res = SWIG_ConvertFunctionPtr(obj2, (void**)(&arg3), SWIGTYPE_p_f_p_void__void);
+    if (!SWIG_IsOK(res)) {
+      SWIG_exception_fail(SWIG_ArgError(res), "in method '" "sk_deep_copy" "', argument " "3"" of type '" "void (*)(void *)""'"); 
+    }
+  }
+  result = (_STACK *)sk_deep_copy(arg1,arg2,arg3);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_stack_st, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -28184,6 +28223,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"sk_new_null", _wrap_sk_new_null, METH_VARARGS, NULL},
 	 { (char *)"sk_free", _wrap_sk_free, METH_VARARGS, NULL},
 	 { (char *)"sk_pop_free", _wrap_sk_pop_free, METH_VARARGS, NULL},
+	 { (char *)"sk_deep_copy", _wrap_sk_deep_copy, METH_VARARGS, NULL},
 	 { (char *)"sk_insert", _wrap_sk_insert, METH_VARARGS, NULL},
 	 { (char *)"sk_delete", _wrap_sk_delete, METH_VARARGS, NULL},
 	 { (char *)"sk_delete_ptr", _wrap_sk_delete_ptr, METH_VARARGS, NULL},
@@ -29606,6 +29646,7 @@ static swig_type_info _swigt__p__cbd_t = {"_p__cbd_t", "_cbd_t *", 0, 0, (void*)
 static swig_type_info _swigt__p_char = {"_p_char", "char *", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_int_p_X509_STORE_CTX__int = {"_p_f_int_p_X509_STORE_CTX__int", "int (*)(int,X509_STORE_CTX *)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p_q_const__void_p_q_const__void__int = {"_p_f_p_q_const__void_p_q_const__void__int", "int (*)(void const *,void const *)", 0, 0, (void*)0, 0};
+static swig_type_info _swigt__p_f_p_void__p_void = {"_p_f_p_void__p_void", "void *(*)(void *)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_f_p_void__void = {"_p_f_p_void__void", "void (*)(void *)", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_ASN1_OBJECT = {"_p_p_ASN1_OBJECT", "ASN1_OBJECT **", 0, 0, (void*)0, 0};
 static swig_type_info _swigt__p_p_X509_NAME_ENTRY = {"_p_p_X509_NAME_ENTRY", "X509_NAME_ENTRY **", 0, 0, (void*)0, 0};
@@ -29666,6 +29707,7 @@ static swig_type_info *swig_type_initial[] = {
   &_swigt__p_char,
   &_swigt__p_f_int_p_X509_STORE_CTX__int,
   &_swigt__p_f_p_q_const__void_p_q_const__void__int,
+  &_swigt__p_f_p_void__p_void,
   &_swigt__p_f_p_void__void,
   &_swigt__p_p_ASN1_OBJECT,
   &_swigt__p_p_X509_NAME_ENTRY,
@@ -29726,6 +29768,7 @@ static swig_cast_info _swigc__p__cbd_t[] = {  {&_swigt__p__cbd_t, 0, 0, 0},{0, 0
 static swig_cast_info _swigc__p_char[] = {  {&_swigt__p_char, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_int_p_X509_STORE_CTX__int[] = {  {&_swigt__p_f_int_p_X509_STORE_CTX__int, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p_q_const__void_p_q_const__void__int[] = {  {&_swigt__p_f_p_q_const__void_p_q_const__void__int, 0, 0, 0},{0, 0, 0, 0}};
+static swig_cast_info _swigc__p_f_p_void__p_void[] = {  {&_swigt__p_f_p_void__p_void, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_f_p_void__void[] = {  {&_swigt__p_f_p_void__void, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_ASN1_OBJECT[] = {  {&_swigt__p_p_ASN1_OBJECT, 0, 0, 0},{0, 0, 0, 0}};
 static swig_cast_info _swigc__p_p_X509_NAME_ENTRY[] = {  {&_swigt__p_p_X509_NAME_ENTRY, 0, 0, 0},{0, 0, 0, 0}};
@@ -29786,6 +29829,7 @@ static swig_cast_info *swig_cast_initial[] = {
   _swigc__p_char,
   _swigc__p_f_int_p_X509_STORE_CTX__int,
   _swigc__p_f_p_q_const__void_p_q_const__void__int,
+  _swigc__p_f_p_void__p_void,
   _swigc__p_f_p_void__void,
   _swigc__p_p_ASN1_OBJECT,
   _swigc__p_p_X509_NAME_ENTRY,
@@ -30485,11 +30529,11 @@ SWIG_init(void) {
   
   SWIG_InstallConstants(d,swig_const_table);
   
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "OPENSSL_VERSION_NUMBER",SWIG_From_long((long)(0x1000105fL)));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "OPENSSL_VERSION_TEXT",SWIG_FromCharPtr("OpenSSL 1.0.1e 11 Feb 2013"));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "OPENSSL_VERSION_PTEXT",SWIG_FromCharPtr(" part of OpenSSL 1.0.1e 11 Feb 2013"));
+  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "OPENSSL_VERSION_NUMBER",SWIG_From_long((long)(0x100020bfL)));
+  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "OPENSSL_VERSION_TEXT",SWIG_FromCharPtr("OpenSSL 1.0.2k  26 Jan 2017"));
+  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "OPENSSL_VERSION_PTEXT",SWIG_FromCharPtr(" part of OpenSSL 1.0.2k  26 Jan 2017"));
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "SHLIB_VERSION_HISTORY",SWIG_FromCharPtr(""));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "SHLIB_VERSION_NUMBER",SWIG_FromCharPtr("1.0.1e"));
+  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "SHLIB_VERSION_NUMBER",SWIG_FromCharPtr("1.0.2k"));
   
   /* type '::stack_st' */
   builtin_pytype = (PyTypeObject *)&SwigPyBuiltin__stack_st_type;
