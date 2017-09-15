@@ -272,7 +272,7 @@ int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
         errnum = X509_STORE_CTX_get_error(ctx);
         errdepth = X509_STORE_CTX_get_error_depth(ctx);
 
-        ssl = (SSL *)X509_STORE_CTX_get_app_data(ctx);
+        ssl = (SSL *)X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
         ssl_ctx = SSL_get_SSL_CTX(ssl);
 
         _x509 = SWIG_NewPointerObj((void *)x509, SWIGTYPE_p_X509, 0);

@@ -636,40 +636,17 @@ void *x509_store_ctx_get_app_data(X509_STORE_CTX *ctx) {
   return X509_STORE_CTX_get_app_data(ctx);
 }
 
+/* X509_STORE_CTX_get_app_data is a macro. */
+void *x509_store_ctx_get_ex_data(X509_STORE_CTX *ctx, int idx) {
+  return X509_STORE_CTX_get_ex_data(ctx, idx);
+}
+
 void x509_store_set_verify_cb(X509_STORE *store, PyObject *pyfunc) {
     Py_XDECREF(x509_store_verify_cb_func);
     Py_INCREF(pyfunc);
     x509_store_verify_cb_func = pyfunc;
     X509_STORE_set_verify_cb(store, x509_store_verify_callback);
 }
-
-/*#defines for i2d and d2i types, which are typed differently
-in openssl-0.9.8 than they are in openssl-0.9.7. This will
-be picked up by the C preprocessor, not the SWIG preprocessor.
-Used in the wrapping of ASN1_seq_unpack and ASN1_seq_pack functions.
-*/
-#if OPENSSL_VERSION_NUMBER >= 0x0090800fL 
-#define D2ITYPE d2i_of_void *
-#define I2DTYPE i2d_of_void *
-#else
-#define D2ITYPE char *(*)()
-#define I2DTYPE int (*)()
-#endif   
-
-// STACK_OF(X509)* ASN1_seq_unpack(const unsigned char *pp, long length, 
-//         X509* (*d2i)(X509**, unsigned char**, long),
-//         void (*f2)()) {
-//     /* WARNING - tmpbuf is required! See d2i_X509 docs for explanation */
-//     const unsigned char* tmpbuf = pp;
-//     return d2i_SEQ_CERT(NULL, &tmpbuf, length); 
-//     }
-// 
-// unsigned char* ASN1_seq_pack_X509(STACK_OF(X509) *stack, void (*f)(), void* p,
-//         int* len) {
-//     unsigned char* buf = NULL;
-//     *len = i2d_SEQ_CERT(stack, &buf);
-//     return buf;
-//     }
 
 STACK_OF(X509) *
 make_stack_from_der_sequence(PyObject * pyEncodedString){
@@ -712,7 +689,7 @@ PyObject *
 get_der_encoding_stack(STACK_OF(X509) *stack){
     PyObject * encodedString;
     
-    unsigned char * encoding;
+    unsigned char * encoding = NULL;
     int len; 
     
     len = i2d_SEQ_CERT(stack, &encoding);

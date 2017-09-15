@@ -64,7 +64,9 @@ def verify_cb_new_function(ok, store):
                        m2.X509_V_ERR_CERT_UNTRUSTED,
                        m2.X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE]
         assert store.get_error_depth() == 0
-        app_data = m2.x509_store_ctx_get_app_data(store.ctx)
+        # app_data = m2.x509_store_ctx_get_app_data(store.ctx)
+        app_data = m2.x509_store_ctx_get_ex_data(
+            store.ctx, m2.ssl_get_ex_data_x509_store_ctx_idx())
         assert app_data
         x509 = store.get_current_cert()
         assert x509
