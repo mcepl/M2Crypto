@@ -11,6 +11,7 @@ except ImportError:
 
 from M2Crypto import DH, BIO, Rand
 
+
 class DHTestCase(unittest.TestCase):
 
     params = 'tests/dhparam.pem'

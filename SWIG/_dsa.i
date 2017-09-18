@@ -40,30 +40,36 @@ void dsa_init(PyObject *dsa_err) {
     _dsa_err = dsa_err;
 }
 
-void genparam_callback(int p, int n, void *arg) {
-    PyObject *argv, *ret, *cbfunc;
-
-    cbfunc = (PyObject *)arg;
-    argv = Py_BuildValue("(ii)", p, n);
-    ret = PyEval_CallObject(cbfunc, argv);
-    PyErr_Clear();
-    Py_DECREF(argv);
-    Py_XDECREF(ret);
-}
-
 DSA *dsa_generate_parameters(int bits, PyObject *pyfunc) {
     DSA *dsa;
+    BN_GENCB *gencb;
+    int ret;
 
-#if OPENSSL_VERSION_NUMBER >= 0x11100000L
-    PyErr_WarnEx(PyExc_DeprecationWarning,
-                 "Function DSA_generate_parameters has been deprecated.", 1))
-#endif
-    Py_INCREF(pyfunc);
-    dsa = DSA_generate_parameters(bits, NULL, 0, NULL, NULL, genparam_callback, (void *)pyfunc);
-    Py_DECREF(pyfunc);
-    if (!dsa)
+    if ((gencb=BN_GENCB_new()) == NULL) {
+        PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
+
+    if ((dsa = DSA_new()) == NULL) {
         PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
-    return dsa;
+        BN_GENCB_free(gencb);
+        return NULL;
+    }
+
+    BN_GENCB_set(gencb, bn_gencb_callback, (void *) pyfunc);
+
+    Py_INCREF(pyfunc);
+    ret = DSA_generate_parameters_ex(dsa, bits, NULL, 0, NULL, NULL,
+                                     gencb);
+    Py_DECREF(pyfunc);
+    BN_GENCB_free(gencb);
+
+    if (ret)
+        return dsa;
+
+    PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+    DSA_free(dsa);
+    return NULL;
 }
 
 PyObject *dsa_get_p(DSA *dsa) {

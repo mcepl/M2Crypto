@@ -54,30 +54,35 @@ DH *dh_read_parameters(BIO *bio) {
     return PEM_read_bio_DHparams(bio, NULL, NULL, NULL);
 }
 
-void gendh_callback(int p, int n, void *arg) {
-    PyObject *argv, *ret, *cbfunc;
- 
-    cbfunc = (PyObject *)arg;
-    argv = Py_BuildValue("(ii)", p, n);
-    ret = PyEval_CallObject(cbfunc, argv);
-    PyErr_Clear();
-    Py_DECREF(argv);
-    Py_XDECREF(ret);
-}
-
 DH *dh_generate_parameters(int plen, int g, PyObject *pyfunc) {
     DH *dh;
+    BN_GENCB *gencb;
+    int ret;
 
-#if OPENSSL_VERSION_NUMBER >= 0x11100000L
-    PyErr_WarnEx(PyExc_DeprecationWarning,
-                 "Function DH_generate_parameters has been deprecated.", 1))
-#endif
-    Py_INCREF(pyfunc);
-    dh = DH_generate_parameters(plen, g, gendh_callback, (void *)pyfunc);
-    Py_DECREF(pyfunc);
-    if (!dh) 
+    if ((gencb=BN_GENCB_new()) == NULL) {
         PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
-    return dh;
+        return NULL;
+    }
+
+    if ((dh=DH_new()) == NULL) {
+        PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+        BN_GENCB_free(gencb);
+        return NULL;
+    }
+
+    BN_GENCB_set(gencb, bn_gencb_callback, (void *)pyfunc);
+
+    Py_INCREF(pyfunc);
+    ret = DH_generate_parameters_ex(dh, plen, g, gencb);
+    Py_DECREF(pyfunc);
+    BN_GENCB_free(gencb);
+
+    if (ret)
+        return dh;
+
+    PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+    DH_free(dh);
+    return NULL;
 }
 
 /* Note return value shenanigan. */
@@ -123,7 +128,7 @@ PyObject *dh_compute_key(DH *dh, PyObject *pubkey) {
     PyMem_Free(key);
     return ret;
 }
-        
+
 PyObject *dh_get_p(DH *dh) {
     const BIGNUM* p = NULL;
     DH_get0_pqg(dh, &p, NULL, NULL);

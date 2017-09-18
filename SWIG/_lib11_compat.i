@@ -30,6 +30,8 @@ static void *CRYPTO_zalloc(size_t num, const char *file, int line)
 # define BN_F_BN_GENCB_NEW       143
 #endif
 
+# define BN_GENCB_get_arg(gencb) ((gencb)->arg)
+
 BN_GENCB *BN_GENCB_new(void)
 {
     BN_GENCB *ret;

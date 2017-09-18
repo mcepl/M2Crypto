@@ -85,7 +85,9 @@ class DH:
 
 def gen_params(plen, g, callback=genparam_callback):
     # type: (int, int, Optional[Callable]) -> DH
-    return DH(m2.dh_generate_parameters(plen, g, callback), 1)
+    dh_parms = m2.dh_generate_parameters(plen, g, callback)
+    dh_obj = DH(dh_parms, 1)
+    return dh_obj
 
 
 def load_params(file):

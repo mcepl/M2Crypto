@@ -1,6 +1,8 @@
 /* Copyright (c) 1999 Ng Pheng Siong. All rights reserved. */
 /* $Id$ */
 
+#include <openssl/bn.h>
+
 typedef struct _blob {
 	unsigned char *data;
 	int len;
@@ -20,7 +22,7 @@ static BIGNUM* m2_PyObject_AsBIGNUM(PyObject* value, PyObject* _py_exc) ;
 static int m2_PyObject_GetBufferInt(PyObject *obj, Py_buffer *view, int flags);
 static void m2_PyBuffer_Release(PyObject *obj, Py_buffer *view);
 
-void gen_callback(int p, int n, void *arg);
+int bn_gencb_callback(int p, int n, BN_GENCB *gencb);
 int passphrase_callback(char *buf, int num, int v, void *userdata);
 
 void lib_init(void);

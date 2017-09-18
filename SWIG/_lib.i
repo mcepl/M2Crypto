@@ -2,6 +2,7 @@
 /* $Id$ */
 
 %{
+#include <openssl/bn.h>
 #include <openssl/dh.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
@@ -424,17 +425,18 @@ RSA *ssl_set_tmp_rsa_callback(SSL *ssl, int is_export, int keylength) {
     return rsa;
 }
 
-void gen_callback(int p, int n, void *arg) {
+/* Universal callback for dh_generate_parameters,
+ * dsa_generate_parametersm, and rsa_generate_key */
+int bn_gencb_callback(int p, int n, BN_GENCB *gencb) {
     PyObject *argv, *ret, *cbfunc;
 
-    PyGILState_STATE gilstate;
-    gilstate = PyGILState_Ensure();
-    cbfunc = (PyObject *)arg;
+    cbfunc = (PyObject *)BN_GENCB_get_arg(gencb);
     argv = Py_BuildValue("(ii)", p, n);
     ret = PyEval_CallObject(cbfunc, argv);
+    PyErr_Clear();
     Py_DECREF(argv);
     Py_XDECREF(ret);
-    PyGILState_Release(gilstate);
+    return 1;
 }
 
 int passphrase_callback(char *buf, int num, int v, void *arg) {

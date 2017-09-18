@@ -427,33 +427,51 @@ int rsa_verify(RSA *rsa, PyObject *py_verify_string, PyObject* py_sign_string, i
     return ret;
 }
 
-void genrsa_callback(int p, int n, void *arg) {
-    PyObject *argv, *ret, *cbfunc;
-
-    cbfunc = (PyObject *)arg;
-    argv = Py_BuildValue("(ii)", p, n);
-    ret = PyEval_CallObject(cbfunc, argv);
-    PyErr_Clear();
-    Py_DECREF(argv);
-    Py_XDECREF(ret);
-}
-
 PyObject *rsa_generate_key(int bits, unsigned long e, PyObject *pyfunc) {
     RSA *rsa;
     PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
+    BN_GENCB *gencb;
+    BIGNUM *e_big;
+    int ret;
+
+    if ((e_big=BN_new()) == NULL) {
+        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
+
+    if (BN_set_word(e_big, e) == 0) {
+        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        BN_free(e_big);
+        return NULL;
+    }
+
+    if ((gencb=BN_GENCB_new()) == NULL) {
+        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        BN_free(e_big);
+        return NULL;
+    }
+
+    if ((rsa = RSA_new()) == NULL) {
+        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        BN_free(e_big);
+        BN_GENCB_free(gencb);
+        return NULL;
+    }
+
+    BN_GENCB_set(gencb, bn_gencb_callback, (void *) pyfunc);
 
     Py_INCREF(pyfunc);
-#if OPENSSL_VERSION_NUMBER >= 0x11100000L
-    PyErr_WarnEx(PyExc_DeprecationWarning,
-                 "Function RSA_generate_key has been deprecated.", 1))
-#endif
-    rsa = RSA_generate_key(bits, e, genrsa_callback, (void *)pyfunc);
+    ret = RSA_generate_key_ex(rsa, bits, e_big, gencb);
+    BN_free(e_big);
+    BN_GENCB_free(gencb);
     Py_DECREF(pyfunc);
-    if (!rsa) {
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
-	return NULL;
-    }
-    return SWIG_NewPointerObj((void *)rsa, SWIGTYPE_p_RSA, 0);
+
+    if (ret)
+        return SWIG_NewPointerObj((void *)rsa, SWIGTYPE_p_RSA, 0);
+
+    PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+    RSA_free(rsa);
+    return NULL;
 }
 
 int rsa_type_check(RSA *rsa) {
