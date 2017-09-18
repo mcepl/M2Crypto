@@ -5,17 +5,15 @@
 #include <pythread.h>
 #include <openssl/crypto.h>
 
-#ifdef THREADING
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#if defined(THREADING) && OPENSSL_VERSION_NUMBER < 0x10100000L
 #define CRYPTO_num_locks()      (CRYPTO_NUM_LOCKS)
-#endif
 static PyThread_type_lock lock_cs[CRYPTO_num_locks()];
 static long lock_count[CRYPTO_num_locks()];
 static int thread_mode = 0;
 #endif
 
 void threading_locking_callback(int mode, int type, const char *file, int line) {
-#ifdef THREADING
+#if defined(THREADING) && OPENSSL_VERSION_NUMBER < 0x10100000L
         if (mode & CRYPTO_LOCK) {
                 PyThread_acquire_lock(lock_cs[type], WAIT_LOCK);
                 lock_count[type]++;
@@ -27,7 +25,7 @@ void threading_locking_callback(int mode, int type, const char *file, int line) 
 }
 
 unsigned long threading_id_callback(void) {
-#ifdef THREADING
+#if defined(THREADING) && OPENSSL_VERSION_NUMBER < 0x10100000L
     return (unsigned long)PyThread_get_thread_ident();
 #else
     return (unsigned long)0;
@@ -37,7 +35,7 @@ unsigned long threading_id_callback(void) {
 
 %inline %{
 void threading_init(void) {
-#ifdef THREADING
+#if defined(THREADING) && OPENSSL_VERSION_NUMBER < 0x10100000L
     int i;
     if (!thread_mode) {
         for (i=0; i<CRYPTO_num_locks(); i++) {
@@ -52,7 +50,7 @@ void threading_init(void) {
 }
 
 void threading_cleanup(void) {
-#ifdef THREADING
+#if defined(THREADING) && OPENSSL_VERSION_NUMBER < 0x10100000L
     int i;
     if (thread_mode) {
         CRYPTO_set_locking_callback(NULL);
