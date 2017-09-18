@@ -270,6 +270,7 @@ int bio_get_fd(BIO *bio) {
 }
 %}
 
+%warnfilter(454) methods_fdp;
 %threadallow bio_do_handshake;
 %inline %{
 int bio_do_handshake(BIO *bio) {
