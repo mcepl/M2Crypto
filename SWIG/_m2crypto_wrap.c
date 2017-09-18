@@ -3759,17 +3759,15 @@ SWIGINTERNINLINE PyObject*
 #include <pythread.h>
 #include <openssl/crypto.h>
 
-#ifdef THREADING
-#if OPENSSL_VERSION_NUMBER < 0x10100000L
+#if defined(THREADING) && OPENSSL_VERSION_NUMBER < 0x10100000L
 #define CRYPTO_num_locks()      (CRYPTO_NUM_LOCKS)
-#endif
 static PyThread_type_lock lock_cs[CRYPTO_num_locks()];
 static long lock_count[CRYPTO_num_locks()];
 static int thread_mode = 0;
 #endif
 
 void threading_locking_callback(int mode, int type, const char *file, int line) {
-#ifdef THREADING
+#if defined(THREADING) && OPENSSL_VERSION_NUMBER < 0x10100000L
         if (mode & CRYPTO_LOCK) {
                 PyThread_acquire_lock(lock_cs[type], WAIT_LOCK);
                 lock_count[type]++;
@@ -3781,7 +3779,7 @@ void threading_locking_callback(int mode, int type, const char *file, int line) 
 }
 
 unsigned long threading_id_callback(void) {
-#ifdef THREADING
+#if defined(THREADING) && OPENSSL_VERSION_NUMBER < 0x10100000L
     return (unsigned long)PyThread_get_thread_ident();
 #else
     return (unsigned long)0;
@@ -3790,7 +3788,7 @@ unsigned long threading_id_callback(void) {
 
 
 void threading_init(void) {
-#ifdef THREADING
+#if defined(THREADING) && OPENSSL_VERSION_NUMBER < 0x10100000L
     int i;
     if (!thread_mode) {
         for (i=0; i<CRYPTO_num_locks(); i++) {
@@ -3805,7 +3803,7 @@ void threading_init(void) {
 }
 
 void threading_cleanup(void) {
-#ifdef THREADING
+#if defined(THREADING) && OPENSSL_VERSION_NUMBER < 0x10100000L
     int i;
     if (thread_mode) {
         CRYPTO_set_locking_callback(NULL);
@@ -3820,6 +3818,7 @@ void threading_cleanup(void) {
 }
 
 
+#include <openssl/bn.h>
 #include <openssl/dh.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
@@ -3845,6 +3844,34 @@ static void *CRYPTO_zalloc(size_t num, const char *file, int line)
               memset(ret, 0, num);
       return ret;
 }
+
+#include <openssl/bn.h>
+
+#ifndef BN_F_BN_GENCB_NEW
+# define BN_F_BN_GENCB_NEW       143
+#endif
+
+# define BN_GENCB_get_arg(gencb) ((gencb)->arg)
+
+BN_GENCB *BN_GENCB_new(void)
+{
+    BN_GENCB *ret;
+
+    if ((ret = OPENSSL_malloc(sizeof(*ret))) == NULL) {
+        BNerr(BN_F_BN_GENCB_NEW, ERR_R_MALLOC_FAILURE);
+        return (NULL);
+    }
+
+    return ret;
+}
+
+void BN_GENCB_free(BN_GENCB *cb)
+{
+    if (cb == NULL)
+        return;
+    OPENSSL_free(cb);
+}
+
 
 int RSA_set0_key(RSA *r, BIGNUM *n, BIGNUM *e, BIGNUM *d)
 {
@@ -4500,7 +4527,7 @@ int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
         errnum = X509_STORE_CTX_get_error(ctx);
         errdepth = X509_STORE_CTX_get_error_depth(ctx);
 
-        ssl = (SSL *)X509_STORE_CTX_get_app_data(ctx);
+        ssl = (SSL *)X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx());
         ssl_ctx = SSL_get_SSL_CTX(ssl);
 
         _x509 = SWIG_NewPointerObj((void *)x509, SWIGTYPE_p_X509, 0);
@@ -4652,17 +4679,18 @@ RSA *ssl_set_tmp_rsa_callback(SSL *ssl, int is_export, int keylength) {
     return rsa;
 }
 
-void gen_callback(int p, int n, void *arg) {
+/* Universal callback for dh_generate_parameters,
+ * dsa_generate_parametersm, and rsa_generate_key */
+int bn_gencb_callback(int p, int n, BN_GENCB *gencb) {
     PyObject *argv, *ret, *cbfunc;
 
-    PyGILState_STATE gilstate;
-    gilstate = PyGILState_Ensure();
-    cbfunc = (PyObject *)arg;
+    cbfunc = (PyObject *)BN_GENCB_get_arg(gencb);
     argv = Py_BuildValue("(ii)", p, n);
     ret = PyEval_CallObject(cbfunc, argv);
+    PyErr_Clear();
     Py_DECREF(argv);
     Py_XDECREF(ret);
-    PyGILState_Release(gilstate);
+    return 1;
 }
 
 int passphrase_callback(char *buf, int num, int v, void *arg) {
@@ -4721,7 +4749,7 @@ void lib_init() {
 /* Bignum routines that aren't not numerous enough to
 warrant a separate file. */
 
-PyObject *bn_to_mpi(BIGNUM *bn) {
+PyObject *bn_to_mpi(const BIGNUM *bn) {
     int len;
     unsigned char *mpi;
     PyObject *pyo;
@@ -4810,7 +4838,7 @@ PyObject *bn_to_hex(BIGNUM *bn) {
     return pyo;
 }
 
-const BIGNUM *hex_to_bn(PyObject *value) {
+BIGNUM *hex_to_bn(PyObject *value) {
     const void *vbuf;
     Py_ssize_t vlen;
     BIGNUM *bn;
@@ -4831,7 +4859,7 @@ const BIGNUM *hex_to_bn(PyObject *value) {
     return bn;
 }
 
-const BIGNUM *dec_to_bn(PyObject *value) {
+BIGNUM *dec_to_bn(PyObject *value) {
     const void *vbuf;
     Py_ssize_t vlen;
     BIGNUM *bn;
@@ -5004,9 +5032,17 @@ SWIG_AsCharPtrAndSize(PyObject *obj, char** cptr, size_t* psize, int *alloc)
 
 static PyObject *_bio_err;
 
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+void pyfd_init(void);
+#endif
+
 void bio_init(PyObject *bio_err) {
     Py_INCREF(bio_err);
     _bio_err = bio_err;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    pyfd_init();
+#endif
 }
 
 BIO *bio_new_pyfile(PyObject *pyfile, int bio_close) {
@@ -5020,13 +5056,14 @@ BIO *bio_new_pyfile(PyObject *pyfile, int bio_close) {
             fp = fdopen(fd, mode);
         }
         else {
-            return PyErr_Format(PyExc_ValueError,
-                    "File doesn’t have mode attribute!");
+            PyErr_Format(PyExc_ValueError,
+                         "File doesn’t have mode attribute!");
+            return NULL;
         }
     }
     else {
-        return PyErr_Format(PyExc_ValueError,
-                "File doesn’t have fileno method!");
+        PyErr_Format(PyExc_ValueError, "File doesn’t have fileno method!");
+        return NULL;
     }
 
 #else
@@ -5042,14 +5079,16 @@ BIO *bio_new_pyfile(PyObject *pyfile, int bio_close) {
                     PyObject_CallMethod(pyfile, "name", NULL), NULL);
         }
         else {
-            return PyErr_Format(PyExc_ValueError,
-                    "File doesn’t have name attribute!");
+            PyErr_Format(PyExc_ValueError,
+                         "File doesn’t have name attribute!");
+            return NULL;
         }
 #else
         name = PyString_AsString(PyFile_Name(pyfile));
 #endif
-        return PyErr_Format(PyExc_MemoryError,
-                "Opening of the new BIO on file %s failed!", name);
+        PyErr_Format(PyExc_MemoryError,
+                     "Opening of the new BIO on file %s failed!", name);
+        return NULL;
     }
     return bio;
 }
@@ -5243,6 +5282,8 @@ typedef struct pyfd_struct {
     int fd;
 } BIO_PYFD_CTX;
 
+/* Setting up methods_fdp */
+static BIO_METHOD *methods_fdp;
 
 static int pyfd_write(BIO *b, const char *in, int inl) {
     int ret, fd;
@@ -5289,8 +5330,14 @@ static int pyfd_gets(BIO *bp, char *buf, int size) {
     char *ptr = buf;
     char *end = buf + size - 1;
 
-    while ((ptr < end) && (pyfd_read(bp, ptr, 1) > 0) && (ptr[0] != '\n'))
-        ptr++;
+    /* See
+    https://github.com/openssl/openssl/pull/3442
+    We were here just repeating a bug from OpenSSL
+    */
+    while (ptr < end && pyfd_read(bp, ptr, 1) > 0) {
+        if (*ptr++ == '\n')
+           break;
+    }
 
     ptr[0] = '\0';
 
@@ -5396,13 +5443,10 @@ static long pyfd_ctrl(BIO *b, int cmd, long num, void *ptr) {
     return ret;
 }
 
-
-BIO* BIO_new_pyfd(int fd, int close_flag) {
-    BIO *ret;
-    BIO_METHOD *methods_fdp;
-
-    methods_fdp = BIO_meth_new(35|0x400|0x100, 
-            "python file descriptor");
+void pyfd_init(void) {
+    methods_fdp = BIO_meth_new(
+        BIO_get_new_index()|BIO_TYPE_DESCRIPTOR|BIO_TYPE_SOURCE_SINK,
+        "python file descriptor");
 
     BIO_meth_set_write(methods_fdp, pyfd_write);
     BIO_meth_set_read(methods_fdp, pyfd_read);
@@ -5411,6 +5455,10 @@ BIO* BIO_new_pyfd(int fd, int close_flag) {
     BIO_meth_set_ctrl(methods_fdp, pyfd_ctrl);
     BIO_meth_set_create(methods_fdp, pyfd_new);
     BIO_meth_set_destroy(methods_fdp, pyfd_free);
+}
+
+BIO* BIO_new_pyfd(int fd, int close_flag) {
+    BIO *ret;
 
     ret = BIO_new(methods_fdp);
     BIO_set_fd(ret, fd, close_flag);
@@ -5619,6 +5667,10 @@ PyObject *rand_pseudo_bytes(int n) {
         PyMem_Free(blob);
         return NULL;
     }
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    PyErr_WarnEx(PyExc_DeprecationWarning,
+                 "Function RAND_pseudo_bytes has been deprecated.", 1))
+#endif
     ret = RAND_pseudo_bytes(blob, n);
     if (ret == -1) {
         PyMem_Free(blob);
@@ -5637,7 +5689,7 @@ PyObject *rand_pseudo_bytes(int n) {
     }
 }
 
-PyObject *rand_file_name() {
+PyObject *rand_file_name(void) {
     PyObject *obj;
     char *str;
     if ((obj = PyBytes_FromStringAndSize(NULL, BUFSIZ))==NULL) {
@@ -5694,8 +5746,11 @@ SWIG_AsVal_unsigned_SS_int (PyObject * obj, unsigned int *val)
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 
-#define HMAC_CTX_new()              \
-    ((HMAC_CTX *)PyMem_Malloc(sizeof(HMAC_CTX)))
+HMAC_CTX *HMAC_CTX_new() {
+    HMAC_CTX *ret = PyMem_Malloc(sizeof(HMAC_CTX));
+    HMAC_CTX_init(ret);
+    return ret;
+}
 #define HMAC_CTX_reset(ctx) HMAC_CTX_init(ctx)
 #define HMAC_CTX_free(ctx)          \
     do  {                           \
@@ -5803,7 +5858,6 @@ HMAC_CTX *hmac_ctx_new(void) {
         PyErr_SetString(PyExc_MemoryError, "hmac_ctx_new");
         return NULL;
     }
-    HMAC_CTX_reset(ctx);
     return ctx;
 }
 
@@ -6151,7 +6205,7 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
     BIO *bio;
     BUF_MEM *bptr;
     PyObject *ret;
-    BIGNUM* bn;
+    const BIGNUM* bn;
 
     switch (EVP_PKEY_base_id(pkey)) {
         case EVP_PKEY_RSA:
@@ -6394,26 +6448,35 @@ DH *dh_read_parameters(BIO *bio) {
     return PEM_read_bio_DHparams(bio, NULL, NULL, NULL);
 }
 
-void gendh_callback(int p, int n, void *arg) {
-    PyObject *argv, *ret, *cbfunc;
- 
-    cbfunc = (PyObject *)arg;
-    argv = Py_BuildValue("(ii)", p, n);
-    ret = PyEval_CallObject(cbfunc, argv);
-    PyErr_Clear();
-    Py_DECREF(argv);
-    Py_XDECREF(ret);
-}
-
 DH *dh_generate_parameters(int plen, int g, PyObject *pyfunc) {
     DH *dh;
+    BN_GENCB *gencb;
+    int ret;
+
+    if ((gencb=BN_GENCB_new()) == NULL) {
+        PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
+
+    if ((dh=DH_new()) == NULL) {
+        PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+        BN_GENCB_free(gencb);
+        return NULL;
+    }
+
+    BN_GENCB_set(gencb, bn_gencb_callback, (void *)pyfunc);
 
     Py_INCREF(pyfunc);
-    dh = DH_generate_parameters(plen, g, gendh_callback, (void *)pyfunc);
+    ret = DH_generate_parameters_ex(dh, plen, g, gencb);
     Py_DECREF(pyfunc);
-    if (!dh) 
-        PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
-    return dh;
+    BN_GENCB_free(gencb);
+
+    if (ret)
+        return dh;
+
+    PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+    DH_free(dh);
+    return NULL;
 }
 
 /* Note return value shenanigan. */
@@ -6459,9 +6522,9 @@ PyObject *dh_compute_key(DH *dh, PyObject *pubkey) {
     PyMem_Free(key);
     return ret;
 }
-        
+
 PyObject *dh_get_p(DH *dh) {
-    BIGNUM* p = NULL;
+    const BIGNUM* p = NULL;
     DH_get0_pqg(dh, &p, NULL, NULL);
     if (!p) {
         PyErr_SetString(_dh_err, "'p' is unset");
@@ -6471,7 +6534,7 @@ PyObject *dh_get_p(DH *dh) {
 }
 
 PyObject *dh_get_g(DH *dh) {
-    BIGNUM* g = NULL;
+    const BIGNUM* g = NULL;
     DH_get0_pqg(dh, NULL, NULL, &g);
     if (!g) {
         PyErr_SetString(_dh_err, "'g' is unset");
@@ -6481,7 +6544,7 @@ PyObject *dh_get_g(DH *dh) {
 }
 
 PyObject *dh_get_pub(DH *dh) {
-    BIGNUM* pub_key = NULL;
+    const BIGNUM* pub_key = NULL;
     DH_get0_key(dh, &pub_key, NULL);
     if (!pub_key) {
         PyErr_SetString(_dh_err, "'pub' is unset");
@@ -6491,7 +6554,7 @@ PyObject *dh_get_pub(DH *dh) {
 }
 
 PyObject *dh_get_priv(DH *dh) {
-    BIGNUM* priv_key = NULL;
+    const BIGNUM* priv_key = NULL;
     DH_get0_key(dh, NULL, &priv_key);
     if (!priv_key) {
         PyErr_SetString(_dh_err, "'priv' is unset");
@@ -6582,7 +6645,7 @@ int rsa_write_pub_key(RSA *rsa, BIO *f) {
 }
 
 PyObject *rsa_get_e(RSA *rsa) {
-    BIGNUM* e = NULL;
+    const BIGNUM* e = NULL;
     RSA_get0_key(rsa, NULL, &e, NULL);
     if (!e) {
         PyErr_SetString(_rsa_err, "'e' is unset");
@@ -6592,7 +6655,7 @@ PyObject *rsa_get_e(RSA *rsa) {
 }
 
 PyObject *rsa_get_n(RSA *rsa) {
-    BIGNUM* n = NULL;
+    const BIGNUM* n = NULL;
     RSA_get0_key(rsa, &n, NULL, NULL);
     if (!n) {
         PyErr_SetString(_rsa_err, "'n' is unset");
@@ -6691,8 +6754,9 @@ PyObject *rsa_public_decrypt(RSA *rsa, PyObject *from, int padding) {
     if (m2_PyObject_AsReadBufferInt(from, &fbuf, &flen) == -1)
         return NULL;
 
-    /* OpenSSL docs clearly say we only need buffer 'RSA_size()-11', but on
-     * 1.0.1e, causes crash. For now it's harmless to grab an extra 11 bytes */
+    /* OpenSSL docs are confused here: it says we only need buffer
+     * 'RSA_size()-11', but it is true only for RSA PKCS#1 type 1
+     * padding. For other uses we need to use different sizes. */
     if (!(tbuf = PyMem_Malloc(RSA_size(rsa)))) {
         PyErr_SetString(PyExc_MemoryError, "rsa_public_decrypt");
         return NULL;
@@ -6904,29 +6968,51 @@ int rsa_verify(RSA *rsa, PyObject *py_verify_string, PyObject* py_sign_string, i
     return ret;
 }
 
-void genrsa_callback(int p, int n, void *arg) {
-    PyObject *argv, *ret, *cbfunc;
-
-    cbfunc = (PyObject *)arg;
-    argv = Py_BuildValue("(ii)", p, n);
-    ret = PyEval_CallObject(cbfunc, argv);
-    PyErr_Clear();
-    Py_DECREF(argv);
-    Py_XDECREF(ret);
-}
-
 PyObject *rsa_generate_key(int bits, unsigned long e, PyObject *pyfunc) {
     RSA *rsa;
     PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
+    BN_GENCB *gencb;
+    BIGNUM *e_big;
+    int ret;
+
+    if ((e_big=BN_new()) == NULL) {
+        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
+
+    if (BN_set_word(e_big, e) == 0) {
+        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        BN_free(e_big);
+        return NULL;
+    }
+
+    if ((gencb=BN_GENCB_new()) == NULL) {
+        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        BN_free(e_big);
+        return NULL;
+    }
+
+    if ((rsa = RSA_new()) == NULL) {
+        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        BN_free(e_big);
+        BN_GENCB_free(gencb);
+        return NULL;
+    }
+
+    BN_GENCB_set(gencb, bn_gencb_callback, (void *) pyfunc);
 
     Py_INCREF(pyfunc);
-    rsa = RSA_generate_key(bits, e, genrsa_callback, (void *)pyfunc);
+    ret = RSA_generate_key_ex(rsa, bits, e_big, gencb);
+    BN_free(e_big);
+    BN_GENCB_free(gencb);
     Py_DECREF(pyfunc);
-    if (!rsa) {
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
-	return NULL;
-    }
-    return SWIG_NewPointerObj((void *)rsa, SWIGTYPE_p_RSA, 0);
+
+    if (ret)
+        return SWIG_NewPointerObj((void *)rsa, SWIGTYPE_p_RSA, 0);
+
+    PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+    RSA_free(rsa);
+    return NULL;
 }
 
 int rsa_type_check(RSA *rsa) {
@@ -6934,7 +7020,7 @@ int rsa_type_check(RSA *rsa) {
 }
 
 int rsa_check_pub_key(RSA *rsa) {
-    BIGNUM* n, *e;
+    const BIGNUM* n, *e;
     RSA_get0_key(rsa, &n, &e, NULL);
     return n && e;
 }
@@ -6951,13 +7037,13 @@ int rsa_write_key_der(RSA *rsa, BIO *bio) {
 #include <openssl/dsa.h>
 
 PyObject *dsa_sig_get_r(DSA_SIG *dsa_sig) {
-    BIGNUM* pr;
+    const BIGNUM* pr;
     DSA_SIG_get0(dsa_sig, &pr, NULL);
     return bn_to_mpi(pr);
 }
 
 PyObject *dsa_sig_get_s(DSA_SIG *dsa_sig) {
-    BIGNUM* qs;
+    const BIGNUM* qs;
     DSA_SIG_get0(dsa_sig, NULL, &qs);
     return bn_to_mpi(qs);
 }
@@ -6970,30 +7056,40 @@ void dsa_init(PyObject *dsa_err) {
     _dsa_err = dsa_err;
 }
 
-void genparam_callback(int p, int n, void *arg) {
-    PyObject *argv, *ret, *cbfunc;
-
-    cbfunc = (PyObject *)arg;
-    argv = Py_BuildValue("(ii)", p, n);
-    ret = PyEval_CallObject(cbfunc, argv);
-    PyErr_Clear();
-    Py_DECREF(argv);
-    Py_XDECREF(ret);
-}
-
 DSA *dsa_generate_parameters(int bits, PyObject *pyfunc) {
     DSA *dsa;
+    BN_GENCB *gencb;
+    int ret;
+
+    if ((gencb=BN_GENCB_new()) == NULL) {
+        PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
+
+    if ((dsa = DSA_new()) == NULL) {
+        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        BN_GENCB_free(gencb);
+        return NULL;
+    }
+
+    BN_GENCB_set(gencb, bn_gencb_callback, (void *) pyfunc);
 
     Py_INCREF(pyfunc);
-    dsa = DSA_generate_parameters(bits, NULL, 0, NULL, NULL, genparam_callback, (void *)pyfunc);
+    ret = DSA_generate_parameters_ex(dsa, bits, NULL, 0, NULL, NULL,
+                                     gencb);
     Py_DECREF(pyfunc);
-    if (!dsa)
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
-    return dsa;
+    BN_GENCB_free(gencb);
+
+    if (ret)
+        return dsa;
+
+    PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+    DSA_free(dsa);
+    return NULL;
 }
 
 PyObject *dsa_get_p(DSA *dsa) {
-    BIGNUM* p = NULL;
+    const BIGNUM* p = NULL;
     DSA_get0_pqg(dsa, &p, NULL, NULL);
     if (!p) {
         PyErr_SetString(_dsa_err, "'p' is unset");
@@ -7003,7 +7099,7 @@ PyObject *dsa_get_p(DSA *dsa) {
 }
 
 PyObject *dsa_get_q(DSA *dsa) {
-    BIGNUM* q = NULL;
+    const BIGNUM* q = NULL;
     DSA_get0_pqg(dsa, NULL, &q, NULL);
     if (!q) {
         PyErr_SetString(_dsa_err, "'q' is unset");
@@ -7013,7 +7109,7 @@ PyObject *dsa_get_q(DSA *dsa) {
 }
 
 PyObject *dsa_get_g(DSA *dsa) {
-    BIGNUM* g = NULL;
+    const BIGNUM* g = NULL;
     DSA_get0_pqg(dsa, NULL, NULL, &g);
     if (!g) {
         PyErr_SetString(_dsa_err, "'g' is unset");
@@ -7023,7 +7119,7 @@ PyObject *dsa_get_g(DSA *dsa) {
 }
 
 PyObject *dsa_get_pub(DSA *dsa) {
-    BIGNUM* pub_key = NULL;
+    const BIGNUM* pub_key = NULL;
     DSA_get0_key(dsa, &pub_key, NULL);
     if (!pub_key) {
         PyErr_SetString(_dsa_err, "'pub' is unset");
@@ -7033,7 +7129,7 @@ PyObject *dsa_get_pub(DSA *dsa) {
 }
 
 PyObject *dsa_get_priv(DSA *dsa) {
-    BIGNUM* priv_key = NULL;
+    const BIGNUM* priv_key = NULL;
     DSA_get0_key(dsa, NULL, &priv_key);
     if (!priv_key) {
         PyErr_SetString(_dsa_err, "'priv' is unset");
@@ -7264,19 +7360,19 @@ int dsa_verify_asn1(DSA *dsa, PyObject *value, PyObject *sig) {
 }
 
 int dsa_check_key(DSA *dsa) {
-    BIGNUM* pub_key, *priv_key;
+    const BIGNUM* pub_key, *priv_key;
     DSA_get0_key(dsa, &pub_key, &priv_key);
     return pub_key != NULL && priv_key != NULL;
 }
 
 int dsa_check_pub_key(DSA *dsa) {
-    BIGNUM* pub_key;
+    const BIGNUM* pub_key;
     DSA_get0_key(dsa, &pub_key, NULL);
     return pub_key ? 1 : 0;
 }
 
 int dsa_keylen(DSA *dsa) {
-    BIGNUM* p;
+    const BIGNUM* p;
     DSA_get0_pqg(dsa, &p, NULL, NULL);
     return BN_num_bits(p);
 }
@@ -8131,10 +8227,10 @@ int x509_name_add_entry_by_txt(X509_NAME *name, char *field, int type, char *byt
 
 PyObject *x509_name_get_der(X509_NAME *name)
 {
-    const char* pder;
+    const char* pder="";
     size_t pderlen;
     i2d_X509_NAME(name, 0);
-    if (!X509_NAME_get0_der(&pder, &pderlen, name)) {
+    if (!X509_NAME_get0_der(name, (const unsigned char **)pder, &pderlen)) {
         PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
@@ -8274,40 +8370,17 @@ void *x509_store_ctx_get_app_data(X509_STORE_CTX *ctx) {
   return X509_STORE_CTX_get_app_data(ctx);
 }
 
+/* X509_STORE_CTX_get_app_data is a macro. */
+void *x509_store_ctx_get_ex_data(X509_STORE_CTX *ctx, int idx) {
+  return X509_STORE_CTX_get_ex_data(ctx, idx);
+}
+
 void x509_store_set_verify_cb(X509_STORE *store, PyObject *pyfunc) {
     Py_XDECREF(x509_store_verify_cb_func);
     Py_INCREF(pyfunc);
     x509_store_verify_cb_func = pyfunc;
     X509_STORE_set_verify_cb(store, x509_store_verify_callback);
 }
-
-/*#defines for i2d and d2i types, which are typed differently
-in openssl-0.9.8 than they are in openssl-0.9.7. This will
-be picked up by the C preprocessor, not the SWIG preprocessor.
-Used in the wrapping of ASN1_seq_unpack and ASN1_seq_pack functions.
-*/
-#if OPENSSL_VERSION_NUMBER >= 0x0090800fL 
-#define D2ITYPE d2i_of_void *
-#define I2DTYPE i2d_of_void *
-#else
-#define D2ITYPE char *(*)()
-#define I2DTYPE int (*)()
-#endif   
-
-// STACK_OF(X509)* ASN1_seq_unpack(const unsigned char *pp, long length, 
-//         X509* (*d2i)(X509**, unsigned char**, long),
-//         void (*f2)()) {
-//     /* WARNING - tmpbuf is required! See d2i_X509 docs for explanation */
-//     const unsigned char* tmpbuf = pp;
-//     return d2i_SEQ_CERT(NULL, &tmpbuf, length); 
-//     }
-// 
-// unsigned char* ASN1_seq_pack_X509(STACK_OF(X509) *stack, void (*f)(), void* p,
-//         int* len) {
-//     unsigned char* buf = NULL;
-//     *len = i2d_SEQ_CERT(stack, &buf);
-//     return buf;
-//     }
 
 STACK_OF(X509) *
 make_stack_from_der_sequence(PyObject * pyEncodedString){
@@ -8336,7 +8409,8 @@ make_stack_from_der_sequence(PyObject * pyEncodedString){
         return NULL;
     }
 
-    certs = ASN1_seq_unpack((unsigned char *)encoded_string, encoded_string_len, d2i_X509, X509_free );
+    const unsigned char *tmp_str = (unsigned char *)encoded_string;
+    certs = d2i_SEQ_CERT(NULL, &tmp_str, encoded_string_len);
     if (!certs) {
         PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
@@ -8349,10 +8423,10 @@ PyObject *
 get_der_encoding_stack(STACK_OF(X509) *stack){
     PyObject * encodedString;
     
-    unsigned char * encoding;
+    unsigned char * encoding = NULL;
     int len; 
     
-    encoding = ASN1_seq_pack_X509(stack, i2d_X509, NULL, &len); 
+    len = i2d_SEQ_CERT(stack, &encoding);
     if (!encoding) {
        PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
        return NULL;
@@ -8364,7 +8438,9 @@ get_der_encoding_stack(STACK_OF(X509) *stack){
     encodedString = PyString_FromStringAndSize((const char *)encoding, len);
 #endif // PY_MAJOR_VERSION >= 3 
 
-    OPENSSL_free(encoding);
+    if (encoding)
+        OPENSSL_free(encoding);
+
     return encodedString; 
 }
 
@@ -8992,13 +9068,13 @@ int ec_key_write_bio_no_cipher(EC_KEY *key, BIO *f, PyObject *pyfunc) {
 
 
 PyObject *ecdsa_sig_get_r(ECDSA_SIG *ecdsa_sig) {
-    BIGNUM* pr;
+    const BIGNUM* pr;
     ECDSA_SIG_get0(ecdsa_sig, &pr, NULL);
     return bn_to_mpi(pr);
 }
 
 PyObject *ecdsa_sig_get_s(ECDSA_SIG *ecdsa_sig) {
-    BIGNUM* ps;
+    const BIGNUM* ps;
     ECDSA_SIG_get0(ecdsa_sig, NULL, &ps);
     return bn_to_mpi(ps);
 }
@@ -10431,10 +10507,10 @@ SWIGINTERN PyObject *_wrap_bn_to_mpi(PyObject *self, PyObject *args) {
   if(!PyArg_UnpackTuple(args,(char *)"bn_to_mpi",1,1,&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_BIGNUM, 0 |  0 );
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "bn_to_mpi" "', argument " "1"" of type '" "BIGNUM *""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "bn_to_mpi" "', argument " "1"" of type '" "BIGNUM const *""'"); 
   }
   arg1 = (BIGNUM *)(argp1);
-  result = (PyObject *)bn_to_mpi(arg1);
+  result = (PyObject *)bn_to_mpi((BIGNUM const *)arg1);
   resultobj = result;
   return resultobj;
 fail:
@@ -14808,43 +14884,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_gendh_callback(PyObject *self, PyObject *args) {
-  PyObject *resultobj = 0;
-  int arg1 ;
-  int arg2 ;
-  void *arg3 = (void *) 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  int res3 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if(!PyArg_UnpackTuple(args,(char *)"gendh_callback",3,3,&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "gendh_callback" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "gendh_callback" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
-  res3 = SWIG_ConvertPtr(obj2,SWIG_as_voidptrptr(&arg3), 0, 0);
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "gendh_callback" "', argument " "3"" of type '" "void *""'"); 
-  }
-  gendh_callback(arg1,arg2,arg3);
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_dh_generate_parameters(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
@@ -16032,43 +16071,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_genrsa_callback(PyObject *self, PyObject *args) {
-  PyObject *resultobj = 0;
-  int arg1 ;
-  int arg2 ;
-  void *arg3 = (void *) 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  int res3 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if(!PyArg_UnpackTuple(args,(char *)"genrsa_callback",3,3,&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "genrsa_callback" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "genrsa_callback" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
-  res3 = SWIG_ConvertPtr(obj2,SWIG_as_voidptrptr(&arg3), 0, 0);
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "genrsa_callback" "', argument " "3"" of type '" "void *""'"); 
-  }
-  genrsa_callback(arg1,arg2,arg3);
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_rsa_generate_key(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   int arg1 ;
@@ -16357,43 +16359,6 @@ SWIGINTERN PyObject *_wrap_dsa_init(PyObject *self, PyObject *args) {
     arg1=obj0;
   }
   dsa_init(arg1);
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_genparam_callback(PyObject *self, PyObject *args) {
-  PyObject *resultobj = 0;
-  int arg1 ;
-  int arg2 ;
-  void *arg3 = (void *) 0 ;
-  int val1 ;
-  int ecode1 = 0 ;
-  int val2 ;
-  int ecode2 = 0 ;
-  int res3 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
-  
-  if(!PyArg_UnpackTuple(args,(char *)"genparam_callback",3,3,&obj0,&obj1,&obj2)) SWIG_fail;
-  ecode1 = SWIG_AsVal_int(obj0, &val1);
-  if (!SWIG_IsOK(ecode1)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode1), "in method '" "genparam_callback" "', argument " "1"" of type '" "int""'");
-  } 
-  arg1 = (int)(val1);
-  ecode2 = SWIG_AsVal_int(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "genparam_callback" "', argument " "2"" of type '" "int""'");
-  } 
-  arg2 = (int)(val2);
-  res3 = SWIG_ConvertPtr(obj2,SWIG_as_voidptrptr(&arg3), 0, 0);
-  if (!SWIG_IsOK(res3)) {
-    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "genparam_callback" "', argument " "3"" of type '" "void *""'"); 
-  }
-  genparam_callback(arg1,arg2,arg3);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -17935,6 +17900,21 @@ SWIGINTERN PyObject *_wrap_ssl_ctx_set_default_verify_paths(PyObject *self, PyOb
     }
   }
   result = (int)SSL_CTX_set_default_verify_paths(arg1);
+  {
+    resultobj=PyInt_FromLong(result);
+    if (PyErr_Occurred()) SWIG_fail;
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_ssl_get_ex_data_x509_store_ctx_idx(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  int result;
+  
+  result = (int)SSL_get_ex_data_X509_STORE_CTX_idx();
   {
     resultobj=PyInt_FromLong(result);
     if (PyErr_Occurred()) SWIG_fail;
@@ -24698,6 +24678,37 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_x509_store_ctx_get_ex_data(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  X509_STORE_CTX *arg1 = (X509_STORE_CTX *) 0 ;
+  int arg2 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  void *result = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"x509_store_ctx_get_ex_data",2,2,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_X509_STORE_CTX, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "x509_store_ctx_get_ex_data" "', argument " "1"" of type '" "X509_STORE_CTX *""'"); 
+  }
+  arg1 = (X509_STORE_CTX *)(argp1);
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "x509_store_ctx_get_ex_data" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = (int)(val2);
+  result = (void *)x509_store_ctx_get_ex_data(arg1,arg2);
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_void, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_x509_store_set_verify_cb__SWIG_1(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   X509_STORE *arg1 = (X509_STORE *) 0 ;
@@ -28909,7 +28920,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"dh_init", _wrap_dh_init, METH_VARARGS, NULL},
 	 { (char *)"dh_type_check", _wrap_dh_type_check, METH_VARARGS, NULL},
 	 { (char *)"dh_read_parameters", _wrap_dh_read_parameters, METH_VARARGS, NULL},
-	 { (char *)"gendh_callback", _wrap_gendh_callback, METH_VARARGS, NULL},
 	 { (char *)"dh_generate_parameters", _wrap_dh_generate_parameters, METH_VARARGS, NULL},
 	 { (char *)"dh_check", _wrap_dh_check, METH_VARARGS, NULL},
 	 { (char *)"dh_compute_key", _wrap_dh_compute_key, METH_VARARGS, NULL},
@@ -28941,7 +28951,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"rsa_verify_pkcs1_pss", _wrap_rsa_verify_pkcs1_pss, METH_VARARGS, NULL},
 	 { (char *)"rsa_sign", _wrap_rsa_sign, METH_VARARGS, NULL},
 	 { (char *)"rsa_verify", _wrap_rsa_verify, METH_VARARGS, NULL},
-	 { (char *)"genrsa_callback", _wrap_genrsa_callback, METH_VARARGS, NULL},
 	 { (char *)"rsa_generate_key", _wrap_rsa_generate_key, METH_VARARGS, NULL},
 	 { (char *)"rsa_type_check", _wrap_rsa_type_check, METH_VARARGS, NULL},
 	 { (char *)"rsa_check_pub_key", _wrap_rsa_check_pub_key, METH_VARARGS, NULL},
@@ -28951,7 +28960,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"dsa_size", _wrap_dsa_size, METH_VARARGS, NULL},
 	 { (char *)"dsa_gen_key", _wrap_dsa_gen_key, METH_VARARGS, NULL},
 	 { (char *)"dsa_init", _wrap_dsa_init, METH_VARARGS, NULL},
-	 { (char *)"genparam_callback", _wrap_genparam_callback, METH_VARARGS, NULL},
 	 { (char *)"dsa_generate_parameters", _wrap_dsa_generate_parameters, METH_VARARGS, NULL},
 	 { (char *)"dsa_get_p", _wrap_dsa_get_p, METH_VARARGS, NULL},
 	 { (char *)"dsa_get_q", _wrap_dsa_get_q, METH_VARARGS, NULL},
@@ -28999,6 +29007,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"ssl_ctx_get_session_timeout", _wrap_ssl_ctx_get_session_timeout, METH_VARARGS, NULL},
 	 { (char *)"ssl_ctx_get_cert_store", _wrap_ssl_ctx_get_cert_store, METH_VARARGS, NULL},
 	 { (char *)"ssl_ctx_set_default_verify_paths", _wrap_ssl_ctx_set_default_verify_paths, METH_VARARGS, NULL},
+	 { (char *)"ssl_get_ex_data_x509_store_ctx_idx", _wrap_ssl_get_ex_data_x509_store_ctx_idx, METH_VARARGS, NULL},
 	 { (char *)"bio_new_ssl", _wrap_bio_new_ssl, METH_VARARGS, NULL},
 	 { (char *)"ssl_new", _wrap_ssl_new, METH_VARARGS, NULL},
 	 { (char *)"ssl_free", _wrap_ssl_free, METH_VARARGS, NULL},
@@ -29188,6 +29197,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"sk_x509_extension_num", _wrap_sk_x509_extension_num, METH_VARARGS, NULL},
 	 { (char *)"sk_x509_extension_value", _wrap_sk_x509_extension_value, METH_VARARGS, NULL},
 	 { (char *)"x509_store_ctx_get_app_data", _wrap_x509_store_ctx_get_app_data, METH_VARARGS, NULL},
+	 { (char *)"x509_store_ctx_get_ex_data", _wrap_x509_store_ctx_get_ex_data, METH_VARARGS, NULL},
 	 { (char *)"x509_store_set_verify_cb", _wrap_x509_store_set_verify_cb, METH_VARARGS, NULL},
 	 { (char *)"make_stack_from_der_sequence", _wrap_make_stack_from_der_sequence, METH_VARARGS, NULL},
 	 { (char *)"get_der_encoding_stack", _wrap_get_der_encoding_stack, METH_VARARGS, NULL},
