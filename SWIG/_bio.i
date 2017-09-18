@@ -62,9 +62,17 @@ extern BIO *BIO_pop(BIO *);
 %inline %{
 static PyObject *_bio_err;
 
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+void pyfd_init(void);
+#endif
+
 void bio_init(PyObject *bio_err) {
     Py_INCREF(bio_err);
     _bio_err = bio_err;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    pyfd_init();
+#endif
 }
 
 BIO *bio_new_pyfile(PyObject *pyfile, int bio_close) {
@@ -291,6 +299,12 @@ int bio_should_write(BIO* a) {
 
 #ifdef WIN32
 #  define clear_sys_error()       SetLastError(0)
+/* Linux doesn't use underscored calls yet */
+#  define open(p, f, m) _open(p, f, m)
+#  define read(f, b, n) _read(f, b, n)
+#  define write(f, b, n) _write(f, b, n)
+#  define close(f) _close(f)
+#  define lseek(fd, o, w) _lseek(fd, o, w)
 #else
 #  define clear_sys_error()       errno=0
 #endif
@@ -299,6 +313,8 @@ typedef struct pyfd_struct {
     int fd;
 } BIO_PYFD_CTX;
 
+/* Setting up methods_fdp */
+static BIO_METHOD *methods_fdp;
 
 static int pyfd_write(BIO *b, const char *in, int inl) {
     int ret, fd;
@@ -458,13 +474,10 @@ static long pyfd_ctrl(BIO *b, int cmd, long num, void *ptr) {
     return ret;
 }
 
-
-BIO* BIO_new_pyfd(int fd, int close_flag) {
-    BIO *ret;
-    BIO_METHOD *methods_fdp;
-
-    methods_fdp = BIO_meth_new(35|0x400|0x100, 
-            "python file descriptor");
+void pyfd_init(void) {
+    methods_fdp = BIO_meth_new(
+        BIO_get_new_index()|BIO_TYPE_DESCRIPTOR|BIO_TYPE_SOURCE_SINK,
+        "python file descriptor");
 
     BIO_meth_set_write(methods_fdp, pyfd_write);
     BIO_meth_set_read(methods_fdp, pyfd_read);
@@ -473,6 +486,10 @@ BIO* BIO_new_pyfd(int fd, int close_flag) {
     BIO_meth_set_ctrl(methods_fdp, pyfd_ctrl);
     BIO_meth_set_create(methods_fdp, pyfd_new);
     BIO_meth_set_destroy(methods_fdp, pyfd_free);
+}
+
+BIO* BIO_new_pyfd(int fd, int close_flag) {
+    BIO *ret;
 
     ret = BIO_new(methods_fdp);
     BIO_set_fd(ret, fd, close_flag);

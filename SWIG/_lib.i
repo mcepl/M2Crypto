@@ -103,7 +103,7 @@ static int m2_PyObject_GetBufferInt(PyObject *obj, Py_buffer *view, int flags)
 }
 
 static BIGNUM*
-m2_PyObject_AsBIGNUM(PyObject* value, PyObject* _py_exc) 
+m2_PyObject_AsBIGNUM(PyObject* value, PyObject* _py_exc)
 {
     BIGNUM* bn;
     const void* vbuf;
@@ -459,7 +459,7 @@ PyObject *bn_to_mpi(BIGNUM *bn) {
     return pyo;
 }
 
-BIGNUM *mpi_to_bn(PyObject *value) {
+const BIGNUM *mpi_to_bn(PyObject *value) {
     const void *vbuf;
     int vlen;
 
@@ -491,7 +491,7 @@ PyObject *bn_to_bin(BIGNUM *bn) {
     return pyo;
 }
 
-BIGNUM *bin_to_bn(PyObject *value) {
+const BIGNUM *bin_to_bn(PyObject *value) {
     const void *vbuf;
     int vlen;
 
@@ -525,7 +525,7 @@ PyObject *bn_to_hex(BIGNUM *bn) {
     return pyo;
 }
 
-BIGNUM *hex_to_bn(PyObject *value) {
+const BIGNUM *hex_to_bn(PyObject *value) {
     const void *vbuf;
     Py_ssize_t vlen;
     BIGNUM *bn;
@@ -546,7 +546,7 @@ BIGNUM *hex_to_bn(PyObject *value) {
     return bn;
 }
 
-BIGNUM *dec_to_bn(PyObject *value) {
+const BIGNUM *dec_to_bn(PyObject *value) {
     const void *vbuf;
     Py_ssize_t vlen;
     BIGNUM *bn;
