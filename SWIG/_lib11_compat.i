@@ -24,6 +24,32 @@ static void *CRYPTO_zalloc(size_t num, const char *file, int line)
       return ret;
 }
 
+#include <openssl/bn.h>
+
+#ifndef BN_F_BN_GENCB_NEW
+# define BN_F_BN_GENCB_NEW       143
+#endif
+
+BN_GENCB *BN_GENCB_new(void)
+{
+    BN_GENCB *ret;
+
+    if ((ret = OPENSSL_malloc(sizeof(*ret))) == NULL) {
+        BNerr(BN_F_BN_GENCB_NEW, ERR_R_MALLOC_FAILURE);
+        return (NULL);
+    }
+
+    return ret;
+}
+
+void BN_GENCB_free(BN_GENCB *cb)
+{
+    if (cb == NULL)
+        return;
+    OPENSSL_free(cb);
+}
+
+
 int RSA_set0_key(RSA *r, BIGNUM *n, BIGNUM *e, BIGNUM *d)
 {
     /* If the fields n and e in r are NULL, the corresponding input
