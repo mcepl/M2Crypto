@@ -5669,7 +5669,7 @@ PyObject *rand_pseudo_bytes(int n) {
     }
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
     PyErr_WarnEx(PyExc_DeprecationWarning,
-                 "Function RAND_pseudo_bytes has been deprecated.", 1))
+                 "Function RAND_pseudo_bytes has been deprecated.", 1);
 #endif
     ret = RAND_pseudo_bytes(blob, n);
     if (ret == -1) {
