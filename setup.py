@@ -13,7 +13,6 @@ Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 import glob
 import os
 import platform
-import re
 import string
 import subprocess
 import sys
@@ -21,11 +20,9 @@ import sys
 from distutils.command import build, sdist
 from distutils.command.clean import clean
 from distutils.dir_util import mkpath
-from distutils.file_util import copy_file
 from distutils.version import StrictVersion
 
 import setuptools
-
 from setuptools.command import build_ext
 
 REQUIRED_SWIG_VERSION = '2.0.4'
@@ -78,14 +75,13 @@ def openssl_version(req_ver, required=False):
 
 
 class _M2CryptoSDist(sdist.sdist):
-    '''Specialization of build to enable swig_opts to inherit any
-    include_dirs settings made at the command line or in a setup.cfg file'''
+    """Make sure we don't run sdist with old OpenSSL."""
     def run(self):
-        if openssl_version(MAXIMUM_OPENSSL_VERSION):
+        if openssl_version(MAXIMUM_OPENSSL_VERSION, True):
             sdist.sdist.run(self)
         else:
             raise OSError(
-                'We cannot use OpenSSL version more recent than %s!' %
+                'We need OpenSSL version at least %s!' %
                 MAXIMUM_OPENSSL_VERSION)
 
 
@@ -236,6 +232,7 @@ def swig_version(req_ver):
 
     return StrictVersion(ver_str) >= StrictVersion(req_ver)
 
+
 x_comp_args = set()
 if sys.platform == 'darwin':
     x_comp_args.add("-Wno-deprecated-declarations")
@@ -294,6 +291,7 @@ def __get_version():  # noqa
         for line in init_file:
             if line.startswith('__version__ ='):
                 return line.split('=')[1].strip(string.whitespace + "'")
+
 
 long_description_text = '''\
 M2Crypto is the most complete Python wrapper for OpenSSL featuring RSA, DSA,
