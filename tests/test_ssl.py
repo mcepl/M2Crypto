@@ -21,8 +21,10 @@ Others:
 """
 import logging
 import os
+import os.path
 import signal
 import socket
+import subprocess
 import sys
 import tempfile
 import time
@@ -112,23 +114,17 @@ class BaseSSLClientTestCase(unittest.TestCase):
         if not self.openssl_in_path:
             raise Exception('openssl command not in PATH')
 
-        pid = os.fork()
-        if pid == 0:
-            # openssl must be started in the tests directory for it
-            # to find the .pem files
-            os.chdir('tests')
-            try:
-                os.execvp('openssl', args)
-            finally:
-                os.chdir('..')
-
-        else:
-            time.sleep(sleepTime)
-            return pid
+        pid = subprocess.Popen(['openssl'] + args,
+                               cwd='tests',
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+        time.sleep(sleepTime)
+        return pid
 
     def stop_server(self, pid):
-        os.kill(pid, signal.SIGTERM)
-        os.waitpid(pid, 0)
+        pid.terminate()
+        out, err = pid.communicate()
+        return out, err
 
     def http_get(self, s):
         s.send('GET / HTTP/1.0\n\n')
