@@ -1,3 +1,29 @@
+0.26.3 - 2016-03-21
+-------------------
+- Fix a syntax typo.
+
+0.26.2 - 2016-03-21
+-------------------
+- port to support OpenSSL 1.1.0 API
+- add generated Sphinx documentation
+- another set of cleanups
+
+0.26.0 - 2017-03-21
+-------------------
+- Fix packaging on RHEL-6
+- Replace ASN1_UTCTIME with ASN1_TIME which supports both UTCTime and
+  GeneralizedTime
+- Add possibility to sign PKCS7 with a non-default digest.
+- Add possibility to set custom callback for X509 verification.
+- Clean up imports and PEP8ization
+- A lot of cleanups on the way towards Python 3
+- Other small bugfixes
+
+0.25.1 - 2016-07-25
+-------------------
+- Actually do check, whether we have SSLv2 compiled in, and don't run
+  test for it.
+
 0.25.0 - 2016-03-21
 -------------------
 - More cleanups, removal of obsolete stuff, and moves towards py3k
