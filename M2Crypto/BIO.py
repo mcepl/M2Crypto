@@ -174,6 +174,7 @@ class BIO(object):
         return self
 
     def __exit__(self, *args):
+        # type: (*Any) -> int
         self.close()
 
 

@@ -125,5 +125,5 @@ def passphrase_callback(v, prompt1='Enter passphrase:',
 
 
 def no_passphrase_callback(*args):
-    # type: (List[Any]) -> str
+    # type: (*Any) -> str
     return ''

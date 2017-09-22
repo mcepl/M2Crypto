@@ -29,7 +29,7 @@ log = logging.getLogger(__name__)
 
 
 def _serverPostConnectionCheck(*args, **kw):
-    # type: (*List[Any], **Dict[Any, Any]) -> int
+    # type: (*Any, **Any) -> int
     return 1
 
 

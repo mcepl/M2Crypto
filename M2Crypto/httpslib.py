@@ -25,7 +25,7 @@ class HTTPSConnection(HTTPConnection):
     default_port = HTTPS_PORT
 
     def __init__(self, host, port=None, strict=None, **ssl):
-        # type: (str, Optional[int], Optional[bool], **Dict[Any, Any]) -> None
+        # type: (str, Optional[int], Optional[bool], **Any) -> None
         """
         Represents one transaction with an HTTP server over the SSL
         connection.
@@ -129,7 +129,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
 
     def __init__(self, host, port=None, strict=None, username=None,
                  password=None, **ssl):
-        # type: (str, Optional[int], Optional[bool], Optional[AnyStr], Optional[AnyStr], **Dict[Any, Any]) -> None
+        # type: (str, Optional[int], Optional[bool], Optional[AnyStr], Optional[AnyStr], **Any) -> None
         """
         Create the ProxyHTTPSConnection object.
 
@@ -204,7 +204,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
             HTTPSConnection.putheader(self, header, value)
 
     def endheaders(self, *args, **kwargs):
-        # type: (*List[Any], **Dict[Any, Any]) -> None
+        # type: (*Any, **Any) -> None
         # We've recieved all of hte headers. Use the supplied username
         # and password for authorization, possibly overriding the authstring
         # supplied in the headers.

@@ -28,7 +28,7 @@ class SSL_Transport(Transport):  # noqa
                                               Transport.user_agent)
 
     def __init__(self, ssl_context=None, *args, **kw):
-        # type: (Optional[SSL.Context], *List[Any], **Dict[Any, Any]) -> None
+        # type: (Optional[SSL.Context], *Any, **Any) -> None
         Transport.__init__(self, *args, **kw)
         if ssl_context is None:
             self.ssl_ctx = SSL.Context()

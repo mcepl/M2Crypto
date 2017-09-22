@@ -138,7 +138,7 @@ class HTTPSHandler(AbstractHTTPHandler):
 
 # Copied from urllib2 with modifications for ssl
 def build_opener(ssl_context=None, *handlers):
-    # type: (Optional[SSL.Context], *List[object]) -> OpenerDirector
+    # type: (Optional[SSL.Context], *object) -> OpenerDirector
     """Create an opener object from a list of handlers.
 
     The opener will use several default handlers, including support

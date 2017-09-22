@@ -267,7 +267,7 @@ class DSA_pub(DSA):  # noqa
     """
 
     def sign(self, *argv):
-        # type: (Any) -> None
+        # type: (*Any) -> None
         raise DSAError('DSA_pub object has no private key')
 
     sign_asn1 = sign

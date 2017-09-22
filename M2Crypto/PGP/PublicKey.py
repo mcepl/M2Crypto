@@ -52,6 +52,7 @@ class PublicKey:
         return self._userid[id]
 
     def __setitem__(self, *args):
+        # type: (*Any) -> None
         raise NotImplementedError
 
     def __delitem__(self, id):

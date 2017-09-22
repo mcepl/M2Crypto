@@ -295,22 +295,22 @@ class RSA_pub(RSA):  # noqa
             self.__dict__[name] = value
 
     def private_encrypt(self, *argv):
-        # type: (*List[Any]) -> None
+        # type: (*Any) -> None
         raise RSAError('RSA_pub object has no private key')
 
     def private_decrypt(self, *argv):
-        # type: (*List[Any]) -> None
+        # type: (*Any) -> None
         raise RSAError('RSA_pub object has no private key')
 
     def save_key(self, file, *args, **kw):
-        # type: (AnyStr, *List[Any], **Dict[Any, Any]) -> int
+        # type: (AnyStr, *Any, **Any) -> int
         """
         Save public key to file.
         """
         return self.save_pub_key(file)
 
     def save_key_bio(self, bio, *args, **kw):
-        # type: (BIO.BIO, *List[Any], **Dict[Any, Any]) -> int
+        # type: (BIO.BIO, *Any, **Any) -> int
         """
         Save public key to BIO.
         """

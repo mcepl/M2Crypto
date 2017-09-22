@@ -68,7 +68,7 @@ class PublicKeyRing:
         return self._userid[id][0]
 
     def __setitem__(self, *args):
-        # type: (*List[Any]) -> None
+        # type: (*Any) -> None
         raise NotImplementedError
 
     def __delitem__(self, id):
