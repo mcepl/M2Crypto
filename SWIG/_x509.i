@@ -560,7 +560,7 @@ X509_NAME_ENTRY *x509_name_entry_create_by_txt(X509_NAME_ENTRY **ne, char *field
 }
 
 X509V3_CTX *
-x509v3_set_nconf() {
+x509v3_set_nconf(void) {
       X509V3_CTX * ctx;
       CONF *conf = NCONF_new(NULL);
 

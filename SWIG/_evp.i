@@ -21,7 +21,7 @@ Copyright (c) 2009-2010 Heikki Toivonen. All rights reserved.
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 
-HMAC_CTX *HMAC_CTX_new() {
+HMAC_CTX *HMAC_CTX_new(void) {
     HMAC_CTX *ret = PyMem_Malloc(sizeof(HMAC_CTX));
     HMAC_CTX_init(ret);
     return ret;
