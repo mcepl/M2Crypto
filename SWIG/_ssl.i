@@ -65,20 +65,12 @@ extern const char *SSL_alert_desc_string(int);
 extern const char *SSL_alert_desc_string_long(int);
 
 #ifndef OPENSSL_NO_SSL3
-#if OPENSSL_VERSION_NUMBER >= 0x11100000L
-PyErr_WarnEx(PyExc_DeprecationWarning,
-             "Function SSLv3_method has been deprecated.", 1);
-#endif
-%rename(sslv3_method) SSLv3_method;
+%ignore SSLv3_method;
 extern SSL_METHOD *SSLv3_method(void);
 #endif
 %rename(sslv23_method) SSLv23_method;
 extern SSL_METHOD *SSLv23_method(void);
-#if OPENSSL_VERSION_NUMBER >= 0x11100000L
-PyErr_WarnEx(PyExc_DeprecationWarning,
-             "Function TLSv1_method has been deprecated.", 1);
-#endif
-%rename(tlsv1_method) TLSv1_method;
+%ignore TLSv1_method;
 extern SSL_METHOD *TLSv1_method(void);
 
 %typemap(out) SSL_CTX * {
@@ -272,6 +264,24 @@ void ssl_init(PyObject *ssl_err, PyObject *ssl_timeout_err) {
     Py_INCREF(ssl_timeout_err);
     _ssl_err = ssl_err;
     _ssl_timeout_err = ssl_timeout_err;
+}
+
+#ifndef OPENSSL_NO_SSL3
+const SSL_METHOD *sslv3_method(void) {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    PyErr_WarnEx(PyExc_DeprecationWarning,
+                 "Function SSLv3_method has been deprecated.", 1);
+#endif
+    return SSLv3_method();
+}
+#endif
+
+const SSL_METHOD *tlsv1_method(void) {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    PyErr_WarnEx(PyExc_DeprecationWarning,
+                 "Function TLSv1_method has been deprecated.", 1);
+#endif
+    return TLSv1_method();
 }
 
 void ssl_ctx_passphrase_callback(SSL_CTX *ctx, PyObject *pyfunc) {
