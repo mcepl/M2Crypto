@@ -416,11 +416,7 @@ PyObject *i2d_x509(X509 *x) {
     }
     else {
 
-#if PY_MAJOR_VERSION >= 3 
         ret = PyBytes_FromStringAndSize((char*)buf, len);
-#else
-        ret = PyString_FromStringAndSize((char*)buf, len);
-#endif // PY_MAJOR_VERSION >= 3 
 
         OPENSSL_free(buf);
     }
@@ -508,23 +504,14 @@ PyObject *x509_name_by_nid(X509_NAME *name, int nid) {
     }
     xlen = X509_NAME_get_text_by_NID(name, nid, buf, len);
 
-/* FIXME Shouldn’t we have here casting to (char *) as well? */
-#if PY_MAJOR_VERSION >= 3 
     ret = PyBytes_FromStringAndSize(buf, xlen);
-#else
-    ret = PyString_FromStringAndSize(buf, xlen);
-#endif // PY_MAJOR_VERSION >= 3 
 
     PyMem_Free(buf);
     return ret;
 }
 
 int x509_name_set_by_nid(X509_NAME *name, int nid, PyObject *obj) {
-#if PY_MAJOR_VERSION >= 3 
     return X509_NAME_add_entry_by_NID(name, nid, MBSTRING_ASC, (unsigned char *)PyBytes_AsString(obj), -1, -1, 0);
-#else
-    return X509_NAME_add_entry_by_NID(name, nid, MBSTRING_ASC, (unsigned char *)PyString_AsString(obj), -1, -1, 0);
-#endif // PY_MAJOR_VERSION >= 3 
 }
 
 /* x509_name_add_entry_by_txt */
@@ -540,11 +527,7 @@ PyObject *x509_name_get_der(X509_NAME *name) {
         m2_PyErr_Msg(_x509_err);
         return NULL;
     }
-#if PY_MAJOR_VERSION >= 3 
     return PyBytes_FromStringAndSize(pder, pderlen);
-#else
-    return PyString_FromStringAndSize(pder, pderlen);
-#endif // PY_MAJOR_VERSION >= 3 
 }
 
 /* sk_X509_free() is a macro. */
@@ -663,11 +646,7 @@ PyObject *x509_extension_get_name(X509_EXTENSION *ext) {
         m2_PyErr_Msg(_x509_err);
         return NULL;
     }
-#if PY_MAJOR_VERSION >= 3 
     ext_name = PyBytes_FromStringAndSize(ext_name_str, strlen(ext_name_str));
-#else
-    ext_name = PyString_FromStringAndSize(ext_name_str, strlen(ext_name_str));
-#endif // PY_MAJOR_VERSION >= 3 
     return ext_name;
 }
 
@@ -736,11 +715,7 @@ make_stack_from_der_sequence(PyObject * pyEncodedString){
     Py_ssize_t encoded_string_len;
     char *encoded_string;
 
-#if PY_MAJOR_VERSION >= 3 
     encoded_string_len = PyBytes_Size(pyEncodedString);
-#else
-    encoded_string_len = PyString_Size(pyEncodedString);
-#endif
 
     if (encoded_string_len > INT_MAX) {
         PyErr_Format(_x509_err,
@@ -748,11 +723,7 @@ make_stack_from_der_sequence(PyObject * pyEncodedString){
         return NULL;
     }
 
-#if PY_MAJOR_VERSION >= 3 
     encoded_string = PyBytes_AsString(pyEncodedString);
-#else
-    encoded_string = PyString_AsString(pyEncodedString);
-#endif 
 
     if (!encoded_string) {
         PyErr_SetString(_x509_err,
@@ -792,11 +763,7 @@ get_der_encoding_stack(STACK_OF(X509) *stack){
        return NULL;
     }
 
-#if PY_MAJOR_VERSION >= 3 
     encodedString = PyBytes_FromStringAndSize((const char *)encoding, len);
-#else
-    encodedString = PyString_FromStringAndSize((const char *)encoding, len);
-#endif // PY_MAJOR_VERSION >= 3 
 
     if (encoding)
         OPENSSL_free(encoding);

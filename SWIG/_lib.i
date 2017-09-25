@@ -16,6 +16,9 @@
 /* OpenSSL 1.1 compatibility shim */
 %include _lib11_compat.i
 
+/* Python 3 compatibility shim */
+%include _py3k_compat.i
+
 %{
 /* OpenSSL 1.0.2 copmatbility shim */
 #if OPENSSL_VERSION_NUMBER < 0x10002000L
@@ -192,11 +195,7 @@ m2_PyString_AsStringAndSizeInt(PyObject *obj, char **s, int *len)
     int ret;
     Py_ssize_t len2;
 
-#if PY_MAJOR_VERSION >= 3
     ret = PyBytes_AsStringAndSize(obj, s, &len2);
-#else
-    ret = PyString_AsStringAndSize(obj, s, &len2);
-#endif // PY_MAJOR_VERSION >= 3
 
     if (ret)
        return ret;
@@ -304,7 +303,8 @@ int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
          */
         cret = 0;
     } else {
-        cret = (int)PyInt_AsLong(ret);
+        /* FIXME This is possibly problematic if ret > MAXINT */
+        cret = (int)PyLong_AsLong(ret);
     }
     Py_XDECREF(ret);
     Py_XDECREF(argv);
@@ -468,7 +468,6 @@ int passphrase_callback(char *buf, int num, int v, void *arg) {
         return -1;
     }
 
-#if PY_MAJOR_VERSION >= 3
     if (!PyBytes_Check(ret)) {
         PyErr_SetString(PyExc_RuntimeError,
                         "Result of callback is not bytes().");
@@ -479,16 +478,6 @@ int passphrase_callback(char *buf, int num, int v, void *arg) {
     if ((len = PyBytes_Size(ret)) > num)
         len = num;
     str = PyBytes_AsString(ret);
-#else
-    if (!PyString_Check(ret)) {
-        Py_DECREF(ret);
-        PyGILState_Release(gilstate);
-        return -1;
-    }
-    if ((len = PyString_Size(ret)) > num)
-        len = num;
-    str = PyString_AsString(ret);
-#endif // PY_MAJOR_VERSION >= 3
 
     for (i = 0; i < len; i++)
         buf[i] = str[i];
@@ -522,11 +511,7 @@ PyObject *bn_to_mpi(const BIGNUM *bn) {
     }
     len=BN_bn2mpi(bn, mpi);
 
-#if PY_MAJOR_VERSION >= 3
     pyo=PyBytes_FromStringAndSize((const char *)mpi, len);
-#else
-    pyo=PyString_FromStringAndSize((const char *)mpi, len);
-#endif // PY_MAJOR_VERSION >= 3
 
     PyMem_Free(mpi);
     return pyo;
@@ -554,11 +539,7 @@ PyObject *bn_to_bin(BIGNUM *bn) {
     }
     BN_bn2bin(bn, bin);
 
-#if PY_MAJOR_VERSION >= 3
     pyo=PyBytes_FromStringAndSize((const char *)bin, len);
-#else
-    pyo=PyString_FromStringAndSize((const char *)bin, len);
-#endif // PY_MAJOR_VERSION >= 3
 
     PyMem_Free(bin);
     return pyo;
@@ -587,11 +568,7 @@ PyObject *bn_to_hex(BIGNUM *bn) {
     }
     len = strlen(hex);
 
-#if PY_MAJOR_VERSION >= 3
     pyo=PyBytes_FromStringAndSize(hex, len);
-#else
-    pyo=PyString_FromStringAndSize(hex, len);
-#endif // PY_MAJOR_VERSION >= 3
 
     OPENSSL_free(hex);
     return pyo;
@@ -644,19 +621,11 @@ BIGNUM *dec_to_bn(PyObject *value) {
 %typemap(in) Blob * {
     Py_ssize_t len;
 
-#if PY_MAJOR_VERSION >= 3
     if (!PyBytes_Check($input)) {
         PyErr_SetString(PyExc_TypeError, "expected PyString");
         return NULL;
     }
     len=PyBytes_Size($input);
-#else
-    if (!PyString_Check($input)) {
-        PyErr_SetString(PyExc_TypeError, "expected PyString");
-        return NULL;
-    }
-    len=PyString_Size($input);
-#endif // PY_MAJOR_VERSION >= 3
 
     if (len > INT_MAX) {
         PyErr_SetString(PyExc_ValueError, "object too large");
@@ -668,11 +637,7 @@ BIGNUM *dec_to_bn(PyObject *value) {
         return NULL;
     }
 
-#if PY_MAJOR_VERSION >= 3
     $1->data=(unsigned char *)PyBytes_AsString($input);
-#else
-    $1->data=(unsigned char *)PyString_AsString($input);
-#endif // PY_MAJOR_VERSION >= 3
 
     $1->len=len;
 }
@@ -683,34 +648,12 @@ BIGNUM *dec_to_bn(PyObject *value) {
         $result=Py_None;
     } else {
 
-#if PY_MAJOR_VERSION >= 3
         $result=PyBytes_FromStringAndSize((const char *)$1->data, $1->len);
-#else
-        $result=PyString_FromStringAndSize((const char *)$1->data, $1->len);
-#endif // PY_MAJOR_VERSION >= 3
 
         PyMem_Free($1->data);
         PyMem_Free($1);
     }
 }
-
-/*
-PyFile* is not part of Python3 ... if we’ll ever need it, we have to
-replace it completely.
-http://stackoverflow.com/questions/8195383/pyfile-type-replaced-by
-
-%typemap(in) FILE * {
-#if PY_MAJOR_VERSION >= 3
-    $1=PyObject_AsFileDescriptor($input);
-#else
-    if (!PyFile_Check($input)) {
-        PyErr_SetString(PyExc_TypeError, "expected PyFile");
-        return NULL;
-    }
-    $1=PyFile_AsFile($input);
-#endif // PY_MAJOR_VERSION >= 3
-}
-*/
 
 %typemap(in) PyObject *pyfunc {
     if (!PyCallable_Check($input)) {
@@ -721,11 +664,7 @@ http://stackoverflow.com/questions/8195383/pyfile-type-replaced-by
 }
 
 %typemap(in) PyObject *pyblob {
-#if PY_MAJOR_VERSION >= 3
     if (!PyBytes_Check($input)) {
-#else
-    if (!PyString_Check($input)) {
-#endif // PY_MAJOR_VERSION >= 3
 
         PyErr_SetString(PyExc_TypeError, "expected PyString");
         return NULL;
@@ -742,7 +681,7 @@ http://stackoverflow.com/questions/8195383/pyfile-type-replaced-by
 }
 
 %typemap(out) int {
-    $result=PyInt_FromLong($1);
+    $result=PyLong_FromLong($1);
     if (PyErr_Occurred()) SWIG_fail;
 }
 

@@ -617,12 +617,12 @@ PyObject *ssl_accept(SSL *ssl, double timeout) {
     switch (ssl_err) {
         case SSL_ERROR_NONE:
         case SSL_ERROR_ZERO_RETURN:
-            obj = PyInt_FromLong((long)1);
+            obj = PyLong_FromLong((long)1);
             break;
         case SSL_ERROR_WANT_WRITE:
         case SSL_ERROR_WANT_READ:
             if (timeout <= 0) {
-                obj = PyInt_FromLong((long)0);
+                obj = PyLong_FromLong((long)0);
                 break;
             }
             if (ssl_sleep_with_timeout(ssl, &tv, timeout, ssl_err) == 0)
@@ -657,12 +657,12 @@ PyObject *ssl_connect(SSL *ssl, double timeout) {
     switch (ssl_err) {
         case SSL_ERROR_NONE:
         case SSL_ERROR_ZERO_RETURN:
-            obj = PyInt_FromLong((long)1);
+            obj = PyLong_FromLong((long)1);
             break;
         case SSL_ERROR_WANT_WRITE:
         case SSL_ERROR_WANT_READ:
             if (timeout <= 0) {
-                obj = PyInt_FromLong((long)0);
+                obj = PyLong_FromLong((long)0);
                 break;
             }
             if (ssl_sleep_with_timeout(ssl, &tv, timeout, ssl_err) == 0)
@@ -705,11 +705,7 @@ PyObject *ssl_read(SSL *ssl, int num, double timeout) {
 
     if (r >= 0) {
         buf = PyMem_Realloc(buf, r);
-#if PY_MAJOR_VERSION >= 3
         obj = PyBytes_FromStringAndSize(buf, r);
-#else
-        obj = PyString_FromStringAndSize(buf, r);
-#endif //PY_MAJOR_VERSION >= 3
     } else {
         int ssl_err;
 
@@ -766,11 +762,7 @@ PyObject *ssl_read_nbio(SSL *ssl, int num) {
         case SSL_ERROR_ZERO_RETURN:
             buf = PyMem_Realloc(buf, r);
 
-#if PY_MAJOR_VERSION >= 3
             obj = PyBytes_FromStringAndSize(buf, r);
-#else
-            obj = PyString_FromStringAndSize(buf, r);
-#endif // PY_MAJOR_VERSION >= 3
 
             break;
         case SSL_ERROR_WANT_WRITE:

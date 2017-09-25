@@ -118,11 +118,7 @@ PyObject *dh_compute_key(DH *dh, PyObject *pubkey) {
         return NULL;
     }
 
-#if PY_MAJOR_VERSION >= 3
     ret = PyBytes_FromStringAndSize((const char *)key, klen);
-#else
-	ret = PyString_FromStringAndSize((const char *)key, klen);
-#endif // PY_MAJOR_VERSION >= 3
 
     BN_free(pk);
     PyMem_Free(key);

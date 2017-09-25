@@ -165,11 +165,7 @@ PyObject *bio_read(BIO *bio, int num) {
         Py_RETURN_NONE;
     }
 
-#if PY_MAJOR_VERSION >= 3
     blob = PyBytes_FromStringAndSize(buf, r);
-#else
-    blob = PyString_FromStringAndSize(buf, r);
-#endif // PY_MAJOR_VERSION >= 3
 
     PyMem_Free(buf);
     return blob;
@@ -196,11 +192,7 @@ PyObject *bio_gets(BIO *bio, int num) {
         Py_RETURN_NONE;
     }
 
-#if PY_MAJOR_VERSION >= 3
     blob = PyBytes_FromStringAndSize(buf, r);
-#else
-    blob = PyString_FromStringAndSize(buf, r);
-#endif // PY_MAJOR_VERSION >= 3
 
     PyMem_Free(buf);
     return blob;

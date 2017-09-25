@@ -247,11 +247,7 @@ PyObject *pkcs5_pbkdf2_hmac_sha1(PyObject *pass,
 	return PyErr_NoMemory();
     PKCS5_PBKDF2_HMAC_SHA1(passbuf, passlen, saltbuf, saltlen, iter,
                            keylen, key);
-#if PY_MAJOR_VERSION >= 3
     ret = PyBytes_FromStringAndSize((char*)key, keylen);
-#else
-    ret = PyString_FromStringAndSize((char*)key, keylen);
-#endif
     OPENSSL_cleanse(key, keylen);
     PyMem_Free(key);
     return ret;
@@ -296,11 +292,7 @@ PyObject *digest_final(EVP_MD_CTX *ctx) {
         return NULL;
     }
 
-#if PY_MAJOR_VERSION >= 3
     ret = PyBytes_FromStringAndSize(blob, blen);
-#else
-    ret = PyString_FromStringAndSize(blob, blen);
-#endif
 
     PyMem_Free(blob);
     return ret;
@@ -363,11 +355,7 @@ PyObject *hmac_final(HMAC_CTX *ctx) {
         return NULL;
     }
 
-#if PY_MAJOR_VERSION >= 3
     ret = PyBytes_FromStringAndSize(blob, blen);
-#else
-    ret = PyString_FromStringAndSize(blob, blen);
-#endif
 
     PyMem_Free(blob);
     return ret;
@@ -392,11 +380,7 @@ PyObject *hmac(PyObject *key, PyObject *data, const EVP_MD *md) {
     HMAC(md, kbuf, klen, dbuf, dlen, blob, &blen);
     blob = PyMem_Realloc(blob, blen);
 
-#if PY_MAJOR_VERSION >= 3
     ret = PyBytes_FromStringAndSize(blob, blen);
-#else
-    ret = PyString_FromStringAndSize(blob, blen);
-#endif
 
     PyMem_Free(blob);
     return ret;
@@ -436,11 +420,7 @@ PyObject *bytes_to_key(const EVP_CIPHER *cipher, EVP_MD *md,
         (unsigned char *)dbuf, dlen, iter,
         key, NULL); /* Since we are not returning IV no need to derive it */
 
-#if PY_MAJOR_VERSION >= 3
     ret = PyBytes_FromStringAndSize((char*)key, klen);
-#else
-    ret = PyString_FromStringAndSize((char*)key, klen);
-#endif
 
     return ret;
 }
@@ -481,11 +461,7 @@ PyObject *cipher_update(EVP_CIPHER_CTX *ctx, PyObject *blob) {
         return NULL;
     }
 
-#if PY_MAJOR_VERSION >= 3
     ret = PyBytes_FromStringAndSize(obuf, olen);
-#else
-    ret = PyString_FromStringAndSize(obuf, olen);
-#endif
 
     PyMem_Free(obuf);
     return ret;
@@ -506,11 +482,7 @@ PyObject *cipher_final(EVP_CIPHER_CTX *ctx) {
         return NULL;
     }
 
-#if PY_MAJOR_VERSION >= 3
     ret = PyBytes_FromStringAndSize(obuf, olen);
-#else
-    ret = PyString_FromStringAndSize(obuf, olen);
-#endif
 
     PyMem_Free(obuf);
     return ret;
@@ -548,11 +520,7 @@ PyObject *sign_final(EVP_MD_CTX *ctx, EVP_PKEY *pkey) {
         return NULL;
     }
 
-#if PY_MAJOR_VERSION >= 3
     ret = PyBytes_FromStringAndSize((char*)sigbuf, siglen);
-#else
-    ret = PyString_FromStringAndSize((char*)sigbuf, siglen);
-#endif
 
     OPENSSL_cleanse(sigbuf, siglen);
     OPENSSL_free(sigbuf);
@@ -703,11 +671,7 @@ PyObject *pkey_as_der(EVP_PKEY *pkey) {
         return NULL;
     }
 
-#if PY_MAJOR_VERSION >= 3
     der = PyBytes_FromStringAndSize((char*)pp, len);
-#else
-    der = PyString_FromStringAndSize((char*)pp, len);
-#endif
 
     OPENSSL_free(pp);
     return der;
@@ -742,11 +706,7 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
             }
             BIO_get_mem_ptr(bio, &bptr);
 
-#if PY_MAJOR_VERSION >= 3
             ret = PyBytes_FromStringAndSize(bptr->data, bptr->length);
-#else
-            ret = PyString_FromStringAndSize(bptr->data, bptr->length);
-#endif
 
             (void)BIO_set_close(bio, BIO_CLOSE);
             BIO_free(bio);
@@ -774,11 +734,7 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
             }
             BIO_get_mem_ptr(bio, &bptr);
 
-#if PY_MAJOR_VERSION >= 3
             ret = PyBytes_FromStringAndSize(bptr->data, bptr->length);
-#else
-            ret = PyString_FromStringAndSize(bptr->data, bptr->length);
-#endif
 
             (void)BIO_set_close(bio, BIO_CLOSE);
             BIO_free(bio);

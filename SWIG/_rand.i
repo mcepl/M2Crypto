@@ -59,11 +59,7 @@ PyObject *rand_bytes(int n) {
         return NULL;
     }
     if ((ret = RAND_bytes(blob, n)) == 1) {
-#if PY_MAJOR_VERSION >= 3
         obj = PyBytes_FromStringAndSize(blob, n);
-#else
-        obj = PyString_FromStringAndSize(blob, n);
-#endif // PY_MAJOR_VERSION >= 3
         PyMem_Free(blob);
         return obj;
     } else if (ret == 0) {
@@ -104,14 +100,10 @@ PyObject *rand_pseudo_bytes(int n) {
             "Function RAND_pseudo_bytes not supported by the current RAND method.");
         return NULL;
     } else {
-#if PY_MAJOR_VERSION >= 3
         PyTuple_SET_ITEM(tuple, 0, PyBytes_FromStringAndSize((char*)blob, n));
-#else
-         PyTuple_SET_ITEM(tuple, 0, PyString_FromStringAndSize((char*)blob, n));
-#endif // PY_MAJOR_VERSION >= 3
 
         PyMem_Free(blob);
-        PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong((long)ret));
+        PyTuple_SET_ITEM(tuple, 1, PyLong_FromLong((long)ret));
         return tuple;
     }
 }

@@ -242,11 +242,7 @@ PyObject *rsa_private_encrypt(RSA *rsa, PyObject *from, int padding) {
         return NULL;
     }
 
-#if PY_MAJOR_VERSION >= 3
     ret = PyBytes_FromStringAndSize((const char *)tbuf, tlen);
-#else
-    ret = PyString_FromStringAndSize((const char *)tbuf, tlen);
-#endif // PY_MAJOR_VERSION >= 3
 
     PyMem_Free(tbuf);
     return ret;
@@ -276,11 +272,7 @@ PyObject *rsa_public_decrypt(RSA *rsa, PyObject *from, int padding) {
         return NULL;
     }
 
-#if PY_MAJOR_VERSION >= 3
     ret = PyBytes_FromStringAndSize((const char *)tbuf, tlen);
-#else
-    ret = PyString_FromStringAndSize((const char *)tbuf, tlen);
-#endif // PY_MAJOR_VERSION >= 3
 
     PyMem_Free(tbuf);
     return ret;
@@ -307,11 +299,7 @@ PyObject *rsa_public_encrypt(RSA *rsa, PyObject *from, int padding) {
         return NULL;
     }
 
-#if PY_MAJOR_VERSION >= 3
     ret = PyBytes_FromStringAndSize((const char *)tbuf, tlen);
-#else
-    ret = PyString_FromStringAndSize((const char *)tbuf, tlen);
-#endif // PY_MAJOR_VERSION >= 3
 
     PyMem_Free(tbuf);
     return ret;
@@ -337,11 +325,7 @@ PyObject *rsa_private_decrypt(RSA *rsa, PyObject *from, int padding) {
         PyMem_Free(tbuf);
         return NULL;
     }
-#if PY_MAJOR_VERSION >= 3
     ret = PyBytes_FromStringAndSize((const char *)tbuf, tlen);
-#else
-    ret = PyString_FromStringAndSize((const char *)tbuf, tlen);
-#endif // PY_MAJOR_VERSION >= 3
 
     PyMem_Free(tbuf);
     return ret;
@@ -376,11 +360,7 @@ PyObject *rsa_padding_add_pkcs1_pss(RSA *rsa, PyObject *digest, EVP_MD *hash, in
         OPENSSL_free(tbuf);
         return NULL;
     }
-#if PY_MAJOR_VERSION >= 3
     ret = PyBytes_FromStringAndSize((const char *)tbuf, tlen);
-#else
-    ret = PyString_FromStringAndSize((const char *)tbuf, tlen);
-#endif // PY_MAJOR_VERSION >= 3
     OPENSSL_cleanse(tbuf, tlen);
     OPENSSL_free(tbuf);
     return ret;
@@ -437,11 +417,7 @@ PyObject *rsa_sign(RSA *rsa, PyObject *py_digest_string, int method_type) {
         return NULL;
     }
 
-#if PY_MAJOR_VERSION >= 3
     signature =  PyBytes_FromStringAndSize((const char*) sign_buf, buf_len);
-#else
-    signature =  PyString_FromStringAndSize((const char*) sign_buf, buf_len);
-#endif
 
     PyMem_Free(sign_buf);
     return signature;

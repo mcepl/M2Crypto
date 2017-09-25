@@ -36,20 +36,11 @@ extern ASN1_STRING *ASN1_STRING_new( void );
 extern void ASN1_STRING_free( ASN1_STRING *);
 
 %typemap(in) (const void *, int) {
-#if PY_MAJOR_VERSION >= 3
     if (PyBytes_Check($input)) {
         Py_ssize_t len;
 
         $1 = PyBytes_AsString($input);
         len = PyBytes_Size($input);
-#else
-    if (PyString_Check($input)) {
-        Py_ssize_t len;
-
-        $1 = PyString_AsString($input);
-        len = PyString_Size($input);
-
-#endif // PY_MAJOR_VERSION >= 3
 
         if (len > INT_MAX) {
             PyErr_SetString(PyExc_ValueError, "object too large");

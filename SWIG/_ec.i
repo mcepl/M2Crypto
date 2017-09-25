@@ -208,16 +208,12 @@ EC_KEY* ec_key_new_by_curve_name(int nid)
 }
 
 PyObject *ec_key_get_public_der(EC_KEY *key) {
-
-    unsigned char *src=NULL;
-    void *dst=NULL;
+    char *src=NULL;
     int src_len=0;
-    Py_ssize_t dst_len=0;
     PyObject *pyo=NULL;
-    int ret=0;
 
     /* Convert to binary */
-    src_len = i2d_EC_PUBKEY( key, &src );
+    src_len = i2d_EC_PUBKEY( key, (unsigned char**)&src );
     if (src_len < 0)
     {
         m2_PyErr_Msg(_ec_err);
@@ -226,22 +222,7 @@ PyObject *ec_key_get_public_der(EC_KEY *key) {
     /* Create a PyBuffer containing a copy of the binary,
      * to simplify memory deallocation
      */
-#if PY_MAJOR_VERSION >= 3
     pyo = PyBytes_FromStringAndSize( src, src_len );
-#else
-    pyo = PyBuffer_New( src_len );
-    ret = PyObject_AsWriteBuffer( pyo, &dst, &dst_len );
-    assert( src_len == dst_len );
-    if (ret < 0)
-    {
-        Py_DECREF(pyo);
-        OPENSSL_free(src);
-        PyErr_SetString(_ec_err, "cannot get write buffer");
-        return NULL;
-    }
-    memcpy( dst, src, src_len );
-
-#endif // PY_MAJOR_VERSION == 2
 
     OPENSSL_free(src);
 
@@ -249,41 +230,19 @@ PyObject *ec_key_get_public_der(EC_KEY *key) {
 }
 
 PyObject *ec_key_get_public_key(EC_KEY *key) {
-
-    unsigned char *src=NULL;
-    void *dst=NULL;
+    char *src=NULL;
     int src_len=0;
-    Py_ssize_t dst_len=0;
     PyObject *pyo=NULL;
-    int ret=0;
 
     /* Convert to binary */
-    src_len = i2o_ECPublicKey(key, &src);
+    src_len = i2o_ECPublicKey(key, (unsigned char**)&src);
     if (src_len < 0)
     {
         m2_PyErr_Msg(_ec_err);
         return NULL;
     }
 
-#if PY_MAJOR_VERSION >= 3
     pyo = PyBytes_FromStringAndSize( src, src_len );
-#else
-    /* Create a PyBuffer containing a copy of the binary,
-     * to simplify memory deallocation
-     */
-    pyo = PyBuffer_New( src_len );
-    ret = PyObject_AsWriteBuffer( pyo, &dst, &dst_len );
-    assert( src_len == dst_len );
-    if (ret < 0)
-    {
-        Py_DECREF(pyo);
-        OPENSSL_free(src);
-        PyErr_SetString(_ec_err, "cannot get write buffer");
-        return NULL;
-    }
-    memcpy( dst, src, src_len );
-
-#endif // PY_MAJOR_VERSION == 2
 
     OPENSSL_free(src);
 
@@ -445,11 +404,7 @@ PyObject *ecdsa_sign_asn1(EC_KEY *key, PyObject *value) {
         PyMem_Free(sigbuf);
         return NULL;
     }
-#if PY_MAJOR_VERSION >= 3
     ret = PyBytes_FromStringAndSize(sigbuf, siglen);
-#else
-    ret = PyString_FromStringAndSize(sigbuf, siglen);
-#endif // PY_MAJOR_VERSION == 2
 
     PyMem_Free(sigbuf);
     return ret;
@@ -497,11 +452,7 @@ PyObject *ecdh_compute_key(EC_KEY *keypairA, EC_KEY *pubkeyB) {
         return NULL;
     }
 
-#if PY_MAJOR_VERSION >= 3
     ret = PyBytes_FromStringAndSize((const char *)sharedkey, sharedkeylen);
-#else
-    ret = PyString_FromStringAndSize((const char *)sharedkey, sharedkeylen);
-#endif // PY_MAJOR_VERSION == 2
 
     PyMem_Free(sharedkey);
 
