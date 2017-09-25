@@ -21,6 +21,11 @@
 #endif
 
 %{
+#if __GNUC__ < 5
+#pragma GCC diagnostic ignored "-Wunused-label"
+#pragma GCC diagnostic warning "-Wstrict-prototypes"
+#endif
+
 #include <openssl/err.h>
 #include <openssl/rand.h>
 #include <_lib.h>
