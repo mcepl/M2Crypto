@@ -3546,6 +3546,11 @@ static swig_module_info swig_module = {swig_types, 59, 0, 0, 0, 0};
 #define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
+#if __GNUC__ < 5
+#pragma GCC diagnostic ignored "-Wunused-label"
+#pragma GCC diagnostic warning "-Wstrict-prototypes"
+#endif
+
 #include <openssl/err.h>
 #include <openssl/rand.h>
 #include <_lib.h>
@@ -5746,7 +5751,7 @@ SWIG_AsVal_unsigned_SS_int (PyObject * obj, unsigned int *val)
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 
-HMAC_CTX *HMAC_CTX_new() {
+HMAC_CTX *HMAC_CTX_new(void) {
     HMAC_CTX *ret = PyMem_Malloc(sizeof(HMAC_CTX));
     HMAC_CTX_init(ret);
     return ret;
@@ -7407,6 +7412,24 @@ void ssl_init(PyObject *ssl_err, PyObject *ssl_timeout_err) {
     _ssl_timeout_err = ssl_timeout_err;
 }
 
+#ifndef OPENSSL_NO_SSL3
+const SSL_METHOD *sslv3_method(void) {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    PyErr_WarnEx(PyExc_DeprecationWarning,
+                 "Function SSLv3_method has been deprecated.", 1);
+#endif
+    return SSLv3_method();
+}
+#endif
+
+const SSL_METHOD *tlsv1_method(void) {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    PyErr_WarnEx(PyExc_DeprecationWarning,
+                 "Function TLSv1_method has been deprecated.", 1);
+#endif
+    return TLSv1_method();
+}
+
 void ssl_ctx_passphrase_callback(SSL_CTX *ctx, PyObject *pyfunc) {
     SSL_CTX_set_default_passwd_cb(ctx, passphrase_callback);
     SSL_CTX_set_default_passwd_cb_userdata(ctx, (void *)pyfunc);
@@ -8294,7 +8317,7 @@ X509_NAME_ENTRY *x509_name_entry_create_by_txt(X509_NAME_ENTRY **ne, char *field
 }
 
 X509V3_CTX *
-x509v3_set_nconf() {
+x509v3_set_nconf(void) {
       X509V3_CTX * ctx;
       CONF *conf = NCONF_new(NULL);
 
@@ -17482,35 +17505,11 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_sslv3_method(PyObject *self, PyObject *args) {
-  PyObject *resultobj = 0;
-  SSL_METHOD *result = 0 ;
-  
-  result = (SSL_METHOD *)SSLv3_method();
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_SSL_METHOD, 0 |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_sslv23_method(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   SSL_METHOD *result = 0 ;
   
   result = (SSL_METHOD *)SSLv23_method();
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_SSL_METHOD, 0 |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_tlsv1_method(PyObject *self, PyObject *args) {
-  PyObject *resultobj = 0;
-  SSL_METHOD *result = 0 ;
-  
-  result = (SSL_METHOD *)TLSv1_method();
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_SSL_METHOD, 0 |  0 );
   return resultobj;
 fail:
@@ -19156,6 +19155,30 @@ SWIGINTERN PyObject *_wrap_ssl_init(PyObject *self, PyObject *args) {
   }
   ssl_init(arg1,arg2);
   resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_sslv3_method(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  SSL_METHOD *result = 0 ;
+  
+  result = (SSL_METHOD *)sslv3_method();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_SSL_METHOD, 0 |  0 );
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_tlsv1_method(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  SSL_METHOD *result = 0 ;
+  
+  result = (SSL_METHOD *)tlsv1_method();
+  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_SSL_METHOD, 0 |  0 );
   return resultobj;
 fail:
   return NULL;
@@ -28992,9 +29015,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"ssl_get_alert_type_v", _wrap_ssl_get_alert_type_v, METH_VARARGS, NULL},
 	 { (char *)"ssl_get_alert_desc", _wrap_ssl_get_alert_desc, METH_VARARGS, NULL},
 	 { (char *)"ssl_get_alert_desc_v", _wrap_ssl_get_alert_desc_v, METH_VARARGS, NULL},
-	 { (char *)"sslv3_method", _wrap_sslv3_method, METH_VARARGS, NULL},
 	 { (char *)"sslv23_method", _wrap_sslv23_method, METH_VARARGS, NULL},
-	 { (char *)"tlsv1_method", _wrap_tlsv1_method, METH_VARARGS, NULL},
 	 { (char *)"ssl_ctx_new", _wrap_ssl_ctx_new, METH_VARARGS, NULL},
 	 { (char *)"ssl_ctx_free", _wrap_ssl_ctx_free, METH_VARARGS, NULL},
 	 { (char *)"ssl_ctx_set_verify_depth", _wrap_ssl_ctx_set_verify_depth, METH_VARARGS, NULL},
@@ -29045,6 +29066,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"ssl_read", _wrap_ssl_read, METH_VARARGS, NULL},
 	 { (char *)"ssl_write", _wrap_ssl_write, METH_VARARGS, NULL},
 	 { (char *)"ssl_init", _wrap_ssl_init, METH_VARARGS, NULL},
+	 { (char *)"sslv3_method", _wrap_sslv3_method, METH_VARARGS, NULL},
+	 { (char *)"tlsv1_method", _wrap_tlsv1_method, METH_VARARGS, NULL},
 	 { (char *)"ssl_ctx_passphrase_callback", _wrap_ssl_ctx_passphrase_callback, METH_VARARGS, NULL},
 	 { (char *)"ssl_ctx_use_x509", _wrap_ssl_ctx_use_x509, METH_VARARGS, NULL},
 	 { (char *)"ssl_ctx_use_cert", _wrap_ssl_ctx_use_cert, METH_VARARGS, NULL},
