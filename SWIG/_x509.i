@@ -377,7 +377,7 @@ PyObject *i2d_x509(X509 *x)
     unsigned char *buf = NULL;
     len = i2d_X509(x, &buf);
     if (len < 0) {
-        PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_x509_err);
     }
     else {     
 
@@ -497,7 +497,7 @@ PyObject *x509_name_get_der(X509_NAME *name)
     size_t pderlen;
     i2d_X509_NAME(name, 0);
     if (!X509_NAME_get0_der(name, (const unsigned char **)pder, &pderlen)) {
-        PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_x509_err);
         return NULL;
     }
 #if PY_MAJOR_VERSION >= 3 
@@ -590,7 +590,7 @@ PyObject *x509_extension_get_name(X509_EXTENSION *ext) {
     const char * ext_name_str; 
     ext_name_str = OBJ_nid2sn(OBJ_obj2nid(X509_EXTENSION_get_object(ext)));
     if (!ext_name_str) {
-        PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_x509_err);
         return NULL;
     }
 #if PY_MAJOR_VERSION >= 3 
@@ -678,7 +678,7 @@ make_stack_from_der_sequence(PyObject * pyEncodedString){
     const unsigned char *tmp_str = (unsigned char *)encoded_string;
     certs = d2i_SEQ_CERT(NULL, &tmp_str, encoded_string_len);
     if (!certs) {
-        PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_x509_err);
         return NULL;
     }
 
@@ -694,7 +694,7 @@ get_der_encoding_stack(STACK_OF(X509) *stack){
     
     len = i2d_SEQ_CERT(stack, &encoding);
     if (!encoding) {
-       PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+       m2_PyErr_Msg(_x509_err);
        return NULL;
     }
 

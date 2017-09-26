@@ -272,7 +272,7 @@ PyObject *digest_final(EVP_MD_CTX *ctx) {
     }
     if (!EVP_DigestFinal(ctx, blob, (unsigned int *)&blen)) {
         PyMem_Free(blob);
-        PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_evp_err);
         return NULL;
     }
 
@@ -436,7 +436,7 @@ PyObject *cipher_init(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
 
     if (!EVP_CipherInit(ctx, cipher, (unsigned char *)kbuf,
                         (unsigned char *)ibuf, mode)) {
-        PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_evp_err);
         return NULL;
     }
     Py_RETURN_NONE;
@@ -457,7 +457,7 @@ PyObject *cipher_update(EVP_CIPHER_CTX *ctx, PyObject *blob) {
     }
     if (!EVP_CipherUpdate(ctx, obuf, &olen, (unsigned char *)buf, len)) {
         PyMem_Free(obuf);
-        PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_evp_err);
         return NULL;
     }
 
@@ -482,7 +482,7 @@ PyObject *cipher_final(EVP_CIPHER_CTX *ctx) {
     }
     if (!EVP_CipherFinal(ctx, (unsigned char *)obuf, &olen)) {
         PyMem_Free(obuf);
-        PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_evp_err);
         return NULL;
     }
 
@@ -504,7 +504,7 @@ PyObject *sign_update(EVP_MD_CTX *ctx, PyObject *blob) {
         return NULL;
 
     if (!EVP_SignUpdate(ctx, buf, len)) {
-        PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_evp_err);
         return NULL;
     }
     Py_RETURN_NONE;
@@ -522,9 +522,9 @@ PyObject *sign_final(EVP_MD_CTX *ctx, EVP_PKEY *pkey) {
     }
 
     if (!EVP_SignFinal(ctx, sigbuf, &siglen, pkey)) {
+        m2_PyErr_Msg(_evp_err);
         OPENSSL_cleanse(sigbuf, siglen);
         OPENSSL_free(sigbuf);
-        PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
 

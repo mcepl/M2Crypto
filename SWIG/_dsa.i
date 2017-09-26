@@ -46,12 +46,12 @@ DSA *dsa_generate_parameters(int bits, PyObject *pyfunc) {
     int ret;
 
     if ((gencb=BN_GENCB_new()) == NULL) {
-        PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dh_err);
         return NULL;
     }
 
     if ((dsa = DSA_new()) == NULL) {
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dsa_err);
         BN_GENCB_free(gencb);
         return NULL;
     }
@@ -67,7 +67,7 @@ DSA *dsa_generate_parameters(int bits, PyObject *pyfunc) {
     if (ret)
         return dsa;
 
-    PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+    m2_PyErr_Msg(_dsa_err);
     DSA_free(dsa);
     return NULL;
 }
@@ -131,7 +131,9 @@ PyObject *dsa_set_pqg(DSA *dsa, PyObject *pval, PyObject* qval, PyObject* gval) 
         return NULL;
 
     if (!DSA_set0_pqg(dsa, p, q, g)) {
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        PyErr_SetString(
+            _dsa_err,
+            "Cannot set prime number, subprime, or generator of subgroup for DSA.");
         BN_free(p);
         BN_free(q);
         BN_free(g);
@@ -150,12 +152,12 @@ PyObject *dsa_set_pub(DSA *dsa, PyObject *value) {
         return NULL;
 
     if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dsa_err);
         return NULL;
     }
     if (!DSA_set0_key(dsa, bn, NULL)) {
         BN_free(bn);
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        PyErr_SetString(_dsa_err, "Cannot set private and public key for DSA.");
     }
     Py_RETURN_NONE;
 }
@@ -251,7 +253,7 @@ PyObject *dsa_sign(DSA *dsa, PyObject *value) {
         return NULL;
 
     if (!(sig = DSA_do_sign(vbuf, vlen, dsa))) {
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dsa_err);
         return NULL;
     }
     if (!(tuple = PyTuple_New(2))) {
@@ -278,22 +280,22 @@ int dsa_verify(DSA *dsa, PyObject *value, PyObject *r, PyObject *s) {
         return -1;
 
     if (!(sig = DSA_SIG_new())) {
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dsa_err);
         return -1;
     }
     if (!(pr = BN_mpi2bn((unsigned char *)rbuf, rlen, NULL))) {
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dsa_err);
         DSA_SIG_free(sig);
         return -1;
     }
     if (!(ps = BN_mpi2bn((unsigned char *)sbuf, slen, NULL))) {
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dsa_err);
         DSA_SIG_free(sig);
         BN_free(pr);
         return -1;
     }
     if (!DSA_SIG_set0(sig, pr, ps)) {
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dsa_err);
         DSA_SIG_free(sig);
         BN_free(pr);
         BN_free(ps);
@@ -303,7 +305,7 @@ int dsa_verify(DSA *dsa, PyObject *value, PyObject *r, PyObject *s) {
     ret = DSA_do_verify(vbuf, vlen, sig, dsa);
     DSA_SIG_free(sig);
     if (ret == -1)
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dsa_err);
     return ret;
 }
 
@@ -322,7 +324,7 @@ PyObject *dsa_sign_asn1(DSA *dsa, PyObject *value) {
         return NULL;
     }
     if (!DSA_sign(0, vbuf, vlen, (unsigned char *)sigbuf, &siglen, dsa)) {
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dsa_err);
         PyMem_Free(sigbuf);
         return NULL;
     }
@@ -348,7 +350,7 @@ int dsa_verify_asn1(DSA *dsa, PyObject *value, PyObject *sig) {
         return -1;
 
     if ((ret = DSA_verify(0, vbuf, vlen, sbuf, slen, dsa)) == -1)
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dsa_err);
     return ret;
 }
 

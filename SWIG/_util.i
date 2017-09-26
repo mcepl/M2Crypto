@@ -27,7 +27,7 @@ PyObject *util_hex_to_string(PyObject *blob) {
 
     ret = hex_to_string((unsigned char *)buf, len);
     if (!ret) {
-        PyErr_SetString(_util_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_util_err);
         return NULL;
     }
 
@@ -54,7 +54,7 @@ PyObject *util_string_to_hex(PyObject *blob) {
     len = len0;
     ret = string_to_hex((char *)buf, &len);
     if (ret == NULL) {
-        PyErr_SetString(_util_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_util_err);
         return NULL;
     }
 #if PY_MAJOR_VERSION >= 3

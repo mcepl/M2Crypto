@@ -188,8 +188,8 @@ EC_KEY* ec_key_new_by_curve_name(int nid)
     }
     group = EC_GROUP_new_by_curve_name(nid);
     if (!group) {
+        m2_PyErr_Msg(_ec_err);
         EC_KEY_free(key);
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
     EC_GROUP_set_asn1_flag(group, asn1_flag);
@@ -220,7 +220,7 @@ PyObject *ec_key_get_public_der(EC_KEY *key) {
     src_len = i2d_EC_PUBKEY( key, &src );
     if (src_len < 0)
     {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
         return NULL;
     }
     /* Create a PyBuffer containing a copy of the binary,
@@ -261,7 +261,7 @@ PyObject *ec_key_get_public_key(EC_KEY *key) {
     src_len = i2o_ECPublicKey(key, &src);
     if (src_len < 0)
     {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
         return NULL;
     }
 
@@ -369,7 +369,7 @@ PyObject *ecdsa_sign(EC_KEY *key, PyObject *value) {
         return NULL;
 
     if (!(sig = ECDSA_do_sign(vbuf, vlen, key))) {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
         return NULL;
     }
     if (!(tuple = PyTuple_New(2))) {
@@ -396,23 +396,23 @@ int ecdsa_verify(EC_KEY *key, PyObject *value, PyObject *r, PyObject *s) {
         return -1;
 
     if (!(pr = BN_mpi2bn((unsigned char *)rbuf, rlen, NULL))) {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
         return -1;
     }
     if (!(ps = BN_mpi2bn((unsigned char *)sbuf, slen, NULL))) {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
         BN_free(pr);
         return -1;
     }
 
     if (!(sig = ECDSA_SIG_new())) {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
         BN_free(pr);
         BN_free(ps);
         return -1;
     }
     if (!ECDSA_SIG_set0(sig, pr, ps)) {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        PyErr_SetString(_ec_err, "Cannot set r and s fields of ECDSA_SIG.");
         ECDSA_SIG_free(sig);
         BN_free(pr);
         BN_free(ps);
@@ -421,7 +421,7 @@ int ecdsa_verify(EC_KEY *key, PyObject *value, PyObject *r, PyObject *s) {
     ret = ECDSA_do_verify(vbuf, vlen, sig, key);
     ECDSA_SIG_free(sig);
     if (ret == -1)
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
     return ret;
 }
 
@@ -441,7 +441,7 @@ PyObject *ecdsa_sign_asn1(EC_KEY *key, PyObject *value) {
         return NULL;
     }
     if (!ECDSA_sign(0, vbuf, vlen, (unsigned char *)sigbuf, &siglen, key)) {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
         PyMem_Free(sigbuf);
         return NULL;
     }
@@ -467,7 +467,7 @@ int ecdsa_verify_asn1(EC_KEY *key, PyObject *value, PyObject *sig) {
         return -1;
 
     if ((ret = ECDSA_verify(0, vbuf, vlen, sbuf, slen, key)) == -1)
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
     return ret;
 }
 
@@ -480,7 +480,7 @@ PyObject *ecdh_compute_key(EC_KEY *keypairA, EC_KEY *pubkeyB) {
 
     if ((pkpointB = EC_KEY_get0_public_key(pubkeyB)) == NULL)
     {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        PyErr_SetString(_ec_err, "Cannot get the public key of EC_KEY object.");
         return NULL;
     }
 
@@ -492,8 +492,8 @@ PyObject *ecdh_compute_key(EC_KEY *keypairA, EC_KEY *pubkeyB) {
         return NULL;
     }
     if ((sharedkeylen = ECDH_compute_key((unsigned char *)sharedkey, sharedkeylen, pkpointB, keypairA, NULL)) == -1) {
+        m2_PyErr_Msg(_ec_err);
         PyMem_Free(sharedkey);
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
 
@@ -523,7 +523,7 @@ EC_KEY* ec_key_from_pubkey_der(PyObject *pubkey) {
     tempBuf = (const unsigned char *)keypairbuf;
     if ((keypair = d2i_EC_PUBKEY( NULL, &tempBuf, keypairbuflen)) == 0)
     {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
         return NULL;
     }
     return keypair;
@@ -542,14 +542,14 @@ EC_KEY* ec_key_from_pubkey_params(int nid, PyObject *pubkey) {
 
     keypair = ec_key_new_by_curve_name(nid);
     if (!keypair) {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
         return NULL;
     }
 
     tempBuf = (const unsigned char *)keypairbuf;
     if ((o2i_ECPublicKey( &keypair, &tempBuf, keypairbuflen)) == 0)
     {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
         return NULL;
     }
     return keypair;

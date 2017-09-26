@@ -4467,6 +4467,17 @@ m2_PyString_AsStringAndSizeInt(PyObject *obj, char **s, int *len)
     return 0;
 }
 
+#define m2_PyErr_Msg(type) m2_PyErr_Msg_Caller(type, __func__)
+
+static void m2_PyErr_Msg_Caller(PyObject *err_type, const char* caller) {
+    const char *err_msg;
+    if ((err_msg = ERR_reason_error_string(ERR_get_error())) != NULL) {
+        PyErr_SetString(err_type, err_msg);
+    } else {
+        PyErr_Format(err_type, "Unknown error in function %s.", caller);
+    }
+}
+
 
 /* C callbacks invoked by OpenSSL; these in turn call back into
 Python. */
@@ -5113,7 +5124,7 @@ PyObject *bio_read(BIO *bio, int num) {
     if (r < 0) {
         PyMem_Free(buf);
         if (ERR_peek_error()) {
-            PyErr_SetString(_bio_err, ERR_reason_error_string(ERR_get_error()));
+            m2_PyErr_Msg(_bio_err);
             return NULL;
         }
         Py_RETURN_NONE;
@@ -5144,7 +5155,7 @@ PyObject *bio_gets(BIO *bio, int num) {
     if (r < 1) {
         PyMem_Free(buf);
         if (ERR_peek_error()) {
-            PyErr_SetString(_bio_err, ERR_reason_error_string(ERR_get_error()));
+            m2_PyErr_Msg(_bio_err);
             return NULL;
         }
         Py_RETURN_NONE;
@@ -5172,7 +5183,7 @@ int bio_write(BIO *bio, PyObject *from) {
     Py_END_ALLOW_THREADS
     if (ret < 0) {
         if (ERR_peek_error()) {
-            PyErr_SetString(_bio_err, ERR_reason_error_string(ERR_get_error()));
+            m2_PyErr_Msg(_bio_err);
         }
     }
     return ret;
@@ -5842,7 +5853,7 @@ PyObject *digest_final(EVP_MD_CTX *ctx) {
     }
     if (!EVP_DigestFinal(ctx, blob, (unsigned int *)&blen)) {
         PyMem_Free(blob);
-        PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_evp_err);
         return NULL;
     }
 
@@ -6006,7 +6017,7 @@ PyObject *cipher_init(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
 
     if (!EVP_CipherInit(ctx, cipher, (unsigned char *)kbuf,
                         (unsigned char *)ibuf, mode)) {
-        PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_evp_err);
         return NULL;
     }
     Py_RETURN_NONE;
@@ -6027,7 +6038,7 @@ PyObject *cipher_update(EVP_CIPHER_CTX *ctx, PyObject *blob) {
     }
     if (!EVP_CipherUpdate(ctx, obuf, &olen, (unsigned char *)buf, len)) {
         PyMem_Free(obuf);
-        PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_evp_err);
         return NULL;
     }
 
@@ -6052,7 +6063,7 @@ PyObject *cipher_final(EVP_CIPHER_CTX *ctx) {
     }
     if (!EVP_CipherFinal(ctx, (unsigned char *)obuf, &olen)) {
         PyMem_Free(obuf);
-        PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_evp_err);
         return NULL;
     }
 
@@ -6074,7 +6085,7 @@ PyObject *sign_update(EVP_MD_CTX *ctx, PyObject *blob) {
         return NULL;
 
     if (!EVP_SignUpdate(ctx, buf, len)) {
-        PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_evp_err);
         return NULL;
     }
     Py_RETURN_NONE;
@@ -6092,9 +6103,9 @@ PyObject *sign_final(EVP_MD_CTX *ctx, EVP_PKEY *pkey) {
     }
 
     if (!EVP_SignFinal(ctx, sigbuf, &siglen, pkey)) {
+        m2_PyErr_Msg(_evp_err);
         OPENSSL_cleanse(sigbuf, siglen);
         OPENSSL_free(sigbuf);
-        PyErr_SetString(_evp_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
 
@@ -6459,12 +6470,12 @@ DH *dh_generate_parameters(int plen, int g, PyObject *pyfunc) {
     int ret;
 
     if ((gencb=BN_GENCB_new()) == NULL) {
-        PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dh_err);
         return NULL;
     }
 
     if ((dh=DH_new()) == NULL) {
-        PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dh_err);
         BN_GENCB_free(gencb);
         return NULL;
     }
@@ -6479,7 +6490,7 @@ DH *dh_generate_parameters(int plen, int g, PyObject *pyfunc) {
     if (ret)
         return dh;
 
-    PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+    m2_PyErr_Msg(_dh_err);
     DH_free(dh);
     return NULL;
 }
@@ -6502,7 +6513,7 @@ PyObject *dh_compute_key(DH *dh, PyObject *pubkey) {
         return NULL;
 
     if (!(pk = BN_mpi2bn((unsigned char *)pkbuf, pklen, NULL))) {
-        PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dh_err);
         return NULL;
     }
     if (!(key = PyMem_Malloc(DH_size(dh)))) {
@@ -6513,7 +6524,7 @@ PyObject *dh_compute_key(DH *dh, PyObject *pubkey) {
     if ((klen = DH_compute_key((unsigned char *)key, pk, dh)) == -1) {
         BN_free(pk);
         PyMem_Free(key);
-        PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dh_err);
         return NULL;
     }
 
@@ -6568,7 +6579,6 @@ PyObject *dh_get_priv(DH *dh) {
     return bn_to_mpi(priv_key);
 }
 
-/* FIXME nezrušit??? */
 PyObject *dh_set_pg(DH *dh, PyObject *pval, PyObject* gval) {
     BIGNUM* p, *g;
 
@@ -6577,7 +6587,8 @@ PyObject *dh_set_pg(DH *dh, PyObject *pval, PyObject* gval) {
         return NULL;
 
     if (!DH_set0_pqg(dh, p, NULL, g)) {
-        PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+        PyErr_SetString(_dh_err,
+            "Cannot set prime number or generator of Z_p for DH.");
         BN_free(p);
         BN_free(g);
         return NULL;
@@ -6726,7 +6737,7 @@ PyObject *rsa_set_en(RSA *rsa, PyObject *eval, PyObject* nval) {
     }
 
     if (!RSA_set0_key(rsa, n, e, NULL)) {
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        PyErr_SetString(_rsa_err, "Cannot set fields of RSA object.");
         BN_free(e);
         BN_free(n);
         return NULL;
@@ -6743,7 +6754,7 @@ static BIGNUM* PyObject_Bin_AsBIGNUM(PyObject* value) {
         return NULL;
 
     if (!(bn = BN_bin2bn((unsigned char *)vbuf, vlen, NULL))) {
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_rsa_err);
         return NULL;
         }
 
@@ -6759,7 +6770,7 @@ PyObject *rsa_set_en_bin(RSA *rsa, PyObject *eval, PyObject* nval) {
     }
 
     if (!RSA_set0_key(rsa, e, n, NULL)) {
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        PyErr_SetString(_rsa_err, "Cannot set fields of RSA object.");
         BN_free(e);
         BN_free(n);
         return NULL;
@@ -6783,8 +6794,8 @@ PyObject *rsa_private_encrypt(RSA *rsa, PyObject *from, int padding) {
     tlen = RSA_private_encrypt(flen, (unsigned char *)fbuf,
         (unsigned char *)tbuf, rsa, padding);
     if (tlen == -1) {
+        m2_PyErr_Msg(_rsa_err);
         PyMem_Free(tbuf);
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
 
@@ -6817,8 +6828,8 @@ PyObject *rsa_public_decrypt(RSA *rsa, PyObject *from, int padding) {
     tlen = RSA_public_decrypt(flen, (unsigned char *)fbuf,
         (unsigned char *)tbuf, rsa, padding);
     if (tlen == -1) {
+        m2_PyErr_Msg(_rsa_err);
         PyMem_Free(tbuf);
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
 
@@ -6848,8 +6859,8 @@ PyObject *rsa_public_encrypt(RSA *rsa, PyObject *from, int padding) {
     tlen = RSA_public_encrypt(flen, (unsigned char *)fbuf,
         (unsigned char *)tbuf, rsa, padding);
     if (tlen == -1) {
+        m2_PyErr_Msg(_rsa_err);
         PyMem_Free(tbuf);
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
 
@@ -6879,8 +6890,8 @@ PyObject *rsa_private_decrypt(RSA *rsa, PyObject *from, int padding) {
     tlen = RSA_private_decrypt(flen, (unsigned char *)fbuf,
         (unsigned char *)tbuf, rsa, padding);
     if (tlen == -1) {
+        m2_PyErr_Msg(_rsa_err);
         PyMem_Free(tbuf);
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
 #if PY_MAJOR_VERSION >= 3
@@ -6917,9 +6928,9 @@ PyObject *rsa_padding_add_pkcs1_pss(RSA *rsa, PyObject *digest, EVP_MD *hash, in
         salt_length);
 
     if (result == -1) {
+        m2_PyErr_Msg(_rsa_err);
         OPENSSL_cleanse(tbuf, tlen);
         OPENSSL_free(tbuf);
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
 #if PY_MAJOR_VERSION >= 3
@@ -6978,8 +6989,8 @@ PyObject *rsa_sign(RSA *rsa, PyObject *py_digest_string, int method_type) {
                    sign_buf, &real_buf_len, rsa);
 
     if (!ret) {
+        m2_PyErr_Msg(_rsa_err);
         PyMem_Free(sign_buf);
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
 
@@ -7016,7 +7027,7 @@ int rsa_verify(RSA *rsa, PyObject *py_verify_string, PyObject* py_sign_string, i
                      verify_len, (unsigned char *) sign_string,
                      sign_len, rsa);
     if (!ret) {
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_rsa_err);
     }
     return ret;
 }
@@ -7029,24 +7040,24 @@ PyObject *rsa_generate_key(int bits, unsigned long e, PyObject *pyfunc) {
     int ret;
 
     if ((e_big=BN_new()) == NULL) {
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_rsa_err);
         return NULL;
     }
 
     if (BN_set_word(e_big, e) == 0) {
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_rsa_err);
         BN_free(e_big);
         return NULL;
     }
 
     if ((gencb=BN_GENCB_new()) == NULL) {
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_rsa_err);
         BN_free(e_big);
         return NULL;
     }
 
     if ((rsa = RSA_new()) == NULL) {
-        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_rsa_err);
         BN_free(e_big);
         BN_GENCB_free(gencb);
         return NULL;
@@ -7063,7 +7074,7 @@ PyObject *rsa_generate_key(int bits, unsigned long e, PyObject *pyfunc) {
     if (ret)
         return SWIG_NewPointerObj((void *)rsa, SWIGTYPE_p_RSA, 0);
 
-    PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+    m2_PyErr_Msg(_rsa_err);
     RSA_free(rsa);
     return NULL;
 }
@@ -7115,12 +7126,12 @@ DSA *dsa_generate_parameters(int bits, PyObject *pyfunc) {
     int ret;
 
     if ((gencb=BN_GENCB_new()) == NULL) {
-        PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dh_err);
         return NULL;
     }
 
     if ((dsa = DSA_new()) == NULL) {
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dsa_err);
         BN_GENCB_free(gencb);
         return NULL;
     }
@@ -7136,7 +7147,7 @@ DSA *dsa_generate_parameters(int bits, PyObject *pyfunc) {
     if (ret)
         return dsa;
 
-    PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+    m2_PyErr_Msg(_dsa_err);
     DSA_free(dsa);
     return NULL;
 }
@@ -7200,7 +7211,9 @@ PyObject *dsa_set_pqg(DSA *dsa, PyObject *pval, PyObject* qval, PyObject* gval) 
         return NULL;
 
     if (!DSA_set0_pqg(dsa, p, q, g)) {
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        PyErr_SetString(
+            _dsa_err,
+            "Cannot set prime number, subprime, or generator of subgroup for DSA.");
         BN_free(p);
         BN_free(q);
         BN_free(g);
@@ -7219,12 +7232,12 @@ PyObject *dsa_set_pub(DSA *dsa, PyObject *value) {
         return NULL;
 
     if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dsa_err);
         return NULL;
     }
     if (!DSA_set0_key(dsa, bn, NULL)) {
         BN_free(bn);
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        PyErr_SetString(_dsa_err, "Cannot set private and public key for DSA.");
     }
     Py_RETURN_NONE;
 }
@@ -7311,7 +7324,7 @@ PyObject *dsa_sign(DSA *dsa, PyObject *value) {
         return NULL;
 
     if (!(sig = DSA_do_sign(vbuf, vlen, dsa))) {
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dsa_err);
         return NULL;
     }
     if (!(tuple = PyTuple_New(2))) {
@@ -7338,22 +7351,22 @@ int dsa_verify(DSA *dsa, PyObject *value, PyObject *r, PyObject *s) {
         return -1;
 
     if (!(sig = DSA_SIG_new())) {
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dsa_err);
         return -1;
     }
     if (!(pr = BN_mpi2bn((unsigned char *)rbuf, rlen, NULL))) {
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dsa_err);
         DSA_SIG_free(sig);
         return -1;
     }
     if (!(ps = BN_mpi2bn((unsigned char *)sbuf, slen, NULL))) {
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dsa_err);
         DSA_SIG_free(sig);
         BN_free(pr);
         return -1;
     }
     if (!DSA_SIG_set0(sig, pr, ps)) {
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dsa_err);
         DSA_SIG_free(sig);
         BN_free(pr);
         BN_free(ps);
@@ -7363,7 +7376,7 @@ int dsa_verify(DSA *dsa, PyObject *value, PyObject *r, PyObject *s) {
     ret = DSA_do_verify(vbuf, vlen, sig, dsa);
     DSA_SIG_free(sig);
     if (ret == -1)
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dsa_err);
     return ret;
 }
 
@@ -7382,7 +7395,7 @@ PyObject *dsa_sign_asn1(DSA *dsa, PyObject *value) {
         return NULL;
     }
     if (!DSA_sign(0, vbuf, vlen, (unsigned char *)sigbuf, &siglen, dsa)) {
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dsa_err);
         PyMem_Free(sigbuf);
         return NULL;
     }
@@ -7408,7 +7421,7 @@ int dsa_verify_asn1(DSA *dsa, PyObject *value, PyObject *sig) {
         return -1;
 
     if ((ret = DSA_verify(0, vbuf, vlen, sbuf, slen, dsa)) == -1)
-        PyErr_SetString(_dsa_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dsa_err);
     return ret;
 }
 
@@ -7488,7 +7501,7 @@ int ssl_ctx_use_x509(SSL_CTX *ctx, X509 *x) {
     int i;
     
     if (!(i = SSL_CTX_use_certificate(ctx, x))) {
-        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ssl_err);
         return -1;
     }
     return i;
@@ -7499,7 +7512,7 @@ int ssl_ctx_use_cert(SSL_CTX *ctx, char *file) {
     int i;
     
     if (!(i = SSL_CTX_use_certificate_file(ctx, file, SSL_FILETYPE_PEM))) {
-        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ssl_err);
         return -1;
     }
     return i;
@@ -7509,7 +7522,7 @@ int ssl_ctx_use_cert_chain(SSL_CTX *ctx, char *file) {
     int i;
 
     if (!(i = SSL_CTX_use_certificate_chain_file(ctx, file))) {
-        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ssl_err);
         return -1;
     }
     return i;
@@ -7520,7 +7533,7 @@ int ssl_ctx_use_privkey(SSL_CTX *ctx, char *file) {
     int i;
     
     if (!(i = SSL_CTX_use_PrivateKey_file(ctx, file, SSL_FILETYPE_PEM))) {
-        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ssl_err);
         return -1;
     }
     return i;
@@ -7530,7 +7543,7 @@ int ssl_ctx_use_rsa_privkey(SSL_CTX *ctx, RSA *rsakey) {
     int i;
 
     if (!(i = SSL_CTX_use_RSAPrivateKey(ctx, rsakey))) {
-        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ssl_err);
         return -1;
     }
     return i;
@@ -7540,7 +7553,7 @@ int ssl_ctx_use_pkey_privkey(SSL_CTX *ctx, EVP_PKEY *pkey) {
     int i;
 
     if (!(i = SSL_CTX_use_PrivateKey(ctx, pkey))) {
-        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ssl_err);
         return -1;
     }
     return i;
@@ -7551,7 +7564,7 @@ int ssl_ctx_check_privkey(SSL_CTX *ctx) {
     int ret;
     
     if (!(ret = SSL_CTX_check_private_key(ctx))) {
-        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ssl_err);
         return -1;
     }
     return ret;
@@ -7637,7 +7650,7 @@ int ssl_set_tlsext_host_name(SSL *ssl, const char *name) {
     long l;
 
     if (!(l = SSL_set_tlsext_host_name(ssl, name))) {
-        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ssl_err);
         return -1;
     }
     /* Return an "int" to match the 'typemap(out) int' in _lib.i */
@@ -7666,7 +7679,7 @@ int ssl_set_fd(SSL *ssl, int fd) {
     int ret;
     
     if (!(ret = SSL_set_fd(ssl, fd))) {
-        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ssl_err);
         return -1;
     }
     return ret;
@@ -7974,7 +7987,7 @@ PyObject *ssl_read_nbio(SSL *ssl, int num) {
             obj = Py_None;
             break;
         case SSL_ERROR_SSL:
-            PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+            m2_PyErr_Msg(_ssl_err);
             obj = NULL;
             break;
         case SSL_ERROR_SYSCALL:
@@ -8188,7 +8201,7 @@ PyObject *i2d_x509(X509 *x)
     unsigned char *buf = NULL;
     len = i2d_X509(x, &buf);
     if (len < 0) {
-        PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_x509_err);
     }
     else {     
 
@@ -8302,7 +8315,7 @@ PyObject *x509_name_get_der(X509_NAME *name)
     size_t pderlen;
     i2d_X509_NAME(name, 0);
     if (!X509_NAME_get0_der(name, (const unsigned char **)pder, &pderlen)) {
-        PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_x509_err);
         return NULL;
     }
 #if PY_MAJOR_VERSION >= 3 
@@ -8395,7 +8408,7 @@ PyObject *x509_extension_get_name(X509_EXTENSION *ext) {
     const char * ext_name_str; 
     ext_name_str = OBJ_nid2sn(OBJ_obj2nid(X509_EXTENSION_get_object(ext)));
     if (!ext_name_str) {
-        PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_x509_err);
         return NULL;
     }
 #if PY_MAJOR_VERSION >= 3 
@@ -8483,7 +8496,7 @@ make_stack_from_der_sequence(PyObject * pyEncodedString){
     const unsigned char *tmp_str = (unsigned char *)encoded_string;
     certs = d2i_SEQ_CERT(NULL, &tmp_str, encoded_string_len);
     if (!certs) {
-        PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_x509_err);
         return NULL;
     }
 
@@ -8499,7 +8512,7 @@ get_der_encoding_stack(STACK_OF(X509) *stack){
     
     len = i2d_SEQ_CERT(stack, &encoding);
     if (!encoding) {
-       PyErr_SetString(_x509_err, ERR_reason_error_string(ERR_get_error()));
+       m2_PyErr_Msg(_x509_err);
        return NULL;
     }
 
@@ -8662,7 +8675,7 @@ PyObject *pkcs7_decrypt(PKCS7 *pkcs7, EVP_PKEY *pkey, X509 *cert, int flags) {
         return NULL;
     }
     if (!PKCS7_decrypt(pkcs7, pkey, cert, bio, flags)) {
-        PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_pkcs7_err);
         BIO_free(bio);
         return NULL;
     }
@@ -8690,15 +8703,15 @@ PKCS7 *pkcs7_sign1(X509 *x509, EVP_PKEY *pkey, STACK_OF(X509) *stack, BIO *bio, 
 
     PKCS7 *p7 = PKCS7_sign(NULL, NULL, stack, bio, flags | PKCS7_STREAM);
     if (p7 == NULL) {
-        PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_pkcs7_err);
         return NULL;
     }
     if (PKCS7_sign_add_signer(p7, x509, pkey, hash, flags) == NULL) {
-        PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_pkcs7_err);
         return NULL;
     }
     if (PKCS7_final(p7, bio, flags) != 1) {
-        PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_pkcs7_err);
         return NULL;
     }
     return p7;
@@ -8724,7 +8737,7 @@ PyObject *pkcs7_verify1(PKCS7 *pkcs7, STACK_OF(X509) *stack, X509_STORE *store, 
     res = PKCS7_verify(pkcs7, stack, store, data, bio, flags);
     Py_END_ALLOW_THREADS
     if (!res) {
-        PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_pkcs7_err);
         BIO_free(bio);
         return NULL;
     }
@@ -8779,7 +8792,7 @@ PyObject *smime_read_pkcs7(BIO *bio) {
     p7=SMIME_read_PKCS7(bio, &bcont);
     Py_END_ALLOW_THREADS
     if (!p7) {
-        PyErr_SetString(_smime_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_smime_err);
         return NULL;
     }
     if (!(tuple=PyTuple_New(2))) {
@@ -8859,7 +8872,7 @@ PyObject *util_hex_to_string(PyObject *blob) {
 
     ret = hex_to_string((unsigned char *)buf, len);
     if (!ret) {
-        PyErr_SetString(_util_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_util_err);
         return NULL;
     }
 
@@ -8886,7 +8899,7 @@ PyObject *util_string_to_hex(PyObject *blob) {
     len = len0;
     ret = string_to_hex((char *)buf, &len);
     if (ret == NULL) {
-        PyErr_SetString(_util_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_util_err);
         return NULL;
     }
 #if PY_MAJOR_VERSION >= 3
@@ -8986,8 +8999,8 @@ EC_KEY* ec_key_new_by_curve_name(int nid)
     }
     group = EC_GROUP_new_by_curve_name(nid);
     if (!group) {
+        m2_PyErr_Msg(_ec_err);
         EC_KEY_free(key);
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
     EC_GROUP_set_asn1_flag(group, asn1_flag);
@@ -9018,7 +9031,7 @@ PyObject *ec_key_get_public_der(EC_KEY *key) {
     src_len = i2d_EC_PUBKEY( key, &src );
     if (src_len < 0)
     {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
         return NULL;
     }
     /* Create a PyBuffer containing a copy of the binary,
@@ -9059,7 +9072,7 @@ PyObject *ec_key_get_public_key(EC_KEY *key) {
     src_len = i2o_ECPublicKey(key, &src);
     if (src_len < 0)
     {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
         return NULL;
     }
 
@@ -9160,7 +9173,7 @@ PyObject *ecdsa_sign(EC_KEY *key, PyObject *value) {
         return NULL;
 
     if (!(sig = ECDSA_do_sign(vbuf, vlen, key))) {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
         return NULL;
     }
     if (!(tuple = PyTuple_New(2))) {
@@ -9187,23 +9200,23 @@ int ecdsa_verify(EC_KEY *key, PyObject *value, PyObject *r, PyObject *s) {
         return -1;
 
     if (!(pr = BN_mpi2bn((unsigned char *)rbuf, rlen, NULL))) {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
         return -1;
     }
     if (!(ps = BN_mpi2bn((unsigned char *)sbuf, slen, NULL))) {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
         BN_free(pr);
         return -1;
     }
 
     if (!(sig = ECDSA_SIG_new())) {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
         BN_free(pr);
         BN_free(ps);
         return -1;
     }
     if (!ECDSA_SIG_set0(sig, pr, ps)) {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        PyErr_SetString(_ec_err, "Cannot set r and s fields of ECDSA_SIG.");
         ECDSA_SIG_free(sig);
         BN_free(pr);
         BN_free(ps);
@@ -9212,7 +9225,7 @@ int ecdsa_verify(EC_KEY *key, PyObject *value, PyObject *r, PyObject *s) {
     ret = ECDSA_do_verify(vbuf, vlen, sig, key);
     ECDSA_SIG_free(sig);
     if (ret == -1)
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
     return ret;
 }
 
@@ -9232,7 +9245,7 @@ PyObject *ecdsa_sign_asn1(EC_KEY *key, PyObject *value) {
         return NULL;
     }
     if (!ECDSA_sign(0, vbuf, vlen, (unsigned char *)sigbuf, &siglen, key)) {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
         PyMem_Free(sigbuf);
         return NULL;
     }
@@ -9258,7 +9271,7 @@ int ecdsa_verify_asn1(EC_KEY *key, PyObject *value, PyObject *sig) {
         return -1;
 
     if ((ret = ECDSA_verify(0, vbuf, vlen, sbuf, slen, key)) == -1)
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
     return ret;
 }
 
@@ -9271,7 +9284,7 @@ PyObject *ecdh_compute_key(EC_KEY *keypairA, EC_KEY *pubkeyB) {
 
     if ((pkpointB = EC_KEY_get0_public_key(pubkeyB)) == NULL)
     {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        PyErr_SetString(_ec_err, "Cannot get the public key of EC_KEY object.");
         return NULL;
     }
 
@@ -9283,8 +9296,8 @@ PyObject *ecdh_compute_key(EC_KEY *keypairA, EC_KEY *pubkeyB) {
         return NULL;
     }
     if ((sharedkeylen = ECDH_compute_key((unsigned char *)sharedkey, sharedkeylen, pkpointB, keypairA, NULL)) == -1) {
+        m2_PyErr_Msg(_ec_err);
         PyMem_Free(sharedkey);
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
         return NULL;
     }
 
@@ -9314,7 +9327,7 @@ EC_KEY* ec_key_from_pubkey_der(PyObject *pubkey) {
     tempBuf = (const unsigned char *)keypairbuf;
     if ((keypair = d2i_EC_PUBKEY( NULL, &tempBuf, keypairbuflen)) == 0)
     {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
         return NULL;
     }
     return keypair;
@@ -9333,14 +9346,14 @@ EC_KEY* ec_key_from_pubkey_params(int nid, PyObject *pubkey) {
 
     keypair = ec_key_new_by_curve_name(nid);
     if (!keypair) {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
         return NULL;
     }
 
     tempBuf = (const unsigned char *)keypairbuf;
     if ((o2i_ECPublicKey( &keypair, &tempBuf, keypairbuflen)) == 0)
     {
-        PyErr_SetString(_ec_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ec_err);
         return NULL;
     }
     return keypair;
@@ -17654,7 +17667,7 @@ SWIGINTERN PyObject *_wrap_ssl_ctx_new(PyObject *self, PyObject *args) {
     if (result != NULL)
     resultobj = SWIG_NewPointerObj(result, SWIGTYPE_p_SSL_CTX, 0);
     else {
-      PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+      m2_PyErr_Msg(_ssl_err);
       resultobj = NULL;
     }
   }

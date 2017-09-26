@@ -60,12 +60,12 @@ DH *dh_generate_parameters(int plen, int g, PyObject *pyfunc) {
     int ret;
 
     if ((gencb=BN_GENCB_new()) == NULL) {
-        PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dh_err);
         return NULL;
     }
 
     if ((dh=DH_new()) == NULL) {
-        PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dh_err);
         BN_GENCB_free(gencb);
         return NULL;
     }
@@ -80,7 +80,7 @@ DH *dh_generate_parameters(int plen, int g, PyObject *pyfunc) {
     if (ret)
         return dh;
 
-    PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+    m2_PyErr_Msg(_dh_err);
     DH_free(dh);
     return NULL;
 }
@@ -103,7 +103,7 @@ PyObject *dh_compute_key(DH *dh, PyObject *pubkey) {
         return NULL;
 
     if (!(pk = BN_mpi2bn((unsigned char *)pkbuf, pklen, NULL))) {
-        PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dh_err);
         return NULL;
     }
     if (!(key = PyMem_Malloc(DH_size(dh)))) {
@@ -114,7 +114,7 @@ PyObject *dh_compute_key(DH *dh, PyObject *pubkey) {
     if ((klen = DH_compute_key((unsigned char *)key, pk, dh)) == -1) {
         BN_free(pk);
         PyMem_Free(key);
-        PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_dh_err);
         return NULL;
     }
 
@@ -169,7 +169,6 @@ PyObject *dh_get_priv(DH *dh) {
     return bn_to_mpi(priv_key);
 }
 
-/* FIXME nezrušit??? */
 PyObject *dh_set_pg(DH *dh, PyObject *pval, PyObject* gval) {
     BIGNUM* p, *g;
 
@@ -178,7 +177,8 @@ PyObject *dh_set_pg(DH *dh, PyObject *pval, PyObject* gval) {
         return NULL;
 
     if (!DH_set0_pqg(dh, p, NULL, g)) {
-        PyErr_SetString(_dh_err, ERR_reason_error_string(ERR_get_error()));
+        PyErr_SetString(_dh_err,
+            "Cannot set prime number or generator of Z_p for DH.");
         BN_free(p);
         BN_free(g);
         return NULL;

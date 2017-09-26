@@ -208,6 +208,17 @@ m2_PyString_AsStringAndSizeInt(PyObject *obj, char **s, int *len)
     return 0;
 }
 
+#define m2_PyErr_Msg(type) m2_PyErr_Msg_Caller(type, __func__)
+
+static void m2_PyErr_Msg_Caller(PyObject *err_type, const char* caller) {
+    const char *err_msg;
+    if ((err_msg = ERR_reason_error_string(ERR_get_error())) != NULL) {
+        PyErr_SetString(err_type, err_msg);
+    } else {
+        PyErr_Format(err_type, "Unknown error in function %s.", caller);
+    }
+}
+
 
 /* C callbacks invoked by OpenSSL; these in turn call back into
 Python. */

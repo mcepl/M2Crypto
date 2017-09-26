@@ -138,7 +138,7 @@ PyObject *bio_read(BIO *bio, int num) {
     if (r < 0) {
         PyMem_Free(buf);
         if (ERR_peek_error()) {
-            PyErr_SetString(_bio_err, ERR_reason_error_string(ERR_get_error()));
+            m2_PyErr_Msg(_bio_err);
             return NULL;
         }
         Py_RETURN_NONE;
@@ -169,7 +169,7 @@ PyObject *bio_gets(BIO *bio, int num) {
     if (r < 1) {
         PyMem_Free(buf);
         if (ERR_peek_error()) {
-            PyErr_SetString(_bio_err, ERR_reason_error_string(ERR_get_error()));
+            m2_PyErr_Msg(_bio_err);
             return NULL;
         }
         Py_RETURN_NONE;
@@ -197,7 +197,7 @@ int bio_write(BIO *bio, PyObject *from) {
     Py_END_ALLOW_THREADS
     if (ret < 0) {
         if (ERR_peek_error()) {
-            PyErr_SetString(_bio_err, ERR_reason_error_string(ERR_get_error()));
+            m2_PyErr_Msg(_bio_err);
         }
     }
     return ret;

@@ -73,7 +73,7 @@ PyObject *pkcs7_decrypt(PKCS7 *pkcs7, EVP_PKEY *pkey, X509 *cert, int flags) {
         return NULL;
     }
     if (!PKCS7_decrypt(pkcs7, pkey, cert, bio, flags)) {
-        PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_pkcs7_err);
         BIO_free(bio);
         return NULL;
     }
@@ -103,15 +103,15 @@ PKCS7 *pkcs7_sign1(X509 *x509, EVP_PKEY *pkey, STACK_OF(X509) *stack, BIO *bio, 
 
     PKCS7 *p7 = PKCS7_sign(NULL, NULL, stack, bio, flags | PKCS7_STREAM);
     if (p7 == NULL) {
-        PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_pkcs7_err);
         return NULL;
     }
     if (PKCS7_sign_add_signer(p7, x509, pkey, hash, flags) == NULL) {
-        PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_pkcs7_err);
         return NULL;
     }
     if (PKCS7_final(p7, bio, flags) != 1) {
-        PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_pkcs7_err);
         return NULL;
     }
     return p7;
@@ -140,7 +140,7 @@ PyObject *pkcs7_verify1(PKCS7 *pkcs7, STACK_OF(X509) *stack, X509_STORE *store, 
     res = PKCS7_verify(pkcs7, stack, store, data, bio, flags);
     Py_END_ALLOW_THREADS
     if (!res) {
-        PyErr_SetString(_pkcs7_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_pkcs7_err);
         BIO_free(bio);
         return NULL;
     }
@@ -199,7 +199,7 @@ PyObject *smime_read_pkcs7(BIO *bio) {
     p7=SMIME_read_PKCS7(bio, &bcont);
     Py_END_ALLOW_THREADS
     if (!p7) {
-        PyErr_SetString(_smime_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_smime_err);
         return NULL;
     }
     if (!(tuple=PyTuple_New(2))) {

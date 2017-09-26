@@ -79,7 +79,7 @@ extern SSL_METHOD *TLSv1_method(void);
     if ($1 != NULL)
         $result = SWIG_NewPointerObj($1, $1_descriptor, 0);
     else {
-        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ssl_err);
         $result = NULL;
     }
 }
@@ -294,7 +294,7 @@ int ssl_ctx_use_x509(SSL_CTX *ctx, X509 *x) {
     int i;
     
     if (!(i = SSL_CTX_use_certificate(ctx, x))) {
-        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ssl_err);
         return -1;
     }
     return i;
@@ -305,7 +305,7 @@ int ssl_ctx_use_cert(SSL_CTX *ctx, char *file) {
     int i;
     
     if (!(i = SSL_CTX_use_certificate_file(ctx, file, SSL_FILETYPE_PEM))) {
-        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ssl_err);
         return -1;
     }
     return i;
@@ -315,7 +315,7 @@ int ssl_ctx_use_cert_chain(SSL_CTX *ctx, char *file) {
     int i;
 
     if (!(i = SSL_CTX_use_certificate_chain_file(ctx, file))) {
-        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ssl_err);
         return -1;
     }
     return i;
@@ -326,7 +326,7 @@ int ssl_ctx_use_privkey(SSL_CTX *ctx, char *file) {
     int i;
     
     if (!(i = SSL_CTX_use_PrivateKey_file(ctx, file, SSL_FILETYPE_PEM))) {
-        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ssl_err);
         return -1;
     }
     return i;
@@ -336,7 +336,7 @@ int ssl_ctx_use_rsa_privkey(SSL_CTX *ctx, RSA *rsakey) {
     int i;
 
     if (!(i = SSL_CTX_use_RSAPrivateKey(ctx, rsakey))) {
-        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ssl_err);
         return -1;
     }
     return i;
@@ -346,7 +346,7 @@ int ssl_ctx_use_pkey_privkey(SSL_CTX *ctx, EVP_PKEY *pkey) {
     int i;
 
     if (!(i = SSL_CTX_use_PrivateKey(ctx, pkey))) {
-        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ssl_err);
         return -1;
     }
     return i;
@@ -357,7 +357,7 @@ int ssl_ctx_check_privkey(SSL_CTX *ctx) {
     int ret;
     
     if (!(ret = SSL_CTX_check_private_key(ctx))) {
-        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ssl_err);
         return -1;
     }
     return ret;
@@ -443,7 +443,7 @@ int ssl_set_tlsext_host_name(SSL *ssl, const char *name) {
     long l;
 
     if (!(l = SSL_set_tlsext_host_name(ssl, name))) {
-        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ssl_err);
         return -1;
     }
     /* Return an "int" to match the 'typemap(out) int' in _lib.i */
@@ -472,7 +472,7 @@ int ssl_set_fd(SSL *ssl, int fd) {
     int ret;
     
     if (!(ret = SSL_set_fd(ssl, fd))) {
-        PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(_ssl_err);
         return -1;
     }
     return ret;
@@ -780,7 +780,7 @@ PyObject *ssl_read_nbio(SSL *ssl, int num) {
             obj = Py_None;
             break;
         case SSL_ERROR_SSL:
-            PyErr_SetString(_ssl_err, ERR_reason_error_string(ERR_get_error()));
+            m2_PyErr_Msg(_ssl_err);
             obj = NULL;
             break;
         case SSL_ERROR_SYSCALL:
