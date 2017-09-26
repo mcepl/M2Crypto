@@ -1,8 +1,14 @@
-0.26.3 - 2016-03-21
+0.26.4 - 2017-09-26
+-------------------
+- Proper fix of deprecation warning for OpenSSL 1.1.0
+- Small mostly stylistic bugfixes
+- Emergency release to fix FTBFS.
+
+0.26.3 - 2017-09-22
 -------------------
 - Fix a syntax typo.
 
-0.26.2 - 2016-03-21
+0.26.2 - 2017-09-20
 -------------------
 - port to support OpenSSL 1.1.0 API
 - add generated Sphinx documentation
@@ -135,7 +141,7 @@ with his improvements cherry picked to the new development branch)
   was held by another thread, by Miloslav Trmac
 - Allow more blocking OpenSSL functions to run without GIL, by Miloslav Trmac
 - Fixed httpslib to send only the path+query+fragment part of the URL when
-  using CONNECT proxy, by James Bowes  
+  using CONNECT proxy, by James Bowes
 - SSLServer.__init__ now takes optional bind_and_activate parameter and
   initializes by calling SocketServer.BaseServer.__init__, which
   are Python 2.6 compatibility fixes, by Christian
@@ -146,7 +152,7 @@ with his improvements cherry picked to the new development branch)
 - Added support for disabling padding when using RSA encryption,
   by Chris Collis
 - ASN1_INTEGERs can now be larger than fits in an int, for example to support
-  X509 certificates with large serial numbers, 
+  X509 certificates with large serial numbers,
   patch by Mikhail Vorozhtsov and testcase by Barry G.
 - Reverted a change done in 0.17 to m2urllib2 which changed urls to include
   host when it should stay as it was
@@ -272,7 +278,7 @@ with his improvements cherry picked to the new development branch)
   are both None
 - Fixed X509.check_purpose() (was always raising exceptions)
 - smime_read_pkcs7 was changed to automatically call BIO_set_mem_eof_return
-  on memory BIOs because otherwise the read would fail with 
+  on memory BIOs because otherwise the read would fail with
   "SMIME_Error: not enough data"
 - X509.new_extension('subjectKeyIdentifier', 'hash') raises ValueError instead
   of crashing Python
@@ -354,7 +360,7 @@ with his improvements cherry picked to the new development branch)
   M2Crypto.Rand.
 - Updated ZServerSSL files to match Zope 2.7.0 versions.
 - Integrated (overlapping) patches by Peter Teniz and Heikki Toivonen
-  covering operations on X.509-related structures that gives M2Crypto 
+  covering operations on X.509-related structures that gives M2Crypto
   PKI functionality. Thanks Peter and Heikki.
 - Peter Teniz contributed demo2004/pki/x509auth.py.
 - Created demo2004/ directory that will contain new or updated demos.
@@ -366,15 +372,15 @@ with his improvements cherry picked to the new development branch)
 -------------------------
 - Patches from Artur Frysiak <wiget@pld-linux.org>. Thanks Artur.
   = Allow using a passphrase callback in class SMIME.
-  = Added method get0_signers to class PKCS7, which retrieves signers' 
+  = Added method get0_signers to class PKCS7, which retrieves signers'
     certificates from a PKCS7 blob.
   = Added methods as_pem and save_pem to class X509.
   = Added file version.py.
-  = Allow SSL.Context.load_verify_locations to accept both 'cafile' and 
+  = Allow SSL.Context.load_verify_locations to accept both 'cafile' and
     'capath'.
-- Fixed BIO.read() not reading until EOF. Thanks to Egil Muller 
+- Fixed BIO.read() not reading until EOF. Thanks to Egil Muller
   <redhog@redhog.org> for suggestion.
-- Honour 'mode' parameter in SSL.Connection.makefile. Thanks again to Egil 
+- Honour 'mode' parameter in SSL.Connection.makefile. Thanks again to Egil
   Muller.
 - Roger Binns contributed epydoc-generated docs for M2Crypto. Thanks Roger.
 - Peter Teniz contributed patches to create X.509 requests and certificates.
@@ -387,24 +393,24 @@ with his improvements cherry picked to the new development branch)
 --------------------
 - ZServerSSL with client certificate-based authentication rides again.
 - Created Makefile for Python 2.3.
-- Modified LICENCE: changed my name to the generic "the author" in the 
+- Modified LICENCE: changed my name to the generic "the author" in the
   all-caps disclaimer paragraph.
 - Allow to save RSA key pair in the clear.
 - ZServerSSL for Zope 2.7.
-- Excluded RC5. IDEA was taken out several releases ago. This should 
+- Excluded RC5. IDEA was taken out several releases ago. This should
   allow M2Crypto to build with stock OpenSSL on various Linuxen.
 - Added ssl_set_tmp_dh_callback.
 - Added ssl_set_tmp_rsa and ssl_set_tmp_rsa_callback to support weak-cipher
   browsers.
-- ZServerSSL exports SSL_CIPHER request header (a la mod_ssl) to Zope 
+- ZServerSSL exports SSL_CIPHER request header (a la mod_ssl) to Zope
   applications.
 - Perform distutils's SWIG .i search path tweaking within setup.py. setup.py
   should now work "out of the box".
-- Added contrib/smimeplus.py, a high-level S/MIME interface, contributed by 
+- Added contrib/smimeplus.py, a high-level S/MIME interface, contributed by
   Bernard Yue <bernie@3captus.com>. Thanks Bernard.
-- Added in long forms of nid's in X509_Name. Thanks to William K Volkman 
+- Added in long forms of nid's in X509_Name. Thanks to William K Volkman
   <development@netshark.com> for patch.
-- Updated Mac OS X build instructions. Thanks to Larry Bugbee 
+- Updated Mac OS X build instructions. Thanks to Larry Bugbee
 
 
  Changes since 0.10
@@ -427,19 +433,19 @@ with his improvements cherry picked to the new development branch)
  Changes since 0.09
 --------------------
 - Updated to OpenSSL 0.9.7. Thanks to Toby Allsopp <toby@MI6.GEN.NZ> for
-  patches. 
-- Added functionality to create a basic certificate request. Also 
-  contributed by Toby Allsopp. 
+  patches.
+- Added functionality to create a basic certificate request. Also
+  contributed by Toby Allsopp.
 - Finally, AES!
 
 
  Changes since 0.08
 --------------------
-- Replaced demo/Zope/ZServer/__init__.py with the correct version 
+- Replaced demo/Zope/ZServer/__init__.py with the correct version
   for Zope 2.6.0.
 - Added a sample starts.bat for ZServerSSL.
 - Incoporated a patch by prashanth@jibe.biz that handled the
-  new-in-Python-2.2.2 "strict" parameter for the various HTTP[S] connection 
+  new-in-Python-2.2.2 "strict" parameter for the various HTTP[S] connection
   classes in httplib.py. Thanks prashanth. This fixes M2Crypto's XMLRPC
   support for Python 2.2.2. (Apparently it was working for Python 2.2.1.)
 - Incorporated some cosmetic patches from Adam Karpierz <karpierz@zope.pl>.
@@ -457,7 +463,7 @@ with his improvements cherry picked to the new development branch)
 - Included in contrib/ Isaac Salzberg's application of Mihai Ibanescu's
   patch that allows IIS interoperability thru an authenticating proxy.
   Thanks Isaac.
-- Included in contrib/ patch by Dave Brueck <dave@pythonaprocrypha.com> 
+- Included in contrib/ patch by Dave Brueck <dave@pythonaprocrypha.com>
   that has smarter non-blocking behaviour. Thanks Dave.
 
 
@@ -479,7 +485,7 @@ with his improvements cherry picked to the new development branch)
  Changes since 0.05
 -----------------------
 - Handled the cases where Python callbacks raised exceptions.
-- Fixed a NULL-deref bug in _ssl.i which crashes Medusa https when IE 
+- Fixed a NULL-deref bug in _ssl.i which crashes Medusa https when IE
   or Opera comes a-calling.
 - ZServerSSL rides again - a more robust ZServerSSL for Zope 2.3.0.
 - Added the MIME type 'application/x-x509-ca-cert' to
@@ -503,17 +509,17 @@ with his improvements cherry picked to the new development branch)
 - Fixed yet more memory leaks. Thanks to Ray Suorsa <res@loudcloud.com>.
 - Build instructions for Borland BC++ 5.5 free compiler suite.
 - Bundles the June 2000 unencumbered release of Medusa.
-- SSL callback thread-safety. Thanks again to Ray Suorsa for insights and 
+- SSL callback thread-safety. Thanks again to Ray Suorsa for insights and
   patches.
-- Renamed M2Crypto.M2Crypto to M2Crypto.m2 to prevent package/module loading 
+- Renamed M2Crypto.M2Crypto to M2Crypto.m2 to prevent package/module loading
   confusion.
 - SSL.Session and a demo in demo/ssl/sess.py.
 - https_srv.py, an enhanced, https version of SimpleHTTPServer.py.
-- Interface change: SMIME.load_pkcs7_bio() is renamed 
-  SMIME.smime_load_pkcs7_bio(), similarly SMIME.load_pkcs7() to 
+- Interface change: SMIME.load_pkcs7_bio() is renamed
+  SMIME.smime_load_pkcs7_bio(), similarly SMIME.load_pkcs7() to
   SMIME.smime_load_pkcs7(); these load PKCS7 objects generated by S/MIME.
-- Interface change: SMIME.load_pkcs7_bio() now loads a PKCS7 PEM file, i.e., a 
-  file of the format "-----BEGIN PKCS7-----". 
+- Interface change: SMIME.load_pkcs7_bio() now loads a PKCS7 PEM file, i.e., a
+  file of the format "-----BEGIN PKCS7-----".
 - Works with both Python 2.0 and Python 1.5.2.
 - OpenSSL 0.9.6. (Possibly incompatible with earlier OpenSSL releases.)
 - Unit tests with PyUnit.
@@ -522,7 +528,7 @@ with his improvements cherry picked to the new development branch)
     =   Diligent error checking.
     =   Fixed memory leaks.
 - Renamed M2Crypto.urllib2 to M2Crypto.m2urllib.
-- HTTPS clients of Python 1.5.2's and Python 2.0's httplib and urllib. 
+- HTTPS clients of Python 1.5.2's and Python 2.0's httplib and urllib.
 
 
  Changes since 0.03
@@ -536,7 +542,7 @@ with his improvements cherry picked to the new development branch)
 - Unified SSL read() and write() for synchronous and asynchronous operation.
 - S/MIME and PKCS #7.
 - Integrated with OpenSSL 0.9.5.
-- Enhanced the PRNG interface. 
+- Enhanced the PRNG interface.
 
 
  Changes since 0.02
@@ -549,7 +555,7 @@ with his improvements cherry picked to the new development branch)
 6. Beginnings of PGP2 support.
 7. Replaced eval() calls with other (hopefully) safe ones.
 8. Miscellaneous enhancements and bug fixes.
-   
+
 
  Changes since 0.01
 -----------------------
@@ -559,12 +565,12 @@ with his improvements cherry picked to the new development branch)
 		- An SSLServer modeled after SocketServer.
 		- A ForkingSSLServer that seems to work well.
 		- A ThreadingSSLServer that runs one thread at a time. (!) ;-)
-		
+
 	For building servers, nonblocking i/o:
 		- An ssl_dispatcher modeled after asyncore.dispatcher.
 
 	A HTTPS server based on Medusa.
-	
+
 	For client-side web programming:
 		- httpslib
 		- urllib2
@@ -574,7 +580,7 @@ with his improvements cherry picked to the new development branch)
 3. Reduced per-module name space pollution.
 4. Have Swig check for NULL pointers: reduced .i cut-&-paste.
 5. Standardise on MPINT for passing big integers between Python and OpenSSL.
-6. Removed MD5, SHA1, RIPEMD160. Just use EVP.MessageDigest.  
-7. Removed HMAC. Just use EVP.HMAC.  
+6. Removed MD5, SHA1, RIPEMD160. Just use EVP.MessageDigest.
+7. Removed HMAC. Just use EVP.HMAC.
 
 
