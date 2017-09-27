@@ -11,6 +11,7 @@ Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 """
 import glob
+import logging
 import os
 import platform
 import string
@@ -25,6 +26,10 @@ from distutils.version import StrictVersion
 import setuptools
 from setuptools.command import build_ext
 
+logging.basicConfig(format='%(levelname)s:%(funcName)s:%(message)s',
+                    stream=sys.stdout, level=logging.INFO)
+log = logging.getLogger('setup')
+
 REQUIRED_SWIG_VERSION = '2.0.4'
 MAXIMUM_OPENSSL_VERSION = '1.0.1'
 
@@ -32,12 +37,19 @@ if sys.version_info[:2] <= (2, 6):
     # This covers hopefully only RHEL-6 (users of any other 2.6 Pythons
     # ... Solaris?, *BSD? ... should file an issue and be prepared to
     # help with adjusting this script.
-    requires_list = ["unittest2"]
-    _multiarch = ""
+    requires_list = ["unittest2==0.5.1"]
 else:
     requires_list = ['typing']
-    import sysconfig
-    _multiarch = sysconfig.get_config_var("MULTIARCH")
+
+
+def _get_additional_includes():
+    pid = subprocess.Popen(['cpp', '-Wp,-v', '-'],
+                           stdin=open(os.devnull, 'r'),
+                           stdout=subprocess.PIPE,
+                           stderr=subprocess.PIPE)
+    _, err = pid.communicate()
+    err = [line.lstrip() for line in err.split('\n') if line and line[0] == ' ']
+    return err
 
 
 def openssl_version(req_ver, required=False):
@@ -76,6 +88,7 @@ def openssl_version(req_ver, required=False):
 
 class _M2CryptoSDist(sdist.sdist):
     """Make sure we don't run sdist with old OpenSSL."""
+
     def run(self):
         if openssl_version(MAXIMUM_OPENSSL_VERSION, True):
             sdist.sdist.run(self)
@@ -86,26 +99,25 @@ class _M2CryptoSDist(sdist.sdist):
 
 
 class _M2CryptoBuild(build.build):
-    '''Specialization of build to enable swig_opts to inherit any
-    include_dirs settings made at the command line or in a setup.cfg file'''
+    """Enable swig_opts to inherit any include_dirs settings made elsewhere."""
+
     user_options = build.build.user_options + \
         [('openssl=', 'o', 'Prefix for openssl installation location')]
 
     def initialize_options(self):
-        '''Overload to enable custom openssl settings to be picked up'''
-
+        """Overload to enable custom openssl settings to be picked up."""
         build.build.initialize_options(self)
         self.openssl = None
 
 
 class _M2CryptoBuildExt(build_ext.build_ext):
-    '''Specialization of build_ext to enable swig_opts to inherit any
-    include_dirs settings made at the command line or in a setup.cfg file'''
+    """Enable swig_opts to inherit any include_dirs settings made elsewhere."""
+
     user_options = build_ext.build_ext.user_options + \
         [('openssl=', 'o', 'Prefix for openssl installation location')]
 
     def initialize_options(self):
-        '''Overload to enable custom openssl settings to be picked up'''
+        """Overload to enable custom openssl settings to be picked up."""
         build_ext.build_ext.initialize_options(self)
 
         # openssl is the attribute corresponding to openssl directory prefix
@@ -130,9 +142,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
             self.openssl = '/usr'
 
     def finalize_options(self):
-        '''Overloaded build_ext implementation to append custom openssl
-        include file and library linking options'''
-
+        """Append custom openssl include file and library linking options."""
         build_ext.build_ext.finalize_options(self)
 
         if self.swig_opts is None:
@@ -143,16 +153,16 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         if _openssl and os.path.isdir(_openssl):
             self.openssl = _openssl
 
-        self.include_dirs.append(os.path.join(self.openssl, 'include'))
+        log.debug('self.include_dirs = %s', self.include_dirs)
+        log.debug('self.openssl = %s', self.openssl)
         openssl_library_dir = os.path.join(self.openssl, 'lib')
 
         if platform.system() == "Linux":
-            if _multiarch:  # on Fedora/RHEL it is an empty string
-                self.include_dirs.append(
-                    os.path.join(self.openssl, 'include', _multiarch))
-            else:
-                self.include_dirs.append(
-                    os.path.join(self.openssl, 'include', 'openssl'))
+            self.include_dirs += _get_additional_includes()
+            inc_openssl_dir = '/usr/include/openssl'
+            if inc_openssl_dir not in self.include_dirs:
+                self.include_dirs.append(inc_openssl_dir)
+            log.debug('self.include_dirs = %s', self.include_dirs)
 
             # For RedHat-based distros, the '-D__{arch}__' option for
             # Swig needs to be normalized, particularly on i386.
@@ -203,7 +213,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
 def swig_version(req_ver):
     # type: (str) -> bool
     """
-    Compare version of the swig with the required version
+    Compare version of the swig with the required version.
 
     :param req_ver: required version as a str (e.g., '2.0.4')
     :return: Boolean indicating whether the satisfying version of swig
