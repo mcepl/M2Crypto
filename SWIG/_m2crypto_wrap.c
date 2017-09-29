@@ -6669,6 +6669,54 @@ PyObject *rsa_get_n(RSA *rsa) {
     return bn_to_mpi(n);
 }
 
+PyObject *rsa_set_e(RSA *rsa, PyObject *eval) {
+    const BIGNUM* n_read = NULL;
+    BIGNUM* n = NULL;
+    BIGNUM* e;
+
+    if (!(e = m2_PyObject_AsBIGNUM(eval, _rsa_err))) {
+        return NULL;
+    }
+
+    /* n and e must be set at the same time so if e is unset, set it to zero */
+    RSA_get0_key(rsa, &n_read, NULL, NULL);
+    if (!n_read) {
+        n = BN_new();
+    }
+
+    if (RSA_set0_key(rsa, n, e, NULL) != 1) {
+        PyErr_SetFromErrno(_rsa_err);
+        BN_free(e);
+        BN_free(n);
+        return NULL;
+    }
+    Py_RETURN_NONE;
+}
+
+PyObject *rsa_set_n(RSA *rsa, PyObject *nval) {
+    BIGNUM* n;
+    const BIGNUM* e_read = NULL;
+    BIGNUM* e = NULL;
+
+    if (!(n = m2_PyObject_AsBIGNUM(nval, _rsa_err))) {
+        return NULL;
+    }
+
+    /* n and e must be set at the same time so if e is unset, set it to zero */
+    RSA_get0_key(rsa, NULL, &e_read, NULL);
+    if (!e_read) {
+        e = BN_new();
+    }
+
+    if (RSA_set0_key(rsa, n, e, NULL) != 1) {
+        PyErr_SetFromErrno(_rsa_err);
+        BN_free(n);
+        BN_free(e);
+        return NULL;
+    }
+    Py_RETURN_NONE;
+}
+
 PyObject *rsa_set_en(RSA *rsa, PyObject *eval, PyObject* nval) {
     BIGNUM* e, *n;
 
@@ -15605,6 +15653,74 @@ SWIGINTERN PyObject *_wrap_rsa_get_n(PyObject *self, PyObject *args) {
     }
   }
   result = (PyObject *)rsa_get_n(arg1);
+  {
+    resultobj=result;
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_rsa_set_e(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  RSA *arg1 = (RSA *) 0 ;
+  PyObject *arg2 = (PyObject *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject *result = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"rsa_set_e",2,2,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_RSA, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "rsa_set_e" "', argument " "1"" of type '" "RSA *""'"); 
+  }
+  arg1 = (RSA *)(argp1);
+  {
+    arg2=obj1;
+  }
+  {
+    if (!arg1) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  result = (PyObject *)rsa_set_e(arg1,arg2);
+  {
+    resultobj=result;
+  }
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_rsa_set_n(PyObject *self, PyObject *args) {
+  PyObject *resultobj = 0;
+  RSA *arg1 = (RSA *) 0 ;
+  PyObject *arg2 = (PyObject *) 0 ;
+  void *argp1 = 0 ;
+  int res1 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject *result = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"rsa_set_n",2,2,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0, &argp1,SWIGTYPE_p_RSA, 0 |  0 );
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "rsa_set_n" "', argument " "1"" of type '" "RSA *""'"); 
+  }
+  arg1 = (RSA *)(argp1);
+  {
+    arg2=obj1;
+  }
+  {
+    if (!arg1) {
+      SWIG_exception(SWIG_ValueError,"Received a NULL pointer.");
+    }
+  }
+  result = (PyObject *)rsa_set_n(arg1,arg2);
   {
     resultobj=result;
   }
@@ -28963,6 +29079,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"rsa_write_pub_key", _wrap_rsa_write_pub_key, METH_VARARGS, NULL},
 	 { (char *)"rsa_get_e", _wrap_rsa_get_e, METH_VARARGS, NULL},
 	 { (char *)"rsa_get_n", _wrap_rsa_get_n, METH_VARARGS, NULL},
+	 { (char *)"rsa_set_e", _wrap_rsa_set_e, METH_VARARGS, NULL},
+	 { (char *)"rsa_set_n", _wrap_rsa_set_n, METH_VARARGS, NULL},
 	 { (char *)"rsa_set_en", _wrap_rsa_set_en, METH_VARARGS, NULL},
 	 { (char *)"PyObject_Bin_AsBIGNUM", _wrap_PyObject_Bin_AsBIGNUM, METH_VARARGS, NULL},
 	 { (char *)"rsa_set_en_bin", _wrap_rsa_set_en_bin, METH_VARARGS, NULL},
