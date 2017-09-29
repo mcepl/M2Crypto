@@ -123,6 +123,54 @@ PyObject *rsa_get_n(RSA *rsa) {
     return bn_to_mpi(n);
 }
 
+PyObject *rsa_set_e(RSA *rsa, PyObject *eval) {
+    const BIGNUM* n_read = NULL;
+    BIGNUM* n = NULL;
+    BIGNUM* e;
+
+    if (!(e = m2_PyObject_AsBIGNUM(eval, _rsa_err))) {
+        return NULL;
+    }
+
+    /* n and e must be set at the same time so if e is unset, set it to zero */
+    RSA_get0_key(rsa, &n_read, NULL, NULL);
+    if (!n_read) {
+        n = BN_new();
+    }
+
+    if (RSA_set0_key(rsa, n, e, NULL) != 1) {
+        PyErr_SetFromErrno(_rsa_err);
+        BN_free(e);
+        BN_free(n);
+        return NULL;
+    }
+    Py_RETURN_NONE;
+}
+
+PyObject *rsa_set_n(RSA *rsa, PyObject *nval) {
+    BIGNUM* n;
+    const BIGNUM* e_read = NULL;
+    BIGNUM* e = NULL;
+
+    if (!(n = m2_PyObject_AsBIGNUM(nval, _rsa_err))) {
+        return NULL;
+    }
+
+    /* n and e must be set at the same time so if e is unset, set it to zero */
+    RSA_get0_key(rsa, NULL, &e_read, NULL);
+    if (!e_read) {
+        e = BN_new();
+    }
+
+    if (RSA_set0_key(rsa, n, e, NULL) != 1) {
+        PyErr_SetFromErrno(_rsa_err);
+        BN_free(n);
+        BN_free(e);
+        return NULL;
+    }
+    Py_RETURN_NONE;
+}
+
 PyObject *rsa_set_en(RSA *rsa, PyObject *eval, PyObject* nval) {
     BIGNUM* e, *n;
 

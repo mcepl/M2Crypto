@@ -181,6 +181,37 @@ class RSATestCase(unittest.TestCase):
                 b'\000\000\000\003\001\000\001',
                 b'\000\000\000\003\001')
 
+    def test_set_n(self):
+        rsa = m2.rsa_new()
+        m2.rsa_set_n(rsa, b'\000\000\000\003\001\000\001')
+
+        n = m2.rsa_get_n(rsa)
+        e = m2.rsa_get_e(rsa)
+
+        self.assertEqual(n, b'\000\000\000\003\001\000\001')
+        self.assertEqual(e, b'\x00\x00\x00\x00')
+
+    def test_set_e(self):
+        rsa = m2.rsa_new()
+        m2.rsa_set_e(rsa, b'\000\000\000\003\001\000\001')
+
+        n = m2.rsa_get_n(rsa)
+        e = m2.rsa_get_e(rsa)
+
+        self.assertEqual(e, b'\000\000\000\003\001\000\001')
+        self.assertEqual(n, b'\x00\x00\x00\x00')
+
+    def test_set_n_then_set_e(self):
+        rsa = m2.rsa_new()
+        m2.rsa_set_n(rsa, b'\000\000\000\004\020\011\006\006')
+        m2.rsa_set_e(rsa, b'\000\000\000\003\001\000\001')
+
+        n = m2.rsa_get_n(rsa)
+        e = m2.rsa_get_e(rsa)
+
+        self.assertEqual(e, b'\000\000\000\003\001\000\001')
+        self.assertEqual(n, b'\000\000\000\004\020\011\006\006')
+
     def test_newpub(self):
         old = RSA.load_pub_key(self.pubkey)
         new = RSA.new_pub_key(old.pub())
