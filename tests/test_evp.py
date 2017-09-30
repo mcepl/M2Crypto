@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 from __future__ import absolute_import, division
 
 """
@@ -8,7 +7,7 @@ Copyright (c) 2004-2007 Open Source Applications Foundation
 Author: Heikki Toivonen
 """
 
-import codecs
+import base64
 import hashlib
 import io
 import logging
@@ -280,10 +279,10 @@ class EVPTestCase(unittest.TestCase):
             SIGN_PRIVATE.sign_init()
             SIGN_PRIVATE.sign_update(data)
             signed_data = SIGN_PRIVATE.sign_final()
-            return codecs.encode(signed_data, 'base64')
+            return base64.b64encode(signed_data)
 
         def verify(response):
-            signature = codecs.decode(response['sign'], 'base64')
+            signature = base64.b64decode(response['sign'])
             data = response['data']
             verify_evp = EVP.PKey()
             # capture parameter on the following line is required by
