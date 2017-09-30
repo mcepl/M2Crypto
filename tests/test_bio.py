@@ -9,6 +9,7 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
 Copyright (c) 2006 Open Source Applications Foundation
 Author: Heikki Toivonen
 """
+import logging
 try:
     import unittest2 as unittest
 except ImportError:
@@ -17,6 +18,8 @@ except ImportError:
 from M2Crypto import BIO, Rand
 
 from tests.fips import fips_mode
+
+log = logging.getLogger('test_bio')
 
 class CipherStreamTestCase(unittest.TestCase):
     def try_algo(self, algo):
@@ -67,8 +70,17 @@ class CipherStreamTestCase(unittest.TestCase):
                          'rc4', 'rc2_40_cbc']
         if not fips_mode:  # Forbidden ciphers
             ciphers += nonfips_ciphers
+
+        failed_ciphers = []
+        log.debug('ciphers:\n%s', ciphers)
         for i in ciphers:
-            self.try_algo(i)
+            try:
+                self.try_algo(i)
+            except AssertionError:
+                failed_ciphers.append(i)
+
+        self.assertEqual(len(failed_ciphers), 0,
+                         "failed ciphers: %s" % ', '.join(failed_ciphers))
 
         with self.assertRaises(ValueError):
             self.try_algo('nosuchalgo4567')
