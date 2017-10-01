@@ -42,13 +42,15 @@ this:::
 
     $ python setup.py test
 
-This assumes OpenSSL is installed in /usr. You can provide an alternate
-OpenSSL prefix location with --openssl option to build\_ext command.
-Other commands accept standard options if you need them.
+This assumes OpenSSL is installed in ``/usr``. You can provide an
+alternate OpenSSL prefix location with --openssl option to
+``build\_ext`` (or ``build``) command. So, for example, if you
+build your local version of OpenSSL and install it with
+``/usr/local`` prefix (your includes are in
+``/usr/local/include/openssl`` and libs in ``/usr/local/lib``),
+then you would add ``--openssl=/usr/local`` to your ``build``
+command.
 
-Some distributions, like Fedora Core, package OpenSSL headers in a
-different location from OpenSSL itself. In that case you need to tell
-``build`` the additional include location with -I option.
 
 Differences when installing on Windows
 --------------------------------------
@@ -60,7 +62,8 @@ files, import libraries and DLLs. By default setup.py assumes that
 OpenSSL include files are in ``c:\pkg\openssl\include``, and the import
 libraries in ``c:\pkg\openssl\lib``. As with other platforms, you can
 specify a different OpenSSL location with --openssl option to
-``build\_ext`` (or ``build``) command.
+``build\_ext`` (or ``build``) command. That would
+be ``--openssl=c:\pkg\openssl`` in this case.
 
 Using OpenSSL 0.9.8 on Windows requires Python be built with applink.c
 (add an include statement in python.c). This is not a requirement for

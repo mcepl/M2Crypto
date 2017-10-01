@@ -51,6 +51,7 @@ def _get_additional_includes():
     _, err = pid.communicate()
     err = [line.lstrip() for line in err.decode('utf8').split('\n')
            if line and line[0] == ' ']
+    log.debug('additional includes:\n%s', err)
     return err
 
 
@@ -211,7 +212,8 @@ class _M2CryptoBuildExt(build_ext.build_ext):
             # Someday distutils will be fixed and this won't be needed.
             self.library_dirs += [os.path.join(self.openssl, 'bin')]
 
-        self.library_dirs += [os.path.join(self.openssl, openssl_library_dir)]
+        self.library_dirs.insert(0, os.path.join(self.openssl, openssl_library_dir))
+        log.debug('self.library_dirs = %s', self.library_dirs)
         mkpath(os.path.join(self.build_lib, 'M2Crypto'))
 
 
