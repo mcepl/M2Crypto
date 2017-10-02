@@ -6,8 +6,8 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
 from M2Crypto.m2 import rc4_free, rc4_new, rc4_set_key, rc4_update
 
-class RC4:
 
+class RC4:
     """Object interface to the stream cipher RC4."""
 
     rc4_free = rc4_free

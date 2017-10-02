@@ -17,10 +17,7 @@ m2.dh_init(DHError)
 
 
 class DH:
-
-    """
-    Object interface to the Diffie-Hellman key exchange
-    protocol.
+    """Object interface to the Diffie-Hellman key exchange protocol.
     """
 
     m2_dh_free = m2.dh_free
@@ -94,6 +91,7 @@ def load_params(file):
     # type: (AnyStr) -> DH
     with BIO.openfile(file) as bio:
         return load_params_bio(bio)
+
 
 def load_params_bio(bio):
     # type: (BIO.BIO) -> DH

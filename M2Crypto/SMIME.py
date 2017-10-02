@@ -36,7 +36,8 @@ class PKCS7:
 
     def __init__(self, pkcs7=None, _pyfree=0):
         # type: (Optional[bytes], int) -> None
-        """
+        """PKCS7 object.
+
         :param pkcs7: binary representation of
                the OpenSSL type PKCS7
         """
@@ -131,7 +132,6 @@ def smime_load_pkcs7_bio(p7_bio):
 
 
 class Cipher:
-
     """Object interface to EVP_CIPHER without all the frills of
     M2Crypto.EVP.Cipher.
     """
@@ -151,6 +151,7 @@ class SMIME_Error(Exception):  # noqa
     pass
 
 m2.smime_init(SMIME_Error)
+
 
 # FIXME class has no __init__ method
 class SMIME:
