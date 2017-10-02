@@ -268,6 +268,35 @@ extern int X509_EXTENSION_get_critical(X509_EXTENSION *);
 %rename(x509_extension_set_critical) X509_EXTENSION_set_critical;
 extern int X509_EXTENSION_set_critical(X509_EXTENSION *, int);
 
+%typemap(out) X509 * {
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
+
+    if ($1 != NULL)
+        $result = SWIG_NewPointerObj($1, $1_descriptor, 0);
+    else {
+        m2_PyErr_Msg(_x509_err);
+        $result = NULL;
+    }
+}
+
+
+/* Functions using m2_PyErr_Msg and thus using internal Python C API are
+ * not thread safe, so if we want to have %threadallow here, error
+ * handling must be done outside of these internal functions. */
+%threadallow x509_read_pem;
+%inline %{
+X509 *x509_read_pem(BIO *bio) {
+    return PEM_read_bio_X509(bio, NULL, NULL, NULL);
+}
+%}
+
+%threadallow d2i_x509;
+%inline %{
+X509 *d2i_x509(BIO *bio) {
+    return d2i_X509_bio(bio, NULL);
+}
+%}
+%typemap(out) X509 *;
 
 %constant int NID_commonName                  = 13;
 %constant int NID_countryName                 = 14;
@@ -350,19 +379,6 @@ void x509_init(PyObject *x509_err) {
 }
 %}
 
-%threadallow x509_read_pem;
-%inline %{
-X509 *x509_read_pem(BIO *bio) {
-    return PEM_read_bio_X509(bio, NULL, NULL, NULL);
-}
-%}
-
-%threadallow d2i_x509;
-%inline %{
-X509 *d2i_x509(BIO *bio) {
-    return d2i_X509_bio(bio, NULL);
-}
-%}
 
 %threadallow d2i_x509_req;
 %inline %{
@@ -370,8 +386,7 @@ X509_REQ *d2i_x509_req(BIO *bio) {
     return d2i_X509_REQ_bio(bio, NULL);
 }
 
-PyObject *i2d_x509(X509 *x)
-{
+PyObject *i2d_x509(X509 *x) {
     int len;
     PyObject *ret = NULL;
     unsigned char *buf = NULL;
@@ -491,8 +506,7 @@ int x509_name_add_entry_by_txt(X509_NAME *name, char *field, int type, char *byt
     return X509_NAME_add_entry_by_txt(name, field, type, (unsigned char *)bytes, len, loc, set);
 }
 
-PyObject *x509_name_get_der(X509_NAME *name)
-{
+PyObject *x509_name_get_der(X509_NAME *name) {
     const char* pder="";
     size_t pderlen;
     i2d_X509_NAME(name, 0);
@@ -505,11 +519,6 @@ PyObject *x509_name_get_der(X509_NAME *name)
 #else
     return PyString_FromStringAndSize(pder, pderlen);
 #endif // PY_MAJOR_VERSION >= 3 
-}
-
-/* sk_X509_new_null() is a macro returning "STACK_OF(X509) *". */
-STACK_OF(X509) *sk_x509_new_null(void) {
-    return sk_X509_new_null();
 }
 
 /* sk_X509_free() is a macro. */
@@ -526,9 +535,16 @@ int sk_x509_push(STACK_OF(X509) *stack, X509 *x509) {
 X509 *sk_x509_pop(STACK_OF(X509) *stack) {
     return sk_X509_pop(stack);
 }
+%}
 
+%inline %{
 int x509_store_load_locations(X509_STORE *store, const char *file) {
-    return X509_STORE_load_locations(store, file, NULL);
+    int locations = 0;
+
+    if ((locations = X509_STORE_load_locations(store, file, NULL)) < 1) {
+        m2_PyErr_Msg(_x509_err);
+    }
+    return locations;
 }
 
 int x509_type_check(X509 *x509) {
@@ -647,7 +663,19 @@ void x509_store_set_verify_cb(X509_STORE *store, PyObject *pyfunc) {
     x509_store_verify_cb_func = pyfunc;
     X509_STORE_set_verify_cb(store, x509_store_verify_callback);
 }
+%}
 
+%typemap(out) STACK_OF(X509) * {
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
+
+    if ($1 != NULL)
+        $result = SWIG_NewPointerObj($1, $1_descriptor, 0);
+    else {
+        $result = NULL;
+    }
+}
+
+%inline %{
 STACK_OF(X509) *
 make_stack_from_der_sequence(PyObject * pyEncodedString){
     STACK_OF(X509) *certs;
@@ -661,7 +689,8 @@ make_stack_from_der_sequence(PyObject * pyEncodedString){
 #endif
 
     if (encoded_string_len > INT_MAX) {
-        PyErr_SetString(PyExc_ValueError, "object too large");
+        PyErr_Format(_x509_err,
+                     "object too large (%ld bytes)", encoded_string_len);
         return NULL;
     }
 
@@ -672,19 +701,30 @@ make_stack_from_der_sequence(PyObject * pyEncodedString){
 #endif 
 
     if (!encoded_string) {
+        PyErr_SetString(_x509_err,
+                        "Cannot convert Python Bytes to (char *).");
         return NULL;
     }
 
     const unsigned char *tmp_str = (unsigned char *)encoded_string;
     certs = d2i_SEQ_CERT(NULL, &tmp_str, encoded_string_len);
-    if (!certs) {
-        m2_PyErr_Msg(_x509_err);
+    if (certs == NULL) {
+        PyErr_SetString(_x509_err, "Generating STACK_OF(X509) failed.");
         return NULL;
     }
 
     return certs;
 }
 
+/* sk_X509_new_null() is a macro returning "STACK_OF(X509) *". */
+STACK_OF(X509) *sk_x509_new_null(void) {
+    return sk_X509_new_null();
+}
+%}
+
+%typemap(out) STACK_OF(X509) *;
+
+%inline %{
 PyObject *
 get_der_encoding_stack(STACK_OF(X509) *stack){
     PyObject * encodedString;

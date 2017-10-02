@@ -808,8 +808,6 @@ def load_cert(file, format=FORMAT_PEM):
             return load_cert_bio(bio)
         elif format == FORMAT_DER:
             cptr = m2.d2i_x509(bio._ptr())
-            if cptr is None:
-                raise X509Error(Err.get_error())
             return X509(cptr, _pyfree=1)
         else:
             raise ValueError(
@@ -836,8 +834,6 @@ def load_cert_bio(bio, format=FORMAT_PEM):
     else:
         raise ValueError(
             "Unknown format. Must be either FORMAT_DER or FORMAT_PEM")
-    if cptr is None:
-        raise X509Error(Err.get_error())
     return X509(cptr, _pyfree=1)
 
 
@@ -871,8 +867,6 @@ def load_cert_der_string(string):
     string = util.py3bytes(string)
     bio = BIO.MemoryBuffer(string)
     cptr = m2.d2i_x509(bio._ptr())
-    if cptr is None:
-        raise X509Error(Err.get_error())
     return X509(cptr, _pyfree=1)
 
 
@@ -975,8 +969,6 @@ class X509_Store:  # noqa
         :return: 1 on success, 0 on failure
         """
         ret = m2.x509_store_load_locations(self.store, file)
-        if ret < 1:
-            raise X509Error(Err.get_error())
         return ret
 
     load_locations = load_info
@@ -1111,8 +1103,6 @@ def new_stack_from_der(der_string):
     """
     der_string = util.py3bytes(der_string)
     stack_ptr = m2.make_stack_from_der_sequence(der_string)
-    if stack_ptr is None:
-        raise X509Error(Err.get_error())
     return X509_Stack(stack_ptr, 1, 1)
 
 
