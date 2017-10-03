@@ -21,25 +21,26 @@ from tests.fips import fips_mode
 
 log = logging.getLogger('test_bio')
 
+
 class CipherStreamTestCase(unittest.TestCase):
     def try_algo(self, algo):
         data = b'123456789012345678901234'
-        my_key = 3 * 15 * b"key" # DES requires larger key
+        my_key = 3 * 15 * b"key"
+        my_IV = 3 * 16 * b'IV'
         # Encrypt.
         mem = BIO.MemoryBuffer()
         cf = BIO.CipherStream(mem)
-        cf.set_cipher(algo, my_key, 'iv', 1)
+        cf.set_cipher(algo, my_key, my_IV, 1)
         cf.write(data)
         cf.flush()
         cf.write_close()
         cf.close()
         ciphertext = mem.read()
 
-
         # Decrypt.
         mem = BIO.MemoryBuffer(ciphertext)
         cf = BIO.CipherStream(mem)
-        cf.set_cipher(algo, my_key, 'iv', 0)
+        cf.set_cipher(algo, my_key, my_IV, 0)
         cf.write_close()
         data2 = cf.read()
         cf.close()
