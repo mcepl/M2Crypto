@@ -139,7 +139,7 @@ PyObject *rsa_set_e(RSA *rsa, PyObject *eval) {
     }
 
     if (RSA_set0_key(rsa, n, e, NULL) != 1) {
-        PyErr_SetFromErrno(_rsa_err);
+        PyErr_SetString(_rsa_err, "Cannot set fields of RSA object.");
         BN_free(e);
         BN_free(n);
         return NULL;
@@ -163,7 +163,7 @@ PyObject *rsa_set_n(RSA *rsa, PyObject *nval) {
     }
 
     if (RSA_set0_key(rsa, n, e, NULL) != 1) {
-        PyErr_SetFromErrno(_rsa_err);
+        PyErr_SetString(_rsa_err, "Cannot set fields of RSA object.");
         BN_free(n);
         BN_free(e);
         return NULL;
@@ -471,6 +471,7 @@ int rsa_verify(RSA *rsa, PyObject *py_verify_string, PyObject* py_sign_string, i
                      sign_len, rsa);
     if (!ret) {
         m2_PyErr_Msg(_rsa_err);
+        return 0;
     }
     return ret;
 }

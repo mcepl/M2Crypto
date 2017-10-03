@@ -28,8 +28,11 @@ extern EVP_CIPHER const *EVP_aes_256_ctr(void);
 AES_KEY *aes_new(void) {
     AES_KEY *key;
     
-    if (!(key = (AES_KEY *)PyMem_Malloc(sizeof(AES_KEY))))
-        PyErr_SetString(PyExc_MemoryError, "aes_new");
+    if (!(key = (AES_KEY *)PyMem_Malloc(sizeof(AES_KEY)))) {
+        PyErr_SetString(PyExc_MemoryError,
+                        "Insufficient memory for AES key.");
+        return NULL;
+    }
     return key;
 }   
 

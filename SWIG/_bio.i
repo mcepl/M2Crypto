@@ -198,6 +198,7 @@ int bio_write(BIO *bio, PyObject *from) {
     if (ret < 0) {
         if (ERR_peek_error()) {
             m2_PyErr_Msg(_bio_err);
+            return -1;
         }
     }
     return ret;
@@ -323,8 +324,10 @@ static BIO_METHOD *methods_fdp;
 static int pyfd_write(BIO *b, const char *in, int inl) {
     int ret, fd;
 
-    if (BIO_get_fd(b, &fd) == -1)
+    if (BIO_get_fd(b, &fd) == -1) {
+        PyErr_SetString(_bio_err, "BIO has not been initialized.");
         return -1;
+    }
     clear_sys_error();
     ret = write(fd, in, inl);
     BIO_clear_retry_flags(b);
@@ -338,8 +341,10 @@ static int pyfd_write(BIO *b, const char *in, int inl) {
 static int pyfd_read(BIO *b, char *out, int outl) {
     int ret = 0, fd;
 
-    if (BIO_get_fd(b, &fd) == -1)
+    if (BIO_get_fd(b, &fd) == -1) {
+        PyErr_SetString(_bio_err, "BIO has not been initialized.");
         return -1;
+    }
     if (out != NULL) {
         clear_sys_error();
         ret = read(fd, out, outl);

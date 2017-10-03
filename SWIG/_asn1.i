@@ -128,16 +128,14 @@ PyObject *asn1_integer_get(ASN1_INTEGER *asn1) {
     bn = ASN1_INTEGER_to_BN(asn1, NULL);
 
     if (!bn){
-        PyErr_SetString(
-          PyExc_RuntimeError, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_RuntimeError);
         return NULL;
     }
 
     hex = BN_bn2hex(bn);
 
     if (!hex){
-        PyErr_SetString(
-          PyExc_RuntimeError, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_RuntimeError);
         BN_free(bn);
         return NULL;
     }
@@ -196,8 +194,7 @@ int asn1_integer_set(ASN1_INTEGER *asn1, PyObject *value) {
     Py_DECREF(args);
 
     if (BN_hex2bn(&bn, PyString_AsString(hex)) <= 0){
-        PyErr_SetString(
-          PyExc_RuntimeError, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_RuntimeError);
         Py_DECREF(hex);
         return 0;
     }
@@ -205,8 +202,7 @@ int asn1_integer_set(ASN1_INTEGER *asn1, PyObject *value) {
     Py_DECREF(hex);
 
     if (!BN_to_ASN1_INTEGER(bn, asn1)){
-        PyErr_SetString(
-          PyExc_RuntimeError, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_RuntimeError);
         BN_free(bn);
         return 0;
     }

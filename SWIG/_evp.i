@@ -243,6 +243,7 @@ EVP_MD_CTX *md_ctx_new(void) {
 
     if (!(ctx = EVP_MD_CTX_create())) {
         PyErr_SetString(PyExc_MemoryError, "md_ctx_new");
+        return NULL;
     }
     return ctx;
 }
@@ -658,8 +659,7 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
 
             RSA_get0_key(rsa, &bn, NULL, NULL);
             if (!BN_print(bio, bn)) {
-                PyErr_SetString(PyExc_RuntimeError,
-                      ERR_error_string(ERR_get_error(), NULL));
+                m2_PyErr_Msg(PyExc_RuntimeError);
                 BIO_free(bio);
                 RSA_free(rsa);
                 return NULL;
@@ -691,8 +691,7 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
 
             DSA_get0_key(dsa, &bn, NULL);
             if (!BN_print(bio, bn)) {
-                PyErr_SetString(PyExc_RuntimeError,
-                      ERR_error_string(ERR_get_error(), NULL));
+                m2_PyErr_Msg(PyExc_RuntimeError);
                 BIO_free(bio);
                 DSA_free(dsa);
                 return NULL;
@@ -716,8 +715,6 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
             PyErr_SetString(PyExc_ValueError, "unsupported key type");
             return NULL;
     }
-
-    return NULL;
 }
 
 %}

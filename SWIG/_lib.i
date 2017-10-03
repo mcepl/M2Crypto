@@ -460,6 +460,7 @@ int passphrase_callback(char *buf, int num, int v, void *arg) {
     gilstate = PyGILState_Ensure();
     cbfunc = (PyObject *)arg;
     argv = Py_BuildValue("(i)", v);
+    /* PyEval_CallObject sets exception, if needed. */
     ret = PyEval_CallObject(cbfunc, argv);
     Py_DECREF(argv);
     if (ret == NULL) {
@@ -469,6 +470,8 @@ int passphrase_callback(char *buf, int num, int v, void *arg) {
 
 #if PY_MAJOR_VERSION >= 3
     if (!PyBytes_Check(ret)) {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Result of callback is not bytes().");
         Py_DECREF(ret);
         PyGILState_Release(gilstate);
         return -1;
@@ -514,8 +517,7 @@ PyObject *bn_to_mpi(const BIGNUM *bn) {
 
     len = BN_bn2mpi(bn, NULL);
     if (!(mpi=(unsigned char *)PyMem_Malloc(len))) {
-        PyErr_SetString(PyExc_RuntimeError,
-            ERR_error_string(ERR_get_error(), NULL));
+        m2_PyErr_Msg(PyExc_MemoryError);
         return NULL;
     }
     len=BN_bn2mpi(bn, mpi);
@@ -579,8 +581,7 @@ PyObject *bn_to_hex(BIGNUM *bn) {
 
     hex = BN_bn2hex(bn);
     if (!hex) {
-        PyErr_SetString(PyExc_RuntimeError,
-              ERR_error_string(ERR_get_error(), NULL));
+        m2_PyErr_Msg(PyExc_RuntimeError);
         OPENSSL_free(hex);
         return NULL;
     }
@@ -609,8 +610,7 @@ BIGNUM *hex_to_bn(PyObject *value) {
         return NULL;
     }
     if (BN_hex2bn(&bn, (const char *)vbuf) <= 0) {
-        PyErr_SetString(PyExc_RuntimeError,
-              ERR_error_string(ERR_get_error(), NULL));
+        m2_PyErr_Msg(PyExc_RuntimeError);
         BN_free(bn);
         return NULL;
     }
@@ -630,8 +630,7 @@ BIGNUM *dec_to_bn(PyObject *value) {
       return NULL;
     }
     if ((BN_dec2bn(&bn, (const char *)vbuf) <= 0)) {
-      PyErr_SetString(PyExc_RuntimeError,
-            ERR_error_string(ERR_get_error(), NULL));
+      m2_PyErr_Msg(PyExc_RuntimeError);
       BN_free(bn);
       return NULL;
     }
@@ -661,7 +660,7 @@ BIGNUM *dec_to_bn(PyObject *value) {
 
     if (len > INT_MAX) {
         PyErr_SetString(PyExc_ValueError, "object too large");
-        return -1;
+        return NULL;
     }
     $1=(Blob *)PyMem_Malloc(sizeof(Blob));
     if (!$1) {

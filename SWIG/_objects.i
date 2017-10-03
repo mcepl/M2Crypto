@@ -68,7 +68,7 @@ PyObject *obj_obj2txt(const ASN1_OBJECT *obj, int no_name)
 
     len = OBJ_obj2txt(dummy, 1, obj, no_name);
     if (len < 0) {
-        PyErr_SetString(PyExc_RuntimeError, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_RuntimeError);
         return NULL;
     } else if (len == 0) {
         /* XXX: For OpenSSL prior to 0.9.8b.

@@ -23,13 +23,13 @@ PyObject *bn_rand(int bits, int top, int bottom)
 
     rnd = BN_new();
     if (rnd == NULL) {
-        PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_Exception);
         return NULL;
-        }
+    }
 
     if (!BN_rand(rnd, bits, top, bottom)) {
         /*Custom errors?*/
-        PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_Exception);
         BN_free(rnd);
         return NULL;
     }
@@ -37,7 +37,7 @@ PyObject *bn_rand(int bits, int top, int bottom)
     randhex = BN_bn2hex(rnd);
     if (!randhex) {
         /*Custom errors?*/
-        PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_Exception);
         BN_free(rnd);
         return NULL;
     }
@@ -65,6 +65,7 @@ PyObject *bn_rand_range(PyObject *range)
 #endif // PY_MAJOR_VERSION >= 3
 
     if (!format) {
+        PyErr_SetString(PyExc_RuntimeError, "Cannot create Python string '%x'");
         return NULL;
     }
     tuple = PyTuple_New(1);
@@ -99,7 +100,7 @@ PyObject *bn_rand_range(PyObject *range)
 
     if (!BN_hex2bn(&rng, rangehex)) {
         /*Custom errors?*/
-        PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_Exception);
         Py_DECREF(rangePyString);
         return NULL;
     }
@@ -113,7 +114,7 @@ PyObject *bn_rand_range(PyObject *range)
 
     if (!BN_rand_range(rnd, rng)) {
         /*Custom errors?*/
-        PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_Exception);
         BN_free(rnd);
         BN_free(rng);
         return NULL;
@@ -124,7 +125,7 @@ PyObject *bn_rand_range(PyObject *range)
     randhex = BN_bn2hex(rnd);
     if (!randhex) {
         /*Custom errors?*/
-        PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_Exception);
         BN_free(rnd);
         return NULL;
     }
