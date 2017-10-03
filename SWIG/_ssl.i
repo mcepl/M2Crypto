@@ -503,7 +503,7 @@ static void ssl_handle_error(int ssl_err, int ret) {
 }
 
 #ifdef _MSC_VER
-//http://stackoverflow.com/questions/10905892/equivalent-of-gettimeday-for-windows
+/* http://stackoverflow.com/questions/10905892/equivalent-of-gettimeday-for-windows */
 int gettimeofday(struct timeval * tp, struct timezone * tzp)
 {
     // Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
