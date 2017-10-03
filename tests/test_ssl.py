@@ -397,7 +397,9 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
         self.args.append('-no_tls1')
         pid = self.start_server(self.args)
         try:
-            ctx = SSL.Context('tlsv1')
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore', DeprecationWarning)
+                ctx = SSL.Context('tlsv1')
             s = SSL.Connection(ctx)
             with self.assertRaisesRegexp(SSL.SSLError,
                                          r'version|unexpected eof'):
@@ -410,7 +412,9 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
         self.args.append('-tls1')
         pid = self.start_server(self.args)
         try:
-            ctx = SSL.Context('tlsv1')
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore', DeprecationWarning)
+                ctx = SSL.Context('tlsv1')
             s = SSL.Connection(ctx)
             s.connect(self.srv_addr)
             data = self.http_get(s)
@@ -612,7 +616,9 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
                            9, lambda _: '')
             s = SSL.Connection(ctx)
             with self.assertRaises(SSL.SSLError):
-                s.connect(self.srv_addr)
+                with warnings.catch_warnings():
+                    warnings.simplefilter('ignore', DeprecationWarning)
+                    s.connect(self.srv_addr)
             s.close()
         finally:
             self.stop_server(pid)

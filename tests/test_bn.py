@@ -7,6 +7,7 @@ Copyright (c) 2005 Open Source Applications Foundation. All rights reserved.
 """
 
 import re
+import warnings
 try:
     import unittest2 as unittest
 except ImportError:
@@ -15,6 +16,7 @@ except ImportError:
 from M2Crypto import BN, Rand
 
 loops = 16
+
 
 class BNTestCase(unittest.TestCase):
 
@@ -47,7 +49,6 @@ class BNTestCase(unittest.TestCase):
             r512 = BN.rand(512, top=0)
             assert r8 < r16 < r32 < r64 < r128 < r256 < r512 < (r512 + 1)
 
-
     def test_rand_range(self):
         # small range
         for x in range(loops):
@@ -64,11 +65,12 @@ class BNTestCase(unittest.TestCase):
             r = BN.rand_range(r512)
             assert 0 <= r < r512
 
-
     def test_randfname(self):
         m = re.compile('^[a-zA-Z0-9]{8}$')
         for x in range(loops):
-            r = BN.randfname(8)
+            with warnings.catch_warnings():
+                warnings.simplefilter('ignore', DeprecationWarning)
+                r = BN.randfname(8)
             assert m.match(r)
 
 
