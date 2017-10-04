@@ -144,6 +144,10 @@ int asn1_integer_set(ASN1_INTEGER *asn1, PyObject *value) {
     BIGNUM *bn = NULL;
     PyObject *fmt, *args, *hex;
 
+/* Despite all hopes to the contrary, we cannot survive here with
+ * PyLong_AsLong shims as provided in
+ * /usr/include/python2.7/longobject.h.
+ */
 #if PY_MAJOR_VERSION >= 3
     if (PyLong_Check(value))
         return ASN1_INTEGER_set(asn1, PyLong_AsLong(value));
