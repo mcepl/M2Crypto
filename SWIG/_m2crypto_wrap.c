@@ -4719,6 +4719,7 @@ int passphrase_callback(char *buf, int num, int v, void *arg) {
     gilstate = PyGILState_Ensure();
     cbfunc = (PyObject *)arg;
     argv = Py_BuildValue("(i)", v);
+    /* PyEval_CallObject sets exception, if needed. */
     ret = PyEval_CallObject(cbfunc, argv);
     Py_DECREF(argv);
     if (ret == NULL) {
@@ -4728,6 +4729,8 @@ int passphrase_callback(char *buf, int num, int v, void *arg) {
 
 #if PY_MAJOR_VERSION >= 3
     if (!PyBytes_Check(ret)) {
+        PyErr_SetString(PyExc_RuntimeError,
+                        "Result of callback is not bytes().");
         Py_DECREF(ret);
         PyGILState_Release(gilstate);
         return -1;
@@ -4772,8 +4775,7 @@ PyObject *bn_to_mpi(const BIGNUM *bn) {
 
     len = BN_bn2mpi(bn, NULL);
     if (!(mpi=(unsigned char *)PyMem_Malloc(len))) {
-        PyErr_SetString(PyExc_RuntimeError,
-            ERR_error_string(ERR_get_error(), NULL));
+        m2_PyErr_Msg(PyExc_RuntimeError);
         return NULL;
     }
     len=BN_bn2mpi(bn, mpi);
@@ -4837,8 +4839,7 @@ PyObject *bn_to_hex(BIGNUM *bn) {
 
     hex = BN_bn2hex(bn);
     if (!hex) {
-        PyErr_SetString(PyExc_RuntimeError,
-              ERR_error_string(ERR_get_error(), NULL));
+        m2_PyErr_Msg(PyExc_RuntimeError);
         OPENSSL_free(hex);
         return NULL;
     }
@@ -4867,8 +4868,7 @@ BIGNUM *hex_to_bn(PyObject *value) {
         return NULL;
     }
     if (BN_hex2bn(&bn, (const char *)vbuf) <= 0) {
-        PyErr_SetString(PyExc_RuntimeError,
-              ERR_error_string(ERR_get_error(), NULL));
+        m2_PyErr_Msg(PyExc_RuntimeError);
         BN_free(bn);
         return NULL;
     }
@@ -4888,8 +4888,7 @@ BIGNUM *dec_to_bn(PyObject *value) {
       return NULL;
     }
     if ((BN_dec2bn(&bn, (const char *)vbuf) <= 0)) {
-      PyErr_SetString(PyExc_RuntimeError,
-            ERR_error_string(ERR_get_error(), NULL));
+      m2_PyErr_Msg(PyExc_RuntimeError);
       BN_free(bn);
       return NULL;
     }
@@ -5184,6 +5183,7 @@ int bio_write(BIO *bio, PyObject *from) {
     if (ret < 0) {
         if (ERR_peek_error()) {
             m2_PyErr_Msg(_bio_err);
+            return -1;
         }
     }
     return ret;
@@ -5304,8 +5304,10 @@ static BIO_METHOD *methods_fdp;
 static int pyfd_write(BIO *b, const char *in, int inl) {
     int ret, fd;
 
-    if (BIO_get_fd(b, &fd) == -1)
+    if (BIO_get_fd(b, &fd) == -1) {
+        PyErr_SetString(_bio_err, "BIO has not been initialized.");
         return -1;
+    }
     clear_sys_error();
     ret = write(fd, in, inl);
     BIO_clear_retry_flags(b);
@@ -5319,8 +5321,10 @@ static int pyfd_write(BIO *b, const char *in, int inl) {
 static int pyfd_read(BIO *b, char *out, int outl) {
     int ret = 0, fd;
 
-    if (BIO_get_fd(b, &fd) == -1)
+    if (BIO_get_fd(b, &fd) == -1) {
+        PyErr_SetString(_bio_err, "BIO has not been initialized.");
         return -1;
+    }
     if (out != NULL) {
         clear_sys_error();
         ret = read(fd, out, outl);
@@ -5504,13 +5508,13 @@ PyObject *bn_rand(int bits, int top, int bottom)
 
     rnd = BN_new();
     if (rnd == NULL) {
-        PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_Exception);
         return NULL;
-        }
+    }
 
     if (!BN_rand(rnd, bits, top, bottom)) {
         /*Custom errors?*/
-        PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_Exception);
         BN_free(rnd);
         return NULL;
     }
@@ -5518,7 +5522,7 @@ PyObject *bn_rand(int bits, int top, int bottom)
     randhex = BN_bn2hex(rnd);
     if (!randhex) {
         /*Custom errors?*/
-        PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_Exception);
         BN_free(rnd);
         return NULL;
     }
@@ -5546,6 +5550,7 @@ PyObject *bn_rand_range(PyObject *range)
 #endif // PY_MAJOR_VERSION >= 3
 
     if (!format) {
+        PyErr_SetString(PyExc_RuntimeError, "Cannot create Python string '%x'");
         return NULL;
     }
     tuple = PyTuple_New(1);
@@ -5580,7 +5585,7 @@ PyObject *bn_rand_range(PyObject *range)
 
     if (!BN_hex2bn(&rng, rangehex)) {
         /*Custom errors?*/
-        PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_Exception);
         Py_DECREF(rangePyString);
         return NULL;
     }
@@ -5594,7 +5599,7 @@ PyObject *bn_rand_range(PyObject *range)
 
     if (!BN_rand_range(rnd, rng)) {
         /*Custom errors?*/
-        PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_Exception);
         BN_free(rnd);
         BN_free(rng);
         return NULL;
@@ -5605,7 +5610,7 @@ PyObject *bn_rand_range(PyObject *range)
     randhex = BN_bn2hex(rnd);
     if (!randhex) {
         /*Custom errors?*/
-        PyErr_SetString(PyExc_Exception, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_Exception);
         BN_free(rnd);
         return NULL;
     }
@@ -5683,10 +5688,6 @@ PyObject *rand_pseudo_bytes(int n) {
         PyMem_Free(blob);
         return NULL;
     }
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
-    PyErr_WarnEx(PyExc_DeprecationWarning,
-                 "Function RAND_pseudo_bytes has been deprecated.", 1);
-#endif
     ret = RAND_pseudo_bytes(blob, n);
     if (ret == -1) {
         PyMem_Free(blob);
@@ -5824,6 +5825,7 @@ EVP_MD_CTX *md_ctx_new(void) {
 
     if (!(ctx = EVP_MD_CTX_create())) {
         PyErr_SetString(PyExc_MemoryError, "md_ctx_new");
+        return NULL;
     }
     return ctx;
 }
@@ -6236,8 +6238,7 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
 
             RSA_get0_key(rsa, &bn, NULL, NULL);
             if (!BN_print(bio, bn)) {
-                PyErr_SetString(PyExc_RuntimeError,
-                      ERR_error_string(ERR_get_error(), NULL));
+                m2_PyErr_Msg(PyExc_RuntimeError);
                 BIO_free(bio);
                 RSA_free(rsa);
                 return NULL;
@@ -6269,8 +6270,7 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
 
             DSA_get0_key(dsa, &bn, NULL);
             if (!BN_print(bio, bn)) {
-                PyErr_SetString(PyExc_RuntimeError,
-                      ERR_error_string(ERR_get_error(), NULL));
+                m2_PyErr_Msg(PyExc_RuntimeError);
                 BIO_free(bio);
                 DSA_free(dsa);
                 return NULL;
@@ -6294,8 +6294,6 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
             PyErr_SetString(PyExc_ValueError, "unsupported key type");
             return NULL;
     }
-
-    return NULL;
 }
 
 
@@ -6321,8 +6319,11 @@ extern EVP_CIPHER const *EVP_aes_256_ctr(void);
 AES_KEY *aes_new(void) {
     AES_KEY *key;
     
-    if (!(key = (AES_KEY *)PyMem_Malloc(sizeof(AES_KEY))))
-        PyErr_SetString(PyExc_MemoryError, "aes_new");
+    if (!(key = (AES_KEY *)PyMem_Malloc(sizeof(AES_KEY)))) {
+        PyErr_SetString(PyExc_MemoryError,
+                        "Insufficient memory for AES key.");
+        return NULL;
+    }
     return key;
 }   
 
@@ -6696,7 +6697,7 @@ PyObject *rsa_set_e(RSA *rsa, PyObject *eval) {
     }
 
     if (RSA_set0_key(rsa, n, e, NULL) != 1) {
-        PyErr_SetFromErrno(_rsa_err);
+        PyErr_SetString(_rsa_err, "Cannot set fields of RSA object.");
         BN_free(e);
         BN_free(n);
         return NULL;
@@ -6720,7 +6721,7 @@ PyObject *rsa_set_n(RSA *rsa, PyObject *nval) {
     }
 
     if (RSA_set0_key(rsa, n, e, NULL) != 1) {
-        PyErr_SetFromErrno(_rsa_err);
+        PyErr_SetString(_rsa_err, "Cannot set fields of RSA object.");
         BN_free(n);
         BN_free(e);
         return NULL;
@@ -7028,6 +7029,7 @@ int rsa_verify(RSA *rsa, PyObject *py_verify_string, PyObject* py_sign_string, i
                      sign_len, rsa);
     if (!ret) {
         m2_PyErr_Msg(_rsa_err);
+        return 0;
     }
     return ret;
 }
@@ -7710,7 +7712,7 @@ static void ssl_handle_error(int ssl_err, int ret) {
 }
 
 #ifdef _MSC_VER
-//http://stackoverflow.com/questions/10905892/equivalent-of-gettimeday-for-windows
+/* http://stackoverflow.com/questions/10905892/equivalent-of-gettimeday-for-windows */
 int gettimeofday(struct timeval * tp, struct timezone * tzp)
 {
     // Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
@@ -8551,16 +8553,14 @@ PyObject *asn1_integer_get(ASN1_INTEGER *asn1) {
     bn = ASN1_INTEGER_to_BN(asn1, NULL);
 
     if (!bn){
-        PyErr_SetString(
-          PyExc_RuntimeError, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_RuntimeError);
         return NULL;
     }
 
     hex = BN_bn2hex(bn);
 
     if (!hex){
-        PyErr_SetString(
-          PyExc_RuntimeError, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_RuntimeError);
         BN_free(bn);
         return NULL;
     }
@@ -8619,8 +8619,7 @@ int asn1_integer_set(ASN1_INTEGER *asn1, PyObject *value) {
     Py_DECREF(args);
 
     if (BN_hex2bn(&bn, PyString_AsString(hex)) <= 0){
-        PyErr_SetString(
-          PyExc_RuntimeError, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_RuntimeError);
         Py_DECREF(hex);
         return 0;
     }
@@ -8628,8 +8627,7 @@ int asn1_integer_set(ASN1_INTEGER *asn1, PyObject *value) {
     Py_DECREF(hex);
 
     if (!BN_to_ASN1_INTEGER(bn, asn1)){
-        PyErr_SetString(
-          PyExc_RuntimeError, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_RuntimeError);
         BN_free(bn);
         return 0;
     }
@@ -9492,7 +9490,7 @@ PyObject *obj_obj2txt(const ASN1_OBJECT *obj, int no_name)
 
     len = OBJ_obj2txt(dummy, 1, obj, no_name);
     if (len < 0) {
-        PyErr_SetString(PyExc_RuntimeError, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_Msg(PyExc_RuntimeError);
         return NULL;
     } else if (len == 0) {
         /* XXX: For OpenSSL prior to 0.9.8b.
