@@ -18,6 +18,7 @@ from M2Crypto.BIO import File, openfile
 log = logging.getLogger(__name__)
 
 
+
 class FileTestCase(unittest.TestCase):
 
     def setUp(self):
@@ -98,10 +99,10 @@ class FileTestCase(unittest.TestCase):
             f.write('hello\nworld\n')
         with openfile(self.fname, 'r') as f:
             self.assertTrue(f.readable())
-            self.assertEqual(f.readline(), 'hello\n')
-            self.assertEqual(f.readline(), 'world\n')
+            self.assertEqual(f.readline(), b'hello\n')
+            self.assertEqual(f.readline(), b'world\n')
         with openfile(self.fname, 'r') as f:
-            self.assertEqual(f.readlines(), ['hello\n', 'world\n'])
+            self.assertEqual(f.readlines(), [b'hello\n', b'world\n'])
 
     def test_tell_seek(self):
         with open(self.fname, 'w') as f:

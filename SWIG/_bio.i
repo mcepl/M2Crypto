@@ -44,6 +44,9 @@ extern BIO *BIO_push(BIO *, BIO *);
 %rename(bio_pop) BIO_pop;
 extern BIO *BIO_pop(BIO *);
 
+%rename(bio_eof) BIO_eof;
+extern int BIO_eof(BIO *);
+
 %constant int bio_noclose             = BIO_NOCLOSE;
 %constant int bio_close               = BIO_CLOSE;
 %constant int BIO_FLAGS_READ          = 0x01;
@@ -98,47 +101,25 @@ BIO * bio_new_file(const char *filename, const char *mode) {
 
 BIO *bio_new_pyfile(PyObject *pyfile, int bio_close) {
     FILE *fp = NULL;
-#if PY_MAJOR_VERSION >= 3
-    if (PyObject_HasAttrString(pyfile, "fileno")) {
-        int fd = (int)PyLong_AsLong(PyObject_CallMethod(pyfile, "fileno", NULL));
-        if (PyObject_HasAttrString(pyfile, "mode")) {
-            char *mode = PyUnicode_AsUTF8AndSize(
-                    PyObject_CallMethod(pyfile, "mode", NULL), NULL);
-            fp = fdopen(fd, mode);
-        }
-        else {
-            PyErr_Format(_bio_err,
-                         "File doesn’t have mode attribute!");
-            return NULL;
-        }
-    }
-    else {
-        PyErr_Format(_bio_err, "File doesn’t have fileno method!");
-        return NULL;
-    }
 
-#else
     fp = PyFile_AsFile(pyfile);
-#endif
-    BIO *bio = BIO_new_fp(fp, bio_close); /* returns NULL if error occurred */
 
+    BIO *bio = BIO_new_fp(fp, bio_close);
+
+    /* returns NULL if error occurred */
     if (bio == NULL) {
-        char *name = "";
-#if PY_MAJOR_VERSION >= 3
-        if (PyObject_HasAttrString(pyfile, "name")) {
-            char *name = PyUnicode_AsUTF8AndSize(
-                    PyObject_CallMethod(pyfile, "name", NULL), NULL);
+        /* Find out the name of the file so we can have good error
+         * message. */
+        char *name = PyBytes_AsString(PyFile_Name(pyfile));
+
+        if (name == NULL) {
+            PyErr_Format(_bio_err,
+                         "Opening of the new BIO on file failed!");
         }
         else {
             PyErr_Format(_bio_err,
-                         "File doesn’t have name attribute!");
-            return NULL;
+                         "Opening of the new BIO on file %s failed!", name);
         }
-#else
-        name = PyString_AsString(PyFile_Name(pyfile));
-#endif
-        PyErr_Format(PyExc_MemoryError,
-                     "Opening of the new BIO on file %s failed!", name);
         return NULL;
     }
     return bio;

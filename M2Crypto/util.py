@@ -54,7 +54,9 @@ if six.PY2:
         elif isinstance(x, (bytearray, str)):
             return x
         else:
-            raise TypeError('No string argument provided')
+            raise TypeError(
+                'No string argument provided (type of x is %s)' %
+                type(x))
 
     def py3str(x):
         # type: (Optional[str,bytearray]) -> str
@@ -63,7 +65,9 @@ if six.PY2:
         elif isinstance(x, (str, unicode)):
             return x
         else:
-            raise TypeError('No string argument provided')
+            raise TypeError(
+                'No string argument provided (type of x is %s)' %
+                type(x))
 else:
     def py3bytes(x):
         # type: (AnyStr) -> Optional[bytes,bytearray]
@@ -72,7 +76,9 @@ else:
         elif isinstance(x, (bytes, bytearray)):
             return x
         else:
-            raise TypeError('No string argument provided')
+            raise TypeError(
+                'No string argument provided (type of x is %s)' %
+                type(x))
 
     def py3str(x):
         # type: (Optional[AnyStr,bytearray]) -> str
@@ -81,7 +87,9 @@ else:
         elif isinstance(x, str):
             return x
         else:
-            raise TypeError('No string argument provided')
+            raise TypeError(
+                'No string argument provided (type of x is %s)' %
+                type(x))
 
 
 def bin_to_hex(b):
