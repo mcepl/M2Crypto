@@ -1,3 +1,10 @@
+0.28.0 - 2017-10-??
+-------------------
+- Mainly port to Python 3 (supporting 2.6, 2.7, 3.3, 3.4, 3.5, 3.6)
+- Some lame efforts to make setup.py build --openssl work better (needs
+  more real testing on Mac OS X)
+- Fix licence: it is MIT, not BSD
+
 0.27.0 - 2017-10-05
 -------------------
 - Fix licence: it is MIT, not BSD
