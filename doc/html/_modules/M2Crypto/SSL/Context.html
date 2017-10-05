@@ -1,73 +1,62 @@
 
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>M2Crypto.SSL.Context &mdash; M2Crypto  documentation</title>
-    
-    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <title>M2Crypto.SSL.Context &#8212; M2Crypto  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
         VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <link rel="top" title="M2Crypto  documentation" href="../../../index.html" />
-    <link rel="up" title="M2Crypto.SSL" href="../SSL.html" /> 
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
   </head>
   <body>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../../../index.html">M2Crypto  documentation</a> &raquo;</li>
-          <li><a href="../../index.html" >Module code</a> &raquo;</li>
-          <li><a href="../SSL.html" accesskey="U">M2Crypto.SSL</a> &raquo;</li> 
-      </ul>
-    </div>  
+  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <h1>Source code for M2Crypto.SSL.Context</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
 
 <span class="sd">&quot;&quot;&quot;SSL Context</span>
 
 <span class="sd">Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">Err</span><span class="p">,</span> <span class="n">RSA</span><span class="p">,</span> <span class="n">X509</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>  <span class="c1"># noqa</span>
-<span class="kn">from</span> <span class="nn">M2Crypto.SSL</span> <span class="kn">import</span> <span class="n">cb</span>  <span class="c1"># noqa</span>
-<span class="kn">from</span> <span class="nn">M2Crypto.SSL.Session</span> <span class="kn">import</span> <span class="n">Session</span>  <span class="c1"># noqa</span>
-<span class="kn">from</span> <span class="nn">weakref</span> <span class="kn">import</span> <span class="n">WeakValueDictionary</span>
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="k">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">Err</span><span class="p">,</span> <span class="n">RSA</span><span class="p">,</span> <span class="n">X509</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.SSL</span> <span class="k">import</span> <span class="n">cb</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.SSL.Session</span> <span class="k">import</span> <span class="n">Session</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">weakref</span> <span class="k">import</span> <span class="n">WeakValueDictionary</span>
 <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>  <span class="c1"># noqa</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>  <span class="c1"># noqa</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;ctxmap&#39;</span><span class="p">,</span> <span class="s1">&#39;Context&#39;</span><span class="p">,</span> <span class="s1">&#39;map&#39;</span><span class="p">]</span>
 
 
 <span class="k">class</span> <span class="nc">_ctxmap</span><span class="p">:</span>  <span class="c1"># noqa</span>
-    <span class="n">singleton</span> <span class="o">=</span> <span class="bp">None</span>  <span class="c1"># type: Optional[_ctxmap]</span>
+    <span class="n">singleton</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: Optional[_ctxmap]</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; None</span>
@@ -90,10 +79,10 @@
 
 <div class="viewcode-block" id="ctxmap"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.ctxmap">[docs]</a><span class="k">def</span> <span class="nf">ctxmap</span><span class="p">():</span>
     <span class="c1"># type: () -&gt; _ctxmap</span>
-    <span class="k">if</span> <span class="n">_ctxmap</span><span class="o">.</span><span class="n">singleton</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">_ctxmap</span><span class="o">.</span><span class="n">singleton</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">_ctxmap</span><span class="o">.</span><span class="n">singleton</span> <span class="o">=</span> <span class="n">_ctxmap</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">_ctxmap</span><span class="o">.</span><span class="n">singleton</span>
-<span class="c1"># deprecated!!!</span></div>
+    <span class="k">return</span> <span class="n">_ctxmap</span><span class="o">.</span><span class="n">singleton</span></div>
+<span class="c1"># deprecated!!!</span>
 <span class="nb">map</span> <span class="o">=</span> <span class="n">ctxmap</span>
 
 
@@ -103,11 +92,11 @@
 
     <span class="n">m2_ssl_ctx_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_free</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="s1">&#39;tls&#39;</span><span class="p">,</span> <span class="n">weak_crypto</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
-                 <span class="n">post_connection_check</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="s1">&#39;tls&#39;</span><span class="p">,</span> <span class="n">weak_crypto</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">post_connection_check</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="c1"># type: (str, Optional[int], Optional[Callable]) -&gt; None</span>
-        <span class="n">proto</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="n">protocol</span> <span class="o">+</span> <span class="s1">&#39;_method&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">proto</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">proto</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="n">protocol</span> <span class="o">+</span> <span class="s1">&#39;_method&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">proto</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># default is &#39;sslv23&#39; for older versions of OpenSSL</span>
             <span class="k">if</span> <span class="n">protocol</span> <span class="o">==</span> <span class="s1">&#39;tls&#39;</span><span class="p">:</span>
                 <span class="n">proto</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="s1">&#39;sslv23_method&#39;</span><span class="p">)</span>
@@ -118,20 +107,20 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">post_connection_check</span> <span class="o">=</span> <span class="n">post_connection_check</span>
         <span class="n">ctxmap</span><span class="p">()[</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span>
         <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_cache_size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="mi">128</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">weak_crypto</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">protocol</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;sslv23&#39;</span><span class="p">,</span> <span class="s1">&#39;tls&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">weak_crypto</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">protocol</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;sslv23&#39;</span><span class="p">,</span> <span class="s1">&#39;tls&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_options</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">SSL_OP_ALL</span> <span class="o">|</span> <span class="n">m2</span><span class="o">.</span><span class="n">SSL_OP_NO_SSLv2</span> <span class="o">|</span>
                              <span class="n">m2</span><span class="o">.</span><span class="n">SSL_OP_NO_SSLv3</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; None</span>
-        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;ctx&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;ctx&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">m2_ssl_ctx_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Context.close"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; None</span>
-        <span class="k">del</span> <span class="n">ctxmap</span><span class="p">()[</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)]</span>
-</div>
-<div class="viewcode-block" id="Context.load_cert"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.load_cert">[docs]</a>    <span class="k">def</span> <span class="nf">load_cert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">certfile</span><span class="p">,</span> <span class="n">keyfile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+        <span class="k">del</span> <span class="n">ctxmap</span><span class="p">()[</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="Context.load_cert"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.load_cert">[docs]</a>    <span class="k">def</span> <span class="nf">load_cert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">certfile</span><span class="p">,</span> <span class="n">keyfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
         <span class="c1"># type: (AnyStr, Optional[AnyStr], Callable) -&gt; None</span>
         <span class="sd">&quot;&quot;&quot;Load certificate and private key into the context.</span>
@@ -150,9 +139,9 @@
             <span class="n">keyfile</span> <span class="o">=</span> <span class="n">certfile</span>
         <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_use_privkey</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">keyfile</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_check_privkey</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;public/private key mismatch&#39;</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="Context.load_cert_chain"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.load_cert_chain">[docs]</a>    <span class="k">def</span> <span class="nf">load_cert_chain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">certchainfile</span><span class="p">,</span> <span class="n">keyfile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;public/private key mismatch&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Context.load_cert_chain"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.load_cert_chain">[docs]</a>    <span class="k">def</span> <span class="nf">load_cert_chain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">certchainfile</span><span class="p">,</span> <span class="n">keyfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                         <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
         <span class="c1"># type: (AnyStr, Optional[AnyStr], Callable) -&gt; None</span>
         <span class="sd">&quot;&quot;&quot;Load certificate chain and private key into the context.</span>
@@ -173,8 +162,8 @@
             <span class="n">keyfile</span> <span class="o">=</span> <span class="n">certchainfile</span>
         <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_use_privkey</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">keyfile</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_check_privkey</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;public/private key mismatch&#39;</span><span class="p">)</span>
-</div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;public/private key mismatch&#39;</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Context.set_client_CA_list_from_file"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.set_client_CA_list_from_file">[docs]</a>    <span class="k">def</span> <span class="nf">set_client_CA_list_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cafile</span><span class="p">):</span>
         <span class="c1"># type: (AnyStr) -&gt; None</span>
         <span class="sd">&quot;&quot;&quot;Load CA certs into the context. These CA certs are sent to the</span>
@@ -183,12 +172,12 @@
 <span class="sd">        :param cafile: File object containing one or more PEM-encoded CA</span>
 <span class="sd">                       certificates concatenated together.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_client_CA_list_from_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">cafile</span><span class="p">)</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_client_CA_list_from_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">cafile</span><span class="p">)</span></div>
 
-    <span class="c1"># Deprecated.</span></div>
+    <span class="c1"># Deprecated.</span>
     <span class="n">load_client_CA</span> <span class="o">=</span> <span class="n">load_client_ca</span> <span class="o">=</span> <span class="n">set_client_CA_list_from_file</span>
 
-<div class="viewcode-block" id="Context.load_verify_locations"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.load_verify_locations">[docs]</a>    <span class="k">def</span> <span class="nf">load_verify_locations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cafile</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">capath</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Context.load_verify_locations"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.load_verify_locations">[docs]</a>    <span class="k">def</span> <span class="nf">load_verify_locations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cafile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">capath</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="c1"># type: (Optional[AnyStr], Optional[AnyStr]) -&gt; int</span>
         <span class="sd">&quot;&quot;&quot;Load CA certs into the context.</span>
 
@@ -207,11 +196,11 @@
 
 <span class="sd">                1 The operation succeeded.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">cafile</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">capath</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">cafile</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">capath</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cafile and capath can not both be None.&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_load_verify_locations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">cafile</span><span class="p">,</span> <span class="n">capath</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_load_verify_locations</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">cafile</span><span class="p">,</span> <span class="n">capath</span><span class="p">)</span></div>
 
-    <span class="c1"># Deprecated.</span></div>
+    <span class="c1"># Deprecated.</span>
     <span class="n">load_verify_info</span> <span class="o">=</span> <span class="n">load_verify_locations</span>
 
 <div class="viewcode-block" id="Context.set_session_id_ctx"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.set_session_id_ctx">[docs]</a>    <span class="k">def</span> <span class="nf">set_session_id_ctx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
@@ -233,8 +222,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_session_id_context</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">ret</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">Err</span><span class="o">.</span><span class="n">SSLError</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error_code</span><span class="p">(),</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-</div>
+            <span class="k">raise</span> <span class="n">Err</span><span class="o">.</span><span class="n">SSLError</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error_code</span><span class="p">(),</span> <span class="s1">&#39;&#39;</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Context.set_default_verify_paths"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.set_default_verify_paths">[docs]</a>    <span class="k">def</span> <span class="nf">set_default_verify_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; int</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -256,8 +245,8 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_default_verify_paths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">ret</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot use default SSL certificate store!&#39;</span><span class="p">)</span>
-</div>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot use default SSL certificate store!&#39;</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Context.set_allow_unknown_ca"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.set_allow_unknown_ca">[docs]</a>    <span class="k">def</span> <span class="nf">set_allow_unknown_ca</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ok</span><span class="p">):</span>
         <span class="c1"># type: (Union[int, bool]) -&gt; None</span>
         <span class="sd">&quot;&quot;&quot;Set the context to accept/reject a peer certificate if the</span>
@@ -265,8 +254,8 @@
 
 <span class="sd">        :param ok:       True to accept, False to reject.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">allow_unknown_ca</span> <span class="o">=</span> <span class="n">ok</span>
-</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allow_unknown_ca</span> <span class="o">=</span> <span class="n">ok</span></div>
+
 <div class="viewcode-block" id="Context.get_allow_unknown_ca"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.get_allow_unknown_ca">[docs]</a>    <span class="k">def</span> <span class="nf">get_allow_unknown_ca</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; Union[int, bool]</span>
         <span class="sd">&quot;&quot;&quot;Get the context&#39;s setting that accepts/rejects a peer</span>
@@ -274,9 +263,9 @@
 
 <span class="sd">        FIXME 2Bconverted to bool</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_unknown_ca</span>
-</div>
-<div class="viewcode-block" id="Context.set_verify"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.set_verify">[docs]</a>    <span class="k">def</span> <span class="nf">set_verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_unknown_ca</span></div>
+
+<div class="viewcode-block" id="Context.set_verify"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.set_verify">[docs]</a>    <span class="k">def</span> <span class="nf">set_verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="c1"># type: (int, int, Optional[Callable]) -&gt; None</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set verify options. Most applications will need to call this</span>
@@ -290,21 +279,21 @@
 <span class="sd">        :param callback: Callable that can be used to specify custom</span>
 <span class="sd">                         verification checks.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_verify_default</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_verify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">mode</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
-        <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_verify_depth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">depth</span><span class="p">)</span>
-</div>
+        <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_verify_depth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">depth</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Context.get_verify_mode"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.get_verify_mode">[docs]</a>    <span class="k">def</span> <span class="nf">get_verify_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; int</span>
-        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_get_verify_mode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_get_verify_mode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Context.get_verify_depth"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.get_verify_depth">[docs]</a>    <span class="k">def</span> <span class="nf">get_verify_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; int</span>
         <span class="sd">&quot;&quot;&quot;Returns the verification mode currently set in the SSL Context.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_get_verify_depth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_get_verify_depth</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Context.set_tmp_dh"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.set_tmp_dh">[docs]</a>    <span class="k">def</span> <span class="nf">set_tmp_dh</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dhpfile</span><span class="p">):</span>
         <span class="c1"># type: (AnyStr) -&gt; int</span>
         <span class="sd">&quot;&quot;&quot;Load ephemeral DH parameters into the context.</span>
@@ -314,17 +303,17 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">f</span> <span class="o">=</span> <span class="n">BIO</span><span class="o">.</span><span class="n">openfile</span><span class="p">(</span><span class="n">dhpfile</span><span class="p">)</span>
         <span class="n">dhp</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">dh_read_parameters</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">bio_ptr</span><span class="p">())</span>
-        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_tmp_dh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">dhp</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="Context.set_tmp_dh_callback"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.set_tmp_dh_callback">[docs]</a>    <span class="k">def</span> <span class="nf">set_tmp_dh_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_tmp_dh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">dhp</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Context.set_tmp_dh_callback"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.set_tmp_dh_callback">[docs]</a>    <span class="k">def</span> <span class="nf">set_tmp_dh_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="c1"># type: (Optional[Callable]) -&gt; None</span>
         <span class="sd">&quot;&quot;&quot;Sets the callback function for SSL.Context.</span>
 
 <span class="sd">        :param callback: Callable to be used when a DH parameters are required.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_tmp_dh_callback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
-</div>
+        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_tmp_dh_callback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Context.set_tmp_rsa"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.set_tmp_rsa">[docs]</a>    <span class="k">def</span> <span class="nf">set_tmp_rsa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rsa</span><span class="p">):</span>
         <span class="c1"># type: (RSA.RSA) -&gt; int</span>
         <span class="sd">&quot;&quot;&quot;Load ephemeral RSA key into the context.</span>
@@ -334,16 +323,16 @@
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rsa</span><span class="p">,</span> <span class="n">RSA</span><span class="o">.</span><span class="n">RSA</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_tmp_rsa</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">rsa</span><span class="o">.</span><span class="n">rsa</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Expected an instance of RSA.RSA, got </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="n">rsa</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="Context.set_tmp_rsa_callback"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.set_tmp_rsa_callback">[docs]</a>    <span class="k">def</span> <span class="nf">set_tmp_rsa_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Expected an instance of RSA.RSA, got </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="n">rsa</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Context.set_tmp_rsa_callback"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.set_tmp_rsa_callback">[docs]</a>    <span class="k">def</span> <span class="nf">set_tmp_rsa_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="c1"># type: (Optional[Callable]) -&gt; None</span>
         <span class="sd">&quot;&quot;&quot;Sets the callback function to be used when</span>
 <span class="sd">        a temporary/ephemeral RSA key is required.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_tmp_rsa_callback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
-</div>
+        <span class="k">if</span> <span class="n">callback</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_tmp_rsa_callback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Context.set_info_callback"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.set_info_callback">[docs]</a>    <span class="k">def</span> <span class="nf">set_info_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">cb</span><span class="o">.</span><span class="n">ssl_info_callback</span><span class="p">):</span>
         <span class="c1"># type: (Callable) -&gt; None</span>
         <span class="sd">&quot;&quot;&quot;Set a callback function to get state information.</span>
@@ -354,8 +343,8 @@
 <span class="sd">        :param callback: Callback function. The default prints</span>
 <span class="sd">                         information to stderr.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_info_callback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
-</div>
+        <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_info_callback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Context.set_cipher_list"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.set_cipher_list">[docs]</a>    <span class="k">def</span> <span class="nf">set_cipher_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cipher_list</span><span class="p">):</span>
         <span class="c1"># type: (str) -&gt; int</span>
         <span class="sd">&quot;&quot;&quot;Sets the list of available ciphers.</span>
@@ -365,8 +354,8 @@
 <span class="sd">        :return: 1 if any cipher could be selected and 0 on complete</span>
 <span class="sd">                 failure.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_cipher_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">cipher_list</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_cipher_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">cipher_list</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Context.add_session"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.add_session">[docs]</a>    <span class="k">def</span> <span class="nf">add_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">):</span>
         <span class="c1"># type: (Session) -&gt; int</span>
         <span class="sd">&quot;&quot;&quot;Add the session to the context.</span>
@@ -378,8 +367,8 @@
 
 <span class="sd">                 1 The operation succeeded.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_add_session</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
-</div>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_add_session</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span></div>
+
 <div class="viewcode-block" id="Context.remove_session"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.remove_session">[docs]</a>    <span class="k">def</span> <span class="nf">remove_session</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session</span><span class="p">):</span>
         <span class="c1"># type: (Session) -&gt; int</span>
         <span class="sd">&quot;&quot;&quot;Remove the session from the context.</span>
@@ -391,8 +380,8 @@
 
 <span class="sd">                 1 The operation succeeded.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_remove_session</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span>
-</div>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_remove_session</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">session</span><span class="o">.</span><span class="n">_ptr</span><span class="p">())</span></div>
+
 <div class="viewcode-block" id="Context.get_session_timeout"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.get_session_timeout">[docs]</a>    <span class="k">def</span> <span class="nf">get_session_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; int</span>
         <span class="sd">&quot;&quot;&quot;Get current session timeout.</span>
@@ -422,8 +411,8 @@
 
 <span class="sd">        :return: the currently set timeout value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_get_session_timeout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_get_session_timeout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Context.set_session_timeout"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.set_session_timeout">[docs]</a>    <span class="k">def</span> <span class="nf">set_session_timeout</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
         <span class="c1"># type: (int) -&gt; int</span>
         <span class="sd">&quot;&quot;&quot;Set new session timeout.</span>
@@ -435,8 +424,8 @@
 
 <span class="sd">        :return: the previously set timeout value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_session_timeout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_session_timeout</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Context.set_session_cache_mode"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.set_session_cache_mode">[docs]</a>    <span class="k">def</span> <span class="nf">set_session_cache_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
         <span class="c1"># type: (int) -&gt; int</span>
         <span class="sd">&quot;&quot;&quot;Enables/disables session caching.</span>
@@ -447,8 +436,8 @@
 
 <span class="sd">        :return: the previously set cache mode value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_session_cache_mode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_session_cache_mode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Context.get_session_cache_mode"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.get_session_cache_mode">[docs]</a>    <span class="k">def</span> <span class="nf">get_session_cache_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; int</span>
         <span class="sd">&quot;&quot;&quot;Gets the current session caching.</span>
@@ -457,8 +446,8 @@
 
 <span class="sd">        :return: the previously set cache mode value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_get_session_cache_mode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_get_session_cache_mode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Context.set_options"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.set_options">[docs]</a>    <span class="k">def</span> <span class="nf">set_options</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">):</span>
         <span class="c1"># type: (int) -&gt; int</span>
         <span class="sd">&quot;&quot;&quot;Adds the options set via bitmask in options to the Context.</span>
@@ -485,8 +474,8 @@
 
 <span class="sd">        :return: the new options bitmask after adding options.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_options</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">op</span><span class="p">)</span>
-</div>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">ssl_ctx_set_options</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">op</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Context.get_cert_store"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Context.Context.get_cert_store">[docs]</a>    <span class="k">def</span> <span class="nf">get_cert_store</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; X509.X509</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -501,42 +490,43 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../SSL.html">M2Crypto.SSL</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../../../index.html">M2Crypto  documentation</a> &raquo;</li>
-          <li><a href="../../index.html" >Module code</a> &raquo;</li>
-          <li><a href="../SSL.html" >M2Crypto.SSL</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2017, Matej Cepl <mcepl@cepl.eu>.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
     </div>
+
+    
+
+    
   </body>
 </html>

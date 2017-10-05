@@ -1,50 +1,42 @@
 
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>1.   ZServerSSL-HOWTO &mdash; M2Crypto  documentation</title>
-    
-    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <title>1.   ZServerSSL-HOWTO &#8212; M2Crypto  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
+        URL_ROOT:    './',
         VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="M2Crypto  documentation" href="index.html" /> 
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
   </head>
   <body>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="index.html">M2Crypto  documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="zserverssl-howto">
 <span id="id1"></span><h1><a class="toc-backref" href="#id3">1.&nbsp;&nbsp;&nbsp;ZServerSSL-HOWTO</a><a class="headerlink" href="#zserverssl-howto" title="Permalink to this headline">¶</a></h1>
@@ -81,7 +73,7 @@
 </div>
 <div class="section" id="introduction">
 <h2><a class="toc-backref" href="#id4">1.1.&nbsp;&nbsp;&nbsp;Introduction</a><a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
-<p>ZServerSSL adds to Zope&#8217;s ZServer the following:</p>
+<p>ZServerSSL adds to Zope’s ZServer the following:</p>
 <ul class="simple">
 <li>HTTPS server</li>
 <li>WebDAV-source-over-HTTPS server</li>
@@ -95,67 +87,70 @@ in Un*x fashion.</p>
 <div class="section" id="preparation">
 <h2><a class="toc-backref" href="#id5">1.2.&nbsp;&nbsp;&nbsp;Preparation</a><a class="headerlink" href="#preparation" title="Permalink to this headline">¶</a></h2>
 <ol class="arabic simple">
-<li>Download M2Crypto 0.11, contained in the file <tt class="docutils literal"><span class="pre">m2crypto-0.11.zip</span></tt>.</li>
-<li>Unpack <tt class="docutils literal"><span class="pre">m2crypto-0.11.zip</span></tt>. This will create a directory
-<tt class="docutils literal"><span class="pre">m2crypto-0.11</span></tt>. Henceforth, we refer to this directory as <tt class="docutils literal"><span class="pre">$M2</span></tt>.</li>
-<li>Install M2Crypto per the instructions in <tt class="docutils literal"><span class="pre">$M2/INSTALL</span></tt>.</li>
+<li>Download M2Crypto 0.11, contained in the file <code class="docutils literal"><span class="pre">m2crypto-0.11.zip</span></code>.</li>
+<li>Unpack <code class="docutils literal"><span class="pre">m2crypto-0.11.zip</span></code>. This will create a directory
+<code class="docutils literal"><span class="pre">m2crypto-0.11</span></code>. Henceforth, we refer to this directory as <code class="docutils literal"><span class="pre">$M2</span></code>.</li>
+<li>Install M2Crypto per the instructions in <code class="docutils literal"><span class="pre">$M2/INSTALL</span></code>.</li>
 </ol>
-<p>The ZServerSSL distribution is in <tt class="docutils literal"><span class="pre">$M2/demo/Zope</span></tt>. We shall refer to
-this directory as <tt class="docutils literal"><span class="pre">$ZSSL</span></tt>.</p>
+<p>The ZServerSSL distribution is in <code class="docutils literal"><span class="pre">$M2/demo/Zope</span></code>. We shall refer to
+this directory as <code class="docutils literal"><span class="pre">$ZSSL</span></code>.</p>
 </div>
 <div class="section" id="installation">
 <h2><a class="toc-backref" href="#id6">1.3.&nbsp;&nbsp;&nbsp;Installation</a><a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<p>Below, we refer to your Zope top-level directory as <tt class="docutils literal"><span class="pre">$ZOPE</span></tt>.</p>
+<p>Below, we refer to your Zope top-level directory as <code class="docutils literal"><span class="pre">$ZOPE</span></code>.</p>
 <ol class="arabic">
-<li><p class="first">Copy <tt class="docutils literal"><span class="pre">$ZSSL/z2s.py</span></tt> into <tt class="docutils literal"><span class="pre">$ZOPE</span></tt>.</p>
+<li><p class="first">Copy <code class="docutils literal"><span class="pre">$ZSSL/z2s.py</span></code> into <code class="docutils literal"><span class="pre">$ZOPE</span></code>.</p>
 </li>
-<li><p class="first">Depending on your operating system, modify <tt class="docutils literal"><span class="pre">$ZOPE/start</span></tt> or
-<tt class="docutils literal"><span class="pre">$ZOPE/start.bat</span></tt> to invoke <tt class="docutils literal"><span class="pre">$ZOPE/z2s.py</span></tt>, instead of
-<tt class="docutils literal"><span class="pre">$ZOPE/z2.py</span></tt>. The files <tt class="docutils literal"><span class="pre">$ZSSL/starts</span></tt> and <tt class="docutils literal"><span class="pre">$ZSSL/starts.bat</span></tt>
+<li><p class="first">Depending on your operating system, modify <code class="docutils literal"><span class="pre">$ZOPE/start</span></code> or
+<code class="docutils literal"><span class="pre">$ZOPE/start.bat</span></code> to invoke <code class="docutils literal"><span class="pre">$ZOPE/z2s.py</span></code>, instead of
+<code class="docutils literal"><span class="pre">$ZOPE/z2.py</span></code>. The files <code class="docutils literal"><span class="pre">$ZSSL/starts</span></code> and <code class="docutils literal"><span class="pre">$ZSSL/starts.bat</span></code>
 serve as examples.</p>
 </li>
-<li><p class="first">Copy <tt class="docutils literal"><span class="pre">$ZSSL/dh1024.pem</span></tt> into <tt class="docutils literal"><span class="pre">$ZOPE</span></tt>. This file contains
+<li><p class="first">Copy <code class="docutils literal"><span class="pre">$ZSSL/dh1024.pem</span></code> into <code class="docutils literal"><span class="pre">$ZOPE</span></code>. This file contains
 Diffie-Hellman parameters for use by the SSL protocol.</p>
 </li>
-<li><p class="first">Copy <tt class="docutils literal"><span class="pre">$ZSSL/randpool.dat</span></tt> into <tt class="docutils literal"><span class="pre">$ZOPE</span></tt>. This file contains seed
+<li><p class="first">Copy <code class="docutils literal"><span class="pre">$ZSSL/randpool.dat</span></code> into <code class="docutils literal"><span class="pre">$ZOPE</span></code>. This file contains seed
 material for the OpenSSL PRNG. Alternatively, create
-<tt class="docutils literal"><span class="pre">$ZOPE/randpool.dat</span></tt> thusly:</p>
-<div class="highlight-python"><pre>$ dd if=/dev/urandom of=randpool.dat bs=1024 count=1</pre>
+<code class="docutils literal"><span class="pre">$ZOPE/randpool.dat</span></code> thusly:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ dd if=/dev/urandom of=randpool.dat bs=1024 count=1
+</pre></div>
 </div>
 </li>
-<li><p class="first">Copy <tt class="docutils literal"><span class="pre">$ZSSL/ca.pem</span></tt> to <tt class="docutils literal"><span class="pre">$ZOPE</span></tt>. This file contains an
+<li><p class="first">Copy <code class="docutils literal"><span class="pre">$ZSSL/ca.pem</span></code> to <code class="docutils literal"><span class="pre">$ZOPE</span></code>. This file contains an
 example Certification Authority (CA) certificate. For
-information on operating your own CA, see <a class="reference internal" href="howto.ca.html#howto-ca"><em>HOWTO: Creating your own CA with OpenSSL</em></a> or
+information on operating your own CA, see <a class="reference internal" href="howto.ca.html#howto-ca"><span class="std std-ref">HOWTO: Creating your own CA with OpenSSL</span></a> or
 one of numerous similar documents available on the web.</p>
 </li>
-<li><p class="first">Copy <tt class="docutils literal"><span class="pre">$ZSSL/server.pem</span></tt> to <tt class="docutils literal"><span class="pre">$ZOPE</span></tt>. This file contains an RSA key
+<li><p class="first">Copy <code class="docutils literal"><span class="pre">$ZSSL/server.pem</span></code> to <code class="docutils literal"><span class="pre">$ZOPE</span></code>. This file contains an RSA key
 pair and its X.509v3 certificate issued by the above CA. You may also
 create your own key/certificate bundle.</p>
 </li>
-<li><p class="first">Copy <tt class="docutils literal"><span class="pre">$ZSSL/ZServer/HTTPS_Server.py</span></tt> to <tt class="docutils literal"><span class="pre">$ZOPE/ZServer</span></tt>.</p>
+<li><p class="first">Copy <code class="docutils literal"><span class="pre">$ZSSL/ZServer/HTTPS_Server.py</span></code> to <code class="docutils literal"><span class="pre">$ZOPE/ZServer</span></code>.</p>
 </li>
-<li><p class="first">Copy <tt class="docutils literal"><span class="pre">$ZSSL/ZServer/__init__.py</span></tt> to <tt class="docutils literal"><span class="pre">$ZOPE/ZServer</span></tt>. This
-overwrites the existing <tt class="docutils literal"><span class="pre">$ZOPE/ZServer/__init__.py</span></tt>. Alternatively,
-apply the following patch to <tt class="docutils literal"><span class="pre">$ZOPE/ZServer/__init__.py</span></tt>:</p>
-<div class="highlight-python"><pre>--- __init__.py.org     Sat Jun 21 23:20:41 2003
-+++ __init__.py Tue Jan  7 23:30:53 2003
-@@ -84,6 +84,7 @@
- import asyncore
- from medusa import resolver, logger
- from HTTPServer import zhttp_server, zhttp_handler
-+from HTTPS_Server import zhttps_server, zhttps_handler
- from PCGIServer import PCGIServer
- from FCGIServer import FCGIServer
- from FTPServer import FTPServer</pre>
+<li><p class="first">Copy <code class="docutils literal"><span class="pre">$ZSSL/ZServer/__init__.py</span></code> to <code class="docutils literal"><span class="pre">$ZOPE/ZServer</span></code>. This
+overwrites the existing <code class="docutils literal"><span class="pre">$ZOPE/ZServer/__init__.py</span></code>. Alternatively,
+apply the following patch to <code class="docutils literal"><span class="pre">$ZOPE/ZServer/__init__.py</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">---</span> <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span><span class="o">.</span><span class="n">org</span>     <span class="n">Sat</span> <span class="n">Jun</span> <span class="mi">21</span> <span class="mi">23</span><span class="p">:</span><span class="mi">20</span><span class="p">:</span><span class="mi">41</span> <span class="mi">2003</span>
+<span class="o">+++</span> <span class="fm">__init__</span><span class="o">.</span><span class="n">py</span> <span class="n">Tue</span> <span class="n">Jan</span>  <span class="mi">7</span> <span class="mi">23</span><span class="p">:</span><span class="mi">30</span><span class="p">:</span><span class="mi">53</span> <span class="mi">2003</span>
+<span class="o">@@</span> <span class="o">-</span><span class="mi">84</span><span class="p">,</span><span class="mi">6</span> <span class="o">+</span><span class="mi">84</span><span class="p">,</span><span class="mi">7</span> <span class="o">@@</span>
+ <span class="kn">import</span> <span class="nn">asyncore</span>
+ <span class="kn">from</span> <span class="nn">medusa</span> <span class="k">import</span> <span class="n">resolver</span><span class="p">,</span> <span class="n">logger</span>
+ <span class="kn">from</span> <span class="nn">HTTPServer</span> <span class="k">import</span> <span class="n">zhttp_server</span><span class="p">,</span> <span class="n">zhttp_handler</span>
+<span class="o">+</span><span class="kn">from</span> <span class="nn">HTTPS_Server</span> <span class="k">import</span> <span class="n">zhttps_server</span><span class="p">,</span> <span class="n">zhttps_handler</span>
+ <span class="kn">from</span> <span class="nn">PCGIServer</span> <span class="k">import</span> <span class="n">PCGIServer</span>
+ <span class="kn">from</span> <span class="nn">FCGIServer</span> <span class="k">import</span> <span class="n">FCGIServer</span>
+ <span class="kn">from</span> <span class="nn">FTPServer</span> <span class="k">import</span> <span class="n">FTPServer</span>
+</pre></div>
 </div>
 </li>
-<li><p class="first">Copy <tt class="docutils literal"><span class="pre">$ZSSL/ZServer/medusa/https_server.py</span></tt> to
-<tt class="docutils literal"><span class="pre">$ZOPE/ZServer/medusa</span></tt>.</p>
+<li><p class="first">Copy <code class="docutils literal"><span class="pre">$ZSSL/ZServer/medusa/https_server.py</span></code> to
+<code class="docutils literal"><span class="pre">$ZOPE/ZServer/medusa</span></code>.</p>
 </li>
 <li><p class="first">Stop Zope, if it is running.</p>
 </li>
 <li><p class="first">Start Zope with ZServerSSL thusly:</p>
-<div class="highlight-python"><pre>./starts -X -f 9021 -w 9080 -W 9081 -y 9443 -Y 9444</pre>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">starts</span> <span class="o">-</span><span class="n">X</span> <span class="o">-</span><span class="n">f</span> <span class="mi">9021</span> <span class="o">-</span><span class="n">w</span> <span class="mi">9080</span> <span class="o">-</span><span class="n">W</span> <span class="mi">9081</span> <span class="o">-</span><span class="n">y</span> <span class="mi">9443</span> <span class="o">-</span><span class="n">Y</span> <span class="mi">9444</span>
+</pre></div>
 </div>
 <p>This starts the following:</p>
 <ul class="simple">
@@ -170,28 +165,28 @@ apply the following patch to <tt class="docutils literal"><span class="pre">$ZOP
 </div>
 <div class="section" id="testing">
 <h2><a class="toc-backref" href="#id7">1.4.&nbsp;&nbsp;&nbsp;Testing</a><a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h2>
-<p>Below, we assume your Zope server is running on <tt class="docutils literal"><span class="pre">localhost</span></tt>.</p>
+<p>Below, we assume your Zope server is running on <code class="docutils literal"><span class="pre">localhost</span></code>.</p>
 </div>
 <div class="section" id="https">
 <h2><a class="toc-backref" href="#id8">1.5.&nbsp;&nbsp;&nbsp;HTTPS</a><a class="headerlink" href="#https" title="Permalink to this headline">¶</a></h2>
 <p>This testing is done with Mozilla 1.1 on FreeBSD.</p>
 <ol class="arabic simple">
 <li>With a browser, connect to <a class="reference external" href="https://localhost:9443/">https://localhost:9443/</a>. Browse around.
-Check out your browser&#8217;s HTTPS informational screens.</li>
+Check out your browser’s HTTPS informational screens.</li>
 <li>Connect to <a class="reference external" href="https://localhost:9443/manage">https://localhost:9443/manage</a>. Verify that you can access
-Zope&#8217;s management functionality.</li>
+Zope’s management functionality.</li>
 </ol>
 </div>
 <div class="section" id="webdav-over-https">
 <h2><a class="toc-backref" href="#id9">1.6.&nbsp;&nbsp;&nbsp;WebDAV-over-HTTPS</a><a class="headerlink" href="#webdav-over-https" title="Permalink to this headline">¶</a></h2>
 <p>This testing is done with Cadaver 0.21.0 on FreeBSD.:</p>
-<div class="highlight-python"><pre>$ cadaver https://localhost:9443/
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ cadaver https://localhost:9443/
 WARNING: Untrusted server certificate presented:
 Issued to: M2Crypto, SG
 Issued by: M2Crypto, SG
 Do you wish to accept the certificate? (y/n) y
 dav:/&gt; ls
-Listing collection `/&#x27;: succeeded.
+Listing collection `/&#39;: succeeded.
 Coll:   Channels                               0  Jun 19 00:04
 Coll:   Control_Panel                          0  Jun  6 00:13
 Coll:   Examples                               0  Jun  6 00:12
@@ -214,8 +209,9 @@ Coll:   zope                                   0  Jun 20 15:27
         standard_template.pt                 282  Jun  6 00:12
         zsyncer                                0  Jun 17 15:28
 dav:/&gt; quit
-Connection to `localhost&#x27; closed.
-$</pre>
+Connection to `localhost&#39; closed.
+$
+</pre></div>
 </div>
 </div>
 <div class="section" id="webdav-source-over-https">
@@ -223,10 +219,10 @@ $</pre>
 <p>This testing is done with Mozilla 1.1 on FreeBSD.</p>
 <ol class="arabic simple">
 <li>Open the Mozilla Composer window.</li>
-<li>Click &#8220;File&#8221;, &#8220;Open Web Location&#8221;. A dialog box appears.</li>
-<li>Enter <tt class="docutils literal"><span class="pre">https://localhost:9444/index_html</span></tt> for the URL.</li>
-<li>Select &#8220;Open in new Composer window.&#8221;</li>
-<li>Click &#8220;Open&#8221;. A new Composer window will open with <tt class="docutils literal"><span class="pre">index_html</span></tt>
+<li>Click “File”, “Open Web Location”. A dialog box appears.</li>
+<li>Enter <code class="docutils literal"><span class="pre">https://localhost:9444/index_html</span></code> for the URL.</li>
+<li>Select “Open in new Composer window.”</li>
+<li>Click “Open”. A new Composer window will open with <code class="docutils literal"><span class="pre">index_html</span></code>
 loaded.</li>
 </ol>
 </div>
@@ -236,7 +232,7 @@ loaded.</li>
 </div>
 <div class="section" id="id2">
 <h2><a class="toc-backref" href="#id12">1.9.&nbsp;&nbsp;&nbsp;HTTPS</a><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">Rand</span><span class="p">,</span> <span class="n">SSL</span><span class="p">,</span> <span class="n">m2urllib</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="k">import</span> <span class="n">Rand</span><span class="p">,</span> <span class="n">SSL</span><span class="p">,</span> <span class="n">m2urllib</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">url</span> <span class="o">=</span> <span class="n">m2urllib</span><span class="o">.</span><span class="n">FancyURLopener</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">url</span><span class="o">.</span><span class="n">addheader</span><span class="p">(</span><span class="s1">&#39;Connection&#39;</span><span class="p">,</span> <span class="s1">&#39;close&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">u</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s1">&#39;https://127.0.0.1:9443/&#39;</span><span class="p">)</span>
@@ -251,37 +247,38 @@ loaded.</li>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
 <span class="gp">... </span>    <span class="n">data</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 <span class="gp">... </span>    <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span> <span class="k">break</span>
-<span class="gp">... </span>    <span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 <span class="gp">...</span>
 </pre></div>
 </div>
-<div class="highlight-python"><pre>&lt;html&gt;&lt;head&gt;
-&lt;base href=&quot;https://127.0.0.1:9443/&quot; /&gt;
-&lt;title&gt;Zope&lt;/title&gt;&lt;/head&gt;&lt;body bgcolor=&quot;#FFFFFF&quot;&gt;
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">html</span><span class="o">&gt;&lt;</span><span class="n">head</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">base</span> <span class="n">href</span><span class="o">=</span><span class="s2">&quot;https://127.0.0.1:9443/&quot;</span> <span class="o">/&gt;</span>
+<span class="o">&lt;</span><span class="n">title</span><span class="o">&gt;</span><span class="n">Zope</span><span class="o">&lt;/</span><span class="n">title</span><span class="o">&gt;&lt;/</span><span class="n">head</span><span class="o">&gt;&lt;</span><span class="n">body</span> <span class="n">bgcolor</span><span class="o">=</span><span class="s2">&quot;#FFFFFF&quot;</span><span class="o">&gt;</span>
 
-&lt;h1&gt;NgPS Desktop Portal&lt;/h1&gt;
+<span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="n">NgPS</span> <span class="n">Desktop</span> <span class="n">Portal</span><span class="o">&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
 
-&amp;nbsp;&amp;nbsp;So many hacks.&lt;br&gt;
-&amp;nbsp;&amp;nbsp;So little time.&lt;br&gt;
+<span class="o">&amp;</span><span class="n">nbsp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">nbsp</span><span class="p">;</span><span class="n">So</span> <span class="n">many</span> <span class="n">hacks</span><span class="o">.&lt;</span><span class="n">br</span><span class="o">&gt;</span>
+<span class="o">&amp;</span><span class="n">nbsp</span><span class="p">;</span><span class="o">&amp;</span><span class="n">nbsp</span><span class="p">;</span><span class="n">So</span> <span class="n">little</span> <span class="n">time</span><span class="o">.&lt;</span><span class="n">br</span><span class="o">&gt;</span>
 
-&lt;h2&gt;Link Farm&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&quot;http://localhost:8080/portal&quot;&gt;Portal&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&quot;http://localhost/&quot;&gt;Local Apache Home Page&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
+<span class="o">&lt;</span><span class="n">h2</span><span class="o">&gt;</span><span class="n">Link</span> <span class="n">Farm</span><span class="o">&lt;/</span><span class="n">h2</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">ul</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">li</span><span class="o">&gt;&lt;</span><span class="n">a</span> <span class="n">href</span><span class="o">=</span><span class="s2">&quot;http://localhost:8080/portal&quot;</span><span class="o">&gt;</span><span class="n">Portal</span><span class="o">&lt;/</span><span class="n">a</span><span class="o">&gt;&lt;/</span><span class="n">li</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">li</span><span class="o">&gt;&lt;</span><span class="n">a</span> <span class="n">href</span><span class="o">=</span><span class="s2">&quot;http://localhost/&quot;</span><span class="o">&gt;</span><span class="n">Local</span> <span class="n">Apache</span> <span class="n">Home</span> <span class="n">Page</span><span class="o">&lt;/</span><span class="n">a</span><span class="o">&gt;&lt;/</span><span class="n">li</span><span class="o">&gt;</span>
+<span class="o">&lt;/</span><span class="n">ul</span><span class="o">&gt;</span>
 
-&lt;hr&gt;&lt;a href=&quot;http://www.zope.org/Credits&quot; target=&quot;_top&quot;&gt;&lt;img src=&quot;https://127.0.0.1:9443/p_/ZopeButton&quot; width=&quot;115&quot; height=&quot;50&quot; border=&quot;0&quot; alt=&quot;Powered by Zope&quot; /&gt;&lt;/a&gt;&lt;/body&gt;&lt;/html&gt;</pre>
+<span class="o">&lt;</span><span class="n">hr</span><span class="o">&gt;&lt;</span><span class="n">a</span> <span class="n">href</span><span class="o">=</span><span class="s2">&quot;http://www.zope.org/Credits&quot;</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;_top&quot;</span><span class="o">&gt;&lt;</span><span class="n">img</span> <span class="n">src</span><span class="o">=</span><span class="s2">&quot;https://127.0.0.1:9443/p_/ZopeButton&quot;</span> <span class="n">width</span><span class="o">=</span><span class="s2">&quot;115&quot;</span> <span class="n">height</span><span class="o">=</span><span class="s2">&quot;50&quot;</span> <span class="n">border</span><span class="o">=</span><span class="s2">&quot;0&quot;</span> <span class="n">alt</span><span class="o">=</span><span class="s2">&quot;Powered by Zope&quot;</span> <span class="o">/&gt;&lt;/</span><span class="n">a</span><span class="o">&gt;&lt;/</span><span class="n">body</span><span class="o">&gt;&lt;/</span><span class="n">html</span><span class="o">&gt;</span>
+</pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">u</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">u</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 <span class="go">&gt;&gt;&gt;</span>
 </pre></div>
 </div>
 </div>
 <div class="section" id="xmlrpc-over-https">
 <h2><a class="toc-backref" href="#id13">1.10.&nbsp;&nbsp;&nbsp;XMLRPC-over-HTTPS</a><a class="headerlink" href="#xmlrpc-over-https" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">M2Crypto.m2xmlrpclib</span> <span class="kn">import</span> <span class="n">Server</span><span class="p">,</span> <span class="n">SSL_Transport</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">M2Crypto.m2xmlrpclib</span> <span class="k">import</span> <span class="n">Server</span><span class="p">,</span> <span class="n">SSL_Transport</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">zs</span> <span class="o">=</span> <span class="n">Server</span><span class="p">(</span><span class="s1">&#39;https://127.0.0.1:9443/&#39;</span><span class="p">,</span> <span class="n">SSL_Transport</span><span class="p">())</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">zs</span><span class="o">.</span><span class="n">propertyMap</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">zs</span><span class="o">.</span><span class="n">propertyMap</span><span class="p">())</span>
 <span class="go">[{&#39;type&#39;: &#39;string&#39;, &#39;id&#39;: &#39;title&#39;, &#39;mode&#39;: &#39;w&#39;}]</span>
 <span class="go">&gt;&gt;&gt;</span>
 </pre></div>
@@ -297,7 +294,7 @@ loaded.</li>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
@@ -316,44 +313,48 @@ loaded.</li>
 </ul>
 </li>
 </ul>
-
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/ZServerSSL-HOWTO.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ZServerSSL-HOWTO.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="index.html">M2Crypto  documentation</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2017, Matej Cepl <mcepl@cepl.eu>.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="_sources/ZServerSSL-HOWTO.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
+
+    
+
+    
   </body>
 </html>

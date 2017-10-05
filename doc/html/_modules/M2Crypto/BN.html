@@ -1,55 +1,45 @@
 
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>M2Crypto.BN &mdash; M2Crypto  documentation</title>
-    
-    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <title>M2Crypto.BN &#8212; M2Crypto  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
         VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="M2Crypto  documentation" href="../../index.html" />
-    <link rel="up" title="Module code" href="../index.html" /> 
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
   </head>
   <body>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
-          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
-      </ul>
-    </div>  
+  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <h1>Source code for M2Crypto.BN</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">M2Crypto wrapper for OpenSSL BN (BIGNUM) API.</span>
@@ -57,9 +47,9 @@
 <span class="sd">Copyright (c) 2005 Open Source Applications Foundation. All rights reserved.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="k">import</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>
 <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>  <span class="c1"># noqa</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">Optional</span>  <span class="c1"># noqa</span>
 
 
 <div class="viewcode-block" id="rand"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.BN.rand">[docs]</a><span class="k">def</span> <span class="nf">rand</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="n">top</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
@@ -73,9 +63,9 @@
 <span class="sd">                   bits will be 1.</span>
 <span class="sd">    :param bottom: If bottom is true, the number will be odd.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">bn_rand</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">bottom</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">bn_rand</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">bottom</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="rand_range"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.BN.rand_range">[docs]</a><span class="k">def</span> <span class="nf">rand_range</span><span class="p">(</span><span class="nb">range</span><span class="p">):</span>
     <span class="c1"># type: (int) -&gt; int</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -84,9 +74,9 @@
 <span class="sd">    :param range: Upper limit for range.</span>
 <span class="sd">    :return:      A random number in the range [0, range)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">bn_rand_range</span><span class="p">(</span><span class="nb">range</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">bn_rand_range</span><span class="p">(</span><span class="nb">range</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="randfname"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.BN.randfname">[docs]</a><span class="k">def</span> <span class="nf">randfname</span><span class="p">(</span><span class="n">length</span><span class="p">):</span>
     <span class="c1"># type: (int) -&gt; str</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -112,41 +102,41 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
-          <li><a href="../index.html" >Module code</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2017, Matej Cepl <mcepl@cepl.eu>.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
     </div>
+
+    
+
+    
   </body>
 </html>

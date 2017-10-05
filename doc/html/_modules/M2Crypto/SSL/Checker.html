@@ -1,53 +1,42 @@
 
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>M2Crypto.SSL.Checker &mdash; M2Crypto  documentation</title>
-    
-    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <title>M2Crypto.SSL.Checker &#8212; M2Crypto  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../../',
         VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <link rel="top" title="M2Crypto  documentation" href="../../../index.html" />
-    <link rel="up" title="M2Crypto.SSL" href="../SSL.html" /> 
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
   </head>
   <body>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../../../index.html">M2Crypto  documentation</a> &raquo;</li>
-          <li><a href="../../index.html" >Module code</a> &raquo;</li>
-          <li><a href="../SSL.html" accesskey="U">M2Crypto.SSL</a> &raquo;</li> 
-      </ul>
-    </div>  
+  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <h1>Source code for M2Crypto.SSL.Checker</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
@@ -65,23 +54,23 @@
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">socket</span>
 
-<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">X509</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="k">import</span> <span class="n">X509</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>  <span class="c1"># noqa</span>
 <span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Optional</span>  <span class="c1"># noqa</span>
+    <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Optional</span>  <span class="c1"># noqa</span>
 
 
 <div class="viewcode-block" id="SSLVerificationError"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Checker.SSLVerificationError">[docs]</a><span class="k">class</span> <span class="nc">SSLVerificationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="k">pass</span>
+    <span class="k">pass</span></div>
 
-</div>
+
 <div class="viewcode-block" id="NoCertificate"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Checker.NoCertificate">[docs]</a><span class="k">class</span> <span class="nc">NoCertificate</span><span class="p">(</span><span class="n">SSLVerificationError</span><span class="p">):</span>
-    <span class="k">pass</span>
+    <span class="k">pass</span></div>
 
-</div>
+
 <div class="viewcode-block" id="WrongCertificate"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Checker.WrongCertificate">[docs]</a><span class="k">class</span> <span class="nc">WrongCertificate</span><span class="p">(</span><span class="n">SSLVerificationError</span><span class="p">):</span>
-    <span class="k">pass</span>
+    <span class="k">pass</span></div>
 
-</div>
+
 <div class="viewcode-block" id="WrongHost"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Checker.WrongHost">[docs]</a><span class="k">class</span> <span class="nc">WrongHost</span><span class="p">(</span><span class="n">SSLVerificationError</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expectedHost</span><span class="p">,</span> <span class="n">actualHost</span><span class="p">,</span> <span class="n">fieldName</span><span class="o">=</span><span class="s1">&#39;commonName&#39;</span><span class="p">):</span>
         <span class="c1"># type: (str, AnyStr, str) -&gt; None</span>
@@ -102,7 +91,7 @@
                 <span class="s1">&#39;Unknown fieldName, should be either commonName &#39;</span> <span class="o">+</span>
                 <span class="s1">&#39;or subjectAltName&#39;</span><span class="p">)</span>
 
-        <span class="n">SSLVerificationError</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">SSLVerificationError</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">expectedHost</span> <span class="o">=</span> <span class="n">expectedHost</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">actualHost</span> <span class="o">=</span> <span class="n">actualHost</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fieldName</span> <span class="o">=</span> <span class="n">fieldName</span>
@@ -111,27 +100,27 @@
         <span class="c1"># type: () -&gt; str</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;Peer certificate </span><span class="si">%s</span><span class="s1"> does not match host, expected </span><span class="si">%s</span><span class="s1">, got </span><span class="si">%s</span><span class="s1">&#39;</span> \
             <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fieldName</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">expectedHost</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">actualHost</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">py3str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">py3str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span></div>
 
-</div>
+
 <div class="viewcode-block" id="Checker"><a class="viewcode-back" href="../../../M2Crypto.SSL.html#M2Crypto.SSL.Checker.Checker">[docs]</a><span class="k">class</span> <span class="nc">Checker</span><span class="p">:</span>
 
     <span class="n">numericIpMatch</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;^[0-9]+(\.[0-9]+)*$&#39;</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">peerCertHash</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">peerCertDigest</span><span class="o">=</span><span class="s1">&#39;sha1&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">peerCertHash</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">peerCertDigest</span><span class="o">=</span><span class="s1">&#39;sha1&#39;</span><span class="p">):</span>
         <span class="c1"># type: (Optional[str], Optional[bytes], str) -&gt; None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
-        <span class="k">if</span> <span class="n">peerCertHash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">peerCertHash</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">peerCertHash</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">py3bytes</span><span class="p">(</span><span class="n">peerCertHash</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fingerprint</span> <span class="o">=</span> <span class="n">peerCertHash</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">digest</span> <span class="o">=</span> <span class="n">peerCertDigest</span>  <span class="c1"># type: str</span>
 
-    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">peerCert</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">peerCert</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="c1"># type: (X509.X509, Optional[str]) -&gt; bool</span>
-        <span class="k">if</span> <span class="n">peerCert</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">peerCert</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">NoCertificate</span><span class="p">(</span><span class="s1">&#39;peer did not return certificate&#39;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">host</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">host</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>  <span class="c1"># type: str</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">:</span>
@@ -143,13 +132,13 @@
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">digest</span> <span class="o">==</span> <span class="s1">&#39;md5&#39;</span><span class="p">:</span>
                 <span class="n">expected_len</span> <span class="o">=</span> <span class="mi">32</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unexpected digest {0}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">digest</span><span class="p">))</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unexpected digest </span><span class="si">{0}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">digest</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">)</span> <span class="o">!=</span> <span class="n">expected_len</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">WrongCertificate</span><span class="p">(</span>
                     <span class="p">(</span><span class="s1">&#39;peer certificate fingerprint length does not match</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span>
-                     <span class="s1">&#39;fingerprint: {0}</span><span class="se">\n</span><span class="s1">expected = {1}</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span>
-                     <span class="s1">&#39;observed = {2}&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">,</span>
+                     <span class="s1">&#39;fingerprint: </span><span class="si">{0}</span><span class="se">\n</span><span class="s1">expected = </span><span class="si">{1}</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span>
+                     <span class="s1">&#39;observed = </span><span class="si">{2}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">,</span>
                                               <span class="n">expected_len</span><span class="p">,</span>
                                               <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fingerprint</span><span class="p">)))</span>
 
@@ -158,19 +147,19 @@
             <span class="k">if</span> <span class="n">observed_fingerprint</span> <span class="o">!=</span> <span class="n">expected_fingerprint</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="n">WrongCertificate</span><span class="p">(</span>
                     <span class="p">(</span><span class="s1">&#39;peer certificate fingerprint does not match</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span>
-                     <span class="s1">&#39;expected = {0},</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span>
-                     <span class="s1">&#39;observed = {1}&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">expected_fingerprint</span><span class="p">,</span>
+                     <span class="s1">&#39;expected = </span><span class="si">{0}</span><span class="s1">,</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span>
+                     <span class="s1">&#39;observed = </span><span class="si">{1}</span><span class="s1">&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">expected_fingerprint</span><span class="p">,</span>
                                               <span class="n">observed_fingerprint</span><span class="p">))</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">:</span>
-            <span class="n">hostValidationPassed</span> <span class="o">=</span> <span class="bp">False</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">useSubjectAltNameOnly</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="n">hostValidationPassed</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">useSubjectAltNameOnly</span> <span class="o">=</span> <span class="kc">False</span>
 
             <span class="c1"># subjectAltName=DNS:somehost[, ...]*</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">subjectAltName</span> <span class="o">=</span> <span class="n">peerCert</span><span class="o">.</span><span class="n">get_ext</span><span class="p">(</span><span class="s1">&#39;subjectAltName&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_splitSubjectAltName</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">subjectAltName</span><span class="p">):</span>
-                    <span class="n">hostValidationPassed</span> <span class="o">=</span> <span class="bp">True</span>
+                    <span class="n">hostValidationPassed</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">useSubjectAltNameOnly</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">WrongHost</span><span class="p">(</span><span class="n">expectedHost</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span>
                                     <span class="n">actualHost</span><span class="o">=</span><span class="n">subjectAltName</span><span class="p">,</span>
@@ -180,18 +169,18 @@
 
             <span class="c1"># commonName=somehost[, ...]*</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">hostValidationPassed</span><span class="p">:</span>
-                <span class="n">hasCommonName</span> <span class="o">=</span> <span class="bp">False</span>
+                <span class="n">hasCommonName</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">commonNames</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
                 <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">peerCert</span><span class="o">.</span><span class="n">get_subject</span><span class="p">()</span><span class="o">.</span><span class="n">get_entries_by_nid</span><span class="p">(</span>
                         <span class="n">m2</span><span class="o">.</span><span class="n">NID_commonName</span><span class="p">):</span>
-                    <span class="n">hasCommonName</span> <span class="o">=</span> <span class="bp">True</span>
+                    <span class="n">hasCommonName</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="n">commonName</span> <span class="o">=</span> <span class="n">entry</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span><span class="o">.</span><span class="n">as_text</span><span class="p">()</span>
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">commonNames</span><span class="p">:</span>
                         <span class="n">commonNames</span> <span class="o">=</span> <span class="n">commonName</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">commonNames</span> <span class="o">+=</span> <span class="s1">&#39;,&#39;</span> <span class="o">+</span> <span class="n">commonName</span>
                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="n">commonName</span><span class="p">):</span>
-                        <span class="n">hostValidationPassed</span> <span class="o">=</span> <span class="bp">True</span>
+                        <span class="n">hostValidationPassed</span> <span class="o">=</span> <span class="kc">True</span>
                         <span class="k">break</span>
 
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">hasCommonName</span><span class="p">:</span>
@@ -202,7 +191,7 @@
                                     <span class="n">actualHost</span><span class="o">=</span><span class="n">commonNames</span><span class="p">,</span>
                                     <span class="n">fieldName</span><span class="o">=</span><span class="s1">&#39;commonName&#39;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="kc">True</span>
 
     <span class="k">def</span> <span class="nf">_splitSubjectAltName</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">subjectAltName</span><span class="p">):</span>
         <span class="c1"># type: (AnyStr, AnyStr) -&gt; bool</span>
@@ -245,18 +234,18 @@
 <span class="sd">        &gt;&gt;&gt; check.useSubjectAltNameOnly</span>
 <span class="sd">        False</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">useSubjectAltNameOnly</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">useSubjectAltNameOnly</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">certHost</span> <span class="ow">in</span> <span class="n">subjectAltName</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">):</span>
             <span class="n">certHost</span> <span class="o">=</span> <span class="n">certHost</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">certHost</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;dns:&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">useSubjectAltNameOnly</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">useSubjectAltNameOnly</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_match</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">certHost</span><span class="p">[</span><span class="mi">4</span><span class="p">:]):</span>
-                    <span class="k">return</span> <span class="bp">True</span>
+                    <span class="k">return</span> <span class="kc">True</span>
             <span class="k">elif</span> <span class="n">certHost</span><span class="p">[:</span><span class="mi">11</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;ip address:&#39;</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">useSubjectAltNameOnly</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">useSubjectAltNameOnly</span> <span class="o">=</span> <span class="kc">True</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_matchIPAddress</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">certHost</span><span class="p">[</span><span class="mi">11</span><span class="p">:]):</span>
-                    <span class="k">return</span> <span class="bp">True</span>
-        <span class="k">return</span> <span class="bp">False</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">def</span> <span class="nf">_match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">certHost</span><span class="p">):</span>
         <span class="c1"># type: (str, str) -&gt; bool</span>
@@ -288,30 +277,30 @@
         <span class="n">certHost</span> <span class="o">=</span> <span class="n">certHost</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">host</span> <span class="o">==</span> <span class="n">certHost</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">True</span>
+            <span class="k">return</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="n">certHost</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="c1"># Not sure about this, but being conservative</span>
-            <span class="k">return</span> <span class="bp">False</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numericIpMatch</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="ow">or</span> \
                 <span class="bp">self</span><span class="o">.</span><span class="n">numericIpMatch</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">certHost</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)):</span>
             <span class="c1"># Not sure if * allowed in numeric IP, but think not.</span>
-            <span class="k">return</span> <span class="bp">False</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
         <span class="k">if</span> <span class="n">certHost</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
             <span class="c1"># Not sure about this, maybe some encoding might have these.</span>
             <span class="c1"># But being conservative for now, because regex below relies</span>
             <span class="c1"># on this.</span>
-            <span class="k">return</span> <span class="bp">False</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
         <span class="c1"># Massage certHost so that it can be used in regex</span>
         <span class="n">certHost</span> <span class="o">=</span> <span class="n">certHost</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;\.&#39;</span><span class="p">)</span>
         <span class="n">certHost</span> <span class="o">=</span> <span class="n">certHost</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;[^\.]*&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;^</span><span class="si">%s</span><span class="s1">$&#39;</span> <span class="o">%</span> <span class="n">certHost</span><span class="p">)</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">host</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">True</span>
+            <span class="k">return</span> <span class="kc">True</span>
 
-        <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">def</span> <span class="nf">_matchIPAddress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">certHost</span><span class="p">):</span>
         <span class="c1"># type: (AnyStr, AnyStr) -&gt; bool</span>
@@ -340,11 +329,11 @@
                                                <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span>
                                                <span class="n">socket</span><span class="o">.</span><span class="n">AI_NUMERICHOST</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">False</span>
-        <span class="k">return</span> <span class="n">canonical</span> <span class="o">==</span> <span class="n">certCanonical</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">canonical</span> <span class="o">==</span> <span class="n">certCanonical</span></div>
 
-</div>
-<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
     <span class="kn">import</span> <span class="nn">doctest</span>
     <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">()</span>
 </pre></div>
@@ -352,42 +341,43 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  <li><a href="../SSL.html">M2Crypto.SSL</a><ul>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../../../index.html">M2Crypto  documentation</a> &raquo;</li>
-          <li><a href="../../index.html" >Module code</a> &raquo;</li>
-          <li><a href="../SSL.html" >M2Crypto.SSL</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2017, Matej Cepl <mcepl@cepl.eu>.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
     </div>
+
+    
+
+    
   </body>
 </html>

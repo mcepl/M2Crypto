@@ -1,55 +1,45 @@
 
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>M2Crypto.ftpslib &mdash; M2Crypto  documentation</title>
-    
-    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <title>M2Crypto.ftpslib &#8212; M2Crypto  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
         VERSION:     '',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <link rel="top" title="M2Crypto  documentation" href="../../index.html" />
-    <link rel="up" title="Module code" href="../index.html" /> 
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
   </head>
   <body>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
-          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
-      </ul>
-    </div>  
+  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <h1>Source code for M2Crypto.ftpslib</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
 
 <span class="sd">&quot;&quot;&quot;M2Crypto client-side FTP/TLS.</span>
 
@@ -86,23 +76,23 @@
 
 <span class="c1"># We want to import whole stdlib ftplib objects, because our users want</span>
 <span class="c1"># to use them.</span>
-<span class="kn">from</span> <span class="nn">ftplib</span> <span class="kn">import</span> <span class="o">*</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">ftplib</span> <span class="k">import</span> <span class="o">*</span>  <span class="c1"># noqa</span>
 
 <span class="c1"># M2Crypto</span>
-<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">SSL</span>
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="k">import</span> <span class="n">SSL</span>
 
 
 <div class="viewcode-block" id="FTP_TLS"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ftpslib.FTP_TLS">[docs]</a><span class="k">class</span> <span class="nc">FTP_TLS</span><span class="p">(</span><span class="n">FTP</span><span class="p">):</span>  <span class="c1"># noqa</span>
 
     <span class="sd">&quot;&quot;&quot;Python OO interface to client-side FTP/TLS.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">ssl_ctx</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ssl_ctx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialise the client. If &#39;host&#39; is supplied, connect to it.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">ssl_ctx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ssl_ctx</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ssl_ctx</span> <span class="o">=</span> <span class="n">ssl_ctx</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ssl_ctx</span> <span class="o">=</span> <span class="n">SSL</span><span class="o">.</span><span class="n">Context</span><span class="p">()</span>
-        <span class="n">FTP</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">)</span>
+        <span class="n">FTP</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">prot</span> <span class="o">=</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="FTP_TLS.auth_tls"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ftpslib.FTP_TLS.auth_tls">[docs]</a>    <span class="k">def</span> <span class="nf">auth_tls</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -113,24 +103,24 @@
         <span class="n">s</span><span class="o">.</span><span class="n">set_connect_state</span><span class="p">()</span>
         <span class="n">s</span><span class="o">.</span><span class="n">connect_ssl</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sock</span> <span class="o">=</span> <span class="n">s</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sock</span><span class="o">.</span><span class="n">makefile</span><span class="p">()</span>
-</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sock</span><span class="o">.</span><span class="n">makefile</span><span class="p">()</span></div>
+
 <div class="viewcode-block" id="FTP_TLS.auth_ssl"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ftpslib.FTP_TLS.auth_ssl">[docs]</a>    <span class="k">def</span> <span class="nf">auth_ssl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Secure the control connection per AUTH SSL, aka AUTH TLS-P.&quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
-</div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
 <div class="viewcode-block" id="FTP_TLS.prot_p"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ftpslib.FTP_TLS.prot_p">[docs]</a>    <span class="k">def</span> <span class="nf">prot_p</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set up secure data connection.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">voidcmd</span><span class="p">(</span><span class="s1">&#39;PBSZ 0&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">voidcmd</span><span class="p">(</span><span class="s1">&#39;PROT P&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">prot</span> <span class="o">=</span> <span class="mi">1</span>
-</div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prot</span> <span class="o">=</span> <span class="mi">1</span></div>
+
 <div class="viewcode-block" id="FTP_TLS.prot_c"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ftpslib.FTP_TLS.prot_c">[docs]</a>    <span class="k">def</span> <span class="nf">prot_c</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set up data connection in the clear.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">voidcmd</span><span class="p">(</span><span class="s1">&#39;PROT C&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">prot</span> <span class="o">=</span> <span class="mi">0</span>
-</div>
-<div class="viewcode-block" id="FTP_TLS.ntransfercmd"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ftpslib.FTP_TLS.ntransfercmd">[docs]</a>    <span class="k">def</span> <span class="nf">ntransfercmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">rest</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prot</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="FTP_TLS.ntransfercmd"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ftpslib.FTP_TLS.ntransfercmd">[docs]</a>    <span class="k">def</span> <span class="nf">ntransfercmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">rest</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initiate a data transfer.&quot;&quot;&quot;</span>
         <span class="n">conn</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="n">FTP</span><span class="o">.</span><span class="n">ntransfercmd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cmd</span><span class="p">,</span> <span class="n">rest</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">prot</span><span class="p">:</span>
@@ -145,41 +135,41 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper">
-<div id="searchbox" style="display: none">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="../../genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
-          <a href="../../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li><a href="../../index.html">M2Crypto  documentation</a> &raquo;</li>
-          <li><a href="../index.html" >Module code</a> &raquo;</li> 
-      </ul>
-    </div>
     <div class="footer">
-        &copy; Copyright 2017, Matej Cepl &lt;mcepl@cepl.eu&gt;.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      &copy;2017, Matej Cepl <mcepl@cepl.eu>.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
     </div>
+
+    
+
+    
   </body>
 </html>
