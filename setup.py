@@ -318,7 +318,7 @@ setuptools.setup(
     version=__get_version(),
     description='M2Crypto: A Python crypto and SSL toolkit',
     long_description=long_description_text,
-    license='BSD-style license',
+    license='MIT',
     platforms=['any'],
     author='Ng Pheng Siong',
     author_email='ngps at sandbox rulemaker net',
@@ -328,6 +328,7 @@ setuptools.setup(
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: C',
         'Programming Language :: Python',

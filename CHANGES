@@ -1,3 +1,14 @@
+0.27.0 - 2017-10-05
+-------------------
+- Fix licence: it is MIT, not BSD
+- At least minimal support of SNI in httpslib.
+- Small bugfixes and cleanups.
+- More effort to make build system more robust (now should work even on
+  Debian LTS).
+- Restore m2.rsa_set_e() and m2.rsa_set_n().
+- Make sure that every exceptional return throws and exception and vice
+  versa.
+
 0.26.4 - 2017-09-26
 -------------------
 - Proper fix of deprecation warning for OpenSSL 1.1.0

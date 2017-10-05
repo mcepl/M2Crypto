@@ -43,7 +43,7 @@ working for you.
 
 - And much more.
 
-M2Crypto is released under a very liberal BSD-style licence. See
+M2Crypto is released under a very liberal MIT licence. See
 LICENCE for details.
 
 To install, see the file INSTALL.
