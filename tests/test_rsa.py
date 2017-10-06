@@ -42,18 +42,20 @@ class RSATestCase(unittest.TestCase):
 
     def pp_callback(self, *args):
         # The passphrase for rsa.priv2.pem is 'qwerty'.
-        return 'qwerty'
+        return b'qwerty'
 
     def pp2_callback(self, *args):
         # Misbehaving passphrase callback.
-        pass
+        return b'blabla'
+
+    def test_rsa_exceptions(self):
+        with self.assertRaises(RSA.RSAError):
+            RSA.rsa_error()
 
     def test_loadkey_junk(self):
         with self.assertRaises(RSA.RSAError):
             RSA.load_key(self.errkey)
 
-    @unittest.skipIf(six.PY3,
-                     'test_loadkey_pp hangs under python3')
     def test_loadkey_pp(self):
         rsa = RSA.load_key(self.privkey2, self.pp_callback)
         self.assertEqual(len(rsa), 1024)
@@ -61,7 +63,6 @@ class RSATestCase(unittest.TestCase):
                          b'\000\000\000\003\001\000\001')  # aka 65537 aka 0xf4
         self.assertEqual(rsa.check_key(), 1)
 
-    @unittest.skipIf(six.PY3, 'test_loadkey_pp_bad_cp hangs under python3')
     def test_loadkey_pp_bad_cb(self):
         with self.assertRaises(RSA.RSAError):
             RSA.load_key(self.privkey2, self.pp2_callback)
