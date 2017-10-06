@@ -18,7 +18,7 @@ def ssl_verify_callback_stub(ssl_ctx_ptr, x509_ptr, errnum, errdepth, ok):
     # Deprecated
     return ok
 
-unknown_issuer = [  # type: List[int]
+unknown_issuer = [
     m2.X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT,
     m2.X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY,
     m2.X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE,

@@ -9,7 +9,7 @@ from __future__ import absolute_import
 
 from M2Crypto import m2, util
 if util.py27plus:
-    from typing import AnyStr, Tuple  # noqa
+    from typing import AnyStr, Tuple
 
 
 __all__ = ['rand_seed', 'rand_add', 'load_file', 'save_file', 'rand_bytes',

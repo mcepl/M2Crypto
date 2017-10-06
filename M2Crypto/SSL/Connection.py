@@ -406,13 +406,13 @@ class Connection:
                described in the Unix man page getsockopt(2)). The needed
                symbolic constants (SO_* etc.) are defined in the socket
                module.
-        
+
         :param buflen: If it is absent, an integer option is assumed
                and its integer value is returned by the function. If
                buflen is present, it specifies the maximum length of the
                buffer used to receive the option in, and this buffer is
                returned as a bytes object.
-        
+
         :return: Either integer or bytes value of the option. It is up
                  to the caller to decode the contents of the buffer (see
                  the optional built-in module struct for a way to decode
@@ -425,15 +425,15 @@ class Connection:
         """Set the value of the given socket option.
 
         :param level: same as with getsockopt() above
-        
+
         :param optname: same as with getsockopt() above
-        
+
         :param value: an integer or a string representing a buffer. In
                       the latter case it is up to the caller to ensure
                       that the string contains the proper bits (see the
                       optional built-in module struct for a way to
                       encode C structures as strings).
-        
+
         :return: None for success or the error handler for failure.
         """
         return self.socket.setsockopt(level, optname, value)
@@ -515,7 +515,7 @@ class Connection:
         return Cipher(c)
 
     def get_ciphers(self):
-        # type: () -> Optional[SSL:Cipher_Stack]
+        # type: () -> Optional[SSL.Cipher_Stack]
         """Return an M2Crypto.SSL.Cipher_Stack object for this
         connection; if the connection has not been initialised with
         cipher suites, return None.

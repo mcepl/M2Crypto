@@ -170,7 +170,7 @@ class ASN1_TIME:  # noqa
     m2_asn1_time_free = m2.asn1_time_free
 
     def __init__(self, asn1_time=None, _pyfree=0, asn1_utctime=None):
-        # type: (Optional[ASN1_TIME], int) -> None
+        # type: (Optional[ASN1_TIME], Optional[int], Optional[ASN1_TIME]) -> None
         # handle old keyword parameter
         if asn1_time is None:
             asn1_time = asn1_utctime
