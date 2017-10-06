@@ -32,7 +32,7 @@ class ASN1_Integer:  # noqa
 
     def __cmp__(self, other):
         # type: (ASN1_Integer) -> int
-        if isinstance(other, ASN1_Integer):
+        if not isinstance(other, ASN1_Integer):
             raise TypeError(
                 "Comparisons supported only between ANS1_Integer objects")
 
@@ -77,7 +77,7 @@ class ASN1_String:  # noqa
 
     def as_text(self, flags=0):
         # type: (int) -> str
-        """output an ASN1_STRING structure according to the set flags.
+        """Output an ASN1_STRING structure according to the set flags.
 
         :param flags: determine the format of the output by using
                predetermined constants, see ASN1_STRING_print_ex(3)
@@ -122,11 +122,14 @@ class _UTC(datetime.tzinfo):
 
     def __repr__(self):
         return "<Timezone: %s>" % self.tzname(None)
+
+
 UTC = _UTC()  # type: _UTC
 
 
 class LocalTimezone(datetime.tzinfo):
-    """ Localtimezone from datetime manual """
+    """Localtimezone from datetime manual."""
+
     def __init__(self):
         # type: () -> None
         self._stdoffset = datetime.timedelta(seconds=-time.timezone)
@@ -203,18 +206,14 @@ class ASN1_TIME:  # noqa
 
     def set_string(self, string):
         # type: (bytes) -> int
-        """
-        Set time from UTC string.
-        """
+        """Set time from UTC string."""
         assert m2.asn1_time_type_check(self.asn1_time), \
             "'asn1_time' type error'"
         return m2.asn1_time_set_string(self.asn1_time, string)
 
     def set_time(self, time):
         # type: (int) -> ASN1_TIME
-        """
-        Set time from seconds since epoch (int).
-        """
+        """Set time from seconds since epoch (int)."""
         assert m2.asn1_time_type_check(self.asn1_time), \
             "'asn1_time' type error'"
         return m2.asn1_time_set(self.asn1_time, time)
@@ -249,5 +248,6 @@ class ASN1_TIME:  # noqa
             date = date.replace(tzinfo=local)
         date = date.astimezone(local)
         return self.set_time(int(time.mktime(date.timetuple())))
+
 
 ASN1_UTCTIME = ASN1_TIME
