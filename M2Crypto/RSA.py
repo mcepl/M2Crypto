@@ -6,7 +6,7 @@ Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
 import sys
 
-from M2Crypto import BIO, m2, util
+from M2Crypto import BIO, Err, m2, util
 if util.py27plus:
     from typing import Any, AnyStr, Callable, Dict, List, IO, Optional, Tuple  # noqa
 
@@ -327,7 +327,7 @@ class RSA_pub(RSA):  # noqa
 
 def rsa_error():
     # type: () -> None
-    raise RSAError(m2.err_reason_error_string(m2.err_get_error()))
+    raise RSAError(Err.get_error_message())
 
 
 def keygen_callback(p, n, out=sys.stdout):

@@ -43,6 +43,11 @@ def get_error_reason(err):
     return util.py3str(m2.err_reason_error_string(err))
 
 
+def get_error_message():
+    # type: () -> str
+    return util.py3str(get_error_reason(get_error_code()))
+
+
 def get_x509_verify_error(err):
     # type: (int) -> str
     return util.py3str(m2.x509_get_verify_error(err))

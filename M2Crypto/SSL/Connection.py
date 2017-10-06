@@ -569,7 +569,7 @@ class Connection:
         # type: (bytes) -> int
         ret = m2.ssl_set_session_id_context(self.ssl, id)
         if not ret:
-            raise SSLError(m2.err_reason_error_string(m2.err_get_error()))
+            raise SSLError(Err.get_error_message())
 
     def get_session(self):
         # type: () -> SSL.Session

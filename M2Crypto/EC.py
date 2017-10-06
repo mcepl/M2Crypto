@@ -10,7 +10,7 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
 Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam.
 All rights reserved."""
 
-from M2Crypto import BIO, EVP, m2, util
+from M2Crypto import BIO, Err, EVP, m2, util
 if util.py27plus:
     from typing import AnyStr, Callable, Dict, Optional, Tuple, Union  # noqa
 
@@ -435,7 +435,7 @@ def load_pub_key_bio(bio):
 
 def ec_error():
     # type: () -> ECError
-    raise ECError(m2.err_reason_error_string(m2.err_get_error()))
+    raise ECError(Err.get_error_message())
 
 
 def pub_key_from_der(der):
