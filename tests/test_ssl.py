@@ -59,27 +59,21 @@ def allocate_srv_port():
 
 
 def verify_cb_new_function(ok, store):
-    try:
-        assert not ok
-        err = store.get_error()
-        assert err in [m2.X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT,
-                       m2.X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY,
-                       m2.X509_V_ERR_CERT_UNTRUSTED,
-                       m2.X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE]
-        assert store.get_error_depth() == 0
-        # app_data = m2.x509_store_ctx_get_app_data(store.ctx)
-        app_data = m2.x509_store_ctx_get_ex_data(
-            store.ctx, m2.ssl_get_ex_data_x509_store_ctx_idx())
-        assert app_data
-        x509 = store.get_current_cert()
-        assert x509
-        stack = store.get1_chain()
-        assert len(stack) == 1
-        assert stack[0].as_pem() == x509.as_pem()
-    except AssertionError:
-        # If we let exceptions propagate from here the
-        # caller may see strange errors. This is cleaner.
-        return 0
+    assert not ok
+    err = store.get_error()
+    assert err in [m2.X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT,
+                   m2.X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY,
+                   m2.X509_V_ERR_CERT_UNTRUSTED,
+                   m2.X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE]
+    assert store.get_error_depth() == 0
+    app_data = m2.x509_store_ctx_get_ex_data(
+        store.ctx, m2.ssl_get_ex_data_x509_store_ctx_idx())
+    assert app_data
+    x509 = store.get_current_cert()
+    assert x509
+    stack = store.get1_chain()
+    assert len(stack) == 1
+    assert stack[0].as_pem() == x509.as_pem()
     return 1
 
 
@@ -90,29 +84,29 @@ class VerifyCB:
 sleepTime = float(os.getenv('M2CRYPTO_TEST_SSL_SLEEP', '1.5'))
 
 
-def find_openssl():
-    if os.name == 'nt' or sys.platform == 'cygwin':
-        openssl = 'openssl.exe'
-    else:
-        openssl = 'openssl'
-
-    plist = os.environ['PATH'].split(os.pathsep)
-    for p in plist:
-        try:
-            dir = os.listdir(p)
-            if openssl in dir:
-                return True
-        except:
-            pass
-    return False
-
-
 class BaseSSLClientTestCase(unittest.TestCase):
 
-    openssl_in_path = find_openssl()
+    # I would like to make it into a staticmethod, but apparently it
+    # doesn't mesh with @property. Oh well.
+    @property
+    def _is_openssl_in_path(self):
+        if os.name == 'nt' or sys.platform == 'cygwin':
+            openssl = 'openssl.exe'
+        else:
+            openssl = 'openssl'
+
+        plist = os.environ['PATH'].split(os.pathsep)
+        for p in plist:
+            try:
+                dir = os.listdir(p)
+                if openssl in dir:
+                    return True
+            except:
+                pass
+        return False
 
     def start_server(self, args):
-        if not self.openssl_in_path:
+        if not self._is_openssl_in_path:
             raise Exception('openssl command not in PATH')
 
         pid = subprocess.Popen(['openssl'] + args,
@@ -125,7 +119,7 @@ class BaseSSLClientTestCase(unittest.TestCase):
     def stop_server(self, pid):
         pid.terminate()
         out, err = pid.communicate()
-        return out, err
+        return util.py3str(out), util.py3str(err)
 
     def http_get(self, s):
         s.send('GET / HTTP/1.0\n\n')
@@ -204,7 +198,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             c2.request('GET', '/')
             ses2 = c2.get_session()
             t2 = ses2.as_text()
-            data = c2.getresponse().read()
+            data = util.py3str(c2.getresponse().read())
             c.close()
             c2.close()
             self.assertEqual(t, t2, "Sessions did not match")
@@ -221,7 +215,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             c = httpslib.HTTPSConnection(srv_host, self.srv_port,
                                          ssl_context=self.ctx)
             c.request('GET', '/')
-            data = c.getresponse().read()
+            data = util.py3str(c.getresponse().read())
             c.close()
         finally:
             self.stop_server(pid)
