@@ -30,7 +30,7 @@ class EVPTestCase(unittest.TestCase):
         pass
 
     def _pass_callback(self, *args):
-        return 'foobar'
+        return b'foobar'
 
     def _assign_rsa(self):
         rsa = RSA.gen_key(1024, 3, callback=self._gen_callback)
@@ -42,14 +42,15 @@ class EVPTestCase(unittest.TestCase):
         rsa = self._assign_rsa()
         rsa.check_key()
 
-    @unittest.skipIf(six.PY3,
-                     "test_pem hangs under python3 and is not yet fixed")
     def test_pem(self):
         rsa = RSA.gen_key(1024, 3, callback=self._gen_callback)
         pkey = EVP.PKey()
         pkey.assign_rsa(rsa)
-        self.assertNotEqual(pkey.as_pem(callback=self._pass_callback),
-                            pkey.as_pem(cipher=None))
+
+        result_w_callback = pkey.as_pem(callback=self._pass_callback)
+        result_wo_callback = pkey.as_pem(cipher=None)
+        self.assertNotEqual(result_w_callback, result_wo_callback)
+
         with self.assertRaises(ValueError):
             pkey.as_pem(cipher='noXX$$%%suchcipher',
                         callback=self._pass_callback)
@@ -153,8 +154,6 @@ class EVPTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             EVP.hmac(b'key', b'data', algo='sha513')
 
-    @unittest.skipIf(six.PY3,
-                     "test_get_rsa hangs under python3 and is not yet fixed")
     def test_get_rsa(self):
         """
         Testing retrieving the RSA key from the PKey instance.
@@ -185,8 +184,6 @@ class EVPTestCase(unittest.TestCase):
         rsa3 = RSA.gen_key(1024, 3, callback=self._gen_callback)
         self.assertNotEqual(rsa.sign(digest), rsa3.sign(digest))
 
-    @unittest.skipIf(six.PY3,
-                     'FIXME test_load_key_string_pubkey hangs under python3')
     def test_load_key_string_pubkey(self):
         """
         Testing creating a PKey instance from PEM string.
