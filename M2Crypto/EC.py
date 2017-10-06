@@ -10,7 +10,7 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
 Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam.
 All rights reserved."""
 
-from M2Crypto import BIO, m2, util
+from M2Crypto import BIO, EVP, m2, util
 if util.py27plus:
     from typing import AnyStr, Callable, Dict, Optional, Tuple, Union  # noqa
 
@@ -414,7 +414,7 @@ def load_key_string_pubkey(string, callback=util.passphrase_callback):
     :return: M2Crypto.EC.PKey object.
     """
     with BIO.MemoryBuffer(string) as bio:
-        return load_key_bio_pubkey(bio, callback)
+        return EVP.load_key_bio_pubkey(bio, callback)
 
 
 def load_pub_key_bio(bio):
