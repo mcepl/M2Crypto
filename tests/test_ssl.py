@@ -251,6 +251,12 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             c.request('GET', '/')
             c.close()
         finally:
+            # (openssl s_server) buffers its log output, and ends the TLS session
+            # with the client (allowing the client to terminate) before flushing
+            # the log; so, the client may get here and terminate the server
+            # before it manages to log the output.
+            # So, give the server hopefully enough time to flush the logs.
+            time.sleep(sleepTime)
             out, err = self.stop_server(pid)
         self.assertIn('Hostname in TLS extension: "%s"' % srv_host, out)
 
