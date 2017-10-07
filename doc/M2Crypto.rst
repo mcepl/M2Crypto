@@ -214,6 +214,5 @@ Subpackages
 
 .. toctree::
 
-    M2Crypto.PGP
     M2Crypto.SSL
 
