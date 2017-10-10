@@ -141,7 +141,7 @@ class AuthCookie:
         return self._mac
 
     def output(self, header="Set-Cookie:"):
-        # type: () -> str
+        # type: (Optional[str]) -> str
         """Return the cookie's output in "Set-Cookie" format."""
         return self._cookie.output(header=header)
 

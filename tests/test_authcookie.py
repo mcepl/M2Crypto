@@ -31,6 +31,17 @@ class AuthCookieTestCase(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def _corrupt_part_str(self, s, fr, to):
+        # type: (str, int, int) -> str
+        out = s[:fr] + ''.join([chr(ord(x) + 13) for x in s[fr:to]]) + s[to:]
+        self.assertNotEqual(s, out)
+        return out
+
+    def test_encode_part_str(self):
+        a_str = 'a1b2c3d4e5f6h7i8j9'
+        self.assertEqual(self._corrupt_part_str(a_str, 3, 5),
+                         'a1b?p3d4e5f6h7i8j9')
+
     def test_mix_unmix(self):
         dough = mix(self.exp, self.data)
         exp, data = unmix(dough)
@@ -131,7 +142,7 @@ class AuthCookieTestCase(unittest.TestCase):
     def test_cookie_str_changed_exp(self):
         c = self.jar.makeCookie(self.exp, self.data)
         cout = c.output(header="")
-        cout_str = cout[:14] + '2' + cout[15:]
+        cout_str = self._corrupt_part_str(cout, 14, 16)
         s = SimpleCookie()
         s.load(cout_str)
         self.assertFalse(self.jar.isGoodCookieString(s.output(header="")))
@@ -139,7 +150,7 @@ class AuthCookieTestCase(unittest.TestCase):
     def test_cookie_str_changed_data(self):
         c = self.jar.makeCookie(self.exp, self.data)
         cout = c.output(header="")
-        cout_str = cout[:24] + 'X' + cout[25:]
+        cout_str = self._corrupt_part_str(cout, 24, 26)
         s = SimpleCookie()
         s.load(cout_str)
         self.assertFalse(self.jar.isGoodCookieString(s.output(header="")))
@@ -147,7 +158,7 @@ class AuthCookieTestCase(unittest.TestCase):
     def test_cookie_str_changed_mac(self):
         c = self.jar.makeCookie(self.exp, self.data)
         cout = c.output(header="")
-        cout_str = cout[:64] + 'X' + cout[65:]
+        cout_str = self._corrupt_part_str(cout, 64, 66)
         s = SimpleCookie()
         s.load(cout_str)
         self.assertFalse(self.jar.isGoodCookieString(s.output(header="")))
