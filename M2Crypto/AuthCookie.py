@@ -88,11 +88,11 @@ class AuthCookieJar:
         c = SimpleCookie()
         c.load(cookie_str)
         if _TOKEN not in c:
-            log.error('_TOKEN not in c (keys = %s)', dir(c))
+            log.debug('_TOKEN not in c (keys = %s)', dir(c))
             return 0
         undough = unmix3(c[_TOKEN].value)
         if undough is None:
-            log.error('undough is None')
+            log.debug('undough is None')
             return 0
         exp, data, mac = undough
         c2 = self.makeCookie(exp, data)
