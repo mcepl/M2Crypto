@@ -122,31 +122,36 @@ class _M2CryptoBuildExt(build_ext.build_ext):
     def initialize_options(self):
         """Overload to enable custom openssl settings to be picked up."""
         build_ext.build_ext.initialize_options(self)
+        self.openssl = None
+
+    def finalize_options(self):
+        """Append custom openssl include file and library linking options."""
+        build_ext.build_ext.finalize_options(self)
 
         # openssl is the attribute corresponding to openssl directory prefix
         # command line option
         if os.name == 'nt':
             if openssl_version('1.1.0'):
                 self.libraries = ['ssleay32', 'libeay32']
-                self.openssl = 'c:\\pkg'
+                self.openssl_default = 'c:\\pkg'
             else:
                 self.libraries = ['libssl', 'libcrypto']
                 if platform.architecture()[0] == '32bit':
-                    self.openssl = os.environ.get('ProgramFiles(86)')
+                    self.openssl_default = os.environ.get('ProgramFiles(86)')
                     if not self.openssl:
-                        self.openssl = os.environ.get('ProgramFiles')
+                        self.openssl_default = os.environ.get('ProgramFiles')
                 else:
-                    self.openssl = os.environ.get('ProgramW6432')
-                if not self.openssl:
+                    self.openssl_default = os.environ.get('ProgramW6432')
+                if not self.openssl_default:
                     raise RuntimeError('cannot detect platform')
-                self.openssl = os.path.join(self.openssl, 'OpenSSL')
+                self.openssl_default = os.path.join(self.openssl, 'OpenSSL')
         else:
             self.libraries = ['ssl', 'crypto']
-            self.openssl = '/usr'
+            self.openssl_default = None
 
-    def finalize_options(self):
-        """Append custom openssl include file and library linking options."""
-        build_ext.build_ext.finalize_options(self)
+        self.set_undefined_options('build', ('openssl', 'openssl'))
+        if self.openssl is None:
+            self.openssl = self.openssl_default
 
         if not self.swig_opts:
             if sys.version_info[:1] >= (3,):
@@ -154,22 +159,20 @@ class _M2CryptoBuildExt(build_ext.build_ext):
             else:
                 self.swig_opts = []
 
-        _openssl = next((x.split('=')[1] for x in sys.argv
-                         if '--openssl=' in x), None)
-        if _openssl and os.path.isdir(_openssl):
-            self.openssl = _openssl
-
         log.debug('self.include_dirs = %s', self.include_dirs)
-        log.debug('self.openssl = %s', self.openssl)
-        openssl_library_dir = os.path.join(self.openssl, 'lib')
+        log.debug('self.library_dirs = %s', self.library_dirs)
+
+        if self.openssl is not None:
+            log.debug('self.openssl = %s', self.openssl)
+            openssl_library_dir = os.path.join(self.openssl, 'lib')
+            openssl_include_dir = os.path.join(self.openssl, 'include')
+
+            self.library_dirs.append(openssl_library_dir)
+            self.include_dirs.append(openssl_include_dir)
+            log.debug('self.include_dirs = %s', self.include_dirs)
+            log.debug('self.library_dirs = %s', self.library_dirs)
 
         if platform.system() == "Linux":
-            self.include_dirs += _get_additional_includes()
-            inc_openssl_dir = '/usr/include/openssl'
-            if inc_openssl_dir not in self.include_dirs:
-                self.include_dirs.append(inc_openssl_dir)
-            log.debug('self.include_dirs = %s', self.include_dirs)
-
             # For RedHat-based distros, the '-D__{arch}__' option for
             # Swig needs to be normalized, particularly on i386.
             mach = platform.machine().lower()
@@ -184,6 +187,26 @@ class _M2CryptoBuildExt(build_ext.build_ext):
             self.swig_opts.append('-D%s' % arch)
 
         self.swig_opts.extend(['-I%s' % i for i in self.include_dirs])
+
+        # Some Linux distributor has added the following line in
+        # /usr/include/openssl/opensslconf.h:
+        #
+        #     #include "openssl-x85_64.h"
+        #
+        # This is fine with C compilers, because they are smart enough to
+        # handle 'local inclusion' correctly.  Swig, on the other hand, is
+        # not as smart, and needs to be told where to find this file...
+        #
+        # Note that this is risky workaround, since it takes away the
+        # namespace that OpenSSL uses.  If someone else has similarly
+        # named header files in /usr/include, there will be clashes.
+        if self.openssl is None:
+            self.swig_opts.append('-I/usr/include/openssl')
+        else:
+            self.swig_opts.append('-I' + os.path.join(openssl_include_dir, 'openssl'))
+
+        # swig seems to need the default header file directories
+        self.swig_opts.extend(['-I%s' % i for i in _get_additional_includes()])
         self.swig_opts.append('-includeall')
         self.swig_opts.append('-modern')
         self.swig_opts.append('-builtin')
@@ -204,7 +227,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
                               os.path.join(os.getcwd(), 'M2Crypto')])
         self.include_dirs.append(os.path.join(os.getcwd(), 'SWIG'))
 
-        if sys.platform == 'cygwin':
+        if sys.platform == 'cygwin' and self.openssl is not None:
             # Cygwin SHOULD work (there's code in distutils), but
             # if one first starts a Windows command prompt, then bash,
             # the distutils code does not seem to work. If you start
@@ -212,8 +235,6 @@ class _M2CryptoBuildExt(build_ext.build_ext):
             # Someday distutils will be fixed and this won't be needed.
             self.library_dirs += [os.path.join(self.openssl, 'bin')]
 
-        self.library_dirs.insert(0, os.path.join(self.openssl, openssl_library_dir))
-        log.debug('self.library_dirs = %s', self.library_dirs)
         mkpath(os.path.join(self.build_lib, 'M2Crypto'))
 
 
