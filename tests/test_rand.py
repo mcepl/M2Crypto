@@ -46,7 +46,7 @@ class RandTestCase(unittest.TestCase):
             os.remove('tests/randpool.dat')
         except OSError:
             pass
-        self.assertEqual(Rand.load_file('tests/randpool.dat', -1), 0)
+        self.assertIn(Rand.load_file('tests/randpool.dat', -1), [0, -1])
         self.assertEqual(Rand.save_file('tests/randpool.dat'), 1024)
         self.assertEqual(Rand.load_file('tests/randpool.dat', -1), 1024)
 
