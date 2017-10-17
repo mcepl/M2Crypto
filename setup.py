@@ -31,7 +31,6 @@ logging.basicConfig(format='%(levelname)s:%(funcName)s:%(message)s',
 log = logging.getLogger('setup')
 
 REQUIRED_SWIG_VERSION = '2.0.4'
-MAXIMUM_OPENSSL_VERSION = '1.0.1'
 
 
 if sys.version_info[:2] <= (2, 6):
@@ -55,50 +54,35 @@ def _get_additional_includes():
     return err
 
 
-def openssl_version(req_ver, required=False):
-    # type: (str, bool) -> bool
+def openssl_version(ossldir, req_ver, required=False):
+    # type: (str, int, bool) -> bool
     """
     Compare version of the installed OpenSSL with the maximum required version.
 
-    :param req_ver: required version as a str (e.g., '1.0.1')
-    :param required: whether we want bigger-or-equal or less-or-equal
+    :param ossldir: the directory where OpenSSL is installed
+    :param req_ver: required version as integer (e.g. 0x10100000)
+    :param required: whether we want bigger-or-equal or less-than
     :return: Boolean indicating whether the satisfying version of
              OpenSSL has been installed.
     """
-    ver_str = None
+    ver = None
+    file = os.path.join(ossldir, 'include', 'openssl', 'opensslv.h')
 
-    try:
-        pid = subprocess.Popen(['openssl', 'version', '-v'],
-                               stdout=subprocess.PIPE)
-    except OSError:
-        return False
+    with open(file) as origin_file:
+        for line in origin_file:
+            m = re.match(r'^# *define  *OPENSSL_VERSION_NUMBER  *(0x[0-9a-fA-F]*)', line)
+            if m:
+                log.debug('found version number: %s\n' % m.group(1))
+                ver = int(m.group(1))
+                break
 
-    out, _ = pid.communicate()
-    if hasattr(out, 'decode'):
-        out = out.decode('utf8')
-
-    ver_str = out.split()[1].strip(string.ascii_letters + string.punctuation +
-                                   string.whitespace)
-
-    if not ver_str:
-        raise OSError('Unknown format of openssl version -v output:\n%s' % out)
+    if ver is None:
+        raise OSError('Unknown format of file %s\n' % file)
 
     if required:
-        return StrictVersion(ver_str) >= StrictVersion(req_ver)
+        return StrictVersion(ver) >= StrictVersion(req_ver)
     else:
-        return StrictVersion(ver_str) <= StrictVersion(req_ver)
-
-
-class _M2CryptoSDist(sdist.sdist):
-    """Make sure we don't run sdist with old OpenSSL."""
-
-    def run(self):
-        if openssl_version(MAXIMUM_OPENSSL_VERSION, True):
-            sdist.sdist.run(self)
-        else:
-            raise OSError(
-                'We need OpenSSL version at least %s!' %
-                MAXIMUM_OPENSSL_VERSION)
+        return StrictVersion(ver) < StrictVersion(req_ver)
 
 
 class _M2CryptoBuild(build.build):
@@ -131,27 +115,29 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         # openssl is the attribute corresponding to openssl directory prefix
         # command line option
         if os.name == 'nt':
-            if openssl_version('1.1.0'):
-                self.libraries = ['ssleay32', 'libeay32']
-                self.openssl_default = 'c:\\pkg'
+            if platform.architecture()[0] == '32bit':
+                self.openssl_default = os.environ.get('ProgramFiles(86)')
             else:
-                self.libraries = ['libssl', 'libcrypto']
-                if platform.architecture()[0] == '32bit':
-                    self.openssl_default = os.environ.get('ProgramFiles(86)')
-                    if not self.openssl:
-                        self.openssl_default = os.environ.get('ProgramFiles')
-                else:
-                    self.openssl_default = os.environ.get('ProgramW6432')
-                if not self.openssl_default:
-                    raise RuntimeError('cannot detect platform')
-                self.openssl_default = os.path.join(self.openssl, 'OpenSSL')
+                self.openssl_default = os.environ.get('ProgramW6432')
+            if not self.openssl_default:
+                self.openssl_default = os.environ.get('ProgramFiles')
+            if not self.openssl_default:
+                raise RuntimeError('cannot detect platform')
+            self.openssl_default = os.path.join(self.openssl, 'OpenSSL')
         else:
-            self.libraries = ['ssl', 'crypto']
             self.openssl_default = None
 
         self.set_undefined_options('build', ('openssl', 'openssl'))
         if self.openssl is None:
             self.openssl = self.openssl_default
+
+        self.libraries = ['ssl', 'crypto']
+        if self.openssl is not None:
+            if os.name == 'nt':
+                if openssl_version(self.openssl, 0x10100000):
+                    self.libraries = ['ssleay32', 'libeay32']
+                else:
+                    self.libraries = ['libssl', 'libcrypto']
 
         if not self.swig_opts:
             if sys.version_info[:1] >= (3,):
@@ -272,18 +258,14 @@ def swig_version(req_ver):
 
 
 x_comp_args = set()
-if sys.platform == 'darwin':
-    x_comp_args.add("-Wno-deprecated-declarations")
-elif sys.platform == 'win32':
-    x_comp_args.update(['-DTHREADING', '-D_CRT_SECURE_NO_WARNINGS'])
-else:
-    x_comp_args.add('-DTHREADING')
 
 # We take care of deprecated functions in OpenSSL with our code, no need
 # to spam compiler output with it.
-if openssl_version('1.1.0', required=True):
-    x_comp_args.add("-Wno-deprecated-declarations")
-
+x_comp_args.add("-Wno-deprecated-declarations")
+if sys.platform == 'win32':
+    x_comp_args.update(['-DTHREADING', '-D_CRT_SECURE_NO_WARNINGS'])
+else:
+    x_comp_args.add('-DTHREADING')
 
 # Don't try to run swig on the ancient platforms
 if swig_version(REQUIRED_SWIG_VERSION):
@@ -373,7 +355,6 @@ setuptools.setup(
     cmdclass={
         'build_ext': _M2CryptoBuildExt,
         'build': _M2CryptoBuild,
-        'sdist': _M2CryptoSDist,
         'clean': Clean
     }
 )
