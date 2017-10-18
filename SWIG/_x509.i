@@ -75,7 +75,7 @@ extern int X509_set_subject_name(X509 *, X509_NAME *);
 %rename(x509_cmp_current_time) X509_cmp_current_time;
 extern int X509_cmp_current_time(ASN1_TIME *);
 
-                            
+
 /* From x509.h */
 /* standard trust ids */
 %constant int X509_TRUST_DEFAULT      = -1;
@@ -187,17 +187,17 @@ extern ASN1_OBJECT *X509_NAME_ENTRY_get_object(X509_NAME_ENTRY *);
 extern ASN1_STRING *X509_NAME_ENTRY_get_data(X509_NAME_ENTRY *);
 
 %typemap(in) (const unsigned char *, int) {
-#if PY_MAJOR_VERSION >= 3 
+#if PY_MAJOR_VERSION >= 3
     if (PyBytes_Check($input)) {
         Py_ssize_t len;
 
-        $1 = PyBytes_AsString($input); 
+        $1 = PyBytes_AsString($input);
         len = PyBytes_Size($input);
 #else
     if (PyString_Check($input)) {
         Py_ssize_t len;
 
-        $1 = (unsigned char *)PyString_AsString($input); 
+        $1 = (unsigned char *)PyString_AsString($input);
         len = PyString_Size($input);
 #endif // PY_MAJOR_VERSION >= 3
 
@@ -379,13 +379,33 @@ void x509_init(PyObject *x509_err) {
 }
 %}
 
+%typemap(out) X509_REQ * {
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
 
+    if ($1 != NULL)
+        $result = SWIG_NewPointerObj($1, $1_descriptor, 0);
+    else {
+        m2_PyErr_Msg(_x509_err);
+        $result = NULL;
+    }
+}
 %threadallow d2i_x509_req;
 %inline %{
 X509_REQ *d2i_x509_req(BIO *bio) {
     return d2i_X509_REQ_bio(bio, NULL);
 }
+%}
 
+%threadallow x509_req_read_pem;
+%inline %{
+X509_REQ *x509_req_read_pem(BIO *bio) {
+    return PEM_read_bio_X509_REQ(bio, NULL, NULL, NULL);
+}
+%}
+
+%typemap(out) X509_REQ *;
+
+%inline %{
 PyObject *i2d_x509(X509 *x) {
     int len;
     PyObject *ret = NULL;
@@ -394,7 +414,7 @@ PyObject *i2d_x509(X509 *x) {
     if (len < 0) {
         m2_PyErr_Msg(_x509_err);
     }
-    else {     
+    else {
 
 #if PY_MAJOR_VERSION >= 3 
         ret = PyBytes_FromStringAndSize((char*)buf, len);
@@ -405,13 +425,6 @@ PyObject *i2d_x509(X509 *x) {
         OPENSSL_free(buf);
     }
     return ret;
-}
-%}
-
-%threadallow x509_req_read_pem;
-%inline %{
-X509_REQ *x509_req_read_pem(BIO *bio) {
-    return PEM_read_bio_X509_REQ(bio, NULL, NULL, NULL);
 }
 %}
 
@@ -591,8 +604,8 @@ x509v3_set_nconf(void) {
 X509_EXTENSION *
 x509v3_ext_conf(void *conf, X509V3_CTX *ctx, char *name, char *value) {
       X509_EXTENSION * ext = NULL;
-      ext = X509V3_EXT_conf(conf, ctx, name, value); 
-      PyMem_Free(ctx); 
+      ext = X509V3_EXT_conf(conf, ctx, name, value);
+      PyMem_Free(ctx);
       return ext;
 }
 
@@ -603,7 +616,7 @@ void x509_extension_free(X509_EXTENSION *ext) {
 
 PyObject *x509_extension_get_name(X509_EXTENSION *ext) {
     PyObject * ext_name;
-    const char * ext_name_str; 
+    const char * ext_name_str;
     ext_name_str = OBJ_nid2sn(OBJ_obj2nid(X509_EXTENSION_get_object(ext)));
     if (!ext_name_str) {
         m2_PyErr_Msg(_x509_err);
@@ -728,10 +741,10 @@ STACK_OF(X509) *sk_x509_new_null(void) {
 PyObject *
 get_der_encoding_stack(STACK_OF(X509) *stack){
     PyObject * encodedString;
-    
+
     unsigned char * encoding = NULL;
-    int len; 
-    
+    int len;
+
     len = i2d_SEQ_CERT(stack, &encoding);
     if (!encoding) {
        m2_PyErr_Msg(_x509_err);
@@ -747,7 +760,7 @@ get_der_encoding_stack(STACK_OF(X509) *stack){
     if (encoding)
         OPENSSL_free(encoding);
 
-    return encodedString; 
+    return encodedString;
 }
 
 %}
@@ -755,7 +768,7 @@ get_der_encoding_stack(STACK_OF(X509) *stack){
 /* Free malloc'ed return value for x509_name_oneline */
 %typemap(ret) char * {
     if ($1 != NULL)
-        OPENSSL_free($1); 
+        OPENSSL_free($1);
 }
 %inline %{
 char *x509_name_oneline(X509_NAME *x) {

@@ -1285,8 +1285,6 @@ def load_request(file, format=FORMAT_PEM):
             raise ValueError(
                 "Unknown filetype. Must be either FORMAT_PEM or FORMAT_DER")
 
-    if cptr is None:
-        raise X509Error(Err.get_error())
     return Request(cptr, 1)
 
 
@@ -1309,8 +1307,7 @@ def load_request_bio(bio, format=FORMAT_PEM):
     else:
         raise ValueError(
             "Unknown format. Must be either FORMAT_DER or FORMAT_PEM")
-    if cptr is None:
-        raise X509Error(Err.get_error())
+
     return Request(cptr, _pyfree=1)
 
 
