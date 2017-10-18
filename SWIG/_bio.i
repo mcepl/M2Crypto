@@ -33,11 +33,6 @@ extern BIO *BIO_new(BIO_METHOD *);
 extern BIO *BIO_new_socket(int, int);
 %rename(bio_new_fd) BIO_new_pyfd;
 %rename(bio_new_pyfd) BIO_new_pyfd;
-%rename(bio_new_file) BIO_new_file;
-extern BIO *BIO_new_file(const char *, const char *);
-%rename(bio_free) BIO_free;
-%threadallow BIO_free;
-extern int BIO_free(BIO *);
 %rename(bio_free_all) BIO_free_all;
 %threadallow BIO_free_all;
 extern void BIO_free_all(BIO *);
@@ -73,6 +68,32 @@ void bio_init(PyObject *bio_err) {
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
     pyfd_init();
 #endif
+}
+
+int bio_free(BIO *bio) {
+    int ret;
+
+    Py_BEGIN_ALLOW_THREADS
+    ret = BIO_free(bio);
+    Py_END_ALLOW_THREADS
+    if (ret == 0) {
+        m2_PyErr_Msg(_bio_err);
+    }
+    return ret;
+}
+
+BIO * bio_new_file(const char *filename, const char *mode) {
+    BIO *ret;
+
+    Py_BEGIN_ALLOW_THREADS
+    ret = BIO_new_file(filename, mode);
+    Py_END_ALLOW_THREADS
+
+    if (ret == NULL) {
+        m2_PyErr_Msg(_bio_err);
+    }
+
+    return ret;
 }
 
 BIO *bio_new_pyfile(PyObject *pyfile, int bio_close) {

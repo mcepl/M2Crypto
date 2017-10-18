@@ -262,7 +262,12 @@ class File(BIO):
 
 def openfile(filename, mode='rb'):
     # type: (AnyStr, AnyStr) -> File
-    return File(open(filename, mode))
+    try:
+        f = open(filename, mode)
+    except IOError as ex:
+        raise BIOError(ex.args)
+
+    return File(f)
 
 
 class IOBuffer(BIO):

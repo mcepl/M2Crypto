@@ -78,28 +78,16 @@ class PKCS7:
 
 def load_pkcs7(p7file):
     # type: (AnyStr) -> PKCS7
-    bio = m2.bio_new_file(p7file, 'r')
-    if bio is None:
-        raise BIO.BIOError(Err.get_error())
-
-    try:
-        p7_ptr = m2.pkcs7_read_bio(bio)
-    finally:
-        m2.bio_free(bio)
+    with BIO.openfile(p7file, 'r') as bio:
+        p7_ptr = m2.pkcs7_read_bio(bio.bio)
 
     return PKCS7(p7_ptr, 1)
 
 
 def load_pkcs7_der(p7file):
     # type: (AnyStr) -> PKCS7
-    bio = m2.bio_new_file(p7file, 'r')
-    if bio is None:
-        raise BIO.BIOError(Err.get_error())
-
-    try:
-        p7_ptr = m2.pkcs7_read_bio_der(bio)
-    finally:
-        m2.bio_free(bio)
+    with BIO.openfile(p7file, 'r') as bio:
+        p7_ptr = m2.pkcs7_read_bio_der(bio.bio)
 
     return PKCS7(p7_ptr, 1)
 
@@ -119,8 +107,6 @@ def load_pkcs7_bio_der(p7_bio):
 def smime_load_pkcs7(p7file):
     # type: (AnyStr) -> PKCS7
     bio = m2.bio_new_file(p7file, 'r')
-    if bio is None:
-        raise BIO.BIOError(Err.get_error())
 
     try:
         p7_ptr, bio_ptr = m2.smime_read_pkcs7(bio)
