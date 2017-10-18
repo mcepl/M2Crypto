@@ -435,12 +435,25 @@ int x509_req_write_pem(BIO *bio, X509_REQ *x) {
 }
 %}
 
+%typemap(out) X509_CRL * {
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
+
+    if ($1 != NULL)
+        $result = SWIG_NewPointerObj($1, $1_descriptor, 0);
+    else {
+        m2_PyErr_Msg(_x509_err);
+        $result = NULL;
+    }
+}
 %threadallow x509_crl_read_pem;
 %inline %{
 X509_CRL *x509_crl_read_pem(BIO *bio) {
     return PEM_read_bio_X509_CRL(bio, NULL, NULL, NULL);
 }
+%}
+%typemap(out) X509_CRL * ;
 
+%inline %{
 /* X509_set_version() is a macro. */
 int x509_set_version(X509 *x, long version) {
     return X509_set_version(x, version);

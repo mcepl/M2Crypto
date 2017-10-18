@@ -1392,6 +1392,4 @@ def load_crl(file):
     with BIO.openfile(file) as f:
         cptr = m2.x509_crl_read_pem(f.bio_ptr())
 
-    if cptr is None:
-        raise X509Error(Err.get_error())
     return CRL(cptr, 1)
