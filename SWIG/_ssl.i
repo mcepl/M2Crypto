@@ -922,12 +922,23 @@ void i2d_ssl_session(BIO *bio, SSL_SESSION *sess) {
 }
 %}
 
+%typemap(out) SSL_SESSION * {
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
+
+    if ($1 != NULL)
+        $result = SWIG_NewPointerObj($1, $1_descriptor, 0);
+    else {
+        m2_PyErr_Msg(_ssl_err);
+        $result = NULL;
+    }
+}
 %threadallow ssl_session_read_pem;
 %inline %{
 SSL_SESSION *ssl_session_read_pem(BIO *bio) {
     return PEM_read_bio_SSL_SESSION(bio, NULL, NULL, NULL);
 }
 %}
+%typemap(out) SSL_SESSION * ;
 
 %threadallow ssl_session_write_pem;
 %inline %{

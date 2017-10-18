@@ -66,6 +66,5 @@ def load_session(pemfile):
     # type: (AnyStr) -> Session
     with BIO.openfile(pemfile) as f:
         cptr = m2.ssl_session_read_pem(f.bio_ptr())
-    if cptr is None:
-        raise SSLError(Err.get_error())
+
     return Session(cptr, 1)
