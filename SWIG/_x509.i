@@ -600,7 +600,18 @@ int x509_req_add_extensions(X509_REQ *req, STACK_OF(X509_EXTENSION) *exts) {
 X509_NAME_ENTRY *x509_name_entry_create_by_txt(X509_NAME_ENTRY **ne, char *field, int type, char *bytes, int len) {
     return X509_NAME_ENTRY_create_by_txt( ne, field, type, (unsigned char *)bytes, len);
 }
+%}
 
+%typemap(out) X509V3_CTX * {
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
+
+    if ($1 != NULL)
+        $result = SWIG_NewPointerObj($1, $1_descriptor, 0);
+    else {
+        $result = NULL;
+    }
+}
+%inline %{
 X509V3_CTX *
 x509v3_set_nconf(void) {
       X509V3_CTX * ctx;
@@ -610,10 +621,24 @@ x509v3_set_nconf(void) {
           PyErr_SetString(PyExc_MemoryError, "x509v3_set_nconf");
           return NULL;
       }
+      /* X509V3_set_nconf does not generate any error signs at all. */
       X509V3_set_nconf(ctx, conf);
       return ctx;
 }
+%}
+%typemap(out) X509V3_CTX * ;
 
+%typemap(out) X509_EXTENSION * {
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
+
+    if ($1 != NULL)
+        $result = SWIG_NewPointerObj($1, $1_descriptor, 0);
+    else {
+        m2_PyErr_Msg(_x509_err);
+        $result = NULL;
+    }
+}
+%inline %{
 X509_EXTENSION *
 x509v3_ext_conf(void *conf, X509V3_CTX *ctx, char *name, char *value) {
       X509_EXTENSION * ext = NULL;
@@ -621,7 +646,10 @@ x509v3_ext_conf(void *conf, X509V3_CTX *ctx, char *name, char *value) {
       PyMem_Free(ctx);
       return ext;
 }
+%}
+%typemap(out) X509_EXTENSION * ;
 
+%inline %{
 /* X509_EXTENSION_free() might be a macro, didn't find definition. */
 void x509_extension_free(X509_EXTENSION *ext) {
     X509_EXTENSION_free(ext);

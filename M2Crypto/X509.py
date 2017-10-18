@@ -44,9 +44,6 @@ def new_extension(name, value, critical=0, _pyfree=1):
             value.strip('0123456789abcdefABCDEF:') is not '':
         raise ValueError('value must be precomputed hash')
     ctx = m2.x509v3_set_nconf()
-    if ctx is None:
-        raise MemoryError(
-            'Not enough memory when creating a new X509 extension')
     x509_ext_ptr = m2.x509v3_ext_conf(None, ctx, name, value)
     if x509_ext_ptr is None:
         raise X509Error(
