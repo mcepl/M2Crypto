@@ -127,8 +127,6 @@ def smime_load_pkcs7(p7file):
     finally:
         m2.bio_free(bio)
 
-    if p7_ptr is None:
-        raise SMIME_Error(Err.get_error())
     if bio_ptr is None:
         return PKCS7(p7_ptr, 1), None
     else:
