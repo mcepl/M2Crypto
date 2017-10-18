@@ -111,13 +111,7 @@ def rand_bytes(num):
     :param num: number of bytes to be returned
     :return: random bytes
     """
-    out = m2.rand_bytes(num)  # pylint: disable=no-member
-    if out is None:
-        raise ValueError('Not enough randomness.')
-    elif out == -1:
-        raise ValueError('Not supported by the current RAND method.')
-    else:
-        return out
+    return m2.rand_bytes(num)  # pylint: disable=no-member
 
 
 def rand_pseudo_bytes(num):
@@ -144,8 +138,4 @@ def rand_pseudo_bytes(num):
                       'deprecated. Use Rand.rand_bytes instead.',
                       DeprecationWarning)
 
-    out = m2.rand_pseudo_bytes(num)  # pylint: disable=no-member
-    if out is None:
-        raise ValueError('Not enough randomness.')
-    else:
-        return out
+    return m2.rand_pseudo_bytes(num)  # pylint: disable=no-member

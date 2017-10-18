@@ -32,8 +32,7 @@ PyObject *rand_seed(PyObject *seed) {
     const void *buf;
     int len;
 
-    if (m2_PyObject_AsReadBufferInt(seed, &buf, &len) == -1)
-        return NULL;
+    m2_PyObject_AsReadBufferInt(seed, &buf, &len);
 
     RAND_seed(buf, len);
     Py_RETURN_NONE;
@@ -43,8 +42,7 @@ PyObject *rand_add(PyObject *blob, double entropy) {
     const void *buf;
     int len;
 
-    if (m2_PyObject_AsReadBufferInt(blob, &buf, &len) == -1)
-        return NULL;
+    m2_PyObject_AsReadBufferInt(blob, &buf, &len);
 
     RAND_add(buf, len, entropy);
     Py_RETURN_NONE;
@@ -52,13 +50,15 @@ PyObject *rand_add(PyObject *blob, double entropy) {
 
 PyObject *rand_bytes(int n) {
     void *blob;
+    int ret;
     PyObject *obj;
     
     if (!(blob = PyMem_Malloc(n))) {
-        PyErr_SetString(PyExc_MemoryError, "rand_bytes");
+        PyErr_SetString(PyExc_MemoryError,
+        "Insufficient memory for rand_bytes.");
         return NULL;
     }
-    if (RAND_bytes(blob, n)) {
+    if ((ret = RAND_bytes(blob, n)) == 1) {
 #if PY_MAJOR_VERSION >= 3
         obj = PyBytes_FromStringAndSize(blob, n);
 #else
@@ -66,9 +66,19 @@ PyObject *rand_bytes(int n) {
 #endif // PY_MAJOR_VERSION >= 3
         PyMem_Free(blob);
         return obj;
+    } else if (ret == 0) {
+        PyErr_SetString(PyExc_ValueError, "Not enough randomness.");
+        PyMem_Free(blob);
+        return NULL;
+    } else if (ret == -1) {
+        PyErr_SetString(PyExc_ValueError,
+                        "Not supported by the current RAND method.");
+        PyMem_Free(blob);
+        return NULL;
     } else {
         PyMem_Free(blob);
-        Py_RETURN_NONE;
+        m2_PyErr_Msg(_rand_err);
+        return NULL;
     }
 }
 
@@ -78,7 +88,7 @@ PyObject *rand_pseudo_bytes(int n) {
     PyObject *tuple;
     
     if (!(blob=(unsigned char *)PyMem_Malloc(n))) {
-        PyErr_SetString(PyExc_MemoryError, "rand_pseudo_bytes");
+        PyErr_SetString(PyExc_MemoryError, "Insufficient memory for rand_pseudo_bytes.");
         return NULL;
     }
     if (!(tuple=PyTuple_New(2))) {
@@ -90,7 +100,9 @@ PyObject *rand_pseudo_bytes(int n) {
     if (ret == -1) {
         PyMem_Free(blob);
         Py_DECREF(tuple);
-        Py_RETURN_NONE;
+        PyErr_SetString(_rand_err,
+            "Function RAND_pseudo_bytes not supported by the current RAND method.");
+        return NULL;
     } else {
 #if PY_MAJOR_VERSION >= 3
         PyTuple_SET_ITEM(tuple, 0, PyBytes_FromStringAndSize((char*)blob, n));
