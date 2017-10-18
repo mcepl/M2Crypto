@@ -39,7 +39,18 @@ void dsa_init(PyObject *dsa_err) {
     Py_INCREF(dsa_err);
     _dsa_err = dsa_err;
 }
+%}
 
+%typemap(out) DSA * {
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
+
+    if ($1 != NULL)
+        $result = SWIG_NewPointerObj($1, $1_descriptor, 0);
+    else {
+        $result = NULL;
+    }
+}
+%inline %{
 DSA *dsa_generate_parameters(int bits, PyObject *pyfunc) {
     DSA *dsa;
     BN_GENCB *gencb;
@@ -72,6 +83,57 @@ DSA *dsa_generate_parameters(int bits, PyObject *pyfunc) {
     return NULL;
 }
 
+DSA *dsa_read_params(BIO *f, PyObject *pyfunc) {
+    DSA *ret;
+
+    Py_INCREF(pyfunc);
+    Py_BEGIN_ALLOW_THREADS
+    ret = PEM_read_bio_DSAparams(f, NULL, passphrase_callback, (void *)pyfunc);
+    Py_END_ALLOW_THREADS
+    Py_DECREF(pyfunc);
+
+    if (ret == NULL) {
+        m2_PyErr_Msg(_dsa_err);
+    }
+
+    return ret;
+}
+
+DSA *dsa_read_key(BIO *f, PyObject *pyfunc) {
+    DSA *ret;
+
+    Py_INCREF(pyfunc);
+    Py_BEGIN_ALLOW_THREADS
+    ret = PEM_read_bio_DSAPrivateKey(f, NULL, passphrase_callback, (void *)pyfunc);
+    Py_END_ALLOW_THREADS
+    Py_DECREF(pyfunc);
+
+    if (ret == NULL) {
+        m2_PyErr_Msg(_dsa_err);
+    }
+
+    return ret;
+}
+
+DSA *dsa_read_pub_key(BIO *f, PyObject *pyfunc) {
+    DSA *ret;
+
+    Py_INCREF(pyfunc);
+    Py_BEGIN_ALLOW_THREADS
+    ret = PEM_read_bio_DSA_PUBKEY(f, NULL, passphrase_callback, (void *)pyfunc);
+    Py_END_ALLOW_THREADS
+    Py_DECREF(pyfunc);
+
+    if (ret == NULL) {
+        m2_PyErr_Msg(_dsa_err);
+    }
+
+    return ret;
+}
+%}
+%typemap(out) DSA * ;
+
+%inline %{
 PyObject *dsa_get_p(DSA *dsa) {
     const BIGNUM* p = NULL;
     DSA_get0_pqg(dsa, &p, NULL, NULL);
@@ -163,19 +225,6 @@ PyObject *dsa_set_pub(DSA *dsa, PyObject *value) {
 }
 %}
 
-%inline %{
-DSA *dsa_read_params(BIO *f, PyObject *pyfunc) {
-    DSA *ret;
-
-    Py_INCREF(pyfunc);
-    Py_BEGIN_ALLOW_THREADS
-    ret = PEM_read_bio_DSAparams(f, NULL, passphrase_callback, (void *)pyfunc);
-    Py_END_ALLOW_THREADS
-    Py_DECREF(pyfunc);
-    return ret;
-}
-%}
-
 %threadallow dsa_write_params_bio;
 %inline %{
 int dsa_write_params_bio(DSA* dsa, BIO* f) {
@@ -219,30 +268,6 @@ int dsa_write_pub_key_bio(DSA* dsa, BIO* f) {
 %}
 
 %inline %{
-DSA *dsa_read_key(BIO *f, PyObject *pyfunc) {
-    DSA *ret;
-
-    Py_INCREF(pyfunc);
-    Py_BEGIN_ALLOW_THREADS
-    ret = PEM_read_bio_DSAPrivateKey(f, NULL, passphrase_callback, (void *)pyfunc);
-    Py_END_ALLOW_THREADS
-    Py_DECREF(pyfunc);
-    return ret;
-}
-%}
-
-%inline %{
-DSA *dsa_read_pub_key(BIO *f, PyObject *pyfunc) {
-    DSA *ret;
-
-    Py_INCREF(pyfunc);
-    Py_BEGIN_ALLOW_THREADS
-    ret = PEM_read_bio_DSA_PUBKEY(f, NULL, passphrase_callback, (void *)pyfunc);
-    Py_END_ALLOW_THREADS
-    Py_DECREF(pyfunc);
-    return ret;
-}
-
 PyObject *dsa_sign(DSA *dsa, PyObject *value) {
     const void *vbuf;
     int vlen;

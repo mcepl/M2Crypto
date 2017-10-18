@@ -301,8 +301,6 @@ def gen_params(bits, callback=util.genparam_callback):
     :return:  instance of DSA.
     """
     dsa = m2.dsa_generate_parameters(bits, callback)
-    if dsa is None:
-        raise DSAError('problem generating DSA parameters')
     return DSA(dsa, 1)
 
 
@@ -355,8 +353,6 @@ def load_params_bio(bio, callback=util.passphrase_callback):
     :return:         instance of DSA.
     """
     dsa = m2.dsa_read_params(bio._ptr(), callback)
-    if dsa is None:
-        raise DSAError('problem loading DSA parameters')
     return DSA(dsa, 1)
 
 
@@ -393,8 +389,6 @@ def load_key_bio(bio, callback=util.passphrase_callback):
     :return:         instance of DSA.
     """
     dsa = m2.dsa_read_key(bio._ptr(), callback)
-    if not dsa:
-        raise DSAError('problem loading DSA key pair')
     return DSA(dsa, 1)
 
 
@@ -451,6 +445,4 @@ def load_pub_key_bio(bio, callback=util.passphrase_callback):
     :return:         instance of DSA_pub.
     """
     dsapub = m2.dsa_read_pub_key(bio._ptr(), callback)
-    if not dsapub:
-        raise DSAError('problem loading DSA public key')
     return DSA_pub(dsapub, 1)
