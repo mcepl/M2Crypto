@@ -170,9 +170,6 @@ extern int EVP_CIPHER_CTX_set_padding(EVP_CIPHER_CTX *, int);
 
 %rename(cipher_set_padding) EVP_CIPHER_CTX_set_padding;
 extern int EVP_CIPHER_CTX_set_padding(EVP_CIPHER_CTX *x, int padding);
-%rename(pkey_new) EVP_PKEY_new;
-
-extern EVP_PKEY *EVP_PKEY_new(void);
 %rename(pkey_free) EVP_PKEY_free;
 extern void EVP_PKEY_free(EVP_PKEY *);
 %rename(pkey_assign) EVP_PKEY_assign;
@@ -183,8 +180,6 @@ extern int EVP_PKEY_assign_EC_KEY(EVP_PKEY *, EC_KEY *);
 #endif
 %rename(pkey_set1_rsa) EVP_PKEY_set1_RSA;
 extern int EVP_PKEY_set1_RSA(EVP_PKEY *, RSA *);
-%rename(pkey_get1_rsa) EVP_PKEY_get1_RSA;
-extern RSA* EVP_PKEY_get1_RSA(EVP_PKEY *);
 %rename(sign_init) EVP_SignInit;
 extern int EVP_SignInit(EVP_MD_CTX *, const EVP_MD *);
 %rename(verify_init) EVP_VerifyInit;
@@ -202,7 +197,34 @@ void evp_init(PyObject *evp_err) {
     Py_INCREF(evp_err);
     _evp_err = evp_err;
 }
+%}
 
+%typemap(out) RSA * {
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
+
+    if ($1 != NULL)
+        $result = SWIG_NewPointerObj($1, $1_descriptor, 0);
+    else {
+        $result = NULL;
+    }
+}
+%inline %{
+RSA *pkey_get1_rsa(EVP_PKEY *pkey) {
+    RSA *ret = NULL;
+
+    if ((ret = EVP_PKEY_get1_RSA(pkey)) == NULL) {
+        /* _evp_err now inherits from PyExc_ValueError, so we should
+         * keep API intact.
+         */
+        PyErr_Format(_evp_err, "Invalid key in function %s.", __func__);
+    }
+
+    return ret;
+}
+%}
+%typemap(out) RSA * ;
+
+%inline %{
 PyObject *pkcs5_pbkdf2_hmac_sha1(PyObject *pass,
                                  PyObject *salt,
                                  int iter,
@@ -609,7 +631,28 @@ int pkey_write_pem(EVP_PKEY *pkey, BIO *f, EVP_CIPHER *cipher, PyObject *pyfunc)
 }
 %}
 
+%typemap(out) EVP_PKEY * {
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
+
+    if ($1 != NULL)
+        $result = SWIG_NewPointerObj($1, $1_descriptor, 0);
+    else {
+        m2_PyErr_Msg(_evp_err);
+        $result = NULL;
+    }
+}
 %inline %{
+EVP_PKEY *pkey_new(void) {
+    EVP_KEY *ret;
+
+    if ((ret = EVP_PKEY_new()) == NULL) {
+        PyErr_Format(PyExc_MemoryError,
+                     "Insufficient memory for new key in function %s.", __func__);
+    }
+
+    return ret;
+}
+
 EVP_PKEY *pkey_read_pem(BIO *f, PyObject *pyfunc) {
     EVP_PKEY *pk;
 
@@ -631,7 +674,10 @@ EVP_PKEY *pkey_read_pem_pubkey(BIO *f, PyObject *pyfunc) {
     Py_DECREF(pyfunc);
     return pk;
 }
+%}
+%typemap(out) EVP_PKEY * ;
 
+%inline %{
 int pkey_assign_rsa(EVP_PKEY *pkey, RSA *rsa) {
     return EVP_PKEY_assign_RSA(pkey, rsa);
 }
@@ -642,7 +688,7 @@ PyObject *pkey_as_der(EVP_PKEY *pkey) {
     PyObject * der;
     len = i2d_PUBKEY(pkey, &pp);
     if (len < 0){
-        PyErr_SetString(PyExc_ValueError, "EVP_PKEY as DER failed");
+        PyErr_SetString(_evp_err, "EVP_PKEY as DER failed");
         return NULL;
     }
 
@@ -731,7 +777,7 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
             break;
 
         default:
-            PyErr_SetString(PyExc_ValueError, "unsupported key type");
+            PyErr_SetString(_evp_err, "unsupported key type");
             return NULL;
     }
 }

@@ -285,8 +285,6 @@ class PKey:
         instance is holding.
         """
         rsa_ptr = m2.pkey_get1_rsa(self.pkey)
-        if rsa_ptr is None:
-            raise ValueError("PKey instance is not holding a RSA key")
 
         rsa = RSA.RSA_pub(rsa_ptr, 1)
         return rsa
