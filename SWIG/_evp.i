@@ -637,13 +637,12 @@ int pkey_write_pem(EVP_PKEY *pkey, BIO *f, EVP_CIPHER *cipher, PyObject *pyfunc)
     if ($1 != NULL)
         $result = SWIG_NewPointerObj($1, $1_descriptor, 0);
     else {
-        m2_PyErr_Msg(_evp_err);
         $result = NULL;
     }
 }
 %inline %{
 EVP_PKEY *pkey_new(void) {
-    EVP_KEY *ret;
+    EVP_PKEY *ret;
 
     if ((ret = EVP_PKEY_new()) == NULL) {
         PyErr_Format(PyExc_MemoryError,
@@ -661,6 +660,12 @@ EVP_PKEY *pkey_read_pem(BIO *f, PyObject *pyfunc) {
     pk = PEM_read_bio_PrivateKey(f, NULL, passphrase_callback, (void *)pyfunc);
     Py_END_ALLOW_THREADS
     Py_DECREF(pyfunc);
+
+    if (pk == NULL) {
+        PyErr_Format(_evp_err,
+                     "Unable to read private key in function %s.", __func__);
+    }
+
     return pk;
 }
 
@@ -672,6 +677,12 @@ EVP_PKEY *pkey_read_pem_pubkey(BIO *f, PyObject *pyfunc) {
     pk = PEM_read_bio_PUBKEY(f, NULL, passphrase_callback, (void *)pyfunc);
     Py_END_ALLOW_THREADS
     Py_DECREF(pyfunc);
+
+    if (pk == NULL) {
+        PyErr_Format(_evp_err,
+                     "Unable to read public key in function %s.", __func__);
+    }
+
     return pk;
 }
 %}
