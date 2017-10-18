@@ -68,7 +68,8 @@ class EVPTestCase(unittest.TestCase):
         self.assertEqual(len(der_blob), 160)
 
     def test_get_digestbyname(self):
-        self.assertEqual(m2.get_digestbyname('sha513'), None)
+        with self.assertRaises(EVP.EVPError):
+            m2.get_digestbyname('sha513')
         self.assertNotEqual(m2.get_digestbyname('sha1'), None)
 
     def test_MessageDigest(self):  # noqa

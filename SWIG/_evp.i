@@ -73,9 +73,6 @@ extern const EVP_MD *EVP_sha512(void);
 %rename(digest_init) EVP_DigestInit;
 extern int EVP_DigestInit(EVP_MD_CTX *, const EVP_MD *);
 
-%rename(get_digestbyname) EVP_get_digestbyname;
-extern EVP_MD *EVP_get_digestbyname(const char * name);
-
 %rename(des_ecb) EVP_des_ecb;
 extern const EVP_CIPHER *EVP_des_ecb(void);
 %rename(des_ede_ecb) EVP_des_ede;
@@ -561,6 +558,28 @@ int verify_final(EVP_MD_CTX *ctx, PyObject *blob, EVP_PKEY *pkey) {
     return EVP_VerifyFinal(ctx, kbuf, len, pkey);
 }
 %}
+
+%typemap(out) EVP_MD * {
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
+
+    if ($1 != NULL)
+        $result = SWIG_NewPointerObj($1, $1_descriptor, 0);
+    else {
+        $result = NULL;
+    }
+}
+%inline %{
+const EVP_MD *get_digestbyname(const char* name) {
+    const EVP_MD *ret = NULL;
+
+    if ((ret = EVP_get_digestbyname(name)) == NULL) {
+        m2_PyErr_Msg(_evp_err);
+    }
+
+    return ret;
+}
+%}
+%typemap(out) EVP_MD *;
 
 %inline %{
 int pkey_write_pem_no_cipher(EVP_PKEY *pkey, BIO *f, PyObject *pyfunc) {

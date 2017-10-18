@@ -13,7 +13,7 @@ if util.py27plus:
     from typing import AnyStr, Optional, Callable  # noqa
 
 
-class EVPError(Exception):
+class EVPError(ValueError):
     pass
 
 m2.evp_init(EVPError)
@@ -46,8 +46,6 @@ class MessageDigest:
             # if the digest algorithm isn't found as an attribute of the m2
             # module, try to look up the digest using get_digestbyname()
             self.md = m2.get_digestbyname(algo)
-            if self.md is None:
-                raise ValueError('unknown algorithm', algo)
         else:
             self.md = md()
         self.ctx = m2.md_ctx_new()
