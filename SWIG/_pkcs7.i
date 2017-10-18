@@ -56,12 +56,7 @@ void smime_init(PyObject *smime_err) {
 }
 %}
 
-%threadallow pkcs7_encrypt;
 %inline %{
-PKCS7 *pkcs7_encrypt(STACK_OF(X509) *stack, BIO *bio, EVP_CIPHER *cipher, int flags) {
-    return PKCS7_encrypt(stack, bio, cipher, flags);
-}
-
 PyObject *pkcs7_decrypt(PKCS7 *pkcs7, EVP_PKEY *pkey, X509 *cert, int flags) {
     int outlen;
     char *outbuf;
@@ -97,21 +92,36 @@ PyObject *pkcs7_decrypt(PKCS7 *pkcs7, EVP_PKEY *pkey, X509 *cert, int flags) {
 }
 %}
 
+%typemap(out) PKCS7 * {
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
+
+    if ($1 != NULL)
+        $result = SWIG_NewPointerObj($1, $1_descriptor, 0);
+    else {
+        m2_PyErr_Msg(_smime_err);
+        $result = NULL;
+    }
+}
+%threadallow pkcs7_encrypt;
+%inline %{
+PKCS7 *pkcs7_encrypt(STACK_OF(X509) *stack, BIO *bio, EVP_CIPHER *cipher, int flags) {
+    return PKCS7_encrypt(stack, bio, cipher, flags);
+}
+
+%}
+
 %threadallow pkcs7_sign1;
 %inline %{
 PKCS7 *pkcs7_sign1(X509 *x509, EVP_PKEY *pkey, STACK_OF(X509) *stack, BIO *bio, EVP_MD *hash, int flags) {
 
     PKCS7 *p7 = PKCS7_sign(NULL, NULL, stack, bio, flags | PKCS7_STREAM);
     if (p7 == NULL) {
-        m2_PyErr_Msg(_pkcs7_err);
         return NULL;
     }
     if (PKCS7_sign_add_signer(p7, x509, pkey, hash, flags) == NULL) {
-        m2_PyErr_Msg(_pkcs7_err);
         return NULL;
     }
     if (PKCS7_final(p7, bio, flags) != 1) {
-        m2_PyErr_Msg(_pkcs7_err);
         return NULL;
     }
     return p7;
@@ -124,6 +134,32 @@ PKCS7 *pkcs7_sign0(X509 *x509, EVP_PKEY *pkey, BIO *bio, EVP_MD *hash, int flags
     return pkcs7_sign1(x509, pkey, NULL, bio, hash, flags);
 }
 %}
+
+%typemap(out) PKCS7 * {
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
+
+    if ($1 != NULL)
+        $result = SWIG_NewPointerObj($1, $1_descriptor, 0);
+    else {
+        m2_PyErr_Msg(_pkcs7_err);
+        $result = NULL;
+    }
+}
+%threadallow pkcs7_read_bio;
+%inline %{
+PKCS7 *pkcs7_read_bio(BIO *bio) {
+    return PEM_read_bio_PKCS7(bio, NULL, NULL, NULL);
+}
+%}
+
+%threadallow pkcs7_read_bio_der;
+%inline %{
+PKCS7 *pkcs7_read_bio_der(BIO *bio) {
+    return d2i_PKCS7_bio(bio, NULL);
+}
+%}
+
+%typemap(out) PKCS7 * ;
 
 %inline %{
 PyObject *pkcs7_verify1(PKCS7 *pkcs7, STACK_OF(X509) *stack, X509_STORE *store, BIO *data, int flags) {
@@ -216,20 +252,6 @@ PyObject *smime_read_pkcs7(BIO *bio) {
         PyTuple_SET_ITEM(tuple, 1, _BIO);
     }
     return tuple;
-}
-%}
-
-%threadallow pkcs7_read_bio;
-%inline %{
-PKCS7 *pkcs7_read_bio(BIO *bio) {
-    return PEM_read_bio_PKCS7(bio, NULL, NULL, NULL);
-}
-%}
-
-%threadallow pkcs7_read_bio_der;
-%inline %{
-PKCS7 *pkcs7_read_bio_der(BIO *bio) {
-    return d2i_PKCS7_bio(bio, NULL);
 }
 %}
 
