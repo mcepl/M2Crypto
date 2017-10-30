@@ -14,7 +14,7 @@ if util.py27plus:
 log = logging.getLogger('BIO')
 
 
-class BIOError(Exception):
+class BIOError(ValueError):
     pass
 
 m2.bio_init(BIOError)

@@ -16,6 +16,12 @@ __all__ = ['rand_seed', 'rand_add', 'load_file', 'save_file', 'rand_bytes',
            'rand_pseudo_bytes', 'rand_file_name', 'rand_status']
 
 
+class RandError(ValueError):
+    pass
+
+m2.rand_init(RandError)
+
+
 def rand_add(blob, entropy):
     # type: (bytes, float) -> None
     """

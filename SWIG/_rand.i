@@ -67,11 +67,11 @@ PyObject *rand_bytes(int n) {
         PyMem_Free(blob);
         return obj;
     } else if (ret == 0) {
-        PyErr_SetString(PyExc_ValueError, "Not enough randomness.");
+        PyErr_SetString(_rand_err, "Not enough randomness.");
         PyMem_Free(blob);
         return NULL;
     } else if (ret == -1) {
-        PyErr_SetString(PyExc_ValueError,
+        PyErr_SetString(_rand_err,
                         "Not supported by the current RAND method.");
         PyMem_Free(blob);
         return NULL;

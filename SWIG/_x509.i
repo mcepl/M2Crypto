@@ -202,7 +202,7 @@ extern ASN1_STRING *X509_NAME_ENTRY_get_data(X509_NAME_ENTRY *);
 #endif // PY_MAJOR_VERSION >= 3
 
         if (len > INT_MAX) {
-            PyErr_SetString(PyExc_ValueError, "object too large");
+            PyErr_SetString(_x509_err, "object too large");
             return NULL;
         }
         $2 = len;

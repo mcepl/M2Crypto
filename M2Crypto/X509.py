@@ -22,7 +22,7 @@ FORMAT_PEM = 1
 log = logging.getLogger(__name__)
 
 
-class X509Error(Exception):
+class X509Error(ValueError):
     pass
 
 m2.x509_init(X509Error)
@@ -512,7 +512,7 @@ class X509:
                        Either FORMAT_PEM or FORMAT_DER to save in PEM or
                        DER format.  Raises a ValueError if an unknow
                        format is used.
-        
+
         :return: 1 for success or 0 for failure
         """
         with BIO.openfile(filename, 'wb') as bio:
@@ -624,7 +624,7 @@ class X509:
         Set the public key for the certificate
 
         :param pkey: Public key
-        
+
         :return 1 for success and 0 for failure
         """
         assert m2.x509_type_check(self.x509), "'x509' type error"
@@ -658,7 +658,7 @@ class X509:
         Set subject name.
 
         :param name:    subjectName field.
-        
+
         :return 1 for success and 0 for failure
         """
         assert m2.x509_type_check(self.x509), "'x509' type error"
@@ -726,10 +726,10 @@ class X509:
         Sign the certificate.
 
         :param pkey: Public key
-        
+
         :param md:   Message digest algorithm to use for signing,
                      for example 'sha1'.
-        
+
         :return int
         """
         assert m2.x509_type_check(self.x509), "'x509' type error"
@@ -763,9 +763,9 @@ class X509:
         Check if the certificate's purpose matches the asked purpose.
 
         :param id: Purpose id. See X509_PURPOSE_* constants.
-        
+
         :param ca: 1 if the certificate should be CA, 0 otherwise.
-        
+
         :return: 0 if the certificate purpose does not match, nonzero
                  otherwise.
         """
@@ -777,7 +777,7 @@ class X509:
         Get the fingerprint of the certificate.
 
         :param md: Message digest algorithm to use.
-        
+
         :return:   String containing the fingerprint in hex format.
         """
         der = self.as_der()
@@ -794,7 +794,7 @@ def load_cert(file, format=FORMAT_PEM):
 
     :param file: Name of file containing certificate in either DER or
                  PEM format.
-    
+
     :param format: Describes the format of the file to be loaded,
                    either PEM or DER.
 
@@ -817,7 +817,7 @@ def load_cert_bio(bio, format=FORMAT_PEM):
     Load certificate from a bio.
 
     :param bio: BIO pointing at a certificate in either DER or PEM format.
-    
+
     :param format: Describes the format of the cert to be loaded,
                    either PEM or DER (via constants FORMAT_PEM
                    and FORMAT_FORMAT_DER)
@@ -844,7 +844,7 @@ def load_cert_string(string, format=FORMAT_PEM):
     :param format: Describes the format of the cert to be loaded,
                    either PEM or DER (via constants FORMAT_PEM
                    and FORMAT_FORMAT_DER)
-    
+
     :return: M2Crypto.X509.X509 object.
     """
     string = util.py3bytes(string)
@@ -858,7 +858,7 @@ def load_cert_der_string(string):
     Load certificate from a string.
 
     :param string: String containing a certificate in DER format.
-    
+
     :return: M2Crypto.X509.X509 object.
     """
     string = util.py3bytes(string)
@@ -962,7 +962,7 @@ class X509_Store:  # noqa
         # type: (AnyStr) -> int
         """
         :param file: filename
-    
+
         :return: 1 on success, 0 on failure
         """
         ret = m2.x509_store_load_locations(self.store, file)
@@ -985,14 +985,14 @@ class X509_Store:  # noqa
                             Type of the callable must be:
                             (int, X509_Store_Context) -> int.
                             If None: set the standard options.
-        
+
         :note: compile-time or run-time errors in the callback would result
                in mysterious errors during verification, which could be hard
                to trace.
 
         :note: Python exceptions raised in callbacks do not propagate to
                verify() call.
-        
+
         :return: None
         """
         if callback is None:
@@ -1060,7 +1060,7 @@ class X509_Stack:  # noqa
         push an X509 certificate onto the stack.
 
         :param x509: X509 object.
-        
+
         :return: The number of X509 objects currently on the stack.
         """
         assert isinstance(x509, X509)
