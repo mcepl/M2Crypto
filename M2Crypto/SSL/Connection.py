@@ -70,6 +70,8 @@ class Connection:
             self.set_post_connection_check_callback(
                 self.ctx.post_connection_check)
 
+        self.sni_host = None
+
     def __del__(self):
         # type: () -> None
         if getattr(self, 'sslbio', None):
@@ -303,7 +305,8 @@ class Connection:
         check = getattr(self, 'postConnectionCheck',
                         self.clientPostConnectionCheck)
         if check is not None:
-            if not check(self.get_peer_cert(), self.addr[0]):
+            if not check(self.get_peer_cert(),
+                         self.sni_host if self.sni_host else self.addr[0]):
                 raise Checker.SSLVerificationError(
                     'post connection check failed')
         return ret
@@ -621,3 +624,4 @@ class Connection:
         extension.
         """
         m2.ssl_set_tlsext_host_name(self.ssl, name)
+        self.sni_host = name
