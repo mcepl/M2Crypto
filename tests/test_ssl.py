@@ -238,15 +238,24 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
         finally:
             self.stop_server(pid)
 
+    def test_HTTPSConnection_illegalkeywordarg(self):
+        with self.assertRaises(ValueError):
+            httpslib.HTTPSConnection('example.org', badKeyword=True)
+
+
+class HttpslibSSLSNIClientTestCase(BaseSSLClientTestCase):
+    def setUp(self):
+        super(HttpslibSSLSNIClientTestCase, self).setUp()
+        self.args = ['s_server', '-servername', srv_host, '-debug', '-www',
+                     '-cert', 'server.pem', '-key', 'server_key.pem',
+                     '-cert2', 'server.pem', '-key2', 'server_key.pem',
+                     '-accept', str(self.srv_port)]
+
     def test_HTTPSConnection_SNI_support(self):
-        args = ['s_server', '-servername', srv_host, '-debug', '-www',
-                '-cert', 'server.pem', '-key', 'server_key.pem',
-                '-cert2', 'server.pem', '-key2', 'server_key.pem',
-                '-accept', str(self.srv_port)]
-        pid = self.start_server(args)
+        pid = self.start_server(self.args)
         try:
             ctx = SSL.Context()
-            c = httpslib.HTTPSConnection(srv_host, self.srv_port,
+            c = httpslib.HTTPSConnection(self.srv_host, self.srv_port,
                                          ssl_context=ctx)
             c.request('GET', '/')
             c.close()
@@ -257,12 +266,8 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             # before it manages to log the output.
             # So, give the server hopefully enough time to flush the logs.
             time.sleep(sleepTime)
-            out, err = self.stop_server(pid)
+            out, _ = self.stop_server(pid)
         self.assertIn('Hostname in TLS extension: "%s"' % srv_host, out)
-
-    def test_HTTPSConnection_illegalkeywordarg(self):
-        with self.assertRaises(ValueError):
-            httpslib.HTTPSConnection('example.org', badKeyword=True)
 
 
 class MiscSSLClientTestCase(BaseSSLClientTestCase):
@@ -1091,6 +1096,7 @@ def suite():
     suite.addTest(unittest.makeSuite(FtpsLibTestCase))
     suite.addTest(unittest.makeSuite(PassSSLClientTestCase))
     suite.addTest(unittest.makeSuite(HttpslibSSLClientTestCase))
+    suite.addTest(unittest.makeSuite(HttpslibSSLSNIClientTestCase))
     suite.addTest(unittest.makeSuite(UrllibSSLClientTestCase))
     suite.addTest(unittest.makeSuite(Urllib2SSLClientTestCase))
     suite.addTest(unittest.makeSuite(MiscSSLClientTestCase))
