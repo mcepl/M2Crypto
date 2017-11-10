@@ -157,6 +157,12 @@ class PassSSLClientTestCase(BaseSSLClientTestCase):
 
 
 class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
+    def setUp(self):
+        super(HttpslibSSLClientTestCase, self).setUp()
+        self.ctx = SSL.Context()
+
+    def tearDown(self):
+        self.ctx.close()
 
     def test_HTTPSConnection(self):
         pid = self.start_server(self.args)
@@ -172,14 +178,13 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
     def test_HTTPSConnection_resume_session(self):
         pid = self.start_server(self.args)
         try:
-            ctx = SSL.Context()
-            ctx.load_verify_locations(cafile='tests/ca.pem')
-            ctx.load_cert('tests/x509.pem')
-            ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert,
-                           1)
-            ctx.set_session_cache_mode(m2.SSL_SESS_CACHE_CLIENT)
+            self.ctx.load_verify_locations(cafile='tests/ca.pem')
+            self.ctx.load_cert('tests/x509.pem')
+            self.ctx.set_verify(
+                SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 1)
+            self.ctx.set_session_cache_mode(m2.SSL_SESS_CACHE_CLIENT)
             c = httpslib.HTTPSConnection(srv_host, self.srv_port,
-                                         ssl_context=ctx)
+                                         ssl_context=self.ctx)
             c.request('GET', '/')
             ses = c.get_session()
             t = ses.as_text()
@@ -190,8 +195,8 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             ctx2 = SSL.Context()
             ctx2.load_verify_locations(cafile='tests/ca.pem')
             ctx2.load_cert('tests/x509.pem')
-            ctx2.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert,
-                            1)
+            ctx2.set_verify(
+                SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 1)
             ctx2.set_session_cache_mode(m2.SSL_SESS_CACHE_CLIENT)
             c2 = httpslib.HTTPSConnection(srv_host, self.srv_port,
                                           ssl_context=ctx2)
@@ -210,12 +215,11 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
     def test_HTTPSConnection_secure_context(self):
         pid = self.start_server(self.args)
         try:
-            ctx = SSL.Context()
-            ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert,
-                           9)
-            ctx.load_verify_locations('tests/ca.pem')
+            self.ctx.set_verify(
+                SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
+            self.ctx.load_verify_locations('tests/ca.pem')
             c = httpslib.HTTPSConnection(srv_host, self.srv_port,
-                                         ssl_context=ctx)
+                                         ssl_context=self.ctx)
             c.request('GET', '/')
             data = c.getresponse().read()
             c.close()
@@ -226,12 +230,11 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
     def test_HTTPSConnection_secure_context_fail(self):
         pid = self.start_server(self.args)
         try:
-            ctx = SSL.Context()
-            ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert,
-                           9)
-            ctx.load_verify_locations('tests/server.pem')
+            self.ctx.set_verify(
+                SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
+            self.ctx.load_verify_locations('tests/server.pem')
             c = httpslib.HTTPSConnection(srv_host, self.srv_port,
-                                         ssl_context=ctx)
+                                         ssl_context=self.ctx)
             with self.assertRaises(SSL.SSLError):
                 c.request('GET', '/')
             c.close()
@@ -250,13 +253,16 @@ class HttpslibSSLSNIClientTestCase(BaseSSLClientTestCase):
                      '-cert', 'server.pem', '-key', 'server_key.pem',
                      '-cert2', 'server.pem', '-key2', 'server_key.pem',
                      '-accept', str(self.srv_port)]
+        self.ctx = SSL.Context()
 
-    def test_HTTPSConnection_SNI_support(self):
+    def tearDown(self):
+        self.ctx.close()
+
+    def test_SNI_support(self):
         pid = self.start_server(self.args)
         try:
-            ctx = SSL.Context()
             c = httpslib.HTTPSConnection(self.srv_host, self.srv_port,
-                                         ssl_context=ctx)
+                                         ssl_context=self.ctx)
             c.request('GET', '/')
             c.close()
         finally:
@@ -268,6 +274,39 @@ class HttpslibSSLSNIClientTestCase(BaseSSLClientTestCase):
             time.sleep(sleepTime)
             out, _ = self.stop_server(pid)
         self.assertIn('Hostname in TLS extension: "%s"' % srv_host, out)
+
+    def test_IP_call(self):
+        no_exception = True
+        runs_counter = 0
+        pid = self.start_server(self.args)
+
+        for entry in socket.getaddrinfo(self.srv_host, self.srv_port,
+                                        socket.AF_INET,
+                                        socket.SOCK_STREAM,
+                                        socket.IPPROTO_TCP):
+            ipfamily, socktype, _, _, sockaddr = entry
+            ip = sockaddr[0]
+
+            sock = socket.socket(ipfamily, socktype)
+            conn = SSL.Connection(self.ctx, sock=sock)
+            conn.set_tlsext_host_name(self.srv_host)
+            conn.set1_host(self.srv_host)
+
+            runs_counter += 1
+            try:
+                conn.connect((ip, self.srv_port))
+            except (SSL.SSLError, socket.error):
+                log.exception("Failed to connect to %s:%s", ip, self.srv_port)
+                no_exception = False
+            finally:
+                conn.close()
+
+        out, _ = self.stop_server(pid)
+        self.assertEqual(
+            out.count('Hostname in TLS extension: "%s"' % self.srv_host),
+            runs_counter)
+
+        self.assertTrue(no_exception)
 
 
 class MiscSSLClientTestCase(BaseSSLClientTestCase):
