@@ -58,12 +58,18 @@ Differences when installing on Windows
 (needs updating)
 
 Before building from source, you need to install OpenSSL's include
-files, import libraries and DLLs. By default setup.py assumes that
-OpenSSL include files are in ``c:\pkg\openssl\include``, and the import
-libraries in ``c:\pkg\openssl\lib``. As with other platforms, you can
-specify a different OpenSSL location with --openssl option to
-``build\_ext`` (or ``build``) command. That would
-be ``--openssl=c:\pkg\openssl`` in this case.
+files, import libraries and DLLs. OpenSSL 1.1.0 and on are installed
+by default in ``%ProgramFiles(86)%\OpenSSL`` (32-bit), or
+in ``%ProgramW6432%\OpenSSL`` (64-bit), or as a last resort, in
+``%ProgramFiles%\OpenSSL``. setup.py will look in those locations.
+OpenSSL before 1.1.0 doesn't have a default install location, so
+you have to specify its install location explicitely.
+
+As with other platforms, you can specify a OpenSSL location with
+--openssl option to ``build\_ext`` (or ``build``) command. For
+example, ``--openssl=c:\pkg\openssl`` would specify that the OpenSSL
+include files can be found in ``c:\pkg\openssl\include`` and the
+librariesin ``c:\pkg\openssl\lib``.
 
 Using OpenSSL 0.9.8 on Windows requires Python be built with applink.c
 (add an include statement in python.c). This is not a requirement for
@@ -73,12 +79,15 @@ MSVC++ ~\ :sub:`:sub:`:sub:`~```
 
 setup.py is already configured to work with MSVC++ by default.
 
-With MSVC++, the OpenSSL DLLs, as built, are named ``libeay32.dll`` and
-``ssleay32.dll``. Install these somewhere on your PATH; for example in
-``c:\bin``, together with ``openssl.exe``.
+With MSVC++, the OpenSSL pre 1.1.0 DLLs, as built, are named
+``libeay32.dll`` and ``ssleay32.dll``. The OpenSSL 1.1.x DLLs are
+named ``libcrypto-1_1.dll`` and ``libssl-1_1.dll``.  Install these
+somewhere on your PATH; for example in ``c:\bin``, together with
+``openssl.exe``.
 
-For MSVC++, the import libraries, as built by OpenSSL, are named
-``libeay32.lib`` and ``ssleay32.lib``.
+For MSVC++, the import libraries, as built by OpenSSL pre 1.1.0, are
+named ``libeay32.lib`` and ``ssleay32.lib``.  The OpenSSL 1.1.x import
+libraries are named ``libcrypto.lib`` and ``libssl.lib``.
 
 MINGW :sub:`:sub:`:sub:`~```
 
@@ -90,15 +99,17 @@ Read Sebastien Sauvage's webpage::
 
      http://sebsauvage.net/python/mingw.html
 
-For mingw32, the OpenSSL import libraries are named ``libeay32.a`` and
-``libssl32.a``. You may need to edit setup.py file for these.
+For mingw32, the OpenSSL pre 1.1.0 import libraries are named
+``libeay32.dll.a`` and ``libssl32.dll.a``. You may need to edit
+setup.py file for these.
 
 You'll also need to create ``libpython2[123].a``, depending on your
 version of Python.
 
-OpenSSL DLLs for mingw32 are named ``libeay32.dll`` and
-``libssl32.dll``. Install these somewhere on your PATH; for example in
-``c:\bin``, together with ``openssl.exe``.
+OpenSSL pre 1.1.0 DLLs for mingw32 are named ``libeay32.dll`` and
+``libssl32.dll``. OpenSSL 1.1.x DLLs are named ``libcrypto-1_1.dll``
+and ``libssl-1_1.dll``. Install these somewhere on your PATH; for
+example in ``c:\bin``, together with ``openssl.exe``.
 
 Build M2Crypto::
 
@@ -111,6 +122,8 @@ BC++ :sub:`:sub:`~``\ ~
     6.0 and BC++ 5.5 free compiler suite are from M2Crypto 0.10. These
     instructions should continue to work for this release, although
     I have not tested them.
+
+.. NOTE:: OpenSSL 1.1.x doesn't support BC++.
 
 For BC++ these files are created from the MSVC++-built ones using the
 tool ``coff2omf.exe``. I call them ``libeay32_bc.lib`` and
