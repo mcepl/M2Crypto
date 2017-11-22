@@ -19,8 +19,14 @@ python:
   - "3.8"
   - "nightly"
 matrix:
+  include:
+     - os: osx
+       language: generic
   allow_failures:
     - python: "nightly"
+
+before_install:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update && brew install openssl; fi
 
 install:
   - travis_retry pip install Twisted
