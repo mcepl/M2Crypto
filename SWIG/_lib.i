@@ -145,20 +145,20 @@ static int m2_PyObject_GetBufferInt(PyObject *obj, Py_buffer *view, int flags)
     int ret;
 
     if (PyObject_CheckBuffer(obj))
-	ret = PyObject_GetBuffer(obj, view, flags);
+        ret = PyObject_GetBuffer(obj, view, flags);
     else {
-	const void *buf;
+        const void *buf;
 
-	ret = PyObject_AsReadBuffer(obj, &buf, &view->len);
-	if (ret == 0)
-	    view->buf = (void *)buf;
+        ret = PyObject_AsReadBuffer(obj, &buf, &view->len);
+        if (ret == 0)
+            view->buf = (void *)buf;
     }
     if (ret)
-	return ret;
+        return ret;
     if (view->len > INT_MAX) {
-	PyErr_SetString(PyExc_ValueError, "object too large");
-	m2_PyBuffer_Release(obj, view);
-	return -1;
+        PyErr_SetString(PyExc_ValueError, "object too large");
+        m2_PyBuffer_Release(obj, view);
+        return -1;
     }
 
     return 0;
@@ -185,7 +185,7 @@ m2_PyObject_AsBIGNUM(PyObject* value, PyObject* _py_exc)
 static void m2_PyBuffer_Release(PyObject *obj, Py_buffer *view)
 {
     if (PyObject_CheckBuffer(obj))
-	PyBuffer_Release(view);
+        PyBuffer_Release(view);
     /* else do nothing, view->buf comes from PyObject_AsReadBuffer */
 }
 
@@ -205,6 +205,18 @@ m2_PyString_AsStringAndSizeInt(PyObject *obj, char **s, int *len)
     }
     *len = len2;
     return 0;
+}
+
+/* Works as PyFile_Name, but always returns a new object. */
+PyObject *m2_PyFile_Name(PyObject *pyfile) {
+    PyObject *out = NULL;
+#if PY_MAJOR_VERSION >= 3
+   out = PyObject_GetAttrString(pyfile, "name");
+#else
+   out = PyFile_Name(pyfile);
+   Py_XINCREF(out);
+#endif
+    return out;
 }
 
 #define m2_PyErr_Msg(type) m2_PyErr_Msg_Caller(type, __func__)
@@ -267,9 +279,9 @@ int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
         _x509_store_ctx_swigptr = SWIG_NewPointerObj((void *)ctx, SWIGTYPE_p_X509_STORE_CTX, 0);
         _x509_store_ctx_obj = Py_BuildValue("(Oi)", _x509_store_ctx_swigptr, 0);
 
-	_x509_store_ctx_inst = PyObject_CallObject(_klass, _x509_store_ctx_obj);
+        _x509_store_ctx_inst = PyObject_CallObject(_klass, _x509_store_ctx_obj);
 
-	argv = Py_BuildValue("(iO)", ok, _x509_store_ctx_inst);
+        argv = Py_BuildValue("(iO)", ok, _x509_store_ctx_inst);
     } else {
         if (PyErr_Warn(PyExc_DeprecationWarning, "Old style callback, use cb_func(ok, store) instead")) {
             warning_raised_exception = 1;

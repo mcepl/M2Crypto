@@ -1,11 +1,6 @@
 %{
 #if PY_MAJOR_VERSION >= 3
 
-/* Return the name of the file specified by p as a string object. */
-PyObject* PyFile_Name(PyObject *pyfile) {
-   return PyObject_GetAttrString(pyfile, "name");
-}
-
 FILE* PyFile_AsFile(PyObject *pyfile) {
     FILE* fp;
     int fd;

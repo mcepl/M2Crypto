@@ -110,7 +110,8 @@ BIO *bio_new_pyfile(PyObject *pyfile, int bio_close) {
     if (bio == NULL) {
         /* Find out the name of the file so we can have good error
          * message. */
-        char *name = PyBytes_AsString(PyFile_Name(pyfile));
+        PyObject *pyname = m2_PyFile_Name(pyfile);
+        char *name = PyBytes_AsString(pyname);
 
         if (name == NULL) {
             PyErr_Format(_bio_err,
@@ -120,7 +121,7 @@ BIO *bio_new_pyfile(PyObject *pyfile, int bio_close) {
             PyErr_Format(_bio_err,
                          "Opening of the new BIO on file %s failed!", name);
         }
-        return NULL;
+        Py_DECREF(pyname);
     }
     return bio;
 }
