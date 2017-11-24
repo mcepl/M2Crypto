@@ -55,7 +55,8 @@ PyObject *bn_rand_range(PyObject *range)
     BIGNUM *rng = NULL;
     PyObject *ret, *tuple;
     PyObject *format, *rangePyString;
-    char *randhex, *rangehex;
+    char *randhex; /* PyLong_FromString is unhappy with const */
+    const char *rangehex;
 
     /* Wow, it's a lot of work to convert into a hex string in C! */
     format = PyUnicode_FromString("%x");
@@ -84,7 +85,7 @@ PyObject *bn_rand_range(PyObject *range)
     Py_DECREF(format);
     Py_DECREF(tuple);
 
-    rangehex = PyUnicode_AsUTF8(rangePyString);
+    rangehex = (const char*)PyUnicode_AsUTF8(rangePyString);
 
     if (!BN_hex2bn(&rng, rangehex)) {
         /*Custom errors?*/

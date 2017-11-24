@@ -24,9 +24,9 @@ PyObject* PyFile_Name(PyObject *p);
  * From https://docs.python.org/2.7/howto/cporting.html
  */
 
-#endif /* PY_MAJOR_VERSION */
-
 PyObject* PyLong_FromLong(long x);
-char* PyUnicode_AsUTF8(PyObject *unicode);
+const char* PyUnicode_AsUTF8(PyObject *unicode);
+
+#endif /* PY_MAJOR_VERSION */
 
 #endif /* PY3K_COMPAT_H */
