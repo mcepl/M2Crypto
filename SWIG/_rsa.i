@@ -191,7 +191,7 @@ PyObject *rsa_set_en(RSA *rsa, PyObject *eval, PyObject* nval) {
 static BIGNUM* PyObject_Bin_AsBIGNUM(PyObject* value) {
     BIGNUM* bn;
     const void* vbuf;
-    int vlen;
+    int vlen = 0;
 
     if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
@@ -224,7 +224,7 @@ PyObject *rsa_set_en_bin(RSA *rsa, PyObject *eval, PyObject* nval) {
 PyObject *rsa_private_encrypt(RSA *rsa, PyObject *from, int padding) {
     const void *fbuf;
     void *tbuf;
-    int flen, tlen;
+    int flen = 0, tlen;
     PyObject *ret;
 
     if (m2_PyObject_AsReadBufferInt(from, &fbuf, &flen) == -1)
@@ -251,7 +251,7 @@ PyObject *rsa_private_encrypt(RSA *rsa, PyObject *from, int padding) {
 PyObject *rsa_public_decrypt(RSA *rsa, PyObject *from, int padding) {
     const void *fbuf;
     void *tbuf;
-    int flen, tlen;
+    int flen = 0, tlen = 0;
     PyObject *ret;
 
     if (m2_PyObject_AsReadBufferInt(from, &fbuf, &flen) == -1)
@@ -281,7 +281,7 @@ PyObject *rsa_public_decrypt(RSA *rsa, PyObject *from, int padding) {
 PyObject *rsa_public_encrypt(RSA *rsa, PyObject *from, int padding) {
     const void *fbuf;
     void *tbuf;
-    int flen, tlen;
+    int flen = 0, tlen;
     PyObject *ret;
 
     if (m2_PyObject_AsReadBufferInt(from, &fbuf, &flen) == -1)
@@ -308,7 +308,7 @@ PyObject *rsa_public_encrypt(RSA *rsa, PyObject *from, int padding) {
 PyObject *rsa_private_decrypt(RSA *rsa, PyObject *from, int padding) {
     const void *fbuf;
     void *tbuf;
-    int flen, tlen;
+    int flen = 0, tlen;
     PyObject *ret;
 
     if (m2_PyObject_AsReadBufferInt(from, &fbuf, &flen) == -1)

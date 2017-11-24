@@ -320,7 +320,7 @@ PyObject *ecdsa_sig_get_s(ECDSA_SIG *ecdsa_sig) {
 
 PyObject *ecdsa_sign(EC_KEY *key, PyObject *value) {
     const void *vbuf;
-    int vlen;
+    int vlen = 0;
     PyObject *tuple;
     ECDSA_SIG *sig;
 
@@ -344,7 +344,7 @@ PyObject *ecdsa_sign(EC_KEY *key, PyObject *value) {
 
 int ecdsa_verify(EC_KEY *key, PyObject *value, PyObject *r, PyObject *s) {
     const void *vbuf, *rbuf, *sbuf;
-    int vlen, rlen, slen;
+    int vlen = 0, rlen = 0, slen = 0;
     ECDSA_SIG *sig;
     int ret;
     BIGNUM* pr, *ps;
@@ -387,7 +387,7 @@ int ecdsa_verify(EC_KEY *key, PyObject *value, PyObject *r, PyObject *s) {
 
 PyObject *ecdsa_sign_asn1(EC_KEY *key, PyObject *value) {
     const void *vbuf;
-    int vlen;
+    int vlen = 0;
     void *sigbuf;
     unsigned int siglen;
     PyObject *ret;
@@ -414,7 +414,7 @@ PyObject *ecdsa_sign_asn1(EC_KEY *key, PyObject *value) {
 int ecdsa_verify_asn1(EC_KEY *key, PyObject *value, PyObject *sig) {
     const void *vbuf;
     void *sbuf;
-    int vlen, slen, ret;
+    int vlen = 0, slen = 0, ret;
 
     if ((m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         || (m2_PyObject_AsReadBufferInt(sig, (const void **)&sbuf, &slen)

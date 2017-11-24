@@ -182,7 +182,7 @@ PyObject *bio_gets(BIO *bio, int num) {
 
 int bio_write(BIO *bio, PyObject *from) {
     const void *fbuf;
-    int flen, ret;
+    int flen = 0, ret;
 
     if (m2_PyObject_AsReadBufferInt(from, &fbuf, &flen) == -1)
         return -1;

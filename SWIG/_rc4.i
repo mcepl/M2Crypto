@@ -31,7 +31,7 @@ void rc4_free(RC4_KEY *key) {
 
 PyObject *rc4_set_key(RC4_KEY *key, PyObject *value) {
     const void *vbuf;
-    int vlen;
+    int vlen = 0;
 
     if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;

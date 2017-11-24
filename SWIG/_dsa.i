@@ -208,7 +208,7 @@ PyObject *dsa_set_pqg(DSA *dsa, PyObject *pval, PyObject* qval, PyObject* gval) 
 PyObject *dsa_set_pub(DSA *dsa, PyObject *value) {
     BIGNUM *bn;
     const void *vbuf;
-    int vlen;
+    int vlen = 0;
 
     if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
@@ -270,7 +270,7 @@ int dsa_write_pub_key_bio(DSA* dsa, BIO* f) {
 %inline %{
 PyObject *dsa_sign(DSA *dsa, PyObject *value) {
     const void *vbuf;
-    int vlen;
+    int vlen = 0;
     PyObject *tuple;
     DSA_SIG *sig;
 
@@ -294,7 +294,7 @@ PyObject *dsa_sign(DSA *dsa, PyObject *value) {
 
 int dsa_verify(DSA *dsa, PyObject *value, PyObject *r, PyObject *s) {
     const void *vbuf, *rbuf, *sbuf;
-    int vlen, rlen, slen;
+    int vlen = 0, rlen = 0, slen = 0;
     DSA_SIG *sig;
     BIGNUM* pr, *ps;
     int ret;
@@ -336,7 +336,7 @@ int dsa_verify(DSA *dsa, PyObject *value, PyObject *r, PyObject *s) {
 
 PyObject *dsa_sign_asn1(DSA *dsa, PyObject *value) {
     const void *vbuf;
-    int vlen;
+    int vlen = 0;
     void *sigbuf;
     unsigned int siglen;
     PyObject *ret;
@@ -363,7 +363,7 @@ PyObject *dsa_sign_asn1(DSA *dsa, PyObject *value) {
 int dsa_verify_asn1(DSA *dsa, PyObject *value, PyObject *sig) {
     const void *vbuf;
     void *sbuf;
-    int vlen, slen, ret;
+    int vlen = 0, slen = 0, ret = 0;
 
     if ((m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         || (m2_PyObject_AsReadBufferInt(sig, (const void **)&sbuf, &slen)

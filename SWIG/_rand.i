@@ -30,7 +30,7 @@ void rand_init(PyObject *rand_err) {
 
 PyObject *rand_seed(PyObject *seed) {
     const void *buf;
-    int len;
+    int len = 0;
 
     m2_PyObject_AsReadBufferInt(seed, &buf, &len);
 
@@ -40,7 +40,7 @@ PyObject *rand_seed(PyObject *seed) {
 
 PyObject *rand_add(PyObject *blob, double entropy) {
     const void *buf;
-    int len;
+    int len = 0;
 
     m2_PyObject_AsReadBufferInt(blob, &buf, &len);
 

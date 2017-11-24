@@ -94,7 +94,7 @@ int dh_check(DH *dh) {
 
 PyObject *dh_compute_key(DH *dh, PyObject *pubkey) {
     const void *pkbuf;
-    int pklen, klen;
+    int pklen = 0, klen;
     void *key;
     BIGNUM *pk;
     PyObject *ret;

@@ -233,7 +233,7 @@ PyObject *pkcs5_pbkdf2_hmac_sha1(PyObject *pass,
     unsigned char *saltbuf;
     char *passbuf;
     PyObject *ret;
-    int passlen, saltlen;
+    int passlen = 0, saltlen = 0;
 
     if (m2_PyObject_AsReadBufferInt(pass, (const void **)&passbuf,
                                     &passlen) == -1)
@@ -314,7 +314,7 @@ void hmac_ctx_free(HMAC_CTX *ctx) {
 
 PyObject *hmac_init(HMAC_CTX *ctx, PyObject *key, const EVP_MD *md) {
     const void *kbuf;
-    int klen;
+    int klen = 0;
 
     if (m2_PyObject_AsReadBufferInt(key, &kbuf, &klen) == -1)
         return NULL;
@@ -364,7 +364,7 @@ PyObject *hmac_final(HMAC_CTX *ctx) {
 PyObject *hmac(PyObject *key, PyObject *data, const EVP_MD *md) {
     const void *kbuf, *dbuf;
     void *blob;
-    int klen;
+    int klen = 0;
     unsigned int blen;
     Py_ssize_t dlen;
     PyObject *ret;
@@ -407,7 +407,7 @@ PyObject *bytes_to_key(const EVP_CIPHER *cipher, EVP_MD *md,
                         int iter) {
     unsigned char key[EVP_MAX_KEY_LENGTH];
     const void *dbuf, *sbuf;
-    int dlen, klen;
+    int dlen = 0, klen;
     Py_ssize_t slen;
     PyObject *ret;
 
@@ -444,7 +444,7 @@ PyObject *cipher_init(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
 
 PyObject *cipher_update(EVP_CIPHER_CTX *ctx, PyObject *blob) {
     const void *buf;
-    int len, olen;
+    int len = 0, olen;
     void *obuf;
     PyObject *ret;
 
@@ -540,7 +540,7 @@ int verify_update(EVP_MD_CTX *ctx, PyObject *blob) {
 
 int verify_final(EVP_MD_CTX *ctx, PyObject *blob, EVP_PKEY *pkey) {
     unsigned char *kbuf;
-    int len;
+    int len = 0;
 
     if (m2_PyObject_AsReadBufferInt(blob, (const void **)&kbuf, &len) == -1)
         return -1;

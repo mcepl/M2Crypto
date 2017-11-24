@@ -169,7 +169,7 @@ m2_PyObject_AsBIGNUM(PyObject* value, PyObject* _py_exc)
 {
     BIGNUM* bn;
     const void* vbuf;
-    int vlen;
+    int vlen = 0;
 
     if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
@@ -504,7 +504,7 @@ void lib_init() {
 warrant a separate file. */
 
 PyObject *bn_to_mpi(const BIGNUM *bn) {
-    int len;
+    int len = 0;
     unsigned char *mpi;
     PyObject *pyo;
 
@@ -523,7 +523,7 @@ PyObject *bn_to_mpi(const BIGNUM *bn) {
 
 const BIGNUM *mpi_to_bn(PyObject *value) {
     const void *vbuf;
-    int vlen;
+    int vlen = 0;
 
     if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
@@ -532,7 +532,7 @@ const BIGNUM *mpi_to_bn(PyObject *value) {
 }
 
 PyObject *bn_to_bin(BIGNUM *bn) {
-    int len;
+    int len = 0;
     unsigned char *bin;
     PyObject *pyo;
 
@@ -551,7 +551,7 @@ PyObject *bn_to_bin(BIGNUM *bn) {
 
 const BIGNUM *bin_to_bn(PyObject *value) {
     const void *vbuf;
-    int vlen;
+    int vlen = 0;
 
     if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
         return NULL;
@@ -562,7 +562,7 @@ const BIGNUM *bin_to_bn(PyObject *value) {
 PyObject *bn_to_hex(BIGNUM *bn) {
     char *hex;
     PyObject *pyo;
-    Py_ssize_t len;
+    Py_ssize_t len = 0;
 
     hex = BN_bn2hex(bn);
     if (!hex) {
@@ -580,7 +580,7 @@ PyObject *bn_to_hex(BIGNUM *bn) {
 
 BIGNUM *hex_to_bn(PyObject *value) {
     const void *vbuf;
-    Py_ssize_t vlen;
+    Py_ssize_t vlen = 0;
     BIGNUM *bn;
 
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
@@ -600,7 +600,7 @@ BIGNUM *hex_to_bn(PyObject *value) {
 
 BIGNUM *dec_to_bn(PyObject *value) {
     const void *vbuf;
-    Py_ssize_t vlen;
+    Py_ssize_t vlen = 0;
     BIGNUM *bn;
 
     if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
@@ -623,7 +623,7 @@ BIGNUM *dec_to_bn(PyObject *value) {
 /* Various useful typemaps. */
 
 %typemap(in) Blob * {
-    Py_ssize_t len;
+    Py_ssize_t len = 0;
 
     if (!PyBytes_Check($input)) {
         PyErr_SetString(PyExc_TypeError, "expected PyString");
