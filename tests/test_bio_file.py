@@ -6,6 +6,8 @@ Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
 import logging
 import os
+import subprocess
+import sys
 import tempfile
 try:
     import unittest2 as unittest
@@ -32,7 +34,13 @@ class FileTestCase(unittest.TestCase):
     #       not on windows, add a fallback method, like
     #       os.fdopen().fileno()-1
     def mfd(self):
-        return int(os.listdir(self._proc)[-1])
+        if 'linux' in sys.platform:
+            return int(os.listdir(self._proc)[-1])
+        elif 'darwin' == sys.platform:  # osx does not have a procfs implemented
+            cmd = ['lsof', '-w', '-Ff', '-p', str(os.getpid())]
+            return len(subprocess.check_output(cmd).strip().split())
+        else:
+            raise NotImplementedError('Unsupported platform: %s' % sys.platform)
 
     def tearDown(self):
 
