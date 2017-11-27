@@ -124,6 +124,18 @@ class _M2CryptoBuildExt(build_ext.build_ext):
             if not self.openssl_default:
                 raise RuntimeError('cannot detect platform')
             self.openssl_default = os.path.join(self.openssl, 'OpenSSL')
+        elif sys.platform == 'darwin':
+            brew_openssl_prefix = os.path.join('/', 'usr', 'local', 'opt', 'openssl')
+            if os.path.exists(brew_openssl_prefix):
+                self.openssl = brew_openssl_prefix
+            else:
+                message = '''Detected Darwin/Mac OS X.
+    You can install OpenSSL with Homebrew (http://brew.sh/):
+    --------------------------
+    brew install openssl
+    '''
+                self.warn(message)
+                self.openssl_default = None
         else:
             self.openssl_default = None
 

@@ -156,6 +156,7 @@ class PassSSLClientTestCase(BaseSSLClientTestCase):
         pass
 
 
+@unittest.skipIf(sys.platform == 'darwin', 'tests fail on osx with the SSLError: dh key too small')
 class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
 
     def test_HTTPSConnection(self):
@@ -265,6 +266,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             httpslib.HTTPSConnection('example.org', badKeyword=True)
 
 
+@unittest.skipIf(sys.platform == 'darwin', 'tests fail on osx with the SSLError: dh key too small')
 class MiscSSLClientTestCase(BaseSSLClientTestCase):
 
     def test_no_connection(self):
@@ -829,6 +831,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
         self.assertIn('s_server -quiet -www', data)
 
 
+@unittest.skipIf(sys.platform == 'darwin', 'tests fail on osx with the SSLError: dh key too small')
 class UrllibSSLClientTestCase(BaseSSLClientTestCase):
 
     def test_urllib(self):
@@ -850,6 +853,7 @@ class UrllibSSLClientTestCase(BaseSSLClientTestCase):
     # def test_urllib_safe_context_fail(self):
 
 
+@unittest.skipIf(sys.platform == 'darwin', 'tests fail on osx with the SSLError: dh key too small')
 class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
 
     def test_urllib2(self):
@@ -931,6 +935,7 @@ class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
             self.stop_server(pid)
 
 
+@unittest.skipIf(sys.platform == 'darwin', 'tests fail on osx with the SSLError: dh key too small')
 @unittest.skipUnless(util.py27plus,
                      "Twisted doesn't test well with Python 2.6")
 class TwistedSSLClientTestCase(BaseSSLClientTestCase):
