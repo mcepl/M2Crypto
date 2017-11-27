@@ -1,20 +1,4 @@
-stages:
-    - centos6
-    # - python26
-    - python27
-    - python34
-    - python36
-    - fedora
-
-.python26:
-    stage: python26
-    image: yarara/python-2.6.9:v1
-    when: always
-    script:
-        - python setup.py clean build test
-
 fedora:
-    stage: fedora
     image: fedora:26
     when: always
     script:
@@ -24,7 +8,6 @@ fedora:
         - python setup.py build test
 
 centos6:
-    stage: centos6
     image: centos:6
     when: always
     script:
@@ -35,7 +18,6 @@ centos6:
         - python setup.py build test
 
 python27:
-    stage: python27
     image: python:2.7
     when: always
     script:
@@ -44,7 +26,6 @@ python27:
         - python setup.py clean build test
 
 python34:
-    stage: python34
     image: python:3.4
     when: always
     allow_failure: yes
@@ -55,7 +36,6 @@ python34:
         - python3 setup.py clean build test
 
 python36:
-    stage: python36
     image: python:3.6
     when: always
     allow_failure: yes
@@ -64,17 +44,3 @@ python36:
         - apt-get install -y swig libssl-dev libssl1.0.0 python3-dev openssl python3-setuptools
         - easy_install3 Twisted
         - python3 setup.py clean build test
-
-.pypy:
-    stage: pypy
-    image: pypy:2
-    when: always
-    allow_failure: yes
-    script:
-        - if [ \! -f /etc/apt/sources.list.d/jessie-backports.list ] ;
-          echo 'deb http://ftp.debian.org/debian jessie-backports main' > /etc/apt/sources.list.d/jessie-backports.list
-          ; fi
-        - apt-get update -q -y
-        - apt-get install -y swig libssl-dev libssl1.0.0 pypy-dev openssl pypy-setuptools
-        - easy_install Twisted
-        - pypy setup.py clean build test
