@@ -14,6 +14,7 @@ import glob
 import logging
 import os
 import platform
+import re
 import string
 import subprocess
 import sys
@@ -33,13 +34,10 @@ log = logging.getLogger('setup')
 REQUIRED_SWIG_VERSION = '2.0.4'
 
 
-if sys.version_info[:2] <= (2, 6):
-    # This covers hopefully only RHEL-6 (users of any other 2.6 Pythons
-    # ... Solaris?, *BSD? ... should file an issue and be prepared to
-    # help with adjusting this script.
-    requires_list = ["unittest2==0.5.1"]
-else:
+if sys.version_info[:2] > (2, 6):
     requires_list = ['typing']
+else:
+    requires_list = []
 
 
 def _get_additional_includes():
