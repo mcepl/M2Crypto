@@ -120,7 +120,8 @@ class _M2CryptoBuildExt(build_ext.build_ext):
                 self.openssl_default = os.environ.get('ProgramFiles')
             if not self.openssl_default:
                 raise RuntimeError('cannot detect platform')
-            self.openssl_default = os.path.join(self.openssl, 'OpenSSL')
+            self.openssl_default = os.path.join(self.openssl_default,
+                                               'OpenSSL')
         else:
             self.openssl_default = None
 
