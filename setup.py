@@ -70,16 +70,16 @@ def openssl_version(ossldir, req_ver, required=False):
             m = re.match(r'^# *define  *OPENSSL_VERSION_NUMBER  *(0x[0-9a-fA-F]*)', line)
             if m:
                 log.debug('found version number: %s\n' % m.group(1))
-                ver = int(m.group(1))
+                ver = int(m.group(1), base=16)
                 break
 
     if ver is None:
         raise OSError('Unknown format of file %s\n' % file)
 
     if required:
-        return StrictVersion(ver) >= StrictVersion(req_ver)
+        return ver >= req_ver
     else:
-        return StrictVersion(ver) < StrictVersion(req_ver)
+        return ver < req_ver
 
 
 class _M2CryptoBuild(build.build):
