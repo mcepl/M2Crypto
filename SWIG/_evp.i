@@ -216,7 +216,7 @@ RSA *pkey_get1_rsa(EVP_PKEY *pkey) {
         /* _evp_err now inherits from PyExc_ValueError, so we should
          * keep API intact.
          */
-        PyErr_Format(_evp_err, "Invalid key in function %s.", __func__);
+        PyErr_Format(_evp_err, "Invalid key in function %s.", __FUNCTION__);
     }
 
     return ret;
@@ -614,7 +614,7 @@ EVP_PKEY *pkey_new(void) {
 
     if ((ret = EVP_PKEY_new()) == NULL) {
         PyErr_Format(PyExc_MemoryError,
-                     "Insufficient memory for new key in function %s.", __func__);
+                     "Insufficient memory for new key in function %s.", __FUNCTION__);
     }
 
     return ret;
@@ -631,7 +631,7 @@ EVP_PKEY *pkey_read_pem(BIO *f, PyObject *pyfunc) {
 
     if (pk == NULL) {
         PyErr_Format(_evp_err,
-                     "Unable to read private key in function %s.", __func__);
+                     "Unable to read private key in function %s.", __FUNCTION__);
     }
 
     return pk;
@@ -648,7 +648,7 @@ EVP_PKEY *pkey_read_pem_pubkey(BIO *f, PyObject *pyfunc) {
 
     if (pk == NULL) {
         PyErr_Format(_evp_err,
-                     "Unable to read public key in function %s.", __func__);
+                     "Unable to read public key in function %s.", __FUNCTION__);
     }
 
     return pk;

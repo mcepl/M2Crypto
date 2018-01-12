@@ -219,7 +219,9 @@ PyObject *m2_PyFile_Name(PyObject *pyfile) {
     return out;
 }
 
-#define m2_PyErr_Msg(type) m2_PyErr_Msg_Caller(type, __func__)
+/* Yes, __FUNCTION__ is a non-standard symbol, but it is supported by
+ * both gcc and MSVC. */
+#define m2_PyErr_Msg(type) m2_PyErr_Msg_Caller(type, (const char*) __FUNCTION__)
 
 static void m2_PyErr_Msg_Caller(PyObject *err_type, const char* caller) {
     const char *err_msg;
