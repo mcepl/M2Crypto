@@ -9,6 +9,8 @@ Portions created by Open Source Applications Foundation (OSAF) are
 Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 
 Copyright 2008-2011 Heikki Toivonen. All rights reserved.
+
+Copyright 2018 Daniel Wozniak. All rights reserved.
 """
 import glob
 import logging
@@ -40,13 +42,19 @@ else:
 
 
 def _get_additional_includes():
-    pid = subprocess.Popen(['cpp', '-Wp,-v', '-'],
-                           stdin=open(os.devnull, 'r'),
-                           stdout=subprocess.PIPE,
-                           stderr=subprocess.PIPE)
-    _, err = pid.communicate()
-    err = [line.lstrip() for line in err.decode('utf8').split('\n')
-           if line and line.startswith(' /')]
+    if os.name == 'nt':
+        globmask = os.path.join('C:', os.sep, 'Program Files*',
+                                '*Visual*', 'VC', 'include')
+        err = glob.glob(globmask)
+    else:
+        pid = subprocess.Popen(['cpp', '-Wp,-v', '-'],
+                               stdin=open(os.devnull, 'r'),
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.PIPE)
+        _, err = pid.communicate()
+        err = [line.lstrip() for line in err.decode('utf8').split('\n')
+               if line and line.startswith(' /')]
+
     log.debug('additional includes:\n%s', err)
     return err
 
@@ -108,40 +116,26 @@ class _M2CryptoBuildExt(build_ext.build_ext):
     def finalize_options(self):
         """Append custom openssl include file and library linking options."""
         build_ext.build_ext.finalize_options(self)
-
-        # openssl is the attribute corresponding to openssl directory prefix
-        # command line option
-        if os.name == 'nt':
-            if platform.architecture()[0] == '32bit':
-                self.openssl_default = os.environ.get('ProgramFiles(86)')
-            else:
-                self.openssl_default = os.environ.get('ProgramW6432')
-            if not self.openssl_default:
-                self.openssl_default = os.environ.get('ProgramFiles')
-            if not self.openssl_default:
-                raise RuntimeError('cannot detect platform')
-            self.openssl_default = os.path.join(self.openssl_default,
-                                               'OpenSSL')
-        else:
-            self.openssl_default = None
-
+        self.openssl_default = None
         self.set_undefined_options('build', ('openssl', 'openssl'))
         if self.openssl is None:
             self.openssl = self.openssl_default
 
         self.libraries = ['ssl', 'crypto']
-        if self.openssl is not None:
-            if os.name == 'nt':
-                if openssl_version(self.openssl, 0x10100000):
-                    self.libraries = ['ssleay32', 'libeay32']
-                else:
-                    self.libraries = ['libssl', 'libcrypto']
+        if sys.platform == 'win32':
+            self.libraries = ['ssleay32', 'libeay32']
+            if self.openssl and openssl_version(self.openssl, 0x10100000, True):
+                self.libraries = ['libssl', 'libcrypto']
+                self.swig_opts.append('-D_WIN32')
+                # Swig doesn't know the version of MSVC, which causes errors in e_os2.h
+                # trying to import stdint.h. Since python 2.7 is intimately tied to
+                # MSVC 2008, it's harmless for now to define this. Will come back to
+                # this shortly to come up with a better fix.
+                self.swig_opts.append('-D_MSC_VER=1500')
 
-        if not self.swig_opts:
-            if sys.version_info[:1] >= (3,):
-                self.swig_opts = ['-py3']
-            else:
-                self.swig_opts = []
+
+        if sys.version_info[:1] >= (3,):
+            self.swig_opts.append('-py3')
 
         log.debug('self.include_dirs = %s', self.include_dirs)
         log.debug('self.library_dirs = %s', self.library_dirs)
@@ -153,6 +147,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
 
             self.library_dirs.append(openssl_library_dir)
             self.include_dirs.append(openssl_include_dir)
+
             log.debug('self.include_dirs = %s', self.include_dirs)
             log.debug('self.library_dirs = %s', self.library_dirs)
 
@@ -196,13 +191,6 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         self.swig_opts.append('-includeall')
         self.swig_opts.append('-modern')
         self.swig_opts.append('-builtin')
-
-        # Swig doesn't know the version of MSVC, which causes errors in e_os2.h
-        # trying to import stdint.h. Since python 2.7 is intimately tied to
-        # MSVC 2008, it's harmless for now to define this. Will come back to
-        # this shortly to come up with a better fix.
-        if os.name == 'nt':
-            self.swig_opts.append('-D_MSC_VER=1500')
 
         # These two lines are a workaround for
         # http://bugs.python.org/issue2624 , hard-coding that we are only
@@ -261,11 +249,10 @@ x_comp_args = set()
 
 # We take care of deprecated functions in OpenSSL with our code, no need
 # to spam compiler output with it.
-x_comp_args.add("-Wno-deprecated-declarations")
 if sys.platform == 'win32':
     x_comp_args.update(['-DTHREADING', '-D_CRT_SECURE_NO_WARNINGS'])
 else:
-    x_comp_args.add('-DTHREADING')
+    x_comp_args.update(['-DTHREADING', '-Wno-deprecated-declarations'])
 
 # Don't try to run swig on the ancient platforms
 if swig_version(REQUIRED_SWIG_VERSION):
