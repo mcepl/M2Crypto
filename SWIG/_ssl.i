@@ -495,14 +495,14 @@ static void ssl_handle_error(int ssl_err, int ret) {
             else
                 assert(0);
             break;
-		default:
+        default:
             PyErr_SetString(_ssl_err, "unexpected SSL error");
      }
 }
 
 #ifdef _WIN32
 /* http://stackoverflow.com/questions/10905892/equivalent-of-gettimeday-for-windows */
-int gettimeofday(struct timeval * tp, struct timezone * tzp)
+int gettimeofday(struct timeval *tp, void *tzp)
 {
     // Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
     static const uint64_t EPOCH = ((uint64_t) 116444736000000000ULL);
@@ -525,7 +525,7 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp)
 static int ssl_sleep_with_timeout(SSL *ssl, const struct timeval *start,
                                   double timeout, int ssl_err) {
 #ifdef _WIN32
-struct WSAPOLLFD fd;
+WSAPOLLFD fd;
 #else
 struct pollfd fd;
 #endif

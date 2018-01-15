@@ -21,6 +21,16 @@
 #endif
 
 %{
+#ifdef _WIN32
+#define _WINSOCKAPI_
+#include <WinSock2.h>
+#include <Windows.h>
+#pragma comment(lib, "Ws2_32")
+typedef unsigned __int64 uint64_t;
+#endif
+%}
+
+%{
 #if defined __GNUC__ && __GNUC__ < 5
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic warning "-Wstrict-prototypes"

@@ -8,6 +8,7 @@
 #include <openssl/ecdsa.h>
 #include <openssl/dh.h>
 #include <openssl/evp.h>
+#include <openssl/x509.h>
 
 int RSA_set0_key(RSA *r, BIGNUM *n, BIGNUM *e, BIGNUM *d);
 int RSA_set0_factors(RSA *r, BIGNUM *p, BIGNUM *q);

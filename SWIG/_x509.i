@@ -714,6 +714,7 @@ make_stack_from_der_sequence(PyObject * pyEncodedString){
     STACK_OF(X509) *certs;
     Py_ssize_t encoded_string_len;
     char *encoded_string;
+    const unsigned char *tmp_str;
 
     encoded_string_len = PyBytes_Size(pyEncodedString);
 
@@ -730,13 +731,12 @@ make_stack_from_der_sequence(PyObject * pyEncodedString){
         return NULL;
     }
 
-    const unsigned char *tmp_str = (unsigned char *)encoded_string;
+    tmp_str = (unsigned char *)encoded_string;
     certs = d2i_SEQ_CERT(NULL, &tmp_str, encoded_string_len);
     if (certs == NULL) {
         PyErr_SetString(_x509_err, "Generating STACK_OF(X509) failed.");
         return NULL;
     }
-
     return certs;
 }
 
