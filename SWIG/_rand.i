@@ -126,13 +126,13 @@ PyObject *rand_file_name(void) {
 }
 
 void rand_screen(void) {
-#ifdef __WINDOWS__
+#ifdef _WIN32
     RAND_screen();
 #endif
 }
 
 int rand_win32_event(unsigned int imsg, int wparam, long lparam) {
-#ifdef __WINDOWS__
+#ifdef _WIN32
     return RAND_event(imsg, wparam, lparam);
 #else
     return 0;

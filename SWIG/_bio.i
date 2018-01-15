@@ -298,7 +298,7 @@ int bio_should_write(BIO* a) {
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
 /* implment custom BIO_s_pyfd */
 
-#ifdef WIN32
+#ifdef _WIN32
 #  define clear_sys_error()       SetLastError(0)
 /* Linux doesn't use underscored calls yet */
 #  define open(p, f, m) _open(p, f, m)

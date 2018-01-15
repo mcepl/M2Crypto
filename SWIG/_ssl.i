@@ -9,7 +9,7 @@
 */
 /* $Id$ */
 %begin %{
-#ifdef _MSC_VER
+#ifdef _WIN32
 #include <Winsock2.h>
 #pragma comment(lib, "Ws2_32")
 typedef unsigned __int64 uint64_t;
@@ -23,7 +23,7 @@ typedef unsigned __int64 uint64_t;
 #include <openssl/ssl.h>
 #include <openssl/tls1.h>
 #include <openssl/x509.h>
-#ifndef _MSC_VER
+#ifndef _WIN32
 #include <poll.h>
 #include <sys/time.h>
 #endif
@@ -502,7 +502,7 @@ static void ssl_handle_error(int ssl_err, int ret) {
      }
 }
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 /* http://stackoverflow.com/questions/10905892/equivalent-of-gettimeday-for-windows */
 int gettimeofday(struct timeval * tp, struct timezone * tzp)
 {
@@ -576,7 +576,7 @@ struct pollfd fd;
         return -1;
     }
     Py_BEGIN_ALLOW_THREADS
-#ifdef _MSC_VER
+#ifdef _WIN32
     tmp = WSAPoll(&fd, 1, ms);
 #else
     tmp = poll(&fd, 1, ms);
@@ -588,7 +588,7 @@ struct pollfd fd;
     	case 0:
             goto timeout;
     	case -1:
-#ifdef _MSC_VER
+#ifdef _WIN32
             if (WSAGetLastError() == EINTR)
 #else
             if (errno == EINTR)
