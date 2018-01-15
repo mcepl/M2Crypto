@@ -101,10 +101,11 @@ BIO * bio_new_file(const char *filename, const char *mode) {
 
 BIO *bio_new_pyfile(PyObject *pyfile, int bio_close) {
     FILE *fp = NULL;
+    BIO *bio = NULL;
 
     fp = PyFile_AsFile(pyfile);
 
-    BIO *bio = BIO_new_fp(fp, bio_close);
+    bio = BIO_new_fp(fp, bio_close);
 
     /* returns NULL if error occurred */
     if (bio == NULL) {

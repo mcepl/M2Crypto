@@ -275,7 +275,9 @@ int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
     }
 
     if (new_style_callback) {
-        PyObject *x509mod = PyDict_GetItemString(PyImport_GetModuleDict(), "M2Crypto.X509");
+        PyObject *x509mod;
+        
+        x509mod = PyDict_GetItemString(PyImport_GetModuleDict(), "M2Crypto.X509");
         _klass = PyObject_GetAttrString(x509mod, "X509_Store_Context");
 
         _x509_store_ctx_swigptr = SWIG_NewPointerObj((void *)ctx, SWIGTYPE_p_X509_STORE_CTX, 0);
@@ -339,13 +341,14 @@ int x509_store_verify_callback(int ok, X509_STORE_CTX *ctx) {
     PyObject *_x509_store_ctx_swigptr=0, *_x509_store_ctx_obj=0, *_x509_store_ctx_inst=0, *_klass=0;
     int cret;
     PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
+    PyObject *x509mod;
 
 
     gilstate = PyGILState_Ensure();
 
     /* Below, handle only what is called 'new style callback' in ssl_verify_callback().
        TODO: does 'old style callback' exist any more? */
-    PyObject *x509mod = PyDict_GetItemString(PyImport_GetModuleDict(), "M2Crypto.X509");
+    x509mod = PyDict_GetItemString(PyImport_GetModuleDict(), "M2Crypto.X509");
     _klass = PyObject_GetAttrString(x509mod, "X509_Store_Context");
     _x509_store_ctx_swigptr = SWIG_NewPointerObj((void *)ctx, SWIGTYPE_p_X509_STORE_CTX, 0);
     _x509_store_ctx_obj = Py_BuildValue("(Oi)", _x509_store_ctx_swigptr, 0);

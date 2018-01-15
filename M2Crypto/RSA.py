@@ -45,7 +45,7 @@ class RSA:
 
     def __len__(self):
         # type: () -> int
-        return m2.rsa_size(self.rsa) << 3
+        return int(m2.rsa_size(self.rsa) << 3)
 
     def __getattr__(self, name):
         # type: (str) -> bytes

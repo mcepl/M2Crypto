@@ -36,7 +36,7 @@ class DH:
     def __len__(self):
         # type: () -> int
         assert m2.dh_type_check(self.dh), "'dh' type error"
-        return m2.dh_size(self.dh)
+        return int(m2.dh_size(self.dh))
 
     def __getattr__(self, name):
         # type: (str) -> bytes
