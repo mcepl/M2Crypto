@@ -8,13 +8,6 @@
 **
 */
 /* $Id$ */
-%begin %{
-#ifdef _WIN32
-#include <Winsock2.h>
-#pragma comment(lib, "Ws2_32")
-typedef unsigned __int64 uint64_t;
-#endif
-%}
 %{
 #include <pythread.h>
 #include <limits.h>
@@ -23,7 +16,12 @@ typedef unsigned __int64 uint64_t;
 #include <openssl/ssl.h>
 #include <openssl/tls1.h>
 #include <openssl/x509.h>
-#ifndef _WIN32
+#ifdef _WIN32
+#include <WinSock2.h>
+#include <Windows.h>
+#pragma comment(lib, "Ws2_32")
+typedef unsigned __int64 uint64_t;
+#else
 #include <poll.h>
 #include <sys/time.h>
 #endif
