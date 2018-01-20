@@ -6,6 +6,7 @@ Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
 import logging
 import os
+import platform
 import tempfile
 try:
     import unittest2 as unittest
@@ -23,22 +24,26 @@ class FileTestCase(unittest.TestCase):
         self.data = b'abcdef' * 64
         self.fd, self.fname = tempfile.mkstemp()
 
-        # mvyskocil: to check leaks of file descriptors
-        self._proc = "/proc/{0}/fd/".format(os.getpid())
-        self.max_fd = self.mfd()
+        # This could possibly work with other systems having proc
+        # filesystem, e.g. FreeBSD? Certainly it does NOT work on Macs
+        # https://gitlab.com/m2crypto/m2crypto/issues/196
+        if platform.system() in ['Linux']:
+            self._proc = "/proc/{0}/fd/".format(os.getpid())
+            self.max_fd = self.mfd()
 
-    # FIXME: this indeed does work on Linux and probably other *nixes,
-    # but definitelly
-    #       not on windows, add a fallback method, like
+    # FIXME: this does not work on Windows and Macs provide and test
+    # a fallback method, like
     #       os.fdopen().fileno()-1
     def mfd(self):
-        return int(os.listdir(self._proc)[-1])
+        if hasattr(self, '_proc'):
+            return int(os.listdir(self._proc)[-1])
 
     def tearDown(self):
 
-        self.assertEqual(
-            self.max_fd, self.mfd(),
-            "last test did not close all file descriptors properly")
+        if hasattr(self, '_proc'):
+            self.assertEqual(
+                self.max_fd, self.mfd(),
+                "last test did not close all file descriptors properly")
 
         try:
             os.close(self.fd)
