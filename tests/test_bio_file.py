@@ -24,14 +24,16 @@ class FileTestCase(unittest.TestCase):
         self.data = b'abcdef' * 64
         self.fd, self.fname = tempfile.mkstemp()
 
-        # This could possibly work with other systems having proc
-        # filesystem, e.g. FreeBSD? Certainly it does NOT work on Macs
-        # https://gitlab.com/m2crypto/m2crypto/issues/196
         if platform.system() in ['Linux']:
             self._proc = "/proc/{0}/fd/".format(os.getpid())
-            self.max_fd = self.mfd()
+        elif platform.system() in ['Darwin', 'FreeBSD']:
+            self._proc = "/dev/fd/"
+        else:
+            self.skipTest('File descriptors directory not found.')
 
-    # FIXME: this does not work on Windows and Macs provide and test
+        self.max_fd = self.mfd()
+
+    # FIXME: this does not work on Windows. Provide and test
     # a fallback method, like
     #       os.fdopen().fileno()-1
     def mfd(self):
