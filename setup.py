@@ -33,8 +33,7 @@ log = logging.getLogger('setup')
 
 REQUIRED_SWIG_VERSION = '2.0.4'
 
-
-if sys.version_info[:2] > (2, 6):
+if (2, 6) < sys.version_info[:2] < (3, 5):
     requires_list = ['typing']
 else:
     requires_list = []
