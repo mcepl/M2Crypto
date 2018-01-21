@@ -249,7 +249,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
 class HttpslibSSLSNIClientTestCase(BaseSSLClientTestCase):
     def setUp(self):
         super(HttpslibSSLSNIClientTestCase, self).setUp()
-        self.args = ['s_server', '-servername', srv_host, '-debug', '-www',
+        self.args = ['s_server', '-servername', srv_host, '-debug', '-www', '-msg',
                      '-cert', 'server.pem', '-key', 'server_key.pem',
                      '-cert2', 'server.pem', '-key2', 'server_key.pem',
                      '-accept', str(self.srv_port)]
