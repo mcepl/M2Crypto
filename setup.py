@@ -47,7 +47,7 @@ def _get_additional_includes():
                            stderr=subprocess.PIPE)
     _, err = pid.communicate()
     err = [line.lstrip() for line in err.decode('utf8').split('\n')
-           if line and line[0] == ' ']
+           if line and line.startswith(' /')]
     log.debug('additional includes:\n%s', err)
     return err
 
