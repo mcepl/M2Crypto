@@ -24,28 +24,26 @@ class FileTestCase(unittest.TestCase):
         self.data = b'abcdef' * 64
         self.fd, self.fname = tempfile.mkstemp()
 
-        if platform.system() in ['Linux']:
-            self._proc = "/proc/{0}/fd/".format(os.getpid())
-        elif platform.system() in ['Darwin', 'FreeBSD']:
-            self._proc = "/dev/fd/"
+        if platform.system() in ['Linux', 'Darwin', 'FreeBSD']:
+            self.__dev_fd = "/dev/fd/"
         else:
             self.skipTest('File descriptors directory not found.')
 
-        self.max_fd = self.mfd()
+        self.fd_count = self.__mfd()
 
-    # FIXME: this does not work on Windows. Provide and test
+    # TODO: this does not work on Windows. Provide and test
     # a fallback method, like
     #       os.fdopen().fileno()-1
-    def mfd(self):
-        if hasattr(self, '_proc'):
-            return int(os.listdir(self._proc)[-1])
+    # or use GetProcessHandleCount
+    # (https://stackoverflow.com/a/15371085/164233 and https://is.gd/n6v28O)
+    def __mfd(self):
+        if hasattr(self, '__dev_fd'):
+            return len(os.listdir(self.__dev_fd))
 
     def tearDown(self):
 
-        if hasattr(self, '_proc'):
-            self.assertEqual(
-                self.max_fd, self.mfd(),
-                "last test did not close all file descriptors properly")
+        self.assertEqual(self.fd_count, self.__mfd(),
+                         "last test did not close all file descriptors properly")
 
         try:
             os.close(self.fd)
