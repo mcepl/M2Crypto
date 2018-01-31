@@ -20,6 +20,7 @@ def suite():
         return mod
 
     modules_to_test = [
+        'tests.test_aes',
         'tests.test_asn1',
         'tests.test_bio',
         'tests.test_bio_membuf',

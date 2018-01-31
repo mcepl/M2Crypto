@@ -41,8 +41,8 @@ void AES_free(AES_KEY *key) {
 }
 
 /* 
-// op == 0: decrypt
-// otherwise: encrypt (Python code will supply the value 1.)
+// op == 0: encrypt
+// otherwise: decrypt (Python code will supply the value 1.)
 */
 PyObject *AES_set_key(AES_KEY *key, PyObject *value, int bits, int op) { 
     const void *vbuf; 
@@ -59,8 +59,8 @@ PyObject *AES_set_key(AES_KEY *key, PyObject *value, int bits, int op) {
 }
 
 /* 
-// op == 0: decrypt
-// otherwise: encrypt (Python code will supply the value 1.)
+// op == 0: encrypt
+// otherwise: decrypt (Python code will supply the value 1.)
 */
 PyObject *AES_crypt(const AES_KEY *key, PyObject *in, int outlen, int op) {
     const void *buf;
