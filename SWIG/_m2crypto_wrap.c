@@ -5004,13 +5004,13 @@ BIO *bio_new_pyfile(PyObject *pyfile, int bio_close) {
             fp = fdopen(fd, mode);
         }
         else {
-            PyErr_Format(PyExc_ValueError,
+            PyErr_Format(_bio_err,
                          "File doesn’t have mode attribute!");
             return NULL;
         }
     }
     else {
-        PyErr_Format(PyExc_ValueError, "File doesn’t have fileno method!");
+        PyErr_Format(_bio_err, "File doesn’t have fileno method!");
         return NULL;
     }
 
@@ -5027,7 +5027,7 @@ BIO *bio_new_pyfile(PyObject *pyfile, int bio_close) {
                     PyObject_CallMethod(pyfile, "name", NULL), NULL);
         }
         else {
-            PyErr_Format(PyExc_ValueError,
+            PyErr_Format(_bio_err,
                          "File doesn’t have name attribute!");
             return NULL;
         }
@@ -5661,11 +5661,11 @@ PyObject *rand_bytes(int n) {
         PyMem_Free(blob);
         return obj;
     } else if (ret == 0) {
-        PyErr_SetString(PyExc_ValueError, "Not enough randomness.");
+        PyErr_SetString(_rand_err, "Not enough randomness.");
         PyMem_Free(blob);
         return NULL;
     } else if (ret == -1) {
-        PyErr_SetString(PyExc_ValueError,
+        PyErr_SetString(_rand_err,
                         "Not supported by the current RAND method.");
         PyMem_Free(blob);
         return NULL;
@@ -5793,9 +5793,10 @@ RSA *pkey_get1_rsa(EVP_PKEY *pkey) {
     RSA *ret = NULL;
 
     if ((ret = EVP_PKEY_get1_RSA(pkey)) == NULL) {
-        /* Yes, _evp_err would be better, but unfortunately
-           this is part of API. */
-        PyErr_Format(PyExc_ValueError, "Invalid key in function %s.", __func__);
+        /* _evp_err now inherits from PyExc_ValueError, so we should
+         * keep API intact.
+         */
+        PyErr_Format(_evp_err, "Invalid key in function %s.", __func__);
     }
 
     return ret;
@@ -6219,7 +6220,7 @@ PyObject *pkey_as_der(EVP_PKEY *pkey) {
     PyObject * der;
     len = i2d_PUBKEY(pkey, &pp);
     if (len < 0){
-        PyErr_SetString(PyExc_ValueError, "EVP_PKEY as DER failed");
+        PyErr_SetString(_evp_err, "EVP_PKEY as DER failed");
         return NULL;
     }
 
@@ -6296,7 +6297,7 @@ PyObject *pkey_get_modulus(EVP_PKEY *pkey)
             break;
 
         default:
-            PyErr_SetString(PyExc_ValueError, "unsupported key type");
+            PyErr_SetString(_evp_err, "unsupported key type");
             return NULL;
     }
 }
@@ -6337,34 +6338,34 @@ void AES_free(AES_KEY *key) {
 }
 
 /* 
-// op == 0: decrypt
-// otherwise: encrypt (Python code will supply the value 1.)
+// op == 0: encrypt
+// otherwise: decrypt (Python code will supply the value 1.)
 */
 PyObject *AES_set_key(AES_KEY *key, PyObject *value, int bits, int op) { 
-    const void *vbuf; 
+    char *vbuf; 
     Py_ssize_t vlen;
 
-    if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+    if (PyBytes_AsStringAndSize(value, &vbuf, &vlen) == -1)
         return NULL;
 
     if (op == 0) 
-        AES_set_encrypt_key(vbuf, bits, key);
+        AES_set_encrypt_key((const unsigned char *)vbuf, bits, key);
     else
-        AES_set_decrypt_key(vbuf, bits, key);
+        AES_set_decrypt_key((const unsigned char *)vbuf, bits, key);
     Py_RETURN_NONE;
 }
 
 /* 
-// op == 0: decrypt
-// otherwise: encrypt (Python code will supply the value 1.)
+// op == 0: encrypt
+// otherwise: decrypt (Python code will supply the value 1.)
 */
 PyObject *AES_crypt(const AES_KEY *key, PyObject *in, int outlen, int op) {
-    const void *buf;
+    char *buf;
     Py_ssize_t len;
     unsigned char *out;
     PyObject *res;
 
-    if (PyObject_AsReadBuffer(in, &buf, &len) == -1)
+    if (PyBytes_AsStringAndSize(in, &buf, &len) == -1)
         return NULL;
 
     if (!(out=(unsigned char *)PyMem_Malloc(outlen))) {
@@ -6372,10 +6373,10 @@ PyObject *AES_crypt(const AES_KEY *key, PyObject *in, int outlen, int op) {
         return NULL;
     }
     if (op == 0)
-        AES_encrypt((const unsigned char *)in, out, key);
+        AES_encrypt((const unsigned char *)buf, out, key);
     else
-        AES_decrypt((const unsigned char *)in, out, key);
-    return PyBytes_FromStringAndSize((char*)out, outlen);
+        AES_decrypt((const unsigned char *)buf, out, key);
+    res = PyBytes_FromStringAndSize((char*)out, outlen);
     PyMem_Free(out);
     return res;
 }
@@ -22649,7 +22650,7 @@ SWIGINTERN PyObject *_wrap_x509_name_entry_set_data(PyObject *self, PyObject *ar
       
       
       if (len > INT_MAX) {
-        PyErr_SetString(PyExc_ValueError, "object too large");
+        PyErr_SetString(_x509_err, "object too large");
         return NULL;
       }
       arg4 = len;
