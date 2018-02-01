@@ -76,9 +76,9 @@ PyObject *AES_crypt(const AES_KEY *key, PyObject *in, int outlen, int op) {
         return NULL;
     }
     if (op == 0)
-        AES_encrypt((const unsigned char *)in, out, key);
+        AES_encrypt((const unsigned char *)buf, out, key);
     else
-        AES_decrypt((const unsigned char *)in, out, key);
+        AES_decrypt((const unsigned char *)buf, out, key);
     res = PyBytes_FromStringAndSize((char*)out, outlen);
     PyMem_Free(out);
     return res;
