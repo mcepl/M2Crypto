@@ -432,9 +432,9 @@ class TLSProtocolWrapper(ProtocolWrapper):
     def _encrypt(self, data=b'', clientHello=0):
         # type: (bytes, int) -> bytes
         """
-        @param data:
-        @param clientHello:
-        @return:
+        :param data:
+        :param clientHello:
+        :return:
         """
         encryptedData = b''
         self.data += data
