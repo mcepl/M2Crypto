@@ -1,9 +1,15 @@
-0.28.0 - 2017-10-??
+0.28.0 - 2018-02-08
 -------------------
 - Mainly port to Python 3 (supporting 2.6, 2.7, 3.3, 3.4, 3.5, 3.6)
 - Some lame efforts to make setup.py build --openssl work better (needs
   more real testing on Mac OS X)
 - Fix licence: it is MIT, not BSD
+- Fix and add tests for SWIG/_aes.i module
+- Improve somehow situation on Mac OS X (some testing, improve setup.py,
+  testsuite should fully pass)
+- Bundle-in unittest2 for Python 2.6 (dealing with the need for
+  specific version of unittest2 package was too complicated)
+- Remove all PGP modules
 
 0.27.0 - 2017-10-05
 -------------------
