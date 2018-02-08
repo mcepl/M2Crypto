@@ -161,13 +161,15 @@ class _M2CryptoBuildExt(build_ext.build_ext):
             mach = platform.machine().lower()
             if mach in ('i386', 'i486', 'i586', 'i686'):
                 arch = '__i386__'
-            elif mach in ('ppc64', 'powerpc64'):
+            elif mach in ('ppc64', 'powerpc64', 'ppc64le', 'ppc64el'):
                 arch = '__powerpc64__'
             elif mach in ('ppc', 'powerpc'):
                 arch = '__powerpc__'
             else:
                 arch = '__%s__' % mach
             self.swig_opts.append('-D%s' % arch)
+            if mach in ('ppc64le', 'ppc64el'):
+                self.swig_opts.append('-D_CALL_ELF=2')
 
         self.swig_opts.extend(['-I%s' % i for i in self.include_dirs])
 
