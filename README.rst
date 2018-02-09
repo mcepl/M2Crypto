@@ -4,6 +4,7 @@ M2Crypto
 
 :Maintainer: Matěj Cepl
 :Web-Site: https://gitlab.com/m2crypto/m2crypto
+:Documentation: https://m2crypto.readthedocs.io/
 :Email list: m2crypto@lists.redcrew.org or http://redcrew.org/mailman/listinfo/m2crypto
 :IRC channel: `#m2crypto`_ on Freenode
 
