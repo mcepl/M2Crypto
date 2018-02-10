@@ -292,7 +292,7 @@ void ssl_ctx_passphrase_callback(SSL_CTX *ctx, PyObject *pyfunc) {
 
 int ssl_ctx_use_x509(SSL_CTX *ctx, X509 *x) {
     int i;
-    
+
     if (!(i = SSL_CTX_use_certificate(ctx, x))) {
         m2_PyErr_Msg(_ssl_err);
         return -1;
@@ -303,7 +303,7 @@ int ssl_ctx_use_x509(SSL_CTX *ctx, X509 *x) {
 
 int ssl_ctx_use_cert(SSL_CTX *ctx, char *file) {
     int i;
-    
+
     if (!(i = SSL_CTX_use_certificate_file(ctx, file, SSL_FILETYPE_PEM))) {
         m2_PyErr_Msg(_ssl_err);
         return -1;
@@ -324,7 +324,7 @@ int ssl_ctx_use_cert_chain(SSL_CTX *ctx, char *file) {
 
 int ssl_ctx_use_privkey(SSL_CTX *ctx, char *file) {
     int i;
-    
+
     if (!(i = SSL_CTX_use_PrivateKey_file(ctx, file, SSL_FILETYPE_PEM))) {
         m2_PyErr_Msg(_ssl_err);
         return -1;
@@ -355,7 +355,7 @@ int ssl_ctx_use_pkey_privkey(SSL_CTX *ctx, EVP_PKEY *pkey) {
 
 int ssl_ctx_check_privkey(SSL_CTX *ctx) {
     int ret;
-    
+
     if (!(ret = SSL_CTX_check_private_key(ctx))) {
         m2_PyErr_Msg(_ssl_err);
         return -1;
@@ -470,7 +470,7 @@ int ssl_set_session_id_context(SSL *ssl, PyObject *sid_ctx) {
 
 int ssl_set_fd(SSL *ssl, int fd) {
     int ret;
-    
+
     if (!(ret = SSL_set_fd(ssl, fd))) {
         m2_PyErr_Msg(_ssl_err);
         return -1;
@@ -526,7 +526,11 @@ int gettimeofday(struct timeval * tp, struct timezone * tzp)
 
 static int ssl_sleep_with_timeout(SSL *ssl, const struct timeval *start,
                                   double timeout, int ssl_err) {
-    struct pollfd fd;
+#ifdef _WIN32
+struct WSAPOLLFD fd;
+#else
+struct pollfd fd;
+#endif
     struct timeval tv;
     int ms, tmp;
 
@@ -750,13 +754,13 @@ PyObject *ssl_read_nbio(SSL *ssl, int num) {
         PyErr_SetString(PyExc_MemoryError, "ssl_read");
         return NULL;
     }
-    
-    
+
+
     Py_BEGIN_ALLOW_THREADS
     r = SSL_read(ssl, buf, num);
     Py_END_ALLOW_THREADS
-    
-    
+
+
     switch (SSL_get_error(ssl, r)) {
         case SSL_ERROR_NONE:
         case SSL_ERROR_ZERO_RETURN:
@@ -787,8 +791,8 @@ PyObject *ssl_read_nbio(SSL *ssl, int num) {
             break;
     }
     PyMem_Free(buf);
-    
-    
+
+
     return obj;
 }
 
@@ -833,7 +837,7 @@ int ssl_write(SSL *ssl, PyObject *blob, double timeout) {
         default:
             ret = -1;
     }
-    
+
     m2_PyBuffer_Release(blob, &buf);
     return ret;
 }
@@ -847,12 +851,12 @@ int ssl_write_nbio(SSL *ssl, PyObject *blob) {
         return -1;
     }
 
-    
+
     Py_BEGIN_ALLOW_THREADS
     r = SSL_write(ssl, buf.buf, buf.len);
     Py_END_ALLOW_THREADS
-    
-    
+
+
     switch (SSL_get_error(ssl, r)) {
         case SSL_ERROR_NONE:
         case SSL_ERROR_ZERO_RETURN:
@@ -877,7 +881,7 @@ int ssl_write_nbio(SSL *ssl, PyObject *blob) {
         default:
             ret = -1;
     }
-    
+
     m2_PyBuffer_Release(blob, &buf);
     return ret;
 }
