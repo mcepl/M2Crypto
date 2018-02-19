@@ -11,8 +11,11 @@ from M2Crypto.SSL.Connection import Connection
 from M2Crypto.SSL.Context import Context  # noqa
 from M2Crypto import six  # noqa
 from M2Crypto import util  # noqa
-from M2Crypto.six.moves.socketserver import (BaseServer, ForkingMixIn,
-                                             TCPServer, ThreadingMixIn)
+from M2Crypto.six.moves.socketserver import (BaseServer, TCPServer,
+                                             ThreadingMixIn)
+import os
+if os.name != 'nt':
+   from M2Crypto.six.moves.socketserver import ForkingMixIn
 from socket import socket  # noqa
 if util.py27plus:
     from typing import Union  # noqa
@@ -54,9 +57,10 @@ class SSLServer(TCPServer):
         print('-' * 40)
 
 
-class ForkingSSLServer(ForkingMixIn, SSLServer):
-    pass
-
-
 class ThreadingSSLServer(ThreadingMixIn, SSLServer):
     pass
+
+
+if os.name != 'nt':
+    class ForkingSSLServer(ForkingMixIn, SSLServer):
+        pass

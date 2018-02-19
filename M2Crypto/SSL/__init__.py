@@ -4,7 +4,7 @@ from __future__ import absolute_import
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-import socket
+import socket, os
 
 # M2Crypto
 from M2Crypto import _m2crypto as m2
@@ -23,8 +23,9 @@ m2.ssl_init(SSLError, SSLTimeoutError)
 from M2Crypto.SSL.Cipher import Cipher, Cipher_Stack
 from M2Crypto.SSL.Connection import Connection
 from M2Crypto.SSL.Context import Context
-from M2Crypto.SSL.SSLServer import (ForkingSSLServer, SSLServer,
-                                    ThreadingSSLServer)
+from M2Crypto.SSL.SSLServer import SSLServer, ThreadingSSLServer
+if os.name != 'nt':
+    from M2Crypto.SSL.SSLServer import ForkingSSLServer
 from M2Crypto.SSL.ssl_dispatcher import ssl_dispatcher
 from M2Crypto.SSL.timeout import timeout
 
