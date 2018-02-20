@@ -6,18 +6,31 @@ Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
 import logging
 import os
+import sys
 import platform
 import tempfile
+import ctypes
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
+if platform.system() == 'Windows':
+    import ctypes.wintypes
 
 from M2Crypto.BIO import File, openfile
 
 log = logging.getLogger(__name__)
 
-
+def getCountProcHandles():
+    PROCESS_QUERY_INFORMATION = 0x400
+    handle = ctypes.windll.kernel32.OpenProcess(
+        PROCESS_QUERY_INFORMATION, 0, os.getpid())
+    hndcnt = ctypes.wintypes.DWORD()
+    ctypes.windll.kernel32.GetProcessHandleCount(
+        handle, ctypes.byref(hndcnt))
+    sys_value = hndcnt.value
+    ctypes.windll.kernel32.CloseHandle(handle)
+    return sys_value + 1
 
 class FileTestCase(unittest.TestCase):
 
@@ -27,19 +40,16 @@ class FileTestCase(unittest.TestCase):
 
         if platform.system() in ['Linux', 'Darwin', 'FreeBSD']:
             self.__dev_fd = "/dev/fd/"
-        else:
-            self.skipTest('File descriptors directory not found.')
 
         self.fd_count = self.__mfd()
 
-    # TODO: this does not work on Windows. Provide and test
-    # a fallback method, like
-    #       os.fdopen().fileno()-1
-    # or use GetProcessHandleCount
-    # (https://stackoverflow.com/a/15371085/164233 and https://is.gd/n6v28O)
     def __mfd(self):
         if hasattr(self, '__dev_fd'):
             return len(os.listdir(self.__dev_fd))
+        elif platform.system() == 'Windows':
+            return getCountProcHandles()
+        else:
+            return None
 
     def tearDown(self):
 
@@ -94,15 +104,31 @@ class FileTestCase(unittest.TestCase):
         self.assertEqual(len(in_data), len(self.data))
         self.assertEqual(in_data, self.data)
 
-    def test_readline(self):
-        with open(self.fname, 'w') as f:
-            f.write('hello\nworld\n')
-        with openfile(self.fname, 'r') as f:
+    def test_readline_bin(self):
+        sep = os.linesep.encode()
+        with open(self.fname, 'wb') as f:
+            f.write(b'hello\nworld\n')
+        with openfile(self.fname, 'rb') as f:
             self.assertTrue(f.readable())
             self.assertEqual(f.readline(), b'hello\n')
             self.assertEqual(f.readline(), b'world\n')
-        with openfile(self.fname, 'r') as f:
-            self.assertEqual(f.readlines(), [b'hello\n', b'world\n'])
+        with openfile(self.fname, 'rb') as f:
+            self.assertEqual(
+                f.readlines(),
+                [b'hello\n', b'world\n'])
+
+    def test_readline(self):
+        sep = os.linesep.encode()
+        with open(self.fname, 'w') as f:
+            f.write('hello\nworld\n')
+        with openfile(self.fname, 'rb') as f:
+            self.assertTrue(f.readable())
+            self.assertEqual(f.readline(), b'hello' + sep)
+            self.assertEqual(f.readline(), b'world' + sep)
+        with openfile(self.fname, 'rb') as f:
+            self.assertEqual(
+                f.readlines(),
+                [b'hello' + sep, b'world' + sep])
 
     def test_tell_seek(self):
         with open(self.fname, 'w') as f:

@@ -7,13 +7,14 @@ All Rights Reserved.
 """
 
 import os
+import ctypes
 import warnings
 try:
     import unittest2 as unittest
 except ImportError:
     import unittest
 
-from M2Crypto import Rand
+from M2Crypto import Rand, m2
 
 
 class RandTestCase(unittest.TestCase):
@@ -35,12 +36,18 @@ class RandTestCase(unittest.TestCase):
 
     def test_file_name(self):
         if os.name == 'nt':
+            is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
             rand_env = ('RANDFILE', 'HOME', 'USERPROFILE', 'SYSTEMROOT')
         else:
             rand_env = ('RANDFILE', 'HOME')
+            is_admin = False
         key = next((k for k in rand_env if os.environ.get(k)), None)
+        if is_admin and m2.OPENSSL_VERSION_NUMBER < 0x1010000F:
+            path = 'C:\\'
+        else:
+            path = os.path.join(os.environ[key])
         self.assertIsNotNone(key, "Could not find required environment")
-        rand_file = os.path.abspath(os.path.join(os.environ[key], '.rnd'))
+        rand_file = os.path.abspath(os.path.join(path, '.rnd'))
         self.assertEqual(os.path.abspath(Rand.rand_file_name()), rand_file)
 
     def test_load_save(self):

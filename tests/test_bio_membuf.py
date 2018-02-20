@@ -4,6 +4,7 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
+import os
 import multiprocessing
 try:
     import unittest2 as unittest
@@ -18,22 +19,12 @@ class TimeLimitExpired(Exception):
 
 
 def time_limit(timeout, func, exc_msg, *args, **kwargs):
-    class FuncProc(multiprocessing.Process):
-        def __init__(self):
-            multiprocessing.Process.__init__(self)
-            self.result = None
-
-        def run(self):
-            self.result = func(*args, **kwargs)
-
-    it = FuncProc()
-    it.start()
-    it.join(timeout)
-    if it.is_alive():
-        it.terminate()
+    p = multiprocessing.Process(target=func)
+    p.start()
+    p.join(timeout)
+    if p.is_alive():
+        p.terminate()
         raise TimeLimitExpired(exc_msg)
-    else:
-        return it.result
 
 
 class MemoryBufferTestCase(unittest.TestCase):
@@ -108,20 +99,18 @@ class MemoryBufferTestCase(unittest.TestCase):
         # test against possible endless loop
         # http://stackoverflow.com/questions/9280550/
         timeout_secs = 10
-
-        def run_test(*args, **kwargs):
-            with MemoryBuffer(b'hello\nworld\n') as mb:
-                self.assertTrue(mb.readable())
-                self.assertEqual(mb.readline().rstrip(), b'hello')
-                self.assertEqual(mb.readline().rstrip(), b'world')
-
-            with MemoryBuffer(b'hello\nworld\n') as mb:
-                self.assertEqual(mb.readlines(),
-                                 [b'hello\n', b'world\n'])
-
         time_limit(timeout_secs, run_test,
                    'The readline() should not timeout!')
 
+
+def run_test(*args, **kwargs):
+    sep = os.linesep.encode()
+    with MemoryBuffer(b'hello\nworld\n') as mb:
+        assert mb.readable()
+        assert mb.readline() == b'hello' + sep
+        assert mb.readline() == b'world' + sep
+    with MemoryBuffer(b'hello\nworld\n') as mb:
+        assert mb.readlines() == [b'hello' + sep, b'world' + sep]
 
 def suite():
     return unittest.makeSuite(MemoryBufferTestCase)
