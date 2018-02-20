@@ -87,7 +87,7 @@ def load_pkcs7(p7file):
 
 def load_pkcs7_der(p7file):
     # type: (AnyStr) -> PKCS7
-    with BIO.openfile(p7file, 'r') as bio:
+    with BIO.openfile(p7file, 'rb') as bio:
         p7_ptr = m2.pkcs7_read_bio_der(bio.bio)
 
     return PKCS7(p7_ptr, 1)

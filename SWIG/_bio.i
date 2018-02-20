@@ -4,7 +4,8 @@
  * Portions created by Open Source Applications Foundation (OSAF) are
  * Copyright (C) 2004-2005 OSAF. All Rights Reserved.
  * Author: Heikki Toivonen
-*/
+ *
+ * Copyright 2018 Daniel Wozniak. All Rights Reserved.*/
 /* $Id$ */
 
 %{
@@ -61,16 +62,12 @@ extern int BIO_eof(BIO *);
 static PyObject *_bio_err;
 
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
 void pyfd_init(void);
-#endif
 
 void bio_init(PyObject *bio_err) {
     Py_INCREF(bio_err);
     _bio_err = bio_err;
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
     pyfd_init();
-#endif
 }
 
 int bio_free(BIO *bio) {
@@ -295,7 +292,45 @@ int bio_should_write(BIO* a) {
     return BIO_should_write(a);
 }
 
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+/* Macros for things not defined before 1.1.0 */
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+static BIO_METHOD *
+BIO_meth_new( int type, const char *name )
+{
+    BIO_METHOD *method = malloc( sizeof(BIO_METHOD) );
+    memset( method, 0, sizeof(BIO_METHOD) );
+
+    method->type = type;
+    method->name = name;
+
+    return method;
+}
+
+static void
+BIO_meth_free( BIO_METHOD *meth )
+{
+    if ( meth == NULL ) {
+        return;
+    }
+
+    free(meth);
+}
+#define BIO_meth_set_write(m, f) (m)->bwrite = (f)
+#define BIO_meth_set_read(m, f) (m)->bread = (f)
+#define BIO_meth_set_puts(m, f) (m)->bputs = (f)
+#define BIO_meth_set_gets(m, f) (m)->bgets = (f)
+#define BIO_meth_set_ctrl(m, f) (m)->ctrl = (f)
+#define BIO_meth_set_create(m, f) (m)->create = (f)
+#define BIO_meth_set_destroy(m, f) (m)->destroy = (f)
+#define BIO_set_shutdown(b, x) (b)->shutdown = x
+#define BIO_get_shutdown(b) (b)->shutdown
+#define BIO_set_init(b, x)    b->init = x
+#define BIO_get_init(b) (b)->init
+#define BIO_set_data(b, x)    b->ptr = x
+#define BIO_clear_flags(b, x)    b->flags &= ~(x)
+#define BIO_get_data(b)    b->ptr
+#endif
+
 /* implment custom BIO_s_pyfd */
 
 #ifdef _WIN32
@@ -307,7 +342,7 @@ int bio_should_write(BIO* a) {
 #  define close(f) _close(f)
 #  define lseek(fd, o, w) _lseek(fd, o, w)
 #else
-#  define clear_sys_error()       errno=0
+# define clear_sys_error()       errno=0
 #endif
 
 typedef struct pyfd_struct {
@@ -480,9 +515,15 @@ static long pyfd_ctrl(BIO *b, int cmd, long num, void *ptr) {
 }
 
 void pyfd_init(void) {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
     methods_fdp = BIO_meth_new(
         BIO_get_new_index()|BIO_TYPE_DESCRIPTOR|BIO_TYPE_SOURCE_SINK,
         "python file descriptor");
+#else
+    methods_fdp = BIO_meth_new(
+        100 |BIO_TYPE_DESCRIPTOR|BIO_TYPE_SOURCE_SINK,
+        "python file descriptor");
+#endif
 
     BIO_meth_set_write(methods_fdp, pyfd_write);
     BIO_meth_set_read(methods_fdp, pyfd_read);
@@ -500,6 +541,5 @@ BIO* BIO_new_pyfd(int fd, int close_flag) {
     BIO_set_fd(ret, fd, close_flag);
     return ret;
     }
-#endif
 %}
 
