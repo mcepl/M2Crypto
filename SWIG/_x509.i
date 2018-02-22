@@ -718,8 +718,7 @@ make_stack_from_der_sequence(PyObject * pyEncodedString){
     encoded_string_len = PyBytes_Size(pyEncodedString);
 
     if (encoded_string_len > INT_MAX) {
-        PyErr_Format(_x509_err,
-                     "object too large (%ld bytes)", encoded_string_len);
+        PyErr_Format(_x509_err, "object too large");
         return NULL;
     }
 
