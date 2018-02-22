@@ -71,9 +71,11 @@ example, ``--openssl=c:\pkg\openssl`` would specify that the OpenSSL
 include files can be found in ``c:\pkg\openssl\include`` and the
 librariesin ``c:\pkg\openssl\lib``.
 
-Using OpenSSL 0.9.8 on Windows requires Python be built with applink.c
-(add an include statement in python.c). This is not a requirement for
-Linux or MacOSX. (applink.c is provided by OpenSSL.)
+The '--openssl' option will configure swig and the compiler to look in the
+default locations for headers and libraries. If your OpenSSL is installed in a
+or you want to modify the default options run the build_ext step with normal
+distutils options: `--swig-opts`, `--include-dirs`, `--library-dirs`, and
+`--libraries`.
 
 MSVC++ ~\ :sub:`:sub:`:sub:`~```
 
