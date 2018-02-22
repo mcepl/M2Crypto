@@ -73,6 +73,9 @@ class Connection:
 
     def __del__(self):
         # type: () -> None
+        # Notice that M2Crypto doesn't automatically shuts down the
+        # connection here. You have to call self.close() in your
+        # program, M2Crypto won't do it automatically for you.
         if getattr(self, 'sslbio', None):
             self.m2_bio_free(self.sslbio)
         if getattr(self, 'sockbio', None):
