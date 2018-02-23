@@ -1,3 +1,9 @@
+0.29.0 - 2018-02-23
+-------------------
+- Fix building on Windows (all tests fix on Win32 and Win64 on all
+  supported combinations of versions of OpenSSL and Python)
+- Fixes of some small bugs
+
 0.28.0 - 2018-02-08
 -------------------
 - Mainly port to Python 3 (supporting 2.6, 2.7, 3.3, 3.4, 3.5, 3.6)
