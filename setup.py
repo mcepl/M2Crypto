@@ -20,6 +20,7 @@ import re
 import string
 import subprocess
 import sys
+import shutil
 
 from distutils.command import build, sdist
 from distutils.command.clean import clean
@@ -39,7 +40,9 @@ if (2, 6) < sys.version_info[:2] < (3, 5):
     requires_list = ['typing']
 else:
     requires_list = []
-
+package_data = {}
+if sys.platform == 'win32':
+    package_data.update(M2Crypto=["*.dll"])
 
 def _get_additional_includes():
     if os.name == 'nt':
@@ -94,24 +97,28 @@ class _M2CryptoBuild(build.build):
     """Enable swig_opts to inherit any include_dirs settings made elsewhere."""
 
     user_options = build.build.user_options + \
-        [('openssl=', 'o', 'Prefix for openssl installation location')]
+        [('openssl=', 'o', 'Prefix for openssl installation location')] + \
+        [('bundledlls', 'b', 'Bundle DLLs (win32 only)')]
 
     def initialize_options(self):
         """Overload to enable custom openssl settings to be picked up."""
         build.build.initialize_options(self)
         self.openssl = None
+        self.bundledlls = None
 
 
 class _M2CryptoBuildExt(build_ext.build_ext):
     """Enable swig_opts to inherit any include_dirs settings made elsewhere."""
 
     user_options = build_ext.build_ext.user_options + \
-        [('openssl=', 'o', 'Prefix for openssl installation location')]
+        [('openssl=', 'o', 'Prefix for openssl installation location')] + \
+        [('bundledlls', 'b', 'Bundle DLLs (win32 only)')]
 
     def initialize_options(self):
         """Overload to enable custom openssl settings to be picked up."""
         build_ext.build_ext.initialize_options(self)
         self.openssl = None
+        self.bundledlls = None
 
     def finalize_options(self):
         """Append custom openssl include file and library linking options."""
@@ -120,6 +127,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         self.set_undefined_options('build', ('openssl', 'openssl'))
         if self.openssl is None:
             self.openssl = self.openssl_default
+        self.set_undefined_options('build', ('bundledlls', 'bundledlls'))
 
         self.libraries = ['ssl', 'crypto']
         if sys.platform == 'win32':
@@ -211,6 +219,38 @@ class _M2CryptoBuildExt(build_ext.build_ext):
 
         mkpath(os.path.join(self.build_lib, 'M2Crypto'))
 
+    def run(self):
+        """
+        On Win32 platforms include the openssl dll's in the binary packages
+        """
+
+        # Win32 bdist builds must use --openssl in the builds step.
+        if not self.bundledlls:
+           build_ext.build_ext.run(self)
+           return
+
+        if sys.platform == 'win32':
+            ver_part = ''
+            if self.openssl and openssl_version(self.openssl, 0x10100000, True):
+                ver_part += '-1_1'
+            if sys.maxsize > 2**32:
+                ver_part += '-x64'
+            search = list(self.library_dirs)
+            if self.openssl:
+                search = search + [self.openssl, os.path.join(self.openssl, 'bin')]
+            libs = list(self.libraries)
+            for libname in list(libs):
+                for search_path in search:
+                     dll_name = '{0}{1}.dll'.format(libname, ver_part)
+                     dll_path = os.path.join(search_path, dll_name)
+                     if os.path.exists(dll_path):
+                        shutil.copy(dll_path, 'M2Crypto')
+                        libs.remove(libname)
+                        break
+            if libs:
+                raise Exception("Libs not found {}".format(','.join(libs)))
+        build_ext.build_ext.run(self)
+
 
 def swig_version(req_ver):
     # type: (str) -> bool
@@ -284,14 +324,14 @@ class Clean(clean):
     def run(self):
         clean.run(self)
         garbage_list = [
-            "M2Crypto/*m2crypto*.so",
-            "M2Crypto/*m2crypto*.pyd"
+            os.path.join('M2Crypto', '*.so'),
+            os.path.join('M2Crypto', '*.pyd'),
+            os.path.join('M2Crypto', '*.dll')
         ]
         for p in garbage_list:
             for f in glob.glob(p):
                 if os.path.exists(f):
                     os.unlink(f)
-
 
 def __get_version():  # noqa
     with open('M2Crypto/__init__.py') as init_file:
@@ -344,6 +384,7 @@ setuptools.setup(
     ext_modules=[m2crypto],
     test_suite='tests.alltests.suite',
     install_requires=requires_list,
+    package_data=package_data,
     cmdclass={
         'build_ext': _M2CryptoBuildExt,
         'build': _M2CryptoBuild,
