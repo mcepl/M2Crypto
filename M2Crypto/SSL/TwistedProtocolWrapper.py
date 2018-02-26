@@ -167,7 +167,7 @@ class TLSProtocolWrapper(ProtocolWrapper):
 
     def __init__(self, factory, wrappedProtocol, startPassThrough, client,
                  contextFactory, postConnectionCheck):
-        # type: policies.WrappingFactory, object, int, int, object, Checker
+        # type: (policies.WrappingFactory, object, int, int, object, Checker) -> None
         """
         :param factory:
         :param wrappedProtocol:

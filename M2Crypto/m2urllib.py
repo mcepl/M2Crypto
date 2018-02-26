@@ -27,7 +27,7 @@ else:
 
 
 def open_https(self, url, data=None, ssl_context=None):
-    # type: (AnyStr, Optional[bytes], Optional[SSL.Context]) -> addinfourl
+    # type: (URLOpener, AnyStr, Optional[bytes], Optional[SSL.Context]) -> addinfourl
     """
     Open URL over the SSL connection.
 
