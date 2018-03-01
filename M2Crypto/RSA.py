@@ -22,7 +22,7 @@ sslv23_padding = m2.sslv23_padding
 pkcs1_oaep_padding = m2.pkcs1_oaep_padding
 
 
-class RSA:
+class RSA(object):
     """
     RSA Key Pair.
     """
@@ -281,7 +281,7 @@ class RSA:
         return m2.rsa_verify(self.rsa, data, signature, digest_type)
 
 
-class RSA_pub(RSA):  # noqa
+class RSA_pub(RSA):
 
     """
     Object interface to an RSA public key.

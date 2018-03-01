@@ -16,7 +16,7 @@ from M2Crypto.SSL.Context import Context  # noqa
 __all__ = ['ssl_dispatcher']
 
 
-class ssl_dispatcher(asyncore.dispatcher):  # noqa
+class ssl_dispatcher(asyncore.dispatcher):
 
     def create_socket(self, ssl_context):
         # type: (Context) -> None

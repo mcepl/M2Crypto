@@ -10,7 +10,7 @@ if util.py27plus:
     from typing import AnyStr  # noqa
 
 
-class Session:
+class Session(object):
 
     m2_ssl_session_free = m2.ssl_session_free
 

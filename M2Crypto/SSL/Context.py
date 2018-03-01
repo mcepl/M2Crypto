@@ -14,7 +14,7 @@ if util.py27plus:
 __all__ = ['ctxmap', 'Context', 'map']
 
 
-class _ctxmap:  # noqa
+class _ctxmap(object):
     singleton = None  # type: Optional[_ctxmap]
 
     def __init__(self):
@@ -45,7 +45,7 @@ def ctxmap():
 map = ctxmap
 
 
-class Context:
+class Context(object):
 
     """'Context' for SSL connections."""
 

@@ -77,7 +77,7 @@ def verify_cb_new_function(ok, store):
     return 1
 
 
-class VerifyCB:
+class VerifyCB(object):
     def __call__(self, ok, store):
         return verify_cb_new_function(ok, store)
 
@@ -1108,7 +1108,7 @@ class TwistedSSLClientTestCase(BaseSSLClientTestCase):
 
         pid = self.start_server(self.args)
 
-        class ContextFactory:
+        class ContextFactory(object):
             def getContext(self):
                 return SSL.Context()
 

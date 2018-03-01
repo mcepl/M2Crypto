@@ -118,7 +118,7 @@ def listenTCP(port, factory, backlog=5, interface='',
     return reactor.listenTCP(port, wrappingFactory, backlog, interface)
 
 
-class _BioProxy:
+class _BioProxy(object):
     """
     The purpose of this class is to eliminate the __del__ method from
     TLSProtocolWrapper, and thus letting it be garbage collected.
@@ -137,7 +137,7 @@ class _BioProxy:
             self.m2_bio_free_all(self.bio)
 
 
-class _SSLProxy:
+class _SSLProxy(object):
     """
     The purpose of this class is to eliminate the __del__ method from
     TLSProtocolWrapper, and thus letting it be garbage collected.

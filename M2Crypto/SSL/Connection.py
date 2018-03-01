@@ -33,7 +33,7 @@ def _serverPostConnectionCheck(*args, **kw):
     return 1
 
 
-class Connection:
+class Connection(object):
     """An SSL connection."""
 
     clientPostConnectionCheck = Checker.Checker()

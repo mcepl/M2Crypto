@@ -62,7 +62,7 @@ class WrongHost(SSLVerificationError):
         return util.py3str(s)
 
 
-class Checker:
+class Checker(object):
 
     numericIpMatch = re.compile('^[0-9]+(\.[0-9]+)*$')
 

@@ -17,7 +17,7 @@ class EngineError(Exception):
 m2.engine_init_error(EngineError)
 
 
-class Engine:
+class Engine(object):
     """Wrapper for ENGINE object."""
 
     m2_engine_free = m2.engine_free

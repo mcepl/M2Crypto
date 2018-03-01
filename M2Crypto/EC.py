@@ -128,7 +128,7 @@ NID_wap_wsg_idm_ecid_wtls12 = m2.NID_wap_wsg_idm_ecid_wtls12  # type: int
 # NID_ipsec4 = m2.NID_ipsec4
 
 
-class EC:
+class EC(object):
 
     """
     Object interface to a EC key pair.
@@ -292,7 +292,7 @@ class EC:
         return m2.ec_key_check_key(self.ec)
 
 
-class EC_pub(EC):  # noqa
+class EC_pub(EC):
 
     """
     Object interface to an EC public key.

@@ -21,7 +21,7 @@ MBSTRING_ASC = MBSTRING_FLAG | 1
 MBSTRING_BMP = MBSTRING_FLAG | 2
 
 
-class ASN1_Integer:  # noqa
+class ASN1_Integer(object):
 
     m2_asn1_integer_free = m2.asn1_integer_free
 
@@ -48,7 +48,7 @@ class ASN1_Integer:  # noqa
         return m2.asn1_integer_get(self.asn1int)
 
 
-class ASN1_String:  # noqa
+class ASN1_String(object):
 
     m2_asn1_string_free = m2.asn1_string_free
 
@@ -89,7 +89,7 @@ class ASN1_String:  # noqa
         return util.py3str(buf.read_all())
 
 
-class ASN1_Object:  # noqa
+class ASN1_Object(object):
 
     m2_asn1_object_free = m2.asn1_object_free
 
@@ -167,7 +167,7 @@ class LocalTimezone(datetime.tzinfo):
         return tt.tm_isdst > 0
 
 
-class ASN1_TIME:  # noqa
+class ASN1_TIME(object):
     _ssl_months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug",
                    "Sep", "Oct", "Nov", "Dec"]
     m2_asn1_time_free = m2.asn1_time_free

@@ -54,7 +54,7 @@ def new_extension(name, value, critical=0, _pyfree=1):
     return x509_ext
 
 
-class X509_Extension:  # noqa
+class X509_Extension(object):
     """
     X509 Extension
     """
@@ -117,7 +117,7 @@ class X509_Extension:  # noqa
         return util.py3str(buf.read_all())
 
 
-class X509_Extension_Stack:  # noqa
+class X509_Extension_Stack(object):
     """
     X509 Extension Stack
 
@@ -195,7 +195,7 @@ class X509_Extension_Stack:  # noqa
         return self.pystack.pop()
 
 
-class X509_Name_Entry:  # noqa
+class X509_Name_Entry(object):
     """
     X509 Name Entry
     """
@@ -256,7 +256,7 @@ class X509_Name_Entry:  # noqa
                                                 field, type, entry, len)
 
 
-class X509_Name:  # noqa
+class X509_Name(object):
     """
     X509 Name
     """
@@ -440,7 +440,7 @@ class X509_Name:  # noqa
         return m2.x509_name_hash(self.x509_name)
 
 
-class X509:
+class X509(object):
     """
     X.509 Certificate
     """
@@ -866,7 +866,7 @@ def load_cert_der_string(string):
     return X509(cptr, _pyfree=1)
 
 
-class X509_Store_Context:  # noqa
+class X509_Store_Context(object):
     """
     X509 Store Context
     """
@@ -930,7 +930,7 @@ class X509_Store_Context:  # noqa
         return X509_Stack(m2.x509_store_ctx_get1_chain(self.ctx), 1, 1)
 
 
-class X509_Store:  # noqa
+class X509_Store(object):
     """
     X509 Store
     """
@@ -1004,7 +1004,7 @@ class X509_Store:  # noqa
     add_cert = add_x509
 
 
-class X509_Stack:  # noqa
+class X509_Stack(object):
     """
     X509 Stack
 
@@ -1102,7 +1102,7 @@ def new_stack_from_der(der_string):
     return X509_Stack(stack_ptr, 1, 1)
 
 
-class Request:
+class Request(object):
     """
     X509 Certificate Request.
     """
@@ -1338,7 +1338,7 @@ def load_request_der_string(string):
     return load_request_bio(bio, FORMAT_DER)
 
 
-class CRL:
+class CRL(object):
     """
     X509 Certificate Revocation List
     """

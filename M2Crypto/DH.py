@@ -16,7 +16,7 @@ class DHError(Exception):
 m2.dh_init(DHError)
 
 
-class DH:
+class DH(object):
     """Object interface to the Diffie-Hellman key exchange protocol.
     """
 

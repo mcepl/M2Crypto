@@ -14,7 +14,7 @@ MBSTRING_ASC  = MBSTRING_FLAG | 1
 MBSTRING_BMP  = MBSTRING_FLAG | 2
 
 
-class Cert:
+class Cert(object):
     def __init__ ( self ):
         self.RsaKey = { 'KeyLength'       : 1024,
                         'PubExponent'     : 0x10001,        # -> 65537

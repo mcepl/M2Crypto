@@ -9,7 +9,7 @@ if util.py27plus:
     from typing import Iterable  # noqa
 
 
-class Cipher:
+class Cipher(object):
     def __init__(self, cipher):
         # type: (str) -> None
         self.cipher = cipher
@@ -35,7 +35,7 @@ class Cipher:
         return util.py3str(m2.ssl_cipher_get_name(self.cipher))
 
 
-class Cipher_Stack:  # noqa
+class Cipher_Stack(object):
     def __init__(self, stack):
         # type: (bytes) -> None
         """

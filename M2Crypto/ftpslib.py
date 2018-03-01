@@ -41,7 +41,7 @@ from ftplib import *  # noqa
 from M2Crypto import SSL
 
 
-class FTP_TLS(FTP):  # noqa
+class FTP_TLS(FTP):
 
     """Python OO interface to client-side FTP/TLS."""
 

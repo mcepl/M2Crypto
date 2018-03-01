@@ -24,13 +24,13 @@ PKCS7_SIGNED_ENVELOPED = m2.PKCS7_SIGNED_ENVELOPED  # Deprecated
 PKCS7_DATA = m2.PKCS7_DATA  # type: int
 
 
-class PKCS7_Error(Exception):  # noqa
+class PKCS7_Error(Exception):
     pass
 
 m2.pkcs7_init(PKCS7_Error)
 
 
-class PKCS7:
+class PKCS7(object):
 
     m2_pkcs7_free = m2.pkcs7_free
 
@@ -131,7 +131,7 @@ def smime_load_pkcs7_bio(p7_bio):
         return PKCS7(p7_ptr, 1), BIO.BIO(bio_ptr, 1)
 
 
-class Cipher:
+class Cipher(object):
     """Object interface to EVP_CIPHER without all the frills of
     M2Crypto.EVP.Cipher.
     """
@@ -147,14 +147,14 @@ class Cipher:
         return self.cipher
 
 
-class SMIME_Error(Exception):  # noqa
+class SMIME_Error(Exception):
     pass
 
 m2.smime_init(SMIME_Error)
 
 
 # FIXME class has no __init__ method
-class SMIME:
+class SMIME(object):
     def load_key(self, keyfile, certfile=None,
                  callback=util.passphrase_callback):
         # type: (AnyStr, Optional[AnyStr], Callable) -> None

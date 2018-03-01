@@ -22,7 +22,7 @@ else:
 __version__ = M2Crypto.__version__
 
 
-class SSL_Transport(Transport):  # noqa
+class SSL_Transport(Transport):
 
     user_agent = "M2Crypto_XMLRPC/%s - %s" % (__version__,
                                               Transport.user_agent)

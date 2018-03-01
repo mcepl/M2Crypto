@@ -20,7 +20,7 @@ class DSAError(Exception):
 m2.dsa_init(DSAError)
 
 
-class DSA:
+class DSA(object):
 
     """
     This class is a context supporting DSA key and parameter
@@ -257,7 +257,7 @@ class DSA:
         return m2.dsa_check_key(self.dsa)
 
 
-class DSA_pub(DSA):  # noqa
+class DSA_pub(DSA):
 
     """
     This class is a DSA context that only supports a public key

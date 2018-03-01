@@ -35,7 +35,7 @@ def pbkdf2(password, salt, iter, keylen):
     return m2.pkcs5_pbkdf2_hmac_sha1(password, salt, iter, keylen)
 
 
-class MessageDigest:
+class MessageDigest(object):
     """
     Message Digest
     """
@@ -74,7 +74,7 @@ class MessageDigest:
     digest = final
 
 
-class HMAC:
+class HMAC(object):
 
     m2_hmac_ctx_free = m2.hmac_ctx_free
 
@@ -115,7 +115,7 @@ def hmac(key, data, algo='sha1'):
     return m2.hmac(key, data, md())
 
 
-class Cipher:
+class Cipher(object):
 
     m2_cipher_ctx_free = m2.cipher_ctx_free
 
@@ -157,7 +157,7 @@ class Cipher:
         return m2.cipher_set_padding(self.ctx, padding)
 
 
-class PKey:
+class PKey(object):
     """
     Public Key
     """

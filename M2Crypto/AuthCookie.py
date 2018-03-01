@@ -46,7 +46,7 @@ def unmix3(dough, regex=_MIX_RE):
 _TOKEN = '_M2AUTH_'  # type: str
 
 
-class AuthCookieJar:
+class AuthCookieJar(object):
 
     _keylen = 20  # type: int
 
@@ -105,7 +105,7 @@ class AuthCookieJar:
         return (not c2.isExpired()) and (c2._mac == mac)
 
 
-class AuthCookie:
+class AuthCookie(object):
 
     def __init__(self, expiry, data, dough, mac):
         # type: (float, str, str, str) -> None
