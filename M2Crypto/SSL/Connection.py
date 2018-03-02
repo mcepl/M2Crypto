@@ -41,6 +41,7 @@ class Connection:
 
     m2_bio_free = m2.bio_free
     m2_ssl_free = m2.ssl_free
+    m2_bio_noclose = m2.bio_noclose
 
     def __init__(self, ctx, sock=None, family=socket.AF_INET):
         # type: (Context, socket.socket, int) -> None
@@ -80,10 +81,7 @@ class Connection:
             self.m2_bio_free(self.sslbio)
         if getattr(self, 'sockbio', None):
             self.m2_bio_free(self.sockbio)
-        # in __del__ method we have to check whether m2.bio_noclose
-        # exists at all.
-        if m2 is not None and m2.bio_noclose and \
-                self.ssl_close_flag == m2.bio_noclose and \
+        if self.ssl_close_flag == self.m2_bio_noclose and \
                 getattr(self, 'ssl', None):
             self.m2_ssl_free(self.ssl)
         self.socket.close()

@@ -877,6 +877,53 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             self.stop_server(pid)
         self.assertIn('s_server -quiet -www', data)
 
+    def test_ssl_connection_free(self):
+        pid = self.start_server(self.args)
+        orig_m2_ssl_free = SSL.Connection.m2_ssl_free
+        def _m2_ssl_free(ssl):
+            orig_m2_ssl_free(ssl)
+            _m2_ssl_free.called = True
+
+        try:
+            ctx = SSL.Context()
+            s = SSL.Connection(ctx)
+            s.m2_ssl_free = _m2_ssl_free
+            s.connect(self.srv_addr)
+            data = self.http_get(s)
+            s.close()
+            self.assertFalse(hasattr(_m2_ssl_free, 'called'))
+            # keep fingers crossed that SSL.Connection.__del__ is called
+            # by the python interpreter
+            del s
+        finally:
+            self.stop_server(pid)
+        self.assertIn('s_server -quiet -www', data)
+        self.assertTrue(getattr(_m2_ssl_free, 'called', False))
+
+    def test_ssl_connection_no_free(self):
+        pid = self.start_server(self.args)
+        orig_m2_ssl_free = SSL.Connection.m2_ssl_free
+        def _m2_ssl_free(ssl):
+            _m2_ssl_free.called = True
+            orig_m2_ssl_free(ssl)
+
+        try:
+            ctx = SSL.Context()
+            s = SSL.Connection(ctx)
+            s.m2_ssl_free = _m2_ssl_free
+            s.set_ssl_close_flag(m2.bio_close)
+            s.connect(self.srv_addr)
+            data = self.http_get(s)
+            s.close()
+            self.assertFalse(hasattr(_m2_ssl_free, 'called'))
+            # keep fingers crossed that SSL.Connection.__del__ is called
+            # by the python interpreter
+            del s
+        finally:
+            self.stop_server(pid)
+        self.assertIn('s_server -quiet -www', data)
+        self.assertFalse(hasattr(_m2_ssl_free, 'called'))
+
 
 class UrllibSSLClientTestCase(BaseSSLClientTestCase):
 
