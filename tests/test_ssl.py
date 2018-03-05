@@ -37,7 +37,6 @@ except ImportError:
 
 from M2Crypto import (Err, Rand, SSL, X509, ftpslib, httpslib, m2, m2urllib,
                       m2urllib2, m2xmlrpclib, six, util)
-from tests import plat_fedora
 from tests.fips import fips_mode
 
 log = logging.getLogger('test_SSL')
@@ -418,30 +417,6 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             self.stop_server(pid)
         self.assertIn('s_server -quiet -www', data)
 
-    # TLS is required in FIPS mode
-    @unittest.skipIf(fips_mode, "Can't be run in FIPS mode")
-    @unittest.skipUnless(hasattr(m2, "sslv2_method"),
-                         "This platform doesn't support SSLv2")
-    def test_sslv23_weak_crypto(self):
-        self.args = self.args + ['-ssl2']
-        pid = self.start_server(self.args)
-        try:
-            ctx = SSL.Context('sslv23', weak_crypto=1)
-            s = SSL.Connection(ctx)
-            # SSLv2 ciphers disabled by default in newer OpenSSL
-            if plat_fedora and m2.OPENSSL_VERSION_NUMBER < 0x10000000:
-                s.connect(self.srv_addr)
-                self.assertEqual(s.get_version(), 'SSLv2')
-            else:
-                with self.assertRaises(SSL.SSLError):
-                    s.connect(self.srv_addr)
-            s.close()
-        except Exception as ex:
-            print(('Caught exception %s' % ex))
-            raise
-        finally:
-            self.stop_server(pid)
-
     def test_cipher_mismatch(self):
         self.args = self.args + ['-cipher', 'AES256-SHA']
         pid = self.start_server(self.args)
@@ -463,7 +438,8 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             ctx = SSL.Context()
             s = SSL.Connection(ctx)
             s.set_cipher_list('EXP-RC2-MD5')
-            with six.assertRaisesRegex(self, SSL.SSLError, 'no ciphers available'):
+            with six.assertRaisesRegex(self, SSL.SSLError,
+                                       'no ciphers available'):
                 s.connect(self.srv_addr)
             s.close()
         finally:
