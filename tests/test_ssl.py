@@ -1004,6 +1004,27 @@ class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
             self.stop_server(pid)
 
 
+class Urllib2TEChunkedSSLClientTestCase(BaseSSLClientTestCase):
+    """Test a response with "Transfer-Encoding: chunked"."""
+
+    def setUp(self):
+        super(Urllib2TEChunkedSSLClientTestCase, self).setUp()
+        self.args = ['s_server', '-quiet', '-HTTP',
+                     '-accept', str(self.srv_port)]
+
+    def test_transfer_encoding_chunked(self):
+        pid = self.start_server(self.args)
+        try:
+            url = 'https://%s:%s/te_chunked_response.txt' % (srv_host,
+                                                             self.srv_port)
+            o = m2urllib2.build_opener()
+            u = o.open(url)
+            data = u.read()
+            self.assertEqual(b'foo\nfoobar\n', data)
+        finally:
+            self.stop_server(pid)
+
+
 @unittest.skipUnless(util.py27plus,
                      "Twisted doesn't test well with Python 2.6")
 class TwistedSSLClientTestCase(BaseSSLClientTestCase):
@@ -1166,6 +1187,7 @@ def suite():
     suite.addTest(unittest.makeSuite(HttpslibSSLSNIClientTestCase))
     suite.addTest(unittest.makeSuite(UrllibSSLClientTestCase))
     suite.addTest(unittest.makeSuite(Urllib2SSLClientTestCase))
+    suite.addTest(unittest.makeSuite(Urllib2TEChunkedSSLClientTestCase))
     suite.addTest(unittest.makeSuite(MiscSSLClientTestCase))
     suite.addTest(unittest.makeSuite(FtpslibTestCase))
     try:

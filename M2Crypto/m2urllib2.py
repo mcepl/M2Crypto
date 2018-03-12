@@ -131,7 +131,7 @@ class HTTPSHandler(AbstractHTTPHandler):
             r._decref_socketios = lambda: None
             r.ssl = h.sock.ssl
             r._timeout = -1.0
-            r.recv_into = lambda b: SSL.Connection.recv_into(r, b)
+            r.recv_into = r.readinto
             fp = socket.SocketIO(r, 'rb')
 
         resp = addinfourl(fp, r.msg, req.get_full_url())
