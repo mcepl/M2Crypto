@@ -30,13 +30,10 @@ import sys
 import tempfile
 import time
 import warnings
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 from M2Crypto import (Err, Rand, SSL, X509, ftpslib, httpslib, m2, m2urllib,
                       m2urllib2, m2xmlrpclib, py27plus, six)
+from tests import unittest
 from tests.fips import fips_mode
 
 log = logging.getLogger('test_SSL')

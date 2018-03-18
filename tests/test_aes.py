@@ -5,16 +5,14 @@ from __future__ import absolute_import, print_function
 Copyright (c) 2018 Matej Cepl. All rights reserved.
 """
 import logging
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 from M2Crypto import m2
+from tests import unittest
 
 log = logging.getLogger('test_AES')
 
 KEY_TEXT = (b'blabulka' * 3)[:16]  # 128/8 == 16
+
 
 class AESTestCase(unittest.TestCase):
     """
@@ -73,9 +71,9 @@ class AESTestCase(unittest.TestCase):
 
 
 def suite():
-    s = unittest.TestSuite()
-    s.addTest(unittest.makeSuite(AESTestCase))
-    return s
+    t_suite = unittest.TestSuite()
+    t_suite.addTest(unittest.makeSuite(AESTestCase))
+    return t_suite
 
 
 if __name__ == '__main__':

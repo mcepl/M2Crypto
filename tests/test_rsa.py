@@ -8,13 +8,9 @@ Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 import hashlib
 import logging
 import os
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 from M2Crypto import BIO, RSA, Rand, X509, m2, six
-
+from tests import unittest
 from tests.fips import fips_mode
 
 log = logging.getLogger('test_RSA')

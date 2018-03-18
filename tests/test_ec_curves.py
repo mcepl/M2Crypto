@@ -21,12 +21,8 @@ from __future__ import absolute_import
 """
 import logging
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
 from M2Crypto import EC, Rand, m2  # noqa
+from tests import unittest
 
 log = logging.getLogger(__name__)
 

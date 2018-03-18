@@ -5,12 +5,10 @@
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
 import hashlib
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 from M2Crypto import DSA, Rand
+from tests import unittest
+
 
 class DSATestCase(unittest.TestCase):
 
@@ -107,10 +105,11 @@ class DSATestCase(unittest.TestCase):
         q = dsa.q
         g = dsa.g
         pub = dsa.pub
-        dsa2 = DSA.pub_key_from_params(p,q,g,pub)
+        dsa2 = DSA.pub_key_from_params(p, q, g, pub)
         assert dsa2.check_key()
-        r,s = dsa.sign(self.data)
+        r, s = dsa.sign(self.data)
         assert dsa2.verify(self.data, r, s)
+
 
 def suite():
     return unittest.makeSuite(DSATestCase)

@@ -6,20 +6,17 @@ Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
 import logging
 import os
-import sys
 import platform
 import tempfile
 import ctypes
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 if platform.system() == 'Windows':
     import ctypes.wintypes
 
 from M2Crypto.BIO import File, openfile
+from tests import unittest
 
 log = logging.getLogger(__name__)
+
 
 def getCountProcHandles():
     PROCESS_QUERY_INFORMATION = 0x400
@@ -31,6 +28,7 @@ def getCountProcHandles():
     sys_value = hndcnt.value
     ctypes.windll.kernel32.CloseHandle(handle)
     return sys_value + 1
+
 
 class FileTestCase(unittest.TestCase):
 
@@ -105,7 +103,6 @@ class FileTestCase(unittest.TestCase):
         self.assertEqual(in_data, self.data)
 
     def test_readline_bin(self):
-        sep = os.linesep.encode()
         with open(self.fname, 'wb') as f:
             f.write(b'hello\nworld\n')
         with openfile(self.fname, 'rb') as f:

@@ -5,13 +5,10 @@ from __future__ import absolute_import
 
 Copyright (c) 2009 Heikki Toivonen. All rights reserved."""
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 from M2Crypto import RC4, Rand
 from binascii import hexlify
 
+from tests import unittest
 from tests.fips import fips_mode
 
 

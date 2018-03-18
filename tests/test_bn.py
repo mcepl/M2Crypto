@@ -8,12 +8,9 @@ Copyright (c) 2005 Open Source Applications Foundation. All rights reserved.
 
 import re
 import warnings
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 from M2Crypto import BN, Rand
+from tests import unittest
 
 loops = 16
 

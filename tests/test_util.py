@@ -6,14 +6,8 @@ Copyright (C) 2006 Open Source Applications Foundation (OSAF).
 All Rights Reserved.
 """
 
-import os
-import warnings
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
-from M2Crypto import util, six
+from M2Crypto import six
+from tests import unittest
 
 
 class UtilTestCase(unittest.TestCase):

@@ -9,12 +9,9 @@ All Rights Reserved.
 import os
 import ctypes
 import warnings
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 from M2Crypto import Rand, m2
+from tests import unittest
 
 
 class RandTestCase(unittest.TestCase):

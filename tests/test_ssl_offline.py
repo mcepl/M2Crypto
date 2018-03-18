@@ -8,12 +8,9 @@ Copyright (C) 2009-2010 Heikki Toivonen. All Rights Reserved.
 """
 
 import doctest
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 from M2Crypto import Rand, SSL, X509
+from tests import unittest
 from tests.test_ssl import srv_host
 
 
@@ -40,8 +37,7 @@ class ContextTestCase(unittest.TestCase):
     def test_ctx_set_default_verify_paths(self):
         ctx = SSL.Context()
         ctx.set_default_verify_paths()
-        self.assertTrue(True)  # test will get here only if the
-                               # previous won't fail
+        # test will get here only if the previous won't fail
 
     def test_map(self):
         from M2Crypto.SSL.Context import ctxmap, _ctxmap
@@ -62,10 +58,10 @@ class ContextTestCase(unittest.TestCase):
 
 
 def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(CheckerTestCase))
-    suite.addTest(unittest.makeSuite(ContextTestCase))
-    return suite
+    t_suite = unittest.TestSuite()
+    t_suite.addTest(unittest.makeSuite(CheckerTestCase))
+    t_suite.addTest(unittest.makeSuite(ContextTestCase))
+    return t_suite
 
 
 if __name__ == '__main__':

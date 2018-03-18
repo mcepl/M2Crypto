@@ -6,12 +6,9 @@ Copyright (C) 2006 Open Source Applications Foundation. All Rights Reserved.
 """
 
 import os.path
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 from M2Crypto import BIO, EVP, Rand, SMIME, X509
+from tests import unittest
 
 
 # Various callbacks to set by X509_Store.set_verify_cb() for

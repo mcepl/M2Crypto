@@ -12,14 +12,10 @@ import hashlib
 import io
 import logging
 
-from M2Crypto import BIO, EVP, RSA, Rand, m2, six, util
-
 from binascii import a2b_hex, hexlify, unhexlify
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
+from M2Crypto import BIO, EVP, RSA, Rand, m2, util
+from tests import unittest
 from tests.fips import fips_mode
 
 log = logging.getLogger('test_EVP')

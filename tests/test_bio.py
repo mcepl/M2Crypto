@@ -10,13 +10,9 @@ Copyright (c) 2006 Open Source Applications Foundation
 Author: Heikki Toivonen
 """
 import logging
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 from M2Crypto import BIO, Rand
-
+from tests import unittest
 from tests.fips import fips_mode
 
 log = logging.getLogger('test_bio')
@@ -64,11 +60,11 @@ class CipherStreamTestCase(unittest.TestCase):
             'aes_192_ecb', 'aes_192_cbc', 'aes_192_cfb', 'aes_192_ofb',
             'aes_256_ecb', 'aes_256_cbc', 'aes_256_cfb', 'aes_256_ofb']
         nonfips_ciphers = ['bf_ecb', 'bf_cbc', 'bf_cfb', 'bf_ofb',
-                         #'idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb',
-                         'cast5_ecb', 'cast5_cbc', 'cast5_cfb', 'cast5_ofb',
-                         #'rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb',
-                         'des_ecb', 'des_cbc', 'des_cfb', 'des_ofb',
-                         'rc4', 'rc2_40_cbc']
+                           # 'idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb',
+                           'cast5_ecb', 'cast5_cbc', 'cast5_cfb', 'cast5_ofb',
+                           # 'rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb',
+                           'des_ecb', 'des_cbc', 'des_cfb', 'des_ofb',
+                           'rc4', 'rc2_40_cbc']
         if not fips_mode:  # Forbidden ciphers
             ciphers += nonfips_ciphers
 
@@ -86,10 +82,11 @@ class CipherStreamTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.try_algo('nosuchalgo4567')
 
+
 def suite():
-    suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(CipherStreamTestCase))
-    return suite
+    t_suite = unittest.TestSuite()
+    t_suite.addTest(unittest.makeSuite(CipherStreamTestCase))
+    return t_suite
 
 if __name__ == '__main__':
     Rand.load_file('randpool.dat', -1)

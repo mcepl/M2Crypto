@@ -13,13 +13,10 @@ import base64
 import logging
 import os
 import time
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 import warnings
 
 from M2Crypto import ASN1, BIO, EVP, RSA, Rand, X509, m2  # noqa
+from tests import unittest
 
 log = logging.getLogger(__name__)
 

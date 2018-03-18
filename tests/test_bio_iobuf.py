@@ -5,12 +5,10 @@
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
 from io import BytesIO
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 from M2Crypto.BIO import IOBuffer, MemoryBuffer
+from tests import unittest
+
 
 class IOBufferTestCase(unittest.TestCase):
 

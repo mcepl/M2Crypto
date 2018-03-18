@@ -6,14 +6,11 @@ Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
 import logging
 import time
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 from M2Crypto import EVP, Rand, six, util
 from M2Crypto.AuthCookie import AuthCookie, AuthCookieJar, mix, unmix, unmix3
 from M2Crypto.six.moves.http_cookies import SimpleCookie  # pylint: disable=no-name-in-module,import-error
+from tests import unittest
 
 log = logging.getLogger(__name__)
 

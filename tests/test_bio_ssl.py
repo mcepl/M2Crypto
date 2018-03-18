@@ -5,11 +5,9 @@ from __future__ import absolute_import, print_function
 
 Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 
-import threading, sys, socket
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
+import socket
+import sys
+import threading
 
 from M2Crypto import BIO
 from M2Crypto import SSL
@@ -17,7 +15,9 @@ from M2Crypto import Err
 from M2Crypto import Rand
 from M2Crypto import threading as m2threading
 
+from tests import unittest
 from tests.test_ssl import srv_host, allocate_srv_port
+
 
 class HandshakeClient(threading.Thread):
 
@@ -49,12 +49,12 @@ class HandshakeClient(threading.Thread):
                     print(err_string)
                     sys.exit("unrecoverable error in handshake - client")
                 else:
-                     output_token = writebio.read()
-                     if output_token is not None:
-                         sock.sendall(output_token)
-                     else:
-                         input_token = sock.recv(1024)
-                         readbio.write(input_token)
+                    output_token = writebio.read()
+                    if output_token is not None:
+                        sock.sendall(output_token)
+                    else:
+                        input_token = sock.recv(1024)
+                        readbio.write(input_token)
             else:
                 handshake_complete = True
 
@@ -125,7 +125,7 @@ class SSLTestCase(unittest.TestCase):
         sock.listen(5)
         handshake_client = HandshakeClient(srv_host, srv_port)
         handshake_client.start()
-        new_sock, addr = sock.accept()
+        new_sock, _ = sock.accept()
         while not handshake_complete:
             input_token = new_sock.recv(1024)
             readbio.write(input_token)
@@ -144,6 +144,7 @@ class SSLTestCase(unittest.TestCase):
         handshake_client.join()
         sock.close()
         new_sock.close()
+
 
 def suite():
     return unittest.makeSuite(SSLTestCase)

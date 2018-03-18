@@ -11,19 +11,16 @@ Copyright (c) 2000-2001 Ng Pheng Siong. All rights reserved."""
 import os
 import os.path
 import time
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 try:
     import win32process
 except ImportError:
     win32process = None
 
+from tests import test_ssl, unittest
+
 if win32process:
     from M2Crypto import Rand
-    from tests import test_ssl
 
     def find_openssl():
         plist = os.environ['PATH'].split(';')
@@ -32,7 +29,7 @@ if win32process:
                 path_dir = os.listdir(p)
                 if 'openssl.exe' in path_dir:
                     return os.path.join(p, 'openssl.exe')
-            except WindowsError:
+            except win32process.WindowsError:
                 pass
         return None
 

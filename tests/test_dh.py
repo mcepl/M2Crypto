@@ -4,12 +4,8 @@
 
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
-
 from M2Crypto import DH, BIO, Rand
+from tests import unittest
 
 
 class DHTestCase(unittest.TestCase):

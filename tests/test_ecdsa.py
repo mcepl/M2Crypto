@@ -8,13 +8,10 @@ rights reserved.
 """
 import hashlib
 import logging
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 from M2Crypto import EC, Rand
 
+from tests import unittest
 from tests.test_ec_curves import tested_curve
 
 log = logging.getLogger(__name__)

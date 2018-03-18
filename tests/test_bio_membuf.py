@@ -6,12 +6,9 @@ Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
 import os
 import multiprocessing
-try:
-    import unittest2 as unittest
-except ImportError:
-    import unittest
 
 from M2Crypto.BIO import MemoryBuffer
+from tests import unittest
 
 
 class TimeLimitExpired(Exception):

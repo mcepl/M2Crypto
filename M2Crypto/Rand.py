@@ -88,7 +88,7 @@ def load_file(filename, max_bytes):
     :param max_bytes:
     :return: the number of bytes read.
     """
-    return m2.rand_load_file(filename, max_bytes)  # pylint: disable=no-member
+    return m2.rand_load_file(six.ensure_str(filename), max_bytes)  # pylint: disable=no-member
 
 
 def save_file(filename):
