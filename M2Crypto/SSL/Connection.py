@@ -13,12 +13,12 @@ Copyright 2008 Heikki Toivonen. All rights reserved.
 import logging
 import socket
 
-from M2Crypto import BIO, Err, X509, m2, six, util  # noqa
+from M2Crypto import BIO, Err, X509, m2, py27plus, six, util  # noqa
 from M2Crypto.SSL import Checker, Context, timeout  # noqa
 from M2Crypto.SSL import SSLError
 from M2Crypto.SSL.Cipher import Cipher, Cipher_Stack
 from M2Crypto.SSL.Session import Session
-if util.py27plus:
+if py27plus:
     from typing import Any, AnyStr, Callable, Dict, List, Optional, Tuple, Union  # noqa
 
 __all__ = ['Connection',
@@ -387,7 +387,7 @@ class Connection(object):
         buflen = len(buff_bytes)
 
         # memoryview type has been added in 2.7
-        if util.py27plus and isinstance(buff, memoryview):
+        if py27plus and isinstance(buff, memoryview):
             buff[:buflen] = buff_bytes
             buff[buflen:] = b'\x00' * (len(buff) - buflen)
         else:
@@ -574,7 +574,7 @@ class Connection(object):
     def get_cipher_list(self, idx=0):
         # type: (int) -> str
         """Return the cipher suites for this connection as a string object."""
-        return util.py3str(m2.ssl_get_cipher_list(self.ssl, idx))
+        return six.ensure_text(m2.ssl_get_cipher_list(self.ssl, idx))
 
     def set_cipher_list(self, cipher_list):
         # type: (str) -> int
@@ -658,7 +658,7 @@ class Connection(object):
     def get_version(self):
         # type: () -> str
         """Return the TLS/SSL protocol version for this connection."""
-        return util.py3str(m2.ssl_get_version(self.ssl))
+        return six.ensure_text(m2.ssl_get_version(self.ssl))
 
     def set_post_connection_check_callback(self, postConnectionCheck):  # noqa
         # type: (Callable) -> None

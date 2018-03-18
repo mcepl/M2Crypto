@@ -2,6 +2,9 @@ from __future__ import absolute_import
 """
     M2Crypto utility routines.
 
+    NOTHING IN THIS MODULE IS GUARANTEED TO BE STABLE, USED ONLY FOR
+    INTERNAL PURPOSES OF M2CRYPTO.
+
     Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.
 
     Portions created by Open Source Applications Foundation (OSAF) are
@@ -12,12 +15,9 @@ import binascii
 import logging
 import sys
 
-# This means "Python 2.7 or higher" so it is True for py3k as well
-py27plus = sys.version_info[:2] > (2, 6)  # type: bool
-
-from M2Crypto import m2, six
+from M2Crypto import m2, py27plus, six
 if py27plus:
-    from typing import AnyStr, Tuple, Union  # noqa
+    from typing import Any, AnyStr, Optional, Tuple, Union  # noqa
     # see https://github.com/python/typeshed/issues/222
     AddrType = Union[Tuple[str, int], str]
 
@@ -44,57 +44,9 @@ def pkcs7_pad(data, blklen):
     return data + chr(pad) * pad
 
 
-# before the introduction of py3{bytes,str}, python2 code
-# was just using args as-is
-if six.PY2:
-    def py3bytes(x):
-        # type: (AnyStr) -> Optional[bytes,bytearray]
-        if isinstance(x, unicode):
-            return x.encode('utf8')
-        elif isinstance(x, (bytearray, str)):
-            return x
-        else:
-            raise TypeError(
-                'No string argument provided (type of x is %s)' %
-                type(x))
-
-    def py3str(x):
-        # type: (Optional[str,bytearray]) -> str
-        if isinstance(x, bytearray):
-            return str(x)
-        elif isinstance(x, (str, unicode)):
-            return x
-        else:
-            raise TypeError(
-                'No string argument provided (type of x is %s)' %
-                type(x))
-else:
-    def py3bytes(x):
-        # type: (AnyStr) -> Optional[bytes,bytearray]
-        if isinstance(x, str):
-            return bytes(x, encoding='utf8')
-        elif isinstance(x, (bytes, bytearray)):
-            return x
-        else:
-            raise TypeError(
-                'No string argument provided (type of x is %s)' %
-                type(x))
-
-    def py3str(x):
-        # type: (Optional[AnyStr,bytearray]) -> str
-        if isinstance(x, (bytes, bytearray)):
-            return x.decode('utf8')
-        elif isinstance(x, str):
-            return x
-        else:
-            raise TypeError(
-                'No string argument provided (type of x is %s)' %
-                type(x))
-
-
 def bin_to_hex(b):
     # type: (bytes) -> str
-    return py3str(binascii.b2a_base64(b)[:-1])
+    return six.ensure_text(binascii.b2a_base64(b)[:-1])
 
 
 def octx_to_num(x):

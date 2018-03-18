@@ -18,10 +18,14 @@ Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 """
 # noqa
+import sys
 from distutils.version import StrictVersion
 __version__ = '0.29.0'
 version = __version__  # type: str
 version_info = StrictVersion(__version__).version
+
+# This means "Python 2.7 or higher" so it is True for py3k as well
+py27plus = sys.version_info[:2] > (2, 6)  # type: bool
 
 from M2Crypto import (ASN1, AuthCookie, BIO, BN, DH, DSA, EVP, Engine, Err,
                       RSA, Rand, SMIME, SSL, X509, m2crypto, ftpslib,

@@ -36,7 +36,7 @@ except ImportError:
     import unittest
 
 from M2Crypto import (Err, Rand, SSL, X509, ftpslib, httpslib, m2, m2urllib,
-                      m2urllib2, m2xmlrpclib, six, util)
+                      m2urllib2, m2xmlrpclib, py27plus, six)
 from tests.fips import fips_mode
 
 log = logging.getLogger('test_SSL')
@@ -119,7 +119,7 @@ class BaseSSLClientTestCase(unittest.TestCase):
     def stop_server(self, pid):
         pid.terminate()
         out, err = pid.communicate()
-        return util.py3str(out), util.py3str(err)
+        return six.ensure_text(out), six.ensure_text(err)
 
     def http_get(self, s):
         s.send(b'GET / HTTP/1.0\n\n')
@@ -132,7 +132,7 @@ class BaseSSLClientTestCase(unittest.TestCase):
             except SSL.SSLError:  # s_server throws an 'unexpected eof'...
                 break
             resp = resp + r
-        return util.py3str(resp)
+        return six.ensure_text(resp)
 
     def setUp(self):
         self.srv_host = srv_host
@@ -167,7 +167,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             c.close()
         finally:
             self.stop_server(pid)
-        self.assertIn('s_server -quiet -www', util.py3str(data))
+        self.assertIn('s_server -quiet -www', six.ensure_text(data))
 
     def test_HTTPSConnection_resume_session(self):
         pid = self.start_server(self.args)
@@ -198,7 +198,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             c2.request('GET', '/')
             ses2 = c2.get_session()
             t2 = ses2.as_text()
-            data = util.py3str(c2.getresponse().read())
+            data = six.ensure_text(c2.getresponse().read())
             c.close()
             c2.close()
             self.assertEqual(t, t2, "Sessions did not match")
@@ -215,7 +215,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             c = httpslib.HTTPSConnection(srv_host, self.srv_port,
                                          ssl_context=self.ctx)
             c.request('GET', '/')
-            data = util.py3str(c.getresponse().read())
+            data = six.ensure_text(c.getresponse().read())
             c.close()
         finally:
             self.stop_server(pid)
@@ -1025,7 +1025,7 @@ class Urllib2TEChunkedSSLClientTestCase(BaseSSLClientTestCase):
             self.stop_server(pid)
 
 
-@unittest.skipUnless(util.py27plus,
+@unittest.skipUnless(py27plus,
                      "Twisted doesn't test well with Python 2.6")
 class TwistedSSLClientTestCase(BaseSSLClientTestCase):
 
@@ -1191,7 +1191,7 @@ def suite():
     suite.addTest(unittest.makeSuite(MiscSSLClientTestCase))
     suite.addTest(unittest.makeSuite(FtpslibTestCase))
     try:
-        if util.py27plus:
+        if py27plus:
             import M2Crypto.SSL.TwistedProtocolWrapper as wrapper  # noqa
             suite.addTest(unittest.makeSuite(TwistedSSLClientTestCase))
     except ImportError:

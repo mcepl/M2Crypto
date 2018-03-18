@@ -11,7 +11,7 @@ try:
 except ImportError:
     import unittest
 
-from M2Crypto import EVP, Rand, util
+from M2Crypto import EVP, Rand, six, util
 from M2Crypto.AuthCookie import AuthCookie, AuthCookieJar, mix, unmix, unmix3
 from M2Crypto.six.moves.http_cookies import SimpleCookie  # pylint: disable=no-name-in-module,import-error
 
@@ -58,7 +58,7 @@ class AuthCookieTestCase(unittest.TestCase):
         # Peek inside the cookie jar...
         key = self.jar._key  # pylint: disable=protected-access
         mac = util.bin_to_hex(
-            EVP.hmac(key, util.py3bytes(mix(self.exp, self.data)), 'sha1'))
+            EVP.hmac(key, six.ensure_binary(mix(self.exp, self.data)), 'sha1'))
         self.assertEqual(c.mac(), mac)
         # Ok, stop peeking now.
         cookie_str = self._format % (self.exp, self.data, mac)
@@ -111,7 +111,7 @@ class AuthCookieTestCase(unittest.TestCase):
         self.assertAlmostEqual(exp, self.exp, places=4)
         key = self.jar._key     # pylint: disable=protected-access
         mac = util.bin_to_hex(
-            EVP.hmac(key, util.py3bytes(mix(self.exp, self.data)), 'sha1'))
+            EVP.hmac(key, six.ensure_binary(mix(self.exp, self.data)), 'sha1'))
         self.assertEqual(digest, mac)
 
     def test_cookie_str(self):

@@ -8,7 +8,7 @@ try:
 except ImportError:
     import unittest
 
-from M2Crypto import ASN1, BIO, Rand, X509, m2, util
+from M2Crypto import ASN1, BIO, Rand, X509, m2, six
 
 """
 These functions must be cleaned up and moved to some python module
@@ -26,15 +26,18 @@ def x509_name_entry2tuple(entry):
     bio = BIO.MemoryBuffer()
     m2.asn1_string_print(bio._ptr(), m2.x509_name_entry_get_data(entry._ptr()))
     return (
-        util.py3str(m2.obj_obj2txt(
+        six.ensure_text(m2.obj_obj2txt(
             m2.x509_name_entry_get_object(entry._ptr()), 0)),
-        util.py3str(bio.getvalue()))
+        six.ensure_text(bio.getvalue()))
 
 
 def tuple2x509_name_entry(tup):
     obj, data = tup
-    _x509_ne = m2.x509_name_entry_create_by_txt(None, obj, ASN1.MBSTRING_ASC,
-                                                data, len(data))
+    # TODO This is evil, isn't it? Shouldn't we use only official API?
+    # Something like X509.X509_Name.add_entry_by_txt()
+    _x509_ne = m2.x509_name_entry_create_by_txt(None, six.ensure_str(obj),
+                                                ASN1.MBSTRING_ASC,
+                                                six.ensure_str(data), len(data))
     if not _x509_ne:
         raise ValueError("Invalid object indentifier: %s" % obj)
     return X509.X509_Name_Entry(_x509_ne, _pyfree=1)  # Prevent memory leaks

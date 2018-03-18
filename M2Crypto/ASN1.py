@@ -12,8 +12,8 @@ Copyright (C) 2005 OSAF. All Rights Reserved.
 import datetime
 import time
 
-from M2Crypto import BIO, m2, util
-if util.py27plus:
+from M2Crypto import BIO, m2, py27plus, six
+if py27plus:
     from typing import Any, Callable, Optional, Tuple  # noqa
 
 MBSTRING_FLAG = 0x1000
@@ -65,7 +65,7 @@ class ASN1_String(object):
 
     def __str__(self):
         # type: () -> str
-        return util.py3str(self.__bytes__())
+        return six.ensure_text(self.__bytes__())
 
     def __del__(self):
         # type: () -> None
@@ -86,7 +86,7 @@ class ASN1_String(object):
         """
         buf = BIO.MemoryBuffer()
         m2.asn1_string_print_ex(buf.bio_ptr(), self.asn1str, flags)
-        return util.py3str(buf.read_all())
+        return six.ensure_text(buf.read_all())
 
 
 class ASN1_Object(object):
@@ -197,7 +197,7 @@ class ASN1_TIME(object):
             "'asn1_time' type error'"
         buf = BIO.MemoryBuffer()
         m2.asn1_time_print(buf.bio_ptr(), self.asn1_time)
-        return util.py3str(buf.read_all())
+        return six.ensure_text(buf.read_all())
 
     def _ptr(self):
         assert m2.asn1_time_type_check(self.asn1_time), \

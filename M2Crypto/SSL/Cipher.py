@@ -4,8 +4,8 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
 __all__ = ['Cipher', 'Cipher_Stack']
 
-from M2Crypto import m2, six, util
-if util.py27plus:
+from M2Crypto import m2, py27plus, six
+if py27plus:
     from typing import Iterable  # noqa
 
 
@@ -32,7 +32,7 @@ class Cipher(object):
 
     def name(self):
         # type: () -> str
-        return util.py3str(m2.ssl_cipher_get_name(self.cipher))
+        return six.ensure_text(m2.ssl_cipher_get_name(self.cipher))
 
 
 class Cipher_Stack(object):

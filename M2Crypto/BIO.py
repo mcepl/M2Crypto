@@ -6,8 +6,8 @@ Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
 import logging
 
-from M2Crypto import m2, six, util
-if util.py27plus:
+from M2Crypto import m2, py27plus, six
+if py27plus:
     from typing import AnyStr, Callable, Iterable, Optional, Union  # noqa
 
 log = logging.getLogger('BIO')
@@ -76,7 +76,7 @@ class BIO(object):
             raise IOError('cannot read')
         buf = m2.bio_gets(self.bio, size)
         buf = '' if buf is None else buf
-        return util.py3bytes(buf)
+        return six.ensure_binary(buf)
 
     def readlines(self, sizehint='ignored'):
         # type: (Union[AnyStr, int]) -> Iterable[bytes]
@@ -87,7 +87,7 @@ class BIO(object):
             buf = m2.bio_gets(self.bio, 4096)
             if buf is None:
                 break
-            lines.append(util.py3bytes(buf))
+            lines.append(six.ensure_binary(buf))
         return lines
 
     def writeable(self):

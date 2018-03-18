@@ -13,7 +13,7 @@ __all__ = ['SSLVerificationError', 'NoCertificate', 'WrongCertificate',
 import re
 import socket
 
-from M2Crypto import X509, m2, util  # noqa
+from M2Crypto import X509, m2, six, util  # noqa
 if util.py27plus:
     from typing import AnyStr, Optional  # noqa
 
@@ -59,7 +59,7 @@ class WrongHost(SSLVerificationError):
         # type: () -> str
         s = 'Peer certificate %s does not match host, expected %s, got %s' \
             % (self.fieldName, self.expectedHost, self.actualHost)
-        return util.py3str(s)
+        return six.ensure_text(s)
 
 
 class Checker(object):
@@ -70,7 +70,7 @@ class Checker(object):
         # type: (Optional[str], Optional[bytes], str) -> None
         self.host = host
         if peerCertHash is not None:
-            peerCertHash = util.py3bytes(peerCertHash)
+            peerCertHash = six.ensure_binary(peerCertHash)
         self.fingerprint = peerCertHash
         self.digest = peerCertDigest  # type: str
 
@@ -101,7 +101,7 @@ class Checker(object):
                                               expected_len,
                                               len(self.fingerprint)))
 
-            expected_fingerprint = util.py3str(self.fingerprint)
+            expected_fingerprint = six.ensure_text(self.fingerprint)
             observed_fingerprint = peerCert.get_fingerprint(md=self.digest)
             if observed_fingerprint != expected_fingerprint:
                 raise WrongCertificate(

@@ -18,36 +18,36 @@ from M2Crypto import util, six
 
 class UtilTestCase(unittest.TestCase):
     def test_py3bytes(self):
-        self.assertIsInstance(util.py3bytes('test'), bytes)
+        self.assertIsInstance(six.ensure_binary('test'), bytes)
 
     def test_py3str(self):
-        self.assertIsInstance(util.py3str('test'), str)
+        self.assertIsInstance(six.ensure_text('test'), str)
 
     def test_py3bytes_str(self):
-        self.assertIsInstance(util.py3bytes(u'test'), bytes)
+        self.assertIsInstance(six.ensure_binary(u'test'), bytes)
 
     def test_py3str_str(self):
-        self.assertIsInstance(util.py3str(u'test'), six.string_types)
+        self.assertIsInstance(six.ensure_text(u'test'), six.string_types)
 
     def test_py3bytes_bytes(self):
-        self.assertIsInstance(util.py3bytes(b'test'), bytes)
+        self.assertIsInstance(six.ensure_binary(b'test'), bytes)
 
     def test_py3str_bytes(self):
-        self.assertIsInstance(util.py3str(b'test'), str)
+        self.assertIsInstance(six.ensure_text(b'test'), str)
 
     def test_py3bytes_bytearray(self):
-        self.assertIsInstance(util.py3bytes(bytearray(b'test')), bytearray)
+        self.assertIsInstance(six.ensure_binary(bytearray(b'test')), bytearray)
 
     def test_py3str_bytearray(self):
-        self.assertIsInstance(util.py3str(bytearray(b'test')), str)
+        self.assertIsInstance(six.ensure_text(bytearray(b'test')), str)
 
     def test_py3bytes_None(self):
         with self.assertRaises(TypeError):
-            util.py3bytes(None)
+            six.ensure_binary(None)
 
     def test_py3str_None(self):
         with self.assertRaises(TypeError):
-            util.py3str(None)
+            six.ensure_text(None)
 
 
 def suite():

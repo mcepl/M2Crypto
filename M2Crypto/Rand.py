@@ -7,8 +7,8 @@ See LICENCE for the license information.
 """
 from __future__ import absolute_import
 
-from M2Crypto import m2, util
-if util.py27plus:
+from M2Crypto import m2, py27plus, six
+if py27plus:
     from typing import AnyStr, Tuple  # noqa
 
 
@@ -73,11 +73,11 @@ def rand_file_name():
        is set, $HOME/.rnd otherwise. If $HOME is not set either,
        an error occurs.
     """
-    return util.py3str(m2.rand_file_name())  # pylint: disable=no-member
+    return six.ensure_text(m2.rand_file_name())  # pylint: disable=no-member
 
 
 def load_file(filename, max_bytes):
-    # type: (bytes, int) -> int
+    # type: (AnyStr, int) -> int
     """
     Read a number of bytes from file filename and adds them to the PRNG.
 

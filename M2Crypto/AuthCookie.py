@@ -8,10 +8,10 @@ import logging
 import re
 import time
 
-from M2Crypto import Rand, m2, util, six
+from M2Crypto import Rand, m2, py27plus, six, util
 from M2Crypto.six.moves.http_cookies import SimpleCookie  # pylint: disable=no-name-in-module,import-error
 
-if util.py27plus:
+if py27plus:
     from typing import re as type_re, AnyStr, Dict, Optional, Union  # noqa
 
 _MIX_FORMAT = 'exp=%f&data=%s&digest='
@@ -56,7 +56,7 @@ class AuthCookieJar(object):
 
     def _hmac(self, key, data):
         # type: (bytes, str) -> str
-        return util.bin_to_hex(m2.hmac(key, util.py3bytes(data), m2.sha1()))
+        return util.bin_to_hex(m2.hmac(key, six.ensure_binary(data), m2.sha1()))
 
     def makeCookie(self, expiry, data):
         # type: (float, str) -> AuthCookie

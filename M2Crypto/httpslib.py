@@ -9,12 +9,12 @@ Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 import base64
 import socket
 
-from M2Crypto import SSL, six, util
+from M2Crypto import SSL, py27plus, six
 from M2Crypto.six.moves.urllib_parse import urlsplit, urlunsplit
 from M2Crypto.six.moves.http_client import *  # noqa
 # This is not imported with just '*'
 from M2Crypto.six.moves.http_client import HTTPS_PORT
-if util.py27plus:
+if py27plus:
     from typing import Any, AnyStr, Callable, Dict, List, Optional  # noqa
 
 
@@ -246,7 +246,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
         if self._proxy_auth:
             msg = msg + "%s: %s\r\n" % (self._AUTH_HEADER, self._proxy_auth)
         msg = msg + "\r\n"
-        return util.py3bytes(msg)
+        return six.ensure_binary(msg)
 
     def _start_ssl(self):
         # type: () -> None
@@ -266,4 +266,4 @@ class ProxyHTTPSConnection(HTTPSConnection):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", DeprecationWarning)
             enc_userpass = base64.encodestring(userpass).replace("\n", "")
-        return util.py3bytes("Basic %s" % enc_userpass)
+        return six.ensure_binary("Basic %s" % enc_userpass)
