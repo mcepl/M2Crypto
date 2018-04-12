@@ -62,10 +62,6 @@ extern const char *SSL_alert_desc_string(int);
 %rename(ssl_get_alert_desc_v) SSL_alert_desc_string_long;
 extern const char *SSL_alert_desc_string_long(int);
 
-#ifndef OPENSSL_NO_SSL3
-%ignore SSLv3_method;
-extern SSL_METHOD *SSLv3_method(void);
-#endif
 %rename(sslv23_method) SSLv23_method;
 extern SSL_METHOD *SSLv23_method(void);
 %ignore TLSv1_method;
@@ -263,16 +259,6 @@ void ssl_init(PyObject *ssl_err, PyObject *ssl_timeout_err) {
     _ssl_err = ssl_err;
     _ssl_timeout_err = ssl_timeout_err;
 }
-
-#ifndef OPENSSL_NO_SSL3
-const SSL_METHOD *sslv3_method(void) {
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
-    PyErr_WarnEx(PyExc_DeprecationWarning,
-                 "Function SSLv3_method has been deprecated.", 1);
-#endif
-    return SSLv3_method();
-}
-#endif
 
 const SSL_METHOD *tlsv1_method(void) {
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L

@@ -7519,16 +7519,6 @@ void ssl_init(PyObject *ssl_err, PyObject *ssl_timeout_err) {
     _ssl_timeout_err = ssl_timeout_err;
 }
 
-#ifndef OPENSSL_NO_SSL3
-const SSL_METHOD *sslv3_method(void) {
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
-    PyErr_WarnEx(PyExc_DeprecationWarning,
-                 "Function SSLv3_method has been deprecated.", 1);
-#endif
-    return SSLv3_method();
-}
-#endif
-
 const SSL_METHOD *tlsv1_method(void) {
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
     PyErr_WarnEx(PyExc_DeprecationWarning,
@@ -19858,18 +19848,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_sslv3_method(PyObject *self, PyObject *args) {
-  PyObject *resultobj = 0;
-  SSL_METHOD *result = 0 ;
-  
-  result = (SSL_METHOD *)sslv3_method();
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_SSL_METHOD, 0 |  0 );
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_tlsv1_method(PyObject *self, PyObject *args) {
   PyObject *resultobj = 0;
   SSL_METHOD *result = 0 ;
@@ -29907,7 +29885,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"ssl_read", _wrap_ssl_read, METH_VARARGS, NULL},
 	 { (char *)"ssl_write", _wrap_ssl_write, METH_VARARGS, NULL},
 	 { (char *)"ssl_init", _wrap_ssl_init, METH_VARARGS, NULL},
-	 { (char *)"sslv3_method", _wrap_sslv3_method, METH_VARARGS, NULL},
 	 { (char *)"tlsv1_method", _wrap_tlsv1_method, METH_VARARGS, NULL},
 	 { (char *)"ssl_ctx_passphrase_callback", _wrap_ssl_ctx_passphrase_callback, METH_VARARGS, NULL},
 	 { (char *)"ssl_ctx_use_x509", _wrap_ssl_ctx_use_x509, METH_VARARGS, NULL},
