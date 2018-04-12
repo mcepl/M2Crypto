@@ -57,3 +57,12 @@ fedora3:
         - dnf install --refresh -y @development-tools fedora-packager rpmdevtools
         - dnf install -y swig python3-devel openssl-devel openssl python3-setuptools python3-twisted
         - python3 setup.py clean build test
+
+opensuse:
+    image: opensuse:tumbleweed
+    when: always
+    script:
+        - zypper refresh
+        - zypper install -y pattern:devel_rpm_build pattern:devel_C_C++ osc
+        - zypper install -y swig python3-devel libopenssl1_1 libopenssl-devel python3-setuptools python3-Twisted
+        - python3 setup.py clean build test
