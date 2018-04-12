@@ -26,18 +26,18 @@ python34:
     image: python:3.4
     when: always
     script:
+        - echo 'deb http://ftp.debian.org/debian jessie-backports main' > /etc/apt/sources.list.d/backports-jessie.list
         - apt-get update -q -y
-        - apt-get install -y swig libssl-dev libssl1.0.0 python3-dev openssl python3-setuptools
-        - easy_install3 Twisted
+        - apt-get install -y swig libssl-dev libssl1.0.0 python3-dev openssl python3-setuptools python3-twisted
         - python3 setup.py clean build test
 
 python36:
     image: python:3.6
     when: always
     script:
+        - echo 'deb http://ftp.debian.org/debian jessie-backports main' >/etc/apt/sources.list.d/backports-jessie.list
         - apt-get update -q -y
-        - apt-get install -y swig libssl-dev libssl1.0.0 python3-dev openssl python3-setuptools
-        - easy_install3 Twisted
+        - apt-get install -y swig libssl-dev libssl1.0.0 python3-dev openssl python3-setuptools python3-twisted
         - python3 setup.py clean build test
 
 fedora:
