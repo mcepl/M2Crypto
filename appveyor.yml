@@ -92,12 +92,12 @@ install:
   - "%PYTHON%\\Scripts\\pip.exe install -r dev-requirements.txt"
 
   - ECHO "Install OpenSSL 1.1.0 32bit"
-  - curl -o Win32OpenSSL-1_1_0g.exe -sSL https://slproweb.com/download/Win32OpenSSL-1_1_0g.exe
-  - "Win32OpenSSL-1_1_0g.exe /silent /verysilent /DIR=C:\\OpenSSL-1-1-Win32"
+  - curl -o Win32OpenSSL-1_1_0h.exe -sSL https://slproweb.com/download/Win32OpenSSL-1_1_0h.exe
+  - "Win32OpenSSL-1_1_0h.exe /silent /verysilent /DIR=C:\\OpenSSL-1-1-Win32"
 
   - ECHO "Install OpenSSL 1.1.0 64bit"
-  - curl -o Win64OpenSSL-1_1_0g.exe -sSL https://slproweb.com/download/Win64OpenSSL-1_1_0g.exe
-  - "Win64OpenSSL-1_1_0g.exe /silent /verysilent /DIR=C:\\OpenSSL-1-1-Win64"
+  - curl -o Win64OpenSSL-1_1_0h.exe -sSL https://slproweb.com/download/Win64OpenSSL-1_1_0h.exe
+  - "Win64OpenSSL-1_1_0h.exe /silent /verysilent /DIR=C:\\OpenSSL-1-1-Win64"
 
   # The pypi version will not install on 2.6
   # - "%CMD_IN_ENV% pip install pypiwin32"
