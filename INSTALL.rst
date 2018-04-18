@@ -55,6 +55,9 @@ command.
 Differences when installing on Windows
 --------------------------------------
 
+(Python 2.6 is not supported on Windows anymore, please, just 
+update to 2.7 if you want to stay on Python 2)
+
 (needs updating)
 
 Before building from source, you need to install OpenSSL's include

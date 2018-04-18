@@ -53,17 +53,6 @@ environment:
       PYWIN32: "pywin32-222.win-amd64-py2.7.exe"
       PYWIN32_RELEASE: b222
 
-
-    # Also test a Python version not pre-installed
-    # See: https://github.com/ogrisel/python-appveyor-demo/issues/10
-
-    - PYTHON: "C:\\Python26"
-      PYTHON_VERSION: "2.6.6"
-      PYTHON_ARCH: "32"
-      OPENSSL_PATH: "C:\\OpenSSL-Win32"
-      PYWIN32: "pywin32-221.win32-py2.6.exe"
-      PYWIN32_RELEASE: b221
-
 nuget:
     account_feed: true
 
@@ -98,9 +87,6 @@ install:
   - ECHO "Install OpenSSL 1.1.0 64bit"
   - curl -o Win64OpenSSL-1_1_0h.exe -sSL https://slproweb.com/download/Win64OpenSSL-1_1_0h.exe
   - "Win64OpenSSL-1_1_0h.exe /silent /verysilent /DIR=C:\\OpenSSL-1-1-Win64"
-
-  # The pypi version will not install on 2.6
-  # - "%CMD_IN_ENV% pip install pypiwin32"
 
   - ECHO "Install pywin32"
   - curl -o "%PYWIN32%" -sSL "https://github.com/mhammond/pywin32/releases/download/%PYWIN32_RELEASE%/%PYWIN32%"
