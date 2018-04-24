@@ -1,3 +1,17 @@
+0.30.0 - 2018-04-25
+-------------------
+- Various small typos (Windows builds, Fix SSL.Connection.__del__)
+- The project is now Linux-distribution agnostic
+- Replace all old-style classes with the new ones (it shouldn't cause
+  any problems, but feel free to file an issue, if it does)
+- Do not by-pass a potential transfer decoding in m2urllib2
+- Update M2Crypto.six with 1.11.0 and replace our local workarounds with
+  new functions.
+- SSLv3 just removed.
+- Don't support Python 2.6 on Windows anymore. Windows users don't have
+  python as a system package, so they are usually more likely to upgrade
+  anyway.
+
 0.29.0 - 2018-02-23
 -------------------
 - Fix building on Windows (all tests fix on Win32 and Win64 on all
