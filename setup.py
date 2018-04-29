@@ -357,7 +357,7 @@ setuptools.setup(
     license='MIT',
     platforms=['any'],
     author='Ng Pheng Siong',
-    author_email='ngps at sandbox rulemaker net',
+    author_email='ngps@sandbox.rulemaker.net',
     maintainer='Matej Cepl',
     maintainer_email='mcepl@cepl.eu',
     url='https://gitlab.com/m2crypto/m2crypto',

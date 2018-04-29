@@ -1,7 +1,7 @@
 include SWIG/*.i
 include SWIG/*.h
 include SWIG/*.def
-recursive-include tests *.py *.pem *.der *.b64 README *.pgp *.dat *.p7* *.crt
+recursive-include tests *.py *.pem *.der *.b64 README *.pgp *.dat *.p7* *.crt *.txt
 recursive-include doc *
 recursive-include contrib *
 include INSTALL.rst
