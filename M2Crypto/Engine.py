@@ -1,4 +1,6 @@
 # vim: sts=4 sw=4 et
+from __future__ import absolute_import
+
 """
 M2Crypto wrapper for OpenSSL ENGINE API.
 
