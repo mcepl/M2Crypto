@@ -7,6 +7,7 @@ Copyright 2008 Heikki Toivonen. All rights reserved.
 
 __all__ = ['DEFAULT_TIMEOUT', 'timeout', 'struct_to_timeout', 'struct_size']
 
+import sys
 import struct
 
 DEFAULT_TIMEOUT = 600  # type: int
@@ -20,15 +21,28 @@ class timeout(object):
         self.microsec = microsec
 
     def pack(self):
-        return struct.pack('ll', self.sec, self.microsec)
+        if sys.platform == 'win32':
+            millisec = int(self.sec * 1000 + round(float(self.microsec) / 1000))
+            binstr = struct.pack('l', millisec)
+        else:
+            binstr = struct.pack('ll', self.sec, self.microsec)
+        return binstr
 
 
 def struct_to_timeout(binstr):
     # type: (bytes) -> timeout
-    (s, ms) = struct.unpack('ll', binstr)
-    return timeout(s, ms)
+    if sys.platform == 'win32':
+        millisec = struct.unpack('l', binstr)[0]
+        sec = int(round(float(millisec) / 1000))
+        microsec = int(round((float(millisec) % 1000) * 1000))
+    else:
+        (sec, microsec) = struct.unpack('ll', binstr)
+    return timeout(sec, microsec)
 
 
 def struct_size():
     # type: () -> int
-    return struct.calcsize('ll')
+    if sys.platform == 'win32':
+        return struct.calcsize('l')
+    else:
+        return struct.calcsize('ll')
