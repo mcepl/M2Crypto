@@ -19,7 +19,7 @@ python27:
     when: always
     script:
         - apt-get update -q -y
-        - apt-get install -y swig libssl-dev libssl1.0.0 python-dev openssl python-twisted python-setuptools
+        - apt-get install -y swig libssl1.0-dev python-dev openssl python-twisted python-setuptools
         - python setup.py clean build test
 
 python34:
@@ -28,7 +28,7 @@ python34:
     script:
         - echo 'deb http://ftp.debian.org/debian jessie-backports main' > /etc/apt/sources.list.d/backports-jessie.list
         - apt-get update -q -y
-        - apt-get install -y swig libssl-dev libssl1.0.0 python3-dev openssl python3-setuptools python3-twisted
+        - apt-get install -y swig libssl-dev python3-dev openssl python3-setuptools python3-twisted
         - python3 setup.py clean build test
 
 python36:
@@ -37,7 +37,7 @@ python36:
     script:
         - echo 'deb http://ftp.debian.org/debian jessie-backports main' >/etc/apt/sources.list.d/backports-jessie.list
         - apt-get update -q -y
-        - apt-get install -y swig libssl-dev libssl1.0.0 python3-dev openssl python3-setuptools python3-twisted
+        - apt-get install -y swig libssl-dev python3-dev openssl python3-setuptools python3-twisted
         - python3 setup.py clean build test
 
 fedora:
