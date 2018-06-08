@@ -40,7 +40,8 @@ def suite():
         'tests.test_smime',
         'tests.test_ssl_offline',
         'tests.test_threading',
-        'tests.test_x509']
+        'tests.test_x509',
+        'tests.test_timeout']
     if os.name == 'posix':
         modules_to_test.append('tests.test_ssl')
     elif os.name == 'nt':

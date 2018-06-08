@@ -33,8 +33,10 @@ def struct_to_timeout(binstr):
     # type: (bytes) -> timeout
     if sys.platform == 'win32':
         millisec = struct.unpack('l', binstr)[0]
-        sec = int(round(float(millisec) / 1000))
-        microsec = int(round((float(millisec) % 1000) * 1000))
+        # On py3, int/int performs exact division and returns float. We want
+        # the whole number portion of the exact division result:
+        sec = int(millisec / 1000)
+        microsec = (millisec % 1000) * 1000
     else:
         (sec, microsec) = struct.unpack('ll', binstr)
     return timeout(sec, microsec)

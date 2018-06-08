@@ -27,7 +27,7 @@ from M2Crypto.SSL.SSLServer import SSLServer, ThreadingSSLServer
 if os.name != 'nt':
     from M2Crypto.SSL.SSLServer import ForkingSSLServer
 from M2Crypto.SSL.ssl_dispatcher import ssl_dispatcher
-from M2Crypto.SSL.timeout import timeout
+from M2Crypto.SSL.timeout import timeout, struct_to_timeout, struct_size
 
 verify_none = m2.SSL_VERIFY_NONE  # type: int
 verify_peer = m2.SSL_VERIFY_PEER  # type: int

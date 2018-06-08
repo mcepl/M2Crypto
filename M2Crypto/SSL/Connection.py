@@ -637,11 +637,20 @@ class Connection(object):
             self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO,
                                    timeout.struct_size()))
 
+    @staticmethod
+    def _hexdump(s):
+        assert isinstance(s, six.binary_type)
+        return ":".join("{0:02x}".format(ord(c) if six.PY2 else c) for c in s)
+
     def get_socket_write_timeout(self):
         # type: () -> timeout
-        return timeout.struct_to_timeout(
-            self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_SNDTIMEO,
-                                   timeout.struct_size()))
+        binstr = self.socket.getsockopt(
+            socket.SOL_SOCKET, socket.SO_SNDTIMEO, timeout.struct_size())
+        timeo = timeout.struct_to_timeout(binstr)
+        #print("Debug: get_socket_write_timeout: "
+        #      "get sockopt value: %s -> returned timeout(sec=%r, microsec=%r)" %
+        #      (self._hexdump(binstr), timeo.sec, timeo.microsec))
+        return timeo
 
     def set_socket_read_timeout(self, timeo):
         # type: (timeout) -> None
@@ -652,8 +661,12 @@ class Connection(object):
     def set_socket_write_timeout(self, timeo):
         # type: (timeout) -> None
         assert isinstance(timeo, timeout.timeout)
+        binstr = timeo.pack()
+        #print("Debug: set_socket_write_timeout: "
+        #      "input timeout(sec=%r, microsec=%r) -> set sockopt value: %s" %
+        #      (timeo.sec, timeo.microsec, self._hexdump(binstr)))
         self.socket.setsockopt(
-            socket.SOL_SOCKET, socket.SO_SNDTIMEO, timeo.pack())
+            socket.SOL_SOCKET, socket.SO_SNDTIMEO, binstr)
 
     def get_version(self):
         # type: () -> str
