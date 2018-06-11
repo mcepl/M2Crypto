@@ -240,7 +240,7 @@ extern int ssl_write(SSL *ssl, PyObject *blob, double timeout = -1);
 %constant int SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS = 0x00000800L;
 
 %constant int SSL_MODE_ENABLE_PARTIAL_WRITE = SSL_MODE_ENABLE_PARTIAL_WRITE;
-%constant int SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER = SSL_MODE_ENABLE_PARTIAL_WRITE;
+%constant int SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER = SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER;
 %constant int SSL_MODE_AUTO_RETRY           = SSL_MODE_AUTO_RETRY;
 
 %ignore ssl_handle_error;
