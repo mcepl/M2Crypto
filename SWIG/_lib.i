@@ -224,8 +224,21 @@ PyObject *m2_PyFile_Name(PyObject *pyfile) {
 #define m2_PyErr_Msg(type) m2_PyErr_Msg_Caller(type, (const char*) __FUNCTION__)
 
 static void m2_PyErr_Msg_Caller(PyObject *err_type, const char* caller) {
-    const char *err_msg;
-    if ((err_msg = ERR_reason_error_string(ERR_get_error())) != NULL) {
+    const char *err_reason;
+    const char *data;
+    int flags;
+    /* This max size of a (longer than ours) OpenSSL error string is hardcoded
+     * in OpenSSL's crypto/err/err_prn.c:ERR_print_errors_cb() */
+    char err_msg[4096];
+    unsigned long err_code = ERR_get_error_line_data(NULL, NULL, &data, &flags);
+
+    if (err_code != 0) {
+        err_reason = ERR_reason_error_string(err_code);
+        if (data && (flags & ERR_TXT_STRING))
+            snprintf(err_msg, sizeof(err_msg), "%s (%s)", err_reason, data);
+        else
+            snprintf(err_msg, sizeof(err_msg), "%s", err_reason);
+
         PyErr_SetString(err_type, err_msg);
     } else {
         PyErr_Format(err_type, "Unknown error in function %s.", caller);

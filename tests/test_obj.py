@@ -105,6 +105,28 @@ class ObjectsTestCase(unittest.TestCase):
 
         self.assertEqual(n.as_text(), n1.as_text(), n1.as_text())
 
+    # Detailed OpenSSL error message is visible in Python error message:
+    def test_detailed_error_message(self):
+        from M2Crypto import SMIME, X509
+        s = SMIME.SMIME()
+        x509 = X509.load_cert('tests/recipient.pem')
+        sk = X509.X509_Stack()
+        sk.push(x509)
+        s.set_x509_stack(sk)
+
+        st = X509.X509_Store()
+        st.load_info('tests/recipient.pem')
+        s.set_x509_store(st)
+
+        p7, data = SMIME.smime_load_pkcs7('tests/sample-p7.pem')
+        self.assertIsInstance(p7, SMIME.PKCS7, p7)
+
+        try:
+            s.verify(p7, data)
+        except SMIME.PKCS7_Error as e:
+            self.assertRegexpMatches(str(e),
+                                     "unable to get local issuer certificate",
+                                     "Not received expected error message")
 
 def suite():
     t_suite = unittest.TestSuite()

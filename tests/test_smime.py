@@ -209,6 +209,29 @@ class SMIMETestCase(unittest.TestCase):
         with self.assertRaises(SMIME.PKCS7_Error):
             s.verify(p7)  # Bad signer
 
+    # This test is not SMIME-specific - it tests that the additional OpenSSL
+    # error message is visible in Python error messages.
+    def test_detailed_error_message(self):
+        s = SMIME.SMIME()
+        x509 = X509.load_cert('tests/recipient.pem')
+        sk = X509.X509_Stack()
+        sk.push(x509)
+        s.set_x509_stack(sk)
+
+        st = X509.X509_Store()
+        st.load_info('tests/recipient.pem')
+        s.set_x509_store(st)
+
+        p7, data = SMIME.smime_load_pkcs7_bio(self.signed)
+        self.assertIsInstance(p7, SMIME.PKCS7, p7)
+
+        try:
+            s.verify(p7, data)
+        except SMIME.PKCS7_Error as e:
+            self.assertRegexpMatches(str(e),
+                                     "unable to get local issuer certificate",
+                                     "Not received expected error message")
+
     def test_encrypt(self):
         buf = BIO.MemoryBuffer(self.cleartext)
         s = SMIME.SMIME()
