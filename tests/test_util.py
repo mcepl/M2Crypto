@@ -12,28 +12,22 @@ from tests import unittest
 
 class UtilTestCase(unittest.TestCase):
     def test_py3bytes(self):
-        self.assertIsInstance(six.ensure_binary('test'), bytes)
+        self.assertIsInstance(six.ensure_binary('test'), six.binary_type)
 
     def test_py3str(self):
-        self.assertIsInstance(six.ensure_text('test'), str)
+        self.assertIsInstance(six.ensure_text('test'), six.text_type)
 
     def test_py3bytes_str(self):
-        self.assertIsInstance(six.ensure_binary(u'test'), bytes)
+        self.assertIsInstance(six.ensure_binary(u'test'), six.binary_type)
 
     def test_py3str_str(self):
         self.assertIsInstance(six.ensure_text(u'test'), six.string_types)
 
     def test_py3bytes_bytes(self):
-        self.assertIsInstance(six.ensure_binary(b'test'), bytes)
+        self.assertIsInstance(six.ensure_binary(b'test'), six.binary_type)
 
     def test_py3str_bytes(self):
-        self.assertIsInstance(six.ensure_text(b'test'), str)
-
-    def test_py3bytes_bytearray(self):
-        self.assertIsInstance(six.ensure_binary(bytearray(b'test')), bytearray)
-
-    def test_py3str_bytearray(self):
-        self.assertIsInstance(six.ensure_text(bytearray(b'test')), str)
+        self.assertIsInstance(six.ensure_text(b'test'), six.text_type)
 
     def test_py3bytes_None(self):
         with self.assertRaises(TypeError):
