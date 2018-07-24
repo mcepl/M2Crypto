@@ -33,6 +33,7 @@ import warnings
 
 from M2Crypto import (Err, Rand, SSL, X509, ftpslib, httpslib, m2, m2urllib,
                       m2urllib2, m2xmlrpclib, py27plus, six)
+from M2Crypto.SSL.timeout import DEFAULT_TIMEOUT
 from tests import unittest
 from tests.fips import fips_mode
 
@@ -353,6 +354,14 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
 
     def test_server_simple_timeouts(self):
         pid = self.start_server(self.args)
+        # Arbitrary value:
+        test_timeout_sec = 909
+        # Linux rounds microseconds in the timeouts up to the HZ kernel parameter.
+        # Windows rounds down to milliseconds.
+        # To avoid checking for rounded values, pick interval long enough
+        # so that it is a whole number of ms and HZ for any reasonable HZ value.
+        test_timeout_microsec = 500000
+
         try:
             with self.assertRaises(ValueError):
                 SSL.Context('tlsv5')
@@ -367,20 +376,13 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             self.assertEqual(w.microsec, 0, w.microsec)
 
             s.set_socket_read_timeout(SSL.timeout())
-            s.set_socket_write_timeout(SSL.timeout(909, 9))
+            s.set_socket_write_timeout(SSL.timeout(test_timeout_sec, test_timeout_microsec))
             r = s.get_socket_read_timeout()
             w = s.get_socket_write_timeout()
-            self.assertEqual(r.sec, 600, r.sec)
+            self.assertEqual(r.sec, DEFAULT_TIMEOUT, r.sec)
             self.assertEqual(r.microsec, 0, r.microsec)
-            self.assertEqual(w.sec, 909, w.sec)
-            if sys.platform == 'win32':
-                # On Windows, microseconds get rounded to milliseconds
-                self.assertEqual(w.microsec, 0, w.microsec)
-            else:
-                # On some platforms (e.g. some Linux), microeconds get rounded
-                # up to the next millisecond.
-                # On some platforms (e.g. OS-X), microseconds are preserved.
-                self.assertIn(w.microsec, (9, 1000), w.microsec)
+            self.assertEqual(w.sec, test_timeout_sec, w.sec)
+            self.assertEqual(w.microsec, test_timeout_microsec, w.microsec)
 
             s.connect(self.srv_addr)
             data = self.http_get(s)
