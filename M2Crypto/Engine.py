@@ -54,8 +54,11 @@ class Engine(object):
         return m2.engine_finish(self._ptr)
 
     def ctrl_cmd_string(self, cmd, arg, optional=0):
-        # type: (bytes, Optional[bytes], int) -> int
+        # type: (AnyStr, Optional[AnyStr], int) -> None
         """Call ENGINE_ctrl_cmd_string"""
+        cmd = six.ensure_str(cmd)
+        if arg is not None:
+            arg = six.ensure_str(arg)
         if not m2.engine_ctrl_cmd_string(self._ptr, cmd, arg, optional):
             raise EngineError(Err.get_error())
 
@@ -121,10 +124,10 @@ def load_dynamic_engine(id, sopath):
         sopath = sopath.encode('utf8')
     m2.engine_load_dynamic()
     e = Engine('dynamic')
-    e.ctrl_cmd_string(b'SO_PATH', sopath)
-    e.ctrl_cmd_string(b'ID', id)
-    e.ctrl_cmd_string(b'LIST_ADD', '1')
-    e.ctrl_cmd_string(b'LOAD', None)
+    e.ctrl_cmd_string('SO_PATH', sopath)
+    e.ctrl_cmd_string('ID', id)
+    e.ctrl_cmd_string('LIST_ADD', '1')
+    e.ctrl_cmd_string('LOAD', None)
     return e
 
 

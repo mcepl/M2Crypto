@@ -30,6 +30,11 @@ class EngineTestCase(unittest.TestCase):
         Engine.load_dynamic()
         Engine.Engine('dynamic')
 
+    def test_engine_ctrl_cmd_string(self):
+        Engine.load_dynamic()
+        e = Engine.Engine('dynamic')
+        e.ctrl_cmd_string('ID', 'TESTID')
+
     def test_load_private(self):
         Engine.load_openssl()
         e = Engine.Engine('openssl')
