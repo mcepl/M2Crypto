@@ -566,6 +566,12 @@ class X509TestCase(unittest.TestCase):
         self.assertEqual(cert.get_serial_number(),
                          127614157056681299805556476275995414779)
 
+    def test_set_long_serial(self):
+        cert = X509.X509()
+        cert.set_serial_number(127614157056681299805556476275995414779)
+        self.assertEqual(cert.get_serial_number(),
+                         127614157056681299805556476275995414779)
+
     def test_date_after_2050_working(self):
         cert = X509.load_cert('tests/bad_date_cert.crt')
         self.assertEqual(str(cert.get_not_after()), 'Feb  9 14:57:46 2116 GMT')
