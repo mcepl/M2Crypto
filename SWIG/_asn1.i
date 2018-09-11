@@ -148,28 +148,19 @@ int asn1_integer_set(ASN1_INTEGER *asn1, PyObject *value) {
  * PyLong_AsLong shims as provided in
  * /usr/include/python2.7/longobject.h.
  */
-#if PY_MAJOR_VERSION >= 3
     if (PyLong_Check(value)) {
         int overflow = 0;
         long val = PyLong_AsLongAndOverflow(value, &overflow);
         if (overflow == 0)
             return ASN1_INTEGER_set(asn1, val);
     }
-#else
-    if (PyInt_Check(value))
-        return ASN1_INTEGER_set(asn1, PyInt_AS_LONG(value));
-#endif // PY_MAJOR_VERSION >= 3
 
     if (!PyLong_Check(value)){
         PyErr_SetString(PyExc_TypeError, "expected int or long");
         return 0;
     }
 
-#if PY_MAJOR_VERSION >= 3
     fmt = PyUnicode_FromString("%x");
-#else
-    fmt = PyString_FromString("%x");
-#endif // PY_MAJOR_VERSION >= 3
 
     if (!fmt)
         return 0;
@@ -184,11 +175,7 @@ int asn1_integer_set(ASN1_INTEGER *asn1, PyObject *value) {
 
     Py_INCREF(value);
     PyTuple_SET_ITEM(args, 0, value);
-#if PY_MAJOR_VERSION >= 3
     hex = PyUnicode_Format(fmt, args);
-#else
-    hex = PyString_Format(fmt, args);
-#endif // PY_MAJOR_VERSION >= 3
 
     if (!hex){
         PyErr_SetString(PyExc_RuntimeError, "PyString_Format() failed");
@@ -200,11 +187,7 @@ int asn1_integer_set(ASN1_INTEGER *asn1, PyObject *value) {
     Py_DECREF(fmt);
     Py_DECREF(args);
 
-#if PY_MAJOR_VERSION >= 3
     if (BN_hex2bn(&bn, PyUnicode_AsUTF8(hex)) <= 0){
-#else
-    if (BN_hex2bn(&bn, PyString_AsString(hex)) <= 0){
-#endif // PY_MAJOR_VERSION >= 3
         m2_PyErr_Msg(PyExc_RuntimeError);
         Py_DECREF(hex);
         return 0;

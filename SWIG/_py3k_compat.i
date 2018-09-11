@@ -36,6 +36,8 @@ FILE* PyFile_AsFile(PyObject *pyfile) {
 
 #define PyLong_FromLong(x) PyInt_FromLong(x)
 #define PyUnicode_AsUTF8(x) PyString_AsString(x)
+#define PyUnicode_FromString(x) PyString_FromString(x)
+#define PyUnicode_Format(x, y) PyString_Format(x, y)
 
 #endif /* PY_MAJOR_VERSION */
 %}
