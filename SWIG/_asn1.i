@@ -148,12 +148,10 @@ int asn1_integer_set(ASN1_INTEGER *asn1, PyObject *value) {
  * PyLong_AsLong shims as provided in
  * /usr/include/python2.7/longobject.h.
  */
-    if (PyLong_Check(value)) {
-        int overflow = 0;
-        long val = PyLong_AsLongAndOverflow(value, &overflow);
-        if (overflow == 0)
-            return ASN1_INTEGER_set(asn1, val);
-    }
+    int overflow = 0;
+    long val = PyLong_AsLongAndOverflow(value, &overflow);
+    if (overflow == 0)
+        return ASN1_INTEGER_set(asn1, val);
 
     if (!PyLong_Check(value)){
         PyErr_SetString(PyExc_TypeError, "expected int or long");
