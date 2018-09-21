@@ -5,6 +5,8 @@ environment:
         secure: oqWqarxnd4H23FMywnlQeg==
     PASS:
         secure: j/VSxdYJ7mdR44u8OdywLg==
+    X86_OPENSSL_INSTALLER: Win32OpenSSL-1_1_0i.exe
+    X64_OPENSSL_INSTALLER: Win64OpenSSL-1_1_0i.exe
 
   matrix:
 
@@ -81,12 +83,12 @@ install:
   - "%PYTHON%\\Scripts\\pip.exe install -r dev-requirements.txt"
 
   - ECHO "Install OpenSSL 1.1.0 32bit"
-  - curl -o c:\\Win32OpenSSL-1_1_0i.exe -fsSL https://slproweb.com/download/Win32OpenSSL-1_1_0i.exe
-  - c:\\Win32OpenSSL-1_1_0i.exe /silent /verysilent /DIR=C:\\OpenSSL-1-1-Win32"
+  - curl -o "c:\\%X86_OPENSSL_INSTALLER%" -fsSL "https://slproweb.com/download/%X86_OPENSSL_INSTALLER%"
+  - "c:\\%X86_OPENSSL_INSTALLER% /silent /verysilent /DIR=C:\\OpenSSL-1-1-Win32"
 
   - ECHO "Install OpenSSL 1.1.0 64bit"
-  - curl -o c:\\Win64OpenSSL-1_1_0i.exe -fsSL https://slproweb.com/download/Win64OpenSSL-1_1_0i.exe
-  - c:\\Win64OpenSSL-1_1_0i.exe /silent /verysilent /DIR=C:\\OpenSSL-1-1-Win64
+  - curl -o "c:\\%X64_OPENSSL_INSTALLER%" -fsSL "https://slproweb.com/download/%X64_OPENSSL_INSTALLER%"
+  - "c:\\%X64_OPENSSL_INSTALLER% /silent /verysilent /DIR=C:\\OpenSSL-1-1-Win64"
 
   - ECHO "Install pywin32"
   - curl -o "%PYWIN32%" -fsSL "https://github.com/mhammond/pywin32/releases/download/%PYWIN32_RELEASE%/%PYWIN32%"
