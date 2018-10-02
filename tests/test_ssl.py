@@ -1189,7 +1189,7 @@ class FtpslibTestCase(unittest.TestCase):
     def test_26_compat(self):
         f = ftpslib.FTP_TLS()
         # 2.6 used to raise AttributeError:
-        with self.assertRaises(socket.gaierror):
+        with self.assertRaises((socket.gaierror, socket.error,)):
             f.connect('no-such-host-dfgHJK56789', 990)
 
 
