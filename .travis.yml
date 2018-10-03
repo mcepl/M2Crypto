@@ -14,13 +14,14 @@ sudo: false
 python:
   - "2.6"
   - "2.7"
-  - "3.3"
   - "3.4"
   - "3.5"
   - "3.6"
+  - "3.7"
   - "nightly"
 matrix:
   allow_failures:
+    - python: "3.7"
     - python: "nightly"
 
 install:

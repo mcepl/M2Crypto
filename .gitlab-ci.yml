@@ -31,8 +31,8 @@ python34:
         - apt-get install -y swig libssl-dev python3-dev openssl python3-setuptools python3-twisted
         - python3 setup.py clean build test
 
-python36:
-    image: python:3.6
+python3:
+    image: python:3
     when: always
     script:
         - echo 'deb http://ftp.debian.org/debian jessie-backports main' >/etc/apt/sources.list.d/backports-jessie.list

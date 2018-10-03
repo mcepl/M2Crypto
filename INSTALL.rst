@@ -8,7 +8,7 @@ Pre-requisites
 
 The following software packages are pre-requisites:
 
--  Python 2.6 or newer
+-  Python 2.6, 2.7, 3.4, or newer
 -  OpenSSL 1.0.1e or newer
 -  Python 2.6 platforms require the Python package unittest2 to be
    installed
