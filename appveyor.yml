@@ -27,6 +27,21 @@ environment:
       PYWIN32_RELEASE: b222
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
+    - PYTHON: "C:\\Python35"
+      PYTHON_VERSION: "3.5.x" # currently 3.6.4
+      PYTHON_ARCH: "32"
+      OPENSSL_PATH: "C:\\OpenSSL-1-1-Win32"
+      PYWIN32: "pywin32-222.win32-py3.5.exe"
+      PYWIN32_RELEASE: b222
+
+    - PYTHON: "C:\\Python35-x64"
+      PYTHON_VERSION: "3.5.x" # currently 3.6.4
+      PYTHON_ARCH: "64"
+      OPENSSL_PATH: "C:\\OpenSSL-1-1-Win64"
+      PYWIN32: "pywin32-222.win-amd64-py3.5.exe"
+      PYWIN32_RELEASE: b222
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+
     - PYTHON: "C:\\Python27"
       PYTHON_VERSION: "2.7.x" # currently 2.7.9
       PYTHON_ARCH: "32"
