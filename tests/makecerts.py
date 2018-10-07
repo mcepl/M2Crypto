@@ -18,10 +18,7 @@ import time
 
 from M2Crypto import ASN1, EC, EVP, RSA, X509, m2, util
 
-from tests.test_ec_curves import tested_curve
-
-
-t = time.time() + time.timezone
+t = int(time.time() + time.timezone)
 before = ASN1.ASN1_TIME()
 before.set_time(t)
 after = ASN1.ASN1_TIME()
@@ -34,7 +31,7 @@ def callback(self, *args):
     return ' '
 
 
-def gen_identifier(cert, dig='sha1'):
+def gen_identifier(cert, dig='sha256'):
     instr = cert.get_pubkey().get_rsa().as_pem()
     h = hashlib.new(dig)
     h.update(instr)
@@ -64,7 +61,7 @@ def req(name):
     reqqed = X509.Request()
     reqqed.set_pubkey(pk)
     reqqed.set_subject(make_subject())
-    reqqed.sign(pk, 'sha1')
+    reqqed.sign(pk, 'sha256')
     return reqqed, pk
 
 
@@ -111,7 +108,7 @@ def issue(request, ca, capk):
     # ext = X509.new_extension('authorityKeyIdentifier', 'keyid:%s' % auth_id)
     # # cert.add_ext(ext)
 
-    cert.sign(capk, 'sha1')
+    cert.sign(capk, 'sha256')
 
     assert cert.verify(capk)
 
@@ -150,7 +147,7 @@ def mk_ca():
     # ext = X509.new_extension('authorityKeyIdentifier', 'keyid:%s' % ski)
     # cert.add_ext(ext)
 
-    cert.sign(pk, 'sha1')
+    cert.sign(pk, 'sha256')
 
     save_text_pem_key(cert, 'ca')
 
@@ -190,7 +187,7 @@ def mk_recipient(ca, capk):
 
 
 def mk_ec_pair():
-    priv_key = EC.gen_params(tested_curve[0])
+    priv_key = EC.gen_params(EC.NID_secp384r1)
     priv_key.gen_key()
     priv_key.save_key('ec.priv.pem',
                       callback=util.no_passphrase_callback)
@@ -203,7 +200,7 @@ if __name__ == '__main__':
     os.chdir(os.path.dirname(sys.argv[0]))
 
     for key_name in names:
-        genned_key = RSA.gen_key(1024, m2.RSA_F4)
+        genned_key = RSA.gen_key(2048, m2.RSA_F4)
         genned_key.save_key('%s_key.pem' % key_name, None)
 
     ca_bits, pk_bits = mk_ca()

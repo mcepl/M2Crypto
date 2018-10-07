@@ -27,7 +27,7 @@ class X509TestCase(unittest.TestCase):
         pass
 
     def setUp(self):
-        self.expected_hash = 'F0429E180321BB3C0CBEAB811360BB0E27CC0259'
+        self.expected_hash = 'BA4212E8B55527570828E7F5A0005D17C64BDC4C'
 
     def mkreq(self, bits, ca=0):
         pk = EVP.PKey()
