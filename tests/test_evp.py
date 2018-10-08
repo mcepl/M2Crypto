@@ -465,7 +465,6 @@ class CipherTestCase(unittest.TestCase):
 
         for key_size in [128, 192, 256]:
             alg = 'aes_%s_ctr' % str(key_size)
-            log.info('Testing cipher %s', alg)
 
             # Our key for this test is 256 bits in length (32 bytes).
             # We will trim it to the appopriate length for testing AES-128
