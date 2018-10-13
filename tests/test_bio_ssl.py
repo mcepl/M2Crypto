@@ -58,6 +58,9 @@ class HandshakeClient(threading.Thread):
             else:
                 handshake_complete = True
 
+        output_token = writebio.read()
+        if output_token is not None:
+            sock.sendall(output_token)
         sock.close()
 
 
