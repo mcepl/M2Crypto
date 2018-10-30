@@ -6,25 +6,20 @@ Installing M2Crypto
 Pre-requisites
 --------------
 
-The following software packages are pre-requisites:
+The following is required to *use* M2Crypto (once installed):
 
--  Python 2.6, 2.7, 3.4, or newer
--  OpenSSL 1.0.1e or newer
--  Python 2.6 platforms require the Python package unittest2 to be
-   installed
+-  ``Python 2.6``, ``2.7``, ``3.4``, or newer
+-  ``OpenSSL 1.0.1e`` or newer
 
-For further development you need (aside from the normal development
-environment, C compiler, header files for OpenSSL, etc.) also:
+To *install* M2Crypto, you must be able to compile and link C sources
+against Python and OpenSSL headers/libraries. For example on a Debian-based
+system the following packages are needed:
 
--  SWIG 2.0.4 or newer
+- ``build-essential``
+- ``python3-dev`` and/or ``python-dev``
+- ``libssl-dev``
 
-Debian
-~~~~~~
-
-For Py2 & Py3 support install::
-
-    sudo apt-get install build-essential python3-dev python-dev libssl-dev swig
-
+To *develop* M2Crypto, ``SWIG 2.0.4`` or newer is required.
 
 Installing on Unix-like systems, including Cygwin
 -------------------------------------------------
