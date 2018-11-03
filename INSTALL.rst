@@ -18,8 +18,8 @@ system the following packages are needed:
 - ``build-essential``
 - ``python3-dev`` and/or ``python-dev``
 - ``libssl-dev``
-
-To *develop* M2Crypto, ``SWIG 2.0.4`` or newer is required.
+- ``swig 2.0.4`` or newer (installation is also possible on some
+particular old systems with swig v1.*)
 
 Installing on Unix-like systems, including Cygwin
 -------------------------------------------------
