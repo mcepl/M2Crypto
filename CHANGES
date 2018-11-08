@@ -1,3 +1,13 @@
+0.31.0 - 2018-11-08
+-------------------
+
+- Compatibility with OpenSSL 1.1.1 (partly workaround, maybe requires
+  further investigation)
+- Fixes for Windows builds
+- Fixes of installs on AWS Lambda
+- Fixes of Mac OS X related failures
+- Fix Python 2.6 compatibility issues
+
 0.30.1 - 2018-04-29
 -------------------
 - Fix packaging (missed packaging testing file)
