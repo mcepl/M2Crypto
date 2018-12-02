@@ -121,6 +121,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         self.bundledlls = None
 
     def finalize_options(self):
+        # type: (None) -> None
         """Append custom openssl include file and library linking options."""
         build_ext.build_ext.finalize_options(self)
         self.openssl_default = None
