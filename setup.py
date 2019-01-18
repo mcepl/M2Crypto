@@ -50,7 +50,7 @@ def _get_additional_includes():
                                 '*Visual*', 'VC', 'include')
         err = glob.glob(globmask)
     else:
-        pid = subprocess.Popen(['cpp', '-Wp,-v', '-'],
+        pid = subprocess.Popen([os.environ.get('CPP', 'cpp'), '-Wp,-v', '-'],
                                stdin=open(os.devnull, 'r'),
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
