@@ -19,6 +19,14 @@
 #define __WCHAR_MAX__ __WCHAR_MAX
 #define __WCHAR_MIN__ __WCHAR_MIN
 #endif
+/* https://gitlab.com/m2crypto/m2crypto/issues/246 */
+%ignore WCHAR_MAX;
+%ignore WCHAR_MIN;
+/* http://swig.10945.n7.nabble.com/SWIG-AsVal-wchar-t-error-td2264.html */
+%{
+int SWIG_AsVal_wchar_t(PyObject *p, wchar_t *c) { return SWIG_OK; } 
+PyObject *SWIG_From_wchar_t(wchar_t c) { return SWIG_Py_Void(); } 
+%}
 
 %{
 #ifdef _WIN32
