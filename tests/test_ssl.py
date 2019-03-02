@@ -460,9 +460,10 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
     def test_cipher_ok(self):
         if OPENSSL111:
             TCIPHER = 'TLS_AES_256_GCM_SHA384'
+            self.args = self.args + ['-ciphersuites', TCIPHER]
         else:
             TCIPHER = 'AES128-SHA'
-        self.args = self.args + ['-cipher', TCIPHER]
+            self.args = self.args + ['-cipher', TCIPHER]
 
         pid = self.start_server(self.args)
         try:
