@@ -1,3 +1,11 @@
+0.32.0 - 2019-03-04
+-------------------
+
+- 471582f - setup.py: use ${CPP} as path to cpp <Duncan Macleod>
+- efb1580 - Bump pipeline OpenSSL from 1.1.0i to 1.1.0j 
+- 35bb71b - Stub wchar_t helpers and ignore unused WCHAR defs <makepost>
+- effc7be - Add type comment to setup.py <Matěj Cepl>
+
 0.31.0 - 2018-11-08
 -------------------
 
