@@ -44,13 +44,15 @@ package_data = {}
 if sys.platform == 'win32':
     package_data.update(M2Crypto=["*.dll"])
 
+
 def _get_additional_includes():
     if os.name == 'nt':
         globmask = os.path.join('C:', os.sep, 'Program Files*',
                                 '*Visual*', 'VC', 'include')
         err = glob.glob(globmask)
     else:
-        pid = subprocess.Popen([os.environ.get('CPP', 'cpp'), '-Wp,-v', '-'],
+        pid = subprocess.Popen(os.environ.get('CPP', 'cpp').split() +
+                               ['-Wp,-v', '-'],
                                stdin=open(os.devnull, 'r'),
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
