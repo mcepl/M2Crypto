@@ -17,10 +17,11 @@ import logging
 import os
 import platform
 import re
+import shlex
+import shutil
 import string
 import subprocess
 import sys
-import shutil
 
 from distutils.command import build, sdist
 from distutils.command.clean import clean
@@ -51,8 +52,8 @@ def _get_additional_includes():
                                 '*Visual*', 'VC', 'include')
         err = glob.glob(globmask)
     else:
-        pid = subprocess.Popen(os.environ.get('CPP', 'cpp').split() +
-                               ['-Wp,-v', '-'],
+        cpp = shlex.split(os.environ.get('CPP', 'cpp'))
+        pid = subprocess.Popen(cpp + ['-Wp,-v', '-'],
                                stdin=open(os.devnull, 'r'),
                                stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE)
