@@ -195,7 +195,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
 
         self._real_host = host  # type: str
         self._real_port = port  # type: int
-        rest = urlunsplit((None, None, path, query, fragment))
+        rest = urlunsplit(('', '', path, query, fragment))
         HTTPSConnection.putrequest(self, method, rest, skip_host,
                                    skip_accept_encoding)
 
