@@ -22,11 +22,10 @@ python27:
         - apt-get install -y swig libssl1.0-dev python-dev openssl python-twisted python-setuptools
         - python setup.py clean build test
 
-python34:
-    image: python:3.4
+python35:
+    image: python:3.5
     when: always
     script:
-        - echo 'deb http://ftp.debian.org/debian jessie-backports main' > /etc/apt/sources.list.d/backports-jessie.list
         - apt-get update -q -y
         - apt-get install -y swig libssl-dev python3-dev openssl python3-setuptools python3-twisted
         - python3 setup.py clean build test
@@ -35,7 +34,6 @@ python3:
     image: python:3
     when: always
     script:
-        - echo 'deb http://ftp.debian.org/debian jessie-backports main' >/etc/apt/sources.list.d/backports-jessie.list
         - apt-get update -q -y
         - apt-get install -y swig libssl-dev python3-dev openssl python3-setuptools python3-twisted
         - python3 setup.py clean build test
@@ -44,7 +42,6 @@ fedora:
     image: fedora:26
     when: always
     script:
-        # - dnf upgrade --refresh -y
         - dnf install --refresh -y @development-tools fedora-packager rpmdevtools
         - dnf install -y swig python-devel openssl-devel openssl python-setuptools python-twisted
         - python setup.py clean build test
@@ -53,7 +50,6 @@ fedora3:
     image: fedora:26
     when: always
     script:
-        # - dnf upgrade --refresh -y
         - dnf install --refresh -y @development-tools fedora-packager rpmdevtools
         - dnf install -y swig python3-devel openssl-devel openssl python3-setuptools python3-twisted
         - python3 setup.py clean build test
