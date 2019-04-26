@@ -1,3 +1,13 @@
+0.33.0 - 2019-04-26
+-------------------
+
+- eb4525c - Stop pretending to support Python 3.4. <Matěj Cepl>
+- 6a89548 - Fix use of urlunsplit (25 hours ago) <Andreas Schwab>
+- 0a5a356 - tests/test_ssl: use -ciphercuites for TLS1.3 cipher in
+      openssl1.1 <Sebastian Andrzej Siewior>
+- 8a0a3e3 - There are apparently multiword CPP variables. Taking that
+      into account. <Matěj Cepl>
+
 0.32.0 - 2019-03-04
 -------------------
 
