@@ -4,23 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>SSL Package &#8212; M2Crypto  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="M2Crypto Package" href="M2Crypto.html" />
@@ -30,34 +23,35 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="ssl-package">
 <h1>SSL Package<a class="headerlink" href="#ssl-package" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="id1">
-<h2><code class="xref py py-mod docutils literal"><span class="pre">SSL</span></code> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<h2><code class="xref py py-mod docutils literal notranslate"><span class="pre">SSL</span></code> Package<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <span class="target" id="module-M2Crypto.SSL"></span><dl class="exception">
 <dt id="M2Crypto.SSL.SSLError">
 <em class="property">exception </em><code class="descclassname">M2Crypto.SSL.</code><code class="descname">SSLError</code><a class="reference internal" href="_modules/M2Crypto/SSL.html#SSLError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.SSLError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="M2Crypto.SSL.SSLTimeoutError">
 <em class="property">exception </em><code class="descclassname">M2Crypto.SSL.</code><code class="descname">SSLTimeoutError</code><a class="reference internal" href="_modules/M2Crypto/SSL.html#SSLTimeoutError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.SSLTimeoutError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#M2Crypto.SSL.SSLError" title="M2Crypto.SSL.SSLError"><code class="xref py py-class docutils literal"><span class="pre">M2Crypto.SSL.SSLError</span></code></a>, <code class="xref py py-class docutils literal"><span class="pre">socket.timeout</span></code></p>
+<dd><p>Bases: <a class="reference internal" href="#M2Crypto.SSL.SSLError" title="M2Crypto.SSL.SSLError"><code class="xref py py-class docutils literal notranslate"><span class="pre">M2Crypto.SSL.SSLError</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">socket.timeout</span></code></p>
 </dd></dl>
 
 </div>
 <div class="section" id="module-M2Crypto.SSL.Checker">
-<span id="checker-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">Checker</span></code> Module<a class="headerlink" href="#module-M2Crypto.SSL.Checker" title="Permalink to this headline">¶</a></h2>
+<span id="checker-module"></span><h2><code class="xref py py-mod docutils literal notranslate"><span class="pre">Checker</span></code> Module<a class="headerlink" href="#module-M2Crypto.SSL.Checker" title="Permalink to this headline">¶</a></h2>
 <p>SSL peer certificate checking routines</p>
 <p>Copyright (c) 2004-2007 Open Source Applications Foundation.
 All rights reserved.</p>
@@ -65,46 +59,48 @@ All rights reserved.</p>
 <dl class="exception">
 <dt id="M2Crypto.SSL.Checker.SSLVerificationError">
 <em class="property">exception </em><code class="descclassname">M2Crypto.SSL.Checker.</code><code class="descname">SSLVerificationError</code><a class="reference internal" href="_modules/M2Crypto/SSL/Checker.html#SSLVerificationError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.Checker.SSLVerificationError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="M2Crypto.SSL.Checker.NoCertificate">
 <em class="property">exception </em><code class="descclassname">M2Crypto.SSL.Checker.</code><code class="descname">NoCertificate</code><a class="reference internal" href="_modules/M2Crypto/SSL/Checker.html#NoCertificate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.Checker.NoCertificate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#M2Crypto.SSL.Checker.SSLVerificationError" title="M2Crypto.SSL.Checker.SSLVerificationError"><code class="xref py py-class docutils literal"><span class="pre">M2Crypto.SSL.Checker.SSLVerificationError</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#M2Crypto.SSL.Checker.SSLVerificationError" title="M2Crypto.SSL.Checker.SSLVerificationError"><code class="xref py py-class docutils literal notranslate"><span class="pre">M2Crypto.SSL.Checker.SSLVerificationError</span></code></a></p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="M2Crypto.SSL.Checker.WrongCertificate">
 <em class="property">exception </em><code class="descclassname">M2Crypto.SSL.Checker.</code><code class="descname">WrongCertificate</code><a class="reference internal" href="_modules/M2Crypto/SSL/Checker.html#WrongCertificate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.Checker.WrongCertificate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#M2Crypto.SSL.Checker.SSLVerificationError" title="M2Crypto.SSL.Checker.SSLVerificationError"><code class="xref py py-class docutils literal"><span class="pre">M2Crypto.SSL.Checker.SSLVerificationError</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#M2Crypto.SSL.Checker.SSLVerificationError" title="M2Crypto.SSL.Checker.SSLVerificationError"><code class="xref py py-class docutils literal notranslate"><span class="pre">M2Crypto.SSL.Checker.SSLVerificationError</span></code></a></p>
 </dd></dl>
 
 <dl class="exception">
 <dt id="M2Crypto.SSL.Checker.WrongHost">
 <em class="property">exception </em><code class="descclassname">M2Crypto.SSL.Checker.</code><code class="descname">WrongHost</code><span class="sig-paren">(</span><em>expectedHost</em>, <em>actualHost</em>, <em>fieldName='commonName'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/Checker.html#WrongHost"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.Checker.WrongHost" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#M2Crypto.SSL.Checker.SSLVerificationError" title="M2Crypto.SSL.Checker.SSLVerificationError"><code class="xref py py-class docutils literal"><span class="pre">M2Crypto.SSL.Checker.SSLVerificationError</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#M2Crypto.SSL.Checker.SSLVerificationError" title="M2Crypto.SSL.Checker.SSLVerificationError"><code class="xref py py-class docutils literal notranslate"><span class="pre">M2Crypto.SSL.Checker.SSLVerificationError</span></code></a></p>
 </dd></dl>
 
 <dl class="class">
 <dt id="M2Crypto.SSL.Checker.Checker">
 <em class="property">class </em><code class="descclassname">M2Crypto.SSL.Checker.</code><code class="descname">Checker</code><span class="sig-paren">(</span><em>host=None</em>, <em>peerCertHash=None</em>, <em>peerCertDigest='sha1'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/Checker.html#Checker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.Checker.Checker" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="attribute">
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="attribute">
 <dt id="M2Crypto.SSL.Checker.Checker.numericIpMatch">
-<code class="descname">numericIpMatch</code><em class="property"> = &lt;_sre.SRE_Pattern object&gt;</em><a class="headerlink" href="#M2Crypto.SSL.Checker.Checker.numericIpMatch" title="Permalink to this definition">¶</a></dt>
+<code class="descname">numericIpMatch</code><em class="property"> = re.compile('^[0-9]+(\\.[0-9]+)*$')</em><a class="headerlink" href="#M2Crypto.SSL.Checker.Checker.numericIpMatch" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </div>
 <div class="section" id="module-M2Crypto.SSL.Cipher">
-<span id="cipher-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">Cipher</span></code> Module<a class="headerlink" href="#module-M2Crypto.SSL.Cipher" title="Permalink to this headline">¶</a></h2>
+<span id="cipher-module"></span><h2><code class="xref py py-mod docutils literal notranslate"><span class="pre">Cipher</span></code> Module<a class="headerlink" href="#module-M2Crypto.SSL.Cipher" title="Permalink to this headline">¶</a></h2>
 <p>SSL Ciphers</p>
 <p>Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.</p>
 <dl class="class">
 <dt id="M2Crypto.SSL.Cipher.Cipher">
 <em class="property">class </em><code class="descclassname">M2Crypto.SSL.Cipher.</code><code class="descname">Cipher</code><span class="sig-paren">(</span><em>cipher</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/Cipher.html#Cipher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.Cipher.Cipher" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
 <dt id="M2Crypto.SSL.Cipher.Cipher.name">
 <code class="descname">name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/Cipher.html#Cipher.name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.Cipher.Cipher.name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -119,15 +115,17 @@ All rights reserved.</p>
 <dl class="class">
 <dt id="M2Crypto.SSL.Cipher.Cipher_Stack">
 <em class="property">class </em><code class="descclassname">M2Crypto.SSL.Cipher.</code><code class="descname">Cipher_Stack</code><span class="sig-paren">(</span><em>stack</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/Cipher.html#Cipher_Stack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.Cipher.Cipher_Stack" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
 
 </div>
 <div class="section" id="module-M2Crypto.SSL.Connection">
-<span id="connection-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">Connection</span></code> Module<a class="headerlink" href="#module-M2Crypto.SSL.Connection" title="Permalink to this headline">¶</a></h2>
+<span id="connection-module"></span><h2><code class="xref py py-mod docutils literal notranslate"><span class="pre">Connection</span></code> Module<a class="headerlink" href="#module-M2Crypto.SSL.Connection" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="M2Crypto.SSL.Connection.Connection">
-<em class="property">class </em><code class="descclassname">M2Crypto.SSL.Connection.</code><code class="descname">Connection</code><span class="sig-paren">(</span><em>ctx</em>, <em>sock=None</em>, <em>family=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/Connection.html#Connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.Connection.Connection" title="Permalink to this definition">¶</a></dt>
-<dd><p>An SSL connection.</p>
+<em class="property">class </em><code class="descclassname">M2Crypto.SSL.Connection.</code><code class="descname">Connection</code><span class="sig-paren">(</span><em>ctx</em>, <em>sock=None</em>, <em>family=&lt;AddressFamily.AF_INET: 2&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/Connection.html#Connection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.Connection.Connection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>An SSL connection.</p>
 <dl class="method">
 <dt id="M2Crypto.SSL.Connection.Connection.accept">
 <code class="descname">accept</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/Connection.html#Connection.accept"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.Connection.Connection.accept" title="Permalink to this definition">¶</a></dt>
@@ -195,7 +193,7 @@ from cache.</p>
 
 <dl class="attribute">
 <dt id="M2Crypto.SSL.Connection.Connection.clientPostConnectionCheck">
-<code class="descname">clientPostConnectionCheck</code><em class="property"> = &lt;M2Crypto.SSL.Checker.Checker instance&gt;</em><a class="headerlink" href="#M2Crypto.SSL.Connection.Connection.clientPostConnectionCheck" title="Permalink to this definition">¶</a></dt>
+<code class="descname">clientPostConnectionCheck</code><em class="property"> = &lt;M2Crypto.SSL.Checker.Checker object&gt;</em><a class="headerlink" href="#M2Crypto.SSL.Connection.Connection.clientPostConnectionCheck" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
@@ -425,6 +423,11 @@ C structures encoded as byte strings).</p>
 <code class="descname">m2_bio_free</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#M2Crypto.SSL.Connection.Connection.m2_bio_free" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="attribute">
+<dt id="M2Crypto.SSL.Connection.Connection.m2_bio_noclose">
+<code class="descname">m2_bio_noclose</code><em class="property"> = 0</em><a class="headerlink" href="#M2Crypto.SSL.Connection.Connection.m2_bio_noclose" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="method">
 <dt id="M2Crypto.SSL.Connection.Connection.m2_ssl_free">
 <code class="descname">m2_ssl_free</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#M2Crypto.SSL.Connection.Connection.m2_ssl_free" title="Permalink to this definition">¶</a></dt>
@@ -458,9 +461,25 @@ C structures encoded as byte strings).</p>
 than creating a new string.  Receive up to buffersize bytes from
 the socket.  If buffersize is not specified (or 0), receive up
 to the size available in the given buffer.</p>
-<p>&#64;param buffer: a buffer for the received bytes
-&#64;param nbytes: maximum number of bytes to read
-&#64;return: number of bytes added</p>
+<p>If buff is bytearray, it will have after return length of the
+actually returned number of bytes. If buff is memoryview, then
+the size of buff won’t change (it cannot), but all bytes after
+the number of returned bytes will be NULL.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>buffer</strong> – a buffer for the received bytes</li>
+<li><strong>nbytes</strong> – maximum number of bytes to read</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">number of bytes read</p>
+</td>
+</tr>
+</tbody>
+</table>
 <p>See recv() for documentation about the flags.</p>
 </dd></dl>
 
@@ -482,8 +501,14 @@ to the size available in the given buffer.</p>
 
 <dl class="method">
 <dt id="M2Crypto.SSL.Connection.Connection.serverPostConnectionCheck">
-<code class="descname">serverPostConnectionCheck</code><span class="sig-paren">(</span><em>*args</em>, <em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#M2Crypto.SSL.Connection.Connection.serverPostConnectionCheck" title="Permalink to this definition">¶</a></dt>
+<code class="descname">serverPostConnectionCheck</code><span class="sig-paren">(</span><em>**kw</em><span class="sig-paren">)</span><a class="headerlink" href="#M2Crypto.SSL.Connection.Connection.serverPostConnectionCheck" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="M2Crypto.SSL.Connection.Connection.set1_host">
+<code class="descname">set1_host</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/Connection.html#Connection.set1_host"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.Connection.Connection.set1_host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the requested hostname to check in the server certificate.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="M2Crypto.SSL.Connection.Connection.set_accept_state">
@@ -727,7 +752,7 @@ encode C structures as strings).</li>
 
 </div>
 <div class="section" id="module-M2Crypto.SSL.Context">
-<span id="context-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">Context</span></code> Module<a class="headerlink" href="#module-M2Crypto.SSL.Context" title="Permalink to this headline">¶</a></h2>
+<span id="context-module"></span><h2><code class="xref py py-mod docutils literal notranslate"><span class="pre">Context</span></code> Module<a class="headerlink" href="#module-M2Crypto.SSL.Context" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="M2Crypto.SSL.Context.ctxmap">
 <code class="descclassname">M2Crypto.SSL.Context.</code><code class="descname">ctxmap</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/Context.html#ctxmap"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.Context.ctxmap" title="Permalink to this definition">¶</a></dt>
@@ -736,7 +761,8 @@ encode C structures as strings).</li>
 <dl class="class">
 <dt id="M2Crypto.SSL.Context.Context">
 <em class="property">class </em><code class="descclassname">M2Crypto.SSL.Context.</code><code class="descname">Context</code><span class="sig-paren">(</span><em>protocol='tls'</em>, <em>weak_crypto=None</em>, <em>post_connection_check=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/Context.html#Context"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.Context.Context" title="Permalink to this definition">¶</a></dt>
-<dd><p>‘Context’ for SSL connections.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>‘Context’ for SSL connections.</p>
 <dl class="method">
 <dt id="M2Crypto.SSL.Context.Context.add_session">
 <code class="descname">add_session</code><span class="sig-paren">(</span><em>session</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/Context.html#Context.add_session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.Context.Context.add_session" title="Permalink to this definition">¶</a></dt>
@@ -1274,44 +1300,49 @@ verification checks.</li>
 
 </div>
 <div class="section" id="module-M2Crypto.SSL.SSLServer">
-<span id="sslserver-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">SSLServer</span></code> Module<a class="headerlink" href="#module-M2Crypto.SSL.SSLServer" title="Permalink to this headline">¶</a></h2>
+<span id="sslserver-module"></span><h2><code class="xref py py-mod docutils literal notranslate"><span class="pre">SSLServer</span></code> Module<a class="headerlink" href="#module-M2Crypto.SSL.SSLServer" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="M2Crypto.SSL.SSLServer.SSLServer">
 <em class="property">class </em><code class="descclassname">M2Crypto.SSL.SSLServer.</code><code class="descname">SSLServer</code><span class="sig-paren">(</span><em>server_address</em>, <em>RequestHandlerClass</em>, <em>ssl_context</em>, <em>bind_and_activate=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/SSLServer.html#SSLServer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.SSLServer.SSLServer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">SocketServer.TCPServer</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">socketserver.TCPServer</span></code></p>
 <dl class="method">
 <dt id="M2Crypto.SSL.SSLServer.SSLServer.handle_error">
 <code class="descname">handle_error</code><span class="sig-paren">(</span><em>request</em>, <em>client_address</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/SSLServer.html#SSLServer.handle_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.SSLServer.SSLServer.handle_error" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Handle an error gracefully.  May be overridden.</p>
+<p>The default is to print a traceback and continue.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="M2Crypto.SSL.SSLServer.SSLServer.handle_request">
 <code class="descname">handle_request</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/SSLServer.html#SSLServer.handle_request"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.SSLServer.SSLServer.handle_request" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Handle one request, possibly blocking.</p>
+<p>Respects self.timeout.</p>
+</dd></dl>
 
 </dd></dl>
 
 <dl class="class">
 <dt id="M2Crypto.SSL.SSLServer.ForkingSSLServer">
 <em class="property">class </em><code class="descclassname">M2Crypto.SSL.SSLServer.</code><code class="descname">ForkingSSLServer</code><span class="sig-paren">(</span><em>server_address</em>, <em>RequestHandlerClass</em>, <em>ssl_context</em>, <em>bind_and_activate=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/SSLServer.html#ForkingSSLServer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.SSLServer.ForkingSSLServer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">SocketServer.ForkingMixIn</span></code>, <a class="reference internal" href="#M2Crypto.SSL.SSLServer.SSLServer" title="M2Crypto.SSL.SSLServer.SSLServer"><code class="xref py py-class docutils literal"><span class="pre">M2Crypto.SSL.SSLServer.SSLServer</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">socketserver.ForkingMixIn</span></code>, <a class="reference internal" href="#M2Crypto.SSL.SSLServer.SSLServer" title="M2Crypto.SSL.SSLServer.SSLServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">M2Crypto.SSL.SSLServer.SSLServer</span></code></a></p>
 </dd></dl>
 
 <dl class="class">
 <dt id="M2Crypto.SSL.SSLServer.ThreadingSSLServer">
 <em class="property">class </em><code class="descclassname">M2Crypto.SSL.SSLServer.</code><code class="descname">ThreadingSSLServer</code><span class="sig-paren">(</span><em>server_address</em>, <em>RequestHandlerClass</em>, <em>ssl_context</em>, <em>bind_and_activate=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/SSLServer.html#ThreadingSSLServer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.SSLServer.ThreadingSSLServer" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">SocketServer.ThreadingMixIn</span></code>, <a class="reference internal" href="#M2Crypto.SSL.SSLServer.SSLServer" title="M2Crypto.SSL.SSLServer.SSLServer"><code class="xref py py-class docutils literal"><span class="pre">M2Crypto.SSL.SSLServer.SSLServer</span></code></a></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">socketserver.ThreadingMixIn</span></code>, <a class="reference internal" href="#M2Crypto.SSL.SSLServer.SSLServer" title="M2Crypto.SSL.SSLServer.SSLServer"><code class="xref py py-class docutils literal notranslate"><span class="pre">M2Crypto.SSL.SSLServer.SSLServer</span></code></a></p>
 </dd></dl>
 
 </div>
 <div class="section" id="module-M2Crypto.SSL.Session">
-<span id="session-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">Session</span></code> Module<a class="headerlink" href="#module-M2Crypto.SSL.Session" title="Permalink to this headline">¶</a></h2>
+<span id="session-module"></span><h2><code class="xref py py-mod docutils literal notranslate"><span class="pre">Session</span></code> Module<a class="headerlink" href="#module-M2Crypto.SSL.Session" title="Permalink to this headline">¶</a></h2>
 <p>SSL Session</p>
 <p>Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.</p>
 <dl class="class">
 <dt id="M2Crypto.SSL.Session.Session">
 <em class="property">class </em><code class="descclassname">M2Crypto.SSL.Session.</code><code class="descname">Session</code><span class="sig-paren">(</span><em>session</em>, <em>_pyfree=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/Session.html#Session"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.Session.Session" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
 <dt id="M2Crypto.SSL.Session.Session.as_der">
 <code class="descname">as_der</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/Session.html#Session.as_der"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.Session.Session.as_der" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1360,7 +1391,7 @@ verification checks.</li>
 
 </div>
 <div class="section" id="module-M2Crypto.SSL.TwistedProtocolWrapper">
-<span id="twistedprotocolwrapper-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">TwistedProtocolWrapper</span></code> Module<a class="headerlink" href="#module-M2Crypto.SSL.TwistedProtocolWrapper" title="Permalink to this headline">¶</a></h2>
+<span id="twistedprotocolwrapper-module"></span><h2><code class="xref py py-mod docutils literal notranslate"><span class="pre">TwistedProtocolWrapper</span></code> Module<a class="headerlink" href="#module-M2Crypto.SSL.TwistedProtocolWrapper" title="Permalink to this headline">¶</a></h2>
 <p>Make Twisted use M2Crypto for SSL</p>
 <p>Copyright (c) 2004-2007 Open Source Applications Foundation.
 All rights reserved.</p>
@@ -1369,14 +1400,14 @@ BEEN FINISHED. THE FURTHER WORK WILL BE DONE WHEN THE STATUS OF TWISTED
 IN THE PYTHON 3 (AND ASYNCIO) WORLD WILL BE CLEAR.</p>
 <dl class="function">
 <dt id="M2Crypto.SSL.TwistedProtocolWrapper.connectSSL">
-<code class="descclassname">M2Crypto.SSL.TwistedProtocolWrapper.</code><code class="descname">connectSSL</code><span class="sig-paren">(</span><em>host</em>, <em>port</em>, <em>factory</em>, <em>contextFactory</em>, <em>timeout=30</em>, <em>bindAddress=None</em>, <em>reactor=&lt;twisted.internet.epollreactor.EPollReactor object&gt;</em>, <em>postConnectionCheck=&lt;M2Crypto.SSL.Checker.Checker instance&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/TwistedProtocolWrapper.html#connectSSL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.TwistedProtocolWrapper.connectSSL" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">M2Crypto.SSL.TwistedProtocolWrapper.</code><code class="descname">connectSSL</code><span class="sig-paren">(</span><em>host</em>, <em>port</em>, <em>factory</em>, <em>contextFactory</em>, <em>timeout=30</em>, <em>bindAddress=None</em>, <em>reactor=&lt;twisted.internet.epollreactor.EPollReactor object&gt;</em>, <em>postConnectionCheck=&lt;M2Crypto.SSL.Checker.Checker object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/TwistedProtocolWrapper.html#connectSSL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.TwistedProtocolWrapper.connectSSL" title="Permalink to this definition">¶</a></dt>
 <dd><p>A convenience function to start an SSL/TLS connection using Twisted.</p>
 <p>See IReactorSSL interface in Twisted.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="M2Crypto.SSL.TwistedProtocolWrapper.connectTCP">
-<code class="descclassname">M2Crypto.SSL.TwistedProtocolWrapper.</code><code class="descname">connectTCP</code><span class="sig-paren">(</span><em>host</em>, <em>port</em>, <em>factory</em>, <em>timeout=30</em>, <em>bindAddress=None</em>, <em>reactor=&lt;twisted.internet.epollreactor.EPollReactor object&gt;</em>, <em>postConnectionCheck=&lt;M2Crypto.SSL.Checker.Checker instance&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/TwistedProtocolWrapper.html#connectTCP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.TwistedProtocolWrapper.connectTCP" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">M2Crypto.SSL.TwistedProtocolWrapper.</code><code class="descname">connectTCP</code><span class="sig-paren">(</span><em>host</em>, <em>port</em>, <em>factory</em>, <em>timeout=30</em>, <em>bindAddress=None</em>, <em>reactor=&lt;twisted.internet.epollreactor.EPollReactor object&gt;</em>, <em>postConnectionCheck=&lt;M2Crypto.SSL.Checker.Checker object&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/TwistedProtocolWrapper.html#connectTCP"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.TwistedProtocolWrapper.connectTCP" title="Permalink to this definition">¶</a></dt>
 <dd><p>A convenience function to start a TCP connection using Twisted.</p>
 <p>NOTE: You must call startTLS(ctx) to go into SSL/TLS mode.</p>
 <p>See IReactorTCP interface in Twisted.</p>
@@ -1400,7 +1431,7 @@ IN THE PYTHON 3 (AND ASYNCIO) WORLD WILL BE CLEAR.</p>
 <dl class="class">
 <dt id="M2Crypto.SSL.TwistedProtocolWrapper.TLSProtocolWrapper">
 <em class="property">class </em><code class="descclassname">M2Crypto.SSL.TwistedProtocolWrapper.</code><code class="descname">TLSProtocolWrapper</code><span class="sig-paren">(</span><em>factory</em>, <em>wrappedProtocol</em>, <em>startPassThrough</em>, <em>client</em>, <em>contextFactory</em>, <em>postConnectionCheck</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/TwistedProtocolWrapper.html#TLSProtocolWrapper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.TwistedProtocolWrapper.TLSProtocolWrapper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">twisted.protocols.policies.ProtocolWrapper</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">twisted.protocols.policies.ProtocolWrapper</span></code></p>
 <p>A SSL/TLS protocol wrapper to be used with Twisted. Typically
 you would not use this class directly. Use connectTCP,
 connectSSL, listenTCP, listenSSL functions defined above,
@@ -1414,17 +1445,39 @@ which will hook in this class.</p>
 <dl class="method">
 <dt id="M2Crypto.SSL.TwistedProtocolWrapper.TLSProtocolWrapper.connectionLost">
 <code class="descname">connectionLost</code><span class="sig-paren">(</span><em>reason</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/TwistedProtocolWrapper.html#TLSProtocolWrapper.connectionLost"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.TwistedProtocolWrapper.TLSProtocolWrapper.connectionLost" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Called when the connection is shut down.</p>
+<p>Clear any circular references here, and any external references
+to this Protocol.  The connection has been closed.</p>
+<p>&#64;type reason: L{twisted.python.failure.Failure}</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="M2Crypto.SSL.TwistedProtocolWrapper.TLSProtocolWrapper.connectionMade">
 <code class="descname">connectionMade</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/TwistedProtocolWrapper.html#TLSProtocolWrapper.connectionMade"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.TwistedProtocolWrapper.TLSProtocolWrapper.connectionMade" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Called when a connection is made.</p>
+<p>This may be considered the initializer of the protocol, because
+it is called when the connection is completed.  For clients,
+this is called once the connection to the server has been
+established; for servers, this is called after an accept() call
+stops blocking and a socket has been received.  If you need to
+send any greeting or initial message, do it here.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="M2Crypto.SSL.TwistedProtocolWrapper.TLSProtocolWrapper.dataReceived">
 <code class="descname">dataReceived</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/TwistedProtocolWrapper.html#TLSProtocolWrapper.dataReceived"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.TwistedProtocolWrapper.TLSProtocolWrapper.dataReceived" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Called whenever data is received.</p>
+<p>Use this method to translate to a higher-level message.  Usually, some
+callback will be made upon the receipt of each complete protocol
+message.</p>
+<dl class="docutils">
+<dt>&#64;param data: a string of indeterminate length.  Please keep in mind</dt>
+<dd>that you will probably need to buffer some data, as partial
+(or multiple) protocol messages may be received!  I recommend
+that unit tests for protocols call through to this method with
+differing chunk sizes, down to one byte at a time.</dd>
+</dl>
+</dd></dl>
 
 <dl class="method">
 <dt id="M2Crypto.SSL.TwistedProtocolWrapper.TLSProtocolWrapper.loseConnection">
@@ -1452,7 +1505,7 @@ through untouched.</p>
 
 </div>
 <div class="section" id="module-M2Crypto.SSL.cb">
-<span id="cb-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">cb</span></code> Module<a class="headerlink" href="#module-M2Crypto.SSL.cb" title="Permalink to this headline">¶</a></h2>
+<span id="cb-module"></span><h2><code class="xref py py-mod docutils literal notranslate"><span class="pre">cb</span></code> Module<a class="headerlink" href="#module-M2Crypto.SSL.cb" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="M2Crypto.SSL.cb.ssl_verify_callback_stub">
 <code class="descclassname">M2Crypto.SSL.cb.</code><code class="descname">ssl_verify_callback_stub</code><span class="sig-paren">(</span><em>ssl_ctx_ptr</em>, <em>x509_ptr</em>, <em>errnum</em>, <em>errdepth</em>, <em>ok</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/cb.html#ssl_verify_callback_stub"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.cb.ssl_verify_callback_stub" title="Permalink to this definition">¶</a></dt>
@@ -1475,11 +1528,11 @@ through untouched.</p>
 
 </div>
 <div class="section" id="module-M2Crypto.SSL.ssl_dispatcher">
-<span id="ssl-dispatcher-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">ssl_dispatcher</span></code> Module<a class="headerlink" href="#module-M2Crypto.SSL.ssl_dispatcher" title="Permalink to this headline">¶</a></h2>
+<span id="ssl-dispatcher-module"></span><h2><code class="xref py py-mod docutils literal notranslate"><span class="pre">ssl_dispatcher</span></code> Module<a class="headerlink" href="#module-M2Crypto.SSL.ssl_dispatcher" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="M2Crypto.SSL.ssl_dispatcher.ssl_dispatcher">
 <em class="property">class </em><code class="descclassname">M2Crypto.SSL.ssl_dispatcher.</code><code class="descname">ssl_dispatcher</code><span class="sig-paren">(</span><em>sock=None</em>, <em>map=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/ssl_dispatcher.html#ssl_dispatcher"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.ssl_dispatcher.ssl_dispatcher" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">asyncore.dispatcher</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">asyncore.dispatcher</span></code></p>
 <dl class="method">
 <dt id="M2Crypto.SSL.ssl_dispatcher.ssl_dispatcher.connect">
 <code class="descname">connect</code><span class="sig-paren">(</span><em>addr</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/ssl_dispatcher.html#ssl_dispatcher.connect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.ssl_dispatcher.ssl_dispatcher.connect" title="Permalink to this definition">¶</a></dt>
@@ -1506,14 +1559,15 @@ through untouched.</p>
 
 </div>
 <div class="section" id="module-M2Crypto.SSL.timeout">
-<span id="timeout-module"></span><h2><code class="xref py py-mod docutils literal"><span class="pre">timeout</span></code> Module<a class="headerlink" href="#module-M2Crypto.SSL.timeout" title="Permalink to this headline">¶</a></h2>
+<span id="timeout-module"></span><h2><code class="xref py py-mod docutils literal notranslate"><span class="pre">timeout</span></code> Module<a class="headerlink" href="#module-M2Crypto.SSL.timeout" title="Permalink to this headline">¶</a></h2>
 <p>Support for SSL socket timeouts.</p>
 <p>Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.</p>
 <p>Copyright 2008 Heikki Toivonen. All rights reserved.</p>
 <dl class="class">
 <dt id="M2Crypto.SSL.timeout.timeout">
 <em class="property">class </em><code class="descclassname">M2Crypto.SSL.timeout.</code><code class="descname">timeout</code><span class="sig-paren">(</span><em>sec=600</em>, <em>microsec=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/timeout.html#timeout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.timeout.timeout" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="method">
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="method">
 <dt id="M2Crypto.SSL.timeout.timeout.pack">
 <code class="descname">pack</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/M2Crypto/SSL/timeout.html#timeout.pack"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#M2Crypto.SSL.timeout.timeout.pack" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -1535,27 +1589,70 @@ through untouched.</p>
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">SSL Package</a><ul>
-<li><a class="reference internal" href="#id1"><code class="docutils literal"><span class="pre">SSL</span></code> Package</a></li>
-<li><a class="reference internal" href="#module-M2Crypto.SSL.Checker"><code class="docutils literal"><span class="pre">Checker</span></code> Module</a></li>
-<li><a class="reference internal" href="#module-M2Crypto.SSL.Cipher"><code class="docutils literal"><span class="pre">Cipher</span></code> Module</a></li>
-<li><a class="reference internal" href="#module-M2Crypto.SSL.Connection"><code class="docutils literal"><span class="pre">Connection</span></code> Module</a></li>
-<li><a class="reference internal" href="#module-M2Crypto.SSL.Context"><code class="docutils literal"><span class="pre">Context</span></code> Module</a></li>
-<li><a class="reference internal" href="#module-M2Crypto.SSL.SSLServer"><code class="docutils literal"><span class="pre">SSLServer</span></code> Module</a></li>
-<li><a class="reference internal" href="#module-M2Crypto.SSL.Session"><code class="docutils literal"><span class="pre">Session</span></code> Module</a></li>
-<li><a class="reference internal" href="#module-M2Crypto.SSL.TwistedProtocolWrapper"><code class="docutils literal"><span class="pre">TwistedProtocolWrapper</span></code> Module</a></li>
-<li><a class="reference internal" href="#module-M2Crypto.SSL.cb"><code class="docutils literal"><span class="pre">cb</span></code> Module</a></li>
-<li><a class="reference internal" href="#module-M2Crypto.SSL.ssl_dispatcher"><code class="docutils literal"><span class="pre">ssl_dispatcher</span></code> Module</a></li>
-<li><a class="reference internal" href="#module-M2Crypto.SSL.timeout"><code class="docutils literal"><span class="pre">timeout</span></code> Module</a></li>
+<h1 class="logo"><a href="index.html">M2Crypto</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="M2Crypto.html">M2Crypto Package</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#id1"><code class="docutils literal notranslate"><span class="pre">M2Crypto</span></code> Package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.ASN1"><code class="docutils literal notranslate"><span class="pre">ASN1</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.AuthCookie"><code class="docutils literal notranslate"><span class="pre">AuthCookie</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.BIO"><code class="docutils literal notranslate"><span class="pre">BIO</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.BN"><code class="docutils literal notranslate"><span class="pre">BN</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.DH"><code class="docutils literal notranslate"><span class="pre">DH</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.DSA"><code class="docutils literal notranslate"><span class="pre">DSA</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.EC"><code class="docutils literal notranslate"><span class="pre">EC</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.EVP"><code class="docutils literal notranslate"><span class="pre">EVP</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.Engine"><code class="docutils literal notranslate"><span class="pre">Engine</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.Err"><code class="docutils literal notranslate"><span class="pre">Err</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.RC4"><code class="docutils literal notranslate"><span class="pre">RC4</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.RSA"><code class="docutils literal notranslate"><span class="pre">RSA</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.Rand"><code class="docutils literal notranslate"><span class="pre">Rand</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.SMIME"><code class="docutils literal notranslate"><span class="pre">SMIME</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.X509"><code class="docutils literal notranslate"><span class="pre">X509</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.callback"><code class="docutils literal notranslate"><span class="pre">callback</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.ftpslib"><code class="docutils literal notranslate"><span class="pre">ftpslib</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.httpslib"><code class="docutils literal notranslate"><span class="pre">httpslib</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.m2"><code class="docutils literal notranslate"><span class="pre">m2</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.m2crypto"><code class="docutils literal notranslate"><span class="pre">m2crypto</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.m2urllib"><code class="docutils literal notranslate"><span class="pre">m2urllib</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.m2urllib2"><code class="docutils literal notranslate"><span class="pre">m2urllib2</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.m2xmlrpclib"><code class="docutils literal notranslate"><span class="pre">m2xmlrpclib</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.threading"><code class="docutils literal notranslate"><span class="pre">threading</span></code> Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="M2Crypto.html#module-M2Crypto.util"><code class="docutils literal notranslate"><span class="pre">util</span></code> Module</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="M2Crypto.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">SSL Package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id1"><code class="docutils literal notranslate"><span class="pre">SSL</span></code> Package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-M2Crypto.SSL.Checker"><code class="docutils literal notranslate"><span class="pre">Checker</span></code> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-M2Crypto.SSL.Cipher"><code class="docutils literal notranslate"><span class="pre">Cipher</span></code> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-M2Crypto.SSL.Connection"><code class="docutils literal notranslate"><span class="pre">Connection</span></code> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-M2Crypto.SSL.Context"><code class="docutils literal notranslate"><span class="pre">Context</span></code> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-M2Crypto.SSL.SSLServer"><code class="docutils literal notranslate"><span class="pre">SSLServer</span></code> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-M2Crypto.SSL.Session"><code class="docutils literal notranslate"><span class="pre">Session</span></code> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-M2Crypto.SSL.TwistedProtocolWrapper"><code class="docutils literal notranslate"><span class="pre">TwistedProtocolWrapper</span></code> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-M2Crypto.SSL.cb"><code class="docutils literal notranslate"><span class="pre">cb</span></code> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-M2Crypto.SSL.ssl_dispatcher"><code class="docutils literal notranslate"><span class="pre">ssl_dispatcher</span></code> Module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#module-M2Crypto.SSL.timeout"><code class="docutils literal notranslate"><span class="pre">timeout</span></code> Module</a></li>
 </ul>
 </li>
 </ul>
+</li>
+</ul>
+</li>
+</ul>
+
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -1566,23 +1663,26 @@ through untouched.</p>
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/M2Crypto.SSL.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -1591,8 +1691,8 @@ through untouched.</p>
       &copy;2017, Matej Cepl <mcepl@cepl.eu>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/M2Crypto.SSL.rst.txt"

@@ -4,23 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>M2Crypto.RSA &#8212; M2Crypto  documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
    
@@ -29,13 +22,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <h1>Source code for M2Crypto.RSA</h1><div class="highlight"><pre>
@@ -63,7 +57,7 @@
 <span class="n">pkcs1_oaep_padding</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkcs1_oaep_padding</span>
 
 
-<div class="viewcode-block" id="RSA"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA">[docs]</a><span class="k">class</span> <span class="nc">RSA</span><span class="p">:</span>
+<div class="viewcode-block" id="RSA"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA">[docs]</a><span class="k">class</span> <span class="nc">RSA</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    RSA Key Pair.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -86,7 +80,7 @@
 
     <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; int</span>
-        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">rsa_size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="c1"># type: (str) -&gt; bytes</span>
@@ -221,6 +215,9 @@
 <div class="viewcode-block" id="RSA.check_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA.check_key">[docs]</a>    <span class="k">def</span> <span class="nf">check_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; int</span>
         <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate RSA keys.</span>
+
+<span class="sd">        It checks that p and q are in fact prime, and that n = p*q.</span>
 
 <span class="sd">        :return: returns 1 if rsa is a valid RSA key, and 0 otherwise.</span>
 <span class="sd">                 -1 is returned if an error occurs while checking the key.</span>
@@ -322,7 +319,7 @@
         <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">rsa_verify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rsa</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">signature</span><span class="p">,</span> <span class="n">digest_type</span><span class="p">)</span></div></div>
 
 
-<div class="viewcode-block" id="RSA_pub"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA_pub">[docs]</a><span class="k">class</span> <span class="nc">RSA_pub</span><span class="p">(</span><span class="n">RSA</span><span class="p">):</span>  <span class="c1"># noqa</span>
+<div class="viewcode-block" id="RSA_pub"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.RSA.RSA_pub">[docs]</a><span class="k">class</span> <span class="nc">RSA_pub</span><span class="p">(</span><span class="n">RSA</span><span class="p">):</span>
 
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Object interface to an RSA public key.</span>
@@ -505,10 +502,26 @@
 </pre></div>
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper"><div class="relations">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">M2Crypto</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../M2Crypto.html">M2Crypto Package</a></li>
+</ul>
+
+<div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../../index.html">Documentation overview</a><ul>
@@ -519,14 +532,24 @@
 </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -535,8 +558,8 @@
       &copy;2017, Matej Cepl <mcepl@cepl.eu>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
 

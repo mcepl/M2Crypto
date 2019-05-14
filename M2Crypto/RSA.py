@@ -180,6 +180,9 @@ class RSA(object):
     def check_key(self):
         # type: () -> int
         """
+        Validate RSA keys.
+
+        It checks that p and q are in fact prime, and that n = p*q.
 
         :return: returns 1 if rsa is a valid RSA key, and 0 otherwise.
                  -1 is returned if an error occurs while checking the key.

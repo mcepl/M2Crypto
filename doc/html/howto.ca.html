@@ -4,23 +4,16 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>HOWTO: Creating your own CA with OpenSSL &#8212; M2Crypto  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
-      };
-    </script>
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
    
@@ -29,13 +22,14 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
+          
+
           <div class="body" role="main">
             
   <div class="section" id="howto-creating-your-own-ca-with-openssl">
@@ -67,19 +61,19 @@ decided to document the process, hence this HOWTO.</p>
 </div>
 <div class="section" id="the-procedure">
 <h2>The Procedure<a class="headerlink" href="#the-procedure" title="Permalink to this headline">¶</a></h2>
-<p>I use <code class="docutils literal"><span class="pre">CA.pl</span></code>, a Perl program written by Steve Hanson and bundled with
+<p>I use <code class="docutils literal notranslate"><span class="pre">CA.pl</span></code>, a Perl program written by Steve Hanson and bundled with
 OpenSSL.</p>
 <p>The following are the steps to create a CA:</p>
 <ol class="arabic">
 <li><p class="first">Choose a directory to do your CA work. All commands are executed
-within this directory. Let’s call the directory <code class="docutils literal"><span class="pre">demo</span></code>.</p>
+within this directory. Let’s call the directory <code class="docutils literal notranslate"><span class="pre">demo</span></code>.</p>
 </li>
-<li><p class="first">Copy <code class="docutils literal"><span class="pre">CA.pl</span></code> and <code class="docutils literal"><span class="pre">openssl.cnf</span></code> into <code class="docutils literal"><span class="pre">demo</span></code>.</p>
+<li><p class="first">Copy <code class="docutils literal notranslate"><span class="pre">CA.pl</span></code> and <code class="docutils literal notranslate"><span class="pre">openssl.cnf</span></code> into <code class="docutils literal notranslate"><span class="pre">demo</span></code>.</p>
 </li>
-<li><p class="first">Apply the following patch to <code class="docutils literal"><span class="pre">CA.pl</span></code>, which allows it to generate a
+<li><p class="first">Apply the following patch to <code class="docutils literal notranslate"><span class="pre">CA.pl</span></code>, which allows it to generate a
 CA certificate with a validity period of 1095 days, i.e.,
 3 years:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>--- CA.pl.org   Sat Mar 31 12:40:13 2001
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>--- CA.pl.org   Sat Mar 31 12:40:13 2001
 +++ CA.pl       Sat Mar 31 12:41:15 2001
 @@ -97,7 +97,7 @@
                 } else {
@@ -94,7 +88,7 @@ CA certificate with a validity period of 1095 days, i.e.,
 </div>
 </li>
 <li><p class="first">Create a new CA like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">CA</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">newca</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">CA</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">newca</span>
 
 <span class="n">A</span> <span class="n">certificate</span> <span class="n">filename</span> <span class="p">(</span><span class="ow">or</span> <span class="n">enter</span> <span class="n">to</span> <span class="n">create</span><span class="p">)</span> <span class="o">&lt;</span><span class="n">enter</span><span class="o">&gt;</span>
 
@@ -123,11 +117,11 @@ CA certificate with a validity period of 1095 days, i.e.,
 <span class="n">Email</span> <span class="n">Address</span> <span class="p">[]:</span><span class="n">certmaster</span><span class="nd">@democa</span><span class="o">.</span><span class="n">dom</span>
 </pre></div>
 </div>
-<p>This creates a new CA in the directory <code class="docutils literal"><span class="pre">demoCA</span></code>. The CA’s
-self-signed certificate is in <code class="docutils literal"><span class="pre">demoCA/cacert.pem</span></code> and its RSA key
-pair is in <code class="docutils literal"><span class="pre">demoCA/private/cakey.pem</span></code>.</p>
-<p><code class="docutils literal"><span class="pre">demoCA/private/cakey.pem</span></code> looks like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cat</span> <span class="n">demoCA</span><span class="o">/</span><span class="n">private</span><span class="o">/</span><span class="n">cakey</span><span class="o">.</span><span class="n">pem</span>
+<p>This creates a new CA in the directory <code class="docutils literal notranslate"><span class="pre">demoCA</span></code>. The CA’s
+self-signed certificate is in <code class="docutils literal notranslate"><span class="pre">demoCA/cacert.pem</span></code> and its RSA key
+pair is in <code class="docutils literal notranslate"><span class="pre">demoCA/private/cakey.pem</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">demoCA/private/cakey.pem</span></code> looks like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cat</span> <span class="n">demoCA</span><span class="o">/</span><span class="n">private</span><span class="o">/</span><span class="n">cakey</span><span class="o">.</span><span class="n">pem</span>
 
 <span class="o">-----</span><span class="n">BEGIN</span> <span class="n">RSA</span> <span class="n">PRIVATE</span> <span class="n">KEY</span><span class="o">-----</span>
 <span class="n">Proc</span><span class="o">-</span><span class="n">Type</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span><span class="n">ENCRYPTED</span>
@@ -151,7 +145,7 @@ pair is in <code class="docutils literal"><span class="pre">demoCA/private/cakey
 </div>
 </li>
 <li><p class="first">Next, generate a certificate request:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">CA</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">newreq</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">./</span><span class="n">CA</span><span class="o">.</span><span class="n">pl</span> <span class="o">-</span><span class="n">newreq</span>
 
 <span class="n">Using</span> <span class="n">configuration</span> <span class="kn">from</span> <span class="nn">openssl.cnf</span>
 <span class="n">Generating</span> <span class="n">a</span> <span class="mi">1024</span> <span class="n">bit</span> <span class="n">RSA</span> <span class="n">private</span> <span class="n">key</span>
@@ -187,9 +181,9 @@ pair is in <code class="docutils literal"><span class="pre">demoCA/private/cakey
 </ol>
 <p></p>
 <blockquote>
-<div><p>The certificate request and private key in <code class="docutils literal"><span class="pre">newreq.pem</span></code> looks like
+<div><p>The certificate request and private key in <code class="docutils literal notranslate"><span class="pre">newreq.pem</span></code> looks like
 this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cat</span> <span class="n">newreq</span><span class="o">.</span><span class="n">pem</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cat</span> <span class="n">newreq</span><span class="o">.</span><span class="n">pem</span>
 
 <span class="o">-----</span><span class="n">BEGIN</span> <span class="n">RSA</span> <span class="n">PRIVATE</span> <span class="n">KEY</span><span class="o">-----</span>
 <span class="n">Proc</span><span class="o">-</span><span class="n">Type</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span><span class="n">ENCRYPTED</span>
@@ -226,7 +220,7 @@ this:</p>
 <p></p>
 <blockquote>
 <div><p>Decoding the certificate request gives the following:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">req</span> <span class="o">-</span><span class="n">text</span> <span class="o">-</span><span class="n">noout</span> <span class="o">&lt;</span> <span class="n">newreq</span><span class="o">.</span><span class="n">pem</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">req</span> <span class="o">-</span><span class="n">text</span> <span class="o">-</span><span class="n">noout</span> <span class="o">&lt;</span> <span class="n">newreq</span><span class="o">.</span><span class="n">pem</span>
 
 <span class="n">Using</span> <span class="n">configuration</span> <span class="kn">from</span> <span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">local</span><span class="o">/</span><span class="n">pkg</span><span class="o">/</span><span class="n">openssl</span><span class="o">/</span><span class="n">openssl</span><span class="o">.</span><span class="n">cnf</span>
 <span class="n">Certificate</span> <span class="n">Request</span><span class="p">:</span>
@@ -263,7 +257,7 @@ this:</p>
 </div></blockquote>
 <ol class="arabic" start="6">
 <li><p class="first">Now, sign the certificate request:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>./CA.pl -sign
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>./CA.pl -sign
 
 Using configuration from openssl.cnf
 Enter PEM pass phrase: &lt;CA&#39;s passphrase&gt;
@@ -288,8 +282,8 @@ Signed certificate is in newcert.pem
 </ol>
 <p></p>
 <blockquote>
-<div><p><code class="docutils literal"><span class="pre">newcert.pem</span></code> looks like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cat</span> <span class="n">newcert</span><span class="o">.</span><span class="n">pem</span>
+<div><p><code class="docutils literal notranslate"><span class="pre">newcert.pem</span></code> looks like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cat</span> <span class="n">newcert</span><span class="o">.</span><span class="n">pem</span>
 
 <span class="n">Certificate</span><span class="p">:</span>
 <span class="n">Data</span><span class="p">:</span>
@@ -363,15 +357,15 @@ are to be used in an unattended SSL server, you may wish to not
 encrypt the private key, i.e., leave the key in the clear. This
 decision should be governed by your site’s security policy and threat
 model, of course:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">rsa</span> <span class="o">&lt;</span> <span class="n">newkey</span><span class="o">.</span><span class="n">pem</span> <span class="o">&gt;</span> <span class="n">newkey2</span><span class="o">.</span><span class="n">pem</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">rsa</span> <span class="o">&lt;</span> <span class="n">newkey</span><span class="o">.</span><span class="n">pem</span> <span class="o">&gt;</span> <span class="n">newkey2</span><span class="o">.</span><span class="n">pem</span>
 
 <span class="n">read</span> <span class="n">RSA</span> <span class="n">key</span>
 <span class="n">Enter</span> <span class="n">PEM</span> <span class="k">pass</span> <span class="n">phrase</span><span class="p">:</span><span class="o">&lt;</span><span class="n">secret</span> <span class="n">passphrase</span> <span class="n">here</span><span class="o">&gt;</span>
 <span class="n">writing</span> <span class="n">RSA</span> <span class="n">key</span>
 </pre></div>
 </div>
-<p><code class="docutils literal"><span class="pre">newkey2.pem</span></code> looks like this:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cat</span> <span class="n">newkey2</span><span class="o">.</span><span class="n">pem</span>
+<p><code class="docutils literal notranslate"><span class="pre">newkey2.pem</span></code> looks like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cat</span> <span class="n">newkey2</span><span class="o">.</span><span class="n">pem</span>
 
 <span class="o">-----</span><span class="n">BEGIN</span> <span class="n">RSA</span> <span class="n">PRIVATE</span> <span class="n">KEY</span><span class="o">-----</span>
 <span class="n">MIICXgIBAAKBgQCvWdhjVCuWXWu4H8WqUJGuvme</span><span class="o">+</span><span class="mi">6</span><span class="n">l0g37fAXur3Xm28RChzvhue</span>
@@ -392,11 +386,11 @@ model, of course:</p>
 </div>
 </li>
 </ol>
-<p>That’s it! The certificate, <code class="docutils literal"><span class="pre">newcert.pem</span></code>, and the private key -
-<code class="docutils literal"><span class="pre">newkey.pem</span></code> (encrypted) or <code class="docutils literal"><span class="pre">newkey2.pem</span></code> (unencrypted) - are now
+<p>That’s it! The certificate, <code class="docutils literal notranslate"><span class="pre">newcert.pem</span></code>, and the private key -
+<code class="docutils literal notranslate"><span class="pre">newkey.pem</span></code> (encrypted) or <code class="docutils literal notranslate"><span class="pre">newkey2.pem</span></code> (unencrypted) - are now
 ready to be used. You may wish to rename the files to more intuitive
 names.</p>
-<p>You should also keep the CA’s certificate <code class="docutils literal"><span class="pre">demo/cacert.pem</span></code> handy
+<p>You should also keep the CA’s certificate <code class="docutils literal notranslate"><span class="pre">demo/cacert.pem</span></code> handy
 for use when developing and deploying SSL or S/MIME applications.</p>
 </div>
 <div class="section" id="conclusion">
@@ -415,19 +409,25 @@ developing SSL and S/MIME applications in
 
 
           </div>
+          
         </div>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">HOWTO: Creating your own CA with OpenSSL</a><ul>
-<li><a class="reference internal" href="#introduction">Introduction</a></li>
-<li><a class="reference internal" href="#the-procedure">The Procedure</a></li>
-<li><a class="reference internal" href="#conclusion">Conclusion</a></li>
+<h1 class="logo"><a href="index.html">M2Crypto</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="M2Crypto.html">M2Crypto Package</a></li>
 </ul>
-</li>
-</ul>
+
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
@@ -435,23 +435,26 @@ developing SSL and S/MIME applications in
   </ul></li>
 </ul>
 </div>
-  <div role="note" aria-label="source link">
-    <h3>This Page</h3>
-    <ul class="this-page-menu">
-      <li><a href="_sources/howto.ca.rst.txt"
-            rel="nofollow">Show Source</a></li>
-    </ul>
-   </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
         </div>
       </div>
       <div class="clearer"></div>
@@ -460,8 +463,8 @@ developing SSL and S/MIME applications in
       &copy;2017, Matej Cepl <mcepl@cepl.eu>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.4</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
       <a href="_sources/howto.ca.rst.txt"
