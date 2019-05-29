@@ -200,6 +200,10 @@ extern int ssl_write(SSL *ssl, PyObject *blob, double timeout = -1);
 %constant int SSL_VERIFY_FAIL_IF_NO_PEER_CERT = 0x02;
 %constant int SSL_VERIFY_CLIENT_ONCE          = 0x04;
 
+%constant int VERIFY_CRL_CHECK_LEAF          = X509_V_FLAG_CRL_CHECK;
+%constant int VERIFY_CRL_CHECK_CHAIN         = X509_V_FLAG_CRL_CHECK|X509_V_FLAG_CRL_CHECK_ALL;
+
+
 %constant int SSL_ST_CONNECT                  = 0x1000;
 %constant int SSL_ST_ACCEPT                   = 0x2000;
 %constant int SSL_ST_MASK                     = 0x0FFF;

@@ -33,6 +33,8 @@ verify_none = m2.SSL_VERIFY_NONE  # type: int
 verify_peer = m2.SSL_VERIFY_PEER  # type: int
 verify_fail_if_no_peer_cert = m2.SSL_VERIFY_FAIL_IF_NO_PEER_CERT  # type: int
 verify_client_once = m2.SSL_VERIFY_CLIENT_ONCE  # type: int
+verify_crl_check_chain = m2.VERIFY_CRL_CHECK_CHAIN # type: int
+verify_crl_check_leaf = m2.VERIFY_CRL_CHECK_LEAF # type: int
 
 SSL_SENT_SHUTDOWN = m2.SSL_SENT_SHUTDOWN  # type: int
 SSL_RECEIVED_SHUTDOWN = m2.SSL_RECEIVED_SHUTDOWN  # type: int
