@@ -29,18 +29,21 @@ def peek_error_code():
 
 
 def get_error_lib(err):
-    # type: (int) -> str
-    return six.ensure_text(m2.err_lib_error_string(err))
+    # type: (Optional[int]) -> str
+    err_str = m2.err_lib_error_string(err)
+    return six.ensure_text(err_str) if err_str else ''
 
 
 def get_error_func(err):
-    # type: (int) -> str
-    return six.ensure_text(m2.err_func_error_string(err))
+    # type: (Optional[int]) -> str
+    err_str = m2.err_func_error_string(err)
+    return six.ensure_text(err_str) if err_str else ''
 
 
 def get_error_reason(err):
-    # type: (int) -> str
-    return six.ensure_text(m2.err_reason_error_string(err))
+    # type: (Optional[int]) -> str
+    err_str = m2.err_reason_error_string(err)
+    return six.ensure_text(err_str) if err_str else ''
 
 
 def get_error_message():
@@ -49,8 +52,9 @@ def get_error_message():
 
 
 def get_x509_verify_error(err):
-    # type: (int) -> str
-    return six.ensure_text(m2.x509_get_verify_error(err))
+    # type: (Optional[int]) -> str
+    err_str = m2.x509_get_verify_error(err)
+    return six.ensure_text(err_str) if err_str else ''
 
 
 class SSLError(Exception):
