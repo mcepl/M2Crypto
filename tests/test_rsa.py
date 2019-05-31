@@ -126,8 +126,6 @@ class RSATestCase(unittest.TestCase):
         ctxt = priv.public_encrypt(self.data, RSA.sslv23_padding)
         with self.assertRaises(RSA.RSAError):
             priv.private_decrypt(ctxt, RSA.sslv23_padding)
-        with self.assertRaises(RSA.RSAError):
-            priv.private_decrypt(ctxt, RSA.sslv23_padding)
 
         # no_padding
         with self.assertRaises(RSA.RSAError):
