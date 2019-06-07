@@ -1,3 +1,17 @@
+0.35.1 - 2019-06-08
+-------------------
+
+- Actually, really fix compatibility with OpenSSL 1.1.1c. Thank you,
+  Sebastian Andrzej Siewior from the Debian team for resolving it.
+
+0.34.0 - 2019-05-30
+-------------------
+
+- Use more recent version of OpenSSL on Windows
+- Be resilient against the situation when no erorr happened.
+- Correct URL of https://www.schneier.com/academic/smime/
+- Use shlex.split() for CPP
+
 0.33.0 - 2019-04-26
 -------------------
 
