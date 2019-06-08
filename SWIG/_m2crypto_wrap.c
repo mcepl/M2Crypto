@@ -3540,6 +3540,10 @@ static swig_module_info swig_module = {swig_types, 60, 0, 0, 0, 0};
 #define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),(void**)(a)) 
 
 
+int SWIG_AsVal_wchar_t(PyObject *p, wchar_t *c) { return SWIG_OK; } 
+PyObject *SWIG_From_wchar_t(wchar_t c) { return SWIG_Py_Void(); } 
+
+
 #ifdef _WIN32
 #define _WINSOCKAPI_
 #include <WinSock2.h>
@@ -4324,6 +4328,8 @@ FILE* PyFile_AsFile(PyObject *pyfile) {
 
 #define PyLong_FromLong(x) PyInt_FromLong(x)
 #define PyUnicode_AsUTF8(x) PyString_AsString(x)
+#define PyUnicode_FromString(x) PyString_FromString(x)
+#define PyUnicode_Format(x, y) PyString_Format(x, y)
 
 #endif /* PY_MAJOR_VERSION */
 
@@ -8606,20 +8612,19 @@ int asn1_integer_set(ASN1_INTEGER *asn1, PyObject *value) {
  * PyLong_AsLong shims as provided in
  * /usr/include/python2.7/longobject.h.
  */
-#if PY_MAJOR_VERSION >= 3
-    if (PyLong_Check(value))
-        return ASN1_INTEGER_set(asn1, PyLong_AsLong(value));
-#else
-    if (PyInt_Check(value))
-        return ASN1_INTEGER_set(asn1, PyInt_AS_LONG(value));
-#endif // PY_MAJOR_VERSION >= 3
+    long val = PyLong_AsLong(value);
+    if (val >= 0) {
+        return ASN1_INTEGER_set(asn1, val);
+    } else {
+        PyErr_Clear();
+    }
 
     if (!PyLong_Check(value)){
         PyErr_SetString(PyExc_TypeError, "expected int or long");
         return 0;
     }
 
-    fmt = PyString_FromString("%x");
+    fmt = PyUnicode_FromString("%x");
 
     if (!fmt)
         return 0;
@@ -8634,7 +8639,7 @@ int asn1_integer_set(ASN1_INTEGER *asn1, PyObject *value) {
 
     Py_INCREF(value);
     PyTuple_SET_ITEM(args, 0, value);
-    hex = PyString_Format(fmt, args);
+    hex = PyUnicode_Format(fmt, args);
 
     if (!hex){
         PyErr_SetString(PyExc_RuntimeError, "PyString_Format() failed");
@@ -8646,7 +8651,7 @@ int asn1_integer_set(ASN1_INTEGER *asn1, PyObject *value) {
     Py_DECREF(fmt);
     Py_DECREF(args);
 
-    if (BN_hex2bn(&bn, PyString_AsString(hex)) <= 0){
+    if (BN_hex2bn(&bn, PyUnicode_AsUTF8(hex)) <= 0){
         m2_PyErr_Msg(PyExc_RuntimeError);
         Py_DECREF(hex);
         return 0;
@@ -32230,6 +32235,8 @@ SWIG_init(void) {
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "SSL_VERIFY_PEER",SWIG_From_int((int)(0x01)));
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "SSL_VERIFY_FAIL_IF_NO_PEER_CERT",SWIG_From_int((int)(0x02)));
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "SSL_VERIFY_CLIENT_ONCE",SWIG_From_int((int)(0x04)));
+  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "VERIFY_CRL_CHECK_LEAF",SWIG_From_int((int)(X509_V_FLAG_CRL_CHECK)));
+  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "VERIFY_CRL_CHECK_CHAIN",SWIG_From_int((int)(X509_V_FLAG_CRL_CHECK|X509_V_FLAG_CRL_CHECK_ALL)));
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "SSL_ST_CONNECT",SWIG_From_int((int)(0x1000)));
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "SSL_ST_ACCEPT",SWIG_From_int((int)(0x2000)));
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "SSL_ST_MASK",SWIG_From_int((int)(0x0FFF)));
