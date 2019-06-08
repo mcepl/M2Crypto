@@ -130,7 +130,7 @@ class RSATestCase(unittest.TestCase):
         self.assertEqual(res, self.data)
 
         # no_padding
-        with six.assertRaisesRegex(self, TypeError, 'data too small'):
+        with six.assertRaisesRegex(self, RSA.RSAError, 'data too small'):
             priv.public_encrypt(self.data, RSA.no_padding)
 
         # Type-check the data to be encrypted.
