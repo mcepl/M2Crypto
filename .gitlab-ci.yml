@@ -38,16 +38,24 @@ python3:
         - apt-get install -y swig libssl-dev python3-dev openssl python3-setuptools python3-twisted
         - python3 setup.py clean build test
 
-fedora:
-    image: fedora:26
+fedora-py2:
+    image: fedora:30
     when: always
     script:
         - dnf install --refresh -y @development-tools fedora-packager rpmdevtools
-        - dnf install -y swig python-devel openssl-devel openssl python-setuptools python-twisted
-        - python setup.py clean build test
+        - dnf install -y swig python2-devel openssl-devel openssl python2-setuptools python2-twisted
+        - python2 setup.py clean build test
 
-fedora3:
-    image: fedora:26
+fedora:
+    image: fedora:30
+    when: always
+    script:
+        - dnf install --refresh -y @development-tools fedora-packager rpmdevtools
+        - dnf install -y swig python3-devel openssl-devel openssl python3-setuptools python3-twisted
+        - python3 setup.py clean build test
+
+fedora-rawhide:
+    image: registry.fedoraproject.org/fedora:rawhide
     when: always
     script:
         - dnf install --refresh -y @development-tools fedora-packager rpmdevtools
