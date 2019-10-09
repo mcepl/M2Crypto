@@ -19,7 +19,7 @@ class CheckerTestCase(unittest.TestCase):
 
         check = SSL.Checker.Checker(
             host=srv_host,
-            peerCertHash='0305E329FF3C9F1931B8DD3F0CF9F8E350E29839')
+            peerCertHash='86C01325EFBC44098723CC1567EB75A68727A3D6')
         x509 = X509.load_cert('tests/server.pem')
         self.assertTrue(check(x509, srv_host))
         with self.assertRaises(SSL.Checker.WrongHost):
