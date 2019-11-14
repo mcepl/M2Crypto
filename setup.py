@@ -41,7 +41,8 @@ if (2, 6) < sys.version_info[:2] < (3, 5):
     requires_list = ['typing']
 else:
     requires_list = []
-package_data = {}
+    from typing import Dict, List
+package_data = {}  # type: Dict[str, List[str]]
 if sys.platform == 'win32':
     package_data.update(M2Crypto=["*.dll"])
 
@@ -81,9 +82,11 @@ def openssl_version(ossldir, req_ver, required=False):
 
     with open(file) as origin_file:
         for line in origin_file:
-            m = re.match(r'^# *define  *OPENSSL_VERSION_NUMBER  *(0x[0-9a-fA-F]*)', line)
+            m = re.match(
+                r'^# *define  *OPENSSL_VERSION_NUMBER  *(0x[0-9a-fA-F]*)',
+                line)
             if m:
-                log.debug('found version number: %s\n' % m.group(1))
+                log.debug('found version number: %s\n', m.group(1))
                 ver = int(m.group(1), base=16)
                 break
 
