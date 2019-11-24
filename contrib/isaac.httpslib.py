@@ -140,7 +140,7 @@ class HTTPProxyConnection(HTTPConnection):
         # Authenticated proxy
         import base64
         userpass = "%s:%s" % (self.__username, self.__password)
-        enc_userpass = string.strip(base64.encodestring(userpass))
+        enc_userpass = base64.encodestring(userpass).strip()
         self.putheader("Proxy-Authorization", "Basic %s" % enc_userpass)
 
 class HTTPSProxyResponse(HTTPResponse):

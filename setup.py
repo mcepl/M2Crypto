@@ -19,7 +19,6 @@ import platform
 import re
 import shlex
 import shutil
-import string
 import subprocess
 import sys
 
@@ -344,7 +343,9 @@ def __get_version():  # noqa
     with open('M2Crypto/__init__.py') as init_file:
         for line in init_file:
             if line.startswith('__version__ ='):
-                return line.split('=')[1].strip(string.whitespace + "'")
+                # Originally string.whitespace, but it is deprecated
+                string_whitespace = ' \t\n\r\x0b\x0c'
+                return line.split('=')[1].strip(string_whitespace + "'")
 
 
 long_description_text = '''\
