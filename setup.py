@@ -36,16 +36,14 @@ log = logging.getLogger('setup')
 
 REQUIRED_SWIG_VERSION = '2.0.4'
 
-if sys.version_info[:2] <= (2, 6):
-    sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                    'tests', 'vendor'))
 
-
+requires_list = []
 if (2, 6) < sys.version_info[:2] < (3, 5):
     requires_list = ['typing']
-else:
-    requires_list = []
+if sys.version_info[0] > 2:
     from typing import Dict, List
+
+
 package_data = {}  # type: Dict[str, List[str]]
 if sys.platform == 'win32':
     package_data.update(M2Crypto=["*.dll"])
@@ -343,6 +341,7 @@ class Clean(clean):
             for f in glob.glob(p):
                 if os.path.exists(f):
                     os.unlink(f)
+
 
 def __get_version():  # noqa
     with open('M2Crypto/__init__.py') as init_file:
