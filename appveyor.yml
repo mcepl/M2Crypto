@@ -5,8 +5,8 @@ environment:
         secure: oqWqarxnd4H23FMywnlQeg==
     PASS:
         secure: j/VSxdYJ7mdR44u8OdywLg==
-    X86_OPENSSL_INSTALLER: Win32OpenSSL-1_1_0k.exe
-    X64_OPENSSL_INSTALLER: Win64OpenSSL-1_1_0k.exe
+    X86_OPENSSL_INSTALLER: Win32OpenSSL-1_1_0L.exe
+    X64_OPENSSL_INSTALLER: Win64OpenSSL-1_1_0L.exe
 
   matrix:
 

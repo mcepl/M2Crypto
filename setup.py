@@ -36,6 +36,11 @@ log = logging.getLogger('setup')
 
 REQUIRED_SWIG_VERSION = '2.0.4'
 
+if sys.version_info[:2] <= (2, 6):
+    sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                    'tests', 'vendor'))
+
+
 if (2, 6) < sys.version_info[:2] < (3, 5):
     requires_list = ['typing']
 else:
