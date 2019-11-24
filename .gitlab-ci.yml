@@ -19,7 +19,7 @@ python27:
     when: always
     script:
         - apt-get update -q -y
-        - apt-get install -y swig libssl1.0-dev python-dev openssl python-twisted python-setuptools
+        - apt-get install -y swig libssl-dev python-dev openssl python-twisted python-setuptools
         - python setup.py clean build test
 
 python35:
