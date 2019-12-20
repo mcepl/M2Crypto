@@ -268,6 +268,11 @@ extern int X509_EXTENSION_get_critical(X509_EXTENSION *);
 %rename(x509_extension_set_critical) X509_EXTENSION_set_critical;
 extern int X509_EXTENSION_set_critical(X509_EXTENSION *, int);
 
+
+%rename(x509_store_set_flags) X509_STORE_set_flags;
+extern int X509_STORE_set_flags(X509_STORE *ctx, unsigned long flags);
+
+
 %typemap(out) X509 * {
     PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
 
@@ -339,6 +344,10 @@ X509 *d2i_x509(BIO *bio) {
 %constant int        X509_V_ERR_CERT_UNTRUSTED                      = 27;
 %constant int        X509_V_ERR_CERT_REJECTED                       = 28;
 %constant int        X509_V_ERR_APPLICATION_VERIFICATION            = 50;
+
+/* Enable proxy certificate validation */
+%constant int VERIFY_ALLOW_PROXY_CERTS  = X509_V_FLAG_ALLOW_PROXY_CERTS;
+
 
 /* x509.h */
 %constant int XN_FLAG_COMPAT = 0;

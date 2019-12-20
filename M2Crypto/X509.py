@@ -1003,6 +1003,15 @@ class X509_Store(object):
 
     add_cert = add_x509
 
+    def set_flags(self, flags):
+        """
+        Set the verification flags for the X509Store
+        Wrapper over OpenSSL X509_STORE_set_flags()
+
+        :param flags: verification parameters
+        """
+        return m2.x509_store_set_flags(self.store, flags)
+
 
 class X509_Stack(object):
     """
