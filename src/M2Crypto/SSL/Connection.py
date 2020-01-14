@@ -380,10 +380,10 @@ class Connection(object):
     def recv_into(self, buff, nbytes=0):
         # type: (Union[bytearray, memoryview], int) -> int
         """
-        A version of recv() that stores its data into a buffer rather
-        than creating a new string.  Receive up to buffersize bytes from
-        the socket.  If buffersize is not specified (or 0), receive up
-        to the size available in the given buffer.
+        A version of recv() that stores its data into a buffer
+        rather than creating a new string.  Receive up to nbytes
+        bytes from the socket.  If nbytes is not specified (or
+        0), receive up to the size available in the given buffer.
 
         If buff is bytearray, it will have after return length of the
         actually returned number of bytes. If buff is memoryview, then
@@ -399,7 +399,7 @@ class Connection(object):
         n = len(buff) if nbytes == 0 else nbytes
 
         if n <= 0:
-            raise ValueError('size <= 0')
+            raise ValueError('recv_into: size of buffer <= 0')
 
         # buff_bytes are actual bytes returned
         buff_bytes = m2.ssl_read(self.ssl, n, self._timeout)
