@@ -8,6 +8,12 @@ addons:
     - libssl1.0.0
     - python-setuptools
     - python-twisted
+  homebrew:
+    packages:
+    - swig
+    - openssl
+    - python-setuptools
+    - python-twisted
 
 sudo: false
 
@@ -24,9 +30,6 @@ matrix:
        language: generic
   allow_failures:
     - python: "nightly"
-
-before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update && brew install openssl; fi
 
 install:
   - travis_retry pip install Twisted
