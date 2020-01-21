@@ -42,4 +42,3 @@ SSL_RECEIVED_SHUTDOWN = m2.SSL_RECEIVED_SHUTDOWN  # type: int
 op_all = m2.SSL_OP_ALL  # type: int
 op_no_sslv2 = m2.SSL_OP_NO_SSLv2  # type: int
 
-verify_allow_proxy_certs = m2.VERIFY_ALLOW_PROXY_CERTS
