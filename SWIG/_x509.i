@@ -345,8 +345,29 @@ X509 *d2i_x509(BIO *bio) {
 %constant int        X509_V_ERR_CERT_REJECTED                       = 28;
 %constant int        X509_V_ERR_APPLICATION_VERIFICATION            = 50;
 
-/* Enable proxy certificate validation */
+/* See man page of X509_VERIFY_PARAM_set_flags for definition of all these flags */
+ 
 %constant int VERIFY_ALLOW_PROXY_CERTS  = X509_V_FLAG_ALLOW_PROXY_CERTS;
+%constant int VERIFY_CB_ISSUER_CHECK  = X509_V_FLAG_CB_ISSUER_CHECK;
+%constant int VERIFY_CHECK_SS_SIGNATURE  = X509_V_FLAG_CHECK_SS_SIGNATURE;
+/* note: X509_V_FLAG_CRL_CHECK is already defined in _ssl.i as VERIFY_CRL_CHECK_LEAF
+However I add it here for consistency */
+%constant int VERIFY_CRL_CHECK  = X509_V_FLAG_CRL_CHECK;
+%constant int VERIFY_CRL_CHECK_ALL  = X509_V_FLAG_CRL_CHECK_ALL;
+%constant int VERIFY_EXPLICIT_POLICY  = X509_V_FLAG_EXPLICIT_POLICY;
+%constant int VERIFY_EXTENDED_CRL_SUPPORT  = X509_V_FLAG_EXTENDED_CRL_SUPPORT;
+%constant int VERIFY_IGNORE_CRITICAL  = X509_V_FLAG_IGNORE_CRITICAL;
+%constant int VERIFY_INHIBIT_ANY  = X509_V_FLAG_INHIBIT_ANY;
+%constant int VERIFY_INHIBIT_MAP  = X509_V_FLAG_INHIBIT_MAP;
+%constant int VERIFY_NO_ALT_CHAINS  = X509_V_FLAG_NO_ALT_CHAINS;
+%constant int VERIFY_NO_CHECK_TIME  = X509_V_FLAG_NO_CHECK_TIME;
+%constant int VERIFY_NOTIFY_POLICY  = X509_V_FLAG_NOTIFY_POLICY;
+%constant int VERIFY_PARTIAL_CHAIN  = X509_V_FLAG_PARTIAL_CHAIN;
+%constant int VERIFY_POLICY_CHECK  = X509_V_FLAG_POLICY_CHECK;
+%constant int VERIFY_TRUSTED_FIRST  = X509_V_FLAG_TRUSTED_FIRST;
+%constant int VERIFY_USE_DELTAS  = X509_V_FLAG_USE_DELTAS;
+%constant int VERIFY_X509_STRICT  = X509_V_FLAG_X509_STRICT;
+
 
 
 /* x509.h */

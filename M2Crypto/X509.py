@@ -18,6 +18,25 @@ from typing import AnyStr, List, Optional  # noqa
 FORMAT_DER = 0
 FORMAT_PEM = 1
 
+verify_allow_proxy_certs = m2.VERIFY_ALLOW_PROXY_CERTS
+verify_cb_issuer_check = m2.VERIFY_CB_ISSUER_CHECK
+verify_check_ss_signature = m2.VERIFY_CHECK_SS_SIGNATURE
+verify_crl_check = m2.VERIFY_CRL_CHECK
+verify_crl_check_all = m2.VERIFY_CRL_CHECK_ALL
+verify_explicit_policy = m2.VERIFY_EXPLICIT_POLICY
+verify_extended_crl_support = m2.VERIFY_EXTENDED_CRL_SUPPORT
+verify_ignore_critical = m2.VERIFY_IGNORE_CRITICAL
+verify_inhibit_any = m2.VERIFY_INHIBIT_ANY
+verify_inhibit_map = m2.VERIFY_INHIBIT_MAP
+verify_no_alt_chains = m2.VERIFY_NO_ALT_CHAINS
+verify_no_check_time = m2.VERIFY_NO_CHECK_TIME
+verify_notify_policy = m2.VERIFY_NOTIFY_POLICY
+verify_partial_chain = m2.VERIFY_PARTIAL_CHAIN
+verify_policy_check = m2.VERIFY_POLICY_CHECK
+verify_trusted_first = m2.VERIFY_TRUSTED_FIRST
+verify_use_deltas = m2.VERIFY_USE_DELTAS
+verify_x509_strict = m2.VERIFY_X509_STRICT
+
 log = logging.getLogger(__name__)
 
 
@@ -1008,7 +1027,9 @@ class X509_Store(object):
         Set the verification flags for the X509Store
         Wrapper over OpenSSL X509_STORE_set_flags()
 
-        :param flags: verification parameters
+        :param flags: `VERIFICATION FLAGS` section of the X509_VERIFY_PARAM_set_flags man page has a complete description
+                      of values the flags parameter can take.
+                      Their M2Crypto equivalent is transformed following this pattern: "X509_V_FLAG_XYZ" -> lowervase("VERIFY_XYZ")
         """
         return m2.x509_store_set_flags(self.store, flags)
 
