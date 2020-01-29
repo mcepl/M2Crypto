@@ -430,8 +430,17 @@ PyObject *cipher_init(EVP_CIPHER_CTX *ctx, const EVP_CIPHER *cipher,
     const void *kbuf, *ibuf;
     Py_ssize_t klen, ilen;
 
-    if ((PyObject_AsReadBuffer(key, &kbuf, &klen) == -1)
-        || (PyObject_AsReadBuffer(iv, &ibuf, &ilen) == -1))
+    if (cipher == Py_None)
+        cipher = NULL;
+
+    if (key == Py_None)
+        kbuf = NULL;
+    else if (PyObject_AsReadBuffer(key, &kbuf, &klen) == -1)
+        return NULL;
+
+    if (iv == Py_None)
+        ibuf = NULL;
+    else if (PyObject_AsReadBuffer(iv, &ibuf, &ilen) == -1)
         return NULL;
 
     if (!EVP_CipherInit(ctx, cipher, (unsigned char *)kbuf,
