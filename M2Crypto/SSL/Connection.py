@@ -607,7 +607,7 @@ class Connection(object):
             raw = socket.SocketIO(self, mode)
             if 'rw' in mode:
                 return io.BufferedRWPair(raw, raw)
-            return io.BufferedReader(raw)
+            return io.BufferedReader(raw, io.DEFAULT_BUFFER_SIZE)
         else:
             return socket._fileobject(self, mode, bufsize)
 
