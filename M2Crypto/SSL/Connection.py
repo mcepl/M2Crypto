@@ -12,6 +12,7 @@ Copyright 2008 Heikki Toivonen. All rights reserved.
 
 import logging
 import socket
+import io
 
 from M2Crypto import BIO, Err, X509, m2, py27plus, six, util  # noqa
 from M2Crypto.SSL import Checker, Context, timeout  # noqa
@@ -582,9 +583,12 @@ class Connection(object):
         return m2.ssl_set_cipher_list(self.ssl, cipher_list)
 
     def makefile(self, mode='rb', bufsize=-1):
-        # type: (AnyStr, int) -> socket._fileobject
+        # type: (AnyStr, int) -> Union[io.BufferedRWPair,io.BufferedReader]
         if six.PY3:
-            return socket.SocketIO(self, mode)
+            raw = socket.SocketIO(self, mode)
+            if 'rw' in mode:
+                return io.BufferedRWPair(raw, raw)
+            return io.BufferedReader(raw, io.DEFAULT_BUFFER_SIZE)
         else:
             return socket._fileobject(self, mode, bufsize)
 
