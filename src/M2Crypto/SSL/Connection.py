@@ -19,11 +19,19 @@ from M2Crypto.SSL import Checker, Context, timeout  # noqa
 from M2Crypto.SSL import SSLError
 from M2Crypto.SSL.Cipher import Cipher, Cipher_Stack
 from M2Crypto.SSL.Session import Session
-from typing import Any, AnyStr, Callable, Optional, Tuple, Union  # noqa
+from typing import (
+    Any,
+    AnyStr,
+    Callable,
+    Optional,
+    Tuple,
+    Union,
+)  # noqa
 
-__all__ = ['Connection',
-           'timeout',  # XXX Not really, but for documentation purposes
-           ]
+__all__ = [
+    'Connection',
+    'timeout',  # XXX Not really, but for documentation purposes
+]
 
 log = logging.getLogger(__name__)
 
@@ -61,7 +69,9 @@ class Connection(object):
             self.socket = sock
         else:
             self.socket = socket.socket(family, socket.SOCK_STREAM)
-            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            self.socket.setsockopt(
+                socket.SOL_SOCKET, socket.SO_REUSEADDR, 1
+            )
         self._fileno = self.socket.fileno()
 
         self._timeout = self.socket.gettimeout()
@@ -72,13 +82,14 @@ class Connection(object):
 
         if self.ctx.post_connection_check is not None:
             self.set_post_connection_check_callback(
-                self.ctx.post_connection_check)
+                self.ctx.post_connection_check
+            )
 
         self.host = None
 
     def _free_bio(self):
         """
-           Free the sslbio and sockbio, and close the socket.
+        Free the sslbio and sockbio, and close the socket.
         """
         # Do not do it twice
         if not self._bio_freed:
@@ -86,24 +97,33 @@ class Connection(object):
                 self.m2_bio_free(self.sslbio)
             if getattr(self, 'sockbio', None):
                 self.m2_bio_free(self.sockbio)
-            if self.ssl_close_flag == self.m2_bio_noclose and \
-                    getattr(self, 'ssl', None):
+            if (
+                self.ssl_close_flag == self.m2_bio_noclose
+                and getattr(self, 'ssl', None)
+            ):
                 self.m2_ssl_free(self.ssl)
             self.socket.close()
             self._bio_freed = True
-
 
     def __del__(self):
         # type: () -> None
         # Notice that M2Crypto doesn't automatically shuts down the
         # connection here. You have to call self.close() in your
         # program, M2Crypto won't do it automatically for you.
-        self._free_bio()
+        if getattr(self, 'sslbio', None):
+            self.m2_bio_free(self.sslbio)
+        if getattr(self, 'sockbio', None):
+            self.m2_bio_free(self.sockbio)
+        if self.ssl_close_flag == self.m2_bio_noclose and getattr(
+            self, 'ssl', None
+        ):
+            self.m2_ssl_free(self.ssl)
+        self.socket.close()
 
     def close(self, freeBio=False):
         # type: (Optional[bool]) -> None
         """
-           if freeBio is true, call _free_bio
+        if freeBio is true, call _free_bio
         """
         m2.ssl_shutdown(self.ssl)
         if freeBio:
@@ -224,7 +244,9 @@ class Connection(object):
         :param flag: either m2.bio_close or m2.bio_noclose
         """
         if flag not in (m2.bio_close, m2.bio_noclose):
-            raise ValueError("flag must be m2.bio_close or m2.bio_noclose")
+            raise ValueError(
+                "flag must be m2.bio_close or m2.bio_noclose"
+            )
         self.ssl_close_flag = flag
 
     def setup_ssl(self):
@@ -294,12 +316,16 @@ class Connection(object):
         ssl.setup_ssl()
         ssl.set_accept_state()
         ssl.accept_ssl()
-        check = getattr(self, 'postConnectionCheck',
-                        self.serverPostConnectionCheck)
+        check = getattr(
+            self,
+            'postConnectionCheck',
+            self.serverPostConnectionCheck,
+        )
         if check is not None:
             if not check(ssl.get_peer_cert(), ssl.addr[0]):
                 raise Checker.SSLVerificationError(
-                    'post connection check failed')
+                    'post connection check failed'
+                )
         return ssl, addr
 
     def set_connect_state(self):
@@ -324,13 +350,19 @@ class Connection(object):
         self.setup_ssl()
         self.set_connect_state()
         ret = self.connect_ssl()
-        check = getattr(self, 'postConnectionCheck',
-                        self.clientPostConnectionCheck)
+        check = getattr(
+            self,
+            'postConnectionCheck',
+            self.clientPostConnectionCheck,
+        )
         if check is not None:
-            if not check(self.get_peer_cert(),
-                         self.host if self.host else self.addr[0]):
+            if not check(
+                self.get_peer_cert(),
+                self.host if self.host else self.addr[0],
+            ):
                 raise Checker.SSLVerificationError(
-                    'post connection check failed')
+                    'post connection check failed'
+                )
         return ret
 
     def shutdown(self, how):
@@ -372,6 +404,7 @@ class Connection(object):
         if self._timeout != 0.0:
             return self._write_bio(data)
         return self._write_nbio(data)
+
     sendall = send = write
 
     def _decref_socketios(self):
@@ -419,6 +452,7 @@ class Connection(object):
         if self._timeout != 0.0:
             return self._read_bio(size)
         return self._read_nbio(size)
+
     recv = read
 
     def setblocking(self, mode):
@@ -525,7 +559,7 @@ class Connection(object):
 
     def verify_ok(self):
         # type: () -> bool
-        return (m2.ssl_get_verify_result(self.ssl) == m2.X509_V_OK)
+        return m2.ssl_get_verify_result(self.ssl) == m2.X509_V_OK
 
     def get_verify_mode(self):
         # type: () -> int
@@ -653,8 +687,12 @@ class Connection(object):
     def get_socket_read_timeout(self):
         # type: () -> timeout
         return timeout.struct_to_timeout(
-            self.socket.getsockopt(socket.SOL_SOCKET, socket.SO_RCVTIMEO,
-                                   timeout.struct_size()))
+            self.socket.getsockopt(
+                socket.SOL_SOCKET,
+                socket.SO_RCVTIMEO,
+                timeout.struct_size(),
+            )
+        )
 
     @staticmethod
     def _hexdump(s):
@@ -664,7 +702,10 @@ class Connection(object):
     def get_socket_write_timeout(self):
         # type: () -> timeout
         binstr = self.socket.getsockopt(
-            socket.SOL_SOCKET, socket.SO_SNDTIMEO, timeout.struct_size())
+            socket.SOL_SOCKET,
+            socket.SO_SNDTIMEO,
+            timeout.struct_size(),
+        )
         timeo = timeout.struct_to_timeout(binstr)
         # print("Debug: get_socket_write_timeout: "
         #       "get sockopt value: %s -> ret timeout(sec=%r, microsec=%r)" %
@@ -675,7 +716,8 @@ class Connection(object):
         # type: (timeout) -> None
         assert isinstance(timeo, timeout.timeout)
         self.socket.setsockopt(
-            socket.SOL_SOCKET, socket.SO_RCVTIMEO, timeo.pack())
+            socket.SOL_SOCKET, socket.SO_RCVTIMEO, timeo.pack()
+        )
 
     def set_socket_write_timeout(self, timeo):
         # type: (timeout) -> None
@@ -685,14 +727,17 @@ class Connection(object):
         #       "input timeout(sec=%r, microsec=%r) -> set sockopt value: %s" %
         #       (timeo.sec, timeo.microsec, self._hexdump(binstr)))
         self.socket.setsockopt(
-            socket.SOL_SOCKET, socket.SO_SNDTIMEO, binstr)
+            socket.SOL_SOCKET, socket.SO_SNDTIMEO, binstr
+        )
 
     def get_version(self):
         # type: () -> str
         """Return the TLS/SSL protocol version for this connection."""
         return m2.ssl_get_version(self.ssl)
 
-    def set_post_connection_check_callback(self, postConnectionCheck):  # noqa
+    def set_post_connection_check_callback(
+        self, postConnectionCheck
+    ):  # noqa
         # type: (Callable) -> None
         self.postConnectionCheck = postConnectionCheck
 
