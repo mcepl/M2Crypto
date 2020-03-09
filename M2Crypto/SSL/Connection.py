@@ -20,7 +20,7 @@ from M2Crypto.SSL import SSLError
 from M2Crypto.SSL.Cipher import Cipher, Cipher_Stack
 from M2Crypto.SSL.Session import Session
 if py27plus:
-    from typing import Any, AnyStr, Callable, Dict, List, Optional, Tuple, Union  # noqa
+    from typing import Any, AnyStr, Callable, Optional, Tuple, Union  # noqa
 
 __all__ = ['Connection',
            'timeout',  # XXX Not really, but for documentation purposes
@@ -588,7 +588,7 @@ class Connection(object):
             raw = socket.SocketIO(self, mode)
             if 'rw' in mode:
                 return io.BufferedRWPair(raw, raw)
-            return io.BufferedReader(raw, io.DEFAULT_BUFFER_SIZE)
+            return io.BufferedReader(raw)
         else:
             return socket._fileobject(self, mode, bufsize)
 
@@ -651,9 +651,9 @@ class Connection(object):
         binstr = self.socket.getsockopt(
             socket.SOL_SOCKET, socket.SO_SNDTIMEO, timeout.struct_size())
         timeo = timeout.struct_to_timeout(binstr)
-        #print("Debug: get_socket_write_timeout: "
-        #      "get sockopt value: %s -> returned timeout(sec=%r, microsec=%r)" %
-        #      (self._hexdump(binstr), timeo.sec, timeo.microsec))
+        # print("Debug: get_socket_write_timeout: "
+        #       "get sockopt value: %s -> ret timeout(sec=%r, microsec=%r)" %
+        #       (self._hexdump(binstr), timeo.sec, timeo.microsec))
         return timeo
 
     def set_socket_read_timeout(self, timeo):
@@ -666,9 +666,9 @@ class Connection(object):
         # type: (timeout) -> None
         assert isinstance(timeo, timeout.timeout)
         binstr = timeo.pack()
-        #print("Debug: set_socket_write_timeout: "
-        #      "input timeout(sec=%r, microsec=%r) -> set sockopt value: %s" %
-        #      (timeo.sec, timeo.microsec, self._hexdump(binstr)))
+        # print("Debug: set_socket_write_timeout: "
+        #       "input timeout(sec=%r, microsec=%r) -> set sockopt value: %s" %
+        #       (timeo.sec, timeo.microsec, self._hexdump(binstr)))
         self.socket.setsockopt(
             socket.SOL_SOCKET, socket.SO_SNDTIMEO, binstr)
 
