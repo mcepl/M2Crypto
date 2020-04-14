@@ -41,7 +41,7 @@ def new_extension(name, value, critical=0, _pyfree=1):
     Create new X509_Extension instance.
     """
     if name == 'subjectKeyIdentifier' and \
-            value.strip('0123456789abcdefABCDEF:') is not '':
+            value.strip('0123456789abcdefABCDEF:') != '':
         raise ValueError('value must be precomputed hash')
     ctx = m2.x509v3_set_nconf()
     x509_ext_ptr = m2.x509v3_ext_conf(None, ctx, name, value)
