@@ -66,14 +66,14 @@ class SSL_Transport(Transport):
         if request_body:
             h.send(request_body)
 
-        errcode, errmsg, headers = h.getreply()
+        response = h.getresponse()
 
-        if errcode != 200:
+        if response.status != 200:
             raise ProtocolError(
                 host + handler,
-                errcode, errmsg,
-                headers
+                response.status, response.reason,
+                response.getheaders()
             )
 
         self.verbose = verbose
-        return self.parse_response(h.getfile())
+        return self.parse_response(response)
