@@ -5,13 +5,46 @@ environment:
         secure: oqWqarxnd4H23FMywnlQeg==
     PASS:
         secure: j/VSxdYJ7mdR44u8OdywLg==
-    X86_OPENSSL_INSTALLER: Win32OpenSSL-1_1_0L.exe
-    X64_OPENSSL_INSTALLER: Win64OpenSSL-1_1_0L.exe
+    X86_OPENSSL_INSTALLER: Win32OpenSSL-1_1_1g.exe
+    X64_OPENSSL_INSTALLER: Win64OpenSSL-1_1_1g.exe
 
   matrix:
 
     # Pre-installed Python versions, which Appveyor may upgrade to
     # a later point release.
+   
+    - PYTHON: "C:\\Python38"
+      PYTHON_VERSION: "3.8.x"
+      PYTHON_ARCH: "32"
+      OPENSSL_PATH: "C:\\OpenSSL-1-1-Win32"
+      PYWIN32: "pywin32-227.win32-py3.8.exe"
+      PYWIN32_RELEASE: b227
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+
+    - PYTHON: "C:\\Python38-x64"
+      PYTHON_VERSION: "3.8.x"
+      PYTHON_ARCH: "64"
+      OPENSSL_PATH: "C:\\OpenSSL-1-1-Win64"
+      PYWIN32: "pywin32-227.win-amd64-py3.8.exe"
+      PYWIN32_RELEASE: b227
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+
+    - PYTHON: "C:\\Python37"
+      PYTHON_VERSION: "3.7.x"
+      PYTHON_ARCH: "32"
+      OPENSSL_PATH: "C:\\OpenSSL-1-1-Win32"
+      PYWIN32: "pywin32-222.win32-py3.7.exe"
+      PYWIN32_RELEASE: b222
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+
+    - PYTHON: "C:\\Python37-x64"
+      PYTHON_VERSION: "3.7.x"
+      PYTHON_ARCH: "64"
+      OPENSSL_PATH: "C:\\OpenSSL-1-1-Win64"
+      PYWIN32: "pywin32-222.win-amd64-py3.7.exe"
+      PYWIN32_RELEASE: b222
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+
     - PYTHON: "C:\\Python36"
       PYTHON_VERSION: "3.6.x" # currently 3.6.4
       PYTHON_ARCH: "32"
@@ -97,11 +130,11 @@ install:
   # target Python version and architecture
   - "%PYTHON%\\Scripts\\pip.exe install -r dev-requirements.txt"
 
-  - ECHO "Install OpenSSL 1.1.0 32bit"
+  - ECHO "Install OpenSSL 32bit"
   - curl -o "c:\\%X86_OPENSSL_INSTALLER%" -fsSL "https://slproweb.com/download/%X86_OPENSSL_INSTALLER%"
   - "c:\\%X86_OPENSSL_INSTALLER% /silent /verysilent /DIR=C:\\OpenSSL-1-1-Win32"
 
-  - ECHO "Install OpenSSL 1.1.0 64bit"
+  - ECHO "Install OpenSSL 64bit"
   - curl -o "c:\\%X64_OPENSSL_INSTALLER%" -fsSL "https://slproweb.com/download/%X64_OPENSSL_INSTALLER%"
   - "c:\\%X64_OPENSSL_INSTALLER% /silent /verysilent /DIR=C:\\OpenSSL-1-1-Win64"
 

@@ -29,7 +29,7 @@ if win32process:
                 path_dir = os.listdir(p)
                 if 'openssl.exe' in path_dir:
                     return os.path.join(p, 'openssl.exe')
-            except win32process.WindowsError:
+            except OSError:
                 pass
         return None
 
