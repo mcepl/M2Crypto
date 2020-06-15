@@ -37,7 +37,6 @@ def _serverPostConnectionCheck(*args, **kw):
 class Connection(object):
     """An SSL connection."""
 
-    clientPostConnectionCheck = Checker.Checker()
     serverPostConnectionCheck = _serverPostConnectionCheck
 
     m2_bio_free = m2.bio_free
@@ -52,6 +51,10 @@ class Connection(object):
         :param sock: socket to be used
         :param family: socket family
         """
+        # The Checker needs to be an instance attribute 
+        # and not a class attribute for thread safety reason
+        self.clientPostConnectionCheck = Checker.Checker()
+
         self.ctx = ctx
         self.ssl = m2.ssl_new(self.ctx.ctx)  # type: bytes
         if sock is not None:
