@@ -51,10 +51,11 @@ class Connection(object):
         :param sock: socket to be used
         :param family: socket family
         """
-        # The Checker needs to be an instance attribute 
+        # The Checker needs to be an instance attribute
         # and not a class attribute for thread safety reason
         self.clientPostConnectionCheck = Checker.Checker()
 
+        self._bio_freed = False
         self.ctx = ctx
         self.ssl = m2.ssl_new(self.ctx.ctx)  # type: bytes
         if sock is not None:
@@ -76,23 +77,38 @@ class Connection(object):
 
         self.host = None
 
+    def _free_bio(self):
+        """
+           Free the sslbio and sockbio, and close the socket.
+        """
+        # Do not do it twice
+        if not self._bio_freed:
+            if getattr(self, 'sslbio', None):
+                self.m2_bio_free(self.sslbio)
+            if getattr(self, 'sockbio', None):
+                self.m2_bio_free(self.sockbio)
+            if self.ssl_close_flag == self.m2_bio_noclose and \
+                    getattr(self, 'ssl', None):
+                self.m2_ssl_free(self.ssl)
+            self.socket.close()
+            self._bio_freed = True
+
+
     def __del__(self):
         # type: () -> None
         # Notice that M2Crypto doesn't automatically shuts down the
         # connection here. You have to call self.close() in your
         # program, M2Crypto won't do it automatically for you.
-        if getattr(self, 'sslbio', None):
-            self.m2_bio_free(self.sslbio)
-        if getattr(self, 'sockbio', None):
-            self.m2_bio_free(self.sockbio)
-        if self.ssl_close_flag == self.m2_bio_noclose and \
-                getattr(self, 'ssl', None):
-            self.m2_ssl_free(self.ssl)
-        self.socket.close()
+        self._free_bio()
 
-    def close(self):
+    def close(self, freeBio=False):
+        """
+           if freeBio is true, call _free_bio
+        """
         # type: () -> None
         m2.ssl_shutdown(self.ssl)
+        if freeBio:
+            self._free_bio()
 
     def clear(self):
         # type: () -> int
