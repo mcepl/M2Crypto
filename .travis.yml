@@ -1,4 +1,9 @@
 language: python
+os:
+  - linux
+  - osx
+dist:
+  - xenial
 
 addons:
   apt:
@@ -6,16 +11,10 @@ addons:
     - swig
     - libssl-dev
     - libssl1.0.0
-    - python-setuptools
-    - python-twisted
   homebrew:
     packages:
     - swig
     - openssl
-    - python-setuptools
-    - python-twisted
-
-sudo: false
 
 python:
   - "2.7"
@@ -24,15 +23,13 @@ python:
   - "3.7"
   - "3.8"
   - "nightly"
-matrix:
-  include:
-     - os: osx
-       language: generic
+
+jobs:
   allow_failures:
     - python: "nightly"
 
 install:
-  - travis_retry pip install Twisted
+  - travis_retry pip install setuptools Twisted pytest
   - python setup.py install
 
 script: python setup.py test
