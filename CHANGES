@@ -1,3 +1,38 @@
+0.36.0 - 2020-07-13
+-------------------
+
+- wrap SocketIO in io.Buffered* for makefile <lethliel>
+- SSL.Connection.close accepts an argument to force the socket closing
+  <Christophe Haen>
+- SSL.Connection: make the clientPostConnectionCheck an instance
+  attribute <Christophe Haen>
+- Fixed bug with usage of unexisting method getreply at SSL_Transport
+  <roman-nagaev>
+- Add appveyor builds for python 3.7 and 3.8 <Daniel A. Wozniak>
+- Fixed syntax warning on line 44. <randomfox>
+- Update M2Crypto.six to 1.13.0 <Matěj Cepl>
+- base64.decodestring() was finally removed in Python 3.8. <Matěj Cepl>
+- wrap SocketIO in io.Buffered* for makefile <lethliel>
+- NULL is legal argument for key and iv paramters of EVP_CipherInit(3)
+  <Matěj Cepl>
+- Expose X509_V_FLAG_ALLOW_PROXY_CERTS verification flag and
+  X509_STORE_SET_FLAGS function <Christophe Haen>
+- Stop testing for 2.6 and 3.4 on Travis. Start testing 3.8 <Matěj Cepl>
+- Extend test cert validity to 2049 <Bernhard M. Wiedemann>
+- Revert using typing module in 2.6. It is just not worthy. <Matěj Cepl>
+- Update Debian/stable SSL as well <Matěj Cepl>
+- Make tests pass again. <Matěj Cepl>
+- Stop using string module, which has been deprecated. <Matěj Cepl>
+- Tiny fixes to make pyls more happy <Matěj Cepl>
+- CI: Rework Fedora CI configuration <Neal Gompa>
+
+0.35.2 - 2019-06-10
+-------------------
+
+- tests.test_rsa: Fix typo to match for proper exception <Sebastian
+  Andrzej Siewior>
+- Expose CRLs verification flags <Christophe Haen>
+
 0.35.1 - 2019-06-08
 -------------------
 
