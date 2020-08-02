@@ -183,6 +183,8 @@ class _M2CryptoBuildExt(build_ext.build_ext):
             self.swig_opts.append('-D%s' % arch)
             if mach in ('ppc64le', 'ppc64el'):
                 self.swig_opts.append('-D_CALL_ELF=2')
+            if mach in ('arm64_be'):
+                self.swig_opts.append('-D__AARCH64EB__')
 
         self.swig_opts.extend(['-I%s' % i for i in self.include_dirs])
 
