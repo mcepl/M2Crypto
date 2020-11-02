@@ -22,7 +22,7 @@ import shutil
 import subprocess
 import sys
 
-from distutils.command import build, sdist
+from distutils.command import build
 from distutils.command.clean import clean
 from distutils.dir_util import mkpath
 from distutils.version import StrictVersion
@@ -35,7 +35,6 @@ logging.basicConfig(format='%(levelname)s:%(funcName)s:%(message)s',
 log = logging.getLogger('setup')
 
 REQUIRED_SWIG_VERSION = '2.0.4'
-
 
 requires_list = []
 if (2, 6) < sys.version_info[:2] < (3, 5):
@@ -141,15 +140,16 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         self.libraries = ['ssl', 'crypto']
         if sys.platform == 'win32':
             self.libraries = ['ssleay32', 'libeay32']
-            if self.openssl and openssl_version(self.openssl, 0x10100000, True):
+            if self.openssl and openssl_version(self.openssl,
+                                                0x10100000, True):
                 self.libraries = ['libssl', 'libcrypto']
                 self.swig_opts.append('-D_WIN32')
-                # Swig doesn't know the version of MSVC, which causes errors in e_os2.h
-                # trying to import stdint.h. Since python 2.7 is intimately tied to
-                # MSVC 2008, it's harmless for now to define this. Will come back to
+                # Swig doesn't know the version of MSVC, which causes
+                # errors in e_os2.h trying to import stdint.h. Since
+                # python 2.7 is intimately tied to MSVC 2008, it's
+                # harmless for now to define this. Will come back to
                 # this shortly to come up with a better fix.
                 self.swig_opts.append('-D_MSC_VER=1500')
-
 
         if sys.version_info[:1] >= (3,):
             self.swig_opts.append('-py3')
@@ -201,7 +201,8 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         if self.openssl is None:
             self.swig_opts.append('-I/usr/include/openssl')
         else:
-            self.swig_opts.append('-I' + os.path.join(openssl_include_dir, 'openssl'))
+            self.swig_opts.append(
+                '-I' + os.path.join(openssl_include_dir, 'openssl'))
 
         # swig seems to need the default header file directories
         self.swig_opts.extend(['-I%s' % i for i in _get_additional_includes()])
@@ -235,24 +236,26 @@ class _M2CryptoBuildExt(build_ext.build_ext):
 
         # Win32 bdist builds must use --openssl in the builds step.
         if not self.bundledlls:
-           build_ext.build_ext.run(self)
-           return
+            build_ext.build_ext.run(self)
+            return
 
         if sys.platform == 'win32':
             ver_part = ''
-            if self.openssl and openssl_version(self.openssl, 0x10100000, True):
+            if self.openssl and openssl_version(self.openssl,
+                                                0x10100000, True):
                 ver_part += '-1_1'
             if sys.maxsize > 2**32:
                 ver_part += '-x64'
             search = list(self.library_dirs)
             if self.openssl:
-                search = search + [self.openssl, os.path.join(self.openssl, 'bin')]
+                search = search + [self.openssl,
+                                   os.path.join(self.openssl, 'bin')]
             libs = list(self.libraries)
             for libname in list(libs):
                 for search_path in search:
-                     dll_name = '{0}{1}.dll'.format(libname, ver_part)
-                     dll_path = os.path.join(search_path, dll_name)
-                     if os.path.exists(dll_path):
+                    dll_name = '{0}{1}.dll'.format(libname, ver_part)
+                    dll_path = os.path.join(search_path, dll_name)
+                    if os.path.exists(dll_path):
                         shutil.copy(dll_path, 'M2Crypto')
                         libs.remove(libname)
                         break
