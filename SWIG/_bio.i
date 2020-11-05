@@ -250,7 +250,7 @@ PyObject *bio_set_cipher(BIO *b, EVP_CIPHER *c, PyObject *key, PyObject *iv, int
         || (PyObject_AsReadBuffer(iv, &ibuf, &ilen) == -1))
         return NULL;
 
-    BIO_set_cipher(b, (const EVP_CIPHER *)c, 
+    BIO_set_cipher(b, (const EVP_CIPHER *)c,
         (unsigned char *)kbuf, (unsigned char *)ibuf, op);
     Py_RETURN_NONE;
 }

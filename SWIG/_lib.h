@@ -12,6 +12,8 @@ Blob *blob_new(int len, const char *errmsg);
 Blob *blob_copy(Blob *from, const char *errmsg);
 void blob_free(Blob *blob);
 
+static int m2_PyObject_AsReadBuffer(PyObject *obj, const void **buffer,
+                                       Py_ssize_t *buffer_len);
 static int m2_PyObject_AsReadBufferInt(PyObject *obj, const void **buffer,
                                        int *buffer_len);
 static int m2_PyString_AsStringAndSizeInt(PyObject *obj, char **s, int *len);
