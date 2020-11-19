@@ -187,10 +187,13 @@ class PKey(object):
 
     def _set_context(self, md):
         # type: (str) -> None
-        mda = getattr(m2, md, None)  # type: Optional[Callable]
-        if mda is None:
-            raise ValueError('unknown message digest', md)
-        self.md = mda()
+        if not md:
+            self.md = None
+        else:
+            mda = getattr(m2, md, None)  # type: Optional[Callable]
+            if mda is None:
+                raise ValueError('unknown message digest', md)
+            self.md = mda()
         self.ctx = m2.md_ctx_new()  # type: Context
 
     def reset_context(self, md='sha1'):
@@ -258,6 +261,86 @@ class PKey(object):
                  other error.
         """
         return m2.verify_final(self.ctx, sign, self.pkey)
+
+    def digest_sign_init(self):
+        # type: () -> None
+        """
+        Initialise digest signing operation with self.
+        """
+        if self.md is None:
+            m2.digest_sign_init(self.ctx, self.pkey)
+        else:
+            m2.digest_sign_init(self.ctx, None, self.md, None, self.pkey)
+
+    def digest_sign_update(self, data):
+        # type: (bytes) -> None
+        """
+        Feed data to digest signing operation.
+
+        :param data: Data to be signed.
+        """
+        m2.digest_sign_update(self.ctx, data)
+
+    def digest_sign_final(self):
+        # type: () -> bytes
+        """
+        Return signature.
+
+        :return: The signature.
+        """
+        return m2.digest_sign_final(self.ctx)
+
+    def digest_sign(self, data):
+        # type: () -> bytes
+        """
+        Return signature.
+
+        :return: The signature.
+        """
+        return m2.digest_sign(self.ctx, data)
+
+    def digest_verify_init(self):
+        # type: () -> None
+        """
+        Initialise verification operation with self.
+        """
+        if self.md is None:
+            m2.digest_verify_init(self.ctx, self.pkey)
+        else:
+            m2.digest_verify_init(self.ctx, None, self.md, None, self.pkey)
+
+    def digest_verify_update(self, data):
+        # type: (bytes) -> int
+        """
+        Feed data to verification operation.
+
+        :param data: Data to be verified.
+        :return: -1 on Python error, 1 for success, 0 for OpenSSL error
+        """
+        return m2.digest_verify_update(self.ctx, data)
+
+    def digest_verify_final(self, sign):
+        # type: (bytes) -> int
+        """
+        Feed data to digest verification operation.
+
+        :param sign: Signature to use for verification
+        :return: Result of verification: 1 for success, 0 for failure, -1 on
+                 other error.
+        """
+        return m2.digest_verify_final(self.ctx, sign)
+
+    def digest_verify(self, sign, data):
+        # type: (bytes) -> int
+        """
+        Return result of verification.
+
+        :param sign: Signature to use for verification
+        :param data: Data to be verified.
+        :return: Result of verification: 1 for success, 0 for failure, -1 on
+                 other error.
+        """
+        return m2.digest_verify(self.ctx, sign, data)
 
     def assign_rsa(self, rsa, capture=1):
         # type: (RSA.RSA, int) -> int
@@ -394,6 +477,27 @@ def load_key(file, callback=util.passphrase_callback):
     with BIO.openfile(file, 'r') as bio:
         cptr = m2.pkey_read_pem(bio.bio, callback)
 
+    return PKey(cptr, 1)
+
+
+def load_key_pubkey(file, callback=util.passphrase_callback):
+    # type: (AnyStr, Callable) -> PKey
+    """
+    Load an M2Crypto.EVP.PKey from a public key as a file.
+
+    :param file: Name of file containing the key in PEM format.
+
+    :param callback: A Python callable object that is invoked
+                     to acquire a passphrase with which to protect the
+                     key.
+
+    :return: M2Crypto.EVP.PKey object.
+    """
+
+    with BIO.openfile(file, 'r') as bio:
+        cptr = m2.pkey_read_pem_pubkey(bio._ptr(), callback)
+        if cptr is None:
+            raise EVPError(Err.get_error())
     return PKey(cptr, 1)
 
 

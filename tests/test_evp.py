@@ -248,6 +248,60 @@ class EVPTestCase(unittest.TestCase):
         pubkey.verify_update(b'test  message not')
         self.assertEqual(pubkey.verify_final(sig), 0)
 
+    @unittest.skipIf(m2.OPENSSL_VERSION_NUMBER < 0x10101000,
+                     'Relies on support for Ed25519 which was introduced in OpenSSL 1.1.1')
+    def test_digest_verify(self):
+        pkey = EVP.load_key('tests/ed25519.priv.pem')
+        pkey.reset_context(None)
+        pkey.digest_sign_init()
+        sig = pkey.digest_sign(b'test  message')
+
+        # OK
+        pkey = EVP.load_key_pubkey('tests/ed25519.pub.pem')
+        pkey.reset_context(None)
+        pkey.digest_verify_init()
+        self.assertEqual(pkey.digest_verify(sig, b'test  message'), 1)
+
+        # wrong public key
+        pkey = EVP.load_key_pubkey('tests/ed25519.pub2.pem')
+        pkey.reset_context(None)
+        pkey.digest_verify_init()
+        self.assertEqual(pkey.digest_verify(sig, b'test  message'), 0)
+
+        # wrong message
+        pkey = EVP.load_key_pubkey('tests/ed25519.pub.pem')
+        pkey.reset_context(None)
+        pkey.digest_verify_init()
+        self.assertEqual(pkey.digest_verify(sig, b'test  message  not'), 0)
+
+    def test_digest_verify_final(self):
+        pkey = EVP.load_key('tests/ec.priv.pem')
+        pkey.reset_context('sha256')
+        pkey.digest_sign_init()
+        pkey.digest_sign_update(b'test  message')
+        sig = pkey.digest_sign_final()
+
+        # OK
+        pkey = EVP.load_key_pubkey('tests/ec.pub.pem')
+        pkey.reset_context('sha256')
+        pkey.digest_verify_init()
+        pkey.digest_verify_update(b'test  message')
+        self.assertEqual(pkey.digest_verify_final(sig), 1)
+
+        # wrong public key
+        pkey = EVP.load_key_pubkey('tests/ec.pub2.pem')
+        pkey.reset_context('sha256')
+        pkey.digest_verify_init()
+        pkey.digest_verify_update(b'test  message')
+        self.assertEqual(pkey.digest_verify_final(sig), 0)
+
+        # wrong message
+        pkey = EVP.load_key_pubkey('tests/ec.pub.pem')
+        pkey.reset_context('sha256')
+        pkey.digest_verify_init()
+        pkey.digest_verify_update(b'test  message not')
+        self.assertEqual(pkey.digest_verify_final(sig), 0)
+
     def test_load_bad(self):
         with self.assertRaises(BIO.BIOError):
             EVP.load_key('thisdoesnotexist-dfgh56789')

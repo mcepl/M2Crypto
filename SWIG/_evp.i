@@ -184,6 +184,10 @@ extern int EVP_PKEY_set1_RSA(EVP_PKEY *, RSA *);
 extern int EVP_SignInit(EVP_MD_CTX *, const EVP_MD *);
 %rename(verify_init) EVP_VerifyInit;
 extern int EVP_VerifyInit(EVP_MD_CTX *, const EVP_MD *);
+%rename(digest_sign_init) EVP_DigestSignInit;
+extern int EVP_DigestSignInit(EVP_MD_CTX *, EVP_PKEY_CTX **, const EVP_MD *, ENGINE *, EVP_PKEY *);
+%rename(digest_verify_init) EVP_DigestVerifyInit;
+extern int EVP_DigestVerifyInit(EVP_MD_CTX *, EVP_PKEY_CTX **, const EVP_MD *, ENGINE *, EVP_PKEY *);
 %rename(pkey_size) EVP_PKEY_size;
 extern int EVP_PKEY_size(EVP_PKEY *);
 
@@ -546,7 +550,6 @@ int verify_update(EVP_MD_CTX *ctx, PyObject *blob) {
     return EVP_VerifyUpdate(ctx, buf, len);
 }
 
-
 int verify_final(EVP_MD_CTX *ctx, PyObject *blob, EVP_PKEY *pkey) {
     unsigned char *kbuf;
     int len = 0;
@@ -555,6 +558,129 @@ int verify_final(EVP_MD_CTX *ctx, PyObject *blob, EVP_PKEY *pkey) {
         return -1;
 
     return EVP_VerifyFinal(ctx, kbuf, len, pkey);
+}
+
+int digest_sign_init(EVP_MD_CTX *ctx, EVP_PKEY *pkey) {
+    return EVP_DigestSignInit(ctx, NULL, NULL, NULL, pkey);
+}
+
+PyObject *digest_sign_update(EVP_MD_CTX *ctx, PyObject *blob) {
+    const void *buf;
+    int len = 0;
+
+    if (m2_PyObject_AsReadBufferInt(blob, (const void **)&buf, &len) == -1)
+        return NULL;
+
+    if (!EVP_DigestSignUpdate(ctx, buf, len)) {
+        m2_PyErr_Msg(_evp_err);
+        return NULL;
+    }
+    Py_RETURN_NONE;
+}
+
+PyObject *digest_sign_final(EVP_MD_CTX *ctx) {
+    PyObject *ret;
+    unsigned char *sigbuf;
+    size_t siglen;
+
+    if (!EVP_DigestSignFinal(ctx, NULL, &siglen)) {
+        m2_PyErr_Msg(_evp_err);
+        return NULL;
+    }
+
+    sigbuf = (unsigned char*)OPENSSL_malloc(siglen);
+    if (!sigbuf) {
+        PyErr_SetString(PyExc_MemoryError, "digest_sign_final");
+        return NULL;
+    }
+
+    if (!EVP_DigestSignFinal(ctx, sigbuf, &siglen)) {
+        m2_PyErr_Msg(_evp_err);
+        OPENSSL_cleanse(sigbuf, siglen);
+        OPENSSL_free(sigbuf);
+        return NULL;
+    }
+
+    ret = PyBytes_FromStringAndSize((char*)sigbuf, siglen);
+
+    OPENSSL_cleanse(sigbuf, siglen);
+    OPENSSL_free(sigbuf);
+    return ret;
+}
+
+PyObject *digest_sign(EVP_MD_CTX *ctx, PyObject *msg) {
+    PyObject *ret;
+    const void *msgbuf;
+    unsigned char *sigbuf;
+    int msglen = 0;
+    size_t siglen = 0;
+
+    if (m2_PyObject_AsReadBufferInt(msg, (const void **)&msgbuf, &msglen) == -1)
+        return NULL;
+
+    if (!EVP_DigestSign(ctx, NULL, &siglen, msgbuf, msglen)) {
+        m2_PyErr_Msg(_evp_err);
+        return NULL;
+    }
+
+    sigbuf = (unsigned char*)OPENSSL_malloc(siglen);
+    if (!sigbuf) {
+        PyErr_SetString(PyExc_MemoryError, "digest_sign");
+        return NULL;
+    }
+
+    if (!EVP_DigestSign(ctx, sigbuf, &siglen, msgbuf, msglen)) {
+        m2_PyErr_Msg(_evp_err);
+        OPENSSL_cleanse(sigbuf, siglen);
+        OPENSSL_free(sigbuf);
+        return NULL;
+    }
+
+    ret = PyBytes_FromStringAndSize((char*)sigbuf, siglen);
+
+    OPENSSL_cleanse(sigbuf, siglen);
+    OPENSSL_free(sigbuf);
+    return ret;
+
+}
+
+int digest_verify_init(EVP_MD_CTX *ctx, EVP_PKEY *pkey) {
+    return EVP_DigestVerifyInit(ctx, NULL, NULL, NULL, pkey);
+}
+
+int digest_verify_update(EVP_MD_CTX *ctx, PyObject *blob) {
+    const void *buf;
+    int len = 0;
+
+    if (m2_PyObject_AsReadBufferInt(blob, (const void **)&buf, &len) == -1)
+        return -1;
+
+    return EVP_DigestVerifyUpdate(ctx, buf, len);
+}
+
+int digest_verify_final(EVP_MD_CTX *ctx, PyObject *blob) {
+    unsigned char *sigbuf;
+    int len = 0;
+
+    if (m2_PyObject_AsReadBufferInt(blob, (const void **)&sigbuf, &len) == -1)
+        return -1;
+
+    return EVP_DigestVerifyFinal(ctx, sigbuf, len);
+}
+
+int digest_verify(EVP_MD_CTX *ctx, PyObject *sig, PyObject *msg) {
+    unsigned char *sigbuf;
+    unsigned char *msgbuf;
+    int siglen = 0;
+    int msglen = 0;
+
+    if (m2_PyObject_AsReadBufferInt(sig, (const void **)&sigbuf, &siglen) == -1)
+        return -1;
+
+    if (m2_PyObject_AsReadBufferInt(msg, (const void **)&msgbuf, &msglen) == -1)
+        return -1;
+
+    return EVP_DigestVerify(ctx, sigbuf, siglen, msgbuf, msglen);
 }
 %}
 
