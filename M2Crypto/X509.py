@@ -1023,13 +1023,17 @@ class X509_Store(object):
     add_cert = add_x509
 
     def set_flags(self, flags):
+        # type: (int) -> int
         """
         Set the verification flags for the X509Store
         Wrapper over OpenSSL X509_STORE_set_flags()
 
-        :param flags: `VERIFICATION FLAGS` section of the X509_VERIFY_PARAM_set_flags man page has a complete description
-                      of values the flags parameter can take.
-                      Their M2Crypto equivalent is transformed following this pattern: "X509_V_FLAG_XYZ" -> lowervase("VERIFY_XYZ")
+        :param flags: `VERIFICATION FLAGS` section of the
+                      X509_VERIFY_PARAM_set_flags man page has
+                      a complete description of values the flags
+                      parameter can take.
+                      Their M2Crypto equivalent is transformed following
+                      the pattern: "X509_V_FLAG_XYZ" -> lowercase("VERIFY_XYZ")
         """
         return m2.x509_store_set_flags(self.store, flags)
 
