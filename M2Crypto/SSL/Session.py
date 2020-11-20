@@ -4,10 +4,9 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
 __all__ = ['Session', 'load_session']
 
-from M2Crypto import BIO, Err, m2, util
+from M2Crypto import BIO, Err, m2
 from M2Crypto.SSL import SSLError
-if util.py27plus:
-    from typing import AnyStr  # noqa
+from typing import AnyStr  # noqa
 
 
 class Session(object):

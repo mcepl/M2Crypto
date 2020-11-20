@@ -32,7 +32,7 @@ import time
 import warnings
 
 from M2Crypto import (Err, Rand, SSL, X509, ftpslib, httpslib, m2, m2urllib,
-                      m2urllib2, m2xmlrpclib, py27plus, six)
+                      m2urllib2, m2xmlrpclib, six)
 from M2Crypto.SSL.timeout import DEFAULT_TIMEOUT
 from tests import unittest
 from tests.fips import fips_mode
@@ -1047,8 +1047,6 @@ class Urllib2TEChunkedSSLClientTestCase(BaseSSLClientTestCase):
             self.stop_server(pid)
 
 
-@unittest.skipUnless(py27plus,
-                     "Twisted doesn't test well with Python 2.6")
 class TwistedSSLClientTestCase(BaseSSLClientTestCase):
 
     def test_timeout(self):
@@ -1223,9 +1221,8 @@ def suite():
     suite.addTest(unittest.makeSuite(MiscSSLClientTestCase))
     suite.addTest(unittest.makeSuite(FtpslibTestCase))
     try:
-        if py27plus:
-            import M2Crypto.SSL.TwistedProtocolWrapper as wrapper  # noqa
-            suite.addTest(unittest.makeSuite(TwistedSSLClientTestCase))
+        import M2Crypto.SSL.TwistedProtocolWrapper as wrapper  # noqa
+        suite.addTest(unittest.makeSuite(TwistedSSLClientTestCase))
     except ImportError:
         pass
     return suite

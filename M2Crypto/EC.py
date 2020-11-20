@@ -11,14 +11,15 @@ Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam.
 All rights reserved."""
 
 from M2Crypto import BIO, Err, EVP, m2, util
-if util.py27plus:
-    from typing import AnyStr, Callable, Dict, Optional, Tuple, Union  # noqa
+from typing import AnyStr, Callable, Dict, Optional, Tuple, Union  # noqa
+from M2Crypto.EVP import PKey
 
 EC_Key = bytes
 
 
 class ECError(Exception):
     pass
+
 
 m2.ec_init(ECError)
 

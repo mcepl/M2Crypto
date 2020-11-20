@@ -15,12 +15,11 @@ Summary of changes:
 
 import socket
 
-from M2Crypto import SSL, httpslib, six, util
+from M2Crypto import SSL, httpslib, six
 
 from M2Crypto.six.moves.urllib_parse import urldefrag, urlparse as url_parse
 from M2Crypto.six.moves.urllib_response import addinfourl
-if util.py27plus:
-    from typing import List, Optional  # noqa
+from typing import Optional  # noqa
 
 # six.moves doesn't support star imports
 if six.PY3:

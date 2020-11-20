@@ -4,9 +4,8 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
 __all__ = ['Cipher', 'Cipher_Stack']
 
-from M2Crypto import m2, py27plus, six
-if py27plus:
-    from typing import Iterable  # noqa
+from M2Crypto import m2, six
+from typing import Iterable  # noqa
 
 
 class Cipher(object):

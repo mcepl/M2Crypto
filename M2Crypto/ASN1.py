@@ -12,9 +12,8 @@ Copyright (C) 2005 OSAF. All Rights Reserved.
 import datetime
 import time
 
-from M2Crypto import BIO, m2, py27plus, six
-if py27plus:
-    from typing import Any, Callable, Optional, Tuple  # noqa
+from M2Crypto import BIO, m2, six
+from typing import Optional  # noqa
 
 MBSTRING_FLAG = 0x1000
 MBSTRING_ASC = MBSTRING_FLAG | 1

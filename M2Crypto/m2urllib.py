@@ -11,11 +11,10 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 import base64
 import warnings
 
-from M2Crypto import SSL, httpslib, six, util
+from M2Crypto import SSL, httpslib, six
 
 from M2Crypto.six.moves.urllib_response import addinfourl
-if util.py27plus:
-    from typing import AnyStr, Optional  # noqa
+from typing import AnyStr, Optional  # noqa
 
 # six.moves doesn't support star imports
 if six.PY3:

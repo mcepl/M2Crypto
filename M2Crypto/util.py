@@ -15,17 +15,17 @@ import binascii
 import logging
 import sys
 
-from M2Crypto import m2, py27plus, six
-if py27plus:
-    from typing import Any, AnyStr, Optional, Tuple, Union  # noqa
-    # see https://github.com/python/typeshed/issues/222
-    AddrType = Union[Tuple[str, int], str]
+from M2Crypto import m2, six
+from typing import Any, Optional, TextIO, Tuple, Union  # noqa
+# see https://github.com/python/typeshed/issues/222
+AddrType = Union[Tuple[str, int], str]
 
 log = logging.getLogger('util')
 
 
 class UtilError(Exception):
     pass
+
 
 m2.util_init(UtilError)
 
@@ -55,7 +55,7 @@ def octx_to_num(x):
 
 
 def genparam_callback(p, n, out=sys.stdout):
-    # type: (int, Any, file) -> None
+    # type: (int, Any, TextIO) -> None
     ch = ['.', '+', '*', '\n']
     out.write(ch[p])
     out.flush()

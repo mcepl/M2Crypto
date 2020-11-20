@@ -12,9 +12,8 @@ Author: Heikki Toivonen
 import binascii
 import logging
 
-from M2Crypto import ASN1, BIO, EVP, m2, py27plus, six  # noqa
-if py27plus:
-    from typing import AnyStr, Optional  # noqa
+from M2Crypto import ASN1, BIO, EVP, m2, six  # noqa
+from typing import AnyStr, List, Optional  # noqa
 
 FORMAT_DER = 0
 FORMAT_PEM = 1
@@ -24,6 +23,7 @@ log = logging.getLogger(__name__)
 
 class X509Error(ValueError):
     pass
+
 
 m2.x509_init(X509Error)
 

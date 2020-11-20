@@ -8,13 +8,13 @@ Pavel Shramov
 IMEC MSU
 """
 
-from M2Crypto import EVP, Err, X509, m2, six, util
-if util.py27plus:
-    from typing import AnyStr, Callable, Optional  # noqa
+from M2Crypto import EVP, Err, X509, m2, six
+from typing import AnyStr, Callable, Optional  # noqa
 
 
 class EngineError(Exception):
     pass
+
 
 m2.engine_init_error(EngineError)
 

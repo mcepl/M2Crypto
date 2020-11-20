@@ -9,13 +9,12 @@ Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 import base64
 import socket
 
-from M2Crypto import SSL, py27plus, six
+from M2Crypto import SSL, six
 from M2Crypto.six.moves.urllib_parse import urlsplit, urlunsplit
 from M2Crypto.six.moves.http_client import *  # noqa
 # This is not imported with just '*'
 from M2Crypto.six.moves.http_client import HTTPS_PORT
-if py27plus:
-    from typing import Any, AnyStr, Callable, Dict, List, Optional  # noqa
+from typing import Any, AnyStr, Callable, Dict, Optional  # noqa
 
 
 class HTTPSConnection(HTTPConnection):

@@ -7,12 +7,12 @@ Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 import sys
 
 from M2Crypto import BIO, Err, m2, util
-if util.py27plus:
-    from typing import Any, AnyStr, Callable, Dict, List, IO, Optional, Tuple  # noqa
+from typing import Any, AnyStr, Callable, IO, Optional, Tuple  # noqa
 
 
 class RSAError(Exception):
     pass
+
 
 m2.rsa_init(RSAError)
 

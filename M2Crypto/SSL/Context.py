@@ -8,8 +8,7 @@ from M2Crypto import BIO, Err, RSA, X509, m2, util  # noqa
 from M2Crypto.SSL import cb  # noqa
 from M2Crypto.SSL.Session import Session  # noqa
 from weakref import WeakValueDictionary
-if util.py27plus:
-    from typing import Any, AnyStr, Callable, Optional, Union  # noqa
+from typing import Any, AnyStr, Callable, Optional, Union  # noqa
 
 __all__ = ['ctxmap', 'Context', 'map']
 

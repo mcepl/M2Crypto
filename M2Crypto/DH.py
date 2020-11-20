@@ -4,14 +4,14 @@ from __future__ import absolute_import
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-from M2Crypto import BIO, m2, util
+from M2Crypto import BIO, m2
 from M2Crypto.util import genparam_callback
-if util.py27plus:
-    from typing import AnyStr, Callable  # noqa
+from typing import AnyStr, Callable, Optional  # noqa
 
 
 class DHError(Exception):
     pass
+
 
 m2.dh_init(DHError)
 

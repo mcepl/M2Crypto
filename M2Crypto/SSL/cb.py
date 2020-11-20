@@ -6,9 +6,8 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
 import sys
 
-from M2Crypto import m2, util
-if util.py27plus:
-    from typing import Any, List  # noqa
+from M2Crypto import m2
+from typing import Any  # noqa
 
 __all__ = ['unknown_issuer', 'ssl_verify_callback_stub', 'ssl_verify_callback',
            'ssl_verify_callback_allow_unknown_ca', 'ssl_info_callback']
@@ -17,6 +16,7 @@ __all__ = ['unknown_issuer', 'ssl_verify_callback_stub', 'ssl_verify_callback',
 def ssl_verify_callback_stub(ssl_ctx_ptr, x509_ptr, errnum, errdepth, ok):
     # Deprecated
     return ok
+
 
 unknown_issuer = [
     m2.X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT,

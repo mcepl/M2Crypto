@@ -10,12 +10,12 @@ from __future__ import absolute_import, print_function
 """
 
 from M2Crypto import BIO, m2, util
-if util.py27plus:
-    from typing import AnyStr, Callable, Tuple  # noqa
+from typing import Any, AnyStr, Callable, Tuple  # noqa
 
 
 class DSAError(Exception):
     pass
+
 
 m2.dsa_init(DSAError)
 

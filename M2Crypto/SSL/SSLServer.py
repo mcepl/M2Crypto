@@ -9,16 +9,15 @@ Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 from M2Crypto.SSL import SSLError
 from M2Crypto.SSL.Connection import Connection
 from M2Crypto.SSL.Context import Context  # noqa
-from M2Crypto import six  # noqa
+# from M2Crypto import six  # noqa
 from M2Crypto import util  # noqa
-from M2Crypto.six.moves.socketserver import (BaseServer, TCPServer,
-                                             ThreadingMixIn)
+from M2Crypto.six.moves.socketserver import (BaseRequestHandler, BaseServer,
+                                             TCPServer, ThreadingMixIn)
 import os
 if os.name != 'nt':
-   from M2Crypto.six.moves.socketserver import ForkingMixIn
+    from M2Crypto.six.moves.socketserver import ForkingMixIn
 from socket import socket  # noqa
-if util.py27plus:
-    from typing import Union  # noqa
+from typing import Union  # noqa
 
 __all__ = ['SSLServer', 'ForkingSSLServer', 'ThreadingSSLServer']
 
@@ -26,7 +25,7 @@ __all__ = ['SSLServer', 'ForkingSSLServer', 'ThreadingSSLServer']
 class SSLServer(TCPServer):
     def __init__(self, server_address, RequestHandlerClass, ssl_context,  # noqa
                  bind_and_activate=True):
-        # type: (util.AddrType, socketserver.BaseRequestHandler, Context, bool) -> None
+        # type: (util.AddrType, BaseRequestHandler, Context, bool) -> None
         """
         Superclass says: Constructor. May be extended, do not override.
         This class says: Ho-hum.

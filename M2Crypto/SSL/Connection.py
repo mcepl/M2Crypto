@@ -14,13 +14,12 @@ import logging
 import socket
 import io
 
-from M2Crypto import BIO, Err, X509, m2, py27plus, six, util  # noqa
+from M2Crypto import BIO, Err, X509, m2, six, util  # noqa
 from M2Crypto.SSL import Checker, Context, timeout  # noqa
 from M2Crypto.SSL import SSLError
 from M2Crypto.SSL.Cipher import Cipher, Cipher_Stack
 from M2Crypto.SSL.Session import Session
-if py27plus:
-    from typing import Any, AnyStr, Callable, Optional, Tuple, Union  # noqa
+from typing import Any, AnyStr, Callable, Optional, Tuple, Union  # noqa
 
 __all__ = ['Connection',
            'timeout',  # XXX Not really, but for documentation purposes
@@ -407,7 +406,7 @@ class Connection(object):
         buflen = len(buff_bytes)
 
         # memoryview type has been added in 2.7
-        if py27plus and isinstance(buff, memoryview):
+        if isinstance(buff, memoryview):
             buff[:buflen] = buff_bytes
             buff[buflen:] = b'\x00' * (len(buff) - buflen)
         else:

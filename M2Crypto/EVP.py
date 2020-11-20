@@ -10,13 +10,14 @@ Author: Heikki Toivonen
 
 import logging
 from M2Crypto import BIO, Err, RSA, m2, util
-if util.py27plus:
-    from typing import AnyStr, Optional, Callable  # noqa
+from typing import AnyStr, Optional, Callable  # noqa
 
 log = logging.getLogger('EVP')
 
+
 class EVPError(ValueError):
     pass
+
 
 m2.evp_init(EVPError)
 
@@ -194,7 +195,7 @@ class PKey(object):
             if mda is None:
                 raise ValueError('unknown message digest', md)
             self.md = mda()
-        self.ctx = m2.md_ctx_new()  # type: Context
+        self.ctx = m2.md_ctx_new()  ## type: Context
 
     def reset_context(self, md='sha1'):
         # type: (str) -> None

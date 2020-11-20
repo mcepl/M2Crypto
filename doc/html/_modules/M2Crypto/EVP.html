@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>M2Crypto.EVP &#8212; M2Crypto  documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
    
@@ -33,7 +32,7 @@
           <div class="body" role="main">
             
   <h1>Source code for M2Crypto.EVP</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
 
 <span class="sd">&quot;&quot;&quot;M2Crypto wrapper for OpenSSL EVP API.</span>
 
@@ -44,14 +43,16 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="k">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">Err</span><span class="p">,</span> <span class="n">RSA</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>
-<span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Callable</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">Err</span><span class="p">,</span> <span class="n">RSA</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Callable</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.SSL.Context</span> <span class="kn">import</span> <span class="n">Context</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;EVP&#39;</span><span class="p">)</span>
 
+
 <div class="viewcode-block" id="EVPError"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EVP.EVPError">[docs]</a><span class="k">class</span> <span class="nc">EVPError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
     <span class="k">pass</span></div>
+
 
 <span class="n">m2</span><span class="o">.</span><span class="n">evp_init</span><span class="p">(</span><span class="n">EVPError</span><span class="p">)</span>
 
@@ -76,7 +77,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">m2_md_ctx_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">md_ctx_free</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algo</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">algo</span><span class="p">):</span>
         <span class="c1"># type: (str) -&gt; None</span>
         <span class="n">md</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="n">algo</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># type: Optional[Callable]</span>
         <span class="k">if</span> <span class="n">md</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -88,7 +89,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">md_ctx_new</span><span class="p">()</span>
         <span class="n">m2</span><span class="o">.</span><span class="n">digest_init</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">md</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; None</span>
         <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;ctx&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">m2_md_ctx_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span>
@@ -113,7 +114,7 @@
 
     <span class="n">m2_hmac_ctx_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">hmac_ctx_free</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">algo</span><span class="o">=</span><span class="s1">&#39;sha1&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">algo</span><span class="o">=</span><span class="s1">&#39;sha1&#39;</span><span class="p">):</span>
         <span class="c1"># type: (bytes, str) -&gt; None</span>
         <span class="n">md</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="n">algo</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">md</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -122,7 +123,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">hmac_ctx_new</span><span class="p">()</span>
         <span class="n">m2</span><span class="o">.</span><span class="n">hmac_init</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">md</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; None</span>
         <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;ctx&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">m2_hmac_ctx_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span>
@@ -154,7 +155,7 @@
 
     <span class="n">m2_cipher_ctx_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">cipher_ctx_free</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">iv</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">key_as_bytes</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s1">&#39;md5&#39;</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">iv</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">key_as_bytes</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="s1">&#39;md5&#39;</span><span class="p">,</span>
                  <span class="n">salt</span><span class="o">=</span><span class="sa">b</span><span class="s1">&#39;12345678&#39;</span><span class="p">,</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="c1"># type: (str, bytes, bytes, object, int, str, bytes, int, int) -&gt; None</span>
         <span class="n">cipher</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="n">alg</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
@@ -171,7 +172,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">set_padding</span><span class="p">(</span><span class="n">padding</span><span class="p">)</span>
         <span class="k">del</span> <span class="n">key</span>
 
-    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; None</span>
         <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;ctx&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">m2_cipher_ctx_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span>
@@ -200,7 +201,7 @@
     <span class="n">m2_pkey_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkey_free</span>
     <span class="n">m2_md_ctx_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">md_ctx_free</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkey</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">md</span><span class="o">=</span><span class="s1">&#39;sha1&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pkey</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">md</span><span class="o">=</span><span class="s1">&#39;sha1&#39;</span><span class="p">):</span>
         <span class="c1"># type: (Optional[bytes], int, str) -&gt; None</span>
         <span class="k">if</span> <span class="n">pkey</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">pkey</span> <span class="o">=</span> <span class="n">pkey</span>  <span class="c1"># type: bytes</span>
@@ -210,7 +211,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_context</span><span class="p">(</span><span class="n">md</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; None</span>
         <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">m2_pkey_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pkey</span><span class="p">)</span>
@@ -222,10 +223,13 @@
 
     <span class="k">def</span> <span class="nf">_set_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">md</span><span class="p">):</span>
         <span class="c1"># type: (str) -&gt; None</span>
-        <span class="n">mda</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="n">md</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># type: Optional[Callable]</span>
-        <span class="k">if</span> <span class="n">mda</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown message digest&#39;</span><span class="p">,</span> <span class="n">md</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">md</span> <span class="o">=</span> <span class="n">mda</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">md</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">md</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mda</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="n">md</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># type: Optional[Callable]</span>
+            <span class="k">if</span> <span class="n">mda</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown message digest&#39;</span><span class="p">,</span> <span class="n">md</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">md</span> <span class="o">=</span> <span class="n">mda</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">md_ctx_new</span><span class="p">()</span>  <span class="c1"># type: Context</span>
 
 <div class="viewcode-block" id="PKey.reset_context"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EVP.PKey.reset_context">[docs]</a>    <span class="k">def</span> <span class="nf">reset_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">md</span><span class="o">=</span><span class="s1">&#39;sha1&#39;</span><span class="p">):</span>
@@ -293,6 +297,86 @@
 <span class="sd">                 other error.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">verify_final</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkey</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PKey.digest_sign_init"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EVP.PKey.digest_sign_init">[docs]</a>    <span class="k">def</span> <span class="nf">digest_sign_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialise digest signing operation with self.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">md</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">m2</span><span class="o">.</span><span class="n">digest_sign_init</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkey</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">m2</span><span class="o">.</span><span class="n">digest_sign_init</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">md</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkey</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PKey.digest_sign_update"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EVP.PKey.digest_sign_update">[docs]</a>    <span class="k">def</span> <span class="nf">digest_sign_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># type: (bytes) -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Feed data to digest signing operation.</span>
+
+<span class="sd">        :param data: Data to be signed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">m2</span><span class="o">.</span><span class="n">digest_sign_update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PKey.digest_sign_final"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EVP.PKey.digest_sign_final">[docs]</a>    <span class="k">def</span> <span class="nf">digest_sign_final</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return signature.</span>
+
+<span class="sd">        :return: The signature.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">digest_sign_final</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PKey.digest_sign"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EVP.PKey.digest_sign">[docs]</a>    <span class="k">def</span> <span class="nf">digest_sign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; bytes</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return signature.</span>
+
+<span class="sd">        :return: The signature.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">digest_sign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PKey.digest_verify_init"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EVP.PKey.digest_verify_init">[docs]</a>    <span class="k">def</span> <span class="nf">digest_verify_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># type: () -&gt; None</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialise verification operation with self.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">md</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">m2</span><span class="o">.</span><span class="n">digest_verify_init</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkey</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">m2</span><span class="o">.</span><span class="n">digest_verify_init</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">md</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pkey</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PKey.digest_verify_update"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EVP.PKey.digest_verify_update">[docs]</a>    <span class="k">def</span> <span class="nf">digest_verify_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># type: (bytes) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Feed data to verification operation.</span>
+
+<span class="sd">        :param data: Data to be verified.</span>
+<span class="sd">        :return: -1 on Python error, 1 for success, 0 for OpenSSL error</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">digest_verify_update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PKey.digest_verify_final"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EVP.PKey.digest_verify_final">[docs]</a>    <span class="k">def</span> <span class="nf">digest_verify_final</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sign</span><span class="p">):</span>
+        <span class="c1"># type: (bytes) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Feed data to digest verification operation.</span>
+
+<span class="sd">        :param sign: Signature to use for verification</span>
+<span class="sd">        :return: Result of verification: 1 for success, 0 for failure, -1 on</span>
+<span class="sd">                 other error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">digest_verify_final</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">sign</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PKey.digest_verify"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EVP.PKey.digest_verify">[docs]</a>    <span class="k">def</span> <span class="nf">digest_verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="c1"># type: (bytes) -&gt; int</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return result of verification.</span>
+
+<span class="sd">        :param sign: Signature to use for verification</span>
+<span class="sd">        :param data: Data to be verified.</span>
+<span class="sd">        :return: Result of verification: 1 for success, 0 for failure, -1 on</span>
+<span class="sd">                 other error.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">digest_verify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PKey.assign_rsa"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EVP.PKey.assign_rsa">[docs]</a>    <span class="k">def</span> <span class="nf">assign_rsa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rsa</span><span class="p">,</span> <span class="n">capture</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="c1"># type: (RSA.RSA, int) -&gt; int</span>
@@ -432,6 +516,27 @@
     <span class="k">return</span> <span class="n">PKey</span><span class="p">(</span><span class="n">cptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="load_key_pubkey"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EVP.load_key_pubkey">[docs]</a><span class="k">def</span> <span class="nf">load_key_pubkey</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
+    <span class="c1"># type: (AnyStr, Callable) -&gt; PKey</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load an M2Crypto.EVP.PKey from a public key as a file.</span>
+
+<span class="sd">    :param file: Name of file containing the key in PEM format.</span>
+
+<span class="sd">    :param callback: A Python callable object that is invoked</span>
+<span class="sd">                     to acquire a passphrase with which to protect the</span>
+<span class="sd">                     key.</span>
+
+<span class="sd">    :return: M2Crypto.EVP.PKey object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">with</span> <span class="n">BIO</span><span class="o">.</span><span class="n">openfile</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">bio</span><span class="p">:</span>
+        <span class="n">cptr</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">pkey_read_pem_pubkey</span><span class="p">(</span><span class="n">bio</span><span class="o">.</span><span class="n">_ptr</span><span class="p">(),</span> <span class="n">callback</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cptr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EVPError</span><span class="p">(</span><span class="n">Err</span><span class="o">.</span><span class="n">get_error</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">PKey</span><span class="p">(</span><span class="n">cptr</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="load_key_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EVP.load_key_bio">[docs]</a><span class="k">def</span> <span class="nf">load_key_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
     <span class="c1"># type: (BIO.BIO, Callable) -&gt; PKey</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -532,17 +637,15 @@
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -559,7 +662,7 @@
       &copy;2017, Matej Cepl <mcepl@cepl.eu>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

@@ -24,9 +24,8 @@ from M2Crypto.SSL.Checker import Checker, SSLVerificationError
 
 from twisted.internet.interfaces import ITLSTransport
 from twisted.protocols.policies import ProtocolWrapper
-if util.py27plus:
-    from typing import AnyStr, Callable, Iterable, Optional  # noqa
-    from zope.interface import implementer
+from typing import AnyStr, Callable, Iterable, Optional  # noqa
+from zope.interface import implementer
 
 log = logging.getLogger(__name__)
 

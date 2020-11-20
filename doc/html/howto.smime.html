@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HOWTO: Programming S/MIME in Python with M2Crypto &#8212; M2Crypto  documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
    
@@ -34,16 +33,14 @@
             
   <div class="section" id="howto-programming-s-mime-in-python-with-m2crypto">
 <span id="howto-smime"></span><h1>HOWTO: Programming S/MIME in Python with M2Crypto<a class="headerlink" href="#howto-programming-s-mime-in-python-with-m2crypto" title="Permalink to this headline">¶</a></h1>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">author:</th><td class="field-body">Pheng Siong Ng &lt;<a class="reference external" href="mailto:ngps&#37;&#52;&#48;post1&#46;com">ngps<span>&#64;</span>post1<span>&#46;</span>com</a>&gt;</td>
-</tr>
-<tr class="field-even field"><th class="field-name">copyright:</th><td class="field-body">© 2000, 2001 by Ng Pheng Siong.</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">author</dt>
+<dd class="field-odd"><p>Pheng Siong Ng &lt;<a class="reference external" href="mailto:ngps&#37;&#52;&#48;post1&#46;com">ngps<span>&#64;</span>post1<span>&#46;</span>com</a>&gt;</p>
+</dd>
+<dt class="field-even">copyright</dt>
+<dd class="field-even"><p>© 2000, 2001 by Ng Pheng Siong.</p>
+</dd>
+</dl>
 </div>
 <div class="section" id="introduction">
 <h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
@@ -227,7 +224,7 @@ object, similar to Python’s own <code class="docutils literal notranslate"><sp
 <p>The following code demonstrates how to generate an S/MIME-signed
 message. <code class="docutils literal notranslate"><span class="pre">randpool.dat</span></code> contains random data which is used to seed
 OpenSSL’s pseudo-random number generator via M2Crypto:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="k">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">Rand</span><span class="p">,</span> <span class="n">SMIME</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">Rand</span><span class="p">,</span> <span class="n">SMIME</span>
 
 <span class="k">def</span> <span class="nf">makebuf</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
@@ -319,7 +316,7 @@ correctly:</p>
 <h1>Verify<a class="headerlink" href="#verify" title="Permalink to this headline">¶</a></h1>
 <p>Assume the above output has been saved into <code class="docutils literal notranslate"><span class="pre">sign.p7</span></code>. Let’s now
 verify the signature:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="k">import</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
 
 <span class="c1"># Instantiate an SMIME object.</span>
 <span class="n">s</span> <span class="o">=</span> <span class="n">SMIME</span><span class="o">.</span><span class="n">SMIME</span><span class="p">()</span>
@@ -370,7 +367,7 @@ implementation and understand why the error message is worded thus.</p>
 <div class="section" id="encrypt">
 <h1>Encrypt<a class="headerlink" href="#encrypt" title="Permalink to this headline">¶</a></h1>
 <p>We now demonstrate how to generate an S/MIME-encrypted message:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="k">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">Rand</span><span class="p">,</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">Rand</span><span class="p">,</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
 
 <span class="k">def</span> <span class="nf">makebuf</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
@@ -433,7 +430,7 @@ implementation and understand why the error message is worded thus.</p>
 <h1>Decrypt<a class="headerlink" href="#decrypt" title="Permalink to this headline">¶</a></h1>
 <p>Assume the above output has been saved into <code class="docutils literal notranslate"><span class="pre">encrypt.p7</span></code>. Decrypt the
 message thusly:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="k">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
 
 <span class="c1"># Instantiate an SMIME object.</span>
 <span class="n">s</span> <span class="o">=</span> <span class="n">SMIME</span><span class="o">.</span><span class="n">SMIME</span><span class="p">()</span>
@@ -458,7 +455,7 @@ message thusly:</p>
 <div class="section" id="sign-and-encrypt">
 <h1>Sign and Encrypt<a class="headerlink" href="#sign-and-encrypt" title="Permalink to this headline">¶</a></h1>
 <p>Here’s how to generate an S/MIME-signed/encrypted message:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="k">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">Rand</span><span class="p">,</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">Rand</span><span class="p">,</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
 
 <span class="k">def</span> <span class="nf">makebuf</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">BIO</span><span class="o">.</span><span class="n">MemoryBuffer</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
@@ -570,7 +567,7 @@ message thusly:</p>
 <h1>Decrypt and Verify<a class="headerlink" href="#decrypt-and-verify" title="Permalink to this headline">¶</a></h1>
 <p>Suppose the above output has been saved into <code class="docutils literal notranslate"><span class="pre">se.p7</span></code>. The following
 demonstrates how to decrypt and verify it:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="k">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
 
 <span class="c1"># Instantiate an SMIME object.</span>
 <span class="n">s</span> <span class="o">=</span> <span class="n">SMIME</span><span class="o">.</span><span class="n">SMIME</span><span class="p">()</span>
@@ -617,7 +614,7 @@ demonstrates how to decrypt and verify it:</p>
 and received automagically. The following is a Python function that
 generates S/MIME-signed/encrypted messages and sends them via
 SMTP:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="k">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
 <span class="kn">import</span> <span class="nn">smtplib</span><span class="o">,</span> <span class="nn">string</span><span class="o">,</span> <span class="nn">sys</span>
 
 <span class="k">def</span> <span class="nf">sendsmime</span><span class="p">(</span><span class="n">from_addr</span><span class="p">,</span> <span class="n">to_addrs</span><span class="p">,</span> <span class="n">subject</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">from_key</span><span class="p">,</span> <span class="n">from_cert</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">to_certs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">smtpd</span><span class="o">=</span><span class="s1">&#39;localhost&#39;</span><span class="p">):</span>
@@ -696,12 +693,13 @@ handle S/MIME messages from S/MIME Sender, S/MIME Recipient needs to
 configure Messenger with his private key and certificate, as well as
 S/MIME Sender’s certificate.</p>
 <blockquote>
-<div><strong>Note:</strong> Configuring Messenger’s POP or IMAP settings so that it
-retrieves mail correctly is beyond the scope of this HOWTO.</div></blockquote>
+<div><p><strong>Note:</strong> Configuring Messenger’s POP or IMAP settings so that it
+retrieves mail correctly is beyond the scope of this HOWTO.</p>
+</div></blockquote>
 <p>The following steps demonstrate how to import S/MIME Recipient’s private
 key and certificate for Messenger:</p>
 <ol class="arabic">
-<li><p class="first">Transform S/MIME Recipient’s private key and certificate into <em>PKCS
+<li><p>Transform S/MIME Recipient’s private key and certificate into <em>PKCS
 #12</em> format:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">pkcs12</span> <span class="o">-</span><span class="n">export</span> <span class="o">-</span><span class="ow">in</span> <span class="n">recipient</span><span class="o">.</span><span class="n">pem</span> <span class="o">-</span><span class="n">inkey</span> <span class="n">recipient_key</span><span class="o">.</span><span class="n">pem</span> \
     <span class="o">-</span><span class="n">name</span> <span class="s2">&quot;S/MIME Recipient&quot;</span> <span class="o">-</span><span class="n">out</span> <span class="n">recipient</span><span class="o">.</span><span class="n">p12</span>
@@ -711,32 +709,27 @@ key and certificate for Messenger:</p>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Start Messenger.</p>
-</li>
-<li><p class="first">Click on the (open) “lock” icon at the bottom left corner of
-Messenger’s window. This brings up the “Security Info” dialog box.</p>
-</li>
-<li><p class="first">Click on “Yours” under “Certificates”.</p>
-</li>
-<li><p class="first">Select “Import a certificate”, then pick <code class="docutils literal notranslate"><span class="pre">recipient.p12</span></code> from the
-ensuing file selection dialog box.</p>
-</li>
+<li><p>Start Messenger.</p></li>
+<li><p>Click on the (open) “lock” icon at the bottom left corner of
+Messenger’s window. This brings up the “Security Info” dialog box.</p></li>
+<li><p>Click on “Yours” under “Certificates”.</p></li>
+<li><p>Select “Import a certificate”, then pick <code class="docutils literal notranslate"><span class="pre">recipient.p12</span></code> from the
+ensuing file selection dialog box.</p></li>
 </ol>
 <p>Next, you need to import <code class="docutils literal notranslate"><span class="pre">signer.pem</span></code> as a CA certificate, so that
 Messenger will mark messages signed by S/MIME Sender as “trusted”:</p>
 <ol class="arabic">
-<li><p class="first">Create a DER encoding of <code class="docutils literal notranslate"><span class="pre">signer.pem</span></code>:</p>
+<li><p>Create a DER encoding of <code class="docutils literal notranslate"><span class="pre">signer.pem</span></code>:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">x509</span> <span class="o">-</span><span class="n">inform</span> <span class="n">pem</span> <span class="o">-</span><span class="n">outform</span> <span class="n">der</span> <span class="o">-</span><span class="ow">in</span> <span class="n">signer</span><span class="o">.</span><span class="n">pem</span> <span class="o">-</span><span class="n">out</span> <span class="n">signer</span><span class="o">.</span><span class="n">der</span>
 </pre></div>
 </div>
 </li>
-<li><p class="first">Install <code class="docutils literal notranslate"><span class="pre">signer.der</span></code> into Messenger as MIME type
+<li><p>Install <code class="docutils literal notranslate"><span class="pre">signer.der</span></code> into Messenger as MIME type
 <code class="docutils literal notranslate"><span class="pre">application/x-x509-ca-cert</span></code>. You do this by downloading
 <code class="docutils literal notranslate"><span class="pre">signer.der</span></code> via Navigator from a HTTP or HTTPS server, with the
 correct MIME type mapping. (You may use <code class="docutils literal notranslate"><span class="pre">demo/ssl/https_srv.py</span></code>,
 bundled with M2Crypto, for this purpose.) Follow the series of dialog
-boxes to accept <code class="docutils literal notranslate"><span class="pre">signer.der</span></code> as a CA for certifying email users.</p>
-</li>
+boxes to accept <code class="docutils literal notranslate"><span class="pre">signer.der</span></code> as a CA for certifying email users.</p></li>
 </ol>
 <p>S/MIME Recipient is now able to decrypt and read S/MIME Sender’s
 messages with Messenger. Messenger will indicate that S/MIME Sender’s
@@ -768,13 +761,13 @@ document.)</p>
 <div class="section" id="resources">
 <h1>Resources<a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h1>
 <ul class="simple">
-<li>IETF S/MIME Working Group - <a class="reference external" href="http://www.imc.org/ietf-smime">http://www.imc.org/ietf-smime</a></li>
-<li>S/MIME and OpenPGP - <a class="reference external" href="http://www.imc.org/smime-pgpmime.html">http://www.imc.org/smime-pgpmime.html</a></li>
-<li>S/MIME Freeware Library -
-<a class="reference external" href="http://www.getronicsgov.com/hot/sfl_home.htm">http://www.getronicsgov.com/hot/sfl_home.htm</a></li>
-<li>Mozilla Network Security Services -
-<a class="reference external" href="http://www.mozilla.org/projects/security/pkg/nss">http://www.mozilla.org/projects/security/pkg/nss</a></li>
-<li>S/MIME Cracking Screen Saver - <a class="reference external" href="http://www.counterpane.com/smime.html">http://www.counterpane.com/smime.html</a></li>
+<li><p>IETF S/MIME Working Group - <a class="reference external" href="http://www.imc.org/ietf-smime">http://www.imc.org/ietf-smime</a></p></li>
+<li><p>S/MIME and OpenPGP - <a class="reference external" href="http://www.imc.org/smime-pgpmime.html">http://www.imc.org/smime-pgpmime.html</a></p></li>
+<li><p>S/MIME Freeware Library -
+<a class="reference external" href="http://www.getronicsgov.com/hot/sfl_home.htm">http://www.getronicsgov.com/hot/sfl_home.htm</a></p></li>
+<li><p>Mozilla Network Security Services -
+<a class="reference external" href="http://www.mozilla.org/projects/security/pkg/nss">http://www.mozilla.org/projects/security/pkg/nss</a></p></li>
+<li><p>S/MIME Cracking Screen Saver - <a class="reference external" href="http://www.counterpane.com/smime.html">http://www.counterpane.com/smime.html</a></p></li>
 </ul>
 </div>
 
@@ -807,17 +800,15 @@ document.)</p>
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -834,7 +825,7 @@ document.)</p>
       &copy;2017, Matej Cepl <mcepl@cepl.eu>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

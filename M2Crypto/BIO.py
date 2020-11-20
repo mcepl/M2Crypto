@@ -4,11 +4,11 @@ from __future__ import absolute_import
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
+import io
 import logging
+from typing import Any, AnyStr, Callable, Iterable, Optional, Union  # noqa
 
-from M2Crypto import m2, py27plus, six
-if py27plus:
-    from typing import AnyStr, Callable, Iterable, Optional, Union  # noqa
+from M2Crypto import m2, six
 
 log = logging.getLogger('BIO')
 
@@ -370,7 +370,7 @@ class SSLBio(BIO):
         self.closed = 0
 
     def set_ssl(self, conn, close_flag=m2.bio_noclose):
-        # type: (Connection, int) -> None
+        ## type: (Connection, int) -> None
         """
         Sets the bio to the SSL pointer which is
         contained in the connection object.

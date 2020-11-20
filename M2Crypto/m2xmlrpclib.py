@@ -8,9 +8,8 @@ import base64
 
 import M2Crypto
 
-from M2Crypto import SSL, httpslib, m2urllib, six, util
-if util.py27plus:
-    from typing import Any, AnyStr, Callable, Optional  # noqa
+from M2Crypto import SSL, httpslib, m2urllib, six
+from typing import Any, AnyStr, Callable, Optional  # noqa
 
 from M2Crypto.six.moves.xmlrpc_client import ProtocolError, Transport
 # six.moves doesn't support star imports

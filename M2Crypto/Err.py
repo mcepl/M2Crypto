@@ -4,9 +4,8 @@ from __future__ import absolute_import
 
 Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
-from M2Crypto import BIO, m2, py27plus, util, six  # noqa
-if py27plus:
-    from typing import Optional  # noqa
+from M2Crypto import BIO, m2, util, six  # noqa
+from typing import Optional  # noqa
 
 
 def get_error():
