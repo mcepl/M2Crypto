@@ -346,7 +346,7 @@ X509 *d2i_x509(BIO *bio) {
 %constant int        X509_V_ERR_APPLICATION_VERIFICATION            = 50;
 
 /* See man page of X509_VERIFY_PARAM_set_flags for definition of all these flags */
- 
+
 %constant int VERIFY_ALLOW_PROXY_CERTS  = X509_V_FLAG_ALLOW_PROXY_CERTS;
 %constant int VERIFY_CB_ISSUER_CHECK  = X509_V_FLAG_CB_ISSUER_CHECK;
 %constant int VERIFY_CHECK_SS_SIGNATURE  = X509_V_FLAG_CHECK_SS_SIGNATURE;
@@ -360,7 +360,11 @@ However I add it here for consistency */
 %constant int VERIFY_INHIBIT_ANY  = X509_V_FLAG_INHIBIT_ANY;
 %constant int VERIFY_INHIBIT_MAP  = X509_V_FLAG_INHIBIT_MAP;
 %constant int VERIFY_NO_ALT_CHAINS  = X509_V_FLAG_NO_ALT_CHAINS;
+/* The flag X509_V_FLAG_NO_CHECK_TIME is not available on some versions
+ * of Windows */
+#ifdef X509_V_FLAG_NO_CHECK_TIME
 %constant int VERIFY_NO_CHECK_TIME  = X509_V_FLAG_NO_CHECK_TIME;
+#endif
 %constant int VERIFY_NOTIFY_POLICY  = X509_V_FLAG_NOTIFY_POLICY;
 %constant int VERIFY_PARTIAL_CHAIN  = X509_V_FLAG_PARTIAL_CHAIN;
 %constant int VERIFY_POLICY_CHECK  = X509_V_FLAG_POLICY_CHECK;
