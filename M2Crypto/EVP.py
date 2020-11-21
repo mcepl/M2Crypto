@@ -298,6 +298,11 @@ class PKey(object):
 
         :return: The signature.
         """
+
+        if m2.OPENSSL_VERSION_NUMBER < 0x10101000:
+            raise NotImplemented('This method requires OpenSSL version ' +
+                    '1.1.1 or greater.')
+
         return m2.digest_sign(self.ctx, data)
 
     def digest_verify_init(self):
@@ -341,6 +346,11 @@ class PKey(object):
         :return: Result of verification: 1 for success, 0 for failure, -1 on
                  other error.
         """
+
+        if m2.OPENSSL_VERSION_NUMBER < 0x10101000:
+            raise NotImplemented('This method requires OpenSSL version ' +
+                    '1.1.1 or greater.')
+
         return m2.digest_verify(self.ctx, sign, data)
 
     def assign_rsa(self, rsa, capture=1):

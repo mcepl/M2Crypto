@@ -608,6 +608,7 @@ PyObject *digest_sign_final(EVP_MD_CTX *ctx) {
     return ret;
 }
 
+#if OPENSSL_VERSION_NUMBER >= 0x10101000L
 PyObject *digest_sign(EVP_MD_CTX *ctx, PyObject *msg) {
     PyObject *ret;
     const void *msgbuf;
@@ -643,6 +644,7 @@ PyObject *digest_sign(EVP_MD_CTX *ctx, PyObject *msg) {
     return ret;
 
 }
+#endif
 
 int digest_verify_init(EVP_MD_CTX *ctx, EVP_PKEY *pkey) {
     return EVP_DigestVerifyInit(ctx, NULL, NULL, NULL, pkey);
@@ -668,6 +670,7 @@ int digest_verify_final(EVP_MD_CTX *ctx, PyObject *blob) {
     return EVP_DigestVerifyFinal(ctx, sigbuf, len);
 }
 
+#if OPENSSL_VERSION_NUMBER >= 0x10101000L
 int digest_verify(EVP_MD_CTX *ctx, PyObject *sig, PyObject *msg) {
     unsigned char *sigbuf;
     unsigned char *msgbuf;
@@ -682,6 +685,7 @@ int digest_verify(EVP_MD_CTX *ctx, PyObject *sig, PyObject *msg) {
 
     return EVP_DigestVerify(ctx, sigbuf, siglen, msgbuf, msglen);
 }
+#endif
 %}
 
 %typemap(out) EVP_MD * {

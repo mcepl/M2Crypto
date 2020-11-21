@@ -274,6 +274,8 @@ class EVPTestCase(unittest.TestCase):
         pkey.digest_verify_init()
         self.assertEqual(pkey.digest_verify(sig, b'test  message  not'), 0)
 
+    @unittest.skipIf(m2.OPENSSL_VERSION_NUMBER < 0x90800F or m2.OPENSSL_NO_EC != 0,
+                     'Relies on support for EC')
     def test_digest_verify_final(self):
         pkey = EVP.load_key('tests/ec.priv.pem')
         pkey.reset_context('sha256')

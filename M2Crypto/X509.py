@@ -29,7 +29,8 @@ verify_ignore_critical = m2.VERIFY_IGNORE_CRITICAL
 verify_inhibit_any = m2.VERIFY_INHIBIT_ANY
 verify_inhibit_map = m2.VERIFY_INHIBIT_MAP
 verify_no_alt_chains = m2.VERIFY_NO_ALT_CHAINS
-verify_no_check_time = m2.VERIFY_NO_CHECK_TIME
+if hasattr(m2, "VERIFY_NO_CHECK_TIME"):
+    verify_no_check_time = m2.VERIFY_NO_CHECK_TIME
 verify_notify_policy = m2.VERIFY_NOTIFY_POLICY
 verify_partial_chain = m2.VERIFY_PARTIAL_CHAIN
 verify_policy_check = m2.VERIFY_POLICY_CHECK
