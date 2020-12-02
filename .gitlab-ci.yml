@@ -1,9 +1,9 @@
 python27:
-    image: python:2.7
+    image: python:2.7-buster
     when: always
     script:
         - apt-get update -q -y
-        - apt-get install -y swig libssl-dev python-dev openssl python-twisted python-setuptools
+        - apt-get install -y swig libssl-dev python-dev openssl python-twisted python-setuptools python-parameterized
         - python setup.py clean build test
 
 python35:
@@ -11,7 +11,7 @@ python35:
     when: always
     script:
         - apt-get update -q -y
-        - apt-get install -y swig libssl-dev python3-dev openssl python3-setuptools python3-twisted
+        - apt-get install -y swig libssl-dev python3-dev openssl python3-setuptools python3-twisted python3-parameterized
         - python3 setup.py clean build test
 
 python3:
@@ -19,23 +19,15 @@ python3:
     when: always
     script:
         - apt-get update -q -y
-        - apt-get install -y swig libssl-dev python3-dev openssl python3-setuptools python3-twisted
+        - apt-get install -y swig libssl-dev python3-dev openssl python3-setuptools python3-twisted python3-parameterized
         - python3 setup.py clean build test
-
-fedora-py2:
-    image: fedora:30
-    when: always
-    script:
-        - dnf install --refresh -y @development-tools fedora-packager rpmdevtools
-        - dnf install -y swig python2-devel openssl-devel openssl python2-setuptools python2-twisted
-        - python2 setup.py clean build test
 
 fedora:
     image: fedora:30
     when: always
     script:
         - dnf install --refresh -y @development-tools fedora-packager rpmdevtools
-        - dnf install -y swig python3-devel openssl-devel openssl python3-setuptools python3-twisted
+        - dnf install -y swig python3-devel openssl-devel openssl python3-setuptools python3-twisted python3-parameterized
         - python3 setup.py clean build test
 
 fedora-rawhide:
@@ -43,7 +35,7 @@ fedora-rawhide:
     when: always
     script:
         - dnf install --refresh -y @development-tools fedora-packager rpmdevtools
-        - dnf install -y swig python3-devel openssl-devel openssl python3-setuptools python3-twisted
+        - dnf install -y swig python3-devel openssl-devel openssl python3-setuptools python3-twisted python3-parameterized
         - python3 setup.py clean build test
 
 opensuse:
@@ -52,5 +44,5 @@ opensuse:
     script:
         - zypper refresh
         - zypper install -y pattern:devel_rpm_build pattern:devel_C_C++ osc
-        - zypper install -y swig python3-devel libopenssl-1_1-devel python3-service_identity python3-setuptools python3-Twisted
+        - zypper install -y swig python3-devel libopenssl-1_1-devel python3-service_identity python3-setuptools python3-Twisted python3-parameterized
         - python3 setup.py clean build test

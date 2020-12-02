@@ -14,11 +14,29 @@ import logging
 
 from binascii import a2b_hex, hexlify, unhexlify
 
+from parameterized import parameterized
+
 from M2Crypto import BIO, EVP, RSA, Rand, m2, util
 from . import unittest
 from tests.fips import fips_mode
 
 log = logging.getLogger('test_EVP')
+
+ciphers = [
+    'des_ede_ecb', 'des_ede_cbc', 'des_ede_cfb', 'des_ede_ofb',
+    'des_ede3_ecb', 'des_ede3_cbc', 'des_ede3_cfb', 'des_ede3_ofb',
+    'aes_128_ecb', 'aes_128_cbc', 'aes_128_cfb', 'aes_128_ofb',
+    'aes_128_ctr', 'aes_192_ecb', 'aes_192_cbc', 'aes_192_cfb',
+    'aes_192_ofb', 'aes_192_ctr', 'aes_256_ecb', 'aes_256_cbc',
+    'aes_256_cfb', 'aes_256_ofb', 'aes_256_ctr']
+nonfips_ciphers = ['bf_ecb', 'bf_cbc', 'bf_cfb', 'bf_ofb',
+                   # 'idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb',
+                   'cast5_ecb', 'cast5_cbc', 'cast5_cfb', 'cast5_ofb',
+                   # 'rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb',
+                   'des_ecb', 'des_cbc', 'des_cfb', 'des_ofb',
+                   'rc4', 'rc2_40_cbc']
+if not fips_mode:  # Disabled algorithms
+    ciphers += nonfips_ciphers
 
 
 class EVPTestCase(unittest.TestCase):
@@ -349,6 +367,7 @@ class EVPTestCase(unittest.TestCase):
         self.assertTrue(verify(res))  # works fine
         self.assertTrue(verify(res))  # segmentation fault in *verify_final*
 
+
 class CipherTestCase(unittest.TestCase):
     def cipher_filter(self, cipher, inf, outf):
         while 1:
@@ -382,50 +401,35 @@ class CipherTestCase(unittest.TestCase):
 
         self.assertEqual(otxt, ptxt, '%s algorithm cipher test failed' % algo)
 
-    def test_ciphers(self):
-        ciphers = [
-            'des_ede_ecb', 'des_ede_cbc', 'des_ede_cfb', 'des_ede_ofb',
-            'des_ede3_ecb', 'des_ede3_cbc', 'des_ede3_cfb', 'des_ede3_ofb',
-            'aes_128_ecb', 'aes_128_cbc', 'aes_128_cfb', 'aes_128_ofb',
-            'aes_128_ctr', 'aes_192_ecb', 'aes_192_cbc', 'aes_192_cfb',
-            'aes_192_ofb', 'aes_192_ctr', 'aes_256_ecb', 'aes_256_cbc',
-            'aes_256_cfb', 'aes_256_ofb', 'aes_256_ctr']
-        nonfips_ciphers = ['bf_ecb', 'bf_cbc', 'bf_cfb', 'bf_ofb',
-                           # 'idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb',
-                           'cast5_ecb', 'cast5_cbc', 'cast5_cfb', 'cast5_ofb',
-                           # 'rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb',
-                           'des_ecb', 'des_cbc', 'des_cfb', 'des_ofb',
-                           'rc4', 'rc2_40_cbc']
-        if not fips_mode:  # Disabled algorithms
-            ciphers += nonfips_ciphers
-        for i in ciphers:
-            self.try_algo(i)
+    @parameterized.expand(ciphers)
+    def test_ciphers(self, ciph):
+        self.try_algo(ciph)
 
-        # idea might not be compiled in
-        ciphers = ['idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb']
-        try:
-            for i in ciphers:
-                self.try_algo(i)
-        except ValueError as e:
-            if str(e) != "('unknown cipher', 'idea_ecb')":
-                raise
+    # # non-compiled (['idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb'])
+    # @parameterized.expand([], skip_on_empty=True)
+    # def test_ciphers_not_compiled_idea(self, ciph):
+    #     # idea might not be compiled in
+    #     try:
+    #         self.try_algo(ciph)
+    #     except ValueError as e:
+    #         if str(e) != "('unknown cipher', 'idea_ecb')":
+    #             raise
 
-        # rc5 might not be compiled in
-        ciphers = ['rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb']
-        try:
-            for i in ciphers:
-                self.try_algo(i)
-        except ValueError as e:
-            if str(e) != "('unknown cipher', 'rc5_ecb')":
-                raise
+    # # ['rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb']
+    # @parameterized.expand([], skip_on_empty=True)
+    # def test_ciphers_not_compiled_rc5(self, ciph):
+    #     # rc5 might not be compiled in
+    #     try:
+    #         self.try_algo(ciph)
+    #     except ValueError as e:
+    #         if str(e) != "('unknown cipher', 'rc5_ofb')":
+    #             raise
 
+    def test_ciphers_nosuch(self):
         with self.assertRaises(ValueError):
             self.try_algo('nosuchalgo4567')
 
-    def test_AES(self):  # noqa
-        enc = 1
-        dec = 0
-        tests = [
+    @parameterized.expand([
             # test vectors from rfc 3602
             # Case #1: Encrypting 16 bytes (1 block) using AES-CBC with
             # 128-bit key
@@ -453,54 +457,55 @@ class CipherTestCase(unittest.TestCase):
                 'PT': b'This is a 48-byte message (exactly 3 AES blocks)',
                 'CT': b'd0a02b3836451753d493665d33f0e8862dea54cdb293abc7506939276772f8d5021c19216bad525c8579695d83ba2684',
             },
-        ]
+            ], name_func=lambda func, num, par: "{}_{}".format(func, num))
+    def test_AES(self, test):  # noqa
+        enc = 1
+        dec = 0
 
         # Test with padding
-        for test in tests:
-            # encrypt
-            k = EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']),
-                           iv=unhexlify(test['IV']), op=enc)
-            pbuf = io.BytesIO(test['PT'])
-            cbuf = io.BytesIO()
-            ciphertext = hexlify(self.cipher_filter(k, pbuf, cbuf))
-            cipherpadding = ciphertext[len(test['PT']) * 2:]
-            # Remove the padding from the end
-            ciphertext = ciphertext[:len(test['PT']) * 2]
-            pbuf.close()
-            cbuf.close()
-            self.assertEqual(ciphertext, test['CT'])
+        # encrypt
+        k = EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']),
+                       iv=unhexlify(test['IV']), op=enc)
+        pbuf = io.BytesIO(test['PT'])
+        cbuf = io.BytesIO()
+        ciphertext = hexlify(self.cipher_filter(k, pbuf, cbuf))
+        cipherpadding = ciphertext[len(test['PT']) * 2:]
+        # Remove the padding from the end
+        ciphertext = ciphertext[:len(test['PT']) * 2]
+        pbuf.close()
+        cbuf.close()
+        self.assertEqual(ciphertext, test['CT'])
 
-            # decrypt
-            j = EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']),
-                           iv=unhexlify(test['IV']), op=dec)
-            pbuf = io.BytesIO()
-            cbuf = io.BytesIO(unhexlify(test['CT'] + cipherpadding))
-            plaintext = self.cipher_filter(j, cbuf, pbuf)
-            pbuf.close()
-            cbuf.close()
-            self.assertEqual(plaintext, test['PT'])
+        # decrypt
+        j = EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']),
+                       iv=unhexlify(test['IV']), op=dec)
+        pbuf = io.BytesIO()
+        cbuf = io.BytesIO(unhexlify(test['CT'] + cipherpadding))
+        plaintext = self.cipher_filter(j, cbuf, pbuf)
+        pbuf.close()
+        cbuf.close()
+        self.assertEqual(plaintext, test['PT'])
 
         # Test without padding
-        for test in tests:
-            # encrypt
-            k = EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']),
-                           iv=unhexlify(test['IV']), op=enc, padding=False)
-            pbuf = io.BytesIO(test['PT'])
-            cbuf = io.BytesIO()
-            ciphertext = hexlify(self.cipher_filter(k, pbuf, cbuf))
-            pbuf.close()
-            cbuf.close()
-            self.assertEqual(ciphertext, test['CT'])
+        # encrypt
+        k = EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']),
+                       iv=unhexlify(test['IV']), op=enc, padding=False)
+        pbuf = io.BytesIO(test['PT'])
+        cbuf = io.BytesIO()
+        ciphertext = hexlify(self.cipher_filter(k, pbuf, cbuf))
+        pbuf.close()
+        cbuf.close()
+        self.assertEqual(ciphertext, test['CT'])
 
-            # decrypt
-            j = EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']),
-                           iv=unhexlify(test['IV']), op=dec, padding=False)
-            pbuf = io.BytesIO()
-            cbuf = io.BytesIO(unhexlify(test['CT']))
-            plaintext = self.cipher_filter(j, cbuf, pbuf)
-            pbuf.close()
-            cbuf.close()
-            self.assertEqual(plaintext, test['PT'])
+        # decrypt
+        j = EVP.Cipher(alg='aes_128_cbc', key=unhexlify(test['KEY']),
+                       iv=unhexlify(test['IV']), op=dec, padding=False)
+        pbuf = io.BytesIO()
+        cbuf = io.BytesIO(unhexlify(test['CT']))
+        plaintext = self.cipher_filter(j, cbuf, pbuf)
+        pbuf.close()
+        cbuf.close()
+        self.assertEqual(plaintext, test['PT'])
 
     def test_AES_ctr(self):  # noqa
         # In CTR mode, encrypt and decrypt are actually the same
@@ -689,6 +694,7 @@ def suite():
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(PBKDF2TestCase))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(HMACTestCase))
     return suite
+
 
 if __name__ == '__main__':
     Rand.load_file('randpool.dat', -1)

@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from __future__ import absolute_import
-
 """
 Unit tests for M2Crypto.BIO.
 
@@ -11,11 +10,28 @@ Author: Heikki Toivonen
 """
 import logging
 
+from parameterized import parameterized
+
 from M2Crypto import BIO, Rand
 from . import unittest
 from .fips import fips_mode
 
 log = logging.getLogger('test_bio')
+
+ciphers = [
+    'des_ede_ecb', 'des_ede_cbc', 'des_ede_cfb', 'des_ede_ofb',
+    'des_ede3_ecb', 'des_ede3_cbc', 'des_ede3_cfb', 'des_ede3_ofb',
+    'aes_128_ecb', 'aes_128_cbc', 'aes_128_cfb', 'aes_128_ofb',
+    'aes_192_ecb', 'aes_192_cbc', 'aes_192_cfb', 'aes_192_ofb',
+    'aes_256_ecb', 'aes_256_cbc', 'aes_256_cfb', 'aes_256_ofb']
+nonfips_ciphers = ['bf_ecb', 'bf_cbc', 'bf_cfb', 'bf_ofb',
+                   # 'idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb',
+                   'cast5_ecb', 'cast5_cbc', 'cast5_cfb', 'cast5_ofb',
+                   # 'rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb',
+                   'des_ecb', 'des_cbc', 'des_cfb', 'des_ofb',
+                   'rc4', 'rc2_40_cbc']
+if not fips_mode:  # Forbidden ciphers
+    ciphers += nonfips_ciphers
 
 
 class CipherStreamTestCase(unittest.TestCase):
@@ -52,33 +68,11 @@ class CipherStreamTestCase(unittest.TestCase):
         self.assertEqual(data, data2,
                          '%s algorithm cipher test failed' % algo)
 
-    def test_ciphers(self):
-        ciphers = [
-            'des_ede_ecb', 'des_ede_cbc', 'des_ede_cfb', 'des_ede_ofb',
-            'des_ede3_ecb', 'des_ede3_cbc', 'des_ede3_cfb', 'des_ede3_ofb',
-            'aes_128_ecb', 'aes_128_cbc', 'aes_128_cfb', 'aes_128_ofb',
-            'aes_192_ecb', 'aes_192_cbc', 'aes_192_cfb', 'aes_192_ofb',
-            'aes_256_ecb', 'aes_256_cbc', 'aes_256_cfb', 'aes_256_ofb']
-        nonfips_ciphers = ['bf_ecb', 'bf_cbc', 'bf_cfb', 'bf_ofb',
-                           # 'idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb',
-                           'cast5_ecb', 'cast5_cbc', 'cast5_cfb', 'cast5_ofb',
-                           # 'rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb',
-                           'des_ecb', 'des_cbc', 'des_cfb', 'des_ofb',
-                           'rc4', 'rc2_40_cbc']
-        if not fips_mode:  # Forbidden ciphers
-            ciphers += nonfips_ciphers
+    @parameterized.expand(ciphers)
+    def test_algo(self, algo):
+        self.try_algo(algo)
 
-        failed_ciphers = []
-        log.debug('ciphers:\n%s', ciphers)
-        for i in ciphers:
-            try:
-                self.try_algo(i)
-            except AssertionError:
-                failed_ciphers.append(i)
-
-        self.assertEqual(len(failed_ciphers), 0,
-                         "failed ciphers: %s" % ', '.join(failed_ciphers))
-
+    def test_nosuchalgo(self):
         with self.assertRaises(ValueError):
             self.try_algo('nosuchalgo4567')
 
