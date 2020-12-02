@@ -12,8 +12,8 @@ Author: Heikki Toivonen
 import logging
 
 from M2Crypto import BIO, Rand
-from tests import unittest
-from tests.fips import fips_mode
+from . import unittest
+from .fips import fips_mode
 
 log = logging.getLogger('test_bio')
 
@@ -84,9 +84,8 @@ class CipherStreamTestCase(unittest.TestCase):
 
 
 def suite():
-    t_suite = unittest.TestSuite()
-    t_suite.addTest(unittest.makeSuite(CipherStreamTestCase))
-    return t_suite
+    return unittest.TestLoader().loadTestsFromTestCase(CipherStreamTestCase)
+
 
 if __name__ == '__main__':
     Rand.load_file('randpool.dat', -1)

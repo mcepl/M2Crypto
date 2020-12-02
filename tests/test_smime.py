@@ -8,7 +8,7 @@ Copyright (C) 2006 Open Source Applications Foundation. All Rights Reserved.
 import os.path
 
 from M2Crypto import BIO, EVP, Rand, SMIME, X509
-from tests import unittest
+from . import unittest
 
 
 # Various callbacks to set by X509_Store.set_verify_cb() for
@@ -375,8 +375,8 @@ class WriteLoadTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(SMIMETestCase))
-    suite.addTest(unittest.makeSuite(WriteLoadTestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(SMIMETestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(WriteLoadTestCase))
     return suite
 
 

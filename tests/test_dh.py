@@ -5,7 +5,7 @@
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
 from M2Crypto import DH, BIO, Rand
-from tests import unittest
+from . import unittest
 
 
 class DHTestCase(unittest.TestCase):
@@ -59,7 +59,7 @@ class DHTestCase(unittest.TestCase):
 
 
 def suite():
-    return unittest.makeSuite(DHTestCase)
+    return unittest.TestLoader().loadTestsFromTestCase(DHTestCase)
 
 
 if __name__ == '__main__':

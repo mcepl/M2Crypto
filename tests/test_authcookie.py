@@ -10,7 +10,7 @@ import time
 from M2Crypto import EVP, Rand, six, util
 from M2Crypto.AuthCookie import AuthCookie, AuthCookieJar, mix, unmix, unmix3
 from M2Crypto.six.moves.http_cookies import SimpleCookie  # pylint: disable=no-name-in-module,import-error
-from tests import unittest
+from . import unittest
 
 log = logging.getLogger(__name__)
 
@@ -162,7 +162,7 @@ class AuthCookieTestCase(unittest.TestCase):
 
 
 def suite():
-    return unittest.makeSuite(AuthCookieTestCase)
+    return unittest.TestLoader().loadTestsFromTestCase(AuthCookieTestCase)
 
 
 if __name__ == '__main__':

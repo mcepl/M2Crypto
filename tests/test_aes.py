@@ -7,7 +7,7 @@ Copyright (c) 2018 Matej Cepl. All rights reserved.
 import logging
 
 from M2Crypto import m2
-from tests import unittest
+from . import unittest
 
 log = logging.getLogger('test_AES')
 
@@ -72,7 +72,7 @@ class AESTestCase(unittest.TestCase):
 
 def suite():
     t_suite = unittest.TestSuite()
-    t_suite.addTest(unittest.makeSuite(AESTestCase))
+    t_suite.addTest(unittest.TestLoader().loadTestsFromTestCase(AESTestCase))
     return t_suite
 
 

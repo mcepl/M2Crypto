@@ -7,7 +7,7 @@ Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 import hashlib
 
 from M2Crypto import DSA, Rand
-from tests import unittest
+from . import unittest
 
 
 class DSATestCase(unittest.TestCase):
@@ -112,7 +112,7 @@ class DSATestCase(unittest.TestCase):
 
 
 def suite():
-    return unittest.makeSuite(DSATestCase)
+    return unittest.TestLoader().loadTestsFromTestCase(DSATestCase)
 
 
 if __name__ == '__main__':

@@ -5,7 +5,7 @@
 
 import sys
 from M2Crypto.SSL import timeout, struct_to_timeout, struct_size
-from tests import unittest
+from . import unittest
 
 # Max value for sec argument on Windows:
 # - needs to fit DWORD (signed 32-bit) when converted to millisec
@@ -127,7 +127,7 @@ class TimeoutTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(TimeoutTestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TimeoutTestCase))
     return suite
 
 

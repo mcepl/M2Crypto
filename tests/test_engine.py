@@ -3,7 +3,7 @@
 """Unit tests for M2Crypto.Engine."""
 
 from M2Crypto import Engine
-from tests import unittest
+from . import unittest
 
 
 class EngineTestCase(unittest.TestCase):
@@ -53,7 +53,7 @@ class EngineTestCase(unittest.TestCase):
 
 
 def suite():
-    return unittest.makeSuite(EngineTestCase)
+    return unittest.TestLoader().loadTestsFromTestCase(EngineTestCase)
 
 
 if __name__ == '__main__':

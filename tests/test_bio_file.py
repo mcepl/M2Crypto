@@ -13,7 +13,7 @@ if platform.system() == 'Windows':
     import ctypes.wintypes
 
 from M2Crypto.BIO import File, openfile
-from tests import unittest
+from . import unittest
 
 log = logging.getLogger(__name__)
 
@@ -137,7 +137,7 @@ class FileTestCase(unittest.TestCase):
 
 
 def suite():
-    return unittest.makeSuite(FileTestCase)
+    return unittest.TestLoader().loadTestsFromTestCase(FileTestCase)
 
 
 if __name__ == '__main__':

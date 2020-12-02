@@ -7,7 +7,7 @@ All Rights Reserved.
 """
 
 from M2Crypto import six
-from tests import unittest
+from . import unittest
 
 
 class UtilTestCase(unittest.TestCase):
@@ -40,7 +40,7 @@ class UtilTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(UtilTestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(UtilTestCase))
     return suite
 
 

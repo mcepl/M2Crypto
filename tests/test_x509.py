@@ -16,7 +16,7 @@ import time
 import warnings
 
 from M2Crypto import ASN1, BIO, EVP, RSA, Rand, X509, m2, six  # noqa
-from tests import unittest
+from . import unittest
 
 log = logging.getLogger(__name__)
 
@@ -697,10 +697,10 @@ class CRLTestCase(unittest.TestCase):
 
 def suite():
     st = unittest.TestSuite()
-    st.addTest(unittest.makeSuite(X509TestCase))
-    st.addTest(unittest.makeSuite(X509StackTestCase))
-    st.addTest(unittest.makeSuite(X509ExtTestCase))
-    st.addTest(unittest.makeSuite(CRLTestCase))
+    st.addTest(unittest.TestLoader().loadTestsFromTestCase(X509TestCase))
+    st.addTest(unittest.TestLoader().loadTestsFromTestCase(X509StackTestCase))
+    st.addTest(unittest.TestLoader().loadTestsFromTestCase(X509ExtTestCase))
+    st.addTest(unittest.TestLoader().loadTestsFromTestCase(CRLTestCase))
     return st
 
 

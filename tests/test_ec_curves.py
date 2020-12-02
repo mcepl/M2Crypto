@@ -22,7 +22,7 @@ from __future__ import absolute_import
 import logging
 
 from M2Crypto import EC, Rand, m2  # noqa
-from tests import unittest
+from . import unittest
 
 log = logging.getLogger(__name__)
 
@@ -161,7 +161,7 @@ class ECCurveTests(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(ECCurveTests))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(ECCurveTests))
     return suite
 
 

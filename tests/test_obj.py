@@ -3,7 +3,7 @@
 """Unit tests for M2Crypto.m2 obj_* functions.
 """
 from M2Crypto import ASN1, BIO, Rand, X509, m2, six
-from tests import unittest
+from . import unittest
 
 """
 These functions must be cleaned up and moved to some python module
@@ -130,7 +130,7 @@ class ObjectsTestCase(unittest.TestCase):
 
 def suite():
     t_suite = unittest.TestSuite()
-    t_suite.addTest(unittest.makeSuite(ObjectsTestCase))
+    t_suite.addTest(unittest.TestLoader().loadTestsFromTestCase(ObjectsTestCase))
     return t_suite
 
 

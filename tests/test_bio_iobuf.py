@@ -7,7 +7,7 @@ Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 from io import BytesIO
 
 from M2Crypto.BIO import IOBuffer, MemoryBuffer
-from tests import unittest
+from . import unittest
 
 
 class IOBufferTestCase(unittest.TestCase):
@@ -84,7 +84,7 @@ class IOBufferTestCase(unittest.TestCase):
 
 
 def suite():
-    return unittest.makeSuite(IOBufferTestCase)
+    return unittest.TestLoader().loadTestsFromTestCase(IOBufferTestCase)
 
 
 if __name__ == '__main__':

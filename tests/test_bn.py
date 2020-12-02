@@ -10,7 +10,7 @@ import re
 import warnings
 
 from M2Crypto import BN, Rand
-from tests import unittest
+from . import unittest
 
 loops = 16
 
@@ -72,7 +72,7 @@ class BNTestCase(unittest.TestCase):
 
 
 def suite():
-    return unittest.makeSuite(BNTestCase)
+    return unittest.TestLoader().loadTestsFromTestCase(BNTestCase)
 
 
 if __name__ == '__main__':

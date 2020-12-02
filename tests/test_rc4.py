@@ -8,7 +8,7 @@ Copyright (c) 2009 Heikki Toivonen. All rights reserved."""
 from M2Crypto import RC4, Rand
 from binascii import hexlify
 
-from tests import unittest
+from . import unittest
 from tests.fips import fips_mode
 
 
@@ -43,7 +43,7 @@ class RC4TestCase(unittest.TestCase):
 
 
 def suite():
-    return unittest.makeSuite(RC4TestCase)
+    return unittest.TestLoader().loadTestsFromTestCase(RC4TestCase)
 
 
 if __name__ == '__main__':

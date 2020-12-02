@@ -34,7 +34,7 @@ import warnings
 from M2Crypto import (Err, Rand, SSL, X509, ftpslib, httpslib, m2, m2urllib,
                       m2urllib2, m2xmlrpclib, six)
 from M2Crypto.SSL.timeout import DEFAULT_TIMEOUT
-from tests import unittest
+from . import unittest
 from tests.fips import fips_mode
 
 log = logging.getLogger('test_SSL')
@@ -1209,20 +1209,20 @@ class FtpslibTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(SessionTestCase))
-    suite.addTest(unittest.makeSuite(XmlRpcLibTestCase))
-    suite.addTest(unittest.makeSuite(FtpsLibTestCase))
-    suite.addTest(unittest.makeSuite(PassSSLClientTestCase))
-    suite.addTest(unittest.makeSuite(HttpslibSSLClientTestCase))
-    suite.addTest(unittest.makeSuite(HttpslibSSLSNIClientTestCase))
-    suite.addTest(unittest.makeSuite(UrllibSSLClientTestCase))
-    suite.addTest(unittest.makeSuite(Urllib2SSLClientTestCase))
-    suite.addTest(unittest.makeSuite(Urllib2TEChunkedSSLClientTestCase))
-    suite.addTest(unittest.makeSuite(MiscSSLClientTestCase))
-    suite.addTest(unittest.makeSuite(FtpslibTestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(SessionTestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(XmlRpcLibTestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(FtpsLibTestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(PassSSLClientTestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(HttpslibSSLClientTestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(HttpslibSSLSNIClientTestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(UrllibSSLClientTestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Urllib2SSLClientTestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Urllib2TEChunkedSSLClientTestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(MiscSSLClientTestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(FtpslibTestCase))
     try:
         import M2Crypto.SSL.TwistedProtocolWrapper as wrapper  # noqa
-        suite.addTest(unittest.makeSuite(TwistedSSLClientTestCase))
+        suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TwistedSSLClientTestCase))
     except ImportError:
         pass
     return suite

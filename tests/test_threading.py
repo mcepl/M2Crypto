@@ -5,7 +5,7 @@
 Copyright (C) 2007 Open Source Applications Foundation. All Rights Reserved.
 """
 from M2Crypto import threading as m2threading, Rand
-from tests import unittest
+from . import unittest
 
 
 class ThreadingTestCase(unittest.TestCase):
@@ -31,7 +31,7 @@ class ThreadingTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(ThreadingTestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(ThreadingTestCase))
     return suite
 
 

@@ -10,7 +10,7 @@ Copyright (C) 2009-2010 Heikki Toivonen. All Rights Reserved.
 import doctest
 
 from M2Crypto import Rand, SSL, X509
-from tests import unittest
+from . import unittest
 from tests.test_ssl import srv_host
 
 
@@ -59,8 +59,8 @@ class ContextTestCase(unittest.TestCase):
 
 def suite():
     t_suite = unittest.TestSuite()
-    t_suite.addTest(unittest.makeSuite(CheckerTestCase))
-    t_suite.addTest(unittest.makeSuite(ContextTestCase))
+    t_suite.addTest(unittest.TestLoader().loadTestsFromTestCase(CheckerTestCase))
+    t_suite.addTest(unittest.TestLoader().loadTestsFromTestCase(ContextTestCase))
     return t_suite
 
 

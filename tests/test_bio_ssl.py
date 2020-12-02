@@ -15,7 +15,7 @@ from M2Crypto import Err
 from M2Crypto import Rand
 from M2Crypto import threading as m2threading
 
-from tests import unittest
+from . import unittest
 from tests.test_ssl import srv_host, allocate_srv_port
 
 
@@ -150,7 +150,7 @@ class SSLTestCase(unittest.TestCase):
 
 
 def suite():
-    return unittest.makeSuite(SSLTestCase)
+    return unittest.TestLoader().loadTestsFromTestCase(SSLTestCase)
 
 
 if __name__ == '__main__':

@@ -8,7 +8,7 @@ import os
 import multiprocessing
 
 from M2Crypto.BIO import MemoryBuffer
-from tests import unittest
+from . import unittest
 
 
 class TimeLimitExpired(Exception):
@@ -110,7 +110,7 @@ def run_test(*args, **kwargs):
         assert mb.readlines() == [b'hello' + sep, b'world' + sep]
 
 def suite():
-    return unittest.makeSuite(MemoryBufferTestCase)
+    return unittest.TestLoader().loadTestsFromTestCase(MemoryBufferTestCase)
 
 
 if __name__ == '__main__':

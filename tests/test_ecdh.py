@@ -9,7 +9,7 @@ rights reserved.
 
 from M2Crypto import EC, Rand
 
-from tests import unittest
+from . import unittest
 from tests.test_ec_curves import tested_curve
 
 
@@ -42,7 +42,7 @@ class ECDHTestCase(unittest.TestCase):
 
 
 def suite():
-    return unittest.makeSuite(ECDHTestCase)
+    return unittest.TestLoader().loadTestsFromTestCase(ECDHTestCase)
 
 
 if __name__ == '__main__':

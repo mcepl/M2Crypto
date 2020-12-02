@@ -10,7 +10,7 @@ import logging
 import os
 
 from M2Crypto import BIO, RSA, Rand, X509, m2, six
-from tests import unittest
+from . import unittest
 from tests.fips import fips_mode
 
 log = logging.getLogger('test_RSA')
@@ -345,7 +345,7 @@ class RSATestCase(unittest.TestCase):
 
 
 def suite():
-    return unittest.makeSuite(RSATestCase)
+    return unittest.TestLoader().loadTestsFromTestCase(RSATestCase)
 
 
 if __name__ == '__main__':

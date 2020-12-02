@@ -15,7 +15,7 @@ import logging
 from binascii import a2b_hex, hexlify, unhexlify
 
 from M2Crypto import BIO, EVP, RSA, Rand, m2, util
-from tests import unittest
+from . import unittest
 from tests.fips import fips_mode
 
 log = logging.getLogger('test_EVP')
@@ -684,10 +684,10 @@ class HMACTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(EVPTestCase))
-    suite.addTest(unittest.makeSuite(CipherTestCase))
-    suite.addTest(unittest.makeSuite(PBKDF2TestCase))
-    suite.addTest(unittest.makeSuite(HMACTestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(EVPTestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(CipherTestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(PBKDF2TestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(HMACTestCase))
     return suite
 
 if __name__ == '__main__':

@@ -11,7 +11,7 @@ import ctypes
 import warnings
 
 from M2Crypto import Rand, m2
-from tests import unittest
+from . import unittest
 
 
 class RandTestCase(unittest.TestCase):
@@ -76,7 +76,7 @@ class RandTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(RandTestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(RandTestCase))
     return suite
 
 

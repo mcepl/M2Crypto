@@ -59,7 +59,7 @@ if win32process:
             win32process.TerminateProcess(hproc, 0)
 
     def suite():
-        return unittest.makeSuite(SSLWinClientTestCase)
+        return unittest.TestLoader().loadTestsFromTestCase(SSLWinClientTestCase)
 
     def zap_servers():
         pass

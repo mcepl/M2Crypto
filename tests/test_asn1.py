@@ -8,7 +8,7 @@ import datetime
 import time
 
 from M2Crypto import ASN1, m2
-from tests import unittest
+from . import unittest
 
 
 class ASN1TestCase(unittest.TestCase):
@@ -142,7 +142,7 @@ class ASN1TestCase(unittest.TestCase):
 
 
 def suite():
-    return unittest.makeSuite(ASN1TestCase)
+    return unittest.TestLoader().loadTestsFromTestCase(ASN1TestCase)
 
 
 if __name__ == '__main__':

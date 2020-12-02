@@ -11,7 +11,7 @@ import logging
 
 from M2Crypto import EC, Rand
 
-from tests import unittest
+from . import unittest
 from tests.test_ec_curves import tested_curve
 
 log = logging.getLogger(__name__)
@@ -87,7 +87,7 @@ class ECDSATestCase(unittest.TestCase):
 
 
 def suite():
-    return unittest.makeSuite(ECDSATestCase)
+    return unittest.TestLoader().loadTestsFromTestCase(ECDSATestCase)
 
 
 if __name__ == '__main__':

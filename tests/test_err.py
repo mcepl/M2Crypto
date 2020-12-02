@@ -7,7 +7,7 @@ Released under the terms of MIT/X11 License,
 see the file LICENCE for more.
 """
 from M2Crypto import Err
-from tests import unittest
+from . import unittest
 
 
 class ErrTestCase(unittest.TestCase):
@@ -20,7 +20,7 @@ class ErrTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.makeSuite(ErrTestCase))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(ErrTestCase))
     return suite
 
 
