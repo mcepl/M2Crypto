@@ -1,2 +1,3 @@
-wheel
+-r requirements.txt
+parameterized
 twine
