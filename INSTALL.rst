@@ -18,8 +18,8 @@ system the following packages are needed:
 - ``build-essential``
 - ``python3-dev`` and/or ``python-dev``
 - ``libssl-dev``
-- ``swig 2.0.4`` or newer (installation is also possible on some
-particular old systems with swig v1.*)
+- ``swig 2.0.10`` or newer (default swig on RHEL-7, which is the
+  oldest I could find in the wild).
 
 Installing on Unix-like systems, including Cygwin
 -------------------------------------------------

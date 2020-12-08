@@ -25,7 +25,6 @@ import sys
 from distutils.command import build
 from distutils.command.clean import clean
 from distutils.dir_util import mkpath
-from distutils.version import StrictVersion
 
 import setuptools
 from setuptools.command import build_ext
@@ -33,8 +32,6 @@ from setuptools.command import build_ext
 logging.basicConfig(format='%(levelname)s:%(funcName)s:%(message)s',
                     stream=sys.stdout, level=logging.INFO)
 log = logging.getLogger('setup')
-
-REQUIRED_SWIG_VERSION = '2.0.4'
 
 requires_list = ['parametrized']
 if (2, 6) < sys.version_info[:2] < (3, 5):
@@ -265,39 +262,6 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         build_ext.build_ext.run(self)
 
 
-def swig_version(req_ver):
-    # type: (str) -> bool
-    """
-    Compare version of the swig with the required version.
-
-    :param req_ver: required version as a str (e.g., '2.0.4')
-    :return: Boolean indicating whether the satisfying version of swig
-             has been installed.
-    """
-    ver_str = None
-    IND_VER_LINE = 'SWIG Version '
-
-    try:
-        pid = subprocess.Popen(['swig', '-version'], stdout=subprocess.PIPE)
-    except OSError:
-        return False
-
-    out, _ = pid.communicate()
-    if hasattr(out, 'decode'):
-        out = out.decode('utf8')
-
-    for line in out.split('\n'):
-        line = line.strip()
-        if line.startswith(IND_VER_LINE):
-            ver_str = line.strip()[len(IND_VER_LINE):]
-            break
-
-    if not ver_str:
-        raise OSError('Unknown format of swig -version output:\n%s' % out)
-
-    return StrictVersion(ver_str) >= StrictVersion(req_ver)
-
-
 x_comp_args = set()
 
 # We take care of deprecated functions in OpenSSL with our code, no need
@@ -307,15 +271,8 @@ if sys.platform == 'win32':
 else:
     x_comp_args.update(['-DTHREADING', '-Wno-deprecated-declarations'])
 
-# Don't try to run swig on the ancient platforms
-if swig_version(REQUIRED_SWIG_VERSION):
-    lib_sources = ['SWIG/_m2crypto.i']
-else:
-    lib_sources = ['SWIG/_m2crypto_wrap.c']
-
-
 m2crypto = setuptools.Extension(name='M2Crypto._m2crypto',
-                                sources=lib_sources,
+                                sources=['SWIG/_m2crypto.i'],
                                 extra_compile_args=list(x_comp_args),
                                 # Uncomment to build Universal Mac binaries
                                 # extra_link_args =
