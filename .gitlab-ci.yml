@@ -41,6 +41,16 @@ fedora-rawhide:
         - dnf install -y swig python3-devel openssl-devel openssl python3-setuptools python3-twisted python3-parameterized
         - python3 setup.py clean build test
 
+centos7:
+    image: centos:7
+    when: always
+    script:
+        - yum makecache
+        - yum groups install -y "Development Tools"
+        - yum install -y swig python3-devel openssl openssl-devel python3-service-identity python3-setuptools python3-pip python3-Twisted
+        - python3 -mpip install --user parameterized
+        - python3 setup.py clean build test
+
 opensuse:
     image: opensuse/tumbleweed
     when: always
