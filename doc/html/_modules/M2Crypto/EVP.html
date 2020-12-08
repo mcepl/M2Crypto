@@ -45,7 +45,6 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">Err</span><span class="p">,</span> <span class="n">RSA</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Callable</span>  <span class="c1"># noqa</span>
-<span class="kn">from</span> <span class="nn">M2Crypto.SSL.Context</span> <span class="kn">import</span> <span class="n">Context</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;EVP&#39;</span><span class="p">)</span>
 
@@ -230,7 +229,7 @@
             <span class="k">if</span> <span class="n">mda</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;unknown message digest&#39;</span><span class="p">,</span> <span class="n">md</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">md</span> <span class="o">=</span> <span class="n">mda</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">md_ctx_new</span><span class="p">()</span>  <span class="c1"># type: Context</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ctx</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">md_ctx_new</span><span class="p">()</span>  <span class="c1">## type: Context</span>
 
 <div class="viewcode-block" id="PKey.reset_context"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EVP.PKey.reset_context">[docs]</a>    <span class="k">def</span> <span class="nf">reset_context</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">md</span><span class="o">=</span><span class="s1">&#39;sha1&#39;</span><span class="p">):</span>
         <span class="c1"># type: (str) -&gt; None</span>
@@ -333,6 +332,11 @@
 
 <span class="sd">        :return: The signature.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">m2</span><span class="o">.</span><span class="n">OPENSSL_VERSION_NUMBER</span> <span class="o">&lt;</span> <span class="mh">0x10101000</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">NotImplemented</span><span class="p">(</span><span class="s1">&#39;This method requires OpenSSL version &#39;</span> <span class="o">+</span>
+                    <span class="s1">&#39;1.1.1 or greater.&#39;</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">digest_sign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PKey.digest_verify_init"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EVP.PKey.digest_verify_init">[docs]</a>    <span class="k">def</span> <span class="nf">digest_verify_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -376,6 +380,11 @@
 <span class="sd">        :return: Result of verification: 1 for success, 0 for failure, -1 on</span>
 <span class="sd">                 other error.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">m2</span><span class="o">.</span><span class="n">OPENSSL_VERSION_NUMBER</span> <span class="o">&lt;</span> <span class="mh">0x10101000</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="bp">NotImplemented</span><span class="p">(</span><span class="s1">&#39;This method requires OpenSSL version &#39;</span> <span class="o">+</span>
+                    <span class="s1">&#39;1.1.1 or greater.&#39;</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">digest_verify</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ctx</span><span class="p">,</span> <span class="n">sign</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="PKey.assign_rsa"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.EVP.PKey.assign_rsa">[docs]</a>    <span class="k">def</span> <span class="nf">assign_rsa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rsa</span><span class="p">,</span> <span class="n">capture</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>

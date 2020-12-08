@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>M2Crypto.DH &#8212; M2Crypto  documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
    
@@ -33,20 +32,20 @@
           <div class="body" role="main">
             
   <h1>Source code for M2Crypto.DH</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
 
 <span class="sd">&quot;&quot;&quot;M2Crypto wrapper for OpenSSL DH API.</span>
 
 <span class="sd">Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="k">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">util</span>
-<span class="kn">from</span> <span class="nn">M2Crypto.util</span> <span class="k">import</span> <span class="n">genparam_callback</span>
-<span class="k">if</span> <span class="n">util</span><span class="o">.</span><span class="n">py27plus</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Callable</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">m2</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.util</span> <span class="kn">import</span> <span class="n">genparam_callback</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Optional</span>  <span class="c1"># noqa</span>
 
 
 <div class="viewcode-block" id="DHError"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DH.DHError">[docs]</a><span class="k">class</span> <span class="nc">DHError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="k">pass</span></div>
+
 
 <span class="n">m2</span><span class="o">.</span><span class="n">dh_init</span><span class="p">(</span><span class="n">DHError</span><span class="p">)</span>
 
@@ -57,23 +56,23 @@
 
     <span class="n">m2_dh_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">dh_free</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dh</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dh</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="c1"># type: (bytes, int) -&gt; None</span>
         <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">dh_type_check</span><span class="p">(</span><span class="n">dh</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dh</span> <span class="o">=</span> <span class="n">dh</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
 
-    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; None</span>
         <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">m2_dh_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dh</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; int</span>
         <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">dh_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dh</span><span class="p">),</span> <span class="s2">&quot;&#39;dh&#39; type error&quot;</span>
         <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">dh_size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dh</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="c1"># type: (str) -&gt; bytes</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;pub&#39;</span><span class="p">,</span> <span class="s1">&#39;priv&#39;</span><span class="p">):</span>
             <span class="n">method</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m2</span><span class="p">,</span> <span class="s1">&#39;dh_get_</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,))</span>
@@ -82,7 +81,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span>
 
-    <span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="c1"># type: (str, bytes) -&gt; bytes</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">DHError</span><span class="p">(</span><span class="s1">&#39;set (p, g) via set_params()&#39;</span><span class="p">)</span>
@@ -178,17 +177,15 @@
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -205,7 +202,7 @@
       &copy;2017, Matej Cepl <mcepl@cepl.eu>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

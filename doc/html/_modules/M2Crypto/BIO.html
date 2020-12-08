@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>M2Crypto.BIO &#8212; M2Crypto  documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
    
@@ -33,17 +32,17 @@
           <div class="body" role="main">
             
   <h1>Source code for M2Crypto.BIO</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
 
 <span class="sd">&quot;&quot;&quot;M2Crypto wrapper for OpenSSL BIO API.</span>
 
 <span class="sd">Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.&quot;&quot;&quot;</span>
 
+<span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>  <span class="c1"># noqa</span>
 
-<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="k">import</span> <span class="n">m2</span><span class="p">,</span> <span class="n">py27plus</span><span class="p">,</span> <span class="n">six</span>
-<span class="k">if</span> <span class="n">py27plus</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">m2</span><span class="p">,</span> <span class="n">six</span>
 
 <span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;BIO&#39;</span><span class="p">)</span>
 
@@ -60,7 +59,7 @@
 
     <span class="n">m2_bio_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_free</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bio</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">_close_cb</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bio</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">_close_cb</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="c1"># type: (Optional[BIO], int, Optional[Callable]) -&gt; None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bio</span> <span class="o">=</span> <span class="n">bio</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
@@ -68,7 +67,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write_closed</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">m2_bio_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bio</span><span class="p">)</span>
 
@@ -196,10 +195,10 @@
         <span class="sd">&quot;&quot;&quot;Seek to the specified absolute offset.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_seek</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bio</span><span class="p">,</span> <span class="n">off</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="c1"># type: (*Any) -&gt; int</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
@@ -214,7 +213,7 @@
 <span class="sd">    a MemoryBuffer object only when necessary.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="c1"># type: (Optional[bytes]) -&gt; None</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MemoryBuffer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
@@ -225,7 +224,7 @@
         <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">m2</span><span class="o">.</span><span class="n">bio_write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bio</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; int</span>
         <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_ctrl_pending</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bio</span><span class="p">)</span>
 
@@ -256,7 +255,7 @@
 <span class="sd">    general file manipulation in Python, use Python&#39;s builtin file object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pyfile</span><span class="p">,</span> <span class="n">close_pyfile</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pyfile</span><span class="p">,</span> <span class="n">close_pyfile</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">):</span>
         <span class="c1"># type: (Union[io.BytesIO, AnyStr], int, AnyStr) -&gt; None</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">File</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
@@ -303,7 +302,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">File</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
             <span class="n">m2</span><span class="o">.</span><span class="n">bio_free</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bio</span><span class="p">)</span></div>
 
@@ -328,7 +327,7 @@
     <span class="n">m2_bio_pop</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_pop</span>
     <span class="n">m2_bio_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_free</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">under_bio</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rwb&#39;</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">under_bio</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rwb&#39;</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="c1"># type: (BIO, str, int) -&gt; None</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">IOBuffer</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="n">_pyfree</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">io</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_new</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">bio_f_buffer</span><span class="p">())</span>
@@ -340,7 +339,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">write_closed</span> <span class="o">=</span> <span class="mi">1</span>
 
-    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; None</span>
         <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_pyfree&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">m2_bio_pop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bio</span><span class="p">)</span>
@@ -359,14 +358,14 @@
     <span class="n">m2_bio_pop</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_pop</span>
     <span class="n">m2_bio_free</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_free</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obio</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obio</span><span class="p">):</span>
         <span class="c1"># type: (BIO) -&gt; None</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">CipherStream</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">obio</span> <span class="o">=</span> <span class="n">obio</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bio</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_new</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">bio_f_cipher</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; None</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;closed&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -398,14 +397,14 @@
 <div class="viewcode-block" id="SSLBio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.BIO.SSLBio">[docs]</a><span class="k">class</span> <span class="nc">SSLBio</span><span class="p">(</span><span class="n">BIO</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Object interface to BIO_f_ssl.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
         <span class="c1"># type: (int) -&gt; None</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">SSLBio</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="n">_pyfree</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bio</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">bio_new</span><span class="p">(</span><span class="n">m2</span><span class="o">.</span><span class="n">bio_f_ssl</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="o">=</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="SSLBio.set_ssl"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.BIO.SSLBio.set_ssl">[docs]</a>    <span class="k">def</span> <span class="nf">set_ssl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conn</span><span class="p">,</span> <span class="n">close_flag</span><span class="o">=</span><span class="n">m2</span><span class="o">.</span><span class="n">bio_noclose</span><span class="p">):</span>
-        <span class="c1"># type: (Connection, int) -&gt; None</span>
+        <span class="c1">## type: (Connection, int) -&gt; None</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sets the bio to the SSL pointer which is</span>
 <span class="sd">        contained in the connection object.</span>
@@ -455,17 +454,15 @@
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -482,7 +479,7 @@
       &copy;2017, Matej Cepl <mcepl@cepl.eu>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

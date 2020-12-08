@@ -1,3 +1,21 @@
+0.37.0 - 2020-12-08
+-------------------
+
+- Remove support for CentOS 6 and Python 2.6 (remove tests.vendor
+  module).
+- Remodel CI:
+  - on GitHub switched from Travis-CI to GH Actions
+  - on GitLab-CI: stop testing 2.7 on Fedora, add centos7
+  - update appveyor.yml
+- Stop playing with swig in setup.py, we don't support swig 1.* anymore.
+- Fix dereferencing of pointers (gl#m2crypto/m2crypto#281)
+- Replace deprecated PyObject_AsReadBuffer with our own shim.
+- Use parametrized to create parametrized tests (new external
+  dependency).
+- Only use DigestSign() and DigestUpdate() with OpenSSL >= 1.1.1
+- Expose all the X509_V_FLAG
+- Add support for DigestSign* and DigestVerify*
+
 0.36.0 - 2020-07-13
 -------------------
 

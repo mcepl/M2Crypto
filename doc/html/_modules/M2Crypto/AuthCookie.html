@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>M2Crypto.AuthCookie &#8212; M2Crypto  documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
    
@@ -33,7 +32,7 @@
           <div class="body" role="main">
             
   <h1>Source code for M2Crypto.AuthCookie</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
 
 <span class="sd">&quot;&quot;&quot;Secure Authenticator Cookies</span>
 
@@ -43,11 +42,10 @@
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
-<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="k">import</span> <span class="n">Rand</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">py27plus</span><span class="p">,</span> <span class="n">six</span><span class="p">,</span> <span class="n">util</span>
-<span class="kn">from</span> <span class="nn">M2Crypto.six.moves.http_cookies</span> <span class="k">import</span> <span class="n">SimpleCookie</span>  <span class="c1"># pylint: disable=no-name-in-module,import-error</span>
+<span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">Rand</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="n">six</span><span class="p">,</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">M2Crypto.six.moves.http_cookies</span> <span class="kn">import</span> <span class="n">SimpleCookie</span>
 
-<span class="k">if</span> <span class="n">py27plus</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">re</span> <span class="k">as</span> <span class="n">type_re</span><span class="p">,</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>  <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">re</span> <span class="k">as</span> <span class="n">type_re</span><span class="p">,</span> <span class="n">AnyStr</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>  <span class="c1"># noqa</span>
 
 <span class="n">_MIX_FORMAT</span> <span class="o">=</span> <span class="s1">&#39;exp=</span><span class="si">%f</span><span class="s1">&amp;data=</span><span class="si">%s</span><span class="s1">&amp;digest=&#39;</span>
 <span class="n">_MIX_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;exp=(\d+\.\d+)&amp;data=(.+)&amp;digest=(\S*)&#39;</span><span class="p">)</span>
@@ -85,7 +83,7 @@
 
     <span class="n">_keylen</span> <span class="o">=</span> <span class="mi">20</span>  <span class="c1"># type: int</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_key</span> <span class="o">=</span> <span class="n">Rand</span><span class="o">.</span><span class="n">rand_bytes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_keylen</span><span class="p">)</span>
 
@@ -142,7 +140,7 @@
 
 <div class="viewcode-block" id="AuthCookie"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.AuthCookie.AuthCookie">[docs]</a><span class="k">class</span> <span class="nc">AuthCookie</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expiry</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dough</span><span class="p">,</span> <span class="n">mac</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expiry</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">dough</span><span class="p">,</span> <span class="n">mac</span><span class="p">):</span>
         <span class="c1"># type: (float, str, str, str) -&gt; None</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create new authentication cookie</span>
@@ -234,17 +232,15 @@
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -261,7 +257,7 @@
       &copy;2017, Matej Cepl <mcepl@cepl.eu>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

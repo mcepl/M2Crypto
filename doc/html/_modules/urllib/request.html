@@ -1,19 +1,18 @@
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
   <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>urllib.request &#8212; M2Crypto  documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script type="text/javascript" src="../../_static/jquery.js"></script>
-    <script type="text/javascript" src="../../_static/underscore.js"></script>
-    <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
    
@@ -134,13 +133,13 @@
 <span class="kn">import</span> <span class="nn">warnings</span>
 
 
-<span class="kn">from</span> <span class="nn">urllib.error</span> <span class="k">import</span> <span class="n">URLError</span><span class="p">,</span> <span class="n">HTTPError</span><span class="p">,</span> <span class="n">ContentTooShortError</span>
-<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="k">import</span> <span class="p">(</span>
+<span class="kn">from</span> <span class="nn">urllib.error</span> <span class="kn">import</span> <span class="n">URLError</span><span class="p">,</span> <span class="n">HTTPError</span><span class="p">,</span> <span class="n">ContentTooShortError</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">urlparse</span><span class="p">,</span> <span class="n">urlsplit</span><span class="p">,</span> <span class="n">urljoin</span><span class="p">,</span> <span class="n">unwrap</span><span class="p">,</span> <span class="n">quote</span><span class="p">,</span> <span class="n">unquote</span><span class="p">,</span>
-    <span class="n">splittype</span><span class="p">,</span> <span class="n">splithost</span><span class="p">,</span> <span class="n">splitport</span><span class="p">,</span> <span class="n">splituser</span><span class="p">,</span> <span class="n">splitpasswd</span><span class="p">,</span>
-    <span class="n">splitattr</span><span class="p">,</span> <span class="n">splitquery</span><span class="p">,</span> <span class="n">splitvalue</span><span class="p">,</span> <span class="n">splittag</span><span class="p">,</span> <span class="n">to_bytes</span><span class="p">,</span>
+    <span class="n">_splittype</span><span class="p">,</span> <span class="n">_splithost</span><span class="p">,</span> <span class="n">_splitport</span><span class="p">,</span> <span class="n">_splituser</span><span class="p">,</span> <span class="n">_splitpasswd</span><span class="p">,</span>
+    <span class="n">_splitattr</span><span class="p">,</span> <span class="n">_splitquery</span><span class="p">,</span> <span class="n">_splitvalue</span><span class="p">,</span> <span class="n">_splittag</span><span class="p">,</span> <span class="n">_to_bytes</span><span class="p">,</span>
     <span class="n">unquote_to_bytes</span><span class="p">,</span> <span class="n">urlunparse</span><span class="p">)</span>
-<span class="kn">from</span> <span class="nn">urllib.response</span> <span class="k">import</span> <span class="n">addinfourl</span><span class="p">,</span> <span class="n">addclosehook</span>
+<span class="kn">from</span> <span class="nn">urllib.response</span> <span class="kn">import</span> <span class="n">addinfourl</span><span class="p">,</span> <span class="n">addclosehook</span>
 
 <span class="c1"># check for SSL</span>
 <span class="k">try</span><span class="p">:</span>
@@ -277,7 +276,7 @@
 <span class="sd">    Returns a tuple containing the path to the newly created</span>
 <span class="sd">    data file as well as the resulting HTTPMessage object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">url_type</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">splittype</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+    <span class="n">url_type</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">_splittype</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 
     <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">closing</span><span class="p">(</span><span class="n">urlopen</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="p">))</span> <span class="k">as</span> <span class="n">fp</span><span class="p">:</span>
         <span class="n">headers</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
@@ -357,7 +356,7 @@
 
 <span class="k">class</span> <span class="nc">Request</span><span class="p">:</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{},</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{},</span>
                  <span class="n">origin_req_host</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unverifiable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">full_url</span> <span class="o">=</span> <span class="n">url</span>
@@ -385,7 +384,7 @@
     <span class="k">def</span> <span class="nf">full_url</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">):</span>
         <span class="c1"># unwrap(&#39;&lt;URL:type://host/path&gt;&#39;) --&gt; &#39;type://host/path&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_full_url</span> <span class="o">=</span> <span class="n">unwrap</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_full_url</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fragment</span> <span class="o">=</span> <span class="n">splittag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_full_url</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_full_url</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">fragment</span> <span class="o">=</span> <span class="n">_splittag</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_full_url</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_parse</span><span class="p">()</span>
 
     <span class="nd">@full_url</span><span class="o">.</span><span class="n">deleter</span>
@@ -413,10 +412,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">_parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">rest</span> <span class="o">=</span> <span class="n">splittype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_full_url</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="n">rest</span> <span class="o">=</span> <span class="n">_splittype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_full_url</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;unknown url type: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_url</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">selector</span> <span class="o">=</span> <span class="n">splithost</span><span class="p">(</span><span class="n">rest</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">selector</span> <span class="o">=</span> <span class="n">_splithost</span><span class="p">(</span><span class="n">rest</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">unquote</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">)</span>
 
@@ -461,12 +460,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">unredirected_hdrs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">header_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">header_items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">hdrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unredirected_hdrs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">hdrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">)</span>
+        <span class="n">hdrs</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">unredirected_hdrs</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">headers</span><span class="p">}</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">hdrs</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
 
 <span class="k">class</span> <span class="nc">OpenerDirector</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">client_version</span> <span class="o">=</span> <span class="s2">&quot;Python-urllib/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">__version__</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">addheaders</span> <span class="o">=</span> <span class="p">[(</span><span class="s1">&#39;User-agent&#39;</span><span class="p">,</span> <span class="n">client_version</span><span class="p">)]</span>
         <span class="c1"># self.handlers is retained only for backward compatibility</span>
@@ -557,6 +555,7 @@
             <span class="n">meth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">processor</span><span class="p">,</span> <span class="n">meth_name</span><span class="p">)</span>
             <span class="n">req</span> <span class="o">=</span> <span class="n">meth</span><span class="p">(</span><span class="n">req</span><span class="p">)</span>
 
+        <span class="n">sys</span><span class="o">.</span><span class="n">audit</span><span class="p">(</span><span class="s1">&#39;urllib.Request&#39;</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">full_url</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">headers</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">get_method</span><span class="p">())</span>
         <span class="n">response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_open</span><span class="p">(</span><span class="n">req</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
         <span class="c1"># post-process response</span>
@@ -653,7 +652,7 @@
         <span class="c1"># Only exists for backwards compatibility</span>
         <span class="k">pass</span>
 
-    <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="s2">&quot;handler_order&quot;</span><span class="p">):</span>
             <span class="c1"># Try to preserve the old behavior of having custom classes</span>
             <span class="c1"># inserted after default ones (works only for custom user</span>
@@ -803,7 +802,7 @@
 <span class="sd">    According to RFC 3986, having an authority component means the URL must</span>
 <span class="sd">    have two slashes after the scheme.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">scheme</span><span class="p">,</span> <span class="n">r_scheme</span> <span class="o">=</span> <span class="n">splittype</span><span class="p">(</span><span class="n">proxy</span><span class="p">)</span>
+    <span class="n">scheme</span><span class="p">,</span> <span class="n">r_scheme</span> <span class="o">=</span> <span class="n">_splittype</span><span class="p">(</span><span class="n">proxy</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">r_scheme</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">):</span>
         <span class="c1"># authority</span>
         <span class="n">scheme</span> <span class="o">=</span> <span class="kc">None</span>
@@ -818,9 +817,9 @@
         <span class="k">if</span> <span class="n">end</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
             <span class="n">end</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">authority</span> <span class="o">=</span> <span class="n">r_scheme</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
-    <span class="n">userinfo</span><span class="p">,</span> <span class="n">hostport</span> <span class="o">=</span> <span class="n">splituser</span><span class="p">(</span><span class="n">authority</span><span class="p">)</span>
+    <span class="n">userinfo</span><span class="p">,</span> <span class="n">hostport</span> <span class="o">=</span> <span class="n">_splituser</span><span class="p">(</span><span class="n">authority</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">userinfo</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">user</span><span class="p">,</span> <span class="n">password</span> <span class="o">=</span> <span class="n">splitpasswd</span><span class="p">(</span><span class="n">userinfo</span><span class="p">)</span>
+        <span class="n">user</span><span class="p">,</span> <span class="n">password</span> <span class="o">=</span> <span class="n">_splitpasswd</span><span class="p">(</span><span class="n">userinfo</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">user</span> <span class="o">=</span> <span class="n">password</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="n">scheme</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="p">,</span> <span class="n">hostport</span>
@@ -829,12 +828,13 @@
     <span class="c1"># Proxies must be in front</span>
     <span class="n">handler_order</span> <span class="o">=</span> <span class="mi">100</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proxies</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proxies</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">proxies</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">proxies</span> <span class="o">=</span> <span class="n">getproxies</span><span class="p">()</span>
         <span class="k">assert</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">proxies</span><span class="p">,</span> <span class="s1">&#39;keys&#39;</span><span class="p">),</span> <span class="s2">&quot;proxies must be a mapping&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">proxies</span> <span class="o">=</span> <span class="n">proxies</span>
         <span class="k">for</span> <span class="nb">type</span><span class="p">,</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">proxies</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">type</span> <span class="o">=</span> <span class="nb">type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">_open&#39;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">,</span>
                     <span class="k">lambda</span> <span class="n">r</span><span class="p">,</span> <span class="n">proxy</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">type</span><span class="p">,</span> <span class="n">meth</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">proxy_open</span><span class="p">:</span>
                         <span class="n">meth</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">proxy</span><span class="p">,</span> <span class="nb">type</span><span class="p">))</span>
@@ -869,7 +869,7 @@
 
 <span class="k">class</span> <span class="nc">HTTPPasswordMgr</span><span class="p">:</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">passwd</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="nf">add_password</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">realm</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">passwd</span><span class="p">):</span>
@@ -907,7 +907,7 @@
             <span class="n">scheme</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="n">authority</span> <span class="o">=</span> <span class="n">uri</span>
             <span class="n">path</span> <span class="o">=</span> <span class="s1">&#39;/&#39;</span>
-        <span class="n">host</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="n">splitport</span><span class="p">(</span><span class="n">authority</span><span class="p">)</span>
+        <span class="n">host</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="n">_splitport</span><span class="p">(</span><span class="n">authority</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">default_port</span> <span class="ow">and</span> <span class="n">port</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">scheme</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">dport</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;http&quot;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>
                      <span class="s2">&quot;https&quot;</span><span class="p">:</span> <span class="mi">443</span><span class="p">,</span>
@@ -943,7 +943,7 @@
 
 <span class="k">class</span> <span class="nc">HTTPPasswordMgrWithPriorAuth</span><span class="p">(</span><span class="n">HTTPPasswordMgrWithDefaultRealm</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">authenticated</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -979,40 +979,71 @@
 
     <span class="c1"># allow for double- and single-quoted realm values</span>
     <span class="c1"># (single quotes are a violation of the RFC, but appear in the wild)</span>
-    <span class="n">rx</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;(?:.*,)*[ </span><span class="se">\t</span><span class="s1">]*([^ </span><span class="se">\t</span><span class="s1">]+)[ </span><span class="se">\t</span><span class="s1">]+&#39;</span>
-                    <span class="s1">&#39;realm=([&quot;</span><span class="se">\&#39;</span><span class="s1">]?)([^&quot;</span><span class="se">\&#39;</span><span class="s1">]*)</span><span class="se">\\</span><span class="s1">2&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
+    <span class="n">rx</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;(?:^|,)&#39;</span>   <span class="c1"># start of the string or &#39;,&#39;</span>
+                    <span class="s1">&#39;[ </span><span class="se">\t</span><span class="s1">]*&#39;</span>    <span class="c1"># optional whitespaces</span>
+                    <span class="s1">&#39;([^ </span><span class="se">\t</span><span class="s1">]+)&#39;</span> <span class="c1"># scheme like &quot;Basic&quot;</span>
+                    <span class="s1">&#39;[ </span><span class="se">\t</span><span class="s1">]+&#39;</span>    <span class="c1"># mandatory whitespaces</span>
+                    <span class="c1"># realm=xxx</span>
+                    <span class="c1"># realm=&#39;xxx&#39;</span>
+                    <span class="c1"># realm=&quot;xxx&quot;</span>
+                    <span class="s1">&#39;realm=([&quot;</span><span class="se">\&#39;</span><span class="s1">]?)([^&quot;</span><span class="se">\&#39;</span><span class="s1">]*)</span><span class="se">\\</span><span class="s1">2&#39;</span><span class="p">,</span>
+                    <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
 
     <span class="c1"># XXX could pre-emptively send auth info already accepted (RFC 2617,</span>
     <span class="c1"># end of section 2, and section 1.2 immediately after &quot;credentials&quot;</span>
     <span class="c1"># production).</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password_mgr</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">password_mgr</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">password_mgr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">password_mgr</span> <span class="o">=</span> <span class="n">HTTPPasswordMgr</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">passwd</span> <span class="o">=</span> <span class="n">password_mgr</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_password</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">passwd</span><span class="o">.</span><span class="n">add_password</span>
 
+    <span class="k">def</span> <span class="nf">_parse_realm</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">header</span><span class="p">):</span>
+        <span class="c1"># parse WWW-Authenticate header: accept multiple challenges per header</span>
+        <span class="n">found_challenge</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">mo</span> <span class="ow">in</span> <span class="n">AbstractBasicAuthHandler</span><span class="o">.</span><span class="n">rx</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">header</span><span class="p">):</span>
+            <span class="n">scheme</span><span class="p">,</span> <span class="n">quote</span><span class="p">,</span> <span class="n">realm</span> <span class="o">=</span> <span class="n">mo</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">quote</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">]:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Basic Auth Realm was unquoted&quot;</span><span class="p">,</span>
+                              <span class="ne">UserWarning</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+            <span class="k">yield</span> <span class="p">(</span><span class="n">scheme</span><span class="p">,</span> <span class="n">realm</span><span class="p">)</span>
+
+            <span class="n">found_challenge</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found_challenge</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">header</span><span class="p">:</span>
+                <span class="n">scheme</span> <span class="o">=</span> <span class="n">header</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">scheme</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">scheme</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">http_error_auth_reqed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">authreq</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">headers</span><span class="p">):</span>
         <span class="c1"># host may be an authority (without userinfo) or a URL with an</span>
         <span class="c1"># authority</span>
-        <span class="c1"># XXX could be multiple headers</span>
-        <span class="n">authreq</span> <span class="o">=</span> <span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">authreq</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="n">headers</span><span class="o">.</span><span class="n">get_all</span><span class="p">(</span><span class="n">authreq</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">headers</span><span class="p">:</span>
+            <span class="c1"># no header found</span>
+            <span class="k">return</span>
 
-        <span class="k">if</span> <span class="n">authreq</span><span class="p">:</span>
-            <span class="n">scheme</span> <span class="o">=</span> <span class="n">authreq</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">scheme</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;basic&#39;</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;AbstractBasicAuthHandler does not&quot;</span>
-                                 <span class="s2">&quot; support the following scheme: &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span>
-                                 <span class="n">scheme</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">mo</span> <span class="o">=</span> <span class="n">AbstractBasicAuthHandler</span><span class="o">.</span><span class="n">rx</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">authreq</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">mo</span><span class="p">:</span>
-                    <span class="n">scheme</span><span class="p">,</span> <span class="n">quote</span><span class="p">,</span> <span class="n">realm</span> <span class="o">=</span> <span class="n">mo</span><span class="o">.</span><span class="n">groups</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="n">quote</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span><span class="s2">&quot;&#39;&quot;</span><span class="p">]:</span>
-                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Basic Auth Realm was unquoted&quot;</span><span class="p">,</span>
-                                      <span class="ne">UserWarning</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">scheme</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;basic&#39;</span><span class="p">:</span>
-                        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">retry_http_basic_auth</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">realm</span><span class="p">)</span>
+        <span class="n">unsupported</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="n">headers</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">scheme</span><span class="p">,</span> <span class="n">realm</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_realm</span><span class="p">(</span><span class="n">header</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">scheme</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;basic&#39;</span><span class="p">:</span>
+                    <span class="n">unsupported</span> <span class="o">=</span> <span class="n">scheme</span>
+                    <span class="k">continue</span>
+
+                <span class="k">if</span> <span class="n">realm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># Use the first matching Basic challenge.</span>
+                    <span class="c1"># Ignore following challenges even if they use the Basic</span>
+                    <span class="c1"># scheme.</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">retry_http_basic_auth</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">realm</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">unsupported</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;AbstractBasicAuthHandler does not &quot;</span>
+                             <span class="s2">&quot;support the following scheme: </span><span class="si">%r</span><span class="s2">&quot;</span>
+                             <span class="o">%</span> <span class="p">(</span><span class="n">scheme</span><span class="p">,))</span>
 
     <span class="k">def</span> <span class="nf">retry_http_basic_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">req</span><span class="p">,</span> <span class="n">realm</span><span class="p">):</span>
         <span class="n">user</span><span class="p">,</span> <span class="n">pw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">passwd</span><span class="o">.</span><span class="n">find_user_password</span><span class="p">(</span><span class="n">realm</span><span class="p">,</span> <span class="n">host</span><span class="p">)</span>
@@ -1093,7 +1124,7 @@
 
     <span class="c1"># XXX qop=&quot;auth-int&quot; supports is shaky</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">passwd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">passwd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">passwd</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">passwd</span> <span class="o">=</span> <span class="n">HTTPPasswordMgr</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">passwd</span> <span class="o">=</span> <span class="n">passwd</span>
@@ -1178,7 +1209,11 @@
         <span class="n">A2</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">get_method</span><span class="p">(),</span>
                         <span class="c1"># XXX selector: what about proxies and full urls</span>
                         <span class="n">req</span><span class="o">.</span><span class="n">selector</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">qop</span> <span class="o">==</span> <span class="s1">&#39;auth&#39;</span><span class="p">:</span>
+        <span class="c1"># NOTE: As per  RFC 2617, when server sends &quot;auth,auth-int&quot;, the client could use either `auth`</span>
+        <span class="c1">#     or `auth-int` to the response back. we use `auth` to send the response back.</span>
+        <span class="k">if</span> <span class="n">qop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">respdig</span> <span class="o">=</span> <span class="n">KD</span><span class="p">(</span><span class="n">H</span><span class="p">(</span><span class="n">A1</span><span class="p">),</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">nonce</span><span class="p">,</span> <span class="n">H</span><span class="p">(</span><span class="n">A2</span><span class="p">)))</span>
+        <span class="k">elif</span> <span class="s1">&#39;auth&#39;</span> <span class="ow">in</span> <span class="n">qop</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">nonce</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_nonce</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">nonce_count</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
@@ -1186,10 +1221,8 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">last_nonce</span> <span class="o">=</span> <span class="n">nonce</span>
             <span class="n">ncvalue</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%08x</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">nonce_count</span>
             <span class="n">cnonce</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cnonce</span><span class="p">(</span><span class="n">nonce</span><span class="p">)</span>
-            <span class="n">noncebit</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">nonce</span><span class="p">,</span> <span class="n">ncvalue</span><span class="p">,</span> <span class="n">cnonce</span><span class="p">,</span> <span class="n">qop</span><span class="p">,</span> <span class="n">H</span><span class="p">(</span><span class="n">A2</span><span class="p">))</span>
+            <span class="n">noncebit</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">nonce</span><span class="p">,</span> <span class="n">ncvalue</span><span class="p">,</span> <span class="n">cnonce</span><span class="p">,</span> <span class="s1">&#39;auth&#39;</span><span class="p">,</span> <span class="n">H</span><span class="p">(</span><span class="n">A2</span><span class="p">))</span>
             <span class="n">respdig</span> <span class="o">=</span> <span class="n">KD</span><span class="p">(</span><span class="n">H</span><span class="p">(</span><span class="n">A1</span><span class="p">),</span> <span class="n">noncebit</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">qop</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">respdig</span> <span class="o">=</span> <span class="n">KD</span><span class="p">(</span><span class="n">H</span><span class="p">(</span><span class="n">A1</span><span class="p">),</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">nonce</span><span class="p">,</span> <span class="n">H</span><span class="p">(</span><span class="n">A2</span><span class="p">)))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># XXX handle auth-int.</span>
             <span class="k">raise</span> <span class="n">URLError</span><span class="p">(</span><span class="s2">&quot;qop &#39;</span><span class="si">%s</span><span class="s2">&#39; is not supported.&quot;</span> <span class="o">%</span> <span class="n">qop</span><span class="p">)</span>
@@ -1258,7 +1291,7 @@
 
 <span class="k">class</span> <span class="nc">AbstractHTTPHandler</span><span class="p">(</span><span class="n">BaseHandler</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">debuglevel</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">debuglevel</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_debuglevel</span> <span class="o">=</span> <span class="n">debuglevel</span>
 
     <span class="k">def</span> <span class="nf">set_http_debuglevel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">):</span>
@@ -1296,8 +1329,8 @@
 
         <span class="n">sel_host</span> <span class="o">=</span> <span class="n">host</span>
         <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">has_proxy</span><span class="p">():</span>
-            <span class="n">scheme</span><span class="p">,</span> <span class="n">sel</span> <span class="o">=</span> <span class="n">splittype</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">selector</span><span class="p">)</span>
-            <span class="n">sel_host</span><span class="p">,</span> <span class="n">sel_path</span> <span class="o">=</span> <span class="n">splithost</span><span class="p">(</span><span class="n">sel</span><span class="p">)</span>
+            <span class="n">scheme</span><span class="p">,</span> <span class="n">sel</span> <span class="o">=</span> <span class="n">_splittype</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">selector</span><span class="p">)</span>
+            <span class="n">sel_host</span><span class="p">,</span> <span class="n">sel_path</span> <span class="o">=</span> <span class="n">_splithost</span><span class="p">(</span><span class="n">sel</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">request</span><span class="o">.</span><span class="n">has_header</span><span class="p">(</span><span class="s1">&#39;Host&#39;</span><span class="p">):</span>
             <span class="n">request</span><span class="o">.</span><span class="n">add_unredirected_header</span><span class="p">(</span><span class="s1">&#39;Host&#39;</span><span class="p">,</span> <span class="n">sel_host</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">addheaders</span><span class="p">:</span>
@@ -1385,7 +1418,7 @@
 
     <span class="k">class</span> <span class="nc">HTTPSHandler</span><span class="p">(</span><span class="n">AbstractHTTPHandler</span><span class="p">):</span>
 
-        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">debuglevel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">check_hostname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">debuglevel</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">check_hostname</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
             <span class="n">AbstractHTTPHandler</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">debuglevel</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_context</span> <span class="o">=</span> <span class="n">context</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_check_hostname</span> <span class="o">=</span> <span class="n">check_hostname</span>
@@ -1399,7 +1432,7 @@
     <span class="n">__all__</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;HTTPSHandler&#39;</span><span class="p">)</span>
 
 <span class="k">class</span> <span class="nc">HTTPCookieProcessor</span><span class="p">(</span><span class="n">BaseHandler</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cookiejar</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cookiejar</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">http.cookiejar</span>
         <span class="k">if</span> <span class="n">cookiejar</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">cookiejar</span> <span class="o">=</span> <span class="n">http</span><span class="o">.</span><span class="n">cookiejar</span><span class="o">.</span><span class="n">CookieJar</span><span class="p">()</span>
@@ -1513,7 +1546,7 @@
                 <span class="s1">&#39;Content-type: </span><span class="si">%s</span><span class="se">\n</span><span class="s1">Content-length: </span><span class="si">%d</span><span class="se">\n</span><span class="s1">Last-modified: </span><span class="si">%s</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">%</span>
                 <span class="p">(</span><span class="n">mtype</span> <span class="ow">or</span> <span class="s1">&#39;text/plain&#39;</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">modified</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">host</span><span class="p">:</span>
-                <span class="n">host</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="n">splitport</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+                <span class="n">host</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="n">_splitport</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span> <span class="ow">or</span> \
                 <span class="p">(</span><span class="ow">not</span> <span class="n">port</span> <span class="ow">and</span> <span class="n">_safe_gethostbyname</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_names</span><span class="p">()):</span>
                 <span class="k">if</span> <span class="n">host</span><span class="p">:</span>
@@ -1538,16 +1571,16 @@
         <span class="n">host</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="n">host</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">URLError</span><span class="p">(</span><span class="s1">&#39;ftp error: no host given&#39;</span><span class="p">)</span>
-        <span class="n">host</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="n">splitport</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+        <span class="n">host</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="n">_splitport</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">port</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">port</span> <span class="o">=</span> <span class="n">ftplib</span><span class="o">.</span><span class="n">FTP_PORT</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
 
         <span class="c1"># username/password handling</span>
-        <span class="n">user</span><span class="p">,</span> <span class="n">host</span> <span class="o">=</span> <span class="n">splituser</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+        <span class="n">user</span><span class="p">,</span> <span class="n">host</span> <span class="o">=</span> <span class="n">_splituser</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
-            <span class="n">user</span><span class="p">,</span> <span class="n">passwd</span> <span class="o">=</span> <span class="n">splitpasswd</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+            <span class="n">user</span><span class="p">,</span> <span class="n">passwd</span> <span class="o">=</span> <span class="n">_splitpasswd</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">passwd</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">host</span> <span class="o">=</span> <span class="n">unquote</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
@@ -1558,7 +1591,7 @@
             <span class="n">host</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostbyname</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">msg</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">URLError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-        <span class="n">path</span><span class="p">,</span> <span class="n">attrs</span> <span class="o">=</span> <span class="n">splitattr</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">selector</span><span class="p">)</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">attrs</span> <span class="o">=</span> <span class="n">_splitattr</span><span class="p">(</span><span class="n">req</span><span class="o">.</span><span class="n">selector</span><span class="p">)</span>
         <span class="n">dirs</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
         <span class="n">dirs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">unquote</span><span class="p">,</span> <span class="n">dirs</span><span class="p">))</span>
         <span class="n">dirs</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="n">dirs</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dirs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -1568,7 +1601,7 @@
             <span class="n">fw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">connect_ftp</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">passwd</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">req</span><span class="o">.</span><span class="n">timeout</span><span class="p">)</span>
             <span class="nb">type</span> <span class="o">=</span> <span class="n">file</span> <span class="ow">and</span> <span class="s1">&#39;I&#39;</span> <span class="ow">or</span> <span class="s1">&#39;D&#39;</span>
             <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
-                <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">splitvalue</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+                <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">_splitvalue</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;type&#39;</span> <span class="ow">and</span> \
                    <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">):</span>
                     <span class="nb">type</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
@@ -1592,7 +1625,7 @@
 <span class="k">class</span> <span class="nc">CacheFTPHandler</span><span class="p">(</span><span class="n">FTPHandler</span><span class="p">):</span>
     <span class="c1"># XXX would be nice to have pluggable cache strategies</span>
     <span class="c1"># XXX this stuff is definitely not thread safe</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">soonest</span> <span class="o">=</span> <span class="mi">0</span>
@@ -1679,7 +1712,7 @@
 
 <span class="c1"># Helper for non-unix systems</span>
 <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;nt&#39;</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">nturl2path</span> <span class="k">import</span> <span class="n">url2pathname</span><span class="p">,</span> <span class="n">pathname2url</span>
+    <span class="kn">from</span> <span class="nn">nturl2path</span> <span class="kn">import</span> <span class="n">url2pathname</span><span class="p">,</span> <span class="n">pathname2url</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="k">def</span> <span class="nf">url2pathname</span><span class="p">(</span><span class="n">pathname</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;OS-specific conversion from a relative URL of the &#39;file&#39; scheme</span>
@@ -1708,7 +1741,7 @@
     <span class="n">version</span> <span class="o">=</span> <span class="s2">&quot;Python-urllib/</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">__version__</span>
 
     <span class="c1"># Constructor</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proxies</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">x509</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proxies</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">x509</span><span class="p">):</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%(class)s</span><span class="s2"> style of invoking requests is deprecated. &quot;</span> \
               <span class="s2">&quot;Use newer urlopen functions/methods&quot;</span> <span class="o">%</span> <span class="p">{</span><span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">}</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="ne">DeprecationWarning</span><span class="p">,</span> <span class="n">stacklevel</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
@@ -1734,7 +1767,7 @@
         <span class="c1"># in case you want logically independent URL openers</span>
         <span class="c1"># XXX This is not threadsafe.  Bah.</span>
 
-    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1762,26 +1795,26 @@
     <span class="c1"># External interface</span>
     <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fullurl</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Use URLopener().open(file) instead of open(file, &#39;r&#39;).&quot;&quot;&quot;</span>
-        <span class="n">fullurl</span> <span class="o">=</span> <span class="n">unwrap</span><span class="p">(</span><span class="n">to_bytes</span><span class="p">(</span><span class="n">fullurl</span><span class="p">))</span>
+        <span class="n">fullurl</span> <span class="o">=</span> <span class="n">unwrap</span><span class="p">(</span><span class="n">_to_bytes</span><span class="p">(</span><span class="n">fullurl</span><span class="p">))</span>
         <span class="n">fullurl</span> <span class="o">=</span> <span class="n">quote</span><span class="p">(</span><span class="n">fullurl</span><span class="p">,</span> <span class="n">safe</span><span class="o">=</span><span class="s2">&quot;%/:=&amp;?~#+!$,;&#39;@()*[]|&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tempcache</span> <span class="ow">and</span> <span class="n">fullurl</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tempcache</span><span class="p">:</span>
             <span class="n">filename</span><span class="p">,</span> <span class="n">headers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tempcache</span><span class="p">[</span><span class="n">fullurl</span><span class="p">]</span>
             <span class="n">fp</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">addinfourl</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">fullurl</span><span class="p">)</span>
-        <span class="n">urltype</span><span class="p">,</span> <span class="n">url</span> <span class="o">=</span> <span class="n">splittype</span><span class="p">(</span><span class="n">fullurl</span><span class="p">)</span>
+        <span class="n">urltype</span><span class="p">,</span> <span class="n">url</span> <span class="o">=</span> <span class="n">_splittype</span><span class="p">(</span><span class="n">fullurl</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">urltype</span><span class="p">:</span>
             <span class="n">urltype</span> <span class="o">=</span> <span class="s1">&#39;file&#39;</span>
         <span class="k">if</span> <span class="n">urltype</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">proxies</span><span class="p">:</span>
             <span class="n">proxy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proxies</span><span class="p">[</span><span class="n">urltype</span><span class="p">]</span>
-            <span class="n">urltype</span><span class="p">,</span> <span class="n">proxyhost</span> <span class="o">=</span> <span class="n">splittype</span><span class="p">(</span><span class="n">proxy</span><span class="p">)</span>
-            <span class="n">host</span><span class="p">,</span> <span class="n">selector</span> <span class="o">=</span> <span class="n">splithost</span><span class="p">(</span><span class="n">proxyhost</span><span class="p">)</span>
+            <span class="n">urltype</span><span class="p">,</span> <span class="n">proxyhost</span> <span class="o">=</span> <span class="n">_splittype</span><span class="p">(</span><span class="n">proxy</span><span class="p">)</span>
+            <span class="n">host</span><span class="p">,</span> <span class="n">selector</span> <span class="o">=</span> <span class="n">_splithost</span><span class="p">(</span><span class="n">proxyhost</span><span class="p">)</span>
             <span class="n">url</span> <span class="o">=</span> <span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">fullurl</span><span class="p">)</span> <span class="c1"># Signal special case to open_*()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">proxy</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;open_&#39;</span> <span class="o">+</span> <span class="n">urltype</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">urltype</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="ow">or</span> <span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;open_local_file&#39;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">proxy</span><span class="p">:</span>
                 <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_unknown_proxy</span><span class="p">(</span><span class="n">proxy</span><span class="p">,</span> <span class="n">fullurl</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -1798,28 +1831,28 @@
 
     <span class="k">def</span> <span class="nf">open_unknown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fullurl</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Overridable interface to open unknown URL type.&quot;&quot;&quot;</span>
-        <span class="nb">type</span><span class="p">,</span> <span class="n">url</span> <span class="o">=</span> <span class="n">splittype</span><span class="p">(</span><span class="n">fullurl</span><span class="p">)</span>
+        <span class="nb">type</span><span class="p">,</span> <span class="n">url</span> <span class="o">=</span> <span class="n">_splittype</span><span class="p">(</span><span class="n">fullurl</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s1">&#39;url error&#39;</span><span class="p">,</span> <span class="s1">&#39;unknown url type&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">open_unknown_proxy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">proxy</span><span class="p">,</span> <span class="n">fullurl</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Overridable interface to open unknown URL type.&quot;&quot;&quot;</span>
-        <span class="nb">type</span><span class="p">,</span> <span class="n">url</span> <span class="o">=</span> <span class="n">splittype</span><span class="p">(</span><span class="n">fullurl</span><span class="p">)</span>
+        <span class="nb">type</span><span class="p">,</span> <span class="n">url</span> <span class="o">=</span> <span class="n">_splittype</span><span class="p">(</span><span class="n">fullurl</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s1">&#39;url error&#39;</span><span class="p">,</span> <span class="s1">&#39;invalid proxy for </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="nb">type</span><span class="p">,</span> <span class="n">proxy</span><span class="p">)</span>
 
     <span class="c1"># External interface</span>
     <span class="k">def</span> <span class="nf">retrieve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">reporthook</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;retrieve(url) returns (filename, headers) for a local object</span>
 <span class="sd">        or (tempfilename, headers) for a remote object.&quot;&quot;&quot;</span>
-        <span class="n">url</span> <span class="o">=</span> <span class="n">unwrap</span><span class="p">(</span><span class="n">to_bytes</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="n">unwrap</span><span class="p">(</span><span class="n">_to_bytes</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tempcache</span> <span class="ow">and</span> <span class="n">url</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">tempcache</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tempcache</span><span class="p">[</span><span class="n">url</span><span class="p">]</span>
-        <span class="nb">type</span><span class="p">,</span> <span class="n">url1</span> <span class="o">=</span> <span class="n">splittype</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="nb">type</span><span class="p">,</span> <span class="n">url1</span> <span class="o">=</span> <span class="n">_splittype</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">type</span> <span class="ow">or</span> <span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;file&#39;</span><span class="p">):</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">fp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open_local_file</span><span class="p">(</span><span class="n">url1</span><span class="p">)</span>
                 <span class="n">hdrs</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
                 <span class="n">fp</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-                <span class="k">return</span> <span class="n">url2pathname</span><span class="p">(</span><span class="n">splithost</span><span class="p">(</span><span class="n">url1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">hdrs</span>
+                <span class="k">return</span> <span class="n">url2pathname</span><span class="p">(</span><span class="n">_splithost</span><span class="p">(</span><span class="n">url1</span><span class="p">)[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">hdrs</span>
             <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">msg</span><span class="p">:</span>
                 <span class="k">pass</span>
         <span class="n">fp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
@@ -1828,10 +1861,10 @@
             <span class="k">if</span> <span class="n">filename</span><span class="p">:</span>
                 <span class="n">tfp</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">garbage</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">splittype</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-                <span class="n">garbage</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">splithost</span><span class="p">(</span><span class="n">path</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-                <span class="n">path</span><span class="p">,</span> <span class="n">garbage</span> <span class="o">=</span> <span class="n">splitquery</span><span class="p">(</span><span class="n">path</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-                <span class="n">path</span><span class="p">,</span> <span class="n">garbage</span> <span class="o">=</span> <span class="n">splitattr</span><span class="p">(</span><span class="n">path</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">garbage</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">_splittype</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+                <span class="n">garbage</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">_splithost</span><span class="p">(</span><span class="n">path</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">path</span><span class="p">,</span> <span class="n">garbage</span> <span class="o">=</span> <span class="n">_splitquery</span><span class="p">(</span><span class="n">path</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">path</span><span class="p">,</span> <span class="n">garbage</span> <span class="o">=</span> <span class="n">_splitattr</span><span class="p">(</span><span class="n">path</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="n">suffix</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">path</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
                 <span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkstemp</span><span class="p">(</span><span class="n">suffix</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__tempfiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
@@ -1888,25 +1921,25 @@
         <span class="n">user_passwd</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">proxy_passwd</span><span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">host</span><span class="p">,</span> <span class="n">selector</span> <span class="o">=</span> <span class="n">splithost</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="n">host</span><span class="p">,</span> <span class="n">selector</span> <span class="o">=</span> <span class="n">_splithost</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">host</span><span class="p">:</span>
-                <span class="n">user_passwd</span><span class="p">,</span> <span class="n">host</span> <span class="o">=</span> <span class="n">splituser</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+                <span class="n">user_passwd</span><span class="p">,</span> <span class="n">host</span> <span class="o">=</span> <span class="n">_splituser</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
                 <span class="n">host</span> <span class="o">=</span> <span class="n">unquote</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
             <span class="n">realhost</span> <span class="o">=</span> <span class="n">host</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">host</span><span class="p">,</span> <span class="n">selector</span> <span class="o">=</span> <span class="n">url</span>
             <span class="c1"># check whether the proxy contains authorization information</span>
-            <span class="n">proxy_passwd</span><span class="p">,</span> <span class="n">host</span> <span class="o">=</span> <span class="n">splituser</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+            <span class="n">proxy_passwd</span><span class="p">,</span> <span class="n">host</span> <span class="o">=</span> <span class="n">_splituser</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
             <span class="c1"># now we proceed with the url we want to obtain</span>
-            <span class="n">urltype</span><span class="p">,</span> <span class="n">rest</span> <span class="o">=</span> <span class="n">splittype</span><span class="p">(</span><span class="n">selector</span><span class="p">)</span>
+            <span class="n">urltype</span><span class="p">,</span> <span class="n">rest</span> <span class="o">=</span> <span class="n">_splittype</span><span class="p">(</span><span class="n">selector</span><span class="p">)</span>
             <span class="n">url</span> <span class="o">=</span> <span class="n">rest</span>
             <span class="n">user_passwd</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">urltype</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s1">&#39;http&#39;</span><span class="p">:</span>
                 <span class="n">realhost</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">realhost</span><span class="p">,</span> <span class="n">rest</span> <span class="o">=</span> <span class="n">splithost</span><span class="p">(</span><span class="n">rest</span><span class="p">)</span>
+                <span class="n">realhost</span><span class="p">,</span> <span class="n">rest</span> <span class="o">=</span> <span class="n">_splithost</span><span class="p">(</span><span class="n">rest</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">realhost</span><span class="p">:</span>
-                    <span class="n">user_passwd</span><span class="p">,</span> <span class="n">realhost</span> <span class="o">=</span> <span class="n">splituser</span><span class="p">(</span><span class="n">realhost</span><span class="p">)</span>
+                    <span class="n">user_passwd</span><span class="p">,</span> <span class="n">realhost</span> <span class="o">=</span> <span class="n">_splituser</span><span class="p">(</span><span class="n">realhost</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">user_passwd</span><span class="p">:</span>
                     <span class="n">selector</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">://</span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">urltype</span><span class="p">,</span> <span class="n">realhost</span><span class="p">,</span> <span class="n">rest</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">proxy_bypass</span><span class="p">(</span><span class="n">realhost</span><span class="p">):</span>
@@ -2012,7 +2045,7 @@
         <span class="sd">&quot;&quot;&quot;Use local file.&quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">email.utils</span>
         <span class="kn">import</span> <span class="nn">mimetypes</span>
-        <span class="n">host</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="n">splithost</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">host</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="n">_splithost</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="n">localname</span> <span class="o">=</span> <span class="n">url2pathname</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">stats</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">localname</span><span class="p">)</span>
@@ -2029,7 +2062,7 @@
             <span class="k">if</span> <span class="n">file</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span>
                 <span class="n">urlfile</span> <span class="o">=</span> <span class="s1">&#39;file://&#39;</span> <span class="o">+</span> <span class="n">file</span>
             <span class="k">return</span> <span class="n">addinfourl</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">localname</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">),</span> <span class="n">headers</span><span class="p">,</span> <span class="n">urlfile</span><span class="p">)</span>
-        <span class="n">host</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="n">splitport</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+        <span class="n">host</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="n">_splitport</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">port</span>
            <span class="ow">and</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostbyname</span><span class="p">(</span><span class="n">host</span><span class="p">)</span> <span class="ow">in</span> <span class="p">((</span><span class="n">localhost</span><span class="p">(),)</span> <span class="o">+</span> <span class="n">thishost</span><span class="p">())):</span>
             <span class="n">urlfile</span> <span class="o">=</span> <span class="n">file</span>
@@ -2045,11 +2078,11 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">URLError</span><span class="p">(</span><span class="s1">&#39;ftp error: proxy support for ftp protocol currently not implemented&#39;</span><span class="p">)</span>
         <span class="kn">import</span> <span class="nn">mimetypes</span>
-        <span class="n">host</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">splithost</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">host</span><span class="p">,</span> <span class="n">path</span> <span class="o">=</span> <span class="n">_splithost</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">host</span><span class="p">:</span> <span class="k">raise</span> <span class="n">URLError</span><span class="p">(</span><span class="s1">&#39;ftp error: no host given&#39;</span><span class="p">)</span>
-        <span class="n">host</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="n">splitport</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
-        <span class="n">user</span><span class="p">,</span> <span class="n">host</span> <span class="o">=</span> <span class="n">splituser</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">user</span><span class="p">:</span> <span class="n">user</span><span class="p">,</span> <span class="n">passwd</span> <span class="o">=</span> <span class="n">splitpasswd</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
+        <span class="n">host</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="n">_splitport</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+        <span class="n">user</span><span class="p">,</span> <span class="n">host</span> <span class="o">=</span> <span class="n">_splituser</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">user</span><span class="p">:</span> <span class="n">user</span><span class="p">,</span> <span class="n">passwd</span> <span class="o">=</span> <span class="n">_splitpasswd</span><span class="p">(</span><span class="n">user</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span> <span class="n">passwd</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">host</span> <span class="o">=</span> <span class="n">unquote</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
         <span class="n">user</span> <span class="o">=</span> <span class="n">unquote</span><span class="p">(</span><span class="n">user</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
@@ -2060,7 +2093,7 @@
             <span class="n">port</span> <span class="o">=</span> <span class="n">ftplib</span><span class="o">.</span><span class="n">FTP_PORT</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">port</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">port</span><span class="p">)</span>
-        <span class="n">path</span><span class="p">,</span> <span class="n">attrs</span> <span class="o">=</span> <span class="n">splitattr</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">attrs</span> <span class="o">=</span> <span class="n">_splitattr</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">unquote</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
         <span class="n">dirs</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
         <span class="n">dirs</span><span class="p">,</span> <span class="n">file</span> <span class="o">=</span> <span class="n">dirs</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">dirs</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
@@ -2082,7 +2115,7 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="n">file</span><span class="p">:</span> <span class="nb">type</span> <span class="o">=</span> <span class="s1">&#39;D&#39;</span>
             <span class="k">else</span><span class="p">:</span> <span class="nb">type</span> <span class="o">=</span> <span class="s1">&#39;I&#39;</span>
             <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
-                <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">splitvalue</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
+                <span class="n">attr</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">_splitvalue</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">attr</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;type&#39;</span> <span class="ow">and</span> \
                    <span class="n">value</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;A&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="s1">&#39;I&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;D&#39;</span><span class="p">):</span>
                     <span class="nb">type</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
@@ -2143,7 +2176,7 @@
 <span class="k">class</span> <span class="nc">FancyURLopener</span><span class="p">(</span><span class="n">URLopener</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Derived class with handlers for errors we can handle (perhaps).&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">URLopener</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">auth_cache</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tries</span> <span class="o">=</span> <span class="mi">0</span>
@@ -2265,11 +2298,11 @@
             <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span><span class="p">)(</span><span class="n">url</span><span class="p">,</span> <span class="n">realm</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">retry_proxy_http_basic_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">realm</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">host</span><span class="p">,</span> <span class="n">selector</span> <span class="o">=</span> <span class="n">splithost</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">host</span><span class="p">,</span> <span class="n">selector</span> <span class="o">=</span> <span class="n">_splithost</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="n">newurl</span> <span class="o">=</span> <span class="s1">&#39;http://&#39;</span> <span class="o">+</span> <span class="n">host</span> <span class="o">+</span> <span class="n">selector</span>
         <span class="n">proxy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proxies</span><span class="p">[</span><span class="s1">&#39;http&#39;</span><span class="p">]</span>
-        <span class="n">urltype</span><span class="p">,</span> <span class="n">proxyhost</span> <span class="o">=</span> <span class="n">splittype</span><span class="p">(</span><span class="n">proxy</span><span class="p">)</span>
-        <span class="n">proxyhost</span><span class="p">,</span> <span class="n">proxyselector</span> <span class="o">=</span> <span class="n">splithost</span><span class="p">(</span><span class="n">proxyhost</span><span class="p">)</span>
+        <span class="n">urltype</span><span class="p">,</span> <span class="n">proxyhost</span> <span class="o">=</span> <span class="n">_splittype</span><span class="p">(</span><span class="n">proxy</span><span class="p">)</span>
+        <span class="n">proxyhost</span><span class="p">,</span> <span class="n">proxyselector</span> <span class="o">=</span> <span class="n">_splithost</span><span class="p">(</span><span class="n">proxyhost</span><span class="p">)</span>
         <span class="n">i</span> <span class="o">=</span> <span class="n">proxyhost</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;@&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="n">proxyhost</span> <span class="o">=</span> <span class="n">proxyhost</span><span class="p">[</span><span class="n">i</span><span class="p">:]</span>
         <span class="n">user</span><span class="p">,</span> <span class="n">passwd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_user_passwd</span><span class="p">(</span><span class="n">proxyhost</span><span class="p">,</span> <span class="n">realm</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
@@ -2283,11 +2316,11 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">newurl</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">retry_proxy_https_basic_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">realm</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">host</span><span class="p">,</span> <span class="n">selector</span> <span class="o">=</span> <span class="n">splithost</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">host</span><span class="p">,</span> <span class="n">selector</span> <span class="o">=</span> <span class="n">_splithost</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="n">newurl</span> <span class="o">=</span> <span class="s1">&#39;https://&#39;</span> <span class="o">+</span> <span class="n">host</span> <span class="o">+</span> <span class="n">selector</span>
         <span class="n">proxy</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proxies</span><span class="p">[</span><span class="s1">&#39;https&#39;</span><span class="p">]</span>
-        <span class="n">urltype</span><span class="p">,</span> <span class="n">proxyhost</span> <span class="o">=</span> <span class="n">splittype</span><span class="p">(</span><span class="n">proxy</span><span class="p">)</span>
-        <span class="n">proxyhost</span><span class="p">,</span> <span class="n">proxyselector</span> <span class="o">=</span> <span class="n">splithost</span><span class="p">(</span><span class="n">proxyhost</span><span class="p">)</span>
+        <span class="n">urltype</span><span class="p">,</span> <span class="n">proxyhost</span> <span class="o">=</span> <span class="n">_splittype</span><span class="p">(</span><span class="n">proxy</span><span class="p">)</span>
+        <span class="n">proxyhost</span><span class="p">,</span> <span class="n">proxyselector</span> <span class="o">=</span> <span class="n">_splithost</span><span class="p">(</span><span class="n">proxyhost</span><span class="p">)</span>
         <span class="n">i</span> <span class="o">=</span> <span class="n">proxyhost</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;@&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="n">proxyhost</span> <span class="o">=</span> <span class="n">proxyhost</span><span class="p">[</span><span class="n">i</span><span class="p">:]</span>
         <span class="n">user</span><span class="p">,</span> <span class="n">passwd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_user_passwd</span><span class="p">(</span><span class="n">proxyhost</span><span class="p">,</span> <span class="n">realm</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
@@ -2301,7 +2334,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">newurl</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">retry_http_basic_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">realm</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">host</span><span class="p">,</span> <span class="n">selector</span> <span class="o">=</span> <span class="n">splithost</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">host</span><span class="p">,</span> <span class="n">selector</span> <span class="o">=</span> <span class="n">_splithost</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="n">i</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;@&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="n">host</span> <span class="o">=</span> <span class="n">host</span><span class="p">[</span><span class="n">i</span><span class="p">:]</span>
         <span class="n">user</span><span class="p">,</span> <span class="n">passwd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_user_passwd</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">realm</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
@@ -2315,7 +2348,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">newurl</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">retry_https_basic_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">realm</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">host</span><span class="p">,</span> <span class="n">selector</span> <span class="o">=</span> <span class="n">splithost</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">host</span><span class="p">,</span> <span class="n">selector</span> <span class="o">=</span> <span class="n">_splithost</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
         <span class="n">i</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;@&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="n">host</span> <span class="o">=</span> <span class="n">host</span><span class="p">[</span><span class="n">i</span><span class="p">:]</span>
         <span class="n">user</span><span class="p">,</span> <span class="n">passwd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_user_passwd</span><span class="p">(</span><span class="n">host</span><span class="p">,</span> <span class="n">realm</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
@@ -2396,7 +2429,7 @@
 <span class="k">class</span> <span class="nc">ftpwrapper</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Class used by open_ftp() for cache of open FTP connections.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">passwd</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">,</span> <span class="n">passwd</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">persistent</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">user</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">passwd</span> <span class="o">=</span> <span class="n">passwd</span>
@@ -2532,24 +2565,26 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">no_proxy</span> <span class="o">=</span> <span class="n">proxies</span><span class="p">[</span><span class="s1">&#39;no&#39;</span><span class="p">]</span>
     <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="kc">False</span>
     <span class="c1"># &#39;*&#39; is special case for always bypass</span>
     <span class="k">if</span> <span class="n">no_proxy</span> <span class="o">==</span> <span class="s1">&#39;*&#39;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="n">host</span> <span class="o">=</span> <span class="n">host</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
     <span class="c1"># strip port off host</span>
-    <span class="n">hostonly</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="n">splitport</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+    <span class="n">hostonly</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="n">_splitport</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
     <span class="c1"># check if the host ends with any of the DNS suffixes</span>
-    <span class="n">no_proxy_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">proxy</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">proxy</span> <span class="ow">in</span> <span class="n">no_proxy</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)]</span>
-    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">no_proxy_list</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">no_proxy</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>  <span class="c1"># ignore leading dots</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
-            <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;(.+\.)?</span><span class="si">%s</span><span class="s1">$&#39;</span> <span class="o">%</span> <span class="n">name</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">hostonly</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)</span>
-                    <span class="ow">or</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">I</span><span class="p">)):</span>
-                <span class="k">return</span> <span class="mi">1</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">hostonly</span> <span class="o">==</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">host</span> <span class="o">==</span> <span class="n">name</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;.&#39;</span> <span class="o">+</span> <span class="n">name</span>
+            <span class="k">if</span> <span class="n">hostonly</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="ow">or</span> <span class="n">host</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
     <span class="c1"># otherwise, don&#39;t bypass</span>
-    <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="kc">False</span>
 
 
 <span class="c1"># This code tests an OSX specific data structure but is testable on all</span>
@@ -2566,9 +2601,9 @@
 <span class="sd">      &#39;exceptions&#39;: [&#39;foo.bar&#39;, &#39;*.bar.com&#39;, &#39;127.0.0.1&#39;, &#39;10.1&#39;, &#39;10.0/16&#39;]</span>
 <span class="sd">    }</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span> <span class="nn">fnmatch</span> <span class="k">import</span> <span class="n">fnmatch</span>
+    <span class="kn">from</span> <span class="nn">fnmatch</span> <span class="kn">import</span> <span class="n">fnmatch</span>
 
-    <span class="n">hostonly</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="n">splitport</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+    <span class="n">hostonly</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="n">_splitport</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">ip2num</span><span class="p">(</span><span class="n">ipAddr</span><span class="p">):</span>
         <span class="n">parts</span> <span class="o">=</span> <span class="n">ipAddr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
@@ -2615,7 +2650,7 @@
 
 
 <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s1">&#39;darwin&#39;</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">_scproxy</span> <span class="k">import</span> <span class="n">_get_proxy_settings</span><span class="p">,</span> <span class="n">_get_proxies</span>
+    <span class="kn">from</span> <span class="nn">_scproxy</span> <span class="kn">import</span> <span class="n">_get_proxy_settings</span><span class="p">,</span> <span class="n">_get_proxies</span>
 
     <span class="k">def</span> <span class="nf">proxy_bypass_macosx_sysconf</span><span class="p">(</span><span class="n">host</span><span class="p">):</span>
         <span class="n">proxy_settings</span> <span class="o">=</span> <span class="n">_get_proxy_settings</span><span class="p">()</span>
@@ -2675,7 +2710,7 @@
                     <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">proxyServer</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">):</span>
                         <span class="n">protocol</span><span class="p">,</span> <span class="n">address</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
                         <span class="c1"># See if address has a type:// prefix</span>
-                        <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;^([^/:]+)://&#39;</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;(?:[^/:]+)://&#39;</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
                             <span class="n">address</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">://</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">protocol</span><span class="p">,</span> <span class="n">address</span><span class="p">)</span>
                         <span class="n">proxies</span><span class="p">[</span><span class="n">protocol</span><span class="p">]</span> <span class="o">=</span> <span class="n">address</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -2722,7 +2757,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">proxyEnable</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">proxyOverride</span><span class="p">:</span>
             <span class="k">return</span> <span class="mi">0</span>
         <span class="c1"># try to make a host list from name and IP address.</span>
-        <span class="n">rawHost</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="n">splitport</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
+        <span class="n">rawHost</span><span class="p">,</span> <span class="n">port</span> <span class="o">=</span> <span class="n">_splitport</span><span class="p">(</span><span class="n">host</span><span class="p">)</span>
         <span class="n">host</span> <span class="o">=</span> <span class="p">[</span><span class="n">rawHost</span><span class="p">]</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">addr</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">gethostbyname</span><span class="p">(</span><span class="n">rawHost</span><span class="p">)</span>
@@ -2802,17 +2837,15 @@
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
     </form>
     </div>
 </div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+<script>$('#searchbox').show(0);</script>
 
 
 
@@ -2829,7 +2862,7 @@
       &copy;2017, Matej Cepl <mcepl@cepl.eu>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.5</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>
