@@ -133,7 +133,7 @@ m2_PyObject_AsReadBuffer(PyObject * obj, const void **buffer,
 
     if (PyObject_CheckBuffer(obj)) {
 	if (PyObject_GetBuffer(obj, &view, PyBUF_SIMPLE) == 0) {
-	    buffer = view.buf;
+	    *buffer = view.buf;
 	    len = view.len;
 	}
     } else {
@@ -158,7 +158,7 @@ m2_PyObject_AsReadBufferInt(PyObject * obj, const void **buffer,
     Py_ssize_t len = 0;
 
     ret = m2_PyObject_AsReadBuffer(obj, buffer, &len);
-    buffer_len = (int *)&len;
+    *buffer_len = len;
     return ret;
 }
 
