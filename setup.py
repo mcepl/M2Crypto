@@ -33,7 +33,7 @@ logging.basicConfig(format='%(levelname)s:%(funcName)s:%(message)s',
                     stream=sys.stdout, level=logging.INFO)
 log = logging.getLogger('setup')
 
-requires_list = ['parametrized']
+requires_list = ['parameterized']
 if (2, 6) < sys.version_info[:2] < (3, 5):
     requires_list = ['typing']
 if sys.version_info[0] > 2:

@@ -10,7 +10,7 @@
 - Stop playing with swig in setup.py, we don't support swig 1.* anymore.
 - Fix dereferencing of pointers (gl#m2crypto/m2crypto#281)
 - Replace deprecated PyObject_AsReadBuffer with our own shim.
-- Use parametrized to create parametrized tests (new external
+- Use parameterized to create parameterized tests (new external
   dependency).
 - Only use DigestSign() and DigestUpdate() with OpenSSL >= 1.1.1
 - Expose all the X509_V_FLAG
