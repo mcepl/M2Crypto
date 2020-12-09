@@ -8,7 +8,7 @@ Pre-requisites
 
 The following is required to *use* M2Crypto (once installed):
 
--  ``Python 2.6``, ``2.7``, ``3.5``, or newer
+-  ``Python 2.7``, ``3.5``, or newer
 -  ``OpenSSL 1.0.1e`` or newer
 
 To *install* M2Crypto, you must be able to compile and link C sources
