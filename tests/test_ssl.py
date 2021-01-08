@@ -59,8 +59,13 @@ def allocate_srv_port():
 
 
 def verify_cb_new_function(ok, store):
-    assert not ok
     err = store.get_error()
+    # If err is X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE, then instead of
+    # aborting, this callback is called to retrieve additional error
+    # information.  In this case, ok might not be False.
+    # See https://github.com/openssl/openssl/commit/2e06150e3928daa06d5ff70c32bffad8088ebe58
+    if err != m2.X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
+        assert not ok
     assert err in [m2.X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT,
                    m2.X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY,
                    m2.X509_V_ERR_CERT_UNTRUSTED,
@@ -618,7 +623,12 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
 
     def verify_cb_old(self, ctx_ptr, x509_ptr, err, depth, ok):
         try:
-            self.assertFalse(ok)
+            # If err is X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE, then instead of
+            # aborting, this callback is called to retrieve additional error
+            # information.  In this case, ok might not be False.
+            # See https://github.com/openssl/openssl/commit/2e06150e3928daa06d5ff70c32bffad8088ebe58
+            if err != m2.X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
+                self.assertFalse(ok)
             self.assertIn(err,
                           [m2.X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT,
                            m2.X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY,
