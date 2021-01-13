@@ -63,7 +63,7 @@ class WrongHost(SSLVerificationError):
 
 class Checker(object):
 
-    numericIpMatch = re.compile('^[0-9]+(\.[0-9]+)*$')
+    numericIpMatch = re.compile(r'^[0-9]+(\.[0-9]+)*$')
 
     def __init__(self, host=None, peerCertHash=None, peerCertDigest='sha1'):
         # type: (Optional[str], Optional[bytes], str) -> None
@@ -253,8 +253,8 @@ class Checker(object):
             return False
 
         # Massage certHost so that it can be used in regex
-        certHost = certHost.replace('.', '\.')
-        certHost = certHost.replace('*', '[^\.]*')
+        certHost = certHost.replace('.', '\\.')
+        certHost = certHost.replace('*', '[^\\.]*')
         if re.compile('^%s$' % certHost).match(host):
             return True
 

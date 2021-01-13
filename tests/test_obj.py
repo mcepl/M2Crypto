@@ -124,7 +124,7 @@ class ObjectsTestCase(unittest.TestCase):
         try:
             s.verify(p7, data)
         except SMIME.PKCS7_Error as e:
-            self.assertRegexpMatches(str(e),
+            six.assertRegex(self, str(e),
                                      "unable to get local issuer certificate",
                                      "Not received expected error message")
 
