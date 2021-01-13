@@ -3,7 +3,7 @@
 /build
 /dist
 /M2Crypto/*_m2crypto*.so
-/M2Crypto.egg-info
+M2Crypto.egg-info
 /.eggs/
 /EGG-INFO
 /tests/randpool.dat

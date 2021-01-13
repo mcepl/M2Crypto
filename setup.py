@@ -214,8 +214,8 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         # distutils would be in the run phase, when extension name and path are
         # known.
         self.swig_opts.extend(['-outdir',
-                              os.path.join(os.getcwd(), 'M2Crypto')])
-        self.include_dirs.append(os.path.join(os.getcwd(), 'SWIG'))
+                              os.path.join(os.getcwd(), 'src', 'M2Crypto')])
+        self.include_dirs.append(os.path.join(os.getcwd(), 'src', 'SWIG'))
 
         if sys.platform == 'cygwin' and self.openssl is not None:
             # Cygwin SHOULD work (there's code in distutils), but
@@ -272,7 +272,7 @@ else:
     x_comp_args.update(['-DTHREADING', '-Wno-deprecated-declarations'])
 
 m2crypto = setuptools.Extension(name='M2Crypto._m2crypto',
-                                sources=['SWIG/_m2crypto.i'],
+                                sources=['src/SWIG/_m2crypto.i'],
                                 extra_compile_args=list(x_comp_args),
                                 # Uncomment to build Universal Mac binaries
                                 # extra_link_args =
@@ -294,9 +294,9 @@ class Clean(clean):
     def run(self):
         clean.run(self)
         garbage_list = [
-            os.path.join('M2Crypto', '*.so'),
-            os.path.join('M2Crypto', '*.pyd'),
-            os.path.join('M2Crypto', '*.dll')
+            os.path.join('src', 'M2Crypto', '*.so'),
+            os.path.join('src', 'M2Crypto', '*.pyd'),
+            os.path.join('src', 'M2Crypto', '*.dll')
         ]
         for p in garbage_list:
             for f in glob.glob(p):
@@ -305,7 +305,7 @@ class Clean(clean):
 
 
 def __get_version():  # noqa
-    with open('M2Crypto/__init__.py') as init_file:
+    with open('src/M2Crypto/__init__.py') as init_file:
         for line in init_file:
             if line.startswith('__version__ ='):
                 # Originally string.whitespace, but it is deprecated
@@ -352,11 +352,14 @@ setuptools.setup(
         'Programming Language :: Python :: 3.8',
     ],
     keywords='cryptography openssl',
-    packages=setuptools.find_packages(exclude=['contrib', 'docs', 'tests']),
+    packages=setuptools.find_packages('src', exclude=['contrib', 'docs', 'tests']),
+    package_dir={'': 'src'},
     ext_modules=[m2crypto],
     test_suite='tests.alltests.suite',
     install_requires=requires_list,
     package_data=package_data,
+    zip_safe=False,
+    include_package_data=True,
     cmdclass={
         'build_ext': _M2CryptoBuildExt,
         'build': _M2CryptoBuild,
