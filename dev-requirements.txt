@@ -2,6 +2,7 @@
 parameterized
 twine
 flake8
+typing; python_version < "3.5"
 # Intentionally not in requirements.txt, because only those use it need
 # this very specialized module.
 twisted

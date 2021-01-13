@@ -31,5 +31,7 @@ jobs:
                   python -mflake8 . --count --exit-zero --exclude six.py --max-complexity=10 --max-line-length=127 --statistics
             - name: Running the test suite
               run: |
-                  python setup.py clean build test -v
-
+                  set -x
+                  python setup.py clean build
+                  export PYTHONPATH=$(readlink -f build/lib.*)
+                  python -munittest discover -v
