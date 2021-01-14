@@ -19,24 +19,24 @@ class BNTestCase(unittest.TestCase):
 
     def test_rand(self):
         # defaults
-        for x in range(loops):
+        for _ in range(loops):
             r8 = BN.rand(8)
 
         # top
-        for x in range(loops):
+        for _ in range(loops):
             r8 = BN.rand(8, top=0)
             assert r8 & 128
-        for x in range(loops):
+        for _ in range(loops):
             r8 = BN.rand(8, top=1)
             assert r8 & 192
 
         # bottom
-        for x in range(loops):
+        for _ in range(loops):
             r8 = BN.rand(8, bottom=1)
             assert r8 % 2 == 1
 
         # make sure we can get big numbers and work with them
-        for x in range(loops):
+        for _ in range(loops):
             r8 = BN.rand(8, top=0)
             r16 = BN.rand(16, top=0)
             r32 = BN.rand(32, top=0)
@@ -48,23 +48,23 @@ class BNTestCase(unittest.TestCase):
 
     def test_rand_range(self):
         # small range
-        for x in range(loops):
+        for _ in range(loops):
             r = BN.rand_range(1)
             self.assertEqual(r, 0)
 
-        for x in range(loops):
+        for _ in range(loops):
             r = BN.rand_range(4)
             assert 0 <= r < 4
 
         # large range
         r512 = BN.rand(512, top=0)
-        for x in range(loops):
+        for _ in range(loops):
             r = BN.rand_range(r512)
             assert 0 <= r < r512
 
     def test_randfname(self):
         m = re.compile('^[a-zA-Z0-9]{8}$')
-        for x in range(loops):
+        for _ in range(loops):
             with warnings.catch_warnings():
                 warnings.simplefilter('ignore', DeprecationWarning)
                 r = BN.randfname(8)
