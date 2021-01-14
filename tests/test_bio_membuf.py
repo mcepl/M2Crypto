@@ -8,7 +8,7 @@ import os
 import multiprocessing
 
 from M2Crypto.BIO import MemoryBuffer
-from . import unittest
+from tests import unittest
 
 
 class TimeLimitExpired(Exception):

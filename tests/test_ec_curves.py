@@ -22,7 +22,7 @@ from __future__ import absolute_import
 import logging
 
 from M2Crypto import EC, Rand, m2  # noqa
-from . import unittest
+from tests import unittest
 
 log = logging.getLogger(__name__)
 

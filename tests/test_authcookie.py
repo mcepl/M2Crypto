@@ -10,7 +10,7 @@ import time
 from M2Crypto import EVP, Rand, six, util
 from M2Crypto.AuthCookie import AuthCookie, AuthCookieJar, mix, unmix, unmix3
 from M2Crypto.six.moves.http_cookies import SimpleCookie  # pylint: disable=no-name-in-module,import-error
-from . import unittest
+from tests import unittest
 
 log = logging.getLogger(__name__)
 

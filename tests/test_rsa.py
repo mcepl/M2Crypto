@@ -10,7 +10,7 @@ import logging
 import os
 
 from M2Crypto import BIO, RSA, Rand, X509, m2, six
-from . import unittest
+from tests import unittest
 from tests.fips import fips_mode
 
 log = logging.getLogger('test_RSA')

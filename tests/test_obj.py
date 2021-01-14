@@ -3,7 +3,7 @@
 """Unit tests for M2Crypto.m2 obj_* functions.
 """
 from M2Crypto import ASN1, BIO, Rand, X509, m2, six
-from . import unittest
+from tests import unittest
 
 """
 These functions must be cleaned up and moved to some python module

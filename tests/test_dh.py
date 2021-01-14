@@ -5,7 +5,7 @@
 Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 
 from M2Crypto import DH, BIO, Rand
-from . import unittest
+from tests import unittest
 
 
 class DHTestCase(unittest.TestCase):

@@ -8,7 +8,7 @@ Copyright (c) 2009 Heikki Toivonen. All rights reserved."""
 from M2Crypto import RC4, Rand
 from binascii import hexlify
 
-from . import unittest
+from tests import unittest
 from tests.fips import fips_mode
 
 

@@ -34,7 +34,7 @@ import warnings
 from M2Crypto import (Err, Rand, SSL, X509, ftpslib, httpslib, m2, m2urllib,
                       m2urllib2, m2xmlrpclib, six)
 from M2Crypto.SSL.timeout import DEFAULT_TIMEOUT
-from . import unittest
+from tests import unittest
 from tests.fips import fips_mode
 
 log = logging.getLogger('test_SSL')

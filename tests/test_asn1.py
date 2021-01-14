@@ -8,7 +8,7 @@ import datetime
 import time
 
 from M2Crypto import ASN1, m2
-from . import unittest
+from tests import unittest
 
 
 class ASN1TestCase(unittest.TestCase):

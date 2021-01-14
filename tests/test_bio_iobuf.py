@@ -7,7 +7,7 @@ Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 from io import BytesIO
 
 from M2Crypto.BIO import IOBuffer, MemoryBuffer
-from . import unittest
+from tests import unittest
 
 
 class IOBufferTestCase(unittest.TestCase):

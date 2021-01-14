@@ -11,7 +11,7 @@ import ctypes
 import warnings
 
 from M2Crypto import Rand, m2
-from . import unittest
+from tests import unittest
 
 
 class RandTestCase(unittest.TestCase):

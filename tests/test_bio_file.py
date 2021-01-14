@@ -13,7 +13,7 @@ if platform.system() == 'Windows':
     import ctypes.wintypes
 
 from M2Crypto.BIO import File, openfile
-from . import unittest
+from tests import unittest
 
 log = logging.getLogger(__name__)
 

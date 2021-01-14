@@ -10,7 +10,7 @@ Copyright (C) 2009-2010 Heikki Toivonen. All Rights Reserved.
 import doctest
 
 from M2Crypto import Rand, SSL, X509
-from . import unittest
+from tests import unittest
 from tests.test_ssl import srv_host
 
 

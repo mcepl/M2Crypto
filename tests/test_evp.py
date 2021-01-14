@@ -17,7 +17,7 @@ from binascii import a2b_hex, hexlify, unhexlify
 from parameterized import parameterized
 
 from M2Crypto import BIO, EVP, RSA, Rand, m2, util
-from . import unittest
+from tests import unittest
 from tests.fips import fips_mode
 
 log = logging.getLogger('test_EVP')

@@ -16,7 +16,7 @@ import time
 import warnings
 
 from M2Crypto import ASN1, BIO, EVP, RSA, Rand, X509, m2, six  # noqa
-from . import unittest
+from tests import unittest
 
 log = logging.getLogger(__name__)
 

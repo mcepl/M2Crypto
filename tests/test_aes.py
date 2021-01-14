@@ -7,7 +7,7 @@ Copyright (c) 2018 Matej Cepl. All rights reserved.
 import logging
 
 from M2Crypto import m2
-from . import unittest
+from tests import unittest
 
 log = logging.getLogger('test_AES')
 

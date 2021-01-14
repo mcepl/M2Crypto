@@ -7,7 +7,7 @@ All Rights Reserved.
 """
 
 from M2Crypto import six
-from . import unittest
+from tests import unittest
 
 
 class UtilTestCase(unittest.TestCase):

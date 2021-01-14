@@ -11,7 +11,7 @@ import logging
 
 from M2Crypto import EC, Rand
 
-from . import unittest
+from tests import unittest
 from tests.test_ec_curves import tested_curve
 
 log = logging.getLogger(__name__)

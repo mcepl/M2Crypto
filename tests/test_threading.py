@@ -5,7 +5,7 @@
 Copyright (C) 2007 Open Source Applications Foundation. All Rights Reserved.
 """
 from M2Crypto import threading as m2threading, Rand
-from . import unittest
+from tests import unittest
 
 
 class ThreadingTestCase(unittest.TestCase):

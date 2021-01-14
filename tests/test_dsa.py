@@ -7,7 +7,7 @@ Copyright (c) 2000 Ng Pheng Siong. All rights reserved."""
 import hashlib
 
 from M2Crypto import DSA, Rand
-from . import unittest
+from tests import unittest
 
 
 class DSATestCase(unittest.TestCase):

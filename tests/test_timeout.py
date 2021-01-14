@@ -5,7 +5,7 @@
 
 import sys
 from M2Crypto.SSL import timeout, struct_to_timeout, struct_size
-from . import unittest
+from tests import unittest
 
 # Max value for sec argument on Windows:
 # - needs to fit DWORD (signed 32-bit) when converted to millisec

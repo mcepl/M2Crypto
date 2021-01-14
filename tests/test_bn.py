@@ -10,7 +10,7 @@ import re
 import warnings
 
 from M2Crypto import BN, Rand
-from . import unittest
+from tests import unittest
 
 loops = 16
 

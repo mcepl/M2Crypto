@@ -7,7 +7,7 @@ Released under the terms of MIT/X11 License,
 see the file LICENCE for more.
 """
 from M2Crypto import Err
-from . import unittest
+from tests import unittest
 
 
 class ErrTestCase(unittest.TestCase):
