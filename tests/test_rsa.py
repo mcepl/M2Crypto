@@ -124,11 +124,6 @@ class RSATestCase(unittest.TestCase):
             ptxt = priv.private_decrypt(ctxt, p)
             self.assertEqual(ptxt, self.data)
 
-        # sslv23_padding
-        ctxt = priv.public_encrypt(self.data, RSA.sslv23_padding)
-        res = priv.private_decrypt(ctxt, RSA.sslv23_padding)
-        self.assertEqual(res, self.data)
-
         # no_padding
         with six.assertRaisesRegex(self, RSA.RSAError, 'data too small'):
             priv.public_encrypt(self.data, RSA.no_padding)
