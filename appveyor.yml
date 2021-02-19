@@ -5,8 +5,8 @@ environment:
         secure: oqWqarxnd4H23FMywnlQeg==
     PASS:
         secure: j/VSxdYJ7mdR44u8OdywLg==
-    X86_OPENSSL_INSTALLER: Win32OpenSSL-1_1_1i.exe
-    X64_OPENSSL_INSTALLER: Win64OpenSSL-1_1_1i.exe
+    X86_OPENSSL_INSTALLER: Win32OpenSSL-1_1_1j.exe
+    X64_OPENSSL_INSTALLER: Win64OpenSSL-1_1_1j.exe
 
   matrix:
 
@@ -173,12 +173,12 @@ artifacts:
   # Archive the generated wheel package in the ci.appveyor.com build report.
   - path: dist\*
 
-  - path: SWIG/_m2crypto_wrap.c
+  - path: src/SWIG/_m2crypto_wrap.c
     name: _m2crypto_wrap.zip
     type: zip
 
 after_build:
-  - ps: Get-ChildItem SWIG\_m2crypto_wrap.c | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+  - ps: Get-ChildItem src\SWIG\_m2crypto_wrap.c | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
 
 on_failure:
-  - ps: Get-ChildItem SWIG\_m2crypto_wrap.c | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+  - ps: Get-ChildItem src\SWIG\_m2crypto_wrap.c | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
