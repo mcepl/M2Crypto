@@ -7070,7 +7070,7 @@ PyObject *rsa_set_n(RSA *rsa, PyObject *nval) {
 PyObject *rsa_set_en(RSA *rsa, PyObject *eval, PyObject* nval) {
     BIGNUM* e, *n;
 
-    if (!(e = m2_PyObject_AsBIGNUM(eval, _rsa_err)) || 
+    if (!(e = m2_PyObject_AsBIGNUM(eval, _rsa_err)) ||
         !(n = m2_PyObject_AsBIGNUM(nval, _rsa_err))) {
         return NULL;
     }
@@ -7103,7 +7103,7 @@ static BIGNUM* PyObject_Bin_AsBIGNUM(PyObject* value) {
 PyObject *rsa_set_en_bin(RSA *rsa, PyObject *eval, PyObject* nval) {
     BIGNUM* e, *n;
 
-    if (!(e = PyObject_Bin_AsBIGNUM(eval)) || 
+    if (!(e = PyObject_Bin_AsBIGNUM(eval)) ||
         !(n = PyObject_Bin_AsBIGNUM(nval))) {
         return NULL;
     }
@@ -34197,7 +34197,6 @@ SWIG_init(void) {
   SWIG_addvarlink(globals, "_dh_err", Swig_var__dh_err_get, Swig_var__dh_err_set);
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "no_padding",SWIG_From_int((int)(RSA_NO_PADDING)));
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "pkcs1_padding",SWIG_From_int((int)(RSA_PKCS1_PADDING)));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "sslv23_padding",SWIG_From_int((int)(RSA_SSLV23_PADDING)));
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "pkcs1_oaep_padding",SWIG_From_int((int)(RSA_PKCS1_OAEP_PADDING)));
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "NID_sha1",SWIG_From_int((int)(NID_sha1)));
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "NID_sha224",SWIG_From_int((int)(NID_sha224)));
@@ -34323,23 +34322,6 @@ SWIG_init(void) {
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "X509_V_ERR_CERT_UNTRUSTED",SWIG_From_int((int)(27)));
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "X509_V_ERR_CERT_REJECTED",SWIG_From_int((int)(28)));
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "X509_V_ERR_APPLICATION_VERIFICATION",SWIG_From_int((int)(50)));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "VERIFY_ALLOW_PROXY_CERTS",SWIG_From_int((int)(X509_V_FLAG_ALLOW_PROXY_CERTS)));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "VERIFY_CB_ISSUER_CHECK",SWIG_From_int((int)(X509_V_FLAG_CB_ISSUER_CHECK)));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "VERIFY_CHECK_SS_SIGNATURE",SWIG_From_int((int)(X509_V_FLAG_CHECK_SS_SIGNATURE)));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "VERIFY_CRL_CHECK",SWIG_From_int((int)(X509_V_FLAG_CRL_CHECK)));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "VERIFY_CRL_CHECK_ALL",SWIG_From_int((int)(X509_V_FLAG_CRL_CHECK_ALL)));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "VERIFY_EXPLICIT_POLICY",SWIG_From_int((int)(X509_V_FLAG_EXPLICIT_POLICY)));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "VERIFY_EXTENDED_CRL_SUPPORT",SWIG_From_int((int)(X509_V_FLAG_EXTENDED_CRL_SUPPORT)));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "VERIFY_IGNORE_CRITICAL",SWIG_From_int((int)(X509_V_FLAG_IGNORE_CRITICAL)));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "VERIFY_INHIBIT_ANY",SWIG_From_int((int)(X509_V_FLAG_INHIBIT_ANY)));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "VERIFY_INHIBIT_MAP",SWIG_From_int((int)(X509_V_FLAG_INHIBIT_MAP)));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "VERIFY_NO_ALT_CHAINS",SWIG_From_int((int)(X509_V_FLAG_NO_ALT_CHAINS)));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "VERIFY_NOTIFY_POLICY",SWIG_From_int((int)(X509_V_FLAG_NOTIFY_POLICY)));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "VERIFY_PARTIAL_CHAIN",SWIG_From_int((int)(X509_V_FLAG_PARTIAL_CHAIN)));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "VERIFY_POLICY_CHECK",SWIG_From_int((int)(X509_V_FLAG_POLICY_CHECK)));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "VERIFY_TRUSTED_FIRST",SWIG_From_int((int)(X509_V_FLAG_TRUSTED_FIRST)));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "VERIFY_USE_DELTAS",SWIG_From_int((int)(X509_V_FLAG_USE_DELTAS)));
-  SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "VERIFY_X509_STRICT",SWIG_From_int((int)(X509_V_FLAG_X509_STRICT)));
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "XN_FLAG_COMPAT",SWIG_From_int((int)(0)));
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "XN_FLAG_SEP_COMMA_PLUS",SWIG_From_int((int)((1 << 16))));
   SWIG_Python_SetConstant(d, d == md ? public_interface : NULL, "XN_FLAG_SEP_CPLUS_SPC",SWIG_From_int((int)((2 << 16))));

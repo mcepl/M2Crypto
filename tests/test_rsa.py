@@ -28,7 +28,9 @@ class RSATestCase(unittest.TestCase):
     e_padding_ok = ('pkcs1_padding', 'pkcs1_oaep_padding')
 
     s_padding_ok = ('pkcs1_padding',)
-    s_padding_nok = ('no_padding', 'sslv23_padding', 'pkcs1_oaep_padding')
+    s_padding_nok = ('no_padding', 'pkcs1_oaep_padding')
+    if hasattr(m2, 'sslv23_padding'):
+        s_padding_nok += ('sslv23_padding',)
 
     def gen_callback(self, *args):
         pass

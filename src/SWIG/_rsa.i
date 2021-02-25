@@ -23,7 +23,9 @@ extern int RSA_check_key(const RSA *);
 
 %constant int no_padding        = RSA_NO_PADDING;
 %constant int pkcs1_padding     = RSA_PKCS1_PADDING;
+#ifdef RSA_SSLV23_PADDING
 %constant int sslv23_padding    = RSA_SSLV23_PADDING;
+#endif
 %constant int pkcs1_oaep_padding = RSA_PKCS1_OAEP_PADDING;
 
 %constant int NID_sha1 = NID_sha1;
@@ -174,7 +176,7 @@ PyObject *rsa_set_n(RSA *rsa, PyObject *nval) {
 PyObject *rsa_set_en(RSA *rsa, PyObject *eval, PyObject* nval) {
     BIGNUM* e, *n;
 
-    if (!(e = m2_PyObject_AsBIGNUM(eval, _rsa_err)) || 
+    if (!(e = m2_PyObject_AsBIGNUM(eval, _rsa_err)) ||
         !(n = m2_PyObject_AsBIGNUM(nval, _rsa_err))) {
         return NULL;
     }
@@ -207,7 +209,7 @@ static BIGNUM* PyObject_Bin_AsBIGNUM(PyObject* value) {
 PyObject *rsa_set_en_bin(RSA *rsa, PyObject *eval, PyObject* nval) {
     BIGNUM* e, *n;
 
-    if (!(e = PyObject_Bin_AsBIGNUM(eval)) || 
+    if (!(e = PyObject_Bin_AsBIGNUM(eval)) ||
         !(n = PyObject_Bin_AsBIGNUM(nval))) {
         return NULL;
     }

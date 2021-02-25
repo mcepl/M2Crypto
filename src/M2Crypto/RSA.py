@@ -18,7 +18,8 @@ m2.rsa_init(RSAError)
 
 no_padding = m2.no_padding
 pkcs1_padding = m2.pkcs1_padding
-sslv23_padding = m2.sslv23_padding
+if hasattr(m2, 'sslv23_padding'):
+    sslv23_padding = m2.sslv23_padding
 pkcs1_oaep_padding = m2.pkcs1_oaep_padding
 
 
