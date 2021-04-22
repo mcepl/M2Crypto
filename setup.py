@@ -33,9 +33,9 @@ logging.basicConfig(format='%(levelname)s:%(funcName)s:%(message)s',
                     stream=sys.stdout, level=logging.INFO)
 log = logging.getLogger('setup')
 
-requires_list = ['parameterized']
+requires_list = []
 if (2, 6) < sys.version_info[:2] < (3, 5):
-    requires_list = ['typing']
+    requires_list.append('typing')
 if sys.version_info[0] > 2:
     from typing import Dict, List
 
