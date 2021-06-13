@@ -466,7 +466,7 @@ EC_KEY* ec_key_from_pubkey_der(PyObject *pubkey) {
     const unsigned char *tempBuf;
     EC_KEY *keypair;
 
-    if (PyObject_AsReadBuffer(pubkey, &keypairbuf, &keypairbuflen) == -1)
+    if (m2_PyObject_AsReadBuffer(pubkey, &keypairbuf, &keypairbuflen) == -1)
     {
         return NULL;
     }
@@ -486,7 +486,7 @@ EC_KEY* ec_key_from_pubkey_params(int nid, PyObject *pubkey) {
     const unsigned char *tempBuf;
     EC_KEY *keypair;
 
-    if (PyObject_AsReadBuffer(pubkey, &keypairbuf, &keypairbuflen) == -1)
+    if (m2_PyObject_AsReadBuffer(pubkey, &keypairbuf, &keypairbuflen) == -1)
     {
         return NULL;
     }

@@ -137,8 +137,8 @@ m2_PyObject_AsReadBuffer(PyObject * obj, const void **buffer,
 	    len = view.len;
 	}
     } else {
-	if ((ret = PyObject_AsReadBuffer(obj, buffer, &len)) != 0)
-	    return ret;
+    PyErr_SetString(PyExc_TypeError, "expected a readable buffer object");
+	return -1;
     }
     if (len > INT_MAX) {
 	m2_PyBuffer_Release(obj, &view);
@@ -171,11 +171,8 @@ static int m2_PyObject_GetBufferInt(PyObject *obj, Py_buffer *view, int flags)
     if (PyObject_CheckBuffer(obj))
         ret = PyObject_GetBuffer(obj, view, flags);
     else {
-        const void *buf;
-
-        ret = PyObject_AsReadBuffer(obj, &buf, &view->len);
-        if (ret == 0)
-            view->buf = (void *)buf;
+        PyErr_SetString(PyExc_TypeError, "expected a readable buffer object");
+        return -1;
     }
     if (ret)
         return ret;
@@ -633,7 +630,7 @@ BIGNUM *hex_to_bn(PyObject *value) {
         }
     }
     else {
-        if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+        if (m2_PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
             return NULL;
     }
 
@@ -665,7 +662,7 @@ BIGNUM *dec_to_bn(PyObject *value) {
         }
     }
     else {
-        if (PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
+        if (m2_PyObject_AsReadBuffer(value, &vbuf, &vlen) == -1)
             return NULL;
     }
 

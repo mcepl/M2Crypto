@@ -246,8 +246,8 @@ PyObject *bio_set_cipher(BIO *b, EVP_CIPHER *c, PyObject *key, PyObject *iv, int
     const void *kbuf, *ibuf;
     Py_ssize_t klen, ilen;
 
-    if ((PyObject_AsReadBuffer(key, &kbuf, &klen) == -1)
-        || (PyObject_AsReadBuffer(iv, &ibuf, &ilen) == -1))
+    if ((m2_PyObject_AsReadBuffer(key, &kbuf, &klen) == -1)
+        || (m2_PyObject_AsReadBuffer(iv, &ibuf, &ilen) == -1))
         return NULL;
 
     BIO_set_cipher(b, (const EVP_CIPHER *)c,

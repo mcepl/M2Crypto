@@ -22,7 +22,7 @@ PyObject *util_hex_to_string(PyObject *blob) {
     char *ret;
     Py_ssize_t len;
 
-    if (PyObject_AsReadBuffer(blob, &buf, &len) == -1)
+    if (m2_PyObject_AsReadBuffer(blob, &buf, &len) == -1)
         return NULL;
 
     ret = hex_to_string((unsigned char *)buf, len);
@@ -44,7 +44,7 @@ PyObject *util_string_to_hex(PyObject *blob) {
     Py_ssize_t len0;
     long len;
 
-    if (PyObject_AsReadBuffer(blob, &buf, &len0) == -1)
+    if (m2_PyObject_AsReadBuffer(blob, &buf, &len0) == -1)
         return NULL;
 
     len = len0;

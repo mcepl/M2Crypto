@@ -46,7 +46,7 @@ PyObject *rc4_update(RC4_KEY *key, PyObject *in) {
     Py_ssize_t len;
     void *out;
 
-    if (PyObject_AsReadBuffer(in, &buf, &len) == -1)
+    if (m2_PyObject_AsReadBuffer(in, &buf, &len) == -1)
         return NULL;
 
     if (!(out = PyMem_Malloc(len))) {
