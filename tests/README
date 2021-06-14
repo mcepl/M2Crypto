@@ -3,11 +3,11 @@ This directory contains unit tests for M2Crypto.
 To run all tests, make sure you have installed setuptools and then issue the
 following command from the M2Crypto root directory:
 
-python setup.py test
+python -munittest discover -v tests
 
 To run tests in a single file, for example test_ssl.py, do this:
 
-python setup.py test --test-suite=tests.test_ssl
+python -munittest -v tests.test_ssl
 
 
 Look also in the demo directory for other samples.

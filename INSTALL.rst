@@ -35,7 +35,7 @@ with Cygwin are welcome).::
 If you have installed setuptools you can also optionally run tests like
 this:::
 
-    $ python setup.py test
+    $ python -munittest discover -v tests
 
 This assumes OpenSSL is installed in ``/usr``. You can provide an
 alternate OpenSSL prefix location with --openssl option to

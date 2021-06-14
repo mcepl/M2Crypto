@@ -162,7 +162,7 @@ build_script:
   - "%PYTHON%\\python.exe setup.py build --openssl=\"%OPENSSL_PATH%\" --bundledlls"
 
 test_script:
-  - "%PYTHON%\\python.exe setup.py test"
+  - "%PYTHON%\\python.exe -munittest discover -v tests"
 
 after_test:
   # If tests are successful, create a whl package for the project.
