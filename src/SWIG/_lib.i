@@ -127,7 +127,6 @@ static int
 m2_PyObject_AsReadBuffer(PyObject * obj, const void **buffer,
 			 Py_ssize_t * buffer_len)
 {
-    int ret = 0;
     Py_ssize_t len = 0;
     Py_buffer view;
 
