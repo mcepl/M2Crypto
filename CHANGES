@@ -1,3 +1,16 @@
+0.38.0 - 2021-06-14
+-------------------
+
+- Remove the last use of setup.py test idiom.
+- Use m2_PyObject_AsReadBuffer instead of PyObject_AsReadBuffer.
+- Add support for arm64 big endian <Steev Klimaszewski>
+- Make support of RSA_SSLV23_PADDING optional (it has been deprecated).
+- Move project to src/ layout
+- Allow verify_cb_* to be called with ok=True  <Casey Deccio>
+- Be prepared if any of constants in x509_vfy.h is not available.
+- But we do support 3.8
+- We DO NOT support Python 2.6.
+
 0.37.0 - 2020-12-08
 -------------------
 
