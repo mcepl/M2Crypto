@@ -64,6 +64,6 @@ opensuse:
     script:
         - zypper refresh
         - zypper install -y pattern:devel_rpm_build pattern:devel_C_C++ osc
-        - zypper install -y swig python3-devel libopenssl-1_1-devel python3-service_identity python3-setuptools python3-Twisted python3-parameterized
+        - zypper install -y swig python3-devel libopenssl-1_1-devel openssl-1_1 python3-service_identity python3-setuptools python3-Twisted python3-parameterized
         - python3 setup.py clean build
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest discover -v
