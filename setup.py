@@ -256,7 +256,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
                     dll_name = '{0}{1}.dll'.format(libname, ver_part)
                     dll_path = os.path.join(search_path, dll_name)
                     if os.path.exists(dll_path):
-                        shutil.copy(dll_path, 'M2Crypto')
+                        shutil.copy(dll_path, 'src/M2Crypto')
                         libs.remove(libname)
                         break
             if libs:
