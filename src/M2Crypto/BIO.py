@@ -368,7 +368,10 @@ class SSLBio(BIO):
         self.closed = 0
 
     def set_ssl(self, conn, close_flag=m2.bio_noclose):
-        ## type: (Connection, int) -> None
+        # type: (Any, int) -> None
+        # conn should actually be SSL.Connection, but we cannot import
+        # it here without getting into some serious circular dependency
+        # business.
         """
         Sets the bio to the SSL pointer which is
         contained in the connection object.
