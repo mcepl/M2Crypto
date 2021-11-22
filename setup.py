@@ -75,21 +75,30 @@ def openssl_version(ossldir, req_ver, required=False):
     :return: Boolean indicating whether the satisfying version of
              OpenSSL has been installed.
     """
-    ver = None
-    file = os.path.join(ossldir, 'include', 'openssl', 'opensslv.h')
+    try:
+        import ctypes
+        libssl = ctypes.cdll.LoadLibrary("libssl.so")
+        ver = libssl.OpenSSL_version_num()
+        log.debug("ctypes: ver = %s", hex(ver))
+    # for OpenSSL < 1.1.0
+    except AttributeError:
+        ver = None
+        file = os.path.join(ossldir, 'include', 'openssl', 'opensslv.h')
 
-    with open(file) as origin_file:
-        for line in origin_file:
-            m = re.match(
-                r'^# *define  *OPENSSL_VERSION_NUMBER  *(0x[0-9a-fA-F]*)',
-                line)
-            if m:
-                log.debug('found version number: %s\n', m.group(1))
-                ver = int(m.group(1), base=16)
-                break
+        with open(file) as origin_file:
+            for line in origin_file:
+                m = re.match(
+                    r'^# *define  *OPENSSL_VERSION_NUMBER  *(0x[0-9a-fA-F]*)',
+                    line)
+                if m:
+                    log.debug('found version number: %s\n', m.group(1))
+                    ver = int(m.group(1), base=16)
+                    break
 
-    if ver is None:
-        raise OSError('Unknown format of file %s\n' % file)
+        log.debug("parsing header file: ver = %s", hex(ver))
+
+        if ver is None:
+            raise OSError('Unknown format of file %s\n' % file)
 
     if required:
         return ver >= req_ver
