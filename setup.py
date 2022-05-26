@@ -12,6 +12,8 @@ Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 
 Copyright 2018 Daniel Wozniak. All rights reserved.
 """
+import ctypes
+import ctypes.util
 import glob
 import logging
 import os
@@ -70,12 +72,15 @@ def openssl_version(ossldir, req_ver, required=False):
     :return: Boolean indicating whether the satisfying version of
              OpenSSL has been installed.
     """
+    ver = None
     try:
-        import ctypes
-        libssl = ctypes.cdll.LoadLibrary("libssl.so")
-        ver = libssl.OpenSSL_version_num()
-        log.debug("ctypes: ver = %s", hex(ver))
-    # for OpenSSL < 1.1.0
+        if sys.platform == 'win32':
+            found_lib = glob.glob(os.path.join(os.environ.get('OPENSSL_PATH'),
+                                  'libcrypto*.dll'))[0]
+            crypt_lib = ctypes.WinDLL(found_lib)
+        else:
+            crypt_lib = ctypes.cdll.LoadLibrary("libssl.so")
+        log.info(f'crypt_lib = {crypt_lib}')
     except (AttributeError, FileNotFoundError):
         ver = None
         file = os.path.join(ossldir, 'include', 'openssl', 'opensslv.h')
@@ -90,10 +95,14 @@ def openssl_version(ossldir, req_ver, required=False):
                     ver = int(m.group(1), base=16)
                     break
 
-        log.debug("parsing header file: ver = %s", hex(ver))
-
         if ver is None:
             raise OSError('Unknown format of file %s\n' % file)
+    else:
+        try:
+            ver = crypt_lib.OpenSSL_version_num()
+        except OSError:
+            pass
+    log.info(f'ctypes: ver = {ver:#0X}')
 
     if required:
         return ver >= req_ver
