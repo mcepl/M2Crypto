@@ -109,8 +109,9 @@ class RSATestCase(unittest.TestCase):
         # The other paddings.
         for padding in self.s_padding_nok:
             p = getattr(RSA, padding)
-            with self.assertRaises(RSA.RSAError):
-                priv.private_encrypt(self.data, p)
+            # Exception disabled as a part of mitigation against CVE-2020-25657
+            # with self.assertRaises(RSA.RSAError):
+            priv.private_encrypt(self.data, p)
         # Type-check the data to be encrypted.
         with self.assertRaises(TypeError):
             priv.private_encrypt(self.gen_callback, RSA.pkcs1_padding)
@@ -127,10 +128,12 @@ class RSATestCase(unittest.TestCase):
             self.assertEqual(ptxt, self.data)
 
         # no_padding
-        with six.assertRaisesRegex(self, RSA.RSAError, 'data too small'):
-            priv.public_encrypt(self.data, RSA.no_padding)
+        # Exception disabled as a part of mitigation against CVE-2020-25657
+        # with six.assertRaisesRegex(self, RSA.RSAError, 'data too small'):
+        priv.public_encrypt(self.data, RSA.no_padding)
 
         # Type-check the data to be encrypted.
+        # Exception disabled as a part of mitigation against CVE-2020-25657
         with self.assertRaises(TypeError):
             priv.public_encrypt(self.gen_callback, RSA.pkcs1_padding)
 
@@ -146,10 +149,6 @@ class RSATestCase(unittest.TestCase):
                          b'\000\000\000\003\001\000\001')  # aka 65537 aka 0xf4
         with self.assertRaises(RSA.RSAError):
             setattr(rsa, 'e', '\000\000\000\003\001\000\001')
-        with self.assertRaises(RSA.RSAError):
-            rsa.private_encrypt(1)
-        with self.assertRaises(RSA.RSAError):
-            rsa.private_decrypt(1)
         assert rsa.check_key()
 
     def test_loadpub_bad(self):
