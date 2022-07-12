@@ -239,10 +239,9 @@ PyObject *rsa_private_encrypt(RSA *rsa, PyObject *from, int padding) {
     tlen = RSA_private_encrypt(flen, (unsigned char *)fbuf,
         (unsigned char *)tbuf, rsa, padding);
     if (tlen == -1) {
-        ERR_clear_error();
-        PyErr_Clear();
+        m2_PyErr_Msg(_rsa_err);
         PyMem_Free(tbuf);
-        Py_RETURN_NONE;
+        return NULL;
     }
 
     ret = PyBytes_FromStringAndSize((const char *)tbuf, tlen);
@@ -298,10 +297,9 @@ PyObject *rsa_public_encrypt(RSA *rsa, PyObject *from, int padding) {
     tlen = RSA_public_encrypt(flen, (unsigned char *)fbuf,
         (unsigned char *)tbuf, rsa, padding);
     if (tlen == -1) {
-        ERR_clear_error();
-        PyErr_Clear();
+        m2_PyErr_Msg(_rsa_err);
         PyMem_Free(tbuf);
-        Py_RETURN_NONE;
+        return NULL;
     }
 
     ret = PyBytes_FromStringAndSize((const char *)tbuf, tlen);
