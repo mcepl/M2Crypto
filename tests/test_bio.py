@@ -14,7 +14,7 @@ from parameterized import parameterized
 
 from M2Crypto import BIO, Rand
 from tests import unittest
-from .fips import fips_mode
+from tests.fips import fips_mode
 
 log = logging.getLogger('test_bio')
 
