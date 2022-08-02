@@ -10,7 +10,7 @@ Author: Heikki Toivonen
 """
 import logging
 
-from M2Crypto import BIO, Rand, six
+from M2Crypto import BIO, Rand, m2, six
 from tests import unittest
 from tests.fips import fips_mode
 
@@ -28,8 +28,9 @@ nonfips_ciphers = ['bf_ecb', 'bf_cbc', 'bf_cfb', 'bf_ofb',
                    # 'rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb',
                    'des_ecb', 'des_cbc', 'des_cfb', 'des_ofb',
                    'rc4', 'rc2_40_cbc']
-if not fips_mode:  # Forbidden ciphers
+if not fips_mode and m2.OPENSSL_VERSION_NUMBER < 0x30000000:  # Forbidden ciphers
     ciphers += nonfips_ciphers
+
 
 
 class CipherStreamTestCase(unittest.TestCase):

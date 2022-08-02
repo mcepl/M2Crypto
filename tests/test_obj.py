@@ -106,6 +106,7 @@ class ObjectsTestCase(unittest.TestCase):
         self.assertEqual(n.as_text(), n1.as_text(), n1.as_text())
 
     # Detailed OpenSSL error message is visible in Python error message:
+    @unittest.skipIf(m2.OPENSSL_VERSION_NUMBER >= 0x30000000, "Failing on OpenSSL3")
     def test_detailed_error_message(self):
         from M2Crypto import SMIME, X509
         s = SMIME.SMIME()

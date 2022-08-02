@@ -33,7 +33,7 @@ nonfips_ciphers = ['bf_ecb', 'bf_cbc', 'bf_cfb', 'bf_ofb',
                    # 'rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb',
                    'des_ecb', 'des_cbc', 'des_cfb', 'des_ofb',
                    'rc4', 'rc2_40_cbc']
-if not fips_mode:  # Disabled algorithms
+if not fips_mode and m2.OPENSSL_VERSION_NUMBER < 0x30000000:  # Disabled algorithms
     ciphers += nonfips_ciphers
 
 
@@ -135,11 +135,13 @@ class EVPTestCase(unittest.TestCase):
                              209168838103121722341657216703105225176,
                              util.octx_to_num(EVP.hmac(b'key', b'data',
                                               algo='md5')))
+
+        if not fips_mode and m2.OPENSSL_VERSION_NUMBER < 0x30000000:
             self.assertEqual(util.octx_to_num(EVP.hmac(b'key', b'data',
-                                              algo='ripemd160')),
+                                                algo='ripemd160')),
                              1176807136224664126629105846386432860355826868536,
                              util.octx_to_num(EVP.hmac(b'key', b'data',
-                                              algo='ripemd160')))
+                                                algo='ripemd160')))
 
         if m2.OPENSSL_VERSION_NUMBER >= 0x90800F:
             self.assertEqual(util.octx_to_num(EVP.hmac(b'key', b'data',
@@ -466,13 +468,16 @@ class CipherTestCase(unittest.TestCase):
     # @unittest.skipUnless(six.PY34, "Doesn't support subTest")
     # def test_ciphers_not_compiled_idea(self):
     #     # idea might not be compiled in
-    #     for ciph in []:
+    #     for ciph in nonfips_ciphers:
     #         with self.subTest(ciph=ciph):
     #             try:
     #                 self.try_algo(ciph)
     #             except ValueError as e:
     #                 if str(e) != "('unknown cipher', 'idea_ecb')":
     #                     raise
+    ## or
+    #             except EVP.EVPError as e:
+    #                     self.skipTest(str(e))
 
     #################
     # ['rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb']

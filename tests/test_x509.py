@@ -219,14 +219,23 @@ class X509TestCase(unittest.TestCase):
         req4 = X509.load_request('tests/tmp_request.der',
                                  format=X509.FORMAT_DER)
         os.remove('tests/tmp_request.der')
+        if m2.OPENSSL_VERSION_NUMBER >= 0x30000000:
+            req2t = req2.as_text().replace(' Public-Key: (1024 bit)', ' RSA Public-Key: (1024 bit)')
+            req3t = req3.as_text().replace(' Public-Key: (1024 bit)', ' RSA Public-Key: (1024 bit)')
+            req4t = req3.as_text().replace(' Public-Key: (1024 bit)', ' RSA Public-Key: (1024 bit)')
+        else:
+            req2t = req2.as_text()
+            req3t = req3.as_text()
+            req4t = req3.as_text()
+
         self.assertEqual(req.as_pem(), req2.as_pem())
-        self.assertEqual(req.as_text(), req2.as_text())
+        self.assertEqual(req.as_text(), req2t)
         self.assertEqual(req.as_der(), req2.as_der())
         self.assertEqual(req.as_pem(), req3.as_pem())
-        self.assertEqual(req.as_text(), req3.as_text())
+        self.assertEqual(req.as_text(), req3t)
         self.assertEqual(req.as_der(), req3.as_der())
         self.assertEqual(req.as_pem(), req4.as_pem())
-        self.assertEqual(req.as_text(), req4.as_text())
+        self.assertEqual(req.as_text(), req4t)
         self.assertEqual(req.as_der(), req4.as_der())
         self.assertEqual(req.get_version(), 0)
         req.set_version(1)
@@ -370,9 +379,9 @@ class X509TestCase(unittest.TestCase):
             self.assertTrue(proxycert.verify(pk2))
             self.assertEqual(proxycert.get_ext_at(0).get_name(),
                              'proxyCertInfo')
-            self.assertEqual(proxycert.get_ext_at(0).get_value(),
+            self.assertEqual(proxycert.get_ext_at(0).get_value().strip(),
                              'Path Length Constraint: infinite\n' +
-                             'Policy Language: Inherit all\n')
+                             'Policy Language: Inherit all')
             self.assertEqual(proxycert.get_ext_count(), 1,
                              proxycert.get_ext_count())
             self.assertEqual(proxycert.get_subject().as_text(),
@@ -586,6 +595,12 @@ class X509TestCase(unittest.TestCase):
 
 
 class X509StackTestCase(unittest.TestCase):
+    def setUp(self):
+        if m2.OPENSSL_VERSION_NUMBER >= 0x30000000:
+            self.expected_subject = '/DC=org/DC=doegrids/OU=Services/CN=host\\/bosshog.lbl.gov'
+        else:
+            self.expected_subject = '/DC=org/DC=doegrids/OU=Services/CN=host/bosshog.lbl.gov'
+
     def test_make_stack_from_der(self):
         with open("tests/der_encoded_seq.b64", 'rb') as f:
             b64 = f.read()
@@ -607,7 +622,7 @@ class X509StackTestCase(unittest.TestCase):
         subject = cert.get_subject()
         self.assertEqual(
             str(subject),
-            "/DC=org/DC=doegrids/OU=Services/CN=host/bosshog.lbl.gov")
+            self.expected_subject)
 
     def test_make_stack_check_num(self):
         with open("tests/der_encoded_seq.b64", 'rb') as f:
@@ -629,7 +644,7 @@ class X509StackTestCase(unittest.TestCase):
         subject = cert.get_subject()
         self.assertEqual(
             str(subject),
-            "/DC=org/DC=doegrids/OU=Services/CN=host/bosshog.lbl.gov")
+            self.expected_subject)
 
     def test_make_stack(self):
         stack = X509.X509_Stack()

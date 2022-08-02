@@ -250,8 +250,14 @@ PyObject *bio_set_cipher(BIO *b, EVP_CIPHER *c, PyObject *key, PyObject *iv, int
         || (m2_PyObject_AsReadBuffer(iv, &ibuf, &ilen) == -1))
         return NULL;
 
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+    if (!BIO_set_cipher(b, (const EVP_CIPHER *)c,
+            (unsigned char *)kbuf, (unsigned char *)ibuf, op))
+        return NULL;
+#else
     BIO_set_cipher(b, (const EVP_CIPHER *)c,
         (unsigned char *)kbuf, (unsigned char *)ibuf, op);
+#endif
     Py_RETURN_NONE;
 }
 

@@ -418,6 +418,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
         finally:
             self.stop_server(pid)
 
+    @unittest.skipIf(m2.OPENSSL_VERSION_NUMBER >= 0x30000000, "No TLS1 is allowed")
     def test_tls1_ok(self):
         self.args.append('-tls1')
         pid = self.start_server(self.args)
