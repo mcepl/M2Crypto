@@ -268,11 +268,6 @@ class File(BIO):
         """
         return super(File, self).reset()
 
-    def __del__(self):
-        if not self.closed:
-            m2.bio_free(self.bio)
-
-
 def openfile(filename, mode='rb'):
     # type: (AnyStr, AnyStr) -> File
     try:
