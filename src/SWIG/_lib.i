@@ -121,6 +121,20 @@ void blob_free(Blob *blob) {
 %ignore m2_PyObject_GetBufferInt;
 %ignore m2_PyBuffer_Release;
 %ignore m2_PyString_AsStringAndSizeInt;
+
+%newobject mpi_to_bn;
+%newobject bin_to_bn;
+
+%nodefaultctor bignum_st;
+struct bignum_st {};
+typedef struct bignum_st BIGNUM;
+
+%extend bignum_st {
+   ~bignum_st() {
+      BN_free($self);
+   }
+};
+
 %{
 
 static int
