@@ -81,7 +81,7 @@ def openssl_version(ossldir, req_ver, required=False):
         ver = libssl.OpenSSL_version_num()
         log.debug("ctypes: ver = %s", hex(ver))
     # for OpenSSL < 1.1.0
-    except AttributeError:
+    except (AttributeError, FileNotFoundError):
         ver = None
         file = os.path.join(ossldir, 'include', 'openssl', 'opensslv.h')
 

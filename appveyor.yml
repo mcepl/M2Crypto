@@ -5,8 +5,8 @@ environment:
         secure: oqWqarxnd4H23FMywnlQeg==
     PASS:
         secure: j/VSxdYJ7mdR44u8OdywLg==
-    X86_OPENSSL_INSTALLER: Win32OpenSSL-1_1_1k.exe
-    X64_OPENSSL_INSTALLER: Win64OpenSSL-1_1_1k.exe
+    X86_OPENSSL_INSTALLER: Win32OpenSSL-1_1_1s.exe
+    X64_OPENSSL_INSTALLER: Win64OpenSSL-1_1_1s.exe
 
   matrix:
 
@@ -139,8 +139,7 @@ install:
   - "c:\\%X64_OPENSSL_INSTALLER% /silent /verysilent /DIR=C:\\OpenSSL-1-1-Win64"
 
   - ECHO "Install pywin32"
-  - curl -o "%PYWIN32%" -fsSL "https://github.com/mhammond/pywin32/releases/download/%PYWIN32_RELEASE%/%PYWIN32%"
-  - "%PYTHON%\\Scripts\\easy_install.exe %PYWIN32%"
+  - "python -m pip install pywin32"
   #- mkdir pywin32
   #- 7z x "%PYWIN32%" -opywin32
   #- xcopy /e "pywin32\\PLATLIB" "%PYTHON%\\Lib\\site-packages"
