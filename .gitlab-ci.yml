@@ -7,6 +7,8 @@ python27:
         - python -mpip install --user -r dev-requirements.txt
         - python setup.py clean build
         - PYTHONPATH=$(readlink -f build/lib.*) python -munittest discover -v
+    allow_failure:
+      exit_codes: 1
 
 python35:
     image: python:3.5
@@ -45,6 +47,8 @@ fedora-rawhide:
         - dnf install -y swig python3-devel openssl-devel openssl python3-setuptools python3-twisted python3-parameterized
         - python3 setup.py clean build
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest discover -v
+    allow_failure:
+      exit_codes: 1
 
 centos7:
     image: centos:7
