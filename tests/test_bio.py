@@ -10,9 +10,7 @@ Author: Heikki Toivonen
 """
 import logging
 
-from parameterized import parameterized
-
-from M2Crypto import BIO, Rand
+from M2Crypto import BIO, Rand, six
 from tests import unittest
 from tests.fips import fips_mode
 
@@ -68,9 +66,11 @@ class CipherStreamTestCase(unittest.TestCase):
         self.assertEqual(data, data2,
                          '%s algorithm cipher test failed' % algo)
 
-    @parameterized.expand(ciphers)
-    def test_algo(self, algo):
-        self.try_algo(algo)
+    @unittest.skipUnless(six.PY34, "Doesn't support subTest")
+    def test_algo(self):
+        for algo in ciphers:
+            with self.subTest(algo=algo):
+                self.try_algo(algo)
 
     def test_nosuchalgo(self):
         with self.assertRaises(ValueError):

@@ -1,5 +1,4 @@
 -r requirements.txt
-parameterized
 twine
 flake8
 typing; python_version < "3.5"

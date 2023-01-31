@@ -1,3 +1,11 @@
+0.39.0 - 2023-01-31
+-------------------
+
+- Remove dependency on parameterized and use unittest.subTest
+  instead.
+- Upgrade embedded six.py module to 1.16.0 (really tiny
+  inconsequential changes).
+
 0.38.0 - 2021-06-14
 -------------------
 
