@@ -247,6 +247,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             httpslib.HTTPSConnection('example.org', badKeyword=True)
 
 
+@unittest.skipIf(sys.platform == 'win32', "Test doesn't work on Windows")
 class HttpslibSSLSNIClientTestCase(BaseSSLClientTestCase):
     def setUp(self):
         super(HttpslibSSLSNIClientTestCase, self).setUp()
