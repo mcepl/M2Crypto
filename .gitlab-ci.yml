@@ -31,7 +31,7 @@ python3:
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest discover -v
 
 fedora:
-    image: fedora:30
+    image: fedora:latest
     when: always
     script:
         - dnf install --refresh -y @development-tools fedora-packager rpmdevtools
@@ -47,8 +47,6 @@ fedora-rawhide:
         - dnf install -y swig python3-devel openssl-devel openssl python3-setuptools python3-twisted python3-parameterized
         - python3 setup.py clean build
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest discover -v
-    allow_failure:
-      exit_codes: 1
 
 centos7:
     image: centos:7
