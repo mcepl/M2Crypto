@@ -1059,6 +1059,7 @@ class Urllib2TEChunkedSSLClientTestCase(BaseSSLClientTestCase):
             self.stop_server(pid)
 
 
+@unittest.skip("Twisted integration has been temporarily switched off.")
 class TwistedSSLClientTestCase(BaseSSLClientTestCase):
 
     def test_timeout(self):
