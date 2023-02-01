@@ -1101,6 +1101,7 @@ class TwistedSSLClientTestCase(BaseSSLClientTestCase):
             self.stop_server(pid)
         self.assertIn(b's_server -quiet -www', data)
 
+    @unittest.skipIf(sys.platform == 'win32', "os.mkfifo not available on Windows")
     def test_makefile_timeout_fires(self):
         # This is convoluted because (openssl s_server -www) starts
         # writing the response as soon as it receives the first line of
