@@ -38,81 +38,59 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       PYTHONPATH_DIR: "win-amd64-3.8"
 
-    - PYTHON: "C:\\Python37"
-      PYTHON_VERSION: "3.7.x"
+    - PYTHON: "C:\\Python39"
+      PYTHON_VERSION: "3.9.x"
       PYTHON_ARCH: "32"
       OPENSSL_PATH: "C:\\OpenSSL-1-1-Win32"
-      PYWIN32: "pywin32-305.win32-py3.7.exe"
+      PYWIN32: "pywin32-305.win32-py3.9.exe"
       PYWIN32_RELEASE: b305
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      PYTHONPATH_DIR: "win32-3.7"
+      PYTHONPATH_DIR: "win32-3.9"
 
-    - PYTHON: "C:\\Python37-x64"
-      PYTHON_VERSION: "3.7.x"
+    - PYTHON: "C:\\Python39-x64"
+      PYTHON_VERSION: "3.9.x"
       PYTHON_ARCH: "64"
       OPENSSL_PATH: "C:\\OpenSSL-1-1-Win64"
-      PYWIN32: "pywin32-305.win-amd64-py3.7.exe"
+      PYWIN32: "pywin32-305.win-amd64-py3.9.exe"
       PYWIN32_RELEASE: b305
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      PYTHONPATH_DIR: "win-amd64-3.7"
+      PYTHONPATH_DIR: "win-amd64-3.9"
 
-    - PYTHON: "C:\\Python36"
-      PYTHON_VERSION: "3.6.x" # currently 3.6.4
+    - PYTHON: "C:\\Python310"
+      PYTHON_VERSION: "3.10.x"
       PYTHON_ARCH: "32"
       OPENSSL_PATH: "C:\\OpenSSL-1-1-Win32"
-      PYWIN32: "pywin32-305.win32-py3.6.exe"
+      PYWIN32: "pywin32-305.win32-py3.10.exe"
       PYWIN32_RELEASE: b305
-      PYTHONPATH_DIR: "win32-3.6"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      PYTHONPATH_DIR: "win32-cpython-310"
 
-    - PYTHON: "C:\\Python36-x64"
-      PYTHON_VERSION: "3.6.x" # currently 3.6.4
+    - PYTHON: "C:\\Python310-x64"
+      PYTHON_VERSION: "3.10.x"
       PYTHON_ARCH: "64"
       OPENSSL_PATH: "C:\\OpenSSL-1-1-Win64"
-      PYWIN32: "pywin32-305.win-amd64-py3.6.exe"
+      PYWIN32: "pywin32-305.win-amd64-py3.10.exe"
       PYWIN32_RELEASE: b305
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      PYTHONPATH_DIR: "win-amd64-3.6"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      PYTHONPATH_DIR: "win-amd64-cpython-310"
 
-    - PYTHON: "C:\\Python35"
-      PYTHON_VERSION: "3.5.x" # currently 3.6.4
+    - PYTHON: "C:\\Python311"
+      PYTHON_VERSION: "3.11.x"
       PYTHON_ARCH: "32"
       OPENSSL_PATH: "C:\\OpenSSL-1-1-Win32"
-      PYWIN32: "pywin32-305.win32-py3.5.exe"
+      PYWIN32: "pywin32-305.win32-py3.11.exe"
       PYWIN32_RELEASE: b305
-      PYTHONPATH_DIR: "win32-3.5"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      PYTHONPATH_DIR: "win32-cpython-311"
 
-    - PYTHON: "C:\\Python35-x64"
-      PYTHON_VERSION: "3.5.x" # currently 3.6.4
+    - PYTHON: "C:\\Python311-x64"
+      PYTHON_VERSION: "3.11.x"
       PYTHON_ARCH: "64"
       OPENSSL_PATH: "C:\\OpenSSL-1-1-Win64"
-      PYWIN32: "pywin32-305.win-amd64-py3.5.exe"
+      PYWIN32: "pywin32-305.win-amd64-py3.11.exe"
       PYWIN32_RELEASE: b305
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      PYTHONPATH_DIR: "win-amd64-3.5"
-
-    - PYTHON: "C:\\Python27"
-      PYTHON_VERSION: "2.7.x" # currently 2.7.9
-      PYTHON_ARCH: "32"
-      OPENSSL_PATH: "C:\\OpenSSL-Win32"
-      PYWIN32: "pywin32-228.win32-py2.7.exe"
-      PYWIN32_RELEASE: b228
-      PYTHONPATH_DIR: "win32-2.7"
-
-    - PYTHON: "C:\\Python27"
-      PYTHON_VERSION: "2.7.x" # currently 2.7.9
-      PYTHON_ARCH: "32"
-      OPENSSL_PATH: "C:\\OpenSSL-1-1-Win32"
-      PYWIN32: "pywin32-228.win32-py2.7.exe"
-      PYWIN32_RELEASE: b228
-      PYTHONPATH_DIR: "win32-2.7"
-
-    - PYTHON: "C:\\Python27-x64"
-      PYTHON_VERSION: "2.7.x" # currently 2.7.9
-      PYTHON_ARCH: "64"
-      OPENSSL_PATH: "C:\\OpenSSL-1-1-Win64"
-      PYWIN32: "pywin32-228.win-amd64-py2.7.exe"
-      PYWIN32_RELEASE: b228
-      PYTHONPATH_DIR: "win-amd64-2.7"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      PYTHONPATH_DIR: "win-amd64-cpython-311"
 
     - PYTHON: "C:\\Python27-x64"
       PYTHON_VERSION: "2.7.x" # currently 2.7.9
