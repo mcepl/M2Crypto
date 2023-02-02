@@ -218,7 +218,7 @@ class ASN1_TIME(object):
         return m2.asn1_time_set(self.asn1_time, time)
 
     def get_datetime(self):
-        # type: () -> ASN1_TIME
+        # type: () -> datetime.datetime
         date = str(self)
 
         timezone = None
