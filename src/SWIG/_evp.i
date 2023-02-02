@@ -17,6 +17,7 @@ Copyright (c) 2009-2010 Heikki Toivonen. All rights reserved.
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
 #include <openssl/rsa.h>
+#include <openssl/ec.h>
 #include <openssl/opensslv.h>
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
@@ -51,6 +52,7 @@ typedef struct evp_md_ctx_st EVP_MD_CTX;
 %apply Pointer NONNULL { EVP_CIPHER_CTX * };
 %apply Pointer NONNULL { EVP_CIPHER * };
 %apply Pointer NONNULL { RSA * };
+%apply Pointer NONNULL { EC_KEY * };
 
 %rename(md5) EVP_md5;
 extern const EVP_MD *EVP_md5(void);
@@ -177,6 +179,8 @@ extern int EVP_PKEY_assign(EVP_PKEY *, int, char *);
 #if OPENSSL_VERSION_NUMBER >= 0x0090800fL && !defined(OPENSSL_NO_EC)
 %rename(pkey_assign_ec) EVP_PKEY_assign_EC_KEY;
 extern int EVP_PKEY_assign_EC_KEY(EVP_PKEY *, EC_KEY *);
+%rename(pkey_set1_ec) EVP_PKEY_set1_EC_KEY;
+extern int EVP_PKEY_set1_EC_KEY(EVP_PKEY *, EC_KEY *);
 #endif
 %rename(pkey_set1_rsa) EVP_PKEY_set1_RSA;
 extern int EVP_PKEY_set1_RSA(EVP_PKEY *, RSA *);
@@ -227,6 +231,31 @@ RSA *pkey_get1_rsa(EVP_PKEY *pkey) {
 }
 %}
 %typemap(out) RSA * ;
+
+%typemap(out) EC_KEY * {
+    PyObject *self = NULL; /* bug in SWIG_NewPointerObj as of 3.0.5 */
+
+    if ($1 != NULL)
+        $result = SWIG_NewPointerObj($1, $1_descriptor, 0);
+    else {
+        $result = NULL;
+    }
+}
+%inline %{
+EC_KEY *pkey_get1_ec(EVP_PKEY *pkey) {
+    EC_KEY *ret = NULL;
+
+    if ((ret = EVP_PKEY_get1_EC_KEY(pkey)) == NULL) {
+        /* _evp_err now inherits from PyExc_ValueError, so we should
+         * keep API intact.
+         */
+        PyErr_Format(_evp_err, "Invalid key in function %s.", __FUNCTION__);
+    }
+
+    return ret;
+}
+%}
+%typemap(out) EC_KEY * ;
 
 %inline %{
 PyObject *pkcs5_pbkdf2_hmac_sha1(PyObject *pass,

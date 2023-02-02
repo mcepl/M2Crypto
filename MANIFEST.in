@@ -1,6 +1,6 @@
-include SWIG/*.i
-include SWIG/*.h
-include SWIG/*.def
+include src/SWIG/*.i
+include src/SWIG/*.h
+include src/SWIG/*.def
 recursive-include tests *.py *.pem *.der *.b64 README *.pgp *.dat *.p7* *.crt *.txt
 recursive-include doc *
 recursive-include contrib *
@@ -9,5 +9,5 @@ include README.rst
 include CHANGES
 include epydoc.conf
 include LICENCE
-include SWIG/_m2crypto_wrap.c
-include M2Crypto/m2crypto.py
+include src/SWIG/_m2crypto_wrap.c
+include src/M2Crypto/m2crypto.py

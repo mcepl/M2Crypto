@@ -14,7 +14,7 @@ import logging
 
 from binascii import a2b_hex, hexlify, unhexlify
 
-from M2Crypto import BIO, EVP, RSA, Rand, m2, six, util
+from M2Crypto import BIO, EVP, RSA, EC, Rand, m2, six, util
 from tests import unittest
 from tests.fips import fips_mode
 
@@ -196,7 +196,7 @@ class EVPTestCase(unittest.TestCase):
         rsa3 = RSA.gen_key(1024, 3, callback=self._gen_callback)
         self.assertNotEqual(rsa.sign(digest), rsa3.sign(digest))
 
-    def test_load_key_string_pubkey(self):
+    def test_load_key_string_pubkey_rsa(self):
         """
         Testing creating a PKey instance from PEM string.
         """
@@ -224,6 +224,63 @@ class EVPTestCase(unittest.TestCase):
         pkey = EVP.PKey()
         with self.assertRaises(ValueError):
             pkey.get_rsa()
+
+    def test_get_ec(self):
+        """
+        Testing retrieving the EC key from the PKey instance.
+        """
+        ec = EC.gen_params(m2.NID_secp112r1)
+        ec.gen_key()
+        self.assertIsInstance(ec, EC.EC)
+        pkey = EVP.PKey()
+        pkey.assign_ec(ec)
+        ec2 = pkey.get_ec()
+        self.assertIsInstance(ec2, EC.EC_pub)
+        self.assertEqual(ec.compute_dh_key(ec), ec2.compute_dh_key(ec2))
+
+        pem = ec.as_pem(callback=self._pass_callback)
+        pem2 = ec2.as_pem()
+        assert pem
+        assert pem2
+        self.assertNotEqual(pem, pem2)
+
+        message = b'This is the message string'
+        digest = hashlib.sha1(message).digest()
+        ec_sign = ec.sign_dsa(digest)
+        ec2_sign = ec.sign_dsa(digest)
+        self.assertEqual(ec.verify_dsa(digest, ec_sign[0], ec_sign[1]), ec.verify_dsa(digest, ec2_sign[0], ec2_sign[1]))
+
+        ec3 = EC.gen_params(m2.NID_secp112r1)
+        ec3.gen_key()
+        ec3_sign = ec.sign_dsa(digest)
+        self.assertEqual(ec.verify_dsa(digest, ec_sign[0], ec_sign[1]), ec.verify_dsa(digest, ec3_sign[0], ec3_sign[1]))
+
+    def test_load_key_string_pubkey_ec(self):
+        """
+        Testing creating a PKey instance from PEM string.
+        """
+        ec = EC.gen_params(m2.NID_secp112r1)
+        ec.gen_key()
+        self.assertIsInstance(ec, EC.EC)
+        ec_pem = BIO.MemoryBuffer()
+        ec.save_pub_key_bio(ec_pem)
+        pkey = EVP.load_key_string_pubkey(ec_pem.read())
+        ec2 = pkey.get_ec()
+        self.assertIsInstance(ec2, EC.EC_pub)
+        pem = ec.as_pem(callback=self._pass_callback)
+        pem2 = ec2.as_pem()
+        assert pem
+        assert pem2
+        self.assertNotEqual(pem, pem2)
+
+    def test_get_ec_fail(self):
+        """
+        Testing trying to retrieve the EC key from the PKey instance
+        when it is not holding a EC Key. Should raise a ValueError.
+        """
+        pkey = EVP.PKey()
+        with self.assertRaises(ValueError):
+            pkey.get_ec()
 
     def test_get_modulus(self):
         pkey = EVP.PKey()

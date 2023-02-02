@@ -9,7 +9,7 @@ Author: Heikki Toivonen
 """
 
 import logging
-from M2Crypto import BIO, Err, RSA, m2, util
+from M2Crypto import BIO, Err, RSA, EC, m2, util
 from typing import AnyStr, Optional, Callable  # noqa
 
 log = logging.getLogger('EVP')
@@ -384,6 +384,38 @@ class PKey(object):
 
         rsa = RSA.RSA_pub(rsa_ptr, 1)
         return rsa
+
+    def assign_ec(self, ec, capture=1):
+        # type: (EC.EC, int) -> int
+        """
+        Assign the EC key pair to self.
+
+        :param ec: M2Crypto.EC.EC object to be assigned to self.
+
+        :param capture: If true (default), this PKey object will own the EC
+                        object, meaning that once the PKey object gets
+                        deleted it is no longer safe to use the EC object.
+
+        :return: Return 1 for success and 0 for failure.
+        """
+        if capture:
+            ret = m2.pkey_assign_ec(self.pkey, ec.ec)
+            if ret:
+                ec._pyfree = 0
+        else:
+            ret = m2.pkey_set1_ec(self.pkey, ec.ec)
+        return ret
+
+    def get_ec(self):
+        # type: () -> EC.EC_pub
+        """
+        Return the underlying EC key if that is what the EVP
+        instance is holding.
+        """
+        ec_ptr = m2.pkey_get1_ec(self.pkey)
+
+        ec = EC.EC_pub(ec_ptr)
+        return ec
 
     def save_key(self, file, cipher='aes_128_cbc',
                  callback=util.passphrase_callback):

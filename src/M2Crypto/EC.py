@@ -12,7 +12,6 @@ All rights reserved."""
 
 from M2Crypto import BIO, Err, EVP, m2, util
 from typing import AnyStr, Callable, Dict, Optional, Tuple, Union  # noqa
-from M2Crypto.EVP import PKey
 
 EC_Key = bytes
 
@@ -321,6 +320,16 @@ class EC_pub(EC):
         """
         assert self.check_key(), 'key is not initialised'
         return m2.ec_key_get_public_key(self.ec)
+
+    def as_pem(self):
+        """
+        Returns the key(pair) as a string in PEM format.
+        If no password is passed and the cipher is set
+        it exits with error
+        """
+        with BIO.MemoryBuffer() as bio:
+            self.save_key_bio(bio)
+            return bio.read()
 
     save_key = EC.save_pub_key
 
