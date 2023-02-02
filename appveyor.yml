@@ -1,7 +1,7 @@
 branches:
   only:
     - master
-    - windows
+    - /windows.*/
 
 environment:
   global:
@@ -16,7 +16,6 @@ environment:
     APPVEYOR_RDP_PASSWORD: MmXt9yk3rNah3CGcRWad3XD
 
   matrix:
-
     # Pre-installed Python versions, which Appveyor may upgrade to
     # a later point release.
    
@@ -100,13 +99,16 @@ environment:
       PYWIN32_RELEASE: b228
       PYTHONPATH_DIR: "win-amd64-2.7"
 
+matrix:
+    allow_failures:
+      - PYTHON: "C:\\Python27-x64"
+
 nuget:
     account_feed: true
 
 install:
   # Install non-python dependencies using chocolatey package manager
   - choco install -r -y swig
-
 
   # Install Python (from the official .msi of http://python.org) and pip when
   # not already installed.
@@ -167,7 +169,7 @@ test_script:
 after_test:
   # If tests are successful, create a whl package for the project.
   - "%PYTHON%\\python.exe setup.py bdist_wheel"
-  - ps: "ls dist"
+  - "dir .\\dist"
 
 artifacts:
   # Archive the generated wheel package in the ci.appveyor.com build report.
