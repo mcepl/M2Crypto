@@ -39,6 +39,12 @@ if (2, 6) < sys.version_info[:2] < (3, 5):
 if sys.version_info[0] > 2:
     from typing import Dict, List
 
+# A compatibility shim for Python 2.7
+try:
+    FileNotFoundError
+except NameError:
+    class FileNotFoundError(Exception):
+        pass
 
 package_data = {}  # type: Dict[str, List[str]]
 if sys.platform == 'win32':
