@@ -182,7 +182,7 @@ class ASN1_TIME(object):
             self.asn1_time = asn1_time
             self._pyfree = _pyfree
         else:
-            self.asn1_time = m2.asn1_time_new()
+            self.asn1_time = m2.asn1_time_new()  # type: bytes (ASN1_TIME*)
             self._pyfree = 1
 
     def __del__(self):
@@ -205,20 +205,36 @@ class ASN1_TIME(object):
 
     def set_string(self, string):
         # type: (bytes) -> int
-        """Set time from UTC string."""
+        """
+        Set time from UTC string.
+
+        :return:  1 if the time value is successfully set and 0
+                  otherwise
+        """
         assert m2.asn1_time_type_check(self.asn1_time), \
             "'asn1_time' type error'"
         return m2.asn1_time_set_string(self.asn1_time, string)
 
     def set_time(self, time):
         # type: (int) -> ASN1_TIME
-        """Set time from seconds since epoch (int)."""
+        """
+        Set time from seconds since epoch (int).
+
+        :return: pointer to a time structure or NULL if an error
+                 occurred
+        """
         assert m2.asn1_time_type_check(self.asn1_time), \
             "'asn1_time' type error'"
         return m2.asn1_time_set(self.asn1_time, time)
 
     def get_datetime(self):
         # type: () -> datetime.datetime
+        """
+        Get time as datetime.datetime object
+
+        :return: always return datetime object
+        :raises: ValueError if anything wrong happens
+        """
         date = str(self)
 
         timezone = None
@@ -242,6 +258,12 @@ class ASN1_TIME(object):
 
     def set_datetime(self, date):
         # type: (datetime.datetime) -> ASN1_TIME
+        """
+        Set time from datetime.datetime object.
+
+        :return: pointer to a time structure or NULL if an error
+                 occurred
+        """
         local = LocalTimezone()
         if date.tzinfo is None:
             date = date.replace(tzinfo=local)
