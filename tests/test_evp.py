@@ -229,7 +229,7 @@ class EVPTestCase(unittest.TestCase):
         """
         Testing retrieving the EC key from the PKey instance.
         """
-        ec = EC.gen_params(m2.NID_secp112r1)
+        ec = EC.gen_params(m2.NID_secp521r1)
         ec.gen_key()
         self.assertIsInstance(ec, EC.EC)
         pkey = EVP.PKey()
@@ -250,7 +250,7 @@ class EVPTestCase(unittest.TestCase):
         ec2_sign = ec.sign_dsa(digest)
         self.assertEqual(ec.verify_dsa(digest, ec_sign[0], ec_sign[1]), ec.verify_dsa(digest, ec2_sign[0], ec2_sign[1]))
 
-        ec3 = EC.gen_params(m2.NID_secp112r1)
+        ec3 = EC.gen_params(m2.NID_secp521r1)
         ec3.gen_key()
         ec3_sign = ec.sign_dsa(digest)
         self.assertEqual(ec.verify_dsa(digest, ec_sign[0], ec_sign[1]), ec.verify_dsa(digest, ec3_sign[0], ec3_sign[1]))
@@ -259,7 +259,7 @@ class EVPTestCase(unittest.TestCase):
         """
         Testing creating a PKey instance from PEM string.
         """
-        ec = EC.gen_params(m2.NID_secp112r1)
+        ec = EC.gen_params(m2.NID_secp521r1)
         ec.gen_key()
         self.assertIsInstance(ec, EC.EC)
         ec_pem = BIO.MemoryBuffer()
