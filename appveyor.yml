@@ -5,7 +5,9 @@ branches:
 
 environment:
   global:
-    # PyPI login environment:
+    # All security sensitive variables have to be encrypted!
+    # https://ci.appveyor.com/account/mcepl/tools/encrypt
+    # https://www.appveyor.com/docs/build-configuration/#secure-variables
     USER:
         secure: oqWqarxnd4H23FMywnlQeg==
     PASS:
@@ -14,6 +16,9 @@ environment:
     X64_OPENSSL_INSTALLER: Win64OpenSSL-1_1_1s.exe
     # Random password, never used anywhere else
     APPVEYOR_RDP_PASSWORD: MmXt9yk3rNah3CGcRWad3XD
+    PYPI_USERNAME: __token__
+    PYPI_PASSWORD:
+        secure: d8luupfz+8NXAuOFgYa+opNTwFYSk5lCcLj+SAcNe5xsprkB54ChOC+wVztT2ascdJqhU5U9KH1xE7gajYcmo4/fd2r1yJTGSdL6L0PGkNzMYGfVZ35GYESMvdezz42cQOmHzJ3WmymA5XoeyRH74I07VsHgDkYvk5Iz6fwZ1vxkNQbL02hD5IDRABkjm/gjmaYBHGhUi+NZ197jFpuMClrFhjqG87M0+oj8dbVperkYF4pKxeDsM4HofsgOxqRbjxSJtcrOcyhTYOWrrbWA1g==
 
   matrix:
     # Pre-installed Python versions, which Appveyor may upgrade to
@@ -178,6 +183,12 @@ artifacts:
   - path: src/SWIG/_m2crypto_wrap.c
     name: _m2crypto_wrap.zip
     type: zip
+
+on_success:
+  - ps: |
+      If ($env:APPVEYOR_REPO_TAG -eq "true") {
+          Invoke-Expression -erroraction 'silentlycontinue' "twine upload -u $env:PYPI_USERNAME -p $env:PYPI_PASSWORD --skip-existing dist/*" 
+      }
 
 on_finish:
   - ps: Get-ChildItem src\SWIG\_m2crypto_wrap.c | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
