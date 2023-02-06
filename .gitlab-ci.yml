@@ -3,7 +3,7 @@ python27:
     when: always
     script:
         - apt-get update -q -y
-        - apt-get install -y swig libssl-dev python-dev openssl python-twisted python-setuptools python-pip python-typing python-parameterized
+        - apt-get install -y swig libssl-dev python-dev openssl python-twisted python-setuptools python-pip python-typing
         - python -mpip install --user -r dev-requirements.txt
         - python setup.py clean build
         - PYTHONPATH=$(readlink -f build/lib.*) python -munittest discover -v
@@ -15,7 +15,7 @@ python35:
     when: always
     script:
         - apt-get update -q -y
-        - apt-get install -y swig libssl-dev python3-dev openssl python3-setuptools python3-twisted python3-pip python3-parameterized
+        - apt-get install -y swig libssl-dev python3-dev openssl python3-setuptools python3-twisted python3-pip
         - python3 -mpip install --user -r dev-requirements.txt
         - python3 setup.py clean build
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest discover -v
@@ -25,7 +25,7 @@ python3:
     when: always
     script:
         - apt-get update -q -y
-        - apt-get install -y swig libssl-dev python3-dev openssl python3-setuptools python3-twisted python3-pip python3-parameterized
+        - apt-get install -y swig libssl-dev python3-dev openssl python3-setuptools python3-twisted python3-pip
         - python3 -mpip install --user -r dev-requirements.txt
         - python3 setup.py clean build
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest discover -v
@@ -35,7 +35,7 @@ fedora:
     when: always
     script:
         - dnf install --refresh -y @development-tools fedora-packager rpmdevtools
-        - dnf install -y swig python3-devel openssl-devel openssl python3-setuptools python3-twisted python3-parameterized
+        - dnf install -y swig python3-devel openssl-devel openssl python3-setuptools python3-twisted
         - python3 setup.py clean build
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest discover -v
 
@@ -44,7 +44,7 @@ fedora-rawhide:
     when: always
     script:
         - dnf install --refresh -y @development-tools fedora-packager rpmdevtools
-        - dnf install -y swig python3-devel openssl-devel openssl python3-setuptools python3-twisted python3-parameterized
+        - dnf install -y swig python3-devel openssl-devel openssl python3-setuptools python3-twisted
         - python3 setup.py clean build
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest discover -v
 
@@ -66,6 +66,6 @@ opensuse:
     script:
         - zypper refresh
         - zypper install -y pattern:devel_rpm_build pattern:devel_C_C++ osc
-        - zypper install -y swig python3-devel libopenssl-1_1-devel openssl-1_1 python3-service_identity python3-setuptools python3-Twisted python3-parameterized
+        - zypper install -y swig python3-devel libopenssl-devel openssl python3-service_identity python3-setuptools python3-Twisted
         - python3 setup.py clean build
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest discover -v
