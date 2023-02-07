@@ -160,7 +160,8 @@ class Cipher(object):
 
 class PKey(object):
     """
-    Public Key
+    Object to hold diverse types of asymmetric keys (also known
+    as "key pairs").
     """
 
     m2_pkey_free = m2.pkey_free
