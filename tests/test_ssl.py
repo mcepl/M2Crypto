@@ -411,6 +411,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
                 warnings.simplefilter('ignore', DeprecationWarning)
                 ctx = SSL.Context('tlsv1')
             s = SSL.Connection(ctx)
+            s.set_cipher_list('DEFAULT:@SECLEVEL=0')
             with six.assertRaisesRegex(self, SSL.SSLError,
                                        r'version|unexpected eof|internal error'):
                 s.connect(self.srv_addr)
