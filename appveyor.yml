@@ -12,8 +12,8 @@ environment:
         secure: oqWqarxnd4H23FMywnlQeg==
     PASS:
         secure: j/VSxdYJ7mdR44u8OdywLg==
-    X86_OPENSSL_INSTALLER: Win32OpenSSL-1_1_1s.exe
-    X64_OPENSSL_INSTALLER: Win64OpenSSL-1_1_1s.exe
+    X86_OPENSSL_INSTALLER: Win32OpenSSL-1_1_1t.exe
+    X64_OPENSSL_INSTALLER: Win64OpenSSL-1_1_1t.exe
     # Random password, never used anywhere else
     APPVEYOR_RDP_PASSWORD: MmXt9yk3rNah3CGcRWad3XD
     PYPI_USERNAME: __token__
@@ -169,7 +169,7 @@ build_script:
 test_script:
   - "dir .\\build"
   - "SET PYTHONPATH=.\\build\\lib.%PYTHONPATH_DIR%"
-  - "%PYTHON%\\python.exe -munittest discover -v tests"
+  - "%PYTHON%\\python.exe -mtap discover -v tests"
 
 after_test:
   # If tests are successful, create a whl package for the project.
