@@ -121,11 +121,11 @@ class MemoryBufferTestCase(unittest.TestCase):
 
 def run_test(*args, **kwargs):
     sep = os.linesep.encode()
-    with MemoryBuffer(b'hello\nworld\n') as mb:
+    with MemoryBuffer(b'hello' + sep + b'world' + sep) as mb:
         assert mb.readable()
         assert mb.readline() == b'hello' + sep
         assert mb.readline() == b'world' + sep
-    with MemoryBuffer(b'hello\nworld\n') as mb:
+    with MemoryBuffer(b'hello' + sep + b'world' + sep) as mb:
         assert mb.readlines() == [b'hello' + sep, b'world' + sep]
 
 def suite():
