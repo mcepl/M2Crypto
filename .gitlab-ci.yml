@@ -57,7 +57,7 @@ centos7:
         - yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
         - yum makecache
         - yum groups install -y "Development Tools"
-        - yum install -y swig python36-devel openssl openssl-devel python36-service-identity python36-setuptools python36-pip python36-Twisted python36-parameterized
+        - yum install -y swig python36-devel openssl openssl-devel python36-service-identity python36-setuptools python36-pip python36-Twisted
         - python3 -mpip install --user -r dev-requirements.txt
         - python3 setup.py clean build
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -mtap discover -v
