@@ -8528,7 +8528,7 @@ PyObject *x509_name_get_der(X509_NAME *name) {
     const char* pder="";
     size_t pderlen;
     i2d_X509_NAME(name, 0);
-    if (!X509_NAME_get0_der(name, (const unsigned char **)pder, &pderlen)) {
+    if (!X509_NAME_get0_der(name, (const unsigned char **)&pder, &pderlen)) {
         m2_PyErr_Msg(_x509_err);
         return NULL;
     }
