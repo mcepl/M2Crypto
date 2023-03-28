@@ -182,7 +182,8 @@ class ASN1_TIME(object):
             self.asn1_time = asn1_time
             self._pyfree = _pyfree
         else:
-            self.asn1_time = m2.asn1_time_new()  # type: bytes (ASN1_TIME*)
+            # that's (ASN1_TIME*)
+            self.asn1_time = m2.asn1_time_new()  # type: bytes
             self._pyfree = 1
 
     def __del__(self):

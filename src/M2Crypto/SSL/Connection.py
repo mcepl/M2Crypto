@@ -101,10 +101,10 @@ class Connection(object):
         self._free_bio()
 
     def close(self, freeBio=False):
+        # type: (Optional[bool]) -> None
         """
            if freeBio is true, call _free_bio
         """
-        # type: () -> None
         m2.ssl_shutdown(self.ssl)
         if freeBio:
             self._free_bio()

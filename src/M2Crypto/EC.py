@@ -10,7 +10,7 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
 Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam.
 All rights reserved."""
 
-from M2Crypto import BIO, Err, EVP, m2, util
+from M2Crypto import BIO, Err, EC, EVP, m2, util
 from typing import AnyStr, Callable, Dict, Optional, Tuple, Union  # noqa
 
 EC_Key = bytes
@@ -411,7 +411,7 @@ def load_pub_key(file):
 
 
 def load_key_string_pubkey(string, callback=util.passphrase_callback):
-    # type: (str, Callable) -> PKey
+    # type: (str, Callable) -> EC.PKey
     """
     Load an M2Crypto.EC.PKey from a public key as a string.
 
