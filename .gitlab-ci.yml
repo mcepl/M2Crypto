@@ -6,7 +6,7 @@ python27:
         - apt-get install -y swig libssl-dev python-dev openssl python-twisted python-setuptools python-pip python-typing
         - python -mpip install --user -r dev-requirements.txt
         - python setup.py clean build
-        - PYTHONPATH=$(readlink -f build/lib.*) python -mtap discover -v
+        - PYTHONPATH=$(readlink -f build/lib.*) python -munittest discover -v
     allow_failure:
       exit_codes: 1
 
