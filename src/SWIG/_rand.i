@@ -52,7 +52,7 @@ PyObject *rand_bytes(int n) {
     void *blob;
     int ret;
     PyObject *obj;
-    
+
     if (!(blob = PyMem_Malloc(n))) {
         PyErr_SetString(PyExc_MemoryError,
         "Insufficient memory for rand_bytes.");
@@ -82,7 +82,7 @@ PyObject *rand_pseudo_bytes(int n) {
     int ret;
     unsigned char *blob;
     PyObject *tuple;
-    
+
     if (!(blob=(unsigned char *)PyMem_Malloc(n))) {
         PyErr_SetString(PyExc_MemoryError, "Insufficient memory for rand_pseudo_bytes.");
         return NULL;
@@ -140,7 +140,7 @@ int rand_win32_event(unsigned int imsg, int wparam, long lparam) {
 }
 %}
 
-/* 
+/*
 2004-04-05, ngps: Still missing:
   RAND_egd
   RAND_egd_bytes

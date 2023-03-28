@@ -24,8 +24,8 @@
 %ignore WCHAR_MIN;
 /* http://swig.10945.n7.nabble.com/SWIG-AsVal-wchar-t-error-td2264.html */
 %{
-int SWIG_AsVal_wchar_t(PyObject *p, wchar_t *c) { return SWIG_OK; } 
-PyObject *SWIG_From_wchar_t(wchar_t c) { return SWIG_Py_Void(); } 
+int SWIG_AsVal_wchar_t(PyObject *p, wchar_t *c) { return SWIG_OK; }
+PyObject *SWIG_From_wchar_t(wchar_t c) { return SWIG_Py_Void(); }
 %}
 
 %{
@@ -103,4 +103,4 @@ static PyObject *x509_store_verify_cb_func;
 %constant int encrypt = 1;
 %constant int decrypt = 0;
 #endif
-  
+

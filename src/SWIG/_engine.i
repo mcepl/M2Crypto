@@ -3,7 +3,7 @@
  * vim: syntax=c sts=4 sw=4
  *
  * ENGINE functions from engine(3SSL).
- * 
+ *
  * Pavel Shramov
  * IMEC MSU
  */
@@ -65,13 +65,13 @@ extern const char * ENGINE_get_name(const ENGINE *);
  */
 %clear const char *;
 %rename(engine_ctrl_cmd_string) ENGINE_ctrl_cmd_string;
-extern int ENGINE_ctrl_cmd_string(ENGINE *e, const char *NONNULL, 
+extern int ENGINE_ctrl_cmd_string(ENGINE *e, const char *NONNULL,
                 const char *arg, int cmd_optional);
 
 %apply Pointer NONNULL { const char * };
 
 /*
- * UI methods. 
+ * UI methods.
  * XXX: UI_OpenSSL method is static and UI_destroy_method is not needed.
  */
 %rename(ui_openssl) UI_OpenSSL;
@@ -97,17 +97,17 @@ extern void UI_destroy_method(UI_METHOD *ui_method);
 104                 const void *password;
 105                 const char *prompt_info;
 106         } *mycb = callback_data;
-107 
+107
 108         if (mycb->password) {
 109                 sc_pin = set_pin(mycb->password);
 110                 return sc_pin;
 111         }
- 
+
  *
  * So callback_data need to be always provided and have fixed type.
  * UI method still may be NULL.
  *
- * Following functions allocate and free callback data structure with 
+ * Following functions allocate and free callback data structure with
  * optional password set.
  */
 

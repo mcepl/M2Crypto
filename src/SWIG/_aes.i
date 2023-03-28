@@ -8,8 +8,8 @@
 #include <openssl/aes.h>
 #endif
 
-/* 
-// 2004-10-10, ngps: 
+/*
+// 2004-10-10, ngps:
 // CTR mode is not included in the default OpenSSL build.
 // To use the AES CTR ciphers, link with your own copy of OpenSSL.
 */
@@ -27,38 +27,38 @@ extern EVP_CIPHER const *EVP_aes_256_ctr(void);
 %inline %{
 AES_KEY *aes_new(void) {
     AES_KEY *key;
-    
+
     if (!(key = (AES_KEY *)PyMem_Malloc(sizeof(AES_KEY)))) {
         PyErr_SetString(PyExc_MemoryError,
                         "Insufficient memory for AES key.");
         return NULL;
     }
     return key;
-}   
+}
 
 void AES_free(AES_KEY *key) {
     PyMem_Free((void *)key);
 }
 
-/* 
+/*
 // op == 0: encrypt
 // otherwise: decrypt (Python code will supply the value 1.)
 */
-PyObject *AES_set_key(AES_KEY *key, PyObject *value, int bits, int op) { 
-    char *vbuf; 
+PyObject *AES_set_key(AES_KEY *key, PyObject *value, int bits, int op) {
+    char *vbuf;
     Py_ssize_t vlen;
 
     if (PyBytes_AsStringAndSize(value, &vbuf, &vlen) == -1)
         return NULL;
 
-    if (op == 0) 
+    if (op == 0)
         AES_set_encrypt_key((const unsigned char *)vbuf, bits, key);
     else
         AES_set_decrypt_key((const unsigned char *)vbuf, bits, key);
     Py_RETURN_NONE;
 }
 
-/* 
+/*
 // op == 0: encrypt
 // otherwise: decrypt (Python code will supply the value 1.)
 */

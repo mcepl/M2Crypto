@@ -645,7 +645,7 @@ PyObject *ssl_connect(SSL *ssl, double timeout) {
     ssl_err = SSL_get_error(ssl, r);
     Py_END_ALLOW_THREADS
 
-    
+
     switch (ssl_err) {
         case SSL_ERROR_NONE:
         case SSL_ERROR_ZERO_RETURN:
@@ -667,8 +667,8 @@ PyObject *ssl_connect(SSL *ssl, double timeout) {
             obj = NULL;
             break;
     }
-    
-    
+
+
     return obj;
 }
 

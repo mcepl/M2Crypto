@@ -15,7 +15,7 @@ void util_init(PyObject *util_err) {
     Py_INCREF(util_err);
     _util_err = util_err;
 }
-    
+
 PyObject *util_hex_to_string(PyObject *blob) {
     PyObject *obj;
     const void *buf;

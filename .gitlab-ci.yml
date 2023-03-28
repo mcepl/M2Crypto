@@ -34,7 +34,8 @@ fedora:
     image: fedora:latest
     when: always
     script:
-        - dnf install --refresh -y @development-tools fedora-packager rpmdevtools
+        - dnf makecache
+        - dnf install -y @development-tools fedora-packager rpmdevtools
         - dnf install -y swig python3-devel openssl-devel openssl python3-setuptools python3-twisted
         - python3 -mpip install --user -r dev-requirements.txt
         - python3 setup.py clean build
@@ -44,7 +45,8 @@ fedora-rawhide:
     image: registry.fedoraproject.org/fedora:rawhide
     when: always
     script:
-        - dnf install --refresh -y @development-tools fedora-packager rpmdevtools
+        - dnf makecache
+        - dnf install -y @development-tools fedora-packager rpmdevtools
         - dnf install -y swig python3-devel openssl-devel openssl python3-setuptools python3-twisted
         - python3 -mpip install --user -r dev-requirements.txt
         - python3 setup.py clean build
