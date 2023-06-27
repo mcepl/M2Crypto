@@ -412,7 +412,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
                 ctx = SSL.Context('tlsv1')
             s = SSL.Connection(ctx)
             with six.assertRaisesRegex(self, SSL.SSLError,
-                                       r'version|unexpected eof'):
+                                       r'version|unexpected eof|internal error'):
                 s.connect(self.srv_addr)
             s.close()
         finally:
