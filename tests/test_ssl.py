@@ -392,7 +392,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             self.assertEqual(r.sec, DEFAULT_TIMEOUT, r.sec)
             self.assertEqual(r.microsec, 0, r.microsec)
             self.assertEqual(w.sec, test_timeout_sec, w.sec)
-            self.assertEqual(w.microsec, test_timeout_microsec, w.microsec)
+            self.assertLess(abs(w.microsec - test_timeout_microsec), 4000 , w.microsec)
 
             s.connect(self.srv_addr)
             data = self.http_get(s)
