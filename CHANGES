@@ -7,6 +7,24 @@
   instead.
 - Upgrade embedded six.py module to 1.16.0 (really tiny
   inconsequential changes).
+- Make tests working on MacOS again (test_bio_membuf: Use fork)
+- Use OpenSSL_version_num() instead of unrealiable parsing of .h
+  file.
+- Mitigate the Bleichenbacher timing attacks in the RSA
+  decryption API (CVE-2020-25657)
+- Add functionality to extract EC key from public key + Update
+  tests
+- Worked around compatibility issues with OpenSSL 3.*
+- Support for Twisted has been deprecated (they have their own
+  SSL support anyway).
+- Generate TAP while testing.
+- Stop using GitHub for testing.
+- Accept a small deviation from time in the testsuite (for
+  systems with non-standard HZ kernel parameter).
+- Use the default BIO.__del__ rather tha overriding in BIO.File
+  (avoid a memleak).
+- Resolve "X509_Name.as_der() method from X509.py -> class
+  X509_Name caused segmentation fault"
 
 0.38.0 - 2021-06-14
 -------------------
