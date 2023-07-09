@@ -223,13 +223,19 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         self.swig_opts.append('-modern')
         self.swig_opts.append('-builtin')
 
+        build_dir = os.path.join(self.build_lib, 'M2Crypto')
+        mkpath(build_dir)
+
         # These two lines are a workaround for
         # http://bugs.python.org/issue2624 , hard-coding that we are only
         # building a single extension with a known path; a proper patch to
         # distutils would be in the run phase, when extension name and path are
         # known.
-        self.swig_opts.extend(['-outdir',
-                              os.path.join(os.getcwd(), 'src', 'M2Crypto')])
+        if sys.version_info[:2] < (3,2):
+            self.swig_opts.extend(['-outdir',
+                                os.path.join(os.getcwd(), 'src', 'M2Crypto')])
+        else:
+            self.swig_opts.extend(['-outdir', build_dir])
         self.include_dirs.append(os.path.join(os.getcwd(), 'src', 'SWIG'))
 
         if sys.platform == 'cygwin' and self.openssl is not None:
