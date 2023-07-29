@@ -57,7 +57,6 @@
 <span class="kn">from</span> <span class="nn">M2Crypto.SSL.SSLServer</span> <span class="kn">import</span> <span class="n">SSLServer</span><span class="p">,</span> <span class="n">ThreadingSSLServer</span>
 <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s1">&#39;nt&#39;</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">M2Crypto.SSL.SSLServer</span> <span class="kn">import</span> <span class="n">ForkingSSLServer</span>
-<span class="kn">from</span> <span class="nn">M2Crypto.SSL.ssl_dispatcher</span> <span class="kn">import</span> <span class="n">ssl_dispatcher</span>
 <span class="kn">from</span> <span class="nn">M2Crypto.SSL.timeout</span> <span class="kn">import</span> <span class="n">timeout</span><span class="p">,</span> <span class="n">struct_to_timeout</span><span class="p">,</span> <span class="n">struct_size</span>
 
 <span class="n">verify_none</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">SSL_VERIFY_NONE</span>  <span class="c1"># type: int</span>
@@ -72,7 +71,6 @@
 
 <span class="n">op_all</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">SSL_OP_ALL</span>  <span class="c1"># type: int</span>
 <span class="n">op_no_sslv2</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">SSL_OP_NO_SSLv2</span>  <span class="c1"># type: int</span>
-
 </pre></div>
 
           </div>

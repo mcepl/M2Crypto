@@ -73,14 +73,6 @@ SSL Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`ssl_dispatcher` Module
-----------------------------
-
-.. automodule:: M2Crypto.SSL.ssl_dispatcher
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`timeout` Module
 ---------------------
 

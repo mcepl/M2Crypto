@@ -26,7 +26,6 @@ from M2Crypto.SSL.Context import Context
 from M2Crypto.SSL.SSLServer import SSLServer, ThreadingSSLServer
 if os.name != 'nt':
     from M2Crypto.SSL.SSLServer import ForkingSSLServer
-from M2Crypto.SSL.ssl_dispatcher import ssl_dispatcher
 from M2Crypto.SSL.timeout import timeout, struct_to_timeout, struct_size
 
 verify_none = m2.SSL_VERIFY_NONE  # type: int
@@ -41,4 +40,3 @@ SSL_RECEIVED_SHUTDOWN = m2.SSL_RECEIVED_SHUTDOWN  # type: int
 
 op_all = m2.SSL_OP_ALL  # type: int
 op_no_sslv2 = m2.SSL_OP_NO_SSLv2  # type: int
-

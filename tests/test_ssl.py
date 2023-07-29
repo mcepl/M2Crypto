@@ -14,7 +14,6 @@ Server tests:
 - ???
 
 Others:
-- ssl_dispatcher
 - SSLServer
 - ForkingSSLServer
 - ThreadingSSLServer
