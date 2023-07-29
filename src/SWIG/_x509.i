@@ -119,6 +119,8 @@ extern int PEM_write_X509(FILE *, X509 *);
 
 %rename(x509_verify) X509_verify;
 extern int X509_verify(X509 *a, EVP_PKEY *r);
+%rename(x509_verify_cert) X509_verify_cert;
+extern int X509_verify_cert(X509_STORE_CTX *ctx);
 %rename(x509_get_verify_error) X509_verify_cert_error_string;
 extern const char *X509_verify_cert_error_string(long);
 
