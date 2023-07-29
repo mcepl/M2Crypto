@@ -1,18 +1,15 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>M2Crypto.ASN1 &#8212; M2Crypto  documentation</title>
-    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/language_data.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
    
@@ -110,7 +107,7 @@
 
 <div class="viewcode-block" id="ASN1_String.as_text"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ASN1.ASN1_String.as_text">[docs]</a>    <span class="k">def</span> <span class="nf">as_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="c1"># type: (int) -&gt; str</span>
-        <span class="sd">&quot;&quot;&quot;Output an ASN1_STRING structure according to the set flags.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Output an ASN1_STRING structure according to the set flags.</span>
 
 <span class="sd">        :param flags: determine the format of the output by using</span>
 <span class="sd">               predetermined constants, see ASN1_STRING_print_ex(3)</span>
@@ -161,7 +158,7 @@
 
 
 <div class="viewcode-block" id="LocalTimezone"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ASN1.LocalTimezone">[docs]</a><span class="k">class</span> <span class="nc">LocalTimezone</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">tzinfo</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Localtimezone from datetime manual.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Localtimezone from datetime manual.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; None</span>
@@ -216,7 +213,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">asn1_time</span> <span class="o">=</span> <span class="n">asn1_time</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="n">_pyfree</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">asn1_time</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_time_new</span><span class="p">()</span>
+            <span class="c1"># that&#39;s (ASN1_TIME*)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">asn1_time</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_time_new</span><span class="p">()</span>  <span class="c1"># type: bytes</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_pyfree</span> <span class="o">=</span> <span class="mi">1</span>
 
     <span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -239,20 +237,36 @@
 
 <div class="viewcode-block" id="ASN1_TIME.set_string"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ASN1.ASN1_TIME.set_string">[docs]</a>    <span class="k">def</span> <span class="nf">set_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
         <span class="c1"># type: (bytes) -&gt; int</span>
-        <span class="sd">&quot;&quot;&quot;Set time from UTC string.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set time from UTC string.</span>
+
+<span class="sd">        :return:  1 if the time value is successfully set and 0</span>
+<span class="sd">                  otherwise</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_time_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asn1_time</span><span class="p">),</span> \
             <span class="s2">&quot;&#39;asn1_time&#39; type error&#39;&quot;</span>
         <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_time_set_string</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asn1_time</span><span class="p">,</span> <span class="n">string</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ASN1_TIME.set_time"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ASN1.ASN1_TIME.set_time">[docs]</a>    <span class="k">def</span> <span class="nf">set_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
         <span class="c1"># type: (int) -&gt; ASN1_TIME</span>
-        <span class="sd">&quot;&quot;&quot;Set time from seconds since epoch (int).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set time from seconds since epoch (int).</span>
+
+<span class="sd">        :return: pointer to a time structure or NULL if an error</span>
+<span class="sd">                 occurred</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_time_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asn1_time</span><span class="p">),</span> \
             <span class="s2">&quot;&#39;asn1_time&#39; type error&#39;&quot;</span>
         <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">asn1_time_set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">asn1_time</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ASN1_TIME.get_datetime"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ASN1.ASN1_TIME.get_datetime">[docs]</a>    <span class="k">def</span> <span class="nf">get_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># type: () -&gt; ASN1_TIME</span>
+        <span class="c1"># type: () -&gt; datetime.datetime</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get time as datetime.datetime object</span>
+
+<span class="sd">        :return: always return datetime object</span>
+<span class="sd">        :raises: ValueError if anything wrong happens</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">date</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="n">timezone</span> <span class="o">=</span> <span class="kc">None</span>
@@ -276,6 +290,12 @@
 
 <div class="viewcode-block" id="ASN1_TIME.set_datetime"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.ASN1.ASN1_TIME.set_datetime">[docs]</a>    <span class="k">def</span> <span class="nf">set_datetime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
         <span class="c1"># type: (datetime.datetime) -&gt; ASN1_TIME</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set time from datetime.datetime object.</span>
+
+<span class="sd">        :return: pointer to a time structure or NULL if an error</span>
+<span class="sd">                 occurred</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">local</span> <span class="o">=</span> <span class="n">LocalTimezone</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">date</span><span class="o">.</span><span class="n">tzinfo</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">local</span><span class="p">)</span>
@@ -319,12 +339,12 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -341,8 +361,8 @@
       &copy;2017, Matej Cepl <mcepl@cepl.eu>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
     </div>
 

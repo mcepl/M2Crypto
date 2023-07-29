@@ -32,8 +32,6 @@ M2Crypto comes with the following:
 
 - **S/MIME v2**.
 
-- **ZServerSSL**: A **HTTPS server for Zope**.
-
 - **ZSmime**: An S/MIME messenger for **Zope**.
 
 We care a lot about stable API and all Python methods should be

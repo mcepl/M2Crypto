@@ -1,18 +1,15 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>M2Crypto.httpslib &#8212; M2Crypto  documentation</title>
-    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/language_data.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
    
@@ -53,7 +50,7 @@
 
 <div class="viewcode-block" id="HTTPSConnection"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.httpslib.HTTPSConnection">[docs]</a><span class="k">class</span> <span class="nc">HTTPSConnection</span><span class="p">(</span><span class="n">HTTPConnection</span><span class="p">):</span>
 
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class allows communication via SSL using M2Crypto.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -61,7 +58,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">ssl</span><span class="p">):</span>
         <span class="c1"># type: (str, Optional[int], Optional[bool], **Any) -&gt; None</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Represents one transaction with an HTTP server over the SSL</span>
 <span class="sd">        connection.</span>
 
@@ -150,7 +147,7 @@
 
 
 <div class="viewcode-block" id="ProxyHTTPSConnection"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.httpslib.ProxyHTTPSConnection">[docs]</a><span class="k">class</span> <span class="nc">ProxyHTTPSConnection</span><span class="p">(</span><span class="n">HTTPSConnection</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An HTTPS Connection that uses a proxy and the CONNECT request.</span>
 
 <span class="sd">    When the connection is initiated, CONNECT is first sent to the proxy (along</span>
@@ -169,7 +166,7 @@
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">host</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">username</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">password</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">ssl</span><span class="p">):</span>
         <span class="c1"># type: (str, Optional[int], Optional[bool], Optional[AnyStr], Optional[AnyStr], **Any) -&gt; None</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create the ProxyHTTPSConnection object.</span>
 
 <span class="sd">        :param host: host name of the proxy server</span>
@@ -201,7 +198,7 @@
 
 <div class="viewcode-block" id="ProxyHTTPSConnection.putrequest"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.httpslib.ProxyHTTPSConnection.putrequest">[docs]</a>    <span class="k">def</span> <span class="nf">putrequest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">skip_host</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">skip_accept_encoding</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="c1"># type: (AnyStr, AnyStr, int, int) -&gt; None</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        putrequest is called before connect, so can interpret url and get</span>
 <span class="sd">        real host/port to be used to make CONNECT request to proxy</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -271,7 +268,7 @@
 
     <span class="k">def</span> <span class="nf">_get_connect_msg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; bytes</span>
-        <span class="sd">&quot;&quot;&quot; Return an HTTP CONNECT request to send to the proxy. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return an HTTP CONNECT request to send to the proxy. &quot;&quot;&quot;</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;CONNECT </span><span class="si">%s</span><span class="s2">:</span><span class="si">%d</span><span class="s2"> HTTP/1.1</span><span class="se">\r\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_real_host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_real_port</span><span class="p">)</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="n">msg</span> <span class="o">+</span> <span class="s2">&quot;Host: </span><span class="si">%s</span><span class="s2">:</span><span class="si">%d</span><span class="se">\r\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_real_host</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_real_port</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proxy_UA</span><span class="p">:</span>
@@ -283,7 +280,7 @@
 
     <span class="k">def</span> <span class="nf">_start_ssl</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; None</span>
-        <span class="sd">&quot;&quot;&quot; Make this connection&#39;s socket SSL-aware. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Make this connection&#39;s socket SSL-aware. &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sock</span> <span class="o">=</span> <span class="n">SSL</span><span class="o">.</span><span class="n">Connection</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ssl_ctx</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sock</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sock</span><span class="o">.</span><span class="n">setup_ssl</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sock</span><span class="o">.</span><span class="n">set_connect_state</span><span class="p">()</span>
@@ -291,7 +288,7 @@
 
     <span class="k">def</span> <span class="nf">_encode_auth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; Optional[bytes]</span>
-        <span class="sd">&quot;&quot;&quot; Encode the username and password for use in the auth header. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Encode the username and password for use in the auth header. &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_username</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_password</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="c1"># Authenticated proxy</span>
@@ -335,12 +332,12 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -357,8 +354,8 @@
       &copy;2017, Matej Cepl <mcepl@cepl.eu>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
     </div>
 

@@ -1,18 +1,15 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>M2Crypto.DSA &#8212; M2Crypto  documentation</title>
-    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/doctools.js"></script>
-    <script src="../../_static/language_data.js"></script>
+    <script src="../../_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
    
@@ -56,7 +53,7 @@
 
 <div class="viewcode-block" id="DSA"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.DSA">[docs]</a><span class="k">class</span> <span class="nc">DSA</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class is a context supporting DSA key and parameter</span>
 <span class="sd">    values, signing and verifying.</span>
 
@@ -83,7 +80,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dsa</span><span class="p">,</span> <span class="n">_pyfree</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="c1"># type: (bytes, int) -&gt; None</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Use one of the factory functions to create an instance.</span>
 <span class="sd">        :param dsa: binary representation of OpenSSL DSA type</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -98,7 +95,7 @@
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; int</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return the key length.</span>
 
 <span class="sd">        :return:  the DSA key length in bits</span>
@@ -108,7 +105,7 @@
 
     <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="c1"># type: (str) -&gt; bytes</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return specified DSA parameters and key values.</span>
 
 <span class="sd">        :param name: name of variable to be returned.  Must be</span>
@@ -133,7 +130,7 @@
 
 <div class="viewcode-block" id="DSA.set_params"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.DSA.set_params">[docs]</a>    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">g</span><span class="p">):</span>
         <span class="c1"># type: (bytes, bytes, bytes) -&gt; None</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Set new parameters.</span>
 
 <span class="sd">        :param p: MPI binary representation ... format that consists of</span>
@@ -153,7 +150,7 @@
 
 <div class="viewcode-block" id="DSA.gen_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.DSA.gen_key">[docs]</a>    <span class="k">def</span> <span class="nf">gen_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; None</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate a key pair.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">assert</span> <span class="n">m2</span><span class="o">.</span><span class="n">dsa_type_check</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dsa</span><span class="p">),</span> <span class="s2">&quot;&#39;dsa&#39; type error&quot;</span>
@@ -161,7 +158,7 @@
 
 <div class="viewcode-block" id="DSA.save_params"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.DSA.save_params">[docs]</a>    <span class="k">def</span> <span class="nf">save_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="c1"># type: (AnyStr) -&gt; int</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the DSA parameters to a file.</span>
 
 <span class="sd">        :param filename: Save the DSA parameters to this file.</span>
@@ -174,7 +171,7 @@
 
 <div class="viewcode-block" id="DSA.save_params_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.DSA.save_params_bio">[docs]</a>    <span class="k">def</span> <span class="nf">save_params_bio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bio</span><span class="p">):</span>
         <span class="c1"># type: (BIO.BIO) -&gt; int</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save DSA parameters to a BIO object.</span>
 
 <span class="sd">        :param bio: Save DSA parameters to this object.</span>
@@ -185,7 +182,7 @@
 <div class="viewcode-block" id="DSA.save_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.DSA.save_key">[docs]</a>    <span class="k">def</span> <span class="nf">save_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">cipher</span><span class="o">=</span><span class="s1">&#39;aes_128_cbc&#39;</span><span class="p">,</span>
                  <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
         <span class="c1"># type: (AnyStr, str, Callable) -&gt; int</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the DSA key pair to a file.</span>
 
 <span class="sd">        :param filename: Save the DSA key pair to this file.</span>
@@ -201,7 +198,7 @@
 <div class="viewcode-block" id="DSA.save_key_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.DSA.save_key_bio">[docs]</a>    <span class="k">def</span> <span class="nf">save_key_bio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bio</span><span class="p">,</span> <span class="n">cipher</span><span class="o">=</span><span class="s1">&#39;aes_128_cbc&#39;</span><span class="p">,</span>
                      <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
         <span class="c1"># type: (BIO.BIO, str, Callable) -&gt; int</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save DSA key pair to a BIO object.</span>
 
 <span class="sd">        :param bio:    Save DSA parameters to this object.</span>
@@ -222,7 +219,7 @@
 
 <div class="viewcode-block" id="DSA.save_pub_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.DSA.save_pub_key">[docs]</a>    <span class="k">def</span> <span class="nf">save_pub_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="c1"># type: (AnyStr) -&gt; int</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save the DSA public key (with parameters) to a file.</span>
 
 <span class="sd">        :param filename: Save DSA public key (with parameters)</span>
@@ -236,7 +233,7 @@
 
 <div class="viewcode-block" id="DSA.save_pub_key_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.DSA.save_pub_key_bio">[docs]</a>    <span class="k">def</span> <span class="nf">save_pub_key_bio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bio</span><span class="p">):</span>
         <span class="c1"># type: (BIO.BIO) -&gt; int</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Save DSA public key (with parameters) to a BIO object.</span>
 
 <span class="sd">        :param bio: Save DSA public key (with parameters)</span>
@@ -247,7 +244,7 @@
 
 <div class="viewcode-block" id="DSA.sign"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.DSA.sign">[docs]</a>    <span class="k">def</span> <span class="nf">sign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">digest</span><span class="p">):</span>
         <span class="c1"># type: (bytes) -&gt; Tuple[bytes, bytes]</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Sign the digest.</span>
 
 <span class="sd">        :param digest: SHA-1 hash of message (same as output</span>
@@ -260,7 +257,7 @@
 
 <div class="viewcode-block" id="DSA.verify"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.DSA.verify">[docs]</a>    <span class="k">def</span> <span class="nf">verify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">digest</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span><span class="p">):</span>
         <span class="c1"># type: (bytes, bytes, bytes) -&gt; int</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Verify a newly calculated digest against the signature</span>
 <span class="sd">        values r and s.</span>
 
@@ -282,7 +279,7 @@
         <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">dsa_verify_asn1</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dsa</span><span class="p">,</span> <span class="n">digest</span><span class="p">,</span> <span class="n">blob</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DSA.check_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.DSA.check_key">[docs]</a>    <span class="k">def</span> <span class="nf">check_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check to be sure the DSA object has a valid private key.</span>
 
 <span class="sd">        :return:  1 (true) if a valid private key</span>
@@ -293,7 +290,7 @@
 
 <div class="viewcode-block" id="DSA_pub"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.DSA_pub">[docs]</a><span class="k">class</span> <span class="nc">DSA_pub</span><span class="p">(</span><span class="n">DSA</span><span class="p">):</span>
 
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This class is a DSA context that only supports a public key</span>
 <span class="sd">    and verification.  It does NOT support a private key or</span>
 <span class="sd">    signing.</span>
@@ -308,7 +305,7 @@
 
 <div class="viewcode-block" id="DSA_pub.check_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.DSA_pub.check_key">[docs]</a>    <span class="k">def</span> <span class="nf">check_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># type: () -&gt; int</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :return: does DSA_pub contain a pub key?</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">m2</span><span class="o">.</span><span class="n">dsa_check_pub_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dsa</span><span class="p">)</span></div>
@@ -323,7 +320,7 @@
 
 <div class="viewcode-block" id="gen_params"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.gen_params">[docs]</a><span class="k">def</span> <span class="nf">gen_params</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">genparam_callback</span><span class="p">):</span>
     <span class="c1"># type: (int, Callable) -&gt; DSA</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Factory function that generates DSA parameters and</span>
 <span class="sd">    instantiates a DSA object from the output.</span>
 
@@ -340,7 +337,7 @@
 
 <div class="viewcode-block" id="set_params"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.set_params">[docs]</a><span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">g</span><span class="p">):</span>
     <span class="c1"># type: (bytes, bytes, bytes) -&gt; DSA</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Factory function that instantiates a DSA object with DSA</span>
 <span class="sd">    parameters.</span>
 
@@ -356,7 +353,7 @@
 
 <div class="viewcode-block" id="load_params"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.load_params">[docs]</a><span class="k">def</span> <span class="nf">load_params</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
     <span class="c1"># type: (AnyStr, Callable) -&gt; DSA</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Factory function that instantiates a DSA object with DSA</span>
 <span class="sd">    parameters from a file.</span>
 
@@ -375,7 +372,7 @@
 
 <div class="viewcode-block" id="load_params_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.load_params_bio">[docs]</a><span class="k">def</span> <span class="nf">load_params_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
     <span class="c1"># type: (BIO.BIO, Callable) -&gt; DSA</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Factory function that instantiates a DSA object with DSA</span>
 <span class="sd">    parameters from a M2Crypto.BIO object.</span>
 
@@ -392,7 +389,7 @@
 
 <div class="viewcode-block" id="load_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.load_key">[docs]</a><span class="k">def</span> <span class="nf">load_key</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
     <span class="c1"># type: (AnyStr, Callable) -&gt; DSA</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Factory function that instantiates a DSA object from a</span>
 <span class="sd">    PEM encoded DSA key pair.</span>
 
@@ -411,7 +408,7 @@
 
 <div class="viewcode-block" id="load_key_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.load_key_bio">[docs]</a><span class="k">def</span> <span class="nf">load_key_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
     <span class="c1"># type: (BIO.BIO, Callable) -&gt; DSA</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Factory function that instantiates a DSA object from a</span>
 <span class="sd">    PEM encoded DSA key pair.</span>
 
@@ -428,7 +425,7 @@
 
 <div class="viewcode-block" id="pub_key_from_params"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.pub_key_from_params">[docs]</a><span class="k">def</span> <span class="nf">pub_key_from_params</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">g</span><span class="p">,</span> <span class="n">pub</span><span class="p">):</span>
     <span class="c1"># type: (bytes, bytes, bytes, bytes) -&gt; DSA_pub</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Factory function that instantiates a DSA_pub object using</span>
 <span class="sd">    the parameters and public key specified.</span>
 
@@ -446,7 +443,7 @@
 
 <div class="viewcode-block" id="load_pub_key"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.load_pub_key">[docs]</a><span class="k">def</span> <span class="nf">load_pub_key</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
     <span class="c1"># type: (AnyStr, Callable) -&gt; DSA_pub</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Factory function that instantiates a DSA_pub object using</span>
 <span class="sd">    a DSA public key contained in PEM file.  The PEM file</span>
 <span class="sd">    must contain the parameters in addition to the public key.</span>
@@ -466,7 +463,7 @@
 
 <div class="viewcode-block" id="load_pub_key_bio"><a class="viewcode-back" href="../../M2Crypto.html#M2Crypto.DSA.load_pub_key_bio">[docs]</a><span class="k">def</span> <span class="nf">load_pub_key_bio</span><span class="p">(</span><span class="n">bio</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="n">util</span><span class="o">.</span><span class="n">passphrase_callback</span><span class="p">):</span>
     <span class="c1"># type: (BIO.BIO, Callable) -&gt; DSA_pub</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Factory function that instantiates a DSA_pub object using</span>
 <span class="sd">    a DSA public key contained in PEM format.  The PEM</span>
 <span class="sd">    must contain the parameters in addition to the public key.</span>
@@ -515,12 +512,12 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -537,8 +534,8 @@
       &copy;2017, Matej Cepl <mcepl@cepl.eu>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
     </div>
 

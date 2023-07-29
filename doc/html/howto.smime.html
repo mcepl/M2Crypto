@@ -1,18 +1,16 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>HOWTO: Programming S/MIME in Python with M2Crypto &#8212; M2Crypto  documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
    
@@ -31,28 +29,28 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="howto-programming-s-mime-in-python-with-m2crypto">
-<span id="howto-smime"></span><h1>HOWTO: Programming S/MIME in Python with M2Crypto<a class="headerlink" href="#howto-programming-s-mime-in-python-with-m2crypto" title="Permalink to this headline">¶</a></h1>
+  <section id="howto-programming-s-mime-in-python-with-m2crypto">
+<span id="howto-smime"></span><h1>HOWTO: Programming S/MIME in Python with M2Crypto<a class="headerlink" href="#howto-programming-s-mime-in-python-with-m2crypto" title="Permalink to this heading">¶</a></h1>
 <dl class="field-list simple">
-<dt class="field-odd">author</dt>
+<dt class="field-odd">author<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Pheng Siong Ng &lt;<a class="reference external" href="mailto:ngps&#37;&#52;&#48;post1&#46;com">ngps<span>&#64;</span>post1<span>&#46;</span>com</a>&gt;</p>
 </dd>
-<dt class="field-even">copyright</dt>
+<dt class="field-even">copyright<span class="colon">:</span></dt>
 <dd class="field-even"><p>© 2000, 2001 by Ng Pheng Siong.</p>
 </dd>
 </dl>
-</div>
-<div class="section" id="introduction">
-<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading">¶</a></h1>
 <p><a class="reference external" href="https://gitlab.com/m2crypto/m2crypto/">M2Crypto</a> is a
 <a class="reference external" href="http://www.python.org">Python</a> interface to
 <a class="reference external" href="http://www.openssl.org">OpenSSL</a>. It makes available to the Python
 programmer SSL functionality to implement clients and servers, S/MIME
 v2, RSA, DSA, DH, symmetric ciphers, message digests and HMACs.</p>
 <p>This document demonstrates programming S/MIME with M2Crypto.</p>
-</div>
-<div class="section" id="s-mime">
-<h1>S/MIME<a class="headerlink" href="#s-mime" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="s-mime">
+<h1>S/MIME<a class="headerlink" href="#s-mime" title="Permalink to this heading">¶</a></h1>
 <p>S/MIME - Secure Multipurpose Internet Mail Extensions [RFC 2311, RFC
 2312] - provides a consistent way to send and receive secure MIME data.
 Based on the popular Internet MIME standard, S/MIME provides the
@@ -60,9 +58,9 @@ following cryptographic security services for electronic messaging
 applications - <em>authentication</em>, <em>message integrity</em> and
 <em>non-repudiation of origin</em> (using <em>digital signatures</em>), and <em>privacy</em>
 and <em>data security</em> (using <em>encryption</em>).</p>
-</div>
-<div class="section" id="keys-and-certificates">
-<h1>Keys and Certificates<a class="headerlink" href="#keys-and-certificates" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="keys-and-certificates">
+<h1>Keys and Certificates<a class="headerlink" href="#keys-and-certificates" title="Permalink to this heading">¶</a></h1>
 <p>To create an S/MIME-signed message, you need an RSA key pair (this
 consists of a public key and a private key) and an X.509 certificate of
 said public key.</p>
@@ -205,9 +203,9 @@ key.</p>
 <p>We may passphrase-protect the keys, if we so choose. M2Crypto will
 prompt the user for the passphrase when such a key is being loaded.</p>
 </div></blockquote>
-</div>
-<div class="section" id="m2crypto-smime">
-<h1>M2Crypto.SMIME<a class="headerlink" href="#m2crypto-smime" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="m2crypto-smime">
+<h1>M2Crypto.SMIME<a class="headerlink" href="#m2crypto-smime" title="Permalink to this heading">¶</a></h1>
 <p>The Python programmer accesses M2Crypto’s S/MIME functionality through
 class <code class="docutils literal notranslate"><span class="pre">SMIME</span></code> in the module <code class="docutils literal notranslate"><span class="pre">M2Crypto.SMIME</span></code>. Typically, an
 <code class="docutils literal notranslate"><span class="pre">SMIME</span></code> object is instantiated; the object is then set up for the
@@ -218,9 +216,9 @@ operation is invoked on the object.</p>
 OpenSSL. A commonly used <code class="docutils literal notranslate"><span class="pre">BIO</span></code> abstraction in M2Crypto is
 <code class="docutils literal notranslate"><span class="pre">M2Crypto.BIO.MemoryBuffer</span></code>, which implements a memory-based file-like
 object, similar to Python’s own <code class="docutils literal notranslate"><span class="pre">StringIO</span></code>.</p>
-</div>
-<div class="section" id="sign">
-<h1>Sign<a class="headerlink" href="#sign" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="sign">
+<h1>Sign<a class="headerlink" href="#sign" title="Permalink to this heading">¶</a></h1>
 <p>The following code demonstrates how to generate an S/MIME-signed
 message. <code class="docutils literal notranslate"><span class="pre">randpool.dat</span></code> contains random data which is used to seed
 OpenSSL’s pseudo-random number generator via M2Crypto:</p>
@@ -311,9 +309,9 @@ correctly:</p>
 <span class="o">------</span><span class="mi">3</span><span class="n">C93156FC7B4EBF49FE9C7DB7F503087</span><span class="o">--</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="verify">
-<h1>Verify<a class="headerlink" href="#verify" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="verify">
+<h1>Verify<a class="headerlink" href="#verify" title="Permalink to this heading">¶</a></h1>
 <p>Assume the above output has been saved into <code class="docutils literal notranslate"><span class="pre">sign.p7</span></code>. Let’s now
 verify the signature:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
@@ -363,9 +361,9 @@ M2Crypto.SMIME.SMIME_Error: 312:error:21075075:PKCS7 routines:PKCS7_verify:certi
 <code class="docutils literal notranslate"><span class="pre">pk7_smime.c</span></code> (as of OpenSSL 0.9.6); if you are a C programmer, you
 may wish to look up the C source to explore OpenSSL’s S/MIME
 implementation and understand why the error message is worded thus.</p>
-</div>
-<div class="section" id="encrypt">
-<h1>Encrypt<a class="headerlink" href="#encrypt" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="encrypt">
+<h1>Encrypt<a class="headerlink" href="#encrypt" title="Permalink to this heading">¶</a></h1>
 <p>We now demonstrate how to generate an S/MIME-encrypted message:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">Rand</span><span class="p">,</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
 
@@ -425,9 +423,9 @@ implementation and understand why the error message is worded thus.</p>
 <span class="n">nIQfYTYcdL9I5Sk</span><span class="o">=</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="decrypt">
-<h1>Decrypt<a class="headerlink" href="#decrypt" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="decrypt">
+<h1>Decrypt<a class="headerlink" href="#decrypt" title="Permalink to this heading">¶</a></h1>
 <p>Assume the above output has been saved into <code class="docutils literal notranslate"><span class="pre">encrypt.p7</span></code>. Decrypt the
 message thusly:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
@@ -451,9 +449,9 @@ message thusly:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="n">sign</span> <span class="n">of</span> <span class="n">our</span> <span class="n">times</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="sign-and-encrypt">
-<h1>Sign and Encrypt<a class="headerlink" href="#sign-and-encrypt" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="sign-and-encrypt">
+<h1>Sign and Encrypt<a class="headerlink" href="#sign-and-encrypt" title="Permalink to this heading">¶</a></h1>
 <p>Here’s how to generate an S/MIME-signed/encrypted message:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">Rand</span><span class="p">,</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
 
@@ -562,9 +560,9 @@ message thusly:</p>
 <span class="n">MKWcbI1nfVOhCv3xDq2eLae</span><span class="o">+</span><span class="n">s0oVoc041ceRazqFM2TL</span><span class="o">/</span><span class="n">Z6UXRME</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="decrypt-and-verify">
-<h1>Decrypt and Verify<a class="headerlink" href="#decrypt-and-verify" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="decrypt-and-verify">
+<h1>Decrypt and Verify<a class="headerlink" href="#decrypt-and-verify" title="Permalink to this heading">¶</a></h1>
 <p>Suppose the above output has been saved into <code class="docutils literal notranslate"><span class="pre">se.p7</span></code>. The following
 demonstrates how to decrypt and verify it:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">M2Crypto</span> <span class="kn">import</span> <span class="n">BIO</span><span class="p">,</span> <span class="n">SMIME</span><span class="p">,</span> <span class="n">X509</span>
@@ -607,9 +605,9 @@ demonstrates how to decrypt and verify it:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="n">sign</span> <span class="n">of</span> <span class="n">our</span> <span class="n">times</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="sending-s-mime-messages-via-smtp">
-<h1>Sending S/MIME messages via SMTP<a class="headerlink" href="#sending-s-mime-messages-via-smtp" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="sending-s-mime-messages-via-smtp">
+<h1>Sending S/MIME messages via SMTP<a class="headerlink" href="#sending-s-mime-messages-via-smtp" title="Permalink to this heading">¶</a></h1>
 <p>In the above examples, we’ve assumed that our S/MIME messages are sent
 and received automagically. The following is a Python function that
 generates S/MIME-signed/encrypted messages and sends them via
@@ -669,9 +667,9 @@ SMTP:</p>
 S/MIME-signed/encrypted messages, depending on the parameters
 <code class="docutils literal notranslate"><span class="pre">from_key</span></code> and <code class="docutils literal notranslate"><span class="pre">to_certs</span></code>. The function’s output interoperates with
 Netscape Messenger.</p>
-</div>
-<div class="section" id="verifying-origin-of-s-mime-messages">
-<h1>Verifying origin of S/MIME messages<a class="headerlink" href="#verifying-origin-of-s-mime-messages" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="verifying-origin-of-s-mime-messages">
+<h1>Verifying origin of S/MIME messages<a class="headerlink" href="#verifying-origin-of-s-mime-messages" title="Permalink to this heading">¶</a></h1>
 <p>In our examples above that decrypt or verify messages, we skipped a
 step: verifying that the <code class="docutils literal notranslate"><span class="pre">from</span></code> address of the message matches the
 <code class="docutils literal notranslate"><span class="pre">email</span> <span class="pre">address</span></code> attribute in the sender’s certificate.</p>
@@ -685,9 +683,9 @@ course, and it would probably be part of your security policy.</p>
 <p>Whether your S/MIME messaging application needs to verify the <code class="docutils literal notranslate"><span class="pre">from</span></code>
 addresses of S/MIME messages depends on your security policy and your
 system’s threat model, as always.</p>
-</div>
-<div class="section" id="interoperating-with-netscape-messenger">
-<h1>Interoperating with Netscape Messenger<a class="headerlink" href="#interoperating-with-netscape-messenger" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="interoperating-with-netscape-messenger">
+<h1>Interoperating with Netscape Messenger<a class="headerlink" href="#interoperating-with-netscape-messenger" title="Permalink to this heading">¶</a></h1>
 <p>Suppose S/MIME Recipient uses Netscape Messenger. To enable Messenger to
 handle S/MIME messages from S/MIME Sender, S/MIME Recipient needs to
 configure Messenger with his private key and certificate, as well as
@@ -740,16 +738,16 @@ Messenger informs you that the message is, say, encrypted with 168-bit
 DES-EDE3-CBC and that it is digitally signed by the private key
 corresponding to the public key contained in the certificate
 <code class="docutils literal notranslate"><span class="pre">signer.pem</span></code>.</p>
-</div>
-<div class="section" id="interoperating-with-microsoft-outlook">
-<h1>Interoperating with Microsoft Outlook<a class="headerlink" href="#interoperating-with-microsoft-outlook" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="interoperating-with-microsoft-outlook">
+<h1>Interoperating with Microsoft Outlook<a class="headerlink" href="#interoperating-with-microsoft-outlook" title="Permalink to this heading">¶</a></h1>
 <p>I do not know how to do this, as I do not use Outlook. (Nor do I use
 Netscape Messenger, actually. I use Mutt, top dog of MUAs. ;-)
 Information on how to configure Outlook with keys and certificates so
 that it handles S/MIME mail is gratefully accepted.</p>
-</div>
-<div class="section" id="zsmime">
-<h1>ZSmime<a class="headerlink" href="#zsmime" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="zsmime">
+<h1>ZSmime<a class="headerlink" href="#zsmime" title="Permalink to this heading">¶</a></h1>
 <p>ZSmime is a <a class="reference external" href="http://www.zope.org">Zope</a> <em>product</em> that enables Zope
 to generate S/MIME-signed/encrypted messages. ZSmime demonstrates how to
 invoke M2Crypto in a web application server extension.</p>
@@ -757,9 +755,9 @@ invoke M2Crypto in a web application server extension.</p>
 <a class="reference external" href="http://sandbox.rulemaker.net/ngps/zope/zsmime/howto.html">HOWTO</a>
 explaining its usage. (That HOWTO has some overlap in content with this
 document.)</p>
-</div>
-<div class="section" id="resources">
-<h1>Resources<a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h1>
+</section>
+<section id="resources">
+<h1>Resources<a class="headerlink" href="#resources" title="Permalink to this heading">¶</a></h1>
 <ul class="simple">
 <li><p>IETF S/MIME Working Group - <a class="reference external" href="http://www.imc.org/ietf-smime">http://www.imc.org/ietf-smime</a></p></li>
 <li><p>S/MIME and OpenPGP - <a class="reference external" href="http://www.imc.org/smime-pgpmime.html">http://www.imc.org/smime-pgpmime.html</a></p></li>
@@ -769,7 +767,7 @@ document.)</p>
 <a class="reference external" href="http://www.mozilla.org/projects/security/pkg/nss">http://www.mozilla.org/projects/security/pkg/nss</a></p></li>
 <li><p>S/MIME Cracking Screen Saver - <a class="reference external" href="http://www.counterpane.com/smime.html">http://www.counterpane.com/smime.html</a></p></li>
 </ul>
-</div>
+</section>
 
 
           </div>
@@ -803,12 +801,12 @@ document.)</p>
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -825,8 +823,8 @@ document.)</p>
       &copy;2017, Matej Cepl <mcepl@cepl.eu>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
       |
       <a href="_sources/howto.smime.rst.txt"

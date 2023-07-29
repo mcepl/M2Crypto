@@ -18,8 +18,6 @@ HOWTOs
 
 * :ref:`howto-smime`
 
-* :ref:`zserverssl-howto`
-
 
 Indices and tables
 ==================

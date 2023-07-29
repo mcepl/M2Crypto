@@ -1,18 +1,15 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Index &#8212; M2Crypto  documentation</title>
-    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" />
    
@@ -98,6 +95,8 @@
       <li><a href="M2Crypto.html#M2Crypto.EC.EC.as_pem">as_pem() (M2Crypto.EC.EC method)</a>
 
       <ul>
+        <li><a href="M2Crypto.html#M2Crypto.EC.EC_pub.as_pem">(M2Crypto.EC.EC_pub method)</a>
+</li>
         <li><a href="M2Crypto.html#M2Crypto.EVP.PKey.as_pem">(M2Crypto.EVP.PKey method)</a>
 </li>
         <li><a href="M2Crypto.html#M2Crypto.RSA.RSA.as_pem">(M2Crypto.RSA.RSA method)</a>
@@ -132,6 +131,8 @@
       <li><a href="M2Crypto.html#M2Crypto.ASN1.ASN1_TIME">ASN1_TIME (class in M2Crypto.ASN1)</a>
 </li>
       <li><a href="M2Crypto.html#M2Crypto.ASN1.ASN1_UTCTIME">ASN1_UTCTIME (in module M2Crypto.ASN1)</a>
+</li>
+      <li><a href="M2Crypto.html#M2Crypto.EVP.PKey.assign_ec">assign_ec() (M2Crypto.EVP.PKey method)</a>
 </li>
       <li><a href="M2Crypto.html#M2Crypto.EVP.PKey.assign_rsa">assign_rsa() (M2Crypto.EVP.PKey method)</a>
 </li>
@@ -448,6 +449,8 @@
       <li><a href="M2Crypto.SSL.html#M2Crypto.SSL.Connection.Connection.get_default_session_timeout">get_default_session_timeout() (M2Crypto.SSL.Connection.Connection method)</a>
 </li>
       <li><a href="M2Crypto.html#M2Crypto.EC.EC_pub.get_der">get_der() (M2Crypto.EC.EC_pub method)</a>
+</li>
+      <li><a href="M2Crypto.html#M2Crypto.EVP.PKey.get_ec">get_ec() (M2Crypto.EVP.PKey method)</a>
 </li>
       <li><a href="M2Crypto.html#M2Crypto.X509.X509_Name.get_entries_by_nid">get_entries_by_nid() (M2Crypto.X509.X509_Name method)</a>
 </li>
@@ -1975,12 +1978,12 @@
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -1997,8 +2000,8 @@
       &copy;2017, Matej Cepl <mcepl@cepl.eu>.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.2.1</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
       
     </div>
 
