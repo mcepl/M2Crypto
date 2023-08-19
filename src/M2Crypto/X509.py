@@ -636,12 +636,19 @@ class X509(object):
     def get_not_before(self):
         # type: () -> ASN1.ASN1_TIME
         assert m2.x509_type_check(self.x509), "'x509' type error"
-        return ASN1.ASN1_TIME(m2.x509_get_not_before(self.x509))
+        # ASN1_TIME_dup() as internal ref. depends on self being referenced
+        ref = ASN1.ASN1_TIME(m2.x509_get_not_before(self.x509))
+        out = ASN1.ASN1_TIME(_pyfree=1)
+        out.set_datetime(ref.get_datetime())
+        return out
 
     def get_not_after(self):
         # type: () -> ASN1.ASN1_TIME
         assert m2.x509_type_check(self.x509), "'x509' type error"
-        out = ASN1.ASN1_TIME(m2.x509_get_not_after(self.x509))
+        # ASN1_TIME_dup() as internal ref. depends on self being referenced
+        ref = ASN1.ASN1_TIME(m2.x509_get_not_after(self.x509))
+        out = ASN1.ASN1_TIME(_pyfree=1)
+        out.set_datetime(ref.get_datetime())
         if 'Bad time value' in str(out):
             raise X509Error(
                 '''M2Crypto cannot handle dates after year 2050.
