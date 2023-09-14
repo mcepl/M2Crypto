@@ -22,9 +22,14 @@ import shutil
 import subprocess
 import sys
 
-from distutils.command import build
-from distutils.command.clean import clean
-from distutils.dir_util import mkpath
+if sys.version_info[:2] < (3, 10):
+    from distutils.command import build
+    from distutils.command.clean import clean
+    from distutils.dir_util import mkpath
+else:
+    from setuptools._distutils.command import build
+    from setuptools._distutils.command.clean import clean
+    from setuptools._distutils.dir_util import mkpath
 
 import setuptools
 from setuptools.command import build_ext
