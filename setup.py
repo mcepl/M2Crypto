@@ -21,17 +21,14 @@ import shlex
 import shutil
 import subprocess
 import sys
+import setuptools
 
 if sys.version_info[:2] < (3, 10):
     from distutils.command import build
-    from distutils.command.clean import clean
     from distutils.dir_util import mkpath
 else:
-    from setuptools._distutils.command import build
-    from setuptools._distutils.command.clean import clean
-    from setuptools._distutils.dir_util import mkpath
+    from setuptools.command import build
 
-import setuptools
 from setuptools.command import build_ext
 
 logging.basicConfig(format='%(levelname)s:%(funcName)s:%(message)s',
@@ -247,7 +244,10 @@ class _M2CryptoBuildExt(build_ext.build_ext):
             # Someday distutils will be fixed and this won't be needed.
             self.library_dirs += [os.path.join(self.openssl, 'bin')]
 
-        mkpath(os.path.join(self.build_lib, 'M2Crypto'))
+        if sys.version_info[:2] < (3, 2):
+           mkpath(os.path.join(self.build_lib, 'M2Crypto'))
+        else:
+           os.makedirs(os.path.join(self.build_lib, 'M2Crypto'), exist_ok=True)
 
     def run(self):
         """
@@ -300,30 +300,6 @@ m2crypto = setuptools.Extension(name='M2Crypto._m2crypto',
                                 # extra_link_args =
                                 #     ['-Wl,-search_paths_first'],
                                 )
-
-
-class Clean(clean):
-    def __init__(self, dist):
-        clean.__init__(self, dist)
-
-    def initialize_options(self):
-        clean.initialize_options(self)
-        self.all = True
-
-    def finalize_options(self):
-        clean.finalize_options(self)
-
-    def run(self):
-        clean.run(self)
-        garbage_list = [
-            os.path.join('src', 'M2Crypto', '*.so'),
-            os.path.join('src', 'M2Crypto', '*.pyd'),
-            os.path.join('src', 'M2Crypto', '*.dll')
-        ]
-        for p in garbage_list:
-            for f in glob.glob(p):
-                if os.path.exists(f):
-                    os.unlink(f)
 
 
 def __get_version():  # noqa
@@ -384,7 +360,6 @@ setuptools.setup(
     include_package_data=True,
     cmdclass={
         'build_ext': _M2CryptoBuildExt,
-        'build': _M2CryptoBuild,
-        'clean': Clean
+        'build': _M2CryptoBuild
     }
 )
