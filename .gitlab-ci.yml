@@ -5,7 +5,21 @@ python27:
         - apt-get update -q -y
         - apt-get install -y swig libssl-dev python-dev openssl python-twisted python-setuptools python-pip python-typing
         - python -mpip install --user -r dev-requirements.txt
-        - python setup.py clean build
+        - python setup.py build
+        - PYTHONPATH=$(readlink -f build/lib.*) python -munittest discover -v
+    allow_failure:
+      exit_codes: 1
+
+centos7py2:
+    image: centos:7
+    when: always
+    script:
+        - yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+        - yum makecache
+        - yum groups install -y "Development Tools"
+        - yum install -y swig python-devel openssl openssl-devel python-service-identity python-setuptools python-pip python-twisted
+        - python -mpip install --user -r dev-requirements.txt
+        - python setup.py build
         - PYTHONPATH=$(readlink -f build/lib.*) python -munittest discover -v
     allow_failure:
       exit_codes: 1
@@ -17,7 +31,7 @@ python35:
         - apt-get update -q -y
         - apt-get install -y swig libssl-dev python3-dev openssl python3-setuptools python3-twisted python3-pip
         - python3 -mpip install --user -r dev-requirements.txt
-        - python3 setup.py clean build
+        - python3 setup.py build
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -mtap discover -v
 
 python3:
@@ -27,7 +41,7 @@ python3:
         - apt-get update -q -y
         - apt-get install -y swig libssl-dev python3-dev openssl python3-setuptools python3-twisted python3-pip tappy
         - python3 -mpip install --user -r dev-requirements.txt
-        - python3 setup.py clean build
+        - python3 setup.py build
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -mtap discover -v
 
 fedora:
@@ -38,7 +52,7 @@ fedora:
         - dnf install -y @development-tools fedora-packager rpmdevtools
         - dnf install -y swig python3-devel openssl-devel openssl python3-setuptools python3-twisted
         - python3 -mpip install --user -r dev-requirements.txt
-        - python3 setup.py clean build
+        - python3 setup.py build
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -mtap discover -v
 
 fedora-rawhide:
@@ -49,7 +63,7 @@ fedora-rawhide:
         - dnf install -y @development-tools fedora-packager rpmdevtools
         - dnf install -y swig python3-devel openssl-devel openssl python3-setuptools python3-twisted
         - python3 -mpip install --user -r dev-requirements.txt
-        - python3 setup.py clean build
+        - python3 setup.py build
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -mtap discover -v
 
 centos7:
@@ -61,7 +75,7 @@ centos7:
         - yum groups install -y "Development Tools"
         - yum install -y swig python36-devel openssl openssl-devel python36-service-identity python36-setuptools python36-pip python36-Twisted
         - python3 -mpip install --user -r dev-requirements.txt
-        - python3 setup.py clean build
+        - python3 setup.py build
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -mtap discover -v
 
 opensuse:
@@ -71,5 +85,5 @@ opensuse:
         - zypper refresh
         - zypper install -y pattern:devel_rpm_build pattern:devel_C_C++ osc
         - zypper install -y swig python3-devel libopenssl-devel openssl python3-service_identity python3-setuptools python3-Twisted python3-tap.py
-        - python3 setup.py clean build
+        - python3 setup.py build
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -mtap discover -v

@@ -1,9 +1,9 @@
 -r requirements.txt
-twine
-wheel
+twine; sys.platform == 'win32'
+wheel; sys.platform == 'win32'
 flake8
-tap.py
+tap.py; python_version > "3.0"
 typing; python_version < "3.5"
 # Intentionally not in requirements.txt, because only those use it need
 # this very specialized module.
-twisted
+twisted; python_version > "3.0"
