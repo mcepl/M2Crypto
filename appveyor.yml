@@ -12,8 +12,8 @@ environment:
         secure: oqWqarxnd4H23FMywnlQeg==
     PASS:
         secure: j/VSxdYJ7mdR44u8OdywLg==
-    X86_OPENSSL_INSTALLER: Win32OpenSSL-1_1_1u.exe
-    X64_OPENSSL_INSTALLER: Win64OpenSSL-1_1_1u.exe
+    X86_OPENSSL_INSTALLER: Win32OpenSSL-1_1_1w.exe
+    X64_OPENSSL_INSTALLER: Win64OpenSSL-1_1_1w.exe
     # Random password, never used anywhere else
     APPVEYOR_RDP_PASSWORD: MmXt9yk3rNah3CGcRWad3XD
     PYPI_USERNAME: __token__
