@@ -6,7 +6,7 @@ from __future__ import print_function
 
 """PKI demo by Peter Teniz <peter.teniz@inverisa.net>"""
 
-import M2Crypto
+from M2Crypto import ASN1, EVP, RSA, X509, m2
 
 
 MBSTRING_FLAG = 0x1000
@@ -33,12 +33,12 @@ class Cert(object):
 
 
     def CreatePKey ( self ):
-        self.KeyPair = M2Crypto.RSA.gen_key( self.RsaKey['KeyLength'], self.RsaKey['PubExponent'], self.RsaKey['keygen_callback'] )
-        #PubKey = M2Crypto.RSA.new_pub_key( self.KeyPair.pub () )
+        self.KeyPair = RSA.gen_key( self.RsaKey['KeyLength'], self.RsaKey['PubExponent'], self.RsaKey['keygen_callback'] )
+        #PubKey = RSA.new_pub_key( self.KeyPair.pub () )
 
         self.KeyPair.save_key( 'KeyPair.pem', cipher='des_ede3_cbc', callback=self.callback )
 
-        self.PKey = M2Crypto.EVP.PKey ( md='sha1')
+        self.PKey = EVP.PKey ( md='sha1')
         self.PKey.assign_rsa ( self.KeyPair )
 
 
@@ -47,13 +47,13 @@ class Cert(object):
         # X509 REQUEST
         #
 
-        self.X509Request = M2Crypto.X509.Request ()
+        self.X509Request = X509.Request ()
 
         #
         # subject
         #
 
-        X509Name = M2Crypto.X509.X509_Name ()
+        X509Name = X509.X509_Name ()
 
         X509Name.add_entry_by_txt ( field='C',            type=MBSTRING_ASC, entry='austria',               len=-1, loc=-1, set=0 )    # country name
         X509Name.add_entry_by_txt ( field='SP',           type=MBSTRING_ASC, entry='kernten',               len=-1, loc=-1, set=0 )    # state of province name
@@ -84,7 +84,7 @@ class Cert(object):
         # X509 CERTIFICATE
         #
 
-        self.X509Certificate =  M2Crypto.X509.X509 ()
+        self.X509Certificate =  X509.X509 ()
 
         #
         # version
@@ -96,7 +96,7 @@ class Cert(object):
         # time notBefore
         #
 
-        ASN1 = M2Crypto.ASN1.ASN1_TIME ()
+        ASN1 = ASN1.ASN1_TIME ()
         ASN1.set_time ( 500 )
         self.X509Certificate.set_not_before( ASN1 )
 
@@ -104,7 +104,7 @@ class Cert(object):
         # time notAfter
         #
 
-        ASN1 = M2Crypto.ASN1.ASN1_TIME ()
+        ASN1 = ASN1.ASN1_TIME ()
         ASN1.set_time ( 500 )
         self.X509Certificate.set_not_after( ASN1 )
 
@@ -129,7 +129,7 @@ class Cert(object):
         # issuer
         #
 
-        X509Name = M2Crypto.X509.X509_Name ( M2Crypto.m2.x509_name_new () )
+        X509Name = X509.X509_Name ( m2.x509_name_new () )
 
         X509Name.add_entry_by_txt ( field='C',            type=MBSTRING_ASC, entry='germany',               len=-1, loc=-1, set=0 )    # country name
         X509Name.add_entry_by_txt ( field='SP',           type=MBSTRING_ASC, entry='bavaria',               len=-1, loc=-1, set=0 )    # state of province name

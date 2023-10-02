@@ -20,7 +20,7 @@ centos7py2:
         - yum install -y swig python-devel openssl openssl-devel python-service-identity python-setuptools python-pip python-twisted
         - python -mpip install --user -r dev-requirements.txt
         - python setup.py build
-        - PYTHONPATH=$(readlink -f build/lib.*) python -munittest discover -v
+        - PYTHONPATH=$(readlink -f build/lib.*-2.7) python -munittest discover -v
     allow_failure:
       exit_codes: 1
 
