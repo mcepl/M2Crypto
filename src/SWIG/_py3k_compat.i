@@ -34,10 +34,18 @@ FILE* PyFile_AsFile(PyObject *pyfile) {
 
 #else /* PY2K */
 
+#ifndef PyLong_FromLong
 #define PyLong_FromLong(x) PyInt_FromLong(x)
+#endif
+#ifndef PyUnicode_AsUTF8
 #define PyUnicode_AsUTF8(x) PyString_AsString(x)
+#endif
+#ifndef PyUnicode_FromString
 #define PyUnicode_FromString(x) PyString_FromString(x)
+#endif
+#ifndef PyUnicode_Format
 #define PyUnicode_Format(x, y) PyString_Format(x, y)
+#endif
 
 #endif /* PY_MAJOR_VERSION */
 %}
