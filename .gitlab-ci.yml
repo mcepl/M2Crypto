@@ -17,7 +17,9 @@ centos7py2:
         - yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
         - yum makecache
         - yum groups install -y "Development Tools"
-        - yum install -y swig python-devel openssl openssl-devel python-service-identity python-setuptools python-pip python-twisted
+        - yum install -y swig python-devel openssl openssl-devel python-service-identity python-setuptools python-pip python-twisted-core
+        - curl -L -O https://bootstrap.pypa.io/pip/2.7/get-pip.py
+        - python get-pip.py
         - python -mpip install --user -r dev-requirements.txt
         - python setup.py build
         - PYTHONPATH=$(readlink -f build/lib.*-2.7) python -munittest discover -v
