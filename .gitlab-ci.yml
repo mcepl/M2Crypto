@@ -14,7 +14,7 @@ centos7py2:
     image: centos:7
     when: always
     script:
-        - yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+        - yum install -y epel-release
         - yum makecache
         - yum groups install -y "Development Tools"
         - yum install -y swig python-devel openssl openssl-devel python-service-identity python-setuptools python-pip python-twisted-core
@@ -72,7 +72,7 @@ centos7:
     image: centos:7
     when: always
     script:
-        - yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+        - yum install -y epel-release
         - yum makecache
         - yum groups install -y "Development Tools"
         - yum install -y swig python36-devel openssl openssl-devel python36-service-identity python36-setuptools python36-pip python36-Twisted
