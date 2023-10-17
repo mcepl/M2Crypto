@@ -169,7 +169,7 @@ build_script:
 test_script:
   - "dir .\\build"
   - "SET PYTHONPATH=.\\build\\lib.%PYTHONPATH_DIR%"
-  - "%PYTHON%\\python.exe -mtap discover -v tests"
+  - "%PYTHON%\\python.exe -mtap discover -b -v tests"
 
 after_test:
   # If tests are successful, create a whl package for the project.
@@ -192,5 +192,5 @@ on_success:
 
 on_finish:
   - ps: Get-ChildItem src\SWIG\_m2crypto_wrap.c | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
-  - "SET PYTHONPATH="
-#   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  # - "SET PYTHONPATH="
+  # - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
