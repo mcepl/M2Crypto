@@ -9,7 +9,7 @@ import multiprocessing
 
 from platform import system
 from sys import version_info
-from M2Crypto import six
+from M2Crypto import m2, six
 from M2Crypto.BIO import MemoryBuffer
 from tests import unittest
 
@@ -109,6 +109,7 @@ class MemoryBufferTestCase(unittest.TestCase):
         mb.close()
         with self.assertRaises(IOError):
             mb.write(self.data)
+        m2.err_clear_error()
         assert mb.readable() and not mb.writeable()
 
     def test_readline(self):

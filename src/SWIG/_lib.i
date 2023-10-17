@@ -761,6 +761,8 @@ BIGNUM *dec_to_bn(PyObject *value) {
 %rename(err_print_errors) ERR_print_errors;
 %threadallow ERR_print_errors;
 extern void ERR_print_errors(BIO *);
+%rename(err_clear_error) ERR_clear_error;
+extern void ERR_clear_error(void);
 %rename(err_get_error) ERR_get_error;
 extern unsigned long ERR_get_error(void);
 %rename(err_peek_error) ERR_peek_error;

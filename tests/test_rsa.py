@@ -128,6 +128,7 @@ class RSATestCase(unittest.TestCase):
             self.assertEqual(ptxt, self.data)
 
         # no_padding
+        m2.err_clear_error()
         with six.assertRaisesRegex(self, RSA.RSAError, 'data too small'):
             priv.public_encrypt(self.data, RSA.no_padding)
 

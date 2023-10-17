@@ -196,6 +196,7 @@ class MemoryBuffer(BIO):
 
     def read(self, size=0):
         # type: (int) -> bytes
+        m2.err_clear_error();
         if not self.readable():
             raise IOError('cannot read')
         if size:
