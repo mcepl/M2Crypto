@@ -226,6 +226,8 @@ class ASN1_TIME(object):
         """
         assert m2.asn1_time_type_check(self.asn1_time), \
             "'asn1_time' type error'"
+        if hasattr(__builtins__, "long"):
+            time = long(time)
         return m2.asn1_time_set(self.asn1_time, time)
 
     def get_datetime(self):

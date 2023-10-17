@@ -8,6 +8,7 @@
 
 %{
 #include <openssl/asn1.h>
+#include <time.h>
 %}
 
 %apply Pointer NONNULL { BIO * };
@@ -72,8 +73,6 @@ extern ASN1_TIME *ASN1_TIME_new( void );
 extern void ASN1_TIME_free(ASN1_TIME *);
 %rename(asn1_time_check) ASN1_TIME_check;
 extern int ASN1_TIME_check(ASN1_TIME *);
-%rename(asn1_time_set) ASN1_TIME_set;
-extern ASN1_TIME *ASN1_TIME_set(ASN1_TIME *, long);
 %rename(asn1_time_set_string) ASN1_TIME_set_string;
 extern int ASN1_TIME_set_string(ASN1_TIME *, const char *);
 %rename(asn1_time_print) ASN1_TIME_print;
@@ -109,6 +108,23 @@ extern int ASN1_INTEGER_cmp(ASN1_INTEGER *, ASN1_INTEGER *);
 /* ASN1_TIME_set_string () is a macro */
 int asn1_time_type_check(ASN1_TIME *ASN1_TIME) {
     return 1;
+}
+
+ASN1_TIME* asn1_time_set(ASN1_TIME *asn1_time, PyObject *time) {
+    long long val;
+    if ((val = PyLong_AsLongLong(time)) >= 0) {
+        ERR_clear_error();
+        asn1_time = ASN1_TIME_adj(asn1_time, (time_t)0,
+                                  (int)(val / 86400LL),
+                                  (long) (val % 86400LL));
+        return asn1_time;
+    } else {
+        char *errstr = PyMem_Malloc(256);
+        snprintf(errstr, 256, "Error in conversion of PyLong to long (val = %lld)", val);
+        PyErr_SetString(PyExc_OverflowError, errstr);
+        PyMem_Free(errstr);
+        return NULL;
+    }
 }
 
 PyObject *asn1_integer_get(ASN1_INTEGER *asn1) {
