@@ -257,15 +257,20 @@ class X509TestCase(unittest.TestCase):
             cert.set_version(2)
             cert.set_subject(sub)
             t = int(time.time()) + time.timezone
+            log.debug('t = %s',
+                time.strftime("%a, %d %b %Y %H:%M:%S %z", time.localtime(t)))
             if utc:
                 now = ASN1.ASN1_UTCTIME()
             else:
                 now = ASN1.ASN1_TIME()
             now.set_time(t)
+            log.debug('now = %s', now)
             now_plus_year = ASN1.ASN1_TIME()
             now_plus_year.set_time(t + 60 * 60 * 24 * 365)
+            log.debug('now_plus_year = %s', now_plus_year)
             cert.set_not_before(now)
             cert.set_not_after(now_plus_year)
+            log.debug('cert = %s', cert.get_not_before())
             self.assertEqual(str(cert.get_not_before()), str(now))
             self.assertEqual(str(cert.get_not_after()), str(now_plus_year))
 
