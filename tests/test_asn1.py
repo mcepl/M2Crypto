@@ -5,6 +5,7 @@
 Copyright (c) 2005 Open Source Applications Foundation. All rights reserved."""
 
 import datetime
+import platform
 import time
 
 from M2Crypto import ASN1, m2
@@ -38,6 +39,7 @@ class ASN1TestCase(unittest.TestCase):
     def test_Object(self):
         pass  # XXX Dunno how to test
 
+    @unittest.skipIf(platform.system() == 'Windows', 'Skip on Windows.')
     def test_TIME(self):
         asn1 = ASN1.ASN1_TIME()
         self.assertEqual(str(asn1), 'Bad time value')
@@ -64,6 +66,7 @@ class ASN1TestCase(unittest.TestCase):
         t2 = time.strftime(format, time.gmtime(t))
         self.assertEqual(t1, t2)
 
+    @unittest.skipIf(platform.system() == 'Windows', 'Skip on Windows.')
     def test_UTCTIME(self):
         asn1 = ASN1.ASN1_UTCTIME()
         self.assertEqual(str(asn1), 'Bad time value')
@@ -90,6 +93,7 @@ class ASN1TestCase(unittest.TestCase):
         t2 = time.strftime(format, time.gmtime(t))
         self.assertEqual(t1, t2)
 
+    @unittest.skipIf(platform.system() == 'Windows', 'Skip on Windows.')
     def test_TIME_datetime(self):
         asn1 = ASN1.ASN1_TIME()
         # Test get_datetime and set_datetime
@@ -115,6 +119,7 @@ class ASN1TestCase(unittest.TestCase):
         self.assertEqual(t1, t2)
         self.assertEqual(str(udt), str(asn1.get_datetime()))
 
+    @unittest.skipIf(platform.system() == 'Windows', 'Skip on Windows.')
     def test_UTCTIME_datetime(self):
         asn1 = ASN1.ASN1_UTCTIME()
         # Test get_datetime and set_datetime
