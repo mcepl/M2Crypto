@@ -100,7 +100,7 @@ class DSATestCase(unittest.TestCase):
     def test_pub_key_from_params(self):
         dsa = DSA.gen_params(1024, self.callback)
         dsa.gen_key()
-        assert len(dsa) == 1024
+        self.assertEqual(len(dsa), 1024)
         p = dsa.p
         q = dsa.q
         g = dsa.g

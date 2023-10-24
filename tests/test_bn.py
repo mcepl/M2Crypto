@@ -33,7 +33,7 @@ class BNTestCase(unittest.TestCase):
         # bottom
         for _ in range(loops):
             r8 = BN.rand(8, bottom=1)
-            assert r8 % 2 == 1
+            self.assertEqual(r8 % 2, 1)
 
         # make sure we can get big numbers and work with them
         for _ in range(loops):

@@ -47,13 +47,13 @@ class ASN1TestCase(unittest.TestCase):
 
         s = '990807053011Z'
         asn1.set_string(s)
-        # assert str(asn1) == 'Aug  7 05:30:11 1999 GMT'
+        self.assertEqual(str(asn1), 'Aug  7 05:30:11 1999 GMT')
         t1 = time.strptime(str(asn1), format)
         t2 = time.strptime(s, utcformat)
         self.assertEqual(t1, t2)
 
         asn1.set_time(500)
-        # assert str(asn1) == 'Jan  1 00:08:20 1970 GMT'
+        self.assertEqual(str(asn1), 'Jan  1 00:08:20 1970 GMT')
         t1 = time.strftime(format, time.strptime(str(asn1), format))
         t2 = time.strftime(format, time.gmtime(500))
         self.assertEqual(t1, t2)
@@ -73,13 +73,13 @@ class ASN1TestCase(unittest.TestCase):
 
         s = '990807053011Z'
         asn1.set_string(s)
-        # assert str(asn1) == 'Aug  7 05:30:11 1999 GMT'
+        # self.assertEqual(str(asn1), 'Aug  7 05:30:11 1999 GMT')
         t1 = time.strptime(str(asn1), format)
         t2 = time.strptime(s, utcformat)
         self.assertEqual(t1, t2)
 
         asn1.set_time(500)
-        # assert str(asn1) == 'Jan  1 00:08:20 1970 GMT'
+        # self.assertEqual(str(asn1), 'Jan  1 00:08:20 1970 GMT')
         t1 = time.strftime(format, time.strptime(str(asn1), format))
         t2 = time.strftime(format, time.gmtime(500))
         self.assertEqual(t1, t2)
