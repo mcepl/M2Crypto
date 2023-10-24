@@ -1,3 +1,32 @@
+0.40.0 - 2023-10-24
+-------------------
+
+- OK, SO NOT THIS RELEASE, BUT IN THE NEXT RELEASE PYTHON2 WILL
+  TRULY GO!
+- BREAKING CHANGES:
+  - There are no SWIG generated files (src/SWIG/_m2crytpo_wrap.c)
+    included anymore, so swig must be installed, no
+    exceptions! Also, for compatibility with Python 3.12+, swig
+    4.0+ is required.
+   - All support for asyncore has been removed, as it has been
+     removed in Python 3.12 as well (which means also removal of
+     contrib/dispatcher.py, M2Crypto/SSL/ssl_dispatcher.py,
+     ZServerSSL).
+   - All use of distutils (including the bundled ones in
+     setuptools) has been removed, so `setup.py clean` is no
+     more.
+   - Excessively complicated and error-prone __init__py has been
+     cleaned and `import M2Crypto` doesn’t include everything
+     anymore. Imports should specified as for example with `from
+     M2Crypto import foo`.
+- ASN1_Time handling has been mostly rewritten and it almost
+  works even on Windows.
+- All tests in Gitlab CI (with exceptions of some skipped tests
+  especially on Windows) are now green, tests of Python 2.7 on
+  CentOS 7 have been included.
+- Introduce m2.err_clear_error()
+- Make X509_verify_cert() accessible as m2.x509_verify_cert
+
 0.39.0 - 2023-07-04
 -------------------
 

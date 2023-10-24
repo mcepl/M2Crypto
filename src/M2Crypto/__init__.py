@@ -18,11 +18,8 @@ Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 """
 # noqa
-__version__ = '0.39.0'
+__version__ = '0.40.0'
 version = __version__  # type: str
-
-# from distutils.version import StrictVersion
-# version_info = StrictVersion(__version__).version
 
 from M2Crypto import m2
 
