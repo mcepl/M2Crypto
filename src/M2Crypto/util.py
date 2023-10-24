@@ -13,6 +13,7 @@ from __future__ import absolute_import
 
 import binascii
 import logging
+import struct
 import sys
 
 from M2Crypto import m2, six
@@ -29,6 +30,9 @@ class UtilError(Exception):
 
 m2.util_init(UtilError)
 
+def is_32bit():
+    # type: () -> bool
+    return (struct.calcsize("P") * 8) == 32
 
 def pkcs5_pad(data, blklen=8):
     # type: (str, int) -> str
