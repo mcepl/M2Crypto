@@ -12,3 +12,4 @@ M2Crypto.egg-info
 /tests/tmpcert.der
 MANIFEST
 *.tap
+src/SWIG/_m2crypto_wrap.c
