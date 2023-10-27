@@ -169,7 +169,7 @@ build_script:
 test_script:
   - "dir .\\build"
   - "SET PYTHONPATH=.\\build\\lib.%PYTHONPATH_DIR%"
-  - "%PYTHON%\\python.exe -mtap discover -b -v tests"
+  - "%PYTHON%\\python.exe -munittest discover -b -v tests"
 
 after_test:
   # If tests are successful, create a whl package for the project.

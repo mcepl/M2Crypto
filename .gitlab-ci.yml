@@ -34,17 +34,17 @@ python35:
         - apt-get install -y swig libssl-dev python3-dev openssl python3-setuptools python3-twisted python3-pip
         - python3 -mpip install --user -r dev-requirements.txt
         - python3 setup.py build
-        - PYTHONPATH=$(readlink -f build/lib.*) python3 -mtap discover -v
+        - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest discover -v
 
 python3:
     image: python:3
     when: always
     script:
         - apt-get update -q -y
-        - apt-get install -y swig libssl-dev python3-dev openssl python3-setuptools python3-twisted python3-pip tappy
+        - apt-get install -y swig libssl-dev python3-dev openssl python3-setuptools python3-twisted python3-pip
         - python3 -mpip install --user -r dev-requirements.txt
         - python3 setup.py build
-        - PYTHONPATH=$(readlink -f build/lib.*) python3 -mtap discover -v
+        - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest discover -v
 
 fedora:
     image: fedora:latest
@@ -55,7 +55,7 @@ fedora:
         - dnf install -y swig python3-devel openssl-devel openssl python3-setuptools python3-twisted
         - python3 -mpip install --user -r dev-requirements.txt
         - python3 setup.py build
-        - PYTHONPATH=$(readlink -f build/lib.*) python3 -mtap discover -v
+        - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest discover -v
 
 fedora-rawhide:
     image: registry.fedoraproject.org/fedora:rawhide
@@ -66,7 +66,7 @@ fedora-rawhide:
         - dnf install -y swig python3-devel openssl-devel openssl python3-setuptools python3-twisted
         - python3 -mpip install --user -r dev-requirements.txt
         - python3 setup.py build
-        - PYTHONPATH=$(readlink -f build/lib.*) python3 -mtap discover -v
+        - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest discover -v
 
 centos7:
     image: centos:7
@@ -78,14 +78,15 @@ centos7:
         - yum install -y swig python36-devel openssl openssl-devel python36-service-identity python36-setuptools python36-pip python36-Twisted
         - python3 -mpip install --user -r dev-requirements.txt
         - python3 setup.py build
-        - PYTHONPATH=$(readlink -f build/lib.*) python3 -mtap discover -v
+        - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest discover -v
 
 opensuse:
     image: opensuse/tumbleweed
     when: always
     script:
+        - getconf LONG_BIT
         - zypper refresh
         - zypper install -y pattern:devel_rpm_build pattern:devel_C_C++ osc
-        - zypper install -y swig python3-devel libopenssl-devel openssl python3-service_identity python3-setuptools python3-Twisted python3-tap.py
+        - zypper install -y swig python3-devel libopenssl-devel openssl python3-service_identity python3-setuptools python3-Twisted
         - python3 setup.py build
-        - PYTHONPATH=$(readlink -f build/lib.*) python3 -mtap discover -v
+        - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest discover -v
