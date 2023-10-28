@@ -224,7 +224,10 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         self.swig_opts.append('-builtin')
 
         build_dir = os.path.join(self.build_lib, 'M2Crypto')
-        mkpath(build_dir)
+        if sys.version_info[:2] < (3, 2):
+           mkpath(build_dir)
+        else:
+           os.makedirs(build_dir, exist_ok=True)
 
         # These two lines are a workaround for
         # http://bugs.python.org/issue2624 , hard-coding that we are only
