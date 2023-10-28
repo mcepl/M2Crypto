@@ -15,9 +15,11 @@ import binascii
 import logging
 import struct
 import sys
+import struct
 
 from M2Crypto import m2, six
 from typing import Any, Optional, TextIO, Tuple, Union  # noqa
+from tests import unittest
 # see https://github.com/python/typeshed/issues/222
 AddrType = Union[Tuple[str, int], str]
 
@@ -33,6 +35,15 @@ m2.util_init(UtilError)
 def is_32bit():
     # type: () -> bool
     return (struct.calcsize("P") * 8) == 32
+
+def expectedFailureIf(condition):
+    """The test is marked as an expectedFailure if the condition is satisfied."""
+    def wrapper(func):
+        if condition:
+            return unittest.expectedFailure(func)
+        else:
+            return func
+    return wrapper
 
 def pkcs5_pad(data, blklen=8):
     # type: (str, int) -> str
