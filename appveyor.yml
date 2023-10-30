@@ -164,16 +164,16 @@ install:
 #    - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 build_script:
-  - "%PYTHON%\\python.exe setup.py build --openssl=\"%OPENSSL_PATH%\" --bundledlls"
+  - "%PYTHON%\\python.exe -mbuild --openssl=\"%OPENSSL_PATH%\" --bundledlls ."
 
 test_script:
   - "dir .\\build"
   - "SET PYTHONPATH=.\\build\\lib.%PYTHONPATH_DIR%"
-  - "%PYTHON%\\python.exe -munittest discover -b -v tests"
+  - "%PYTHON%\\python.exe -mpip install --break-system-packages -v --upgrade --disable-pip-version-check --target %PYTHONPATH_DIR% --no-compile --ignore-installed --no-deps --no-index dist\\M2Crypto*.whl"
+  - "%PYTHON%\\python.exe -munittest -b -v tests.alltests.suite"
 
 after_test:
   # If tests are successful, create a whl package for the project.
-  - "%PYTHON%\\python.exe setup.py bdist_wheel"
   - "dir .\\dist"
 
 artifacts:

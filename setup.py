@@ -48,10 +48,6 @@ except NameError:
     class FileNotFoundError(Exception):
         pass
 
-package_data = {}  # type: Dict[str, List[str]]
-if sys.platform == 'win32':
-    package_data.update(M2Crypto=["*.dll"])
-
 
 def _get_additional_includes():
     if os.name == 'nt':
@@ -302,62 +298,8 @@ m2crypto = setuptools.Extension(name='M2Crypto._m2crypto',
                                 )
 
 
-def __get_version():  # noqa
-    with open('src/M2Crypto/__init__.py') as init_file:
-        for line in init_file:
-            if line.startswith('__version__ ='):
-                # Originally string.whitespace, but it is deprecated
-                string_whitespace = ' \t\n\r\x0b\x0c'
-                return line.split('=')[1].strip(string_whitespace + "'")
-
-
-long_description_text = '''\
-M2Crypto is the most complete Python wrapper for OpenSSL featuring RSA, DSA,
-DH, EC, HMACs, message digests, symmetric ciphers (including AES); SSL
-functionality to implement clients and servers; HTTPS extensions to Python's
-httplib, urllib, and xmlrpclib; unforgeable HMAC'ing AuthCookies for web
-session management; FTP/TLS client and server; S/MIME; M2Crypto can also be
-used to provide SSL for Twisted. Smartcards supported through the Engine
-interface.'''
-
 setuptools.setup(
-    name='M2Crypto',
-    version=__get_version(),
-    description='M2Crypto: A Python crypto and SSL toolkit',
-    long_description=long_description_text,
-    license='MIT',
-    platforms=['any'],
-    author='Ng Pheng Siong',
-    author_email='ngps@sandbox.rulemaker.net',
-    maintainer='Matej Cepl',
-    maintainer_email='mcepl@cepl.eu',
-    url='https://gitlab.com/m2crypto/m2crypto',
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-        'Programming Language :: C',
-        'Programming Language :: Python',
-        'Topic :: Security :: Cryptography',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-    ],
-    keywords='cryptography openssl',
-    packages=setuptools.find_packages('src', exclude=['contrib', 'docs', 'tests']),
-    package_dir={'': 'src'},
     ext_modules=[m2crypto],
-    test_suite='tests.alltests.suite',
-    install_requires=requires_list,
-    package_data=package_data,
-    zip_safe=False,
-    include_package_data=True,
     cmdclass={
         'build_ext': _M2CryptoBuildExt,
         'build': _M2CryptoBuild
