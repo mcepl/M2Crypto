@@ -1,14 +1,14 @@
-python36:
-    image: python:3.6
+python39:
+    image: python:3.9
     when: always
     script:
         - apt-get update -q -y
         - apt-get install -y swig libssl-dev python3-dev python3-pip python3-wheel openssl python3-setuptools python3-twisted python3-pip
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --user -r dev-requirements.txt
-        - python3 -mpip wheel --verbose --no-deps --wheel-dir ./dist .
-        - python3 -mpip install -v --upgrade --disable-pip-version-check --target build/lib.* --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
-        - PYTHONPATH=build/lib.* python3 -munittest -b -v tests.alltests.suite
+        - python3 -mbuild .
+        - python3 -mpip install -v --upgrade --target build/lib.linux-x86_64-cpython-39 --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
+        - PYTHONPATH=build/lib.linux-x86_64-cpython-39 python3 -munittest -b -v tests.alltests.suite
 
 python3:
     image: python:3
@@ -19,7 +19,7 @@ python3:
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
         - python3 -mbuild .
-        - python3 -mpip install --break-system-packages -v --upgrade --disable-pip-version-check --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
+        - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
 
 fedora:
@@ -32,7 +32,7 @@ fedora:
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --user -r dev-requirements.txt
         - python3 -mbuild .
-        - python3 -mpip install -v --upgrade --disable-pip-version-check --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
+        - python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
 
 fedora-rawhide:
@@ -45,7 +45,7 @@ fedora-rawhide:
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
         - python3 -mbuild .
-        - python3 -mpip install --break-system-packages -v --upgrade --disable-pip-version-check --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
+        - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
 
 centos7:
@@ -59,19 +59,32 @@ centos7:
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --user -r dev-requirements.txt
         - python3 -mpip wheel --verbose --no-deps --wheel-dir ./dist .
-        - python3 -mpip install -v --upgrade --disable-pip-version-check --target build/lib.* --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
+        - python3 -mpip install -v --upgrade --target build/lib.* --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=build/lib.* python3 -munittest -b -v tests.alltests.suite
+
+leap:
+    # image: registry.suse.com/bci/bci-base:latest
+    image: opensuse/leap
+    when: always
+    script:
+        - zypper refresh
+        - zypper install -y pattern:devel_rpm_build pattern:devel_C_C++ osc
+        - zypper install -y swig python3-devel python3-pip libopenssl-devel openssl python3-service_identity python3-setuptools python3-Twisted
+        - export PATH=$PATH:$HOME/.local/bin
+        - python3 -mpip install --user -r dev-requirements.txt
+        - python3 -mbuild .
+        - python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
+        - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
 
 opensuse:
     image: opensuse/tumbleweed
     when: always
     script:
-        - getconf LONG_BIT
         - zypper refresh
         - zypper install -y pattern:devel_rpm_build pattern:devel_C_C++ osc
         - zypper install -y swig python3-devel python3-pip libopenssl-devel openssl python3-service_identity python3-setuptools python3-Twisted
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --user --break-system-packages -r dev-requirements.txt
         - python3 -mbuild .
-        - python3 -mpip install -v --upgrade --disable-pip-version-check --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
+        - python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite

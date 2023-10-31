@@ -16,10 +16,10 @@ import logging
 import struct
 import sys
 import struct
+import unittest
 
 from M2Crypto import m2
 from typing import Any, Optional, TextIO, Tuple, Union  # noqa
-from tests import unittest
 # see https://github.com/python/typeshed/issues/222
 AddrType = Union[Tuple[str, int], str]
 

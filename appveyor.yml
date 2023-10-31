@@ -24,24 +24,6 @@ environment:
     # Pre-installed Python versions, which Appveyor may upgrade to
     # a later point release.
    
-    - PYTHON: "C:\\Python38"
-      PYTHON_VERSION: "3.8.x"
-      PYTHON_ARCH: "32"
-      OPENSSL_PATH: "C:\\OpenSSL-1-1-Win32"
-      PYWIN32: "pywin32-309.win32-py3.8.exe"
-      PYWIN32_RELEASE: b309
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      PYTHONPATH_DIR: "win32-3.8"
-
-    - PYTHON: "C:\\Python38-x64"
-      PYTHON_VERSION: "3.8.x"
-      PYTHON_ARCH: "64"
-      OPENSSL_PATH: "C:\\OpenSSL-1-1-Win64"
-      PYWIN32: "pywin32-309.win-amd64-py3.8.exe"
-      PYWIN32_RELEASE: b309
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      PYTHONPATH_DIR: "win-amd64-3.8"
-
     - PYTHON: "C:\\Python39"
       PYTHON_VERSION: "3.9.x"
       PYTHON_ARCH: "32"
@@ -59,24 +41,6 @@ environment:
       PYWIN32_RELEASE: b309
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       PYTHONPATH_DIR: "win-amd64-3.9"
-
-    - PYTHON: "C:\\Python310"
-      PYTHON_VERSION: "3.10.x"
-      PYTHON_ARCH: "32"
-      OPENSSL_PATH: "C:\\OpenSSL-1-1-Win32"
-      PYWIN32: "pywin32-309.win32-py3.10.exe"
-      PYWIN32_RELEASE: b309
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      PYTHONPATH_DIR: "win32-cpython-310"
-
-    - PYTHON: "C:\\Python310-x64"
-      PYTHON_VERSION: "3.10.x"
-      PYTHON_ARCH: "64"
-      OPENSSL_PATH: "C:\\OpenSSL-1-1-Win64"
-      PYWIN32: "pywin32-309.win-amd64-py3.10.exe"
-      PYWIN32_RELEASE: b309
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      PYTHONPATH_DIR: "win-amd64-cpython-310"
 
     - PYTHON: "C:\\Python311"
       PYTHON_VERSION: "3.11.x"
@@ -96,17 +60,23 @@ environment:
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       PYTHONPATH_DIR: "win-amd64-cpython-311"
 
-    - PYTHON: "C:\\Python27-x64"
-      PYTHON_VERSION: "2.7.x" # currently 2.7.9
+    - PYTHON: "C:\\Python312"
+      PYTHON_VERSION: "3.12.x"
+      PYTHON_ARCH: "32"
+      OPENSSL_PATH: "C:\\OpenSSL-1-1-Win32"
+      PYWIN32: "pywin32-309.win32-py3.12.exe"
+      PYWIN32_RELEASE: b309
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      PYTHONPATH_DIR: "win32-cpython-310"
+
+    - PYTHON: "C:\\Python312-x64"
+      PYTHON_VERSION: "3.12.x"
       PYTHON_ARCH: "64"
       OPENSSL_PATH: "C:\\OpenSSL-1-1-Win64"
-      PYWIN32: "pywin32-228.win-amd64-py2.7.exe"
-      PYWIN32_RELEASE: b228
-      PYTHONPATH_DIR: "win-amd64-2.7"
-
-matrix:
-    allow_failures:
-      - PYTHON: "C:\\Python27-x64"
+      PYWIN32: "pywin32-309.win-amd64-py3.12.exe"
+      PYWIN32_RELEASE: b309
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+      PYTHONPATH_DIR: "win-amd64-cpython-310"
 
 nuget:
     account_feed: true
@@ -144,12 +114,9 @@ install:
 
   - ECHO "Install pywin32"
   - "python -m pip install pywin32"
-  #- mkdir pywin32
-  #- 7z x "%PYWIN32%" -opywin32
-  #- xcopy /e "pywin32\\PLATLIB" "%PYTHON%\\Lib\\site-packages"
 
-  - ECHO "Filesystem root:"
-  - ps: "ls \"C:/\""
+  # - ECHO "Filesystem root:"
+  # - ps: "ls \"C:/\""
 
   - ps: "ls \"C:/OpenSSL-Win32\""
   - ECHO "Installed SDKs:"
@@ -159,22 +126,24 @@ install:
   - "%OPENSSL_PATH%/bin/openssl.exe  version"
 
   - ECHO "Python OpenSSL Version (%PYTHON%)"
-  - "%PYTHON%\\python.exe -c \"import ssl; print(getattr(ssl, 'OPENSSL_VERSION', None))\""
+  - "\"%PYTHON%\\python.exe\" -c \"import ssl; print(getattr(ssl, 'OPENSSL_VERSION', None))\""
 # init:
 #    - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 build_script:
-  - "%PYTHON%\\python.exe -mbuild --openssl=\"%OPENSSL_PATH%\" --bundledlls ."
+  #- "dir c:\\opensslv.h c:\\opensslconf.h /s"
+  - "SET BUNDLEDLLS=1"
+  - "\"%PYTHON%\\python.exe\" -mpip wheel --verbose --no-build-isolation --no-deps --wheel-dir .\\dist ."
 
 test_script:
   - "dir .\\build"
-  - "SET PYTHONPATH=.\\build\\lib.%PYTHONPATH_DIR%"
-  - "%PYTHON%\\python.exe -mpip install --break-system-packages -v --upgrade --disable-pip-version-check --target %PYTHONPATH_DIR% --no-compile --ignore-installed --no-deps --no-index dist\\M2Crypto*.whl"
-  - "%PYTHON%\\python.exe -munittest -b -v tests.alltests.suite"
-
-after_test:
-  # If tests are successful, create a whl package for the project.
   - "dir .\\dist"
+  - "dir *.whl /s"
+  - "SET \"PYTHONPATH=build\\lib.%PYTHONPATH_DIR%\""
+  - "FOR %%w in (dist\\M2Crypto*.whl) DO \"%PYTHON%\\python.exe\" -mpip install --break-system-packages -v --upgrade --target=\"%PYTHONPATH%\" --no-deps %%w "
+  - "dir *.pyd /s"
+  - "dir ASN1.py /s"
+  - "\"%PYTHON%\\python.exe\" -munittest -b -v tests.alltests.suite"
 
 artifacts:
   # Archive the generated wheel package in the ci.appveyor.com build report.

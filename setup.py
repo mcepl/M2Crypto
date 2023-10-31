@@ -34,7 +34,7 @@ else:
 from setuptools.command import build_ext
 
 logging.basicConfig(format='%(levelname)s:%(funcName)s:%(message)s',
-                    stream=sys.stdout, level=logging.INFO)
+                    level=logging.DEBUG)
 log = logging.getLogger('setup')
 
 requires_list = []
@@ -101,47 +101,24 @@ def openssl_version(ossldir, req_ver, required=False):
         return ver < req_ver
 
 
-class _M2CryptoBuild(build.build):
-    """Enable swig_opts to inherit any include_dirs settings made elsewhere."""
-
-    user_options = build.build.user_options + \
-        [('openssl=', 'o', 'Prefix for openssl installation location')] + \
-        [('bundledlls', 'b', 'Bundle DLLs (win32 only)')]
-
-    def initialize_options(self):
-        """Overload to enable custom openssl settings to be picked up."""
-        build.build.initialize_options(self)
-        self.openssl = None
-        self.bundledlls = None
-
-
 class _M2CryptoBuildExt(build_ext.build_ext):
     """Enable swig_opts to inherit any include_dirs settings made elsewhere."""
-
-    user_options = build_ext.build_ext.user_options + \
-        [('openssl=', 'o', 'Prefix for openssl installation location')] + \
-        [('bundledlls', 'b', 'Bundle DLLs (win32 only)')]
 
     def initialize_options(self):
         """Overload to enable custom openssl settings to be picked up."""
         build_ext.build_ext.initialize_options(self)
-        self.openssl = None
-        self.bundledlls = None
 
     def finalize_options(self):
         # type: (None) -> None
         """Append custom openssl include file and library linking options."""
         build_ext.build_ext.finalize_options(self)
-        self.openssl_default = None
-        self.set_undefined_options('build', ('openssl', 'openssl'))
-        if self.openssl is None:
-            self.openssl = self.openssl_default
-        self.set_undefined_options('build', ('bundledlls', 'bundledlls'))
+        self.openssl_path = os.environ.get('OPENSSL_PATH', None)
+        self.bundledlls = os.environ.get('BUNDLEDLLS', None)
 
         self.libraries = ['ssl', 'crypto']
         if sys.platform == 'win32':
             self.libraries = ['ssleay32', 'libeay32']
-            if self.openssl and openssl_version(self.openssl,
+            if self.openssl_path and openssl_version(self.openssl_path,
                                                 0x10100000, True):
                 self.libraries = ['libssl', 'libcrypto']
                 self.swig_opts.append('-D_WIN32')
@@ -152,7 +129,8 @@ class _M2CryptoBuildExt(build_ext.build_ext):
                 # this shortly to come up with a better fix.
                 self.swig_opts.append('-D_MSC_VER=1500')
 
-        self.swig_opts.append('-py3')
+        log.debug('self.openssl_path = %s', self.openssl_path)
+        log.debug('self.bundledlls = %s', self.bundledlls)
 
         # swig seems to need the default header file directories
         self.swig_opts.extend(['-I%s' % i for i in _get_additional_includes()])
@@ -160,10 +138,10 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         log.debug('self.include_dirs = %s', self.include_dirs)
         log.debug('self.library_dirs = %s', self.library_dirs)
 
-        if self.openssl is not None:
-            log.debug('self.openssl = %s', self.openssl)
-            openssl_library_dir = os.path.join(self.openssl, 'lib')
-            openssl_include_dir = os.path.join(self.openssl, 'include')
+        if self.openssl_path is not None:
+            log.debug('self.openssl_path = %s', self.openssl_path)
+            openssl_library_dir = os.path.join(self.openssl_path, 'lib')
+            openssl_include_dir = os.path.join(self.openssl_path, 'include')
 
             self.library_dirs.append(openssl_library_dir)
             self.include_dirs.append(openssl_include_dir)
@@ -203,14 +181,13 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         # Note that this is risky workaround, since it takes away the
         # namespace that OpenSSL uses.  If someone else has similarly
         # named header files in /usr/include, there will be clashes.
-        if self.openssl is None:
+        if self.openssl_path is None:
             self.swig_opts.append('-I/usr/include/openssl')
         else:
             self.swig_opts.append(
                 '-I' + os.path.join(openssl_include_dir, 'openssl'))
 
         self.swig_opts.append('-includeall')
-        self.swig_opts.append('-modern')
         self.swig_opts.append('-builtin')
 
         build_dir = os.path.join(self.build_lib, 'M2Crypto')
@@ -224,13 +201,13 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         self.swig_opts.extend(['-outdir', build_dir])
         self.include_dirs.append(os.path.join(os.getcwd(), 'src', 'SWIG'))
 
-        if sys.platform == 'cygwin' and self.openssl is not None:
+        if sys.platform == 'cygwin' and self.openssl_path is not None:
             # Cygwin SHOULD work (there's code in distutils), but
             # if one first starts a Windows command prompt, then bash,
             # the distutils code does not seem to work. If you start
             # Cygwin directly, then it would work even without this change.
             # Someday distutils will be fixed and this won't be needed.
-            self.library_dirs += [os.path.join(self.openssl, 'bin')]
+            self.library_dirs += [os.path.join(self.openssl_path, 'bin')]
 
         os.makedirs(os.path.join(self.build_lib, 'M2Crypto'), exist_ok=True)
 
@@ -239,22 +216,23 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         On Win32 platforms include the openssl dll's in the binary packages
         """
 
-        # Win32 bdist builds must use --openssl in the builds step.
-        if not self.bundledlls:
+        # Win32 bdist builds must set OPENSSL_PATH before the builds step.
+        if self.bundledlls is None:
             build_ext.build_ext.run(self)
             return
 
+        # self.bundledlls is set
         if sys.platform == 'win32':
             ver_part = ''
-            if self.openssl and openssl_version(self.openssl,
+            if self.openssl_path and openssl_version(self.openssl_path,
                                                 0x10100000, True):
                 ver_part += '-1_1'
             if sys.maxsize > 2**32:
                 ver_part += '-x64'
             search = list(self.library_dirs)
-            if self.openssl:
-                search = search + [self.openssl,
-                                   os.path.join(self.openssl, 'bin')]
+            if self.openssl_path:
+                search = search + [self.openssl_path,
+                                   os.path.join(self.openssl_path, 'bin')]
             libs = list(self.libraries)
             for libname in list(libs):
                 for search_path in search:
@@ -290,7 +268,6 @@ m2crypto = setuptools.Extension(name='M2Crypto._m2crypto',
 setuptools.setup(
     ext_modules=[m2crypto],
     cmdclass={
-        'build_ext': _M2CryptoBuildExt,
-        'build': _M2CryptoBuild
+        'build_ext': _M2CryptoBuildExt
     }
 )
