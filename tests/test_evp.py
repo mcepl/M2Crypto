@@ -14,7 +14,7 @@ import logging
 
 from binascii import a2b_hex, hexlify, unhexlify
 
-from M2Crypto import BIO, EVP, RSA, EC, Rand, m2, six, util
+from M2Crypto import BIO, EVP, RSA, EC, Rand, m2, util
 from tests import unittest
 from tests.fips import fips_mode
 
@@ -458,14 +458,12 @@ class CipherTestCase(unittest.TestCase):
 
         self.assertEqual(otxt, ptxt, '%s algorithm cipher test failed' % algo)
 
-    @unittest.skipUnless(six.PY34, "Doesn't support subTest")
     def test_ciphers(self):
         for ciph in ciphers:
             with self.subTest(ciph=ciph):
                 self.try_algo(ciph)
 
     # non-compiled (['idea_ecb', 'idea_cbc', 'idea_cfb', 'idea_ofb'])
-    # @unittest.skipUnless(six.PY34, "Doesn't support subTest")
     # def test_ciphers_not_compiled_idea(self):
     #     # idea might not be compiled in
     #     for ciph in nonfips_ciphers:
@@ -481,7 +479,6 @@ class CipherTestCase(unittest.TestCase):
 
     #################
     # ['rc5_ecb', 'rc5_cbc', 'rc5_cfb', 'rc5_ofb']
-    # @unittest.skipUnless(six.PY34, "Doesn't support subTest")
     # def test_ciphers_not_compiled_rc5(self, ciph):
     #     # rc5 might not be compiled in
     #     for ciph in []:
@@ -496,7 +493,6 @@ class CipherTestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.try_algo('nosuchalgo4567')
 
-    @unittest.skipUnless(six.PY34, "Doesn't support subTest")
     def test_AES(self):  # noqa
         enc = 1
         dec = 0

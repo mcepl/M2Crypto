@@ -9,7 +9,7 @@ import hashlib
 import logging
 import os
 
-from M2Crypto import BIO, RSA, Rand, X509, m2, six
+from M2Crypto import BIO, RSA, Rand, X509, m2
 from tests import unittest
 from tests.fips import fips_mode
 
@@ -129,7 +129,7 @@ class RSATestCase(unittest.TestCase):
 
         # no_padding
         m2.err_clear_error()
-        with six.assertRaisesRegex(self, RSA.RSAError, 'data too small'):
+        with self.assertRaisesRegex(RSA.RSAError, 'data too small'):
             priv.public_encrypt(self.data, RSA.no_padding)
 
         # Type-check the data to be encrypted.

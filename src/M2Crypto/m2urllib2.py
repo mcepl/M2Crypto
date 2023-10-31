@@ -15,18 +15,14 @@ Summary of changes:
 
 import socket
 
-from M2Crypto import SSL, httpslib, six
+from M2Crypto import SSL, httpslib
 
-from M2Crypto.six.moves.urllib_parse import urldefrag, urlparse as url_parse
-from M2Crypto.six.moves.urllib_response import addinfourl
+from urllib.parse import urldefrag, urlparse as url_parse
+from urllib.response import addinfourl
 from typing import Optional  # noqa
 
-# six.moves doesn't support star imports
-if six.PY3:
-    from urllib.request import *  # noqa other modules want to import
-    from urllib.error import *  # noqa other modules want to import
-else:
-    from urllib2 import *  # noqa
+from urllib.request import *  # noqa other modules want to import
+from urllib.error import *  # noqa other modules want to import
 
 
 try:
@@ -124,14 +120,11 @@ class HTTPSHandler(AbstractHTTPHandler):
         # to read().  This weird wrapping allows the returned object to
         # have readline() and readlines() methods.
         r.recv = r.read
-        if six.PY2:
-            fp = socket._fileobject(r, close=True)
-        else:
-            r._decref_socketios = lambda: None
-            r.ssl = h.sock.ssl
-            r._timeout = -1.0
-            r.recv_into = r.readinto
-            fp = socket.SocketIO(r, 'rb')
+        r._decref_socketios = lambda: None
+        r.ssl = h.sock.ssl
+        r._timeout = -1.0
+        r.recv_into = r.readinto
+        fp = socket.SocketIO(r, 'rb')
 
         resp = addinfourl(fp, r.msg, req.get_full_url())
         resp.code = r.status

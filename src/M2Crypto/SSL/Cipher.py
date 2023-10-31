@@ -4,7 +4,7 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
 __all__ = ['Cipher', 'Cipher_Stack']
 
-from M2Crypto import m2, six
+from M2Crypto import m2
 from typing import Iterable  # noqa
 
 
@@ -31,7 +31,7 @@ class Cipher(object):
 
     def name(self):
         # type: () -> str
-        return six.ensure_text(m2.ssl_cipher_get_name(self.cipher))
+        return m2.ssl_cipher_get_name(self.cipher)
 
 
 class Cipher_Stack(object):
@@ -55,5 +55,5 @@ class Cipher_Stack(object):
 
     def __iter__(self):
         # type: () -> Iterable
-        for i in six.moves.range(m2.sk_ssl_cipher_num(self.stack)):
+        for i in range(m2.sk_ssl_cipher_num(self.stack)):
             yield self[i]

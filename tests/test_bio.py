@@ -10,7 +10,7 @@ Author: Heikki Toivonen
 """
 import logging
 
-from M2Crypto import BIO, Rand, m2, six
+from M2Crypto import BIO, Rand, m2
 from tests import unittest
 from tests.fips import fips_mode
 
@@ -67,7 +67,6 @@ class CipherStreamTestCase(unittest.TestCase):
         self.assertEqual(data, data2,
                          '%s algorithm cipher test failed' % algo)
 
-    @unittest.skipUnless(six.PY34, "Doesn't support subTest")
     def test_algo(self):
         for algo in ciphers:
             with self.subTest(algo=algo):

@@ -12,7 +12,7 @@ Author: Heikki Toivonen
 import binascii
 import logging
 
-from M2Crypto import ASN1, BIO, EVP, m2, six  # noqa
+from M2Crypto import ASN1, BIO, EVP, m2  # noqa
 from typing import AnyStr, List, Optional  # noqa
 
 FORMAT_DER = 0
@@ -139,7 +139,8 @@ class X509_Extension(object):
         """
         Get the extension name, for example 'subjectAltName'.
         """
-        return six.ensure_text(m2.x509_extension_get_name(self.x509_ext))
+        out = m2.x509_extension_get_name(self.x509_ext)
+        return out.decode() if isinstance(out, bytes) else out
 
     def get_value(self, flag=0, indent=0):
         # type: (int, int) -> str
@@ -151,7 +152,8 @@ class X509_Extension(object):
         """
         buf = BIO.MemoryBuffer()
         m2.x509_ext_print(buf.bio_ptr(), self.x509_ext, flag, indent)
-        return six.ensure_text(buf.read_all())
+        out = buf.read_all()
+        return out.decode() if isinstance(out, bytes) else out
 
 
 class X509_Extension_Stack(object):
@@ -351,7 +353,8 @@ class X509_Name(object):
         if attr in self.nid:
             assert m2.x509_name_type_check(self.x509_name), \
                 "'x509_name' type error"
-            return six.ensure_text(m2.x509_name_by_nid(self.x509_name, self.nid[attr]))
+            out = m2.x509_name_by_nid(self.x509_name, self.nid[attr])
+            return out.decode() if isinstance(out, bytes) else out
 
         if attr in self.__dict__:
             return self.__dict__[attr]
@@ -366,8 +369,9 @@ class X509_Name(object):
         if attr in self.nid:
             assert m2.x509_name_type_check(self.x509_name), \
                 "'x509_name' type error"
+            value = value.encode() if isinstance(value, str) else value
             return m2.x509_name_set_by_nid(self.x509_name, self.nid[attr],
-                                           six.ensure_binary(value))
+                                           value)
 
         self.__dict__[attr] = value
 
@@ -419,9 +423,10 @@ class X509_Name(object):
 
         :return: 1 for success of 0 if an error occurred.
         """
+        entry = entry.decode() if isinstance(entry, bytes) else entry
         return m2.x509_name_add_entry_by_txt(self.x509_name,
-                                             six.ensure_str(field), type,
-                                             six.ensure_str(entry), len, loc, set)
+                                             field, type,
+                                             entry, len, loc, set)
 
     def entry_count(self):
         # type: () -> int
@@ -462,7 +467,8 @@ class X509_Name(object):
             "'x509_name' type error"
         buf = BIO.MemoryBuffer()
         m2.x509_name_print_ex(buf.bio_ptr(), self.x509_name, indent, flags)
-        return six.ensure_text(buf.read_all())
+        out = buf.read_all()
+        return out.decode() if isinstance(out, bytes) else out
 
     def as_der(self):
         # type: () -> bytes
@@ -514,7 +520,8 @@ class X509(object):
         assert m2.x509_type_check(self.x509), "'x509' type error"
         buf = BIO.MemoryBuffer()
         m2.x509_print(buf.bio_ptr(), self.x509)
-        return six.ensure_text(buf.read_all())
+        out = buf.read_all()
+        return out.decode() if isinstance(out, bytes) else out
 
     def as_der(self):
         # type: () -> bytes
@@ -733,7 +740,7 @@ class X509(object):
         m2x509_extension_get_name = m2.x509_extension_get_name
         x509 = self.x509
 
-        name = six.ensure_binary(name)
+        name = name.encode() if isinstance(name, str) else name
         for i in range(m2.x509_get_ext_count(x509)):
             ext_ptr = m2x509_get_ext(x509, i)
             if m2x509_extension_get_name(ext_ptr) == name:
@@ -827,7 +834,7 @@ class X509(object):
         md = EVP.MessageDigest(md)
         md.update(der)
         digest = md.final()
-        return six.ensure_text(binascii.hexlify(digest).upper())
+        return binascii.hexlify(digest).upper().decode()
 
 
 def load_cert(file, format=FORMAT_PEM):
@@ -877,12 +884,13 @@ def load_cert_bio(bio, format=FORMAT_PEM):
     return X509(cptr, _pyfree=1)
 
 
-def load_cert_string(string, format=FORMAT_PEM):
+def load_cert_string(cert_str, format=FORMAT_PEM):
     # type: (AnyStr, int) -> X509
     """
-    Load certificate from a string.
+    Load certificate from a cert_str.
 
-    :param string: String containing a certificate in either DER or PEM format.
+    :param cert_str: String containing a certificate in either
+                     DER or PEM format.
 
     :param format: Describes the format of the cert to be loaded,
                    either PEM or DER (via constants FORMAT_PEM
@@ -890,22 +898,22 @@ def load_cert_string(string, format=FORMAT_PEM):
 
     :return: M2Crypto.X509.X509 object.
     """
-    string = six.ensure_binary(string)
-    bio = BIO.MemoryBuffer(string)
+    cert_str = cert_str.encode() if isinstance(cert_str, str) else cert_str
+    bio = BIO.MemoryBuffer(cert_str)
     return load_cert_bio(bio, format)
 
 
-def load_cert_der_string(string):
+def load_cert_der_string(cert_str):
     # type: (AnyStr) -> X509
     """
-    Load certificate from a string.
+    Load certificate from a cert_str.
 
-    :param string: String containing a certificate in DER format.
+    :param cert_str: String containing a certificate in DER format.
 
     :return: M2Crypto.X509.X509 object.
     """
-    string = six.ensure_binary(string)
-    bio = BIO.MemoryBuffer(string)
+    cert_str = cert_str.encode() if isinstance(cert_str, str) else cert_str
+    bio = BIO.MemoryBuffer(cert_str)
     cptr = m2.d2i_x509(bio._ptr())
     return X509(cptr, _pyfree=1)
 
@@ -1156,7 +1164,7 @@ def new_stack_from_der(der_string):
 
     :return: X509_Stack
     """
-    der_string = six.ensure_binary(der_string)
+    der_string = der_string.encode() if isinstance(der_string, str) else der_string
     stack_ptr = m2.make_stack_from_der_sequence(der_string)
     return X509_Stack(stack_ptr, 1, 1)
 
@@ -1187,7 +1195,8 @@ class Request(object):
         # type: () -> str
         buf = BIO.MemoryBuffer()
         m2.x509_req_print(buf.bio_ptr(), self.req)
-        return six.ensure_text(buf.read_all())
+        out = buf.read_all()
+        return out.decode() if isinstance(out, bytes) else out
 
     def as_pem(self):
         # type: () -> bytes
@@ -1366,34 +1375,34 @@ def load_request_bio(bio, format=FORMAT_PEM):
     return Request(cptr, _pyfree=1)
 
 
-def load_request_string(string, format=FORMAT_PEM):
+def load_request_string(cert_str, format=FORMAT_PEM):
     # type: (AnyStr, int) -> Request
     """
-    Load certificate request from a string.
+    Load certificate request from a cert_str.
 
-    :param string: String containing a certificate request in
-                   either DER or PEM format.
+    :param cert_str: String containing a certificate request in
+                     either DER or PEM format.
     :param format: Describes the format of the request to be loaded,
                    either PEM or DER. (using constants FORMAT_PEM
                    and FORMAT_DER)
 
     :return: M2Crypto.X509.Request object.
     """
-    string = six.ensure_binary(string)
-    bio = BIO.MemoryBuffer(string)
+    cert_str = cert_str.encode() if isinstance(cert_str, str) else cert_str
+    bio = BIO.MemoryBuffer(cert_str)
     return load_request_bio(bio, format)
 
 
-def load_request_der_string(string):
+def load_request_der_string(cert_str):
     # type: (AnyStr) -> Request
     """
-    Load certificate request from a string.
+    Load certificate request from a cert_str.
 
-    :param string: String containing a certificate request in DER format.
+    :param cert_str: String containing a certificate request in DER format.
     :return: M2Crypto.X509.Request object.
     """
-    string = six.ensure_binary(string)
-    bio = BIO.MemoryBuffer(string)
+    cert_str = cert_str.encode() if isinstance(cert_str, str) else cert_str
+    bio = BIO.MemoryBuffer(cert_str)
     return load_request_bio(bio, FORMAT_DER)
 
 
@@ -1432,7 +1441,8 @@ class CRL(object):
         """
         buf = BIO.MemoryBuffer()
         m2.x509_crl_print(buf.bio_ptr(), self.crl)
-        return six.ensure_text(buf.read_all())
+        out = buf.read_all()
+        return out.decode() if isinstance(out, bytes) else out
 
 
 def load_crl(file):

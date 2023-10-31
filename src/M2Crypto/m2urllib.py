@@ -11,18 +11,14 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 import base64
 import warnings
 
-from M2Crypto import SSL, httpslib, six
+from M2Crypto import SSL, httpslib
 
-from M2Crypto.six.moves.urllib_response import addinfourl
+from urllib.response import addinfourl
 from typing import AnyStr, Optional  # noqa
 
-# six.moves doesn't support star imports
-if six.PY3:
-    from urllib.request import *  # noqa for other modules to import
-    from urllib.parse import *  # noqa for other modules to import
-    from urllib.error import *  # noqa for other modules to import
-else:
-    from urllib import *  # noqa
+from urllib.request import *  # noqa for other modules to import
+from urllib.parse import *  # noqa for other modules to import
+from urllib.error import *  # noqa for other modules to import
 
 
 def open_https(self, url, data=None, ssl_context=None):
@@ -35,32 +31,23 @@ def open_https(self, url, data=None, ssl_context=None):
     :param ssl_context: SSL.Context to be used
     :return:
     """
-    if six.PY3:
-        warnings.warn('URLOpener has been deprecated in Py3k', DeprecationWarning)
+    warnings.warn('URLOpener has been deprecated in Py3k', DeprecationWarning)
 
     if ssl_context is not None and isinstance(ssl_context, SSL.Context):
         self.ctx = ssl_context
     else:
         self.ctx = SSL.Context()
     user_passwd = None
-    if isinstance(url, six.string_types):
-        try:               # python 2
-            # http://pydoc.org/2.5.1/urllib.html
-            host, selector = splithost(url)
-            if host:
-                user_passwd, host = splituser(host)
-                host = unquote(host)
-            realhost = host
-        except NameError:  # python 3 has no splithost
-            # https://docs.python.org/3/library/urllib.parse.html
-            parsed = urlparse(url)
-            host = parsed.hostname
-            if parsed.port:
-                host += ":{0}".format(parsed.port)
-            user_passwd = parsed.password
-            if parsed.password:
-                user_passwd += ":{0}".format(parsed.password)
-            selector = parsed.path
+    if isinstance(url, (str,)):
+        # https://docs.python.org/3/library/urllib.parse.html
+        parsed = urlparse(url)
+        host = parsed.hostname
+        if parsed.port:
+            host += ":{0}".format(parsed.port)
+        user_passwd = parsed.password
+        if parsed.password:
+            user_passwd += ":{0}".format(parsed.password)
+        selector = parsed.path
     else:
         host, selector = url
         urltype, rest = splittype(selector)
@@ -87,10 +74,7 @@ def open_https(self, url, data=None, ssl_context=None):
     if not host:
         raise IOError('http error', 'no host given')
     if user_passwd:
-        if six.PY3:
-            auth = base64.encodebytes(user_passwd).strip()
-        else:
-            auth = base64.encodestring(user_passwd).strip()
+        auth = base64.encodebytes(user_passwd).strip()
     else:
         auth = None
     # Start here!

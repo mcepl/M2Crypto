@@ -2,7 +2,7 @@
 
 """Unit tests for M2Crypto.m2 obj_* functions.
 """
-from M2Crypto import ASN1, BIO, Rand, X509, m2, six
+from M2Crypto import ASN1, BIO, Rand, X509, m2
 from tests import unittest
 
 """
@@ -21,18 +21,20 @@ def x509_name_entry2tuple(entry):
     bio = BIO.MemoryBuffer()
     m2.asn1_string_print(bio._ptr(), m2.x509_name_entry_get_data(entry._ptr()))
     return (
-        six.ensure_text(m2.obj_obj2txt(
-            m2.x509_name_entry_get_object(entry._ptr()), 0)),
-        six.ensure_text(bio.getvalue()))
+        m2.obj_obj2txt(
+            m2.x509_name_entry_get_object(entry._ptr()), 0).decode(),
+        bio.getvalue().decode())
 
 
 def tuple2x509_name_entry(tup):
     obj, data = tup
     # TODO This is evil, isn't it? Shouldn't we use only official API?
     # Something like X509.X509_Name.add_entry_by_txt()
-    _x509_ne = m2.x509_name_entry_create_by_txt(None, six.ensure_str(obj),
+    obj = obj if isinstance(obj, str) else obj.decode()
+    data = data if isinstance(data, str) else data.decode()
+    _x509_ne = m2.x509_name_entry_create_by_txt(None, obj,
                                                 ASN1.MBSTRING_ASC,
-                                                six.ensure_str(data), len(data))
+                                                data, len(data))
     if not _x509_ne:
         raise ValueError("Invalid object indentifier: %s" % obj)
     return X509.X509_Name_Entry(_x509_ne, _pyfree=1)  # Prevent memory leaks
@@ -125,9 +127,9 @@ class ObjectsTestCase(unittest.TestCase):
         try:
             s.verify(p7, data)
         except SMIME.PKCS7_Error as e:
-            six.assertRegex(self, str(e),
-                                     "unable to get local issuer certificate",
-                                     "Not received expected error message")
+            self.assertRegex(str(e),
+                             "unable to get local issuer certificate",
+                             "Not received expected error message")
 
 def suite():
     t_suite = unittest.TestSuite()

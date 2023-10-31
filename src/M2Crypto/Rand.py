@@ -7,7 +7,7 @@ See LICENCE for the license information.
 """
 from __future__ import absolute_import
 
-from M2Crypto import m2, six
+from M2Crypto import m2
 from typing import AnyStr, Tuple  # noqa
 
 
@@ -72,7 +72,7 @@ def rand_file_name():
        is set, $HOME/.rnd otherwise. If $HOME is not set either,
        an error occurs.
     """
-    return six.ensure_text(m2.rand_file_name())  # pylint: disable=no-member
+    return m2.rand_file_name().decode()  # pylint: disable=no-member
 
 
 def load_file(filename, max_bytes):
@@ -87,7 +87,8 @@ def load_file(filename, max_bytes):
     :param max_bytes:
     :return: the number of bytes read.
     """
-    return m2.rand_load_file(six.ensure_str(filename), max_bytes)  # pylint: disable=no-member
+    filename = filename.decode() if isinstance(filename, bytes) else filename
+    return m2.rand_load_file(filename, max_bytes)  # pylint: disable=no-member
 
 
 def save_file(filename):

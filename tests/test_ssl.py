@@ -31,7 +31,7 @@ import time
 import warnings
 
 from M2Crypto import (Err, Rand, SSL, X509, ftpslib, httpslib, m2, m2urllib,
-                      m2urllib2, m2xmlrpclib, six)
+                      m2urllib2, m2xmlrpclib)
 from M2Crypto.SSL.timeout import DEFAULT_TIMEOUT
 from tests import unittest
 from tests.fips import fips_mode
@@ -123,7 +123,7 @@ class BaseSSLClientTestCase(unittest.TestCase):
     def stop_server(self, pid):
         pid.terminate()
         out, err = pid.communicate()
-        return six.ensure_text(out), six.ensure_text(err)
+        return out.decode(), err.decode()
 
     def http_get(self, s):
         s.send(b'GET / HTTP/1.0\n\n')
@@ -136,7 +136,7 @@ class BaseSSLClientTestCase(unittest.TestCase):
             except SSL.SSLError:  # s_server throws an 'unexpected eof'...
                 break
             resp = resp + r
-        return six.ensure_text(resp)
+        return resp.decode()
 
     def setUp(self):
         self.srv_host = srv_host
@@ -171,7 +171,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             c.close()
         finally:
             self.stop_server(pid)
-        self.assertIn('s_server -quiet -www', six.ensure_text(data))
+        self.assertIn('s_server -quiet -www', data.decode())
 
     @unittest.skipIf(OPENSSL111, "Doesn't work with OpenSSL 1.1.1")
     def test_HTTPSConnection_resume_session(self):
@@ -203,7 +203,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             c2.request('GET', '/')
             ses2 = c2.get_session()
             t2 = ses2.as_text()
-            data = six.ensure_text(c2.getresponse().read())
+            data = c2.getresponse().read().decode()
             c.close()
             c2.close()
             self.assertEqual(t, t2,
@@ -221,7 +221,7 @@ class HttpslibSSLClientTestCase(BaseSSLClientTestCase):
             c = httpslib.HTTPSConnection(srv_host, self.srv_port,
                                          ssl_context=self.ctx)
             c.request('GET', '/')
-            data = six.ensure_text(c.getresponse().read())
+            data = c.getresponse().read().decode()
             c.close()
         finally:
             self.stop_server(pid)
@@ -411,7 +411,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
                 ctx = SSL.Context('tlsv1')
             s = SSL.Connection(ctx)
             s.set_cipher_list('DEFAULT:@SECLEVEL=0')
-            with six.assertRaisesRegex(self, SSL.SSLError,
+            with self.assertRaisesRegex(SSL.SSLError,
                                        r'version|unexpected eof|internal error'):
                 s.connect(self.srv_addr)
             s.close()
@@ -442,7 +442,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s = SSL.Connection(ctx)
             s.set_cipher_list('AES128-SHA')
             if not OPENSSL111:
-                with six.assertRaisesRegex(self, SSL.SSLError,
+                with self.assertRaisesRegex(SSL.SSLError,
                                            'sslv3 alert handshake failure'):
                     s.connect(self.srv_addr)
             s.close()
@@ -457,7 +457,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s = SSL.Connection(ctx)
             s.set_cipher_list('EXP-RC2-MD5')
             if not OPENSSL111:
-                with six.assertRaisesRegex(self, SSL.SSLError,
+                with self.assertRaisesRegex(SSL.SSLError,
                                            'no ciphers available'):
                     s.connect(self.srv_addr)
             s.close()
@@ -935,26 +935,6 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
         self.assertFalse(hasattr(_m2_ssl_free, 'called'))
 
 
-class UrllibSSLClientTestCase(BaseSSLClientTestCase):
-
-    @unittest.skipIf(six.PY3, "urllib.URLOpener is deprecated in py3k")
-    def test_urllib(self):
-        pid = self.start_server(self.args)
-        try:
-            url = m2urllib.FancyURLopener()
-            url.addheader('Connection', 'close')
-            u = url.open('https://%s:%s/' % (srv_host, self.srv_port))
-            data = u.read()
-            u.close()
-        finally:
-            self.stop_server(pid)
-        self.assertIn('s_server -quiet -www', data)
-
-    # XXX Don't actually know how to use m2urllib safely!
-    # def test_urllib_safe_context(self):
-    # def test_urllib_safe_context_fail(self):
-
-
 class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
 
     def test_urllib2(self):
@@ -1229,7 +1209,6 @@ def suite():
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(PassSSLClientTestCase))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(HttpslibSSLClientTestCase))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(HttpslibSSLSNIClientTestCase))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(UrllibSSLClientTestCase))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Urllib2SSLClientTestCase))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Urllib2TEChunkedSSLClientTestCase))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(MiscSSLClientTestCase))

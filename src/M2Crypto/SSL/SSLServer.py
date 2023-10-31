@@ -9,13 +9,12 @@ Copyright (c) 1999-2002 Ng Pheng Siong. All rights reserved."""
 from M2Crypto.SSL import SSLError
 from M2Crypto.SSL.Connection import Connection
 from M2Crypto.SSL.Context import Context  # noqa
-# from M2Crypto import six  # noqa
 from M2Crypto import util  # noqa
-from M2Crypto.six.moves.socketserver import (BaseRequestHandler, BaseServer,
-                                             TCPServer, ThreadingMixIn)
+from socketserver import (BaseRequestHandler, BaseServer,
+                          TCPServer, ThreadingMixIn)
 import os
 if os.name != 'nt':
-    from M2Crypto.six.moves.socketserver import ForkingMixIn
+    from socketserver import ForkingMixIn
 from socket import socket  # noqa
 from typing import Union  # noqa
 

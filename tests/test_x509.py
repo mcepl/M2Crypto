@@ -16,7 +16,7 @@ import platform
 import time
 import warnings
 
-from M2Crypto import ASN1, BIO, EVP, RSA, Rand, X509, m2, six  # noqa
+from M2Crypto import ASN1, BIO, EVP, RSA, Rand, X509, m2  # noqa
 from M2Crypto.util import is_32bit, expectedFailureIf
 from tests import unittest
 
@@ -635,10 +635,7 @@ class X509StackTestCase(unittest.TestCase):
 
         with warnings.catch_warnings():
             warnings.simplefilter('ignore', DeprecationWarning)
-            if six.PY3:
-                seq = base64.decodebytes(b64)
-            else:
-                seq = base64.decodestring(b64)
+            seq = base64.decodebytes(b64)
 
         stack = X509.new_stack_from_der(seq)
         cert = stack.pop()
@@ -658,10 +655,7 @@ class X509StackTestCase(unittest.TestCase):
 
         with warnings.catch_warnings():
             warnings.simplefilter('ignore', DeprecationWarning)
-            if six.PY3:
-                seq = base64.decodebytes(b64)
-            else:
-                seq = base64.decodestring(b64)
+            seq = base64.decodebytes(b64)
 
         stack = X509.new_stack_from_der(seq)
         num = len(stack)

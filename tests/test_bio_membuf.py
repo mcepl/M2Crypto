@@ -9,7 +9,7 @@ import multiprocessing
 
 from platform import system
 from sys import version_info
-from M2Crypto import m2, six
+from M2Crypto import m2
 from M2Crypto.BIO import MemoryBuffer
 from tests import unittest
 
@@ -21,19 +21,15 @@ class TimeLimitExpired(Exception):
 def time_limit(timeout, func, exc_msg, *args, **kwargs):
 
     # multiprocessing.get_context() available in Python >= 3.4
-    if six.PY3:
-        # Python >=3.8 on MacOS changed start_method to 'spawn' as default.
-        #   This creates a new context with the previous 'fork'
-        #   start_method. Fixes issue #286.
-        if system() == 'Darwin' and version_info.major >= 3 and version_info.minor >= 8:
-            start_method = 'fork'
-        else:
-            # use default context
-            start_method = None
-
-        mp = multiprocessing.get_context(start_method)
+    # Python >=3.8 on MacOS changed start_method to 'spawn' as default.
+    #   This creates a new context with the previous 'fork'
+    #   start_method. Fixes issue #286.
+    if system() == 'Darwin' and version_info >= (3, 8):
+        start_method = 'fork'
     else:
-        mp = multiprocessing
+        # use default context
+        start_method = None
+    mp = multiprocessing.get_context(start_method)
 
     p = mp.Process(target=func)
     p.start()

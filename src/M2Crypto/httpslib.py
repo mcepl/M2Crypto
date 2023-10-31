@@ -9,11 +9,11 @@ Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 import base64
 import socket
 
-from M2Crypto import SSL, six
-from M2Crypto.six.moves.urllib_parse import urlsplit, urlunsplit
-from M2Crypto.six.moves.http_client import *  # noqa
+from M2Crypto import SSL
+from urllib.parse import urlsplit, urlunsplit
+from http.client import *  # noqa
 # This is not imported with just '*'
-from M2Crypto.six.moves.http_client import HTTPS_PORT
+from http.client import HTTPS_PORT
 from typing import Any, AnyStr, Callable, Dict, Optional  # noqa
 
 
@@ -159,9 +159,9 @@ class ProxyHTTPSConnection(HTTPSConnection):
         HTTPSConnection.__init__(self, host, port, strict, **ssl)
 
         self._username = username.encode('utf8') \
-            if isinstance(username, six.string_types) else username
+            if isinstance(username, (str,)) else username
         self._password = password.encode('utf8') \
-            if isinstance(password, six.string_types) else password
+            if isinstance(password, (str,)) else password
         self._proxy_auth = None  # type: str
         self._proxy_UA = None  # type: str
 
@@ -245,7 +245,7 @@ class ProxyHTTPSConnection(HTTPSConnection):
         if self._proxy_auth:
             msg = msg + "%s: %s\r\n" % (self._AUTH_HEADER, self._proxy_auth)
         msg = msg + "\r\n"
-        return six.ensure_binary(msg)
+        return msg.encode()
 
     def _start_ssl(self):
         # type: () -> None
@@ -265,4 +265,4 @@ class ProxyHTTPSConnection(HTTPSConnection):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", DeprecationWarning)
             enc_userpass = base64.encodestring(userpass).replace("\n", "")
-        return six.ensure_binary("Basic %s" % enc_userpass)
+        return ("Basic %s" % enc_userpass).encode()

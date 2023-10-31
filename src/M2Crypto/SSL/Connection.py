@@ -14,7 +14,7 @@ import logging
 import socket
 import io
 
-from M2Crypto import BIO, Err, X509, m2, six, util  # noqa
+from M2Crypto import BIO, Err, X509, m2, util  # noqa
 from M2Crypto.SSL import Checker, Context, timeout  # noqa
 from M2Crypto.SSL import SSLError
 from M2Crypto.SSL.Cipher import Cipher, Cipher_Stack
@@ -593,7 +593,7 @@ class Connection(object):
     def get_cipher_list(self, idx=0):
         # type: (int) -> str
         """Return the cipher suites for this connection as a string object."""
-        return six.ensure_text(m2.ssl_get_cipher_list(self.ssl, idx))
+        return m2.ssl_get_cipher_list(self.ssl, idx)
 
     def set_cipher_list(self, cipher_list):
         # type: (str) -> int
@@ -602,13 +602,10 @@ class Connection(object):
 
     def makefile(self, mode='rb', bufsize=-1):
         # type: (AnyStr, int) -> Union[io.BufferedRWPair,io.BufferedReader]
-        if six.PY3:
-            raw = socket.SocketIO(self, mode)
-            if 'rw' in mode:
-                return io.BufferedRWPair(raw, raw)
-            return io.BufferedReader(raw, io.DEFAULT_BUFFER_SIZE)
-        else:
-            return socket._fileobject(self, mode, bufsize)
+        raw = socket.SocketIO(self, mode)
+        if 'rw' in mode:
+            return io.BufferedRWPair(raw, raw)
+        return io.BufferedReader(raw, io.DEFAULT_BUFFER_SIZE)
 
     def getsockname(self):
         # type: () -> util.AddrType
@@ -661,8 +658,8 @@ class Connection(object):
 
     @staticmethod
     def _hexdump(s):
-        assert isinstance(s, six.binary_type)
-        return ":".join("{0:02x}".format(ord(c) if six.PY2 else c) for c in s)
+        assert isinstance(s, bytes)
+        return ":".join(s)
 
     def get_socket_write_timeout(self):
         # type: () -> timeout
@@ -693,7 +690,7 @@ class Connection(object):
     def get_version(self):
         # type: () -> str
         """Return the TLS/SSL protocol version for this connection."""
-        return six.ensure_text(m2.ssl_get_version(self.ssl))
+        return m2.ssl_get_version(self.ssl)
 
     def set_post_connection_check_callback(self, postConnectionCheck):  # noqa
         # type: (Callable) -> None

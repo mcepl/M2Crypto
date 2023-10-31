@@ -17,7 +17,7 @@ import struct
 import sys
 import struct
 
-from M2Crypto import m2, six
+from M2Crypto import m2
 from typing import Any, Optional, TextIO, Tuple, Union  # noqa
 from tests import unittest
 # see https://github.com/python/typeshed/issues/222
@@ -61,7 +61,7 @@ def pkcs7_pad(data, blklen):
 
 def bin_to_hex(b):
     # type: (bytes) -> str
-    return six.ensure_text(binascii.b2a_base64(b)[:-1])
+    return binascii.b2a_base64(b)[:-1].decode()
 
 
 def octx_to_num(x):

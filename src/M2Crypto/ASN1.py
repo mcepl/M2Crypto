@@ -12,7 +12,7 @@ Copyright (C) 2005 OSAF. All Rights Reserved.
 import datetime
 import time
 
-from M2Crypto import BIO, m2, six
+from M2Crypto import BIO, m2
 from typing import Optional  # noqa
 
 MBSTRING_FLAG = 0x1000
@@ -64,7 +64,7 @@ class ASN1_String(object):
 
     def __str__(self):
         # type: () -> str
-        return six.ensure_text(self.__bytes__())
+        return self.__bytes__().decode()
 
     def __del__(self):
         # type: () -> None
@@ -85,7 +85,7 @@ class ASN1_String(object):
         """
         buf = BIO.MemoryBuffer()
         m2.asn1_string_print_ex(buf.bio_ptr(), self.asn1str, flags)
-        return six.ensure_text(buf.read_all())
+        return buf.read_all().decode()
 
 
 class ASN1_Object(object):
@@ -197,7 +197,7 @@ class ASN1_TIME(object):
             "'asn1_time' type error'"
         buf = BIO.MemoryBuffer()
         m2.asn1_time_print(buf.bio_ptr(), self.asn1_time)
-        return six.ensure_text(buf.read_all())
+        return buf.read_all().decode()
 
     def _ptr(self):
         assert m2.asn1_time_type_check(self.asn1_time), \
