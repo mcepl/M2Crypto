@@ -23,6 +23,8 @@ import subprocess
 import sys
 import setuptools
 
+from typing import Dict, List
+
 if sys.version_info[:2] < (3, 10):
     from distutils.command import build
     from distutils.dir_util import mkpath
@@ -36,17 +38,6 @@ logging.basicConfig(format='%(levelname)s:%(funcName)s:%(message)s',
 log = logging.getLogger('setup')
 
 requires_list = []
-if (2, 6) < sys.version_info[:2] < (3, 5):
-    requires_list.append('typing')
-if sys.version_info[0] > 2:
-    from typing import Dict, List
-
-# A compatibility shim for Python 2.7
-try:
-    FileNotFoundError
-except NameError:
-    class FileNotFoundError(Exception):
-        pass
 
 
 def _get_additional_includes():
@@ -161,8 +152,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
                 # this shortly to come up with a better fix.
                 self.swig_opts.append('-D_MSC_VER=1500')
 
-        if sys.version_info[:1] >= (3,):
-            self.swig_opts.append('-py3')
+        self.swig_opts.append('-py3')
 
         # swig seems to need the default header file directories
         self.swig_opts.extend(['-I%s' % i for i in _get_additional_includes()])
@@ -224,21 +214,14 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         self.swig_opts.append('-builtin')
 
         build_dir = os.path.join(self.build_lib, 'M2Crypto')
-        if sys.version_info[:2] < (3, 2):
-           mkpath(build_dir)
-        else:
-           os.makedirs(build_dir, exist_ok=True)
+        os.makedirs(build_dir, exist_ok=True)
 
         # These two lines are a workaround for
         # http://bugs.python.org/issue2624 , hard-coding that we are only
         # building a single extension with a known path; a proper patch to
         # distutils would be in the run phase, when extension name and path are
         # known.
-        if sys.version_info[:2] < (3,2):
-            self.swig_opts.extend(['-outdir',
-                                os.path.join(os.getcwd(), 'src', 'M2Crypto')])
-        else:
-            self.swig_opts.extend(['-outdir', build_dir])
+        self.swig_opts.extend(['-outdir', build_dir])
         self.include_dirs.append(os.path.join(os.getcwd(), 'src', 'SWIG'))
 
         if sys.platform == 'cygwin' and self.openssl is not None:
@@ -249,10 +232,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
             # Someday distutils will be fixed and this won't be needed.
             self.library_dirs += [os.path.join(self.openssl, 'bin')]
 
-        if sys.version_info[:2] < (3, 2):
-           mkpath(os.path.join(self.build_lib, 'M2Crypto'))
-        else:
-           os.makedirs(os.path.join(self.build_lib, 'M2Crypto'), exist_ok=True)
+        os.makedirs(os.path.join(self.build_lib, 'M2Crypto'), exist_ok=True)
 
     def run(self):
         """
