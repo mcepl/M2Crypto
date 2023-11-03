@@ -973,7 +973,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s.close()
         finally:
             self.stop_server(pid)
-        self.assertIn(six.ensure_binary(self.test_output), data)
+        self.assertIn(self.test_output.encode(), data)
 
     def test_makefile_err(self):
         pid = self.start_server(self.args)
@@ -1075,7 +1075,7 @@ class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
             u.close()
         finally:
             self.stop_server(pid)
-        self.assertIn(six.ensure_binary(self.test_output), data)
+        self.assertIn(self.test_output.encode(), data)
 
     def test_urllib2_secure_context(self):
         pid = self.start_server(self.args)
@@ -1095,7 +1095,7 @@ class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
             u.close()
         finally:
             self.stop_server(pid)
-        self.assertIn(six.ensure_binary(self.test_output), data)
+        self.assertIn(self.test_output.encode(), data)
 
     def test_urllib2_secure_context_fail(self):
         pid = self.start_server(self.args)
@@ -1132,7 +1132,7 @@ class Urllib2SSLClientTestCase(BaseSSLClientTestCase):
             u.close()
         finally:
             self.stop_server(pid)
-        self.assertIn(six.ensure_binary(self.test_output), data)
+        self.assertIn(self.test_output.encode(), data)
 
     def test_urllib2_opener_handlers(self):
         ctx = SSL.Context()
@@ -1229,7 +1229,7 @@ class TwistedSSLClientTestCase(BaseSSLClientTestCase):
             c.close()
         finally:
             self.stop_server(pid)
-        self.assertIn(six.ensure_binary(self.test_output), data)
+        self.assertIn(self.test_output.encode(), data)
 
     @unittest.skipIf(
         sys.platform == 'win32', "os.mkfifo not available on Windows"
@@ -1321,7 +1321,7 @@ class TwistedSSLClientTestCase(BaseSSLClientTestCase):
             reactor.run()
         finally:
             self.stop_server(pid)
-        self.assertIn(six.ensure_binary(self.test_output), twisted_data)
+        self.assertIn(self.test_output.encode(), twisted_data)
 
 
 twisted_data = ''
