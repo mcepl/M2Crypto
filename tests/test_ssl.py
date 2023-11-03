@@ -412,7 +412,7 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s = SSL.Connection(ctx)
             s.set_cipher_list('DEFAULT:@SECLEVEL=0')
             with self.assertRaisesRegex(SSL.SSLError,
-                                       r'version|unexpected eof|internal error'):
+                                       r'version|unexpected eof'):
                 s.connect(self.srv_addr)
             s.close()
         finally:
