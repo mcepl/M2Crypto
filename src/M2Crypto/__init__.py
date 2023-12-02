@@ -21,6 +21,21 @@ Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 __version__ = '0.40.1'
 version = __version__  # type: str
 
+try:
+    from distutils.version import StrictVersion as Version
+except ImportError:
+    try:
+        from packaging.version import Version
+    except ImportError:
+        Version = None
+
+if Version is not None:
+    __ver = Version(__version__)
+    if hasattr(__ver, '_version'):
+        version_info = tuple(__ver._version[1])
+    elif hasattr(__ver, 'version'):
+        version_info = __ver.version
+
 from M2Crypto import m2
 
 encrypt = 1
