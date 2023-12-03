@@ -241,20 +241,28 @@ int bio_get_flags(BIO *bio) {
  * sets the cipher of BIO @param b to c using key @param key and IV @iv.
  * @param enc should be set to 1 for encryption and zero to decryption.
  *
+ * @return
+ *
  */
 PyObject *bio_set_cipher(BIO *b, EVP_CIPHER *c, PyObject *key, PyObject *iv, int op) {
     const void *kbuf, *ibuf;
     Py_ssize_t klen, ilen;
 
     if ((m2_PyObject_AsReadBuffer(key, &kbuf, &klen) == -1)
-        || (m2_PyObject_AsReadBuffer(iv, &ibuf, &ilen) == -1))
-        return NULL;
+        || (m2_PyObject_AsReadBuffer(iv, &ibuf, &ilen) == -1)) {
+            PyErr_SetString(PyExc_ValueError, "Reading of key or IV from buffer failed.");
+            return NULL;
+        }
 
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
     if (!BIO_set_cipher(b, (const EVP_CIPHER *)c,
-            (unsigned char *)kbuf, (unsigned char *)ibuf, op))
+            (unsigned char *)kbuf, (unsigned char *)ibuf, op)) {
+        PyErr_SetString(PyExc_OSError, "Setting of cipher failed.");
         return NULL;
+    }
 #else
+    // https://www.openssl.org/docs/man1.0.2/man3/BIO_set_cipher.html
+    // BIO_set_cipher in OpenSSL < 3.0 doesn't return any value (error or otherwise).
     BIO_set_cipher(b, (const EVP_CIPHER *)c,
         (unsigned char *)kbuf, (unsigned char *)ibuf, op);
 #endif

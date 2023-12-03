@@ -351,7 +351,10 @@ class CipherStream(BIO):
                 key = key.encode('utf8')
             if not isinstance(iv, bytes):
                 iv = iv.encode('utf8')
-        m2.bio_set_cipher(self.bio, cipher(), key, iv, int(op))
+        try:
+            m2.bio_set_cipher(self.bio, cipher(), key, iv, int(op))
+        except (OSError, ValueError) as ex:
+            raise BIOError("BIOError: {}".format(str(ex)))
         m2.bio_push(self.bio, self.obio._ptr())
 
 
