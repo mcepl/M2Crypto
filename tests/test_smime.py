@@ -162,10 +162,12 @@ class SMIMETestCase(unittest.TestCase):
         with self.assertRaises(SMIME.PKCS7_Error):
             s.verify(p7, data)
 
+        data.seek(0)
         st.set_verify_cb(verify_cb_dummy_function)
         v = s.verify(p7, data)
         self.assertEqual(v, self.cleartext)
 
+        data.seek(0)
         st.set_verify_cb()
         v = s.verify(p7, data)
         self.assertEqual(v, self.cleartext)
