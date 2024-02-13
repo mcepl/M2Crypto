@@ -1,3 +1,19 @@
+0.41.0 - 2024-02-13
+-------------------
+
+- fix: test/smime: Rewind BIO before repeadetly invoking verify.
+- feat: React to the possible error when calling BIO_set_cipher(3).
+- Return M2Crypto.version_info
+- Revert 957df43e (workaround for the problem in OpenSSL, which is not needed any more)
+- Fix Windows builds (fix #319)
+- feat: Remove py2k constructs in setup.py
+- Fix mkpath call (compatibility with Python >= 3.2)
+- Remove generated files from sources
+- feat!: Remove six and make whole project Py3k only (see #328)
+- Don't use setup.py commands anymore.
+- 32bit Python actually has Y2K38 problem, because time_t is long int (see #341)
+- From TAP back to the standard unittest (gh#python-tap/tappy#136)
+
 0.40.1 - 2023-10-25
 -------------------
 
