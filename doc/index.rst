@@ -4,7 +4,7 @@ Welcome to M2Crypto's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    M2Crypto
 
