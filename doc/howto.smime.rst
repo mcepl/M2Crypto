@@ -3,7 +3,7 @@
 .. _howto-smime:
 
 HOWTO: Programming S/MIME in Python with M2Crypto
-=================================================
+#################################################
 
 :author: Pheng Siong Ng <ngps@post1.com>
 :copyright: © 2000, 2001 by Ng Pheng Siong.

@@ -3,7 +3,7 @@
 .. _howto-ssl:
 
 HOWTO: Programming SSL in Python with M2Crypto
-==============================================
+##############################################
 
 :author: Pheng Siong Ng <ngps@netmemetic.com> and Heikki Toivonen (heikki@osafoundation.org)
 :copyright: © 2000, 2001 by Ng Pheng Siong,

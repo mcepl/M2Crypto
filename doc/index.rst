@@ -7,16 +7,7 @@ Contents:
    :maxdepth: 2
 
    M2Crypto
-
-
-HOWTOs
-======
-
-* :ref:`howto-ca`
-
-* :ref:`howto-ssl`
-
-* :ref:`howto-smime`
+   HOWTOs
 
 
 Indices and tables
