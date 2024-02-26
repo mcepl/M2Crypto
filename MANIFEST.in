@@ -7,7 +7,6 @@ recursive-include contrib *
 include INSTALL.rst
 include README.rst
 include CHANGES
-include epydoc.conf
 include LICENCE
 include src/SWIG/_m2crypto_wrap.c
 include src/M2Crypto/m2crypto.py
