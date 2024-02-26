@@ -9,3 +9,4 @@ Contents:
    howto.ca
    howto.ssl
    howto.smime
+   howto.migration
