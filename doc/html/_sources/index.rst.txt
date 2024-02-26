@@ -4,19 +4,10 @@ Welcome to M2Crypto's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    M2Crypto
-
-
-HOWTOs
-======
-
-* :ref:`howto-ca`
-
-* :ref:`howto-ssl`
-
-* :ref:`howto-smime`
+   HOWTOs
 
 
 Indices and tables
