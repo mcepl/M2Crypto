@@ -9,6 +9,9 @@ M2Crypto
 
 M2Crypto = Python + OpenSSL + SWIG
 ----------------------------------
+**NOTE: This library is currently in maintenance mode. We recommend using a more modern alternative such as**
+`PyCA/cryptography. <https://cryptography.io/en/latest/>`__ **Examples of how to migrate can be found in**
+`the documentation. <https://m2crypto.readthedocs.io/en/latest/howto.migration.html>`__
 
 M2Crypto is a crypto and SSL toolkit for Python.
 
