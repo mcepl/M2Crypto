@@ -441,6 +441,32 @@ Here's the output::
     a sign of our times
 
 
+
+It is also possible to decrypt a message message from a string, without reading it from a file first::
+
+    from M2Crypto import SMIME, BIO
+
+    # Instantiate an SMIME object.
+    s = SMIME.SMIME()
+
+    # Load private key and cert.
+    s.load_key('private_key.pkcs7.pem', 'public_key.pkcs7.pem')
+
+    # The Encrypted data
+    data_raw = "MIIBeQYJKoZIhvcNAQcDoIIBajCCAWYCAQAxggEhMIIBHQIBADAFMAACAQEwDQYJKoZIhvcNAQEBBQAEggEAL3r2KUEnR+Ds7lunkNUAEYWqiyppvZipjoCobD1FFF+WdFoaHcxJ/p18EaHfgXVgQ9tIPmEVfbVnxB406rrVEN9dZIrHyHBszl8G5xGcwQpbiYmQgS9cJc7P9Ya/qSwc7fzKAi4eoUfr7BALl3qWI1X+R2KNShDaUoa21c0XehHu0Qb6d2hScEdTulpGhGUaTkwMN4ZJmA60enG7xhSW8RIyZLTx7glRaaI/hEP0LsfkfI+kpKNQ8u52s816/tih5hiVtvpipWOyBU+L3OHVbGy4uzb9vMGO22KDm7Dev9wYs2EzHQry/u33ygdHzZwYwAM5Dm1js3cnJ5vsJdME5zA8BgkqhkiG9w0BBwEwHQYJYIZIAWUDBAEqBBC21FrAYYgygBf8j3Qxflb1gBASekTx2RHk+wRH3Gc0KA09"
+    # Add relevant headers, newlines that separate header and data, and trailing newline.
+    data = f"Content-Type: application/x-pkcs7-mime; name=\"smime.p7m\"\n\n{data_raw}\n".encode()
+
+    # Load data into a BIO.
+    bio = BIO.MemoryBuffer(data)
+    # Load bio data into an SMIME object.
+    p7, _data = SMIME.smime_load_pkcs7_bio(bio)
+
+    # Decrypt p7.
+    out = s.decrypt(p7)
+    print(out)
+
+
 Sign and Encrypt
 ================
 
