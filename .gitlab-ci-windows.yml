@@ -1,0 +1,66 @@
+# Common steps that install Python, OpenSSL and Swig
+.setup_script: &setup_script
+  # Install Python and Swig
+  - $CHOCOLATEY_PYTHON_OPTIONS = If ($ARCH -eq "32") {"--forcex86"} Else {""} # Used to force the installation of 32-bit Python
+  - choco install --limitoutput --yes $CHOCOLATEY_PYTHON_OPTIONS python$PYTHON_VERSION
+  - choco install --limitoutput --yes swig
+  # Reload the profile so that the binaries are available in the path
+  - Import-Module $env:ChocolateyInstall\helpers\chocolateyProfile.psm1
+  - refreshenv
+  # Print information for debugging
+  - echo "Python version and architecture:"
+  - python --version
+  - python -c 'import struct; print(struct.calcsize(''P'') * 8)'
+  # Install Python dependencies and OpenSSL
+  - echo "Install dev dependencies"; python -m pip install -r dev-requirements.txt
+  - echo "Install OpenSSL"
+  - curl.exe -o "c:\\$OPENSSL_INSTALLER" -fsSL "https://slproweb.com/download/$OPENSSL_INSTALLER"
+  - Start-Process -FilePath "c:\\$OPENSSL_INSTALLER" -ArgumentList "/silent /verysilent /DIR=$OPENSSL_PATH" -NoNewWindow -Wait
+  - echo "Install pywin32"; python -m pip install pywin32
+  # Print information for debugging
+  - ls "$OPENSSL_PATH"
+  - echo "Installed SDKs:"; if (Test-Path "C:/Program Files/Microsoft SDKs/Windows") { ls "C:/Program Files/Microsoft SDKs/Windows" }
+  - echo "Installed OpenSSL version:"
+  - Start-Process -FilePath "$OPENSSL_PATH\\bin\\openssl.exe" -ArgumentList "version" -Wait -NoNewWindow
+  - echo "Python OpenSSL version:"; python -c 'import ssl; print(getattr(ssl, ''OPENSSL_VERSION'', None))'
+
+build-test-windows:
+  stage: build
+  parallel:
+    matrix:
+    - ARCH: ["32", "64"]
+      PYTHON_VERSION: [ "310", "311", "312" ]
+  variables:
+    OPENSSL_INSTALLER: "Win${ARCH}OpenSSL-1_1_1w.exe"
+    OPENSSL_PATH: "C:\\OpenSSL-1-1-Win${ARCH}"
+    BUNDLEDLLS: 1
+  tags:
+    - saas-windows-medium-amd64
+  artifacts:
+    paths:
+      - "dist/*"
+  script:
+    # Setup environment (Python, Swig, OpenSSL, etc)
+    - *setup_script
+    # Build wheel
+    - echo "BUNDLEDLLS is set to $env:BUNDLEDLLS"
+    - python -m pip wheel --verbose --no-build-isolation --no-deps --wheel-dir .\\dist .
+    - ls ".\\dist"
+    # Install wheel
+    - $env:PYTHONPATH_DIR = If ($ARCH -eq "32") {"win32-cpython-$PYTHON_VERSION"} Else {"win-amd64-cpython-$PYTHON_VERSION"}
+    - python -m pip install -v --upgrade --target build/lib.$PYTHONPATH_DIR --no-compile --ignore-installed --no-deps --no-index --find-links dist m2crypto
+    # Run tests
+    - $env:PYTHONPATH = "build/lib.$PYTHONPATH_DIR"; python -m unittest -b -v tests.alltests.suite
+  rules:
+#    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'                          # Run for all changes to a merge request's source branch
+    - if: ($CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH =~ /^windows.*/)  # Run for all changes to master or branches starting with "windows"
+
+deploy-windows:
+  stage: deploy
+  image: python:latest
+  script:
+    - echo "Built artifacts:"
+    - ls dist
+    - echo "Placeholder to run twine upload on built artifacts"
+  rules:
+    - if: ($CI_COMMIT_TAG && $CI_COMMIT_BRANCH == "master")      # Run for tags in master
