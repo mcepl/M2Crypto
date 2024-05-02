@@ -1,5 +1,7 @@
 image: fedora/latest
+oauth: git.sr.ht/REPOSITORIES:RW git.sr.ht/PROFILE:RO
 packages:
+  - hut
   - swig
   - python3
   - python3-devel
@@ -8,6 +10,7 @@ packages:
   - openssl
   - python3-setuptools
   - python3-twisted
+  - python3-docutils
 sources:
   - https://git.sr.ht/~mcepl/m2crypto
 tasks:
@@ -21,6 +24,14 @@ tasks:
   - test: |
      cd m2crypto
      PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
+  - readme: |
+     cd m2crypto
+     printf "GIT_REF: %s\n" "${GIT_REF}"
+     if [[ "$GIT_REF" =~ master ]] ; then
+     python3 -mdocutils README.rst \
+       | sed -n '1,/<body>/d;/<\/body>/q;p' \
+       |hut git -r m2crypto update --readme -
+     fi
 artifacts:
   # https://is.gd/Z5VJlI
   # - pygn/dist/pygn-*.tar.gz
