@@ -27,6 +27,7 @@ tasks:
   - readme: |
      cd m2crypto
      printf "GIT_REF: %s\n" "${GIT_REF}"
+     python3 -mdocutils --strict README.rst >/dev/null
      if [[ "$GIT_REF" =~ master ]] ; then
      python3 -mdocutils README.rst \
        | sed -n '1,/<body>/d;/<\/body>/q;p' \
