@@ -3,15 +3,23 @@ M2Crypto
 ========
 
 :Maintainer: Matěj Cepl
-:Web-Site: https://gitlab.com/m2crypto/m2crypto
+:Web-Site: https://sr.ht/~mcepl/m2crypto/
 :Documentation: https://m2crypto.readthedocs.io/
-:Email list: m2crypto@lists.redcrew.org or http://redcrew.org/mailman/listinfo/m2crypto
+:Email list: https://lists.sr.ht/~mcepl/m2crypto (`subscribe via email`_)
+:Issue tracker: https://todo.sr.ht/~mcepl/m2crypto (R/O, please
+                report issues via the email list).
 
 M2Crypto = Python + OpenSSL + SWIG
 ----------------------------------
-**NOTE: This library is currently in maintenance mode. We recommend using a more modern alternative such as**
-`PyCA/cryptography. <https://cryptography.io/en/latest/>`__ **Examples of how to migrate can be found in**
-`the documentation. <https://m2crypto.readthedocs.io/en/latest/howto.migration.html>`__
+
+.. image:: https://builds.sr.ht/~mcepl.svg
+   :target: https://builds.sr.ht/~mcepl?
+   :alt: builds.sr.ht status
+
+**NOTE: This library is currently in maintenance mode. We
+recommend using a more modern alternative such as**
+`PyCA/cryptography`_. **Examples of how to migrate can be found
+in** `the documentation`_.
 
 M2Crypto is a crypto and SSL toolkit for Python.
 
@@ -66,3 +74,12 @@ Note these caveats:
   things are cleared when the Python objects are deleted.
 
 Have fun! Your feedback is welcome.
+
+.. _`subscribe via email`:
+   mailto:~mcepl/m2crypto+subscribe@lists.sr.ht
+
+.. _`PyCA/cryptography`:
+   https://cryptography.io/en/latest/
+
+.. _`the documentation`:
+   https://m2crypto.readthedocs.io/en/latest/howto.migration.html
