@@ -115,3 +115,44 @@ opensuse:
         - python3 -mbuild .
         - python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
+
+build-sdist:
+    image: python:3
+    when: always
+    stage: build
+    artifacts:
+      paths:
+        - "dist/*.tar.gz"
+    script:
+        - apt-get update -q -y
+        - apt-get install -y swig libssl-dev python3-dev python3-pip openssl python3-setuptools python3-twisted python3-pip
+        - export PATH=$PATH:$HOME/.local/bin
+        - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
+        - python3 -mbuild . --sdist
+
+release-pypi:
+  stage: deploy
+  image: python:latest
+  dependencies:
+    - build-test-windows
+    - build-sdist
+  id_tokens:
+    PYPI_ID_TOKEN:
+      aud: pypi
+  script:
+    - echo "Built artifacts:"
+    - ls dist/
+    # Install dependencies
+    - apt update && apt install -y jq
+    - python -m pip install -U twine id
+
+    # Retrieve the OIDC token from GitLab CI/CD, and exchange it for a PyPI API token
+    - oidc_token=$(python -m id PYPI)
+    - resp=$(curl -X POST https://pypi.org/_/oidc/mint-token -d "{\"token\":\"${oidc_token}\"}")
+    - api_token=$(jq --raw-output '.token' <<< "${resp}")
+
+    # Upload wheel to PyPI authenticating via the newly-minted token
+    - twine upload -u __token__ -p "${api_token}" dist/*
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^\d+\.\d+\.\d+$/  # Job enabled only when pushing tags for versions, e.g: 0.40.1
+      when: manual   # Can only be triggered manually
