@@ -52,15 +52,5 @@ build-test-windows:
     # Run tests
     - $env:PYTHONPATH = "build/lib.$PYTHONPATH_DIR"; python -m unittest -b -v tests.alltests.suite
   rules:
-#    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'                          # Run for all changes to a merge request's source branch
     - if: ($CI_COMMIT_BRANCH == "master" || $CI_COMMIT_BRANCH =~ /^windows.*/)  # Run for all changes to master or branches starting with "windows"
-
-deploy-windows:
-  stage: deploy
-  image: python:latest
-  script:
-    - echo "Built artifacts:"
-    - ls dist
-    - echo "Placeholder to run twine upload on built artifacts"
-  rules:
-    - if: ($CI_COMMIT_TAG && $CI_COMMIT_BRANCH == "master")      # Run for tags in master
+    - if: $CI_COMMIT_TAG =~ /^\d+\.\d+\.\d+$/  # Also run when pushing tags for versions, e.g: 0.40.1
