@@ -65,7 +65,7 @@ extern const char * ENGINE_get_name(const ENGINE *);
  */
 %clear const char *;
 %rename(engine_ctrl_cmd_string) ENGINE_ctrl_cmd_string;
-extern int ENGINE_ctrl_cmd_string(ENGINE *e, const char *NONNULL,
+extern int ENGINE_ctrl_cmd_string(ENGINE *e, const char *cmd_name,
                 const char *arg, int cmd_optional);
 
 %apply Pointer NONNULL { const char * };
