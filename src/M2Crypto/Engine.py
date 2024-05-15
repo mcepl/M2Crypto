@@ -56,9 +56,10 @@ class Engine(object):
     def ctrl_cmd_string(self, cmd, arg, optional=0):
         # type: (AnyStr, Optional[AnyStr], int) -> None
         """Call ENGINE_ctrl_cmd_string"""
-        cmd = cmd if isinstance(cmd, str) else cmd.encode()
-        if arg is not None:
-            arg = arg if isinstance(arg, str) else arg.encode()
+        if isinstance(cmd, bytes):
+            cmd = cmd.decode()
+        if arg is not None and isinstance(arg, bytes):
+            arg = arg.decode()
         if not m2.engine_ctrl_cmd_string(self._ptr, cmd, arg, optional):
             raise EngineError(Err.get_error())
 
