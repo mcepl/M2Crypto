@@ -604,7 +604,7 @@ class X509TestCase(unittest.TestCase):
         reference to the X509 itself, they become invalid when the last
         reference to X509 goes out of scope and the underlying memory is freed.
 
-        https://gitlab.com/m2crypto/m2crypto/-/issues/325
+        https://todo.sr.ht/~mcepl/m2crypto/325
         """
         cert = X509.load_cert('tests/bad_date_cert.crt')
         not_before = cert.get_not_before()
