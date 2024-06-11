@@ -12,11 +12,12 @@ HOWTO: Programming SSL in Python with M2Crypto
 Introduction
 ============
 
-`M2Crypto <https://gitlab.com/m2crypto/m2crypto/>`__ is a
-`Python <http://www.python.org>`__ interface to
-`OpenSSL <http://www.openssl.org>`__. It makes available to the Python
-programmer SSL functionality to implement clients and servers, S/MIME
-v2, RSA, DSA, DH, symmetric ciphers, message digests and HMACs.
+`M2Crypto <https://sr.ht/~mcepl/m2crypto/>`__ is a `Python
+<http://www.python.org>`__ interface to `OpenSSL
+<http://www.openssl.org>`__. It makes available to the Python
+programmer SSL functionality to implement clients and servers,
+S/MIME v2, RSA, DSA, DH, symmetric ciphers, message digests and
+HMACs.
 
 This document demonstrates programming HTTPS with M2Crypto.
 

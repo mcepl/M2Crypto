@@ -15,7 +15,7 @@ This is a HOWTO on creating your own *certification authority* (*CA*)
 with OpenSSL.
 
 I last created a CA about a year ago, when I began work on
-`M2Crypto <https://gitlab.com/m2crypto/m2crypto/>`__ and needed
+`M2Crypto <https://sr.ht/~mcepl/m2crypto/>`__ and needed
 certificates for the SSL bits. I accepted the tools' default
 settings then, e.g., certificate validity of 365 days; this meant
 that my certificates, including my CA's certificate, have now
@@ -365,6 +365,6 @@ or S/MIME-only.
 There exist several HOWTOs similar to this one on the net. This one is
 written specifically to facilitate discussions in my other HOWTOs on
 developing SSL and S/MIME applications in
-`Python <http://www.python.org>`__ using
-`M2Crypto <https://gitlab.com/m2crypto/m2crypto/>`__.
+`Python <http://www.python.org>`__ using `M2Crypto
+<https://sr.ht/~mcepl/m2crypto/>`__.
 

@@ -19,7 +19,7 @@
 #define __WCHAR_MAX__ __WCHAR_MAX
 #define __WCHAR_MIN__ __WCHAR_MIN
 #endif
-/* https://gitlab.com/m2crypto/m2crypto/issues/246 */
+/* https://todo.sr.ht/~mcepl/m2crypto/246 */
 %ignore WCHAR_MAX;
 %ignore WCHAR_MIN;
 /* http://swig.10945.n7.nabble.com/SWIG-AsVal-wchar-t-error-td2264.html */
