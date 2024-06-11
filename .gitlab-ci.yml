@@ -93,8 +93,8 @@ opensuse:
     stage: build
     script:
         - zypper refresh
-        - zypper install -y pattern:devel_rpm_build pattern:devel_C_C++ osc
-        - zypper install -y swig python3-devel python3-pip libopenssl-devel openssl python3-service_identity python3-setuptools python3-Twisted
+        - zypper install -y --force-resolution pattern:devel_rpm_build pattern:devel_C_C++ osc
+        - zypper install -y --force-resolution swig python3-devel python3-pip libopenssl-devel openssl python3-service_identity python3-setuptools python3-Twisted
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --user --break-system-packages -r dev-requirements.txt
         - python3 -mbuild .
