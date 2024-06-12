@@ -367,7 +367,7 @@ void ssl_ctx_set_verify(SSL_CTX *ctx, int mode, PyObject *pyfunc) {
 }
 
 int ssl_ctx_set_session_id_context(SSL_CTX *ctx, PyObject *sid_ctx) {
-    const void *buf;
+    const void *buf = NULL;
     int len = 0;
 
     if (m2_PyObject_AsReadBufferInt(sid_ctx, &buf, &len) == -1)
@@ -447,7 +447,7 @@ void ssl_set_client_CA_list_from_context(SSL *ssl, SSL_CTX *ctx) {
 }
 
 int ssl_set_session_id_context(SSL *ssl, PyObject *sid_ctx) {
-    const void *buf;
+    const void *buf = NULL;
     int len = 0;
 
     if (m2_PyObject_AsReadBufferInt(sid_ctx, &buf, &len) == -1)

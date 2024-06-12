@@ -574,7 +574,7 @@ PyObject *bn_to_mpi(const BIGNUM *bn) {
 }
 
 const BIGNUM *mpi_to_bn(PyObject *value) {
-    const void *vbuf;
+    const void *vbuf = NULL;
     int vlen = 0;
 
     if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
@@ -602,7 +602,7 @@ PyObject *bn_to_bin(BIGNUM *bn) {
 }
 
 const BIGNUM *bin_to_bn(PyObject *value) {
-    const void *vbuf;
+    const void *vbuf = NULL;
     int vlen = 0;
 
     if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
@@ -631,7 +631,7 @@ PyObject *bn_to_hex(BIGNUM *bn) {
 }
 
 BIGNUM *hex_to_bn(PyObject *value) {
-    const void *vbuf;
+    const void *vbuf = NULL;
     Py_ssize_t vlen = 0;
     BIGNUM *bn;
     Py_buffer view;
@@ -663,7 +663,7 @@ BIGNUM *hex_to_bn(PyObject *value) {
 }
 
 BIGNUM *dec_to_bn(PyObject *value) {
-    const void *vbuf;
+    const void *vbuf = NULL;
     Py_ssize_t vlen = 0;
     BIGNUM *bn;
     Py_buffer view;

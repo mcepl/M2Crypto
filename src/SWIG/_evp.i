@@ -299,7 +299,7 @@ void md_ctx_free(EVP_MD_CTX *ctx) {
 }
 
 int digest_update(EVP_MD_CTX *ctx, PyObject *blob) {
-    const void *buf;
+    const void *buf = NULL;
     Py_ssize_t len;
 
     if (m2_PyObject_AsReadBuffer(blob, &buf, &len) == -1)
@@ -358,7 +358,7 @@ PyObject *hmac_init(HMAC_CTX *ctx, PyObject *key, const EVP_MD *md) {
 }
 
 PyObject *hmac_update(HMAC_CTX *ctx, PyObject *blob) {
-    const void *buf;
+    const void *buf = NULL;
     Py_ssize_t len;
 
     if (m2_PyObject_AsReadBuffer(blob, &buf, &len) == -1)
@@ -575,7 +575,7 @@ int verify_update(EVP_MD_CTX *ctx, PyObject *blob) {
 }
 
 int verify_final(EVP_MD_CTX *ctx, PyObject *blob, EVP_PKEY *pkey) {
-    const void *kbuf;
+    const void *kbuf = NULL;
     int len = 0;
 
     if (m2_PyObject_AsReadBufferInt(blob, &kbuf, &len) == -1)
@@ -675,7 +675,7 @@ int digest_verify_init(EVP_MD_CTX *ctx, EVP_PKEY *pkey) {
 }
 
 int digest_verify_update(EVP_MD_CTX *ctx, PyObject *blob) {
-    const void *buf;
+    const void *buf = NULL;
     int len = 0;
 
     if (m2_PyObject_AsReadBufferInt(blob, (const void **)&buf, &len) == -1)
@@ -685,7 +685,7 @@ int digest_verify_update(EVP_MD_CTX *ctx, PyObject *blob) {
 }
 
 int digest_verify_final(EVP_MD_CTX *ctx, PyObject *blob) {
-    unsigned char *sigbuf;
+    unsigned char *sigbuf = NULL;
     int len = 0;
 
     if (m2_PyObject_AsReadBufferInt(blob, (const void **)&sigbuf, &len) == -1)
