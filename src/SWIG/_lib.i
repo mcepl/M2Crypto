@@ -351,13 +351,13 @@ int ssl_verify_callback(int ok, X509_STORE_CTX *ctx) {
     }
 
     if (!warning_raised_exception) {
-        ret = PyEval_CallObject(ssl_verify_cb_func, argv);
+        ret = PyObject_CallObject(ssl_verify_cb_func, argv);
     } else {
         ret = 0;
     }
 
     if (!ret) {
-        /* Got an exception in PyEval_CallObject(), let's fail verification
+        /* Got an exception in PyObject_CallObject(), let's fail verification
          * to be safe.
          */
         cret = 0;
@@ -404,9 +404,9 @@ int x509_store_verify_callback(int ok, X509_STORE_CTX *ctx) {
 
     argv = Py_BuildValue("(iO)", ok, _x509_store_ctx_inst);
 
-    ret = PyEval_CallObject(x509_store_verify_cb_func, argv);
+    ret = PyObject_CallObject(x509_store_verify_cb_func, argv);
     if (!ret) {
-        /* Got an exception in PyEval_CallObject(), let's fail verification
+        /* Got an exception in PyObject_CallObject(), let's fail verification
          * to be safe.
          */
         cret = 0;
@@ -435,7 +435,7 @@ void ssl_info_callback(const SSL *s, int where, int ret) {
     _SSL = SWIG_NewPointerObj((void *)s, SWIGTYPE_p_SSL, 0);
     argv = Py_BuildValue("(iiO)", where, ret, _SSL);
 
-    retval = PyEval_CallObject(ssl_info_cb_func, argv);
+    retval = PyObject_CallObject(ssl_info_cb_func, argv);
 
     Py_XDECREF(retval);
     Py_XDECREF(argv);
@@ -455,7 +455,7 @@ DH *ssl_set_tmp_dh_callback(SSL *ssl, int is_export, int keylength) {
     _ssl = SWIG_NewPointerObj((void *)ssl, SWIGTYPE_p_SSL, 0);
     argv = Py_BuildValue("(Oii)", _ssl, is_export, keylength);
 
-    ret = PyEval_CallObject(ssl_set_tmp_dh_cb_func, argv);
+    ret = PyObject_CallObject(ssl_set_tmp_dh_cb_func, argv);
 
     if ((SWIG_ConvertPtr(ret, (void **)&dh, SWIGTYPE_p_DH, SWIG_POINTER_EXCEPTION | 0)) == -1)
       dh = NULL;
@@ -479,7 +479,7 @@ RSA *ssl_set_tmp_rsa_callback(SSL *ssl, int is_export, int keylength) {
     _ssl = SWIG_NewPointerObj((void *)ssl, SWIGTYPE_p_SSL, 0);
     argv = Py_BuildValue("(Oii)", _ssl, is_export, keylength);
 
-    ret = PyEval_CallObject(ssl_set_tmp_rsa_cb_func, argv);
+    ret = PyObject_CallObject(ssl_set_tmp_rsa_cb_func, argv);
 
     if ((SWIG_ConvertPtr(ret, (void **)&rsa, SWIGTYPE_p_RSA, SWIG_POINTER_EXCEPTION | 0)) == -1)
       rsa = NULL;
@@ -499,7 +499,7 @@ int bn_gencb_callback(int p, int n, BN_GENCB *gencb) {
 
     cbfunc = (PyObject *)BN_GENCB_get_arg(gencb);
     argv = Py_BuildValue("(ii)", p, n);
-    ret = PyEval_CallObject(cbfunc, argv);
+    ret = PyObject_CallObject(cbfunc, argv);
     PyErr_Clear();
     Py_DECREF(argv);
     Py_XDECREF(ret);
@@ -516,8 +516,8 @@ int passphrase_callback(char *buf, int num, int v, void *arg) {
     gilstate = PyGILState_Ensure();
     cbfunc = (PyObject *)arg;
     argv = Py_BuildValue("(i)", v);
-    /* PyEval_CallObject sets exception, if needed. */
-    ret = PyEval_CallObject(cbfunc, argv);
+    /* PyObject_CallObject sets exception, if needed. */
+    ret = PyObject_CallObject(cbfunc, argv);
     Py_DECREF(argv);
     if (ret == NULL) {
         PyGILState_Release(gilstate);
