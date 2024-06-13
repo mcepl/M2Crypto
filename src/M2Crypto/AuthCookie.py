@@ -12,7 +12,7 @@ from http.cookies import SimpleCookie
 
 from M2Crypto import Rand, m2, util
 
-from typing import re as type_re, AnyStr, Optional, Union  # noqa
+from typing import Pattern, AnyStr, Optional, Union  # noqa
 
 _MIX_FORMAT = 'exp=%f&data=%s&digest='
 _MIX_RE = re.compile(r'exp=(\d+\.\d+)&data=(.+)&digest=(\S*)')
@@ -26,7 +26,7 @@ def mix(expiry, data, format=_MIX_FORMAT):
 
 
 def unmix(dough, regex=_MIX_RE):
-    # type: (AnyStr, type_re) -> object
+    # type: (AnyStr, Pattern) -> object
     mo = regex.match(dough)
     if mo:
         return float(mo.group(1)), mo.group(2)
@@ -35,7 +35,7 @@ def unmix(dough, regex=_MIX_RE):
 
 
 def unmix3(dough, regex=_MIX_RE):
-    # type: (AnyStr, type_re) -> Optional[tuple[float, AnyStr, AnyStr]]
+    # type: (AnyStr, Pattern) -> Optional[tuple[float, AnyStr, AnyStr]]
     mo = regex.match(dough)
     if mo:
         return float(mo.group(1)), mo.group(2), mo.group(3)
