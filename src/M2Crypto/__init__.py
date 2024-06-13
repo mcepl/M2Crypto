@@ -18,8 +18,10 @@ Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 """
 # noqa
-__version__ = '0.43.0'
-version = __version__  # type: str
+from typing import Any
+
+__version__: str = '0.43.0'
+version: str = __version__
 
 try:
     from distutils.version import StrictVersion as Version
@@ -30,15 +32,16 @@ except ImportError:
         Version = None
 
 if Version is not None:
-    __ver = Version(__version__)
-    if hasattr(__ver, '_version'):
+    version_info: tuple = (0, 0, 0)
+    __ver: Any = Version(__version__)
+    if hasattr(__ver, u'_version'):
         version_info = tuple(__ver._version[1])
-    elif hasattr(__ver, 'version'):
+    elif hasattr(__ver, u'version'):
         version_info = __ver.version
 
 from M2Crypto import m2
 
-encrypt = 1
-decrypt = 0
+encrypt: int = 1
+decrypt: int = 0
 
 m2.lib_init()

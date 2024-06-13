@@ -71,9 +71,9 @@ class WrongHost(SSLVerificationError):
         )
 
 
-class Checker(object):
+class Checker:
 
-    numericIpMatch = re.compile(r'^[0-9]+(\.[0-9]+)*$')
+    numericIpMatch: re.Pattern = re.compile(r'^[0-9]+(\.[0-9]+)*$')
 
     def __init__(
         self,

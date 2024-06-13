@@ -1023,7 +1023,8 @@ class X509_Store_Context(object):
         Get certificate chain.
 
         :return: Reference counted (i.e. safe to use even after the store
-                 context goes away) stack of certificates in the chain.
+                 context goes away) stack of certificates in the
+                 chain as X509_Stack.
         """
         return X509_Stack(
             m2.x509_store_ctx_get1_chain(self.ctx), 1, 1

@@ -5,26 +5,36 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
 Copyright 2008 Heikki Toivonen. All rights reserved.
 """
 
-__all__ = ['DEFAULT_TIMEOUT', 'timeout', 'struct_to_timeout', 'struct_size']
+__all__ = [
+    'DEFAULT_TIMEOUT',
+    'timeout',
+    'struct_to_timeout',
+    'struct_size',
+]
 
 import sys
 import struct
 
 from M2Crypto.util import is_32bit, is_libc_musl
 
-DEFAULT_TIMEOUT = 600  # type: int
+DEFAULT_TIMEOUT: int = 600
 
 
 class timeout(object):
+    sec: int
+    microsec: int
 
-    def __init__(self, sec=DEFAULT_TIMEOUT, microsec=0):
-        # type: (int, int) -> None
+    def __init__(
+        self, sec: int = DEFAULT_TIMEOUT, microsec: int = 0
+    ) -> None:
         self.sec = sec
         self.microsec = microsec
 
-    def pack(self):
+    def pack(self) -> bytes:
         if sys.platform == 'win32':
-            millisec = int(self.sec * 1000 + round(float(self.microsec) / 1000))
+            millisec = int(
+                self.sec * 1000 + round(float(self.microsec) / 1000)
+            )
             binstr = struct.pack('l', millisec)
         else:
             if is_32bit() and not is_libc_musl():
@@ -34,8 +44,7 @@ class timeout(object):
         return binstr
 
 
-def struct_to_timeout(binstr):
-    # type: (bytes) -> timeout
+def struct_to_timeout(binstr: bytes) -> timeout:
     if sys.platform == 'win32':
         millisec = struct.unpack('l', binstr)[0]
         # On py3, int/int performs exact division and returns float. We want
@@ -47,8 +56,7 @@ def struct_to_timeout(binstr):
     return timeout(sec, microsec)
 
 
-def struct_size():
-    # type: () -> int
+def struct_size() -> int:
     if sys.platform == 'win32':
         return struct.calcsize('l')
     else:

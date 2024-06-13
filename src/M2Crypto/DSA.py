@@ -20,7 +20,7 @@ class DSAError(Exception):
 m2.dsa_init(DSAError)
 
 
-class DSA(object):
+class DSA:
     """
     This class is a context supporting DSA key and parameter
     values, signing and verifying.
@@ -271,9 +271,9 @@ class DSA_pub(DSA):
         """
         return m2.dsa_check_pub_key(self.dsa)
 
-    save_key = DSA.save_pub_key
+    save_key: Callable = DSA.save_pub_key
 
-    save_key_bio = DSA.save_pub_key_bio
+    save_key_bio: Callable = DSA.save_pub_key_bio
 
 
 # --------------------------------------------------------------

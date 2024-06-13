@@ -299,7 +299,6 @@ class SMIME(object):
         data_bio: Optional[BIO.BIO] = None,
         flags: int = 0,
     ) -> int:
-        assert isinstance(pkcs7, PKCS7)
         if data_bio is None:
             return m2.smime_write_pkcs7(
                 out_bio._ptr(), pkcs7._ptr(), flags

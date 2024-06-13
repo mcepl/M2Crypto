@@ -184,7 +184,7 @@ class EC(object):
         assert self._check_key_type(), "'ec' type error"
         return m2.ecdsa_sign_asn1(self.ec, digest)
 
-    def verify_dsa_asn1(self, digest, blob):
+    def verify_dsa_asn1(self, digest: bytes, blob: bytes) -> int:
         assert self._check_key_type(), "'ec' type error"
         return m2.ecdsa_verify_asn1(self.ec, digest, blob)
 
@@ -271,8 +271,10 @@ class EC(object):
             return m2.ec_key_write_pubkey(self.ec, bio._ptr())
 
     def as_pem(
-        self, cipher='aes_128_cbc', callback=util.passphrase_callback
-    ):
+        self,
+        cipher: str = 'aes_128_cbc',
+        callback: Callable = util.passphrase_callback,
+    ) -> bytes:
         """
         Returns the key(pair) as a string in PEM format.
         If no password is passed and the cipher is set
@@ -296,7 +298,7 @@ class EC_pub(EC):
     ((don't like this implementation inheritance))
     """
 
-    def __init__(self, ec: EC, _pyfree: int = 0) -> None:
+    def __init__(self, ec: C.EC, _pyfree: int = 0) -> None:
         EC.__init__(self, ec, _pyfree)
         self.der: Optional[bytes] = None
 

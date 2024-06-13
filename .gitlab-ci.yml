@@ -11,8 +11,11 @@ python39:
     script:
         - apk update
         - apk add --no-interactive swig gcc git musl-dev python3-dev python3 py3-pip openssl-dev openssl py3-setuptools py3-twisted py3-docutils py3-wheel
+        - mkdir -p $HOME/.local/bin
+        - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
+        - ls $HOME/.local/bin
         - python3 -mbuild .
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
@@ -24,8 +27,11 @@ python3:
     script:
         - apt-get update -q -y
         - apt-get install -y swig libssl-dev python3-dev python3-pip openssl python3-setuptools python3-twisted python3-pip
+        - mkdir -p $HOME/.local/bin
+        - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
+        - ls $HOME/.local/bin
         - python3 -mbuild .
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
@@ -39,8 +45,11 @@ alpine-32bit:
     script:
         - apk update
         - apk add --no-interactive swig gcc git musl-dev python3-dev python3 py3-pip openssl-dev openssl py3-setuptools py3-twisted py3-docutils py3-wheel
+        - mkdir -p $HOME/.local/bin
+        - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
+        - ls $HOME/.local/bin
         - python3 -mbuild .
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
@@ -54,8 +63,11 @@ python3-32bit:
     script:
         - apt-get update -q -y
         - apt-get install -y swig gcc git libc6-dev python3-dev python3 python3-pip libssl-dev openssl python3-setuptools python3-twisted python3-docutils python3-wheel
+        - mkdir -p $HOME/.local/bin
+        - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
+        - ls $HOME/.local/bin
         - python3 -mbuild .
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
@@ -67,8 +79,11 @@ python3-doctest:
     script:
         - apt-get update -q -y
         - apt-get install -y swig libssl-dev python3-dev python3-pip openssl python3-setuptools python3-twisted python3-pip
+        - mkdir -p $HOME/.local/bin
+        - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --break-system-packages --user -r dev-requirements.txt -r doc/requirements.txt
+        - ls $HOME/.local/bin
         - python3 -mbuild .
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - cd doc/
@@ -82,8 +97,11 @@ fedora:
         - dnf makecache
         - dnf install -y @development-tools fedora-packager rpmdevtools
         - dnf install -y swig python3-devel python3-pip openssl-devel openssl python3-setuptools python3-twisted
+        - mkdir -p $HOME/.local/bin
+        - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --user -r dev-requirements.txt
+        - ls $HOME/.local/bin
         - python3 -mbuild .
         - python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
@@ -96,8 +114,11 @@ fedora-rawhide:
         - dnf makecache
         - dnf install -y @development-tools fedora-packager rpmdevtools
         - dnf install -y swig python3-devel python3-pip openssl-devel openssl python3-setuptools python3-twisted openssl-devel-engine
+        - mkdir -p $HOME/.local/bin
+        - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
+        - ls $HOME/.local/bin
         - python3 -mbuild .
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
@@ -112,8 +133,11 @@ leap:
         - zypper refresh
         - zypper install -y pattern:devel_rpm_build pattern:devel_C_C++ osc
         - zypper install -y swig python3-devel python3-pip libopenssl-devel openssl python3-service_identity python3-setuptools python3-Twisted
+        - mkdir -p $HOME/.local/bin
+        - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --user -r dev-requirements.txt
+        - ls $HOME/.local/bin
         - python3 -mbuild .
         - python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
@@ -126,8 +150,11 @@ opensuse:
         - zypper refresh
         - zypper install -y --force-resolution pattern:devel_rpm_build pattern:devel_C_C++ osc
         - zypper install -y --force-resolution swig python3-devel python3-pip libopenssl-devel openssl python3-service_identity python3-setuptools python3-Twisted
+        - mkdir -p $HOME/.local/bin
+        - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --user --break-system-packages -r dev-requirements.txt
+        - ls $HOME/.local/bin
         - python3 -mbuild .
         - python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
@@ -142,8 +169,11 @@ build-sdist:
     script:
         - apt-get update -q -y
         - apt-get install -y swig libssl-dev python3-dev python3-pip openssl python3-setuptools python3-twisted python3-pip
+        - mkdir -p $HOME/.local/bin
+        - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
+        - ls $HOME/.local/bin
         - python3 -mbuild . --sdist
 
 release-pypi:

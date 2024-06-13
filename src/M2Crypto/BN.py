@@ -10,8 +10,7 @@ from M2Crypto import m2
 from typing import Optional  # noqa
 
 
-def rand(bits, top=-1, bottom=0):
-    # type: (int, int, int) -> Optional[int]
+def rand(bits: int, top: int = -1, bottom: int = 0) -> Optional[int]:
     """
     Generate cryptographically strong random number.
 
@@ -24,8 +23,7 @@ def rand(bits, top=-1, bottom=0):
     return m2.bn_rand(bits, top, bottom)
 
 
-def rand_range(range):
-    # type: (int) -> int
+def rand_range(range: int) -> int:
     """
     Generate a random number in a range.
 
@@ -35,8 +33,7 @@ def rand_range(range):
     return m2.bn_rand_range(range)
 
 
-def randfname(length):
-    # type: (int) -> str
+def randfname(length: int) -> str:
     """
     Return a random filename, which is simply a string where all
     the characters are from the set [a-zA-Z0-9].
@@ -45,12 +42,15 @@ def randfname(length):
     :return:       random filename string
     """
     import warnings
+
     warnings.warn(
         "Don't use BN.randfname(), use tempfile methods instead.",
-        DeprecationWarning, stacklevel=2)
+        DeprecationWarning,
+        stacklevel=2,
+    )
     letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890'
     lettersLen = len(letters)
-    fname = []  # type: list
+    fname: list = []
     for x in range(length):
         fname += [letters[m2.bn_rand_range(lettersLen)]]
 

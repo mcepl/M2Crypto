@@ -171,13 +171,13 @@ class _BioProxy(object):
 
     m2_bio_free_all = m2.bio_free_all
 
-    def __init__(self, bio):
+    def __init__(self, bio: BIO.BIO) -> None:
         self.bio = bio
 
-    def _ptr(self):
+    def _ptr(self) -> BIO.BIO:
         return self.bio
 
-    def __del__(self):
+    def __del__(self) -> Optional[BIO.BIO]:
         if self.bio is not None:
             self.m2_bio_free_all(self.bio)
 

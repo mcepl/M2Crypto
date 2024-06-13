@@ -37,18 +37,19 @@ class _closing_fileobject(mother_class):  # noqa
     Python 2.5 provides this as socket._fileobject(sock, close=True).
     """
 
+
 # for python 3
 try:
     AbstractHTTPHandler
 except NameError:
     # somehow this won't get imported by the import * above
     import urllib.request
+
     AbstractHTTPHandler = urllib.request.AbstractHTTPHandler
 
 
 class HTTPSHandler(AbstractHTTPHandler):
-    def __init__(self, ssl_context=None):
-        # type: (Optional[SSL.Context]) -> None
+    def __init__(self, ssl_context: Optional[SSL.Context] = None):
         AbstractHTTPHandler.__init__(self)
 
         if ssl_context is not None:
@@ -58,8 +59,7 @@ class HTTPSHandler(AbstractHTTPHandler):
             self.ctx = SSL.Context()
 
     # Copied from urllib2, so we can set the ssl context.
-    def https_open(self, req):
-        # type: (Request) -> addinfourl
+    def https_open(self, req: Request) -> addinfourl:
         """Return an addinfourl object for the request, using http_class.
 
         http_class must implement the HTTPConnection API from httplib.
@@ -73,7 +73,7 @@ class HTTPSHandler(AbstractHTTPHandler):
             - code: HTTP status code
         """
         # https://docs.python.org/3.3/library/urllib.request.html#urllib.request.Request.get_host
-        try:     # up to python-3.2
+        try:  # up to python-3.2
             host = req.get_host()
         except AttributeError:  # from python-3.3
             host = req.host
@@ -87,13 +87,17 @@ class HTTPSHandler(AbstractHTTPHandler):
 
         if target_host != host:
             request_uri = urldefrag(full_url)[0]
-            h = httpslib.ProxyHTTPSConnection(host=host, ssl_context=self.ctx)
+            h = httpslib.ProxyHTTPSConnection(
+                host=host, ssl_context=self.ctx
+            )
         else:
-            try:     # up to python-3.2
+            try:  # up to python-3.2
                 request_uri = req.get_selector()
             except AttributeError:  # from python-3.3
                 request_uri = req.selector
-            h = httpslib.HTTPSConnection(host=host, ssl_context=self.ctx)
+            h = httpslib.HTTPSConnection(
+                host=host, ssl_context=self.ctx
+            )
         # End our change
         h.set_debuglevel(self._debuglevel)
 
@@ -107,7 +111,9 @@ class HTTPSHandler(AbstractHTTPHandler):
         # request.
         headers["Connection"] = "close"
         try:
-            h.request(req.get_method(), request_uri, req.data, headers)
+            h.request(
+                req.get_method(), request_uri, req.data, headers
+            )
             r = h.getresponse()
         except socket.error as err:  # XXX what error?
             raise URLError(err)
@@ -135,8 +141,9 @@ class HTTPSHandler(AbstractHTTPHandler):
 
 
 # Copied from urllib2 with modifications for ssl
-def build_opener(ssl_context=None, *handlers):
-    # type: (Optional[SSL.Context], *object) -> OpenerDirector
+def build_opener(
+    ssl_context: Optional[SSL.Context] = None, *handlers
+) -> OpenerDirector:
     """Create an opener object from a list of handlers.
 
     The opener will use several default handlers, including support
@@ -150,9 +157,16 @@ def build_opener(ssl_context=None, *handlers):
         return isinstance(obj, type) or hasattr(obj, "__bases__")
 
     opener = OpenerDirector()
-    default_classes = [ProxyHandler, UnknownHandler, HTTPHandler,
-                       HTTPDefaultErrorHandler, HTTPRedirectHandler,
-                       FTPHandler, FileHandler, HTTPErrorProcessor]
+    default_classes = [
+        ProxyHandler,
+        UnknownHandler,
+        HTTPHandler,
+        HTTPDefaultErrorHandler,
+        HTTPRedirectHandler,
+        FTPHandler,
+        FileHandler,
+        HTTPErrorProcessor,
+    ]
     skip = []
     for klass in default_classes:
         for check in handlers:

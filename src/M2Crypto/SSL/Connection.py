@@ -16,20 +16,18 @@ import io
 
 from M2Crypto import BIO, Err, X509, m2, util  # noqa
 from M2Crypto.SSL import Checker, Context, timeout  # noqa
-from M2Crypto.SSL import SSLError
 from M2Crypto.SSL.Cipher import Cipher, Cipher_Stack
 from M2Crypto.SSL.Session import Session
 from typing import (
-    Any,
     Callable,
     Optional,
     Tuple,
     Union,
-)  # noqa
+)
 
 __all__ = [
     'Connection',
-    'timeout',  # XXX Not really, but for documentation purposes
+    'timeout',
 ]
 
 log = logging.getLogger(__name__)
@@ -39,7 +37,7 @@ def _serverPostConnectionCheck(*args, **kw) -> int:
     return 1
 
 
-class Connection(object):
+class Connection:
     """An SSL connection."""
 
     serverPostConnectionCheck = _serverPostConnectionCheck
@@ -87,7 +85,7 @@ class Connection(object):
                 self.ctx.post_connection_check
             )
 
-        self.host = None
+        self.host: Optional[bytes] = None
 
     def _free_bio(self):
         """
@@ -444,7 +442,7 @@ class Connection(object):
 
         :param mode: new mode to be set
         """
-        self.socket.setblocking(mode)
+        self.socket.setblocking(bool(mode))
         if mode:
             self._timeout = -1.0
         else:
@@ -490,7 +488,10 @@ class Connection(object):
                  the optional built-in module struct for a way to decode
                  C structures encoded as byte strings).
         """
-        return self.socket.getsockopt(level, optname, buflen)
+        if buflen is None:
+            return self.socket.getsockopt(level, optname)
+        else:
+            return self.socket.getsockopt(level, optname, buflen)
 
     def setsockopt(
         self,
@@ -512,7 +513,12 @@ class Connection(object):
 
         :return: None for success or the error handler for failure.
         """
-        return self.socket.setsockopt(level, optname, value)
+        if value is None:
+            return self.socket.setsockopt(
+                level, optname, value, optlen
+            )
+        else:
+            return self.socket.setsockopt(level, optname, value)
 
     def get_context(self) -> Context:
         """Return the Context object associated with this connection."""
@@ -653,10 +659,9 @@ class Connection(object):
             )
         )
 
-    @staticmethod
-    def _hexdump(s):
-        assert isinstance(s, bytes)
-        return ":".join(s)
+    # @staticmethod
+    # def _hexdump(s: bytes) -> bytes:
+    #     return b":".join(s)
 
     def get_socket_write_timeout(self) -> timeout:
         binstr = self.socket.getsockopt(

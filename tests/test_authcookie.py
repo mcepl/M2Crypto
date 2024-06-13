@@ -8,8 +8,16 @@ import logging
 import time
 
 from M2Crypto import EVP, Rand, util
-from M2Crypto.AuthCookie import AuthCookie, AuthCookieJar, mix, unmix, unmix3
-from http.cookies import SimpleCookie  # pylint: disable=no-name-in-module,import-error
+from M2Crypto.AuthCookie import (
+    AuthCookie,
+    AuthCookieJar,
+    mix,
+    unmix,
+    unmix3,
+)
+from http.cookies import (
+    SimpleCookie,
+)  # pylint: disable=no-name-in-module,import-error
 from tests import unittest
 
 log = logging.getLogger(__name__)
@@ -28,16 +36,20 @@ class AuthCookieTestCase(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def _corrupt_part_str(self, s, fr, to):
-        # type: (str, int, int) -> str
-        out = s[:fr] + ''.join([chr(ord(x) + 13) for x in s[fr:to]]) + s[to:]
+    def _corrupt_part_str(self, s: str, fr: int, to: int) -> str:
+        out = (
+            s[:fr]
+            + ''.join([chr(ord(x) + 13) for x in s[fr:to]])
+            + s[to:]
+        )
         self.assertNotEqual(s, out)
         return out
 
     def test_encode_part_str(self):
         a_str = 'a1b2c3d4e5f6h7i8j9'
-        self.assertEqual(self._corrupt_part_str(a_str, 3, 5),
-                         'a1b?p3d4e5f6h7i8j9')
+        self.assertEqual(
+            self._corrupt_part_str(a_str, 3, 5), 'a1b?p3d4e5f6h7i8j9'
+        )
 
     def test_mix_unmix(self):
         dough = mix(self.exp, self.data)
@@ -55,7 +67,8 @@ class AuthCookieTestCase(unittest.TestCase):
         # Peek inside the cookie jar...
         key = self.jar._key  # pylint: disable=protected-access
         mac = util.bin_to_hex(
-            EVP.hmac(key, mix(self.exp, self.data).encode(), 'sha1'))
+            EVP.hmac(key, mix(self.exp, self.data).encode(), 'sha1')
+        )
         self.assertEqual(c.mac(), mac)
         # Ok, stop peeking now.
         cookie_str = self._format % (self.exp, self.data, mac)
@@ -106,27 +119,34 @@ class AuthCookieTestCase(unittest.TestCase):
         self.assertEqual(data, self.data)
         # see comment in test_mix_unmix
         self.assertAlmostEqual(exp, self.exp, places=4)
-        key = self.jar._key     # pylint: disable=protected-access
+        key = self.jar._key  # pylint: disable=protected-access
         mac = util.bin_to_hex(
-            EVP.hmac(key, mix(self.exp, self.data).encode(), 'sha1'))
+            EVP.hmac(key, mix(self.exp, self.data).encode(), 'sha1')
+        )
         self.assertEqual(digest, mac)
 
     def test_cookie_str(self):
         c = self.jar.makeCookie(self.exp, self.data)
-        self.assertTrue(self.jar.isGoodCookieString(c.output(header="")))
+        self.assertTrue(
+            self.jar.isGoodCookieString(c.output(header=""))
+        )
 
     def test_cookie_str2(self):
         c = self.jar.makeCookie(self.exp, self.data)
         s = SimpleCookie()
         s.load(c.output(header=""))
-        self.assertTrue(self.jar.isGoodCookieString(s.output(header="")))
+        self.assertTrue(
+            self.jar.isGoodCookieString(s.output(header=""))
+        )
 
     def test_cookie_str_expired(self):
         t = self.exp - 7200
         c = self.jar.makeCookie(t, self.data)
         s = SimpleCookie()
         s.load(c.output(header=""))
-        self.assertFalse(self.jar.isGoodCookieString(s.output(header="")))
+        self.assertFalse(
+            self.jar.isGoodCookieString(s.output(header=""))
+        )
 
     def test_cookie_str_arbitrary_change(self):
         c = self.jar.makeCookie(self.exp, self.data)
@@ -134,7 +154,9 @@ class AuthCookieTestCase(unittest.TestCase):
         cout_str = cout[:20] + 'this is bad' + cout[20:]
         s = SimpleCookie()
         s.load(cout_str)
-        self.assertFalse(self.jar.isGoodCookieString(s.output(header="")))
+        self.assertFalse(
+            self.jar.isGoodCookieString(s.output(header=""))
+        )
 
     def test_cookie_str_changed_exp(self):
         c = self.jar.makeCookie(self.exp, self.data)
@@ -142,7 +164,9 @@ class AuthCookieTestCase(unittest.TestCase):
         cout_str = self._corrupt_part_str(cout, 14, 16)
         s = SimpleCookie()
         s.load(cout_str)
-        self.assertFalse(self.jar.isGoodCookieString(s.output(header="")))
+        self.assertFalse(
+            self.jar.isGoodCookieString(s.output(header=""))
+        )
 
     def test_cookie_str_changed_data(self):
         c = self.jar.makeCookie(self.exp, self.data)
@@ -150,7 +174,9 @@ class AuthCookieTestCase(unittest.TestCase):
         cout_str = self._corrupt_part_str(cout, 24, 26)
         s = SimpleCookie()
         s.load(cout_str)
-        self.assertFalse(self.jar.isGoodCookieString(s.output(header="")))
+        self.assertFalse(
+            self.jar.isGoodCookieString(s.output(header=""))
+        )
 
     def test_cookie_str_changed_mac(self):
         c = self.jar.makeCookie(self.exp, self.data)
@@ -158,11 +184,15 @@ class AuthCookieTestCase(unittest.TestCase):
         cout_str = self._corrupt_part_str(cout, 64, 66)
         s = SimpleCookie()
         s.load(cout_str)
-        self.assertFalse(self.jar.isGoodCookieString(s.output(header="")))
+        self.assertFalse(
+            self.jar.isGoodCookieString(s.output(header=""))
+        )
 
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(AuthCookieTestCase)
+    return unittest.TestLoader().loadTestsFromTestCase(
+        AuthCookieTestCase
+    )
 
 
 if __name__ == '__main__':
