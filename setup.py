@@ -35,9 +35,11 @@ else:
 
 from setuptools.command import build_ext
 
-logging.basicConfig(format='%(levelname)s:%(funcName)s:%(message)s',
-                    stream=sys.stdout,
-                    level=logging.DEBUG)
+logging.basicConfig(
+    format='%(levelname)s:%(funcName)s:%(message)s',
+    stream=sys.stdout,
+    level=logging.DEBUG,
+)
 log = logging.getLogger('setup')
 
 requires_list = []
@@ -45,25 +47,37 @@ requires_list = []
 
 def _get_additional_includes():
     if os.name == 'nt':
-        globmask = os.path.join('C:', os.sep, 'Program Files*',
-                                '*Visual*', 'VC', 'include')
+        globmask = os.path.join(
+            'C:',
+            os.sep,
+            'Program Files*',
+            '*Visual*',
+            'VC',
+            'include',
+        )
         err = glob.glob(globmask)
     else:
         cpp = shlex.split(os.environ.get('CPP', 'cpp'))
-        pid = subprocess.Popen(cpp + ['-Wp,-v', '-'],
-                               stdin=open(os.devnull, 'r'),
-                               stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE)
+        pid = subprocess.Popen(
+            cpp + ['-Wp,-v', '-'],
+            stdin=open(os.devnull, 'r'),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
         _, err = pid.communicate()
-        err = [line.lstrip() for line in err.decode('utf8').split('\n')
-               if line and line.startswith(' /')]
+        err = [
+            line.lstrip()
+            for line in err.decode('utf8').split('\n')
+            if line and line.startswith(' /')
+        ]
 
     log.debug('additional includes:\n%s', err)
     return err
 
 
-def openssl_version(ossldir, req_ver, required=False):
-    # type: (str, int, bool) -> bool
+def openssl_version(
+    ossldir: str, req_ver: int, required: bool = False
+):
     """
     Compare version of the installed OpenSSL with the maximum required version.
 
@@ -76,23 +90,31 @@ def openssl_version(ossldir, req_ver, required=False):
     ver = None
     try:
         if sys.platform == 'win32':
-            found_lib = glob.glob(os.path.join(os.environ.get('OPENSSL_PATH'),
-                                  'libcrypto*.dll'))[0]
+            found_lib = glob.glob(
+                os.path.join(
+                    os.environ.get('OPENSSL_PATH'), 'libcrypto*.dll'
+                )
+            )[0]
             crypt_lib = ctypes.WinDLL(found_lib)
         else:
             crypt_lib = ctypes.cdll.LoadLibrary("libssl.so")
         log.info(f'crypt_lib = {crypt_lib}')
     except (AttributeError, FileNotFoundError):
         ver = None
-        file = os.path.join(ossldir, 'include', 'openssl', 'opensslv.h')
+        file = os.path.join(
+            ossldir, 'include', 'openssl', 'opensslv.h'
+        )
 
         with open(file) as origin_file:
             for line in origin_file:
                 m = re.match(
                     r'^# *define  *OPENSSL_VERSION_NUMBER  *(0x[0-9a-fA-F]*)',
-                    line)
+                    line,
+                )
                 if m:
-                    log.debug('found version number: %s\n', m.group(1))
+                    log.debug(
+                        'found version number: %s\n', m.group(1)
+                    )
                     ver = int(m.group(1), base=16)
                     break
 
@@ -118,8 +140,7 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         """Overload to enable custom openssl settings to be picked up."""
         build_ext.build_ext.initialize_options(self)
 
-    def finalize_options(self):
-        # type: (None) -> None
+    def finalize_options(self) -> None:
         """Append custom openssl include file and library linking options."""
         build_ext.build_ext.finalize_options(self)
         self.openssl_path = os.environ.get('OPENSSL_PATH', None)
@@ -128,8 +149,9 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         self.libraries = ['ssl', 'crypto']
         if sys.platform == 'win32':
             self.libraries = ['ssleay32', 'libeay32']
-            if self.openssl_path and openssl_version(self.openssl_path,
-                                                0x10100000, True):
+            if self.openssl_path and openssl_version(
+                self.openssl_path, 0x10100000, True
+            ):
                 self.libraries = ['libssl', 'libcrypto']
                 self.swig_opts.append('-D_WIN32')
                 # Swig doesn't know the version of MSVC, which causes
@@ -143,15 +165,21 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         log.debug('self.bundledlls = %s', self.bundledlls)
 
         # swig seems to need the default header file directories
-        self.swig_opts.extend(['-I%s' % i for i in _get_additional_includes()])
+        self.swig_opts.extend(
+            ['-I%s' % i for i in _get_additional_includes()]
+        )
 
         log.debug('self.include_dirs = %s', self.include_dirs)
         log.debug('self.library_dirs = %s', self.library_dirs)
 
         if self.openssl_path is not None:
             log.debug('self.openssl_path = %s', self.openssl_path)
-            openssl_library_dir = os.path.join(self.openssl_path, 'lib')
-            openssl_include_dir = os.path.join(self.openssl_path, 'include')
+            openssl_library_dir = os.path.join(
+                self.openssl_path, 'lib'
+            )
+            openssl_include_dir = os.path.join(
+                self.openssl_path, 'include'
+            )
 
             self.library_dirs.append(openssl_library_dir)
             self.include_dirs.append(openssl_include_dir)
@@ -183,21 +211,32 @@ class _M2CryptoBuildExt(build_ext.build_ext):
             # generate src/SWIG/x509_v_flag.h to overcome weaknesses of swig
             # https://todo.sr.ht/~mcepl/m2crypto/298
             cpp = shutil.which(os.environ.get('CC', 'gcc'))
-            with open("src/SWIG/x509_v_flag.h", "w", encoding="utf-8") as x509_v_h:
-                pid = subprocess.Popen([cpp,
-                    "-E", "-fdirectives-only", "-include", "openssl/x509_vfy.h", "-"],
+            with open(
+                "src/SWIG/x509_v_flag.h", "w", encoding="utf-8"
+            ) as x509_v_h:
+                pid = subprocess.Popen(
+                    [
+                        cpp,
+                        "-E",
+                        "-fdirectives-only",
+                        "-include",
+                        "openssl/x509_vfy.h",
+                        "-",
+                    ],
                     stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
-                    universal_newlines=True)
+                    universal_newlines=True,
+                )
                 xout, xerr = pid.communicate("\n")
                 if pid.returncode == 0:
                     for line in xout.split("\n"):
                         if line and line.find('X509_V_FLAG') > -1:
                             print(line, file=x509_v_h)
                 else:
-                    raise RuntimeError(f"gcc -E ended with return code {pid.returncode}")
-
+                    raise RuntimeError(
+                        f"gcc -E ended with return code {pid.returncode}"
+                    )
 
         # Some Linux distributor has added the following line in
         # /usr/include/openssl/opensslconf.h:
@@ -215,7 +254,8 @@ class _M2CryptoBuildExt(build_ext.build_ext):
             self.swig_opts.append('-I/usr/include/openssl')
         else:
             self.swig_opts.append(
-                '-I' + os.path.join(openssl_include_dir, 'openssl'))
+                '-I' + os.path.join(openssl_include_dir, 'openssl')
+            )
 
         self.swig_opts.append('-includeall')
         self.swig_opts.append('-builtin')
@@ -229,7 +269,9 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         # distutils would be in the run phase, when extension name and path are
         # known.
         self.swig_opts.extend(['-outdir', build_dir])
-        self.include_dirs.append(os.path.join(os.getcwd(), 'src', 'SWIG'))
+        self.include_dirs.append(
+            os.path.join(os.getcwd(), 'src', 'SWIG')
+        )
 
         if sys.platform == 'cygwin' and self.openssl_path is not None:
             # Cygwin SHOULD work (there's code in distutils), but
@@ -237,9 +279,13 @@ class _M2CryptoBuildExt(build_ext.build_ext):
             # the distutils code does not seem to work. If you start
             # Cygwin directly, then it would work even without this change.
             # Someday distutils will be fixed and this won't be needed.
-            self.library_dirs += [os.path.join(self.openssl_path, 'bin')]
+            self.library_dirs += [
+                os.path.join(self.openssl_path, 'bin')
+            ]
 
-        os.makedirs(os.path.join(self.build_lib, 'M2Crypto'), exist_ok=True)
+        os.makedirs(
+            os.path.join(self.build_lib, 'M2Crypto'), exist_ok=True
+        )
 
     def run(self):
         """
@@ -254,15 +300,18 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         # self.bundledlls is set
         if sys.platform == 'win32':
             ver_part = ''
-            if self.openssl_path and openssl_version(self.openssl_path,
-                                                0x10100000, True):
+            if self.openssl_path and openssl_version(
+                self.openssl_path, 0x10100000, True
+            ):
                 ver_part += '-1_1'
             if sys.maxsize > 2**32:
                 ver_part += '-x64'
             search = list(self.library_dirs)
             if self.openssl_path:
-                search = search + [self.openssl_path,
-                                   os.path.join(self.openssl_path, 'bin')]
+                search = search + [
+                    self.openssl_path,
+                    os.path.join(self.openssl_path, 'bin'),
+                ]
             libs = list(self.libraries)
             for libname in list(libs):
                 for search_path in search:
@@ -273,7 +322,9 @@ class _M2CryptoBuildExt(build_ext.build_ext):
                         libs.remove(libname)
                         break
             if libs:
-                raise Exception("Libs not found {}".format(','.join(libs)))
+                raise Exception(
+                    "Libs not found {}".format(','.join(libs))
+                )
         build_ext.build_ext.run(self)
 
 
@@ -284,20 +335,20 @@ x_comp_args = set()
 if sys.platform == 'win32':
     x_comp_args.update(['-DTHREADING', '-D_CRT_SECURE_NO_WARNINGS'])
 else:
-    x_comp_args.update(['-DTHREADING', '-Wno-deprecated-declarations'])
+    x_comp_args.update(
+        ['-DTHREADING', '-Wno-deprecated-declarations']
+    )
 
-m2crypto = setuptools.Extension(name='M2Crypto._m2crypto',
-                                sources=['src/SWIG/_m2crypto.i'],
-                                extra_compile_args=list(x_comp_args),
-                                # Uncomment to build Universal Mac binaries
-                                # extra_link_args =
-                                #     ['-Wl,-search_paths_first'],
-                                )
+m2crypto = setuptools.Extension(
+    name='M2Crypto._m2crypto',
+    sources=['src/SWIG/_m2crypto.i'],
+    extra_compile_args=list(x_comp_args),
+    # Uncomment to build Universal Mac binaries
+    # extra_link_args =
+    #     ['-Wl,-search_paths_first'],
+)
 
 
 setuptools.setup(
-    ext_modules=[m2crypto],
-    cmdclass={
-        'build_ext': _M2CryptoBuildExt
-    }
+    ext_modules=[m2crypto], cmdclass={'build_ext': _M2CryptoBuildExt}
 )

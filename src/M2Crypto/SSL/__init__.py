@@ -10,13 +10,6 @@ import socket, os
 from M2Crypto import _m2crypto as m2
 
 
-# from M2Crypto.SSL.SSLServer import (
-#     ForkingSSLServer,
-#     SSLServer,
-#     ThreadingSSLServer,
-# )
-
-
 class SSLError(Exception):
     pass
 
