@@ -10,9 +10,12 @@ packages:
   - openssl
   - python3-setuptools
   - python3-twisted
+  - python3-pexpect
   - python3-docutils
 sources:
   - https://git.sr.ht/~mcepl/m2crypto
+secrets:
+  - nickserv_pass
 tasks:
   - build: |
      cd m2crypto
@@ -24,6 +27,11 @@ tasks:
   - test: |
      cd m2crypto
      PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
+     [ -n "$GIT_REF" ] && REASON="$JOB_ID ($GIT_REF)"
+     [ -n "$PATCHSET_URL" ] && REASON="$JOB_ID ($PATCHSET_URL)"
+     set +x
+     .builds/irc-send mcepl build-bot m2crypto "sourcehut build $REASON finished with the result $? ($JOB_URL)." "$(cat ~/.irc_pass)"
+     set -x
   - readme: |
      cd m2crypto
      printf "GIT_REF: %s\n" "${GIT_REF}"

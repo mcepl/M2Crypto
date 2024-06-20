@@ -1,0 +1,33 @@
+#!/usr/bin/python3
+
+import pexpect
+import sys
+
+SERVER="irc.libera.chat"
+PORT=6697
+USER=sys.argv[1]
+NICK=sys.argv[2]
+REAL_NAME="Commit bot"
+CHANNEL=sys.argv[3]
+MSG=sys.argv[4]
+PASS=sys.argv[5]
+assert len(sys.argv) == 6
+
+client = pexpect.spawn(f"openssl s_client -connect {SERVER}:{PORT:d}")
+# client.logfile = sys.stdout.buffer
+
+# :mercury.libera.chat NOTICE * :*** Found your hostname: nat2.prg.suse.com
+client.expect("Found your hostname: ")
+client.sendline(f"NICK {NICK}")
+client.sendline(f"USER {USER} * * :{REAL_NAME}")
+# :NickServ!NickServ@services.libera.chat NOTICE build-bot :This nickname is registered. Please choose a different nickname, or identify via /msg NickServ IDENTIFY mcepl <password>
+client.expect(f"NOTICE {NICK} :This nickname is registered. ")
+client.sendline(f"PRIVMSG NickServ :IDENTIFY {USER} {PASS}")
+# build-bot build-bot!~mcepl@nat2.prg.suse.com mcepl :You are now logged in as mcepl
+client.expect(f"{NICK}.*:You are now logged in as {USER}")
+# JOIN #m2crypto
+client.sendline(f"JOIN #{CHANNEL}")
+# :mercury.libera.chat 366 ceplma #m2crypto :End of /NAMES list.
+client.expect("End of /NAMES")
+client.sendline(f"PRIVMSG #{CHANNEL} :{MSG}")
+client.sendline("QUIT")
