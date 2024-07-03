@@ -65,7 +65,7 @@ fedora-rawhide:
     script:
         - dnf makecache
         - dnf install -y @development-tools fedora-packager rpmdevtools
-        - dnf install -y swig python3-devel python3-pip openssl-devel openssl python3-setuptools python3-twisted
+        - dnf install -y swig python3-devel python3-pip openssl-devel openssl python3-setuptools python3-twisted openssl-devel-engine
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
         - python3 -mbuild .
