@@ -8,8 +8,18 @@ Pre-requisites
 
 The following is required to *use* M2Crypto (once installed):
 
--  ``Python 2.7``, ``3.5``, or newer
--  ``OpenSSL 1.0.1e`` or newer
+-  ``Python 3.6`` or newer
+-  ``OpenSSL 1.1.1t`` or newer
+
+<!-- alpine/32bit OpenSSL 3.3.1, swig 4.2.1, Python 3.12.3
+fedora OpenSSL 3.2.1, swig 4.2.1, Python 3.12.3
+rawhide OpenSSL 3.2.2, swig 4.2.1, Python 3.13.0~b3
+leap OpenSSL 3.1.4, swig 4.1.1, Python 3.6.15
+tumbleweed OpenSSL 3.1.4, swig 4.2.1, Python 3.11.9
+python3 OpenSSL 3.0.13, swig 4.1.0, Python 3.11.2
+python3-32bit OpenSSL 3.0.13, swig 4.1.0, Python 3.11.2
+python39 OpenSSL 3.0.13, swig 4.1.0, Python 3.11.2
+windows OPenSSL 1.1.1w, swig 4.1.1, Python 3.10.* -->
 
 To *install* M2Crypto, you must be able to compile and link C sources
 against Python and OpenSSL headers/libraries. For example on a Debian-based

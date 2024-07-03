@@ -5,17 +5,17 @@ stages:
 include: '/.gitlab-ci-windows.yml'
 
 python39:
-    image: python:3.9
+    image: python:3.9-alpine
     when: always
     stage: build
     script:
-        - apt-get update -q -y
-        - apt-get install -y swig libssl-dev python3-dev python3-pip python3-wheel openssl python3-setuptools python3-twisted python3-pip
+        - apk update
+        - apk add --no-interactive swig gcc git musl-dev python3-dev python3 py3-pip openssl-dev openssl py3-setuptools py3-twisted py3-docutils py3-wheel
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --user -r dev-requirements.txt
+        - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
         - python3 -mbuild .
-        - python3 -mpip install -v --upgrade --target build/lib.linux-x86_64-cpython-39 --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
-        - PYTHONPATH=build/lib.linux-x86_64-cpython-39 python3 -munittest -b -v tests.alltests.suite
+        - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
+        - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
 
 python3:
     image: python:3
@@ -71,21 +71,6 @@ fedora-rawhide:
         - python3 -mbuild .
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
-
-centos7:
-    image: centos:7
-    when: always
-    stage: build
-    script:
-        - yum install -y epel-release
-        - yum makecache
-        - yum groups install -y "Development Tools"
-        - yum install -y swig python36-devel python36-pip python36-wheel openssl openssl-devel python36-service-identity python36-setuptools python36-pip python36-Twisted
-        - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --user -r dev-requirements.txt
-        - python3 -mpip wheel --verbose --no-deps --wheel-dir ./dist .
-        - python3 -mpip install -v --upgrade --target build/lib.* --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
-        - PYTHONPATH=build/lib.* python3 -munittest -b -v tests.alltests.suite
 
 leap:
     # image: registry.suse.com/bci/bci-base:latest
