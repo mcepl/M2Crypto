@@ -10,6 +10,8 @@ __all__ = ['DEFAULT_TIMEOUT', 'timeout', 'struct_to_timeout', 'struct_size']
 import sys
 import struct
 
+from M2Crypto.util import is_32bit, is_libc_musl
+
 DEFAULT_TIMEOUT = 600  # type: int
 
 
@@ -25,7 +27,10 @@ class timeout(object):
             millisec = int(self.sec * 1000 + round(float(self.microsec) / 1000))
             binstr = struct.pack('l', millisec)
         else:
-            binstr = struct.pack('ll', self.sec, self.microsec)
+            if is_32bit() and not is_libc_musl():
+                binstr = struct.pack('ii', self.sec, self.microsec)
+            else:
+                binstr = struct.pack('ll', self.sec, self.microsec)
         return binstr
 
 

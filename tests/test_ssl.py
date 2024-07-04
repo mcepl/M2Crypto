@@ -32,7 +32,7 @@ import time
 import warnings
 
 from M2Crypto import (Err, Rand, SSL, X509, ftpslib, httpslib, m2, m2urllib,
-                      m2urllib2, m2xmlrpclib)
+                      m2urllib2, m2xmlrpclib, util)
 from M2Crypto.SSL.timeout import DEFAULT_TIMEOUT
 from tests import unittest
 from tests.fips import fips_mode
@@ -423,6 +423,8 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
         finally:
             self.stop_server(pid)
 
+    @unittest.skipIf((util.is_32bit() and util.is_libc_musl()),
+                     "socket.setsockopt() on musl libc fails (srht#mcepl/m2crypto#341)")
     def test_server_simple_timeouts(self):
         pid = self.start_server(self.args)
         # Arbitrary value:

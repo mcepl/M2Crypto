@@ -13,6 +13,7 @@ from __future__ import absolute_import, print_function
 
 import binascii
 import logging
+import platform
 import struct
 import sys
 import struct
@@ -32,9 +33,16 @@ class UtilError(Exception):
 
 m2.util_init(UtilError)
 
+def is_libc_musl():
+    # This is wrong, but unfortunately Python doesn't give us anything better
+    # gh#python/cpython#87414
+    return platform.libc_ver() == ("", "")
+
 def is_32bit():
     # type: () -> bool
-    return (struct.calcsize("P") * 8) == 32
+    # or alternatively (slightly slower)
+    # (struct.calcsize("P") * 8) == 32
+    return not(sys.maxsize > 2**32)
 
 def expectedFailureIf(condition):
     """The test is marked as an expectedFailure if the condition is satisfied."""

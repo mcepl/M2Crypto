@@ -17,7 +17,7 @@ import time
 import warnings
 
 from M2Crypto import ASN1, BIO, EVP, RSA, Rand, X509, m2  # noqa
-from M2Crypto.util import is_32bit, expectedFailureIf
+from M2Crypto.util import is_32bit, is_libc_musl, expectedFailureIf
 from tests import unittest
 
 log = logging.getLogger(__name__)
@@ -246,7 +246,6 @@ class X509TestCase(unittest.TestCase):
         self.assertEqual(req.get_version(), 0)
 
     @unittest.skipIf(platform.system() == 'Windows', 'Skip on Windows. TODO')
-    @expectedFailureIf(is_32bit())
     def test_mkcert(self):
         for utc in (True, False):
             req, pk = self.mkreq(1024)
@@ -591,13 +590,13 @@ class X509TestCase(unittest.TestCase):
                          127614157056681299805556476275995414779)
 
     @unittest.skipIf(platform.system() == 'Windows', 'Skip on Windows. TODO')
-    @expectedFailureIf(is_32bit())
+    @expectedFailureIf(is_32bit() and not is_libc_musl())
     def test_date_after_2050_working(self):
         cert = X509.load_cert('tests/bad_date_cert.crt')
         self.assertEqual(str(cert.get_not_after()), 'Feb  9 14:57:46 2116 GMT')
 
     @unittest.skipIf(platform.system() == 'Windows', 'Skip on Windows. TODO')
-    @expectedFailureIf(is_32bit())
+    @expectedFailureIf(is_32bit() and not is_libc_musl())
     def test_date_reference_counting(self):
         """x509_get_not_before() and x509_get_not_after() return internal
         pointers into X509. As the returned ASN1_TIME objects do not store any

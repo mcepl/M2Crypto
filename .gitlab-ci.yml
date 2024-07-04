@@ -30,6 +30,36 @@ python3:
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
 
+alpine-32bit:
+    image:
+        name: i386/alpine
+        entrypoint: ["linux32"]
+    when: always
+    stage: build
+    script:
+        - apk update
+        - apk add --no-interactive swig gcc git musl-dev python3-dev python3 py3-pip openssl-dev openssl py3-setuptools py3-twisted py3-docutils py3-wheel
+        - export PATH=$PATH:$HOME/.local/bin
+        - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
+        - python3 -mbuild .
+        - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
+        - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
+
+python3-32bit:
+    image:
+        name: i386/debian
+        entrypoint: ["linux32"]
+    when: always
+    stage: build
+    script:
+        - apt-get update -q -y
+        - apt-get install -y swig gcc git libc6-dev python3-dev python3 python3-pip libssl-dev openssl python3-setuptools python3-twisted python3-docutils python3-wheel
+        - export PATH=$PATH:$HOME/.local/bin
+        - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
+        - python3 -mbuild .
+        - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
+        - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
+
 python3-doctest:
     image: python:3
     when: always

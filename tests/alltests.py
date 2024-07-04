@@ -1,5 +1,9 @@
 from __future__ import absolute_import, print_function
 
+import platform
+import struct
+import sys
+
 
 def suite():
     from M2Crypto import m2  # noqa
@@ -58,6 +62,9 @@ def suite():
 
     print('Version of OpenSSL is {0:x} ({1:s})'.format(m2.OPENSSL_VERSION_NUMBER,
             m2.OPENSSL_VERSION_TEXT))
+    print('(struct.calcsize("P") * 8) == 32 : {}'.format((struct.calcsize("P") * 8) == 32))
+    print("not(sys.maxsize > 2**32) : {}".format(not(sys.maxsize > 2**32)))
+    print("libc_ver = {}".format(platform.libc_ver()))
 
     return alltests
 
