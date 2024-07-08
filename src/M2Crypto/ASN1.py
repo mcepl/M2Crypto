@@ -25,9 +25,13 @@ class ASN1_Integer:
     m2_asn1_integer_free = m2.asn1_integer_free
 
     def __init__(
-        self, asn1int: C.ASN1_Integer, _pyfree: int = 0
+        self, asn1int: Union[C.ASN1_Integer, int], _pyfree: int = 0
     ):
-        self.asn1int = asn1int
+        if isinstance(asn1int, int):
+            self.asn1int: C.ASN1_Integer = m2.asn1_integer_new()
+            m2.asn1_integer_set(self.asn1int, asn1int)
+        else:
+            self.asn1int = asn1int
         self._pyfree = _pyfree
 
     def __cmp__(self, other: "ASN1_Integer") -> int:
@@ -51,9 +55,16 @@ class ASN1_String:
     m2_asn1_string_free = m2.asn1_string_free
 
     def __init__(
-        self, asn1str: C.ASN1_String, _pyfree: int = 0
+        self, asn1str: Union[C.ASN1_String, str, bytes], _pyfree: int = 0
     ):
-        self.asn1str = asn1str
+        if isinstance(asn1str, str):
+            self.asn1str: C.ASN1_String = m2.asn1_string_new()
+            m2.asn1_string_set(self.asn1str, asn1str.encode())
+        elif isinstance(asn1str, bytes):
+            self.asn1str: C.ASN1_String = m2.asn1_string_new()
+            m2.asn1_string_set(self.asn1str, asn1str)
+        else:
+            self.asn1str = asn1str
         self._pyfree = _pyfree
 
     def __bytes__(self) -> bytes:

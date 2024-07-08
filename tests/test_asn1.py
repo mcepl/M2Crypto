@@ -16,12 +16,21 @@ from tests import unittest
 class ASN1TestCase(unittest.TestCase):
 
     def test_Integer(self):
-        pass  # XXX Dunno how to test
-
-    def test_BitSTring(self):
-        pass  # XXX Dunno how to test
+        a_int = ASN1.ASN1_Integer(42, 1)
+        self.assertEqual(int(a_int), 42)
 
     def test_String(self):
+        # Currently we are supporting only ASCII strings, support for
+        # Unicode strings is unclear.
+        # a_str = ASN1.ASN1_String("дощови́й черв'я́к", 1)
+        # self.assertEqual(str(a_str), "дощови́й черв'я́к")
+        a_str = ASN1.ASN1_String("zizalka", 1)
+        self.assertEqual(str(a_str), "zizalka")
+        a_str = ASN1.ASN1_String(b"zizalka", 1)
+        self.assertEqual(bytes(a_str), b"zizalka")
+
+    def test_String_legacy(self):
+        # Old API, which expects ASN1_String on __init__ is still supported
         asn1ptr = m2.asn1_string_new()
         # FIXME this is probably wrong ... asn1_string_set should have
         # Python string as its parameter.
