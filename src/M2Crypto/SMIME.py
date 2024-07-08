@@ -246,7 +246,7 @@ class SMIME(object):
             return PKCS7(pkcs7, 1)
 
     def verify(self, pkcs7, data_bio=None, flags=0):
-        # type: (PKCS7, BIO.BIO, int) -> Optional[bytes]
+        # type: (PKCS7, Optional[BIO.BIO], int) -> Optional[bytes]
         if not hasattr(self, 'x509_stack'):
             raise SMIME_Error('no signer certs: use set_x509_stack()')
         if not hasattr(self, 'x509_store'):

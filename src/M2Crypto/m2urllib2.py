@@ -48,7 +48,7 @@ except NameError:
 
 class HTTPSHandler(AbstractHTTPHandler):
     def __init__(self, ssl_context=None):
-        # type: (SSL.Context) -> None
+        # type: (Optional[SSL.Context]) -> None
         AbstractHTTPHandler.__init__(self)
 
         if ssl_context is not None:

@@ -324,7 +324,7 @@ class X509_Name(object):
     m2_x509_name_free = m2.x509_name_free
 
     def __init__(self, x509_name=None, _pyfree=0):
-        # type: (bytes, int) -> None
+        # type: (Optional[bytes], int) -> None
         """
         :param x509_name: this should be OpenSSL X509_NAME binary
         :param _pyfree:
@@ -1086,7 +1086,7 @@ class X509_Stack(object):
     m2_sk_x509_free = m2.sk_x509_free
 
     def __init__(self, stack=None, _pyfree=0, _pyfree_x509=0):
-        # type: (bytes, int, int) -> None
+        # type: (Optional[bytes], int, int) -> None
         if stack is not None:
             self.stack = stack
             self._pyfree = _pyfree

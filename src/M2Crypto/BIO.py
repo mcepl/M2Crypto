@@ -52,7 +52,7 @@ class BIO(object):
         return not self.closed
 
     def read(self, size=None):
-        # type: (int) -> Union[bytes, bytearray]
+        # type: (Optional[int]) -> Union[bytes, bytearray]
         if not self.readable():
             raise IOError('cannot read')
         if size is None:

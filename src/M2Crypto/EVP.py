@@ -293,7 +293,7 @@ class PKey(object):
         return m2.digest_sign_final(self.ctx)
 
     def digest_sign(self, data):
-        # type: () -> bytes
+        # type: (bytes) -> bytes
         """
         Return signature.
 
@@ -338,7 +338,7 @@ class PKey(object):
         return m2.digest_verify_final(self.ctx, sign)
 
     def digest_verify(self, sign, data):
-        # type: (bytes) -> int
+        # type: (bytes, bytes) -> int
         """
         Return result of verification.
 

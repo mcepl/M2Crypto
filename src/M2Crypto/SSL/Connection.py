@@ -51,7 +51,7 @@ class Connection(object):
     m2_bio_noclose = m2.bio_noclose
 
     def __init__(self, ctx, sock=None, family=socket.AF_INET):
-        # type: (Context, socket.socket, int) -> None
+        # type: (Context, Optional[socket.socket], int) -> None
         """
 
         :param ctx: SSL.Context
