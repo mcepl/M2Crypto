@@ -31,8 +31,8 @@ class SMIMETestCase(unittest.TestCase):
 
     def setUp(self):
         # XXX Ugly, but not sure what would be better
-        self.signed = self.test_sign()
-        self.encrypted = self.test_encrypt()
+        self.signed = self.do_test_sign()
+        self.encrypted = self.do_test_encrypt()
 
     def test_load_bad(self):
         s = SMIME.SMIME()
@@ -64,7 +64,7 @@ class SMIMETestCase(unittest.TestCase):
         self.assertEqual(SMIME.text_crlf_bio(
             BIO.MemoryBuffer(b'foobar')).read(), b'Content-Type: text/plain\r\n\r\nfoobar')
 
-    def test_sign(self):
+    def do_test_sign(self):
         buf = BIO.MemoryBuffer(self.cleartext)
         s = SMIME.SMIME()
         s.load_key('tests/signer_key.pem', 'tests/signer.pem')
@@ -88,6 +88,9 @@ class SMIMETestCase(unittest.TestCase):
 
         s.write(out, p7, BIO.MemoryBuffer(self.cleartext))
         return out
+
+    def test_sign(self):
+        self.do_test_sign()
 
     def test_sign_unknown_digest(self):
         buf = BIO.MemoryBuffer(self.cleartext)
@@ -211,7 +214,7 @@ class SMIMETestCase(unittest.TestCase):
         with self.assertRaises(SMIME.PKCS7_Error):
             s.verify(p7)  # Bad signer
 
-    def test_encrypt(self):
+    def do_test_encrypt(self):
         buf = BIO.MemoryBuffer(self.cleartext)
         s = SMIME.SMIME()
 
@@ -244,6 +247,9 @@ class SMIMETestCase(unittest.TestCase):
 
         s.write(out, p7)
         return out
+
+    def test_encrypt(self):
+        self.do_test_encrypt()
 
     def test_decrypt(self):
         s = SMIME.SMIME()
