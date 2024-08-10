@@ -1,3 +1,23 @@
+0.42.0 - 2024-08-10
+-------------------
+
+- allow ASN1_{Integer,String} be initialized directly
+- minimal infrastructure for type hints for a C extension and
+  some type hints for some basic modules
+- time_t on 32bit Linux is 32bit (integer) not 64bit (long)
+- EOS for CentOS 7
+- correct checking for OpenSSL version number on Windows
+- make compatible with Python 3.13 (replace PyEval_CallObject
+  with PyObject_CallObject)
+- fix typo in extern function signature (and proper type of
+  engine_ctrl_cmd_string())
+- move the package to Sorucehut
+- setup CI to use Sourcehut CI
+- setup CI on GitLab for Windows as well (remove Appveyor)
+- initial draft of documentation for migration to pyca/cryptography
+- fix Read the Docs configuration (contributed kindly by Facundo
+  Tuesca)
+
 0.41.0 - 2024-02-13
 -------------------
 

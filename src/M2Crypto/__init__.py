@@ -18,7 +18,7 @@ Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 """
 # noqa
-__version__ = '0.40.1'
+__version__ = '0.42.0'
 version = __version__  # type: str
 
 try:
