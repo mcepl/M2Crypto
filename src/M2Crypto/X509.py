@@ -18,42 +18,47 @@ from typing import AnyStr, List, Optional  # noqa
 FORMAT_DER = 0
 FORMAT_PEM = 1
 
-if hasattr(m2, "VERIFY_ALLOW_PROXY_CERTS"):
-    verify_allow_proxy_certs = m2.VERIFY_ALLOW_PROXY_CERTS
-if hasattr(m2, "VERIFY_CB_ISSUER_CHECK"):
-    verify_cb_issuer_check = m2.VERIFY_CB_ISSUER_CHECK
-if hasattr(m2, "VERIFY_CHECK_SS_SIGNATURE"):
-    verify_check_ss_signature = m2.VERIFY_CHECK_SS_SIGNATURE
-if hasattr(m2, "VERIFY_CRL_CHECK"):
-    verify_crl_check = m2.VERIFY_CRL_CHECK
-if hasattr(m2, "VERIFY_CRL_CHECK_ALL"):
-    verify_crl_check_all = m2.VERIFY_CRL_CHECK_ALL
-if hasattr(m2, "VERIFY_EXPLICIT_POLICY"):
-    verify_explicit_policy = m2.VERIFY_EXPLICIT_POLICY
-if hasattr(m2, "VERIFY_EXTENDED_CRL_SUPPORT"):
-    verify_extended_crl_support = m2.VERIFY_EXTENDED_CRL_SUPPORT
-if hasattr(m2, "VERIFY_IGNORE_CRITICAL"):
-    verify_ignore_critical = m2.VERIFY_IGNORE_CRITICAL
-if hasattr(m2, "VERIFY_INHIBIT_ANY"):
-    verify_inhibit_any = m2.VERIFY_INHIBIT_ANY
-if hasattr(m2, "VERIFY_INHIBIT_MAP"):
-    verify_inhibit_map = m2.VERIFY_INHIBIT_MAP
-if hasattr(m2, "VERIFY_NO_ALT_CHAINS"):
-    verify_no_alt_chains = m2.VERIFY_NO_ALT_CHAINS
-if hasattr(m2, "VERIFY_NO_CHECK_TIME"):
-    verify_no_check_time = m2.VERIFY_NO_CHECK_TIME
-if hasattr(m2, "VERIFY_NOTIFY_POLICY"):
-    verify_notify_policy = m2.VERIFY_NOTIFY_POLICY
-if hasattr(m2, "VERIFY_PARTIAL_CHAIN"):
-    verify_partial_chain = m2.VERIFY_PARTIAL_CHAIN
-if hasattr(m2, "VERIFY_POLICY_CHECK"):
-    verify_policy_check = m2.VERIFY_POLICY_CHECK
-if hasattr(m2, "VERIFY_TRUSTED_FIRST"):
-    verify_trusted_first = m2.VERIFY_TRUSTED_FIRST
-if hasattr(m2, "VERIFY_USE_DELTAS"):
-    verify_use_deltas = m2.VERIFY_USE_DELTAS
-if hasattr(m2, "VERIFY_X509_STRICT"):
-    verify_x509_strict = m2.VERIFY_X509_STRICT
+__g = globals()
+for x in dir(m2):
+    if x.startswith('VERIFY_'):
+        __g[x.lower()] = x
+
+# if hasattr(m2, "VERIFY_ALLOW_PROXY_CERTS"):
+#     verify_allow_proxy_certs = m2.VERIFY_ALLOW_PROXY_CERTS
+# if hasattr(m2, "VERIFY_CB_ISSUER_CHECK"):
+#     verify_cb_issuer_check = m2.VERIFY_CB_ISSUER_CHECK
+# if hasattr(m2, "VERIFY_CHECK_SS_SIGNATURE"):
+#     verify_check_ss_signature = m2.VERIFY_CHECK_SS_SIGNATURE
+# if hasattr(m2, "VERIFY_CRL_CHECK"):
+#     verify_crl_check = m2.VERIFY_CRL_CHECK
+# if hasattr(m2, "VERIFY_CRL_CHECK_ALL"):
+#     verify_crl_check_all = m2.VERIFY_CRL_CHECK_ALL
+# if hasattr(m2, "VERIFY_EXPLICIT_POLICY"):
+#     verify_explicit_policy = m2.VERIFY_EXPLICIT_POLICY
+# if hasattr(m2, "VERIFY_EXTENDED_CRL_SUPPORT"):
+#     verify_extended_crl_support = m2.VERIFY_EXTENDED_CRL_SUPPORT
+# if hasattr(m2, "VERIFY_IGNORE_CRITICAL"):
+#     verify_ignore_critical = m2.VERIFY_IGNORE_CRITICAL
+# if hasattr(m2, "VERIFY_INHIBIT_ANY"):
+#     verify_inhibit_any = m2.VERIFY_INHIBIT_ANY
+# if hasattr(m2, "VERIFY_INHIBIT_MAP"):
+#     verify_inhibit_map = m2.VERIFY_INHIBIT_MAP
+# if hasattr(m2, "VERIFY_NO_ALT_CHAINS"):
+#     verify_no_alt_chains = m2.VERIFY_NO_ALT_CHAINS
+# if hasattr(m2, "VERIFY_NO_CHECK_TIME"):
+#     verify_no_check_time = m2.VERIFY_NO_CHECK_TIME
+# if hasattr(m2, "VERIFY_NOTIFY_POLICY"):
+#     verify_notify_policy = m2.VERIFY_NOTIFY_POLICY
+# if hasattr(m2, "VERIFY_PARTIAL_CHAIN"):
+#     verify_partial_chain = m2.VERIFY_PARTIAL_CHAIN
+# if hasattr(m2, "VERIFY_POLICY_CHECK"):
+#     verify_policy_check = m2.VERIFY_POLICY_CHECK
+# if hasattr(m2, "VERIFY_TRUSTED_FIRST"):
+#     verify_trusted_first = m2.VERIFY_TRUSTED_FIRST
+# if hasattr(m2, "VERIFY_USE_DELTAS"):
+#     verify_use_deltas = m2.VERIFY_USE_DELTAS
+# if hasattr(m2, "VERIFY_X509_STRICT"):
+#     verify_x509_strict = m2.VERIFY_X509_STRICT
 
 log = logging.getLogger(__name__)
 
