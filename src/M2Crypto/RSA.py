@@ -284,6 +284,14 @@ class RSA(object):
 
         return m2.rsa_verify(self.rsa, data, signature, digest_type)
 
+    def set_ex_data(self, index, data):
+        assert self.check_key(), 'key is not initialised'
+        return m2.rsa_set_ex_data(self.rsa, index, data)
+
+    def get_ex_data(self, index):
+        assert self.check_key(), 'key is not initialised'
+        return m2.rsa_get_ex_data(self.rsa, index)
+
 
 class RSA_pub(RSA):
 

@@ -512,6 +512,26 @@ int rsa_check_pub_key(RSA *rsa) {
     RSA_get0_key(rsa, &n, &e, NULL);
     return n && e;
 }
+
+int rsa_set_ex_data(RSA *rsa, int index, long data) {
+    long *data_buf = malloc(sizeof(long));
+    *data_buf = data;
+
+    return RSA_set_ex_data(rsa, index, data_buf);
+}
+
+PyObject *rsa_get_ex_data(RSA *rsa, int index) {
+    long *data;
+
+    data = RSA_get_ex_data(rsa, index);
+
+    if (data == 0) {
+        PyErr_SetString(_rsa_err, ERR_reason_error_string(ERR_get_error()));
+        return NULL;
+    }
+
+    return PyInt_FromLong(*data);
+}
 %}
 
 %threadallow rsa_write_key_der;
