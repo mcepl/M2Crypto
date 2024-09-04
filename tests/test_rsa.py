@@ -346,6 +346,13 @@ class RSATestCase(unittest.TestCase):
         with self.assertRaises(RSA.RSAError):
             rsa.verify(digest, other_signature)
 
+    def test_rsa_ex_data(self):
+        rsa = RSA.gen_key(2048, m2.RSA_F4)
+        ret = rsa.set_ex_data(1, 22)
+        data = rsa.get_ex_data(1)
+        self.assertEqual(data, 22)
+        self.assertIsInstance(data, int)
+
 
 def suite():
     return unittest.TestLoader().loadTestsFromTestCase(RSATestCase)
