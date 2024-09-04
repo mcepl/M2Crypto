@@ -1340,14 +1340,6 @@ class FtpsLibTestCase(unittest.TestCase):
         ftpslib.FTP_TLS()
         # XXX need server to test against
 
-
-class SessionTestCase(unittest.TestCase):
-    def test_session_load_bad(self):
-        with self.assertRaises(SSL.SSLError):
-            SSL.Session.load_session('tests/signer.pem')
-
-
-class FtpslibTestCase(unittest.TestCase):
     def test_26_compat(self):
         f = ftpslib.FTP_TLS()
         # 2.6 used to raise AttributeError:
@@ -1358,6 +1350,11 @@ class FtpslibTestCase(unittest.TestCase):
             )
         ):
             f.connect('no-such-host-dfgHJK56789', 990)
+
+class SessionTestCase(unittest.TestCase):
+    def test_session_load_bad(self):
+        with self.assertRaises(SSL.SSLError):
+            SSL.Session.load_session('tests/signer.pem')
 
 
 def suite():
@@ -1371,7 +1368,6 @@ def suite():
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Urllib2SSLClientTestCase))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Urllib2TEChunkedSSLClientTestCase))
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(MiscSSLClientTestCase))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(FtpslibTestCase))
     try:
         import M2Crypto.SSL.TwistedProtocolWrapper as wrapper  # noqa
 
