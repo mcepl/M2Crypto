@@ -25,6 +25,8 @@ ASN1_ITEM_TEMPLATE_END(SEQ_CERT)
 IMPLEMENT_ASN1_FUNCTIONS(SEQ_CERT)
 %}
 
+%include "x509_v_flag.h"
+
 %apply Pointer NONNULL { BIO * };
 %apply Pointer NONNULL { X509 * };
 %apply Pointer NONNULL { X509_CRL * };

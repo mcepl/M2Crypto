@@ -178,6 +178,25 @@ class _M2CryptoBuildExt(build_ext.build_ext):
 
         self.swig_opts.extend(['-I%s' % i for i in self.include_dirs])
 
+        # generate src/SWIG/x509_v_flag.h to overcome weaknesses of swig
+        # https://todo.sr.ht/~mcepl/m2crypto/298
+        cpp = shutil.which(os.environ.get('CC', 'gcc'))
+        with open("src/SWIG/x509_v_flag.h", "w", encoding="utf-8") as x509_v_h:
+            pid = subprocess.Popen([cpp,
+                "-E", "-fdirectives-only", "-include", "openssl/x509_vfy.h", "-"],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True)
+            xout, xerr = pid.communicate("\n")
+            if pid.returncode == 0:
+                for line in xout.split("\n"):
+                    if line and line.find('X509_V_FLAG') > -1:
+                        print(line, file=x509_v_h)
+            else:
+                raise RuntimeError(f"gcc -E ended with return code {pid.returncode}")
+
+
         # Some Linux distributor has added the following line in
         # /usr/include/openssl/opensslconf.h:
         #
