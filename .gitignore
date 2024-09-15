@@ -15,4 +15,3 @@ MANIFEST
 *.tap
 src/SWIG/_m2crypto_wrap.c
 !*requirements.txt
-src/SWIG/x509_v_flag.h
