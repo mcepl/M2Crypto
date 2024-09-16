@@ -75,7 +75,7 @@ python3-doctest:
         - PYTHONPATH=$(readlink -f ../build/lib.*) make doctest
 
 fedora:
-    image: fedora:latest
+    image: quay.io/fedora/fedora:latest
     when: always
     stage: build
     script:
@@ -89,7 +89,7 @@ fedora:
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
 
 fedora-rawhide:
-    image: registry.fedoraproject.org/fedora:rawhide
+    image: quay.io/fedora/fedora:rawhide
     when: always
     stage: build
     script:
