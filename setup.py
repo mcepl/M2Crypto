@@ -36,6 +36,7 @@ else:
 from setuptools.command import build_ext
 
 logging.basicConfig(format='%(levelname)s:%(funcName)s:%(message)s',
+                    stream=sys.stdout,
                     level=logging.DEBUG)
 log = logging.getLogger('setup')
 
