@@ -28,6 +28,5 @@ Copyright (C) 2004 OSAF. All Rights Reserved.
 """
 
 from M2Crypto.m2crypto import *
-from M2Crypto.m2crypto import *
 
 lib_init()
