@@ -16,7 +16,7 @@ import os.path
 import sys
 import time
 
-from M2Crypto import ASN1, EC, EVP, RSA, X509, m2, util
+from M2Crypto import ASN1, EVP, RSA, X509, m2, util
 
 t = int(time.time() + time.timezone)
 before = ASN1.ASN1_TIME()
@@ -187,6 +187,7 @@ def mk_recipient(ca, capk):
 
 
 def mk_ec_pair():
+    from M2Crypto import EC
     priv_key = EC.gen_params(EC.NID_secp384r1)
     priv_key.gen_key()
     priv_key.save_key('ec.priv.pem',
