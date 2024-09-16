@@ -29,4 +29,7 @@ Copyright (C) 2004 OSAF. All Rights Reserved.
 
 from M2Crypto.m2crypto import *
 
-lib_init()
+try:
+    lib_init()
+except NameError:
+    pass

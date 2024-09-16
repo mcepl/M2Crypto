@@ -43,5 +43,3 @@ from M2Crypto import m2
 
 encrypt: int = 1
 decrypt: int = 0
-
-m2.lib_init()

@@ -7,7 +7,7 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 import sys
 
 from M2Crypto import m2
-from typing import Any  # noqa
+from typing import Any, List  # noqa
 
 __all__ = [
     'unknown_issuer',
@@ -25,7 +25,7 @@ def ssl_verify_callback_stub(
     return ok
 
 
-unknown_issuer: list[int] = [
+unknown_issuer: List[int] = [
     m2.X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT,
     m2.X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY,
     m2.X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE,

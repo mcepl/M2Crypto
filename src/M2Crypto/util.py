@@ -24,7 +24,6 @@ from M2Crypto import m2
 from typing import (
     Any,
     Callable,
-    Literal,
     Optional,
     TextIO,
     Tuple,
@@ -33,7 +32,9 @@ from typing import (
 
 # see https://github.com/python/typeshed/issues/222
 AddrType = Union[Tuple[str, int], str]
-ModeStr = Literal['r', 'w', 'rw', 'rb', 'wb', 'rwb']
+# COMPATIBILITY: Literal is only Python 3.8+
+# ModeStr = Literal['r', 'w', 'rw', 'rb', 'wb', 'rwb']
+ModeStr = str
 
 log = logging.getLogger('util')
 
