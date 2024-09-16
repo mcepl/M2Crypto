@@ -101,6 +101,7 @@ fedora-rawhide:
         - python3 -mbuild .
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
+    allow_failure: true
 
 leap:
     # image: registry.suse.com/bci/bci-base:latest

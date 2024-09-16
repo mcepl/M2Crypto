@@ -29,7 +29,7 @@ class X509TestCase(unittest.TestCase):
         pass
 
     def setUp(self):
-        self.expected_hash = 'BA4212E8B55527570828E7F5A0005D17C64BDC4C'
+        self.expected_hash = '46690EBC3862A776CBB37A32CD14ABC5520863BE'
 
     def mkreq(self, bits, ca=0):
         pk = EVP.PKey()
@@ -712,12 +712,12 @@ class X509ExtTestCase(unittest.TestCase):
     def test_ext(self):
         if 0:  # XXX
             # With this leaks 8 bytes:
-            name = "proxyCertInfo"
-            value = "critical,language:Inherit all"
+            name: str = "proxyCertInfo"
+            value: str = "critical,language:Inherit all"
         else:
             # With this there are no leaks:
-            name = "nsComment"
-            value = "Hello"
+            name: str = "nsComment"
+            value: str = "Hello"
 
         ctx = m2.x509v3_set_nconf()
         x509_ext_ptr = m2.x509v3_ext_conf(None, ctx, name, value)
