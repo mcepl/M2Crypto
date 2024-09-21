@@ -13,6 +13,7 @@ import base64
 import logging
 import os
 import platform
+import textwrap
 import time
 import warnings
 
@@ -720,8 +721,56 @@ class X509ExtTestCase(unittest.TestCase):
             value: str = "Hello"
 
         ctx = m2.x509v3_set_nconf()
-        x509_ext_ptr = m2.x509v3_ext_conf(None, ctx, name, value)
+        x509_ext_ptr = m2.x509v3_ext_nconf(None, ctx, name, value)
         X509.X509_Extension(x509_ext_ptr, 1)
+
+    def test_multiple_extensions(self):
+        # Testing for https://todo.sr.ht/~mcepl/m2crypto/9
+        sub_key_id = '1C:E6:F0:58:58:32:BC:7B:BA:8E:E0:23:1B:FF:17:99:B0:4D:CF:64'
+
+        cert_pem_string = textwrap.dedent("""\
+        -----BEGIN CERTIFICATE-----
+        MIIGFjCCA/6gAwIBAgIJAO7rHaO9YDQDMA0GCSqGSIb3DQEBCwUAMHsxCzAJBgNV
+        BAYTAlVTMQswCQYDVQQIDAJDQTESMBAGA1UEBwwJTG9zIEdhdG9zMRMwEQYDVQQK
+        DApOYUplRGEgTExDMSMwIQYDVQQLDBpOYUplRGEgR2VvY2FjaGluZyBTZXJ2aWNl
+        czERMA8GA1UEAwwIbG9jYWxfY2EwHhcNMTgwNTMxMTgwOTMwWhcNMzcxMjMxMTgw
+        OTMwWjB7MQswCQYDVQQGEwJVUzELMAkGA1UECAwCQ0ExEjAQBgNVBAcMCUxvcyBH
+        YXRvczETMBEGA1UECgwKTmFKZURhIExMQzEjMCEGA1UECwwaTmFKZURhIEdlb2Nh
+        Y2hpbmcgU2VydmljZXMxETAPBgNVBAMMCGxvY2FsX2NhMIICIjANBgkqhkiG9w0B
+        AQEFAAOCAg8AMIICCgKCAgEAwL4VBqghrv9DdUq+63Yty/kaNINIO+ldhY8GxrZd
+        KXdJqanZN0nMZaW4lys7OTGKml2TzL1JiOueChky5H+8vbmXF8Mp2j3DIQRlYQae
+        m/cijW4Q8QRiUNdsIcB6pB7Oa7JvyTxMsbwQC2MlE9ItNR2zJ1RMpzGvRoO+wheZ
+        8zPtXquo+/rJfzoxd2G6/L9Rrwo3Izgwb6NiXbQadg675o/0shmhD1LJT5DcmvjL
+        0shj+VasUKAOwgt/5GtkjjeE53VsExOkJKrH/RUodl6dXiXBq4ehtwdFGQnTDpyg
+        bKSXI8M3FPU/zYjt4HYDW5R+VlkKYEdMaOwQ4b9waArCZPSh6SoSZ8SyjRN1wKqn
+        da+vl5MrzPGTbnN8CXvs89+ti+iT+pdsCc/L3kdwqaV3HNE0pjTg3bChWJ/iNltF
+        E3lqTmnUcMfvhHpAcj6txB4YqzvQgh7DQ4KnKwFgXvrS7t2fdgFxVe/Bl7ApXi1t
+        Eg8AEjasuLqb/sTWLyvoWog1iJg7uWsv7F3DXloc7q80eAh610KtPTSzcCvOfd9I
+        i6+P9yxcOZv4vCbX7rrCJt/scL2/Hz1qqQYA/DcKtvitA2hUAx6AJlMvW14Dw3tc
+        nHny5lJ4Ty7ZiGN7Bg9Jj1uJusa0le2dkFwx5WjXZu2QMtjgJT8aBl3iM36jNtY7
+        v6cCAwEAAaOBnDCBmTAdBgNVHQ4EFgQUHObwWFgyvHu6juAjG/8XmbBNz2QwHwYD
+        VR0jBBgwFoAUHObwWFgyvHu6juAjG/8XmbBNz2QwDwYDVR0TAQH/BAUwAwEB/zAO
+        BgNVHQ8BAf8EBAMCAQYwNgYDVR0fBC8wLTAroCmgJ4YlaHR0cHM6Ly9jcmwuc29t
+        ZS51cmwuY29tL2xvY2FsX2NhLmNybDANBgkqhkiG9w0BAQsFAAOCAgEAepM/VwzI
+        N3aWc08IgF0+J3wYAjDzq2y/ixDXwL/B/XOHElySaiDakiT6HM52Ek/LkFK67Llp
+        TZIxCwViBxkkcTBS10ymGfsYY5R7lOx14SUIXPOS/Pvht1IZBuSp5J9woZjEZitk
+        InmWYSmA2Q85JtFs86pNQD9gCOCd5hnKK2LqOwrPAcnOJ06FhZFT/psI5MR8XFjD
+        /dJUfnkxbK6S77sCslALdsaYdWp6B4gnmZWF3tTxq1IkNKVJuGdcPLg33zFAXzmo
+        POzjrTmr+1DUEahBbY/9oGcQQh0Ir9lTdd0Uym40FN/7jDA8G1CeK8lsL+TZ5dTU
+        BPCI2LLd2p7c3SddMNM/GUZdoJ4LXKx3JnDu8lYpjOcL21QHjqfNSmAHzX8skery
+        jawwi0yijJYwsyrB629ek0p/v16uTojs6JGddOmnz9z1/pBctRw6w83d0jNQc2yY
+        g89xOl9q0Z7G6rThyNuJwworN5FaPJB2Pl7pHf2uJZEp0mq1SN3Lcfre2yXig8Tc
+        rWjDY8k9VrEJG0G3n9FVv9hKvob9ngUMkmyxE5E4VWyab5gVt2m0XXJjz5Sc3530
+        dQ9SXhFS7s3060/yl0BBWnTtfu9zGdKaz4lWo25Q0r7HD5y/MwUCbqpRVqXJxGHY
+        d3PEYaXkdwhAi3EbarF7R8r3hKzYCpXxfI4=
+        -----END CERTIFICATE-----""")
+        m2_x509_cert = X509.load_cert_string(cert_pem_string)
+
+        local_ski = m2_x509_cert.get_ext('subjectKeyIdentifier')
+        local_aki = m2_x509_cert.get_ext('authorityKeyIdentifier')
+
+        X509.new_extension('subjectKeyIdentifier', sub_key_id)
+        X509.new_extension('authorityKeyIdentifier', 'keyid')
 
 
 class CRLTestCase(unittest.TestCase):

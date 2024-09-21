@@ -691,7 +691,16 @@ x509v3_set_nconf(void) {
         $result = NULL;
     }
 }
+
 %inline %{
+X509_EXTENSION *
+x509v3_ext_nconf(void *conf, X509V3_CTX *ctx, char *name, const char *value) {
+      X509_EXTENSION * ext = NULL;
+      ext = X509V3_EXT_nconf(conf, ctx, name, value);
+      PyMem_Free(ctx);
+      return ext;
+}
+
 X509_EXTENSION *
 x509v3_ext_conf(void *conf, X509V3_CTX *ctx, char *name, char *value) {
       X509_EXTENSION * ext = NULL;

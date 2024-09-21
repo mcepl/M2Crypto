@@ -107,7 +107,7 @@ def new_extension(
     ):
         raise ValueError('value must be precomputed hash')
     ctx = m2.x509v3_set_nconf()
-    x509_ext_ptr = m2.x509v3_ext_conf(None, ctx, name, value)
+    x509_ext_ptr = m2.x509v3_ext_nconf(None, ctx, name, value)
     if x509_ext_ptr is None:
         raise X509Error(
             "Cannot create X509_Extension with name '%s' and value '%s'"
