@@ -6,9 +6,9 @@ Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
 import io
 import logging
-from typing import Any, AnyStr, Callable, Iterable, Optional, Union  # noqa
+from typing import Any, Callable, Iterable, Optional, Union  # noqa
 
-from M2Crypto import m2
+from M2Crypto import m2, types as C
 
 log = logging.getLogger('BIO')
 
@@ -25,8 +25,12 @@ class BIO(object):
 
     m2_bio_free = m2.bio_free
 
-    def __init__(self, bio=None, _pyfree=0, _close_cb=None):
-        # type: (Optional[BIO], int, Optional[Callable]) -> None
+    def __init__(
+        self,
+        bio: Optional[C.BIO] = None,
+        _pyfree: int = 0,
+        _close_cb: Optional[Callable] = None,
+    ) -> None:
         self.bio = bio
         self._pyfree = _pyfree
         self._close_cb = _close_cb
@@ -43,16 +47,15 @@ class BIO(object):
     # Deprecated.
     bio_ptr = _ptr
 
-    def fileno(self):
-        # type: () -> int
+    def fileno(self) -> int:
         return m2.bio_get_fd(self.bio)
 
-    def readable(self):
-        # type: () -> bool
+    def readable(self) -> bool:
         return not self.closed
 
-    def read(self, size=None):
-        # type: (Optional[int]) -> Union[bytes, bytearray]
+    def read(
+        self, size: Optional[int] = None
+    ) -> Union[bytes, bytearray]:
         if not self.readable():
             raise IOError('cannot read')
         if size is None:
@@ -70,15 +73,15 @@ class BIO(object):
         else:
             return bytes(m2.bio_read(self.bio, size))
 
-    def readline(self, size=4096):
-        # type: (int) -> bytes
+    def readline(self, size: int = 4096) -> bytes:
         if not self.readable():
             raise IOError('cannot read')
         buf = m2.bio_gets(self.bio, size)
         return '' if buf is None else buf
 
-    def readlines(self, sizehint='ignored'):
-        # type: (Union[AnyStr, int]) -> Iterable[bytes]
+    def readlines(
+        self, sizehint: Union[str, bytes, int] = 'ignored'
+    ) -> Iterable[bytes]:
         if not self.readable():
             raise IOError('cannot read')
         lines = []
@@ -89,12 +92,10 @@ class BIO(object):
             lines.append(buf)
         return lines
 
-    def writeable(self):
-        # type: () -> bool
+    def writeable(self) -> bool:
         return (not self.closed) and (not self.write_closed)
 
-    def write(self, data):
-        # type: (AnyStr) -> int
+    def write(self, data: Union[str, bytes]) -> int:
         """Write data to BIO.
 
         :return: either data written, or [0, -1] for nothing written,
@@ -106,34 +107,29 @@ class BIO(object):
             data = data.encode('utf8')
         return m2.bio_write(self.bio, data)
 
-    def write_close(self):
-        # type: () -> None
+    def write_close(self) -> None:
         self.write_closed = 1
 
-    def flush(self):
-        # type: () -> None
+    def flush(self) -> None:
         """Flush the buffers.
 
         :return: 1 for success, and 0 or -1 for failure
         """
         m2.bio_flush(self.bio)
 
-    def reset(self):
-        # type: () -> int
+    def reset(self) -> int:
         """Set the bio to its initial state.
 
         :return: 1 for success, and 0 or -1 for failure
         """
         return m2.bio_reset(self.bio)
 
-    def close(self):
-        # type: () -> None
+    def close(self) -> None:
         self.closed = 1
         if self._close_cb:
             self._close_cb()
 
-    def should_retry(self):
-        # type: () -> int
+    def should_retry(self) -> int:
         """
         Can the call be attempted again, or was there an error
         ie do_handshake
@@ -141,14 +137,12 @@ class BIO(object):
         """
         return m2.bio_should_retry(self.bio)
 
-    def should_read(self):
-        # type: () -> int
+    def should_read(self) -> int:
         """Should we read more data?"""
 
         return m2.bio_should_read(self.bio)
 
-    def should_write(self):
-        # type: () -> int
+    def should_write(self) -> int:
         """Should we write more data?"""
         return m2.bio_should_write(self.bio)
 
@@ -163,8 +157,7 @@ class BIO(object):
     def __enter__(self):
         return self
 
-    def __exit__(self, *args):
-        # type: (*Any) -> int
+    def __exit__(self, *args) -> int:
         self.close()
 
 
@@ -178,36 +171,36 @@ class MemoryBuffer(BIO):
     a MemoryBuffer object only when necessary.
     """
 
-    def __init__(self, data=None):
-        # type: (Optional[bytes]) -> None
+    def __init__(self, data: Optional[bytes] = None) -> None:
         super(MemoryBuffer, self).__init__(self)
         if data is not None and not isinstance(data, bytes):
             raise TypeError(
-                "data must be bytes or None, not %s" % (type(data).__name__, ))
+                "data must be bytes or None, not %s"
+                % (type(data).__name__,)
+            )
         self.bio = m2.bio_new(m2.bio_s_mem())
         self._pyfree = 1
         if data is not None:
             m2.bio_write(self.bio, data)
 
-    def __len__(self):
-        # type: () -> int
+    def __len__(self) -> int:
         return m2.bio_ctrl_pending(self.bio)
 
-    def read(self, size=0):
-        # type: (int) -> bytes
-        m2.err_clear_error();
+    def read(self, size: int = 0) -> bytes:
+        m2.err_clear_error()
         if not self.readable():
             raise IOError('cannot read')
         if size:
             return m2.bio_read(self.bio, size)
         else:
-            return m2.bio_read(self.bio, m2.bio_ctrl_pending(self.bio))
+            return m2.bio_read(
+                self.bio, m2.bio_ctrl_pending(self.bio)
+            )
 
     # Backwards-compatibility.
     getvalue = read_all = read
 
-    def write_close(self):
-        # type: () -> None
+    def write_close(self) -> None:
         super(MemoryBuffer, self).write_close()
         m2.bio_set_mem_eof_return(self.bio, 0)
 
@@ -221,8 +214,12 @@ class File(BIO):
     general file manipulation in Python, use Python's builtin file object.
     """
 
-    def __init__(self, pyfile, close_pyfile=1, mode='rb'):
-        # type: (Union[io.BytesIO, AnyStr], int, AnyStr) -> None
+    def __init__(
+        self,
+        pyfile: Union[io.BytesIO, str, bytes],
+        close_pyfile: int = 1,
+        mode: Union[str, bytes] = 'rb',
+    ) -> None:
         super(File, self).__init__(self, _pyfree=1)
 
         if isinstance(pyfile, str):
@@ -241,35 +238,34 @@ class File(BIO):
         # Be wary of https://github.com/openssl/openssl/pull/1925
         # BIO_new_fd is NEVER to be used before OpenSSL 1.1.1
         if hasattr(m2, "bio_new_pyfd"):
-            self.bio = m2.bio_new_pyfd(pyfile.fileno(), m2.bio_noclose)
+            self.bio = m2.bio_new_pyfd(
+                pyfile.fileno(), m2.bio_noclose
+            )
         else:
             self.bio = m2.bio_new_pyfile(pyfile, m2.bio_noclose)
 
         self.close_pyfile = close_pyfile
         self.closed = False
 
-    def flush(self):
-        # type: () -> None
+    def flush(self) -> None:
         super(File, self).flush()
         self.pyfile.flush()
 
-    def close(self):
-        # type: () -> None
+    def close(self) -> None:
         self.flush()
         super(File, self).close()
         if self.close_pyfile:
             self.pyfile.close()
 
-    def reset(self):
-        # type: () -> int
+    def reset(self) -> int:
         """Set the bio to its initial state.
 
         :return: 0 for success, and -1 for failure
         """
         return super(File, self).reset()
 
-def openfile(filename, mode='rb'):
-    # type: (AnyStr, AnyStr) -> File
+
+def openfile(filename: Union[str, bytes], mode: Union[str, bytes] = 'rb') -> File:
     try:
         f = open(filename, mode)
     except IOError as ex:
@@ -288,8 +284,7 @@ class IOBuffer(BIO):
     m2_bio_pop = m2.bio_pop
     m2_bio_free = m2.bio_free
 
-    def __init__(self, under_bio, mode='rwb', _pyfree=1):
-        # type: (BIO, str, int) -> None
+    def __init__(self, under_bio: BIO, mode: str = 'rwb', _pyfree: int = 1) -> None:
         super(IOBuffer, self).__init__(self, _pyfree=_pyfree)
         self.io = m2.bio_new(m2.bio_f_buffer())
         self.bio = m2.bio_push(self.io, under_bio._ptr())
@@ -300,14 +295,12 @@ class IOBuffer(BIO):
         else:
             self.write_closed = 1
 
-    def __del__(self):
-        # type: () -> None
+    def __del__(self) -> None:
         if getattr(self, '_pyfree', 0):
             self.m2_bio_pop(self.bio)
         self.m2_bio_free(self.io)
 
-    def close(self):
-        # type: () -> None
+    def close(self) -> None:
         BIO.close(self)
 
 
@@ -319,30 +312,25 @@ class CipherStream(BIO):
     m2_bio_pop = m2.bio_pop
     m2_bio_free = m2.bio_free
 
-    def __init__(self, obio):
-        # type: (BIO) -> None
+    def __init__(self, obio: BIO) -> None:
         super(CipherStream, self).__init__(self, _pyfree=1)
         self.obio = obio
         self.bio = m2.bio_new(m2.bio_f_cipher())
         self.closed = 0
 
-    def __del__(self):
-        # type: () -> None
+    def __del__(self) -> None:
         if not getattr(self, 'closed', 1):
             self.close()
 
-    def close(self):
-        # type: () -> None
+    def close(self) -> None:
         self.m2_bio_pop(self.bio)
         self.m2_bio_free(self.bio)
         self.closed = 1
 
-    def write_close(self):
-        # type: () -> None
+    def write_close(self) -> None:
         self.obio.write_close()
 
-    def set_cipher(self, algo, key, iv, op):
-        # type: (str, AnyStr, AnyStr, int) -> None
+    def set_cipher(self, algo: str, key: Union[str, bytes], iv: Union[str, bytes], op: int) -> None:
         cipher = getattr(m2, algo, None)
         if cipher is None:
             raise ValueError('unknown cipher', algo)
@@ -361,14 +349,12 @@ class CipherStream(BIO):
 class SSLBio(BIO):
     """Object interface to BIO_f_ssl."""
 
-    def __init__(self, _pyfree=1):
-        # type: (int) -> None
+    def __init__(self, _pyfree: int = 1) -> None:
         super(SSLBio, self).__init__(self, _pyfree=_pyfree)
         self.bio = m2.bio_new(m2.bio_f_ssl())
         self.closed = 0
 
-    def set_ssl(self, conn, close_flag=m2.bio_noclose):
-        # type: (Any, int) -> None
+    def set_ssl(self, conn: Any, close_flag: int = m2.bio_noclose) -> None:
         # conn should actually be SSL.Connection, but we cannot import
         # it here without getting into some serious circular dependency
         # business.
@@ -381,8 +367,7 @@ class SSLBio(BIO):
         if close_flag == m2.bio_noclose:
             conn.set_ssl_close_flag(m2.bio_close)
 
-    def do_handshake(self):
-        # type: () -> int
+    def do_handshake(self) -> int:
         """Do the handshake.
 
         Return 1 if the handshake completes

@@ -5,24 +5,33 @@ Copyright (c) 2014-2017 Matej Cepl. All rights reserved.
 
 See LICENCE for the license information.
 """
+
 from __future__ import absolute_import
 
 from M2Crypto import m2
-from typing import AnyStr, Tuple  # noqa
+from typing import Tuple, Union  # noqa
 
 
-__all__ = ['rand_seed', 'rand_add', 'load_file', 'save_file', 'rand_bytes',
-           'rand_pseudo_bytes', 'rand_file_name', 'rand_status']
+__all__ = [
+    'rand_seed',
+    'rand_add',
+    'load_file',
+    'save_file',
+    'rand_bytes',
+    'rand_pseudo_bytes',
+    'rand_file_name',
+    'rand_status',
+]
 
 
 class RandError(ValueError):
     pass
 
+
 m2.rand_init(RandError)
 
 
-def rand_add(blob, entropy):
-    # type: (bytes, float) -> None
+def rand_add(blob: bytes, entropy: float) -> None:
     """
     Mixes blob into the PRNG state.
 
@@ -41,8 +50,7 @@ def rand_add(blob, entropy):
     m2.rand_add(blob, entropy)  # pylint: disable=no-member
 
 
-def rand_seed(seed):
-    # type: (bytes) -> None
+def rand_seed(seed: bytes) -> None:
     """
     Equivalent to rand_add() when len(seed) == entropy.
 
@@ -51,8 +59,7 @@ def rand_seed(seed):
     m2.rand_seed(seed)  # pylint: disable=no-member
 
 
-def rand_status():
-    # type: () -> int
+def rand_status() -> int:
     """
     Check whether there is enough entropy in PRNG.
 
@@ -62,8 +69,7 @@ def rand_status():
     return m2.rand_status()  # pylint: disable=no-member
 
 
-def rand_file_name():
-    # type: () -> str
+def rand_file_name() -> str:
     """
     Generate a default path for the random seed file.
 
@@ -75,8 +81,7 @@ def rand_file_name():
     return m2.rand_file_name().decode()  # pylint: disable=no-member
 
 
-def load_file(filename, max_bytes):
-    # type: (AnyStr, int) -> int
+def load_file(filename: Union[str, bytes], max_bytes: int) -> int:
     """
     Read a number of bytes from file filename and adds them to the PRNG.
 
@@ -87,12 +92,15 @@ def load_file(filename, max_bytes):
     :param max_bytes:
     :return: the number of bytes read.
     """
-    filename = filename.decode() if isinstance(filename, bytes) else filename
-    return m2.rand_load_file(filename, max_bytes)  # pylint: disable=no-member
+    filename = (
+        filename.decode() if isinstance(filename, bytes) else filename
+    )
+    return m2.rand_load_file(
+        filename, max_bytes
+    )  # pylint: disable=no-member
 
 
-def save_file(filename):
-    # type: (AnyStr) -> int
+def save_file(filename: Union[str, bytes]) -> int:
     """
     Write a number of random bytes (currently 1024) to file.
 
@@ -106,8 +114,7 @@ def save_file(filename):
     return m2.rand_save_file(filename)  # pylint: disable=no-member
 
 
-def rand_bytes(num):
-    # type: (int) -> bytes
+def rand_bytes(num: int) -> bytes:
     """
     Return n cryptographically strong pseudo-random bytes.
 
@@ -120,8 +127,7 @@ def rand_bytes(num):
     return m2.rand_bytes(num)  # pylint: disable=no-member
 
 
-def rand_pseudo_bytes(num):
-    # type: (int) -> Tuple[bytes, int]
+def rand_pseudo_bytes(num: int) -> Tuple[bytes, int]:
     """
     Return num pseudo-random bytes into buf.
 
@@ -139,9 +145,12 @@ def rand_pseudo_bytes(num):
     :return: random bytes
     """
     import warnings
+
     if m2.OPENSSL_VERSION_NUMBER >= 0x10100000:
-        warnings.warn('The underlying OpenSSL method has been ' +
-                      'deprecated. Use Rand.rand_bytes instead.',
-                      DeprecationWarning)
+        warnings.warn(
+            'The underlying OpenSSL method has been '
+            + 'deprecated. Use Rand.rand_bytes instead.',
+            DeprecationWarning,
+        )
 
     return m2.rand_pseudo_bytes(num)  # pylint: disable=no-member

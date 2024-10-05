@@ -7,14 +7,19 @@ All rights reserved.
 Copyright 2008 Heikki Toivonen. All rights reserved.
 """
 
-__all__ = ['SSLVerificationError', 'NoCertificate', 'WrongCertificate',
-           'WrongHost', 'Checker']
+__all__ = [
+    'SSLVerificationError',
+    'NoCertificate',
+    'WrongCertificate',
+    'WrongHost',
+    'Checker',
+]
 
 import re
 import socket
 
-from M2Crypto import X509, m2 # noqa
-from typing import AnyStr, Optional  # noqa
+from M2Crypto import X509, m2  # noqa
+from typing import Optional, Union  # noqa
 
 
 class SSLVerificationError(Exception):
@@ -30,8 +35,12 @@ class WrongCertificate(SSLVerificationError):
 
 
 class WrongHost(SSLVerificationError):
-    def __init__(self, expectedHost, actualHost, fieldName='commonName'):
-        # type: (str, AnyStr, str) -> None
+    def __init__(
+        self,
+        expectedHost: str,
+        actualHost: Union[str, bytes],
+        fieldName: str = 'commonName',
+    ) -> None:
         """
         This exception will be raised if the certificate returned by the
         peer was issued for a different host than we tried to connect to.
@@ -46,66 +55,91 @@ class WrongHost(SSLVerificationError):
         """
         if fieldName not in ('commonName', 'subjectAltName'):
             raise ValueError(
-                'Unknown fieldName, should be either commonName ' +
-                'or subjectAltName')
+                'Unknown fieldName, should be either commonName '
+                + 'or subjectAltName'
+            )
 
         SSLVerificationError.__init__(self)
         self.expectedHost = expectedHost
         self.actualHost = actualHost
         self.fieldName = fieldName
 
-    def __str__(self):
-        # type: () -> str
-        return 'Peer certificate %s does not match host, expected %s, got %s' \
+    def __str__(self) -> str:
+        return (
+            'Peer certificate %s does not match host, expected %s, got %s'
             % (self.fieldName, self.expectedHost, self.actualHost)
+        )
 
 
 class Checker(object):
 
     numericIpMatch = re.compile(r'^[0-9]+(\.[0-9]+)*$')
 
-    def __init__(self, host=None, peerCertHash=None, peerCertDigest='sha1'):
-        # type: (Optional[str], Optional[bytes], str) -> None
+    def __init__(
+        self,
+        host: Optional[str] = None,
+        peerCertHash: Optional[bytes] = None,
+        peerCertDigest: str = 'sha1',
+    ) -> None:
         self.host = host
         self.fingerprint = peerCertHash
-        self.digest = peerCertDigest  # type: str
+        self.digest: str = peerCertDigest
 
-    def __call__(self, peerCert, host=None):
-        # type: (X509.X509, Optional[str]) -> bool
+    def __call__(
+        self, peerCert: X509.X509, host: Optional[str] = None
+    ) -> bool:
         if peerCert is None:
             raise NoCertificate('peer did not return certificate')
 
         if host is not None:
-            self.host = host  # type: str
+            self.host: str = host
 
         if self.fingerprint:
             if self.digest not in ('sha1', 'md5'):
-                raise ValueError('unsupported digest "%s"' % self.digest)
+                raise ValueError(
+                    'unsupported digest "%s"' % self.digest
+                )
 
             if self.digest == 'sha1':
                 expected_len = 40
             elif self.digest == 'md5':
                 expected_len = 32
             else:
-                raise ValueError('Unexpected digest {0}'.format(self.digest))
+                raise ValueError(
+                    'Unexpected digest {0}'.format(self.digest)
+                )
 
             if len(self.fingerprint) != expected_len:
                 raise WrongCertificate(
-                    ('peer certificate fingerprint length does not match\n' +
-                     'fingerprint: {0}\nexpected = {1}\n' +
-                     'observed = {2}').format(self.fingerprint,
-                                              expected_len,
-                                              len(self.fingerprint)))
+                    (
+                        'peer certificate fingerprint length does not match\n'
+                        + 'fingerprint: {0}\nexpected = {1}\n'
+                        + 'observed = {2}'
+                    ).format(
+                        self.fingerprint,
+                        expected_len,
+                        len(self.fingerprint),
+                    )
+                )
 
-            expected_fingerprint = self.fingerprint.decode() if isinstance(self.fingerprint, bytes) \
+            expected_fingerprint = (
+                self.fingerprint.decode()
+                if isinstance(self.fingerprint, bytes)
                 else self.fingerprint
-            observed_fingerprint = peerCert.get_fingerprint(md=self.digest)
+            )
+            observed_fingerprint = peerCert.get_fingerprint(
+                md=self.digest
+            )
             if observed_fingerprint != expected_fingerprint:
                 raise WrongCertificate(
-                    ('peer certificate fingerprint does not match\n' +
-                     'expected = {0},\n' +
-                     'observed = {1}').format(expected_fingerprint,
-                                              observed_fingerprint))
+                    (
+                        'peer certificate fingerprint does not match\n'
+                        + 'expected = {0},\n'
+                        + 'observed = {1}'
+                    ).format(
+                        expected_fingerprint, observed_fingerprint
+                    )
+                )
 
         if self.host:
             hostValidationPassed = False
@@ -113,13 +147,19 @@ class Checker(object):
 
             # subjectAltName=DNS:somehost[, ...]*
             try:
-                subjectAltName = peerCert.get_ext('subjectAltName').get_value()
-                if self._splitSubjectAltName(self.host, subjectAltName):
+                subjectAltName = peerCert.get_ext(
+                    'subjectAltName'
+                ).get_value()
+                if self._splitSubjectAltName(
+                    self.host, subjectAltName
+                ):
                     hostValidationPassed = True
                 elif self.useSubjectAltNameOnly:
-                    raise WrongHost(expectedHost=self.host,
-                                    actualHost=subjectAltName,
-                                    fieldName='subjectAltName')
+                    raise WrongHost(
+                        expectedHost=self.host,
+                        actualHost=subjectAltName,
+                        fieldName='subjectAltName',
+                    )
             except LookupError:
                 pass
 
@@ -127,8 +167,11 @@ class Checker(object):
             if not hostValidationPassed:
                 hasCommonName = False
                 commonNames = ''
-                for entry in peerCert.get_subject().get_entries_by_nid(
-                        m2.NID_commonName):
+                for (
+                    entry
+                ) in peerCert.get_subject().get_entries_by_nid(
+                    m2.NID_commonName
+                ):
                     hasCommonName = True
                     commonName = entry.get_data().as_text()
                     if not commonNames:
@@ -140,17 +183,24 @@ class Checker(object):
                         break
 
                 if not hasCommonName:
-                    raise WrongCertificate('no commonName in peer certificate')
+                    raise WrongCertificate(
+                        'no commonName in peer certificate'
+                    )
 
                 if not hostValidationPassed:
-                    raise WrongHost(expectedHost=self.host,
-                                    actualHost=commonNames,
-                                    fieldName='commonName')
+                    raise WrongHost(
+                        expectedHost=self.host,
+                        actualHost=commonNames,
+                        fieldName='commonName',
+                    )
 
         return True
 
-    def _splitSubjectAltName(self, host, subjectAltName):
-        # type: (AnyStr, AnyStr) -> bool
+    def _splitSubjectAltName(
+        self,
+        host: Union[str, bytes],
+        subjectAltName: Union[str, bytes],
+    ) -> bool:
         """
         >>> check = Checker()
         >>> check._splitSubjectAltName(host='my.example.com',
@@ -203,8 +253,7 @@ class Checker(object):
                     return True
         return False
 
-    def _match(self, host, certHost):
-        # type: (str, str) -> bool
+    def _match(self, host: str, certHost: str) -> bool:
         """
         >>> check = Checker()
         >>> check._match(host='my.example.com', certHost='my.example.com')
@@ -239,8 +288,9 @@ class Checker(object):
             # Not sure about this, but being conservative
             return False
 
-        if self.numericIpMatch.match(host) or \
-                self.numericIpMatch.match(certHost.replace('*', '')):
+        if self.numericIpMatch.match(
+            host
+        ) or self.numericIpMatch.match(certHost.replace('*', '')):
             # Not sure if * allowed in numeric IP, but think not.
             return False
 
@@ -258,8 +308,9 @@ class Checker(object):
 
         return False
 
-    def _matchIPAddress(self, host, certHost):
-        # type: (AnyStr, AnyStr) -> bool
+    def _matchIPAddress(
+        self, host: Union[str, bytes], certHost: Union[str, bytes]
+    ) -> bool:
         """
         >>> check = Checker()
         >>> check._matchIPAddress(host='my.example.com',
@@ -279,11 +330,22 @@ class Checker(object):
         False
         """
         try:
-            canonical = socket.getaddrinfo(host, 0, 0, socket.SOCK_STREAM, 0,
-                                           socket.AI_NUMERICHOST)
-            certCanonical = socket.getaddrinfo(certHost, 0, 0,
-                                               socket.SOCK_STREAM, 0,
-                                               socket.AI_NUMERICHOST)
+            canonical = socket.getaddrinfo(
+                host,
+                0,
+                0,
+                socket.SOCK_STREAM,
+                0,
+                socket.AI_NUMERICHOST,
+            )
+            certCanonical = socket.getaddrinfo(
+                certHost,
+                0,
+                0,
+                socket.SOCK_STREAM,
+                0,
+                socket.AI_NUMERICHOST,
+            )
         except:
             return False
         return canonical == certCanonical
@@ -291,4 +353,5 @@ class Checker(object):
 
 if __name__ == '__main__':
     import doctest
+
     doctest.testmod()

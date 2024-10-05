@@ -9,7 +9,7 @@ import base64
 from M2Crypto import __version__ as __M2Version
 
 from M2Crypto import SSL, httpslib, m2urllib
-from typing import Any, AnyStr, Callable, Optional  # noqa
+from typing import Any, Callable, Optional, Union  # noqa
 
 from xmlrpc.client import ProtocolError, Transport
 from xmlrpc.client import *  # noqa
@@ -19,24 +19,33 @@ __version__ = __M2Version
 
 class SSL_Transport(Transport):
 
-    user_agent = "M2Crypto_XMLRPC/%s - %s" % (__version__,
-                                              Transport.user_agent)
+    user_agent = "M2Crypto_XMLRPC/%s - %s" % (
+        __version__,
+        Transport.user_agent,
+    )
 
-    def __init__(self, ssl_context=None, *args, **kw):
-        # type: (Optional[SSL.Context], *Any, **Any) -> None
+    def __init__(
+        self, ssl_context: Optional[SSL.Context] = None, *args, **kw
+    ) -> None:
         Transport.__init__(self, *args, **kw)
         if ssl_context is None:
             self.ssl_ctx = SSL.Context()
         else:
             self.ssl_ctx = ssl_context
 
-    def request(self, host, handler, request_body, verbose=0):
-        # type: (AnyStr, Callable, bytes, int) -> object
+    def request(
+        self,
+        host: Union[str, bytes],
+        handler: Callable,
+        request_body: bytes,
+        verbose: int = 0,
+    ) -> object:
         # Handle username and password.
         user_passwd, host_port = m2urllib.splituser(host)
         _host, _port = m2urllib.splitport(host_port)
-        h = httpslib.HTTPSConnection(_host, int(_port),
-                                     ssl_context=self.ssl_ctx)
+        h = httpslib.HTTPSConnection(
+            _host, int(_port), ssl_context=self.ssl_ctx
+        )
         if verbose:
             h.set_debuglevel(1)
 
@@ -66,8 +75,9 @@ class SSL_Transport(Transport):
         if response.status != 200:
             raise ProtocolError(
                 host + handler,
-                response.status, response.reason,
-                response.getheaders()
+                response.status,
+                response.reason,
+                response.getheaders(),
             )
 
         self.verbose = verbose

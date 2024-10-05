@@ -8,51 +8,49 @@ from M2Crypto import BIO, Err, RSA, X509, m2, util  # noqa
 from M2Crypto.SSL import cb  # noqa
 from M2Crypto.SSL.Session import Session  # noqa
 from weakref import WeakValueDictionary
-from typing import Any, AnyStr, Callable, Optional, Union  # noqa
+from typing import Any, Callable, Optional, Union  # noqa
 
 __all__ = ['ctxmap', 'Context', 'map']
 
 
 class _ctxmap(object):
-    singleton = None  # type: Optional[_ctxmap]
+    singleton: Optional[WeakValueDictionary] = None
 
-    def __init__(self):
-        # type: () -> None
-        """Simple WeakReffed list.
-        """
+    def __init__(self) -> None:
+        """Simple WeakReffed list."""
         self._ctxmap = WeakValueDictionary()
 
-    def __getitem__(self, key):
-        # type: (int) -> Any
+    def __getitem__(self, key: int) -> Any:
         return self._ctxmap[key]
 
-    def __setitem__(self, key, value):
-        # type: (int, Any) -> None
+    def __setitem__(self, key: int, value: Any) -> None:
         self._ctxmap[key] = value
 
-    def __delitem__(self, key):
-        # type: (int) -> None
+    def __delitem__(self, key: int) -> None:
         del self._ctxmap[key]
 
 
-def ctxmap():
-    # type: () -> _ctxmap
+def ctxmap() -> _ctxmap:
     if _ctxmap.singleton is None:
         _ctxmap.singleton = _ctxmap()
     return _ctxmap.singleton
+
+
 # deprecated!!!
 map = ctxmap
 
 
 class Context(object):
-
     """'Context' for SSL connections."""
 
     m2_ssl_ctx_free = m2.ssl_ctx_free
 
-    def __init__(self, protocol='tls', weak_crypto=None,
-                 post_connection_check=None):
-        # type: (str, Optional[int], Optional[Callable]) -> None
+    def __init__(
+        self,
+        protocol: str = 'tls',
+        weak_crypto: Optional[int] = None,
+        post_connection_check: Optional[Callable] = None,
+    ) -> None:
         proto = getattr(m2, protocol + '_method', None)
         if proto is None:
             # default is 'sslv23' for older versions of OpenSSL
@@ -61,26 +59,30 @@ class Context(object):
             else:
                 raise ValueError("no such protocol '%s'" % protocol)
         self.ctx = m2.ssl_ctx_new(proto())
-        self.allow_unknown_ca = 0  # type: Union[int, bool]
+        self.allow_unknown_ca: Union[int, bool] = 0
         self.post_connection_check = post_connection_check
         ctxmap()[int(self.ctx)] = self
         m2.ssl_ctx_set_cache_size(self.ctx, 128)
         if weak_crypto is None and protocol in ('sslv23', 'tls'):
-            self.set_options(m2.SSL_OP_ALL | m2.SSL_OP_NO_SSLv2 |
-                             m2.SSL_OP_NO_SSLv3)
+            self.set_options(
+                m2.SSL_OP_ALL
+                | m2.SSL_OP_NO_SSLv2
+                | m2.SSL_OP_NO_SSLv3
+            )
 
-    def __del__(self):
-        # type: () -> None
+    def __del__(self) -> None:
         if getattr(self, 'ctx', None):
             self.m2_ssl_ctx_free(self.ctx)
 
-    def close(self):
-        # type: () -> None
+    def close(self) -> None:
         del ctxmap()[int(self.ctx)]
 
-    def load_cert(self, certfile, keyfile=None,
-                  callback=util.passphrase_callback):
-        # type: (AnyStr, Optional[AnyStr], Callable) -> None
+    def load_cert(
+        self,
+        certfile: Union[str, bytes],
+        keyfile: Union[str, bytes, None] = None,
+        callback: Callable = util.passphrase_callback,
+    ) -> None:
         """Load certificate and private key into the context.
 
         :param certfile: File that contains the PEM-encoded certificate.
@@ -99,9 +101,12 @@ class Context(object):
         if not m2.ssl_ctx_check_privkey(self.ctx):
             raise ValueError('public/private key mismatch')
 
-    def load_cert_chain(self, certchainfile, keyfile=None,
-                        callback=util.passphrase_callback):
-        # type: (AnyStr, Optional[AnyStr], Callable) -> None
+    def load_cert_chain(
+        self,
+        certchainfile: Union[str, bytes],
+        keyfile: Union[str, bytes, None] = None,
+        callback: Callable = util.passphrase_callback,
+    ) -> None:
         """Load certificate chain and private key into the context.
 
         :param certchainfile: File object containing the PEM-encoded
@@ -122,8 +127,9 @@ class Context(object):
         if not m2.ssl_ctx_check_privkey(self.ctx):
             raise ValueError('public/private key mismatch')
 
-    def set_client_CA_list_from_file(self, cafile):
-        # type: (AnyStr) -> None
+    def set_client_CA_list_from_file(
+        self, cafile: Union[str, bytes]
+    ) -> None:
         """Load CA certs into the context. These CA certs are sent to the
         peer during *SSLv3 certificate request*.
 
@@ -135,8 +141,11 @@ class Context(object):
     # Deprecated.
     load_client_CA = load_client_ca = set_client_CA_list_from_file
 
-    def load_verify_locations(self, cafile=None, capath=None):
-        # type: (Optional[AnyStr], Optional[AnyStr]) -> int
+    def load_verify_locations(
+        self,
+        cafile: Union[str, bytes, None] = None,
+        capath: Union[str, bytes, None] = None,
+    ) -> int:
         """Load CA certs into the context.
 
         These CA certs are used during verification of the peer's
@@ -155,14 +164,17 @@ class Context(object):
                 1 The operation succeeded.
         """
         if cafile is None and capath is None:
-            raise ValueError("cafile and capath can not both be None.")
-        return m2.ssl_ctx_load_verify_locations(self.ctx, cafile, capath)
+            raise ValueError(
+                "cafile and capath can not both be None."
+            )
+        return m2.ssl_ctx_load_verify_locations(
+            self.ctx, cafile, capath
+        )
 
     # Deprecated.
     load_verify_info = load_verify_locations
 
-    def set_session_id_ctx(self, id):
-        # type: (bytes) -> None
+    def set_session_id_ctx(self, id: bytes) -> None:
         """Sets the session id for the SSL.Context w/in a session can be reused.
 
         :param id: Sessions are generated within a certain context. When
@@ -182,8 +194,7 @@ class Context(object):
         if not ret:
             raise Err.SSLError(Err.get_error_code(), '')
 
-    def set_default_verify_paths(self):
-        # type: () -> int
+    def set_default_verify_paths(self) -> int:
         """
         Specifies that the default locations from which CA certs are
         loaded should be used.
@@ -203,10 +214,11 @@ class Context(object):
         """
         ret = m2.ssl_ctx_set_default_verify_paths(self.ctx)
         if not ret:
-            raise ValueError('Cannot use default SSL certificate store!')
+            raise ValueError(
+                'Cannot use default SSL certificate store!'
+            )
 
-    def set_allow_unknown_ca(self, ok):
-        # type: (Union[int, bool]) -> None
+    def set_allow_unknown_ca(self, ok: Union[int, bool]) -> None:
         """Set the context to accept/reject a peer certificate if the
         certificate's CA is unknown.
 
@@ -214,8 +226,7 @@ class Context(object):
         """
         self.allow_unknown_ca = ok
 
-    def get_allow_unknown_ca(self):
-        # type: () -> Union[int, bool]
+    def get_allow_unknown_ca(self) -> Union[int, bool]:
         """Get the context's setting that accepts/rejects a peer
         certificate if the certificate's CA is unknown.
 
@@ -223,8 +234,12 @@ class Context(object):
         """
         return self.allow_unknown_ca
 
-    def set_verify(self, mode, depth, callback=None):
-        # type: (int, int, Optional[Callable]) -> None
+    def set_verify(
+        self,
+        mode: int,
+        depth: int,
+        callback: Optional[Callable] = None,
+    ) -> None:
         """
         Set verify options. Most applications will need to call this
         method with the right options to make a secure SSL connection.
@@ -243,17 +258,14 @@ class Context(object):
             m2.ssl_ctx_set_verify(self.ctx, mode, callback)
         m2.ssl_ctx_set_verify_depth(self.ctx, depth)
 
-    def get_verify_mode(self):
-        # type: () -> int
+    def get_verify_mode(self) -> int:
         return m2.ssl_ctx_get_verify_mode(self.ctx)
 
-    def get_verify_depth(self):
-        # type: () -> int
+    def get_verify_depth(self) -> int:
         """Returns the verification mode currently set in the SSL Context."""
         return m2.ssl_ctx_get_verify_depth(self.ctx)
 
-    def set_tmp_dh(self, dhpfile):
-        # type: (AnyStr) -> int
+    def set_tmp_dh(self, dhpfile: Union[str, bytes]) -> int:
         """Load ephemeral DH parameters into the context.
 
         :param dhpfile: Filename of the file containing the PEM-encoded
@@ -263,8 +275,9 @@ class Context(object):
         dhp = m2.dh_read_parameters(f.bio_ptr())
         return m2.ssl_ctx_set_tmp_dh(self.ctx, dhp)
 
-    def set_tmp_dh_callback(self, callback=None):
-        # type: (Optional[Callable]) -> None
+    def set_tmp_dh_callback(
+        self, callback: Optional[Callable] = None
+    ) -> None:
         """Sets the callback function for SSL.Context.
 
         :param callback: Callable to be used when a DH parameters are required.
@@ -272,8 +285,7 @@ class Context(object):
         if callback is not None:
             m2.ssl_ctx_set_tmp_dh_callback(self.ctx, callback)
 
-    def set_tmp_rsa(self, rsa):
-        # type: (RSA.RSA) -> int
+    def set_tmp_rsa(self, rsa: RSA.RSA) -> int:
         """Load ephemeral RSA key into the context.
 
         :param rsa: RSA.RSA instance.
@@ -281,18 +293,22 @@ class Context(object):
         if isinstance(rsa, RSA.RSA):
             return m2.ssl_ctx_set_tmp_rsa(self.ctx, rsa.rsa)
         else:
-            raise TypeError("Expected an instance of RSA.RSA, got %s." % rsa)
+            raise TypeError(
+                "Expected an instance of RSA.RSA, got %s." % rsa
+            )
 
-    def set_tmp_rsa_callback(self, callback=None):
-        # type: (Optional[Callable]) -> None
+    def set_tmp_rsa_callback(
+        self, callback: Optional[Callable] = None
+    ) -> None:
         """Sets the callback function to be used when
         a temporary/ephemeral RSA key is required.
         """
         if callback is not None:
             m2.ssl_ctx_set_tmp_rsa_callback(self.ctx, callback)
 
-    def set_info_callback(self, callback=cb.ssl_info_callback):
-        # type: (Callable) -> None
+    def set_info_callback(
+        self, callback: Callable = cb.ssl_info_callback
+    ) -> None:
         """Set a callback function to get state information.
 
         It can be used to get state information about the SSL
@@ -303,8 +319,7 @@ class Context(object):
         """
         m2.ssl_ctx_set_info_callback(self.ctx, callback)
 
-    def set_cipher_list(self, cipher_list):
-        # type: (str) -> int
+    def set_cipher_list(self, cipher_list: str) -> int:
         """Sets the list of available ciphers.
 
         :param cipher_list: The format of the string is described in
@@ -314,8 +329,7 @@ class Context(object):
         """
         return m2.ssl_ctx_set_cipher_list(self.ctx, cipher_list)
 
-    def add_session(self, session):
-        # type: (Session) -> int
+    def add_session(self, session: Session) -> int:
         """Add the session to the context.
 
         :param session: the session to be added.
@@ -327,8 +341,7 @@ class Context(object):
         """
         return m2.ssl_ctx_add_session(self.ctx, session._ptr())
 
-    def remove_session(self, session):
-        # type: (Session) -> int
+    def remove_session(self, session: Session) -> int:
         """Remove the session from the context.
 
         :param session: the session to be removed.
@@ -340,8 +353,7 @@ class Context(object):
         """
         return m2.ssl_ctx_remove_session(self.ctx, session._ptr())
 
-    def get_session_timeout(self):
-        # type: () -> int
+    def get_session_timeout(self) -> int:
         """Get current session timeout.
 
         Whenever a new session is created, it is assigned a maximum
@@ -371,8 +383,7 @@ class Context(object):
         """
         return m2.ssl_ctx_get_session_timeout(self.ctx)
 
-    def set_session_timeout(self, timeout):
-        # type: (int) -> int
+    def set_session_timeout(self, timeout: int) -> int:
         """Set new session timeout.
 
         See self.get_session_timeout() for explanation of the session
@@ -384,8 +395,7 @@ class Context(object):
         """
         return m2.ssl_ctx_set_session_timeout(self.ctx, timeout)
 
-    def set_session_cache_mode(self, mode):
-        # type: (int) -> int
+    def set_session_cache_mode(self, mode: int) -> int:
         """Enables/disables session caching.
 
         The mode is set by using m2.SSL_SESS_CACHE_* constants.
@@ -396,8 +406,7 @@ class Context(object):
         """
         return m2.ssl_ctx_set_session_cache_mode(self.ctx, mode)
 
-    def get_session_cache_mode(self):
-        # type: () -> int
+    def get_session_cache_mode(self) -> int:
         """Gets the current session caching.
 
         The mode is set to m2.SSL_SESS_CACHE_* constants.
@@ -406,8 +415,7 @@ class Context(object):
         """
         return m2.ssl_ctx_get_session_cache_mode(self.ctx)
 
-    def set_options(self, op):
-        # type: (int) -> int
+    def set_options(self, op: int) -> int:
         """Adds the options set via bitmask in options to the Context.
 
         !!! Options already set before are not cleared!
@@ -434,8 +442,7 @@ class Context(object):
         """
         return m2.ssl_ctx_set_options(self.ctx, op)
 
-    def get_cert_store(self):
-        # type: () -> X509.X509
+    def get_cert_store(self) -> X509.X509:
         """
         Get the certificate store associated with this context.
 

@@ -10,7 +10,7 @@ Author: Heikki Toivonen
 
 import logging
 from M2Crypto import BIO, Err, RSA, EC, m2, util
-from typing import AnyStr, Optional, Callable  # noqa
+from typing import Optional, Callable, Union  # noqa
 
 log = logging.getLogger('EVP')
 
@@ -22,8 +22,9 @@ class EVPError(ValueError):
 m2.evp_init(EVPError)
 
 
-def pbkdf2(password, salt, iter, keylen):
-    # type: (bytes, bytes, int, int) -> bytes
+def pbkdf2(
+    password: bytes, salt: bytes, iter: int, keylen: int
+) -> bytes:
     """
     Derive a key from password using PBKDF2 algorithm specified in RFC 2898.
 
@@ -40,11 +41,11 @@ class MessageDigest(object):
     """
     Message Digest
     """
+
     m2_md_ctx_free = m2.md_ctx_free
 
-    def __init__(self, algo):
-        # type: (str) -> None
-        md = getattr(m2, algo, None)  # type: Optional[Callable]
+    def __init__(self, algo: str) -> None:
+        md: Optional[Callable] = getattr(m2, algo, None)
         if md is None:
             # if the digest algorithm isn't found as an attribute of the m2
             # module, try to look up the digest using get_digestbyname()
@@ -54,13 +55,11 @@ class MessageDigest(object):
         self.ctx = m2.md_ctx_new()
         m2.digest_init(self.ctx, self.md)
 
-    def __del__(self):
-        # type: () -> None
+    def __del__(self) -> None:
         if getattr(self, 'ctx', None):
             self.m2_md_ctx_free(self.ctx)
 
-    def update(self, data):
-        # type: (bytes) -> int
+    def update(self, data: bytes) -> int:
         """
         Add data to be digested.
 
@@ -79,8 +78,7 @@ class HMAC(object):
 
     m2_hmac_ctx_free = m2.hmac_ctx_free
 
-    def __init__(self, key, algo='sha1'):
-        # type: (bytes, str) -> None
+    def __init__(self, key: bytes, algo: str = 'sha1') -> None:
         md = getattr(m2, algo, None)
         if md is None:
             raise ValueError('unknown algorithm', algo)
@@ -88,28 +86,23 @@ class HMAC(object):
         self.ctx = m2.hmac_ctx_new()
         m2.hmac_init(self.ctx, key, self.md)
 
-    def __del__(self):
-        # type: () -> None
+    def __del__(self) -> None:
         if getattr(self, 'ctx', None):
             self.m2_hmac_ctx_free(self.ctx)
 
-    def reset(self, key):
-        # type: (bytes) -> None
+    def reset(self, key: bytes) -> None:
         m2.hmac_init(self.ctx, key, self.md)
 
-    def update(self, data):
-        # type: (bytes) -> None
+    def update(self, data: bytes) -> None:
         m2.hmac_update(self.ctx, data)
 
-    def final(self):
-        # type: () -> bytes
+    def final(self) -> bytes:
         return m2.hmac_final(self.ctx)
 
     digest = final
 
 
-def hmac(key, data, algo='sha1'):
-    # type: (bytes, bytes, str) -> bytes
+def hmac(key: bytes, data: bytes, algo: str = 'sha1') -> bytes:
     md = getattr(m2, algo, None)
     if md is None:
         raise ValueError('unknown algorithm', algo)
@@ -120,9 +113,18 @@ class Cipher(object):
 
     m2_cipher_ctx_free = m2.cipher_ctx_free
 
-    def __init__(self, alg, key, iv, op, key_as_bytes=0, d='md5',
-                 salt=b'12345678', i=1, padding=1):
-        # type: (str, bytes, bytes, object, int, str, bytes, int, int) -> None
+    def __init__(
+        self,
+        alg: str,
+        key: bytes,
+        iv: bytes,
+        op: object,
+        key_as_bytes: int = 0,
+        d: str = 'md5',
+        salt: bytes = b'12345678',
+        i: int = 1,
+        padding: int = 1,
+    ) -> None:
         cipher = getattr(m2, alg, None)
         if cipher is None:
             raise ValueError('unknown cipher', alg)
@@ -131,27 +133,25 @@ class Cipher(object):
             kmd = getattr(m2, d, None)
             if kmd is None:
                 raise ValueError('unknown message digest', d)
-            key = m2.bytes_to_key(self.cipher, kmd(), key, salt, iv, i)
+            key = m2.bytes_to_key(
+                self.cipher, kmd(), key, salt, iv, i
+            )
         self.ctx = m2.cipher_ctx_new()
         m2.cipher_init(self.ctx, self.cipher, key, iv, op)
         self.set_padding(padding)
         del key
 
-    def __del__(self):
-        # type: () -> None
+    def __del__(self) -> None:
         if getattr(self, 'ctx', None):
             self.m2_cipher_ctx_free(self.ctx)
 
-    def update(self, data):
-        # type: (bytes) -> bytes
+    def update(self, data: bytes) -> bytes:
         return m2.cipher_update(self.ctx, data)
 
-    def final(self):
-        # type: () -> bytes
+    def final(self) -> bytes:
         return m2.cipher_final(self.ctx)
 
-    def set_padding(self, padding=1):
-        # type: (int) -> int
+    def set_padding(self, padding: int = 1) -> int:
         """
         Actually always return 1
         """
@@ -167,18 +167,21 @@ class PKey(object):
     m2_pkey_free = m2.pkey_free
     m2_md_ctx_free = m2.md_ctx_free
 
-    def __init__(self, pkey=None, _pyfree=0, md='sha1'):
-        # type: (Optional[bytes], int, str) -> None
+    def __init__(
+        self,
+        pkey: Optional[bytes] = None,
+        _pyfree: int = 0,
+        md: str = 'sha1',
+    ) -> None:
         if pkey is not None:
-            self.pkey = pkey  # type: bytes
+            self.pkey: bytes = pkey
             self._pyfree = _pyfree
         else:
             self.pkey = m2.pkey_new()
             self._pyfree = 1
         self._set_context(md)
 
-    def __del__(self):
-        # type: () -> None
+    def __del__(self) -> None:
         if getattr(self, '_pyfree', 0):
             self.m2_pkey_free(self.pkey)
         if getattr(self, 'ctx', None):
@@ -187,19 +190,17 @@ class PKey(object):
     def _ptr(self):
         return self.pkey
 
-    def _set_context(self, md):
-        # type: (str) -> None
+    def _set_context(self, md: str) -> None:
         if not md:
             self.md = None
         else:
-            mda = getattr(m2, md, None)  # type: Optional[Callable]
+            mda: Optional[Callable] = getattr(m2, md, None)
             if mda is None:
                 raise ValueError('unknown message digest', md)
             self.md = mda()
-        self.ctx = m2.md_ctx_new()  ## type: Context
+        self.ctx: Context = m2.md_ctx_new()
 
-    def reset_context(self, md='sha1'):
-        # type: (str) -> None
+    def reset_context(self, md: str = 'sha1') -> None:
         """
         Reset internal message digest context.
 
@@ -207,15 +208,13 @@ class PKey(object):
         """
         self._set_context(md)
 
-    def sign_init(self):
-        # type: () -> None
+    def sign_init(self) -> None:
         """
         Initialise signing operation with self.
         """
         m2.sign_init(self.ctx, self.md)
 
-    def sign_update(self, data):
-        # type: (bytes) -> None
+    def sign_update(self, data: bytes) -> None:
         """
         Feed data to signing operation.
 
@@ -223,8 +222,7 @@ class PKey(object):
         """
         m2.sign_update(self.ctx, data)
 
-    def sign_final(self):
-        # type: () -> bytes
+    def sign_final(self) -> bytes:
         """
         Return signature.
 
@@ -236,15 +234,13 @@ class PKey(object):
     update = sign_update
     final = sign_final
 
-    def verify_init(self):
-        # type: () -> None
+    def verify_init(self) -> None:
         """
         Initialise signature verification operation with self.
         """
         m2.verify_init(self.ctx, self.md)
 
-    def verify_update(self, data):
-        # type: (bytes) -> int
+    def verify_update(self, data: bytes) -> int:
         """
         Feed data to verification operation.
 
@@ -253,8 +249,7 @@ class PKey(object):
         """
         return m2.verify_update(self.ctx, data)
 
-    def verify_final(self, sign):
-        # type: (bytes) -> int
+    def verify_final(self, sign: bytes) -> int:
         """
         Return result of verification.
 
@@ -264,18 +259,18 @@ class PKey(object):
         """
         return m2.verify_final(self.ctx, sign, self.pkey)
 
-    def digest_sign_init(self):
-        # type: () -> None
+    def digest_sign_init(self) -> None:
         """
         Initialise digest signing operation with self.
         """
         if self.md is None:
             m2.digest_sign_init(self.ctx, self.pkey)
         else:
-            m2.digest_sign_init(self.ctx, None, self.md, None, self.pkey)
+            m2.digest_sign_init(
+                self.ctx, None, self.md, None, self.pkey
+            )
 
-    def digest_sign_update(self, data):
-        # type: (bytes) -> None
+    def digest_sign_update(self, data: bytes) -> None:
         """
         Feed data to digest signing operation.
 
@@ -283,8 +278,7 @@ class PKey(object):
         """
         m2.digest_sign_update(self.ctx, data)
 
-    def digest_sign_final(self):
-        # type: () -> bytes
+    def digest_sign_final(self) -> bytes:
         """
         Return signature.
 
@@ -292,8 +286,7 @@ class PKey(object):
         """
         return m2.digest_sign_final(self.ctx)
 
-    def digest_sign(self, data):
-        # type: (bytes) -> bytes
+    def digest_sign(self, data: bytes) -> bytes:
         """
         Return signature.
 
@@ -301,23 +294,25 @@ class PKey(object):
         """
 
         if m2.OPENSSL_VERSION_NUMBER < 0x10101000:
-            raise NotImplemented('This method requires OpenSSL version ' +
-                    '1.1.1 or greater.')
+            raise NotImplemented(
+                'This method requires OpenSSL version '
+                + '1.1.1 or greater.'
+            )
 
         return m2.digest_sign(self.ctx, data)
 
-    def digest_verify_init(self):
-        # type: () -> None
+    def digest_verify_init(self) -> None:
         """
         Initialise verification operation with self.
         """
         if self.md is None:
             m2.digest_verify_init(self.ctx, self.pkey)
         else:
-            m2.digest_verify_init(self.ctx, None, self.md, None, self.pkey)
+            m2.digest_verify_init(
+                self.ctx, None, self.md, None, self.pkey
+            )
 
-    def digest_verify_update(self, data):
-        # type: (bytes) -> int
+    def digest_verify_update(self, data: bytes) -> int:
         """
         Feed data to verification operation.
 
@@ -326,8 +321,7 @@ class PKey(object):
         """
         return m2.digest_verify_update(self.ctx, data)
 
-    def digest_verify_final(self, sign):
-        # type: (bytes) -> int
+    def digest_verify_final(self, sign: bytes) -> int:
         """
         Feed data to digest verification operation.
 
@@ -337,8 +331,7 @@ class PKey(object):
         """
         return m2.digest_verify_final(self.ctx, sign)
 
-    def digest_verify(self, sign, data):
-        # type: (bytes, bytes) -> int
+    def digest_verify(self, sign: bytes, data: bytes) -> int:
         """
         Return result of verification.
 
@@ -349,13 +342,14 @@ class PKey(object):
         """
 
         if m2.OPENSSL_VERSION_NUMBER < 0x10101000:
-            raise NotImplemented('This method requires OpenSSL version ' +
-                    '1.1.1 or greater.')
+            raise NotImplemented(
+                'This method requires OpenSSL version '
+                + '1.1.1 or greater.'
+            )
 
         return m2.digest_verify(self.ctx, sign, data)
 
-    def assign_rsa(self, rsa, capture=1):
-        # type: (RSA.RSA, int) -> int
+    def assign_rsa(self, rsa: RSA.RSA, capture: int = 1) -> int:
         """
         Assign the RSA key pair to self.
 
@@ -375,8 +369,7 @@ class PKey(object):
             ret = m2.pkey_set1_rsa(self.pkey, rsa.rsa)
         return ret
 
-    def get_rsa(self):
-        # type: () -> RSA.RSA_pub
+    def get_rsa(self) -> RSA.RSA_pub:
         """
         Return the underlying RSA key if that is what the EVP
         instance is holding.
@@ -386,8 +379,7 @@ class PKey(object):
         rsa = RSA.RSA_pub(rsa_ptr, 1)
         return rsa
 
-    def assign_ec(self, ec, capture=1):
-        # type: (EC.EC, int) -> int
+    def assign_ec(self, ec: EC.EC, capture: int = 1) -> int:
         """
         Assign the EC key pair to self.
 
@@ -407,8 +399,7 @@ class PKey(object):
             ret = m2.pkey_set1_ec(self.pkey, ec.ec)
         return ret
 
-    def get_ec(self):
-        # type: () -> EC.EC_pub
+    def get_ec(self) -> EC.EC_pub:
         """
         Return the underlying EC key if that is what the EVP
         instance is holding.
@@ -418,9 +409,12 @@ class PKey(object):
         ec = EC.EC_pub(ec_ptr)
         return ec
 
-    def save_key(self, file, cipher='aes_128_cbc',
-                 callback=util.passphrase_callback):
-        # type: (AnyStr, Optional[str], Callable) -> int
+    def save_key(
+        self,
+        file: Union[str, bytes],
+        cipher: Optional[str] = 'aes_128_cbc',
+        callback: Callable = util.passphrase_callback,
+    ) -> int:
         """
         Save the key pair to a file in PEM format.
 
@@ -438,9 +432,12 @@ class PKey(object):
         with BIO.openfile(file, 'wb') as bio:
             return self.save_key_bio(bio, cipher, callback)
 
-    def save_key_bio(self, bio, cipher='aes_128_cbc',
-                     callback=util.passphrase_callback):
-        # type: (BIO.BIO, Optional[str], Callable) -> int
+    def save_key_bio(
+        self,
+        bio: BIO.BIO,
+        cipher: Optional[str] = 'aes_128_cbc',
+        callback: Callable = util.passphrase_callback,
+    ) -> int:
         """
         Save the key pair to the M2Crypto.BIO object 'bio' in PEM format.
 
@@ -456,15 +453,22 @@ class PKey(object):
                          util.passphrase_callback.
         """
         if cipher is None:
-            return m2.pkey_write_pem_no_cipher(self.pkey, bio._ptr(), callback)
+            return m2.pkey_write_pem_no_cipher(
+                self.pkey, bio._ptr(), callback
+            )
         else:
             proto = getattr(m2, cipher, None)
             if proto is None:
                 raise ValueError('no such cipher %s' % cipher)
-            return m2.pkey_write_pem(self.pkey, bio._ptr(), proto(), callback)
+            return m2.pkey_write_pem(
+                self.pkey, bio._ptr(), proto(), callback
+            )
 
-    def as_pem(self, cipher='aes_128_cbc', callback=util.passphrase_callback):
-        # type: (Optional[str], Callable) -> bytes
+    def as_pem(
+        self,
+        cipher: Optional[str] = 'aes_128_cbc',
+        callback: Callable = util.passphrase_callback,
+    ) -> bytes:
         """
         Return key in PEM format in a string.
 
@@ -481,8 +485,7 @@ class PKey(object):
         self.save_key_bio(bio, cipher, callback)
         return bio.read_all()
 
-    def as_der(self):
-        # type: () -> bytes
+    def as_der(self) -> bytes:
         """
         Return key in DER format in a string
         """
@@ -490,23 +493,23 @@ class PKey(object):
         bio = BIO.MemoryBuffer(buf)
         return bio.read_all()
 
-    def size(self):
-        # type: () -> int
+    def size(self) -> int:
         """
         Return the size of the key in bytes.
         """
         return m2.pkey_size(self.pkey)
 
-    def get_modulus(self):
-        # type: () -> Optional[bytes]
+    def get_modulus(self) -> Optional[bytes]:
         """
         Return the modulus in hex format.
         """
         return m2.pkey_get_modulus(self.pkey)
 
 
-def load_key(file, callback=util.passphrase_callback):
-    # type: (AnyStr, Callable) -> PKey
+def load_key(
+    file: Union[str, bytes],
+    callback: Callable = util.passphrase_callback,
+) -> PKey:
     """
     Load an M2Crypto.EVP.PKey from file.
 
@@ -524,8 +527,10 @@ def load_key(file, callback=util.passphrase_callback):
     return PKey(cptr, 1)
 
 
-def load_key_pubkey(file, callback=util.passphrase_callback):
-    # type: (AnyStr, Callable) -> PKey
+def load_key_pubkey(
+    file: Union[str, bytes],
+    callback: Callable = util.passphrase_callback,
+) -> PKey:
     """
     Load an M2Crypto.EVP.PKey from a public key as a file.
 
@@ -545,8 +550,9 @@ def load_key_pubkey(file, callback=util.passphrase_callback):
     return PKey(cptr, 1)
 
 
-def load_key_bio(bio, callback=util.passphrase_callback):
-    # type: (BIO.BIO, Callable) -> PKey
+def load_key_bio(
+    bio: BIO.BIO, callback: Callable = util.passphrase_callback
+) -> PKey:
     """
     Load an M2Crypto.EVP.PKey from an M2Crypto.BIO object.
 
@@ -562,8 +568,9 @@ def load_key_bio(bio, callback=util.passphrase_callback):
     return PKey(cptr, 1)
 
 
-def load_key_bio_pubkey(bio, callback=util.passphrase_callback):
-    # type: (BIO.BIO, Callable) -> PKey
+def load_key_bio_pubkey(
+    bio: BIO.BIO, callback: Callable = util.passphrase_callback
+) -> PKey:
     """
     Load an M2Crypto.EVP.PKey from a public key as a M2Crypto.BIO object.
 
@@ -581,8 +588,10 @@ def load_key_bio_pubkey(bio, callback=util.passphrase_callback):
     return PKey(cptr, 1)
 
 
-def load_key_string(string, callback=util.passphrase_callback):
-    # type: (AnyStr, Callable) -> PKey
+def load_key_string(
+    string: Union[str, bytes],
+    callback: Callable = util.passphrase_callback,
+) -> PKey:
     """
     Load an M2Crypto.EVP.PKey from a string.
 
@@ -598,8 +607,10 @@ def load_key_string(string, callback=util.passphrase_callback):
     return load_key_bio(bio, callback)
 
 
-def load_key_string_pubkey(string, callback=util.passphrase_callback):
-    # type: (AnyStr, Callable) -> PKey
+def load_key_string_pubkey(
+    string: Union[str, bytes],
+    callback: Callable = util.passphrase_callback,
+) -> PKey:
     """
     Load an M2Crypto.EVP.PKey from a public key as a string.
 
