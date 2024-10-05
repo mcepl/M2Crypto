@@ -514,11 +514,12 @@ int rsa_check_pub_key(RSA *rsa) {
 }
 
 int rsa_set_ex_data(RSA *rsa, int index, long data) {
-    long *data_buf = malloc(sizeof(long));
+    long *data_buf;
+    data_buf = PyMem_Malloc(sizeof(long));
     *data_buf = data;
-
     return RSA_set_ex_data(rsa, index, data_buf);
 }
+
 
 PyObject *rsa_get_ex_data(RSA *rsa, int index) {
     long *data;

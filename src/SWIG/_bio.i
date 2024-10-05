@@ -311,7 +311,9 @@ int bio_should_write(BIO* a) {
 static BIO_METHOD *
 BIO_meth_new( int type, const char *name )
 {
-    BIO_METHOD *method = malloc( sizeof(BIO_METHOD) );
+    Py_BEGIN_ALLOW_THREADS
+    BIO_METHOD *method = PyMem_Malloc(sizeof(BIO_METHOD));
+    Py_END_ALLOW_THREADS
     memset( method, 0, sizeof(BIO_METHOD) );
 
     method->type = type;
@@ -327,7 +329,7 @@ BIO_meth_free( BIO_METHOD *meth )
         return;
     }
 
-    free(meth);
+    PyMem_Free(meth);
 }
 #define BIO_meth_set_write(m, f) (m)->bwrite = (f)
 #define BIO_meth_set_read(m, f) (m)->bread = (f)
