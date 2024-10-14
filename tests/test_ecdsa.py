@@ -8,6 +8,8 @@ rights reserved.
 """
 import hashlib
 import logging
+import os
+import os.path
 
 from M2Crypto import EC, Rand
 
@@ -24,6 +26,14 @@ class ECDSATestCase(unittest.TestCase):
     pubkey = 'tests/ec.pub.pem'
 
     data = hashlib.sha1(b'Can you spell subliminal channel?').digest()
+
+    def setUp(self):
+        assert os.path.exists(self.errkey) and os.access(self.errkey, os.R_OK), \
+            "Cannot access errkey file {}".format(self.errkey)
+        assert os.path.exists(self.privkey) and os.access(self.privkey, os.R_OK), \
+            "Cannot access privkey file {}".format(self.privkey)
+        assert os.path.exists(self.pubkey) and os.access(self.pubkey, os.R_OK), \
+            "Cannot access pubkey file {}".format(self.pubkey)
 
     def callback(self, *args):
         pass
