@@ -10,8 +10,8 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
 Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam.
 All rights reserved."""
 
-from M2Crypto import BIO, Err, EVP, m2, types as C, util
 from typing import Any, Callable, Dict, Optional, Tuple, Union  # noqa
+from M2Crypto import BIO, Err, m2, types as C, util
 
 EC_Key = bytes
 
