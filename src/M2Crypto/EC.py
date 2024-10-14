@@ -394,7 +394,14 @@ def load_key_bio(
     :param callback: Python callback object that will be invoked
                      if the EC key pair is passphrase-protected.
     """
-    return EC(m2.ec_key_read_bio(bio._ptr(), callback), 1)
+    key = m2.ec_key_read_bio(bio._ptr(), callback)
+    if key is None:
+        raise ValueError(
+            "Cannot read EC key pair from PEM file {}.".format(
+                bio.fname
+            )
+        )
+    return EC(key, 1)
 
 
 def load_pub_key(file: Union[str, bytes]) -> EC_pub:

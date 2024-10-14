@@ -4,9 +4,6 @@ stages:
 
 include: '/.gitlab-ci-windows.yml'
 
-
-
-
 python39:
     image: python:3.9-alpine
     when: always
