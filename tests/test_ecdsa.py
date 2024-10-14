@@ -42,7 +42,7 @@ class ECDSATestCase(unittest.TestCase):
         pass
 
     def test_loadkey_junk(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(IOError):
             EC.load_key(self.errkey)
 
     def test_loadkey(self):

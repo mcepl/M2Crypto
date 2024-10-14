@@ -396,7 +396,7 @@ def load_key_bio(
     """
     key = m2.ec_key_read_bio(bio._ptr(), callback)
     if key is None:
-        raise ValueError(
+        raise IOError(
             "Cannot read EC key pair from PEM file {}.".format(
                 bio.fname
             )
