@@ -44,7 +44,7 @@ build-test-windows:
     - *setup_script
     # Build wheel
     - echo "BUNDLEDLLS is set to $env:BUNDLEDLLS"
-    - python -m pip wheel --verbose --no-build-isolation --no-deps --wheel-dir .\\dist .
+    - python -m pip wheel --verbose --no-build-isolation --no-deps --wheel-dir .\\dist --editable .
     - ls ".\\dist"
     # Install wheel
     - $env:PYTHONPATH_DIR = If ($ARCH -eq "32") {"win32-cpython-$PYTHON_VERSION"} Else {"win-amd64-cpython-$PYTHON_VERSION"}

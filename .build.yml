@@ -23,7 +23,8 @@ tasks:
      cd m2crypto
      export PATH=$PATH:$HOME/.local/bin
      python3 -mpip install --user -r dev-requirements.txt
-     python3 -mbuild -v .
+     python3 -mpip wheel --verbose  --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
+     find . -name \*.c
      find . -name \*.whl -o -name \*.tar.gz
      python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
   - test: |
@@ -46,6 +47,7 @@ tasks:
         ;;
      esac
 artifacts:
+  - m2crypto/src/SWIG/_m2crypto_wrap.c
   # https://is.gd/Z5VJlI
   # - pygn/dist/pygn-*.tar.gz
   # - pygn/dist/pygn-*.whl

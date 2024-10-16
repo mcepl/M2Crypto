@@ -4,6 +4,9 @@ stages:
 
 include: '/.gitlab-ci-windows.yml'
 
+
+
+
 python39:
     image: python:3.9-alpine
     when: always
@@ -16,7 +19,7 @@ python39:
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
         - ls $HOME/.local/bin
-        - python3 -mbuild .
+        - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
 
@@ -32,7 +35,7 @@ python3:
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
         - ls $HOME/.local/bin
-        - python3 -mbuild .
+        - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
 
@@ -50,7 +53,7 @@ alpine-32bit:
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
         - ls $HOME/.local/bin
-        - python3 -mbuild .
+        - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
 
@@ -68,7 +71,7 @@ python3-32bit:
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
         - ls $HOME/.local/bin
-        - python3 -mbuild .
+        - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
 
@@ -84,7 +87,7 @@ python3-doctest:
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --break-system-packages --user -r dev-requirements.txt -r doc/requirements.txt
         - ls $HOME/.local/bin
-        - python3 -mbuild .
+        - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - cd doc/
         - PYTHONPATH=$(readlink -f ../build/lib.*) make doctest
@@ -102,7 +105,7 @@ fedora:
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --user -r dev-requirements.txt
         - ls $HOME/.local/bin
-        - python3 -mbuild .
+        - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
         - python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
 
@@ -119,7 +122,7 @@ fedora-rawhide:
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
         - ls $HOME/.local/bin
-        - python3 -mbuild .
+        - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
     allow_failure: true
@@ -129,6 +132,9 @@ leap:
     image: opensuse/leap
     when: always
     stage: build
+    artifacts:
+      paths:
+        - "src/SWIG/*.c"
     script:
         - zypper refresh
         - zypper install -y pattern:devel_rpm_build pattern:devel_C_C++ osc
@@ -138,7 +144,8 @@ leap:
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --user -r dev-requirements.txt
         - ls $HOME/.local/bin
-        - python3 -mbuild .
+        - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
+        - find . -name \*.c -ls
         - python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
 
@@ -155,7 +162,7 @@ opensuse:
         - export PATH=$PATH:$HOME/.local/bin
         - python3 -mpip install --user --break-system-packages -r dev-requirements.txt
         - ls $HOME/.local/bin
-        - python3 -mbuild .
+        - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
         - python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
 
