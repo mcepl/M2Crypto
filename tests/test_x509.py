@@ -240,6 +240,10 @@ class X509TestCase(unittest.TestCase):
         self.assertEqual(req.as_text(), req4t)
         self.assertEqual(req.as_der(), req4.as_der())
         self.assertEqual(req.get_version(), 0)
+
+        if m2.OPENSSL_VERSION_NUMBER < 0x30400000:
+            req.set_version(1)
+            self.assertEqual(req.get_version(), 1)
         req.set_version(0)
         self.assertEqual(req.get_version(), 0)
 
