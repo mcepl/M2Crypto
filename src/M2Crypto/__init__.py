@@ -20,7 +20,7 @@ Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 # noqa
 from typing import Any
 
-__version__: str = '0.43.0'
+__version__: str = '0.44.0'
 version: str = __version__
 
 try:
