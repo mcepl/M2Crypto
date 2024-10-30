@@ -15,7 +15,7 @@ __all__ = [
 import sys
 import struct
 
-from M2Crypto.util import is_32bit, is_libc_musl
+from M2Crypto import m2
 
 DEFAULT_TIMEOUT: int = 600
 
@@ -37,7 +37,7 @@ class timeout(object):
             )
             binstr = struct.pack('l', millisec)
         else:
-            if is_32bit() and not is_libc_musl():
+            if m2.time_t_bits() == 32:
                 binstr = struct.pack('ii', self.sec, self.microsec)
             else:
                 binstr = struct.pack('ll', self.sec, self.microsec)

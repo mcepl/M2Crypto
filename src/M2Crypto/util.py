@@ -46,12 +46,6 @@ class UtilError(Exception):
 m2.util_init(UtilError)
 
 
-def is_libc_musl() -> bool:
-    # This is wrong, but unfortunately Python doesn't give us anything better
-    # gh#python/cpython#87414
-    return platform.libc_ver() == ("", "")
-
-
 def is_32bit() -> bool:
     # or alternatively (slightly slower)
     # (struct.calcsize("P") * 8) == 32
