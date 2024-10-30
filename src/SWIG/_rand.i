@@ -4,8 +4,6 @@
 */
 /* $Id: _rand.i 721 2010-02-13 06:30:33Z heikki $ */
 
-%module _rand
-
 %rename(rand_file_name) RAND_file_name;
 extern const char *RAND_file_name(char *, size_t );
 %rename(rand_load_file) RAND_load_file;
