@@ -1,3 +1,26 @@
+0.43.0 - 2024-10-30
+-------------------
+
+- feat[m2]: add m2.time_t_bits to checking for 32bitness.
+- fix[tests]: Use only X509_VERSION_1 (0) as version for CSR.
+- fix[EC]: raise ValueError when load_key_bio() cannot read the
+  file.
+- ci: use -mpip wheel instead of -mbuild
+- fix: use PyMem_Malloc() instead of malloc()
+- fix[hints]: more work on conversion of type hints to the py3k ones
+- fix: make the package build even on Python 3.6
+- ci[local]: skip freezing local tests
+- fix[hints]: remove AnyStr type
+- test: add suggested test for RSA.{get,set}_ex_data
+- fix: implement interfaces for RSA_{get,set}_ex_new_{data,index}
+- fix: generate src/SWIG/x509_v_flag.h to overcome weaknesses of
+  swig
+- fix: replace literal enumeration of all VERIFY_ constants by a
+  cycle
+- test: unify various test cases in test_ssl related to ftpslib
+- fix: replace deprecated url keyword in setup.cfg with complete
+  project_urls map
+
 0.42.0 - 2024-08-10
 -------------------
 
