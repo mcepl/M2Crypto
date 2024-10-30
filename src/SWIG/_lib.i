@@ -2,6 +2,9 @@
 /* $Id$ */
 
 %{
+/* for time_t_bits */
+#include <time.h>
+
 #include <openssl/bn.h>
 #include <openssl/dh.h>
 #include <openssl/err.h>
@@ -18,6 +21,13 @@
 
 /* Python 3 compatibility shim */
 %include _py3k_compat.i
+
+%inline %{
+/* test for time_t size */
+int time_t_bits() {
+    return sizeof(time_t) * 8;
+}
+%}
 
 %{
 /* OpenSSL 1.0.2 copmatbility shim */
