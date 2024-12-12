@@ -21,7 +21,7 @@ FORMAT_PEM = 1
 __g = globals()
 for x in dir(m2):
     if x.startswith('VERIFY_'):
-        __g[x.lower()] = x
+        __g[x.lower()] = getattr(m2, x)
 
 log = logging.getLogger(__name__)
 
