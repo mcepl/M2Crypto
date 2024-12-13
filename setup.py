@@ -58,6 +58,9 @@ def _get_additional_includes():
         err = glob.glob(globmask)
     else:
         cpp = shlex.split(os.environ.get('CPP', 'cpp'))
+        cflags = os.environ.get("CFLAGS")
+        if cflags is not None:
+            cpp += cflags.split()
         pid = subprocess.Popen(
             cpp + ['-Wp,-v', '-'],
             stdin=open(os.devnull, 'r'),
@@ -210,19 +213,22 @@ class _M2CryptoBuildExt(build_ext.build_ext):
         if sys.platform != 'win32':
             # generate src/SWIG/x509_v_flag.h to overcome weaknesses of swig
             # https://todo.sr.ht/~mcepl/m2crypto/298
-            cpp = shutil.which(os.environ.get('CC', 'gcc'))
             with open(
                 "src/SWIG/x509_v_flag.h", "w", encoding="utf-8"
             ) as x509_v_h:
+                cmd = [shutil.which(os.environ.get('CC', 'gcc'))]
+                cflags = os.environ.get("CFLAGS")
+                if cflags is not None:
+                    cmd += cflags.split()
+                cmd += [
+                    "-E",
+                    "-fdirectives-only",
+                    "-include",
+                    "openssl/x509_vfy.h",
+                    "-",
+                ]
                 pid = subprocess.Popen(
-                    [
-                        cpp,
-                        "-E",
-                        "-fdirectives-only",
-                        "-include",
-                        "openssl/x509_vfy.h",
-                        "-",
-                    ],
+                    cmd,
                     stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
