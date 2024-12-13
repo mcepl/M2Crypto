@@ -28,7 +28,7 @@ system the following packages are needed:
 - ``build-essential``
 - ``python3-dev`` and/or ``python-dev``
 - ``libssl-dev``
-- ``swig 4.0`` or newer (for compatibility with Python 3.12, for
+- ``swig 4.1.0`` or newer (for compatibility with Python 3.12, for
   older Pythons the default platform swig should be enough).
 
 Installing on Unix-like systems, including Cygwin
@@ -60,46 +60,56 @@ command.
 Differences when installing on Windows
 --------------------------------------
 
-(Python 2.6 is not supported on Windows anymore, please, just 
-update to 2.7 if you want to stay on Python 2)
+Binary wheels for many Windows conifgurations are available on
+PyPI. Try selecting a version, selecting a job that matches your
+Python version, then going to the "Artifacts" tab and downloading
+an installer.
+
+1. Install the latest `Build Tools for Visual Studio 2019`.
+   See https://visualstudio.microsoft.com/downloads/ under "All
+   Downloads" -> "Tools for Visual Studio 2019".
+2. In the installer, select "C++ Build Tools", install, and
+   reboot if necessary.
+3. Install the latest full (not `Light`) `OpenSSL`
+   for your architecture (`Win64`/`Win32`). Current
+   version as of this writing is `1.1.1d`. Make note
+   of the directory to which you install `OpenSSL`.
+   https://slproweb.com/products/Win32OpenSSL.html
+4. In `PowerShell`, install the `Chocolatey` package manager. I used this command from their website:
+   `Set-ExecutionPolicy Bypass -Scope Process -Force;
+    iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))`
+5. Install `swig` with `Chocolatey` (in `PowerShell`). `choco install -r -y swig`
+6. Install the `pywin32` dependency. Run `pip install
+   pywin32`. If you have problems, try first running `pip
+   install wheel`. To get `pip` to target a specific Python
+   installation, try launching it using `py -[version] -m pip
+   install [module]`. Note: you may need to use an elevated
+   (administrator) `PowerShell` to install Python modules.
+7. Get the latest `m2crypto` code. If you have `git` installed,
+   run `git clone https://git.sr.ht/~mcepl/m2crypto`. Otherwise,
+   download and extract the code from SourceHut:
+   https://git.sr.ht/~mcepl/m2crypto/archive/master.tar.gz
+8. Use `cd` to change into the directory `m2crypto` was cloned/extracted to.
+9. Assuming `python` launches your desired Python interpreter
+   version, run `python setup.py build --openssl="C:\Program
+   Files\OpenSSL-Win64" --bundledlls`, replacing `C:\Program
+   Files\OpenSSL-Win64` with the directory to which you installed
+   `OpenSSL`. (On some systems you can use the `py` launcher
+   to specify a Python version to use, run `py -h` for more
+   information.)
+10. Generate the installable files. `python.exe setup.py
+    bdist_wheel bdist_wininst bdist_msi`.
+11. Install the module. `cd` into the `dist` directory and run
+    `pip install M2Crypto-0.35.2-cp38-cp38-win_amd64.whl`,
+    replacing the filename with the generated `.whl` file. If
+    you have problems, try first running `pip install wheel`. To
+    get `pip` to target a specific Python installation,
+    try launching it using `py -[version] -m pip install
+    [module]`. Alternatively, you can run the generated `.exe`
+    or `.msi` installer. Note: you may need to use an elevated
+    (administrator) `PowerShell` to install Python modules.
 
 (needs updating)
-
-Before building from source, you need to install OpenSSL's include
-files, import libraries and DLLs. OpenSSL 1.1.0 and on are installed
-by default in ``%ProgramFiles(86)%\OpenSSL`` (32-bit), or
-in ``%ProgramW6432%\OpenSSL`` (64-bit), or as a last resort, in
-``%ProgramFiles%\OpenSSL``. setup.py will look in those locations.
-OpenSSL before 1.1.0 doesn't have a default install location, so
-you have to specify its install location explicitely.
-
-As with other platforms, you can specify a OpenSSL location with
---openssl option to ``build\_ext`` (or ``build``) command. For
-example, ``--openssl=c:\pkg\openssl`` would specify that the OpenSSL
-include files can be found in ``c:\pkg\openssl\include`` and the
-librariesin ``c:\pkg\openssl\lib``.
-
-The '--openssl' option will configure swig and the compiler to look in the
-default locations for headers and libraries. If your OpenSSL is installed in a
-or you want to modify the default options run the build_ext step with normal
-distutils options: `--swig-opts`, `--include-dirs`, `--library-dirs`, and
-`--libraries`.
-
-MSVC++ ~\ :sub:`:sub:`:sub:`~```
-
-setup.py is already configured to work with MSVC++ by default.
-
-With MSVC++, the OpenSSL pre 1.1.0 DLLs, as built, are named
-``libeay32.dll`` and ``ssleay32.dll``. The OpenSSL 1.1.x DLLs are
-named ``libcrypto-1_1.dll`` and ``libssl-1_1.dll``.  Install these
-somewhere on your PATH; for example in ``c:\bin``, together with
-``openssl.exe``.
-
-For MSVC++, the import libraries, as built by OpenSSL pre 1.1.0, are
-named ``libeay32.lib`` and ``ssleay32.lib``.  The OpenSSL 1.1.x import
-libraries are named ``libcrypto.lib`` and ``libssl.lib``.
-
-MINGW :sub:`:sub:`:sub:`~```
 
 .. NOTE:: The following instructions for building M2Crypto with MINGW
     are from M2Crypto 0.12. These instructions should continue to work
@@ -109,51 +119,7 @@ Read Sebastien Sauvage's webpage::
 
      http://sebsauvage.net/python/mingw.html
 
-For mingw32, the OpenSSL pre 1.1.0 import libraries are named
-``libeay32.dll.a`` and ``libssl32.dll.a``. You may need to edit
-setup.py file for these.
-
-You'll also need to create ``libpython2[123].a``, depending on your
-version of Python.
-
-OpenSSL pre 1.1.0 DLLs for mingw32 are named ``libeay32.dll`` and
-``libssl32.dll``. OpenSSL 1.1.x DLLs are named ``libcrypto-1_1.dll``
-and ``libssl-1_1.dll``. Install these somewhere on your PATH; for
-example in ``c:\bin``, together with ``openssl.exe``.
-
-Build M2Crypto::
-
-    python setup.py build -cmingw32
-    python setup.py install
-
-BC++ :sub:`:sub:`~``\ ~
-
-.. NOTE:: The following instructions for building M2Crypto with MSVC++
-    6.0 and BC++ 5.5 free compiler suite are from M2Crypto 0.10. These
-    instructions should continue to work for this release, although
-    I have not tested them.
-
-.. NOTE:: OpenSSL 1.1.x doesn't support BC++.
-
-For BC++ these files are created from the MSVC++-built ones using the
-tool ``coff2omf.exe``. I call them ``libeay32_bc.lib`` and
-``ssleay32_bc.lib``, respectively. You will need to edit setup.py file
-for these.
-
-You'll also need Python's import library, e.g., ``python22.lib``, to be
-the BC++-compatible version; i.e., create ``python22_bc.lib`` from
-``python22.lib``, save a copy of ``python22.lib`` (as
-``python22_vc.lib``, say), then rename ``python22_bc.lib`` to
-``python22.lib``.
-
-Now you are ready to build M2Crypto. Do one of the following::
-
-    python setup.py build
-    python setup.py build -cbcpp
-
-Then,::
-
-    python setup.py install
+For `setup.py build` you may need to use parameter `-cmingw32`.
 
 MacOSX
 ------
