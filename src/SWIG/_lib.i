@@ -126,6 +126,7 @@ void blob_free(Blob *blob) {
 %ignore PyObject_CheckBuffer;
 %ignore PyObject_GetBuffer;
 %ignore PyBuffer_Release;
+%ignore m2_PyErr_SetString_from_errno;
 %ignore m2_PyObject_AsReadBuffer;
 %ignore m2_PyObject_AsReadBufferInt;
 %ignore m2_PyObject_GetBufferInt;
@@ -146,6 +147,25 @@ typedef struct bignum_st BIGNUM;
 };
 
 %{
+
+/* Convert an OpenSSL error code into an SSLError */
+void m2_PyErr_SetString_from_errno(PyObject *err_type, unsigned long err) {
+    char err_reason[256];
+    unsigned int reason_code = ERR_GET_REASON(err);
+    if (reason_code == ERR_R_SYS_LIB) {
+        strerror_r(err, err_reason, sizeof(err_reason));
+    } else {
+        const char *reason = ERR_reason_error_string(err);
+        if (reason) {
+            strncpy(err_reason, reason, sizeof(err_reason) - 1);
+            err_reason[sizeof(err_reason) - 1] = '\0';
+        } else {
+            strncpy(err_reason, "Unknown error", sizeof(err_reason) - 1);
+            err_reason[sizeof(err_reason) - 1] = '\0';
+        }
+    }
+    PyErr_SetString(err_type, err_reason);
+}
 
 static int
 m2_PyObject_AsReadBuffer(PyObject * obj, const void **buffer,
@@ -219,7 +239,7 @@ m2_PyObject_AsBIGNUM(PyObject* value, PyObject* _py_exc)
         return NULL;
 
     if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
-        PyErr_SetString(_py_exc, ERR_reason_error_string(ERR_get_error()));
+        m2_PyErr_SetString_from_errno(_py_exc, ERR_get_error());
         return NULL;
         }
 
@@ -288,7 +308,6 @@ static void m2_PyErr_Msg_Caller(PyObject *err_type, const char* caller) {
         PyErr_Format(err_type, "Unknown error in function %s.", caller);
     }
 }
-
 
 /* C callbacks invoked by OpenSSL; these in turn call back into
 Python. */

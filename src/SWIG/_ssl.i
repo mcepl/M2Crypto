@@ -466,18 +466,18 @@ int ssl_set_fd(SSL *ssl, int fd) {
     return ret;
 }
 
+
 static void ssl_handle_error(int ssl_err, int ret) {
-    int err;
+    unsigned long err;
 
     switch (ssl_err) {
         case SSL_ERROR_SSL:
-            PyErr_SetString(_ssl_err,
-                            ERR_reason_error_string(ERR_get_error()));
+            m2_PyErr_SetString_from_errno(_ssl_err, ERR_get_error());
             break;
         case SSL_ERROR_SYSCALL:
             err = ERR_get_error();
             if (err)
-                PyErr_SetString(_ssl_err, ERR_reason_error_string(err));
+                m2_PyErr_SetString_from_errno(_ssl_err, err);
             else if (ret == 0)
                 PyErr_SetString(_ssl_err, "unexpected eof");
             else if (ret == -1)
@@ -770,7 +770,7 @@ PyObject *ssl_read_nbio(SSL *ssl, int num) {
         case SSL_ERROR_SYSCALL:
             err = ERR_get_error();
             if (err)
-                PyErr_SetString(_ssl_err, ERR_reason_error_string(err));
+                m2_PyErr_SetString_from_errno(_ssl_err, err);
             else if (r == 0)
                 PyErr_SetString(_ssl_err, "unexpected eof");
             else if (r == -1)
@@ -861,7 +861,7 @@ int ssl_write_nbio(SSL *ssl, PyObject *blob) {
         case SSL_ERROR_SYSCALL:
             err = ERR_get_error();
             if (err)
-                PyErr_SetString(_ssl_err, ERR_reason_error_string(err));
+                m2_PyErr_SetString_from_errno(_ssl_err, err);
             else if (r == 0)
                 PyErr_SetString(_ssl_err, "unexpected eof");
             else if (r == -1)
