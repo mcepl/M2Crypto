@@ -24,10 +24,10 @@ __version__: str = '0.44.0'
 version: str = __version__
 
 try:
-    from distutils.version import StrictVersion as Version
+    from packaging.version import Version
 except ImportError:
     try:
-        from packaging.version import Version
+        from distutils.version import StrictVersion as Version
     except ImportError:
         Version = None
 
