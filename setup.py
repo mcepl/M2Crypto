@@ -24,6 +24,7 @@ import shutil
 import subprocess
 import sys
 import setuptools
+import distutils.sysconfig as du_sysconfig
 
 from typing import Dict, List
 
@@ -57,6 +58,10 @@ def _get_additional_includes():
         )
         err = glob.glob(globmask)
     else:
+        if platform.system() == "Darwin":
+            sdk_path = subprocess.check_output(['xcrun', '--show-sdk-path']).decode().strip()
+            return [os.path.join(sdk_path, 'usr', 'include')]
+
         cpp = shlex.split(os.environ.get('CPP', 'cpp'))
         cflags = os.environ.get("CFLAGS")
         if cflags is not None:
@@ -262,6 +267,9 @@ class _M2CryptoBuildExt(build_ext.build_ext):
             self.swig_opts.append(
                 '-I' + os.path.join(openssl_include_dir, 'openssl')
             )
+
+        if platform.system() == "Darwin":
+            self.swig_opts.append("-cpperraswarn")
 
         self.swig_opts.append('-includeall')
         self.swig_opts.append('-builtin')
