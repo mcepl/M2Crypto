@@ -8,6 +8,7 @@ packages:
   - python3-pip
   - openssl-devel
   - openssl
+  - crypto-policies-scripts
   - python3-setuptools
   - python3-twisted
   - python3-pexpect
@@ -29,6 +30,7 @@ tasks:
      python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
   - test: |
      cd m2crypto
+     sudo update-crypto-policies --set LEGACY
      PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
      [ -n "$GIT_REF" ] && REASON="$JOB_ID ($GIT_REF)"
      [ -n "$PATCHSET_URL" ] && REASON="$JOB_ID ($PATCHSET_URL)"
