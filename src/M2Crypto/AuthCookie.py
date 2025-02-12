@@ -49,7 +49,7 @@ def unmix3(
 _TOKEN: str = '_M2AUTH_'
 
 
-class AuthCookie(object):
+class AuthCookie:
 
     def __init__(
         self, expiry: float, data: str, dough: str, mac: str
@@ -106,7 +106,7 @@ class AuthCookie(object):
         return self.value()
 
 
-class AuthCookieJar(object):
+class AuthCookieJar:
 
     _keylen: int = 20
 
@@ -133,9 +133,9 @@ class AuthCookieJar(object):
             expiry, data, dough, self._hmac(self._key, dough)
         )
 
-    def isGoodCookie(self, cookie: AuthCookie) -> Union[bool, int]:
+    def isGoodCookie(self, cookie: AuthCookie) -> bool:
         if cookie.isExpired():
-            return 0
+            return False
         c = self.makeCookie(cookie._expiry, cookie._data)
         return (
             (c._expiry == cookie._expiry)
@@ -146,16 +146,16 @@ class AuthCookieJar(object):
 
     def isGoodCookieString(
         self, cookie_str: Union[dict, bytes], _debug: bool = False
-    ) -> Union[bool, int]:
+    ) -> bool:
         c = SimpleCookie()
         c.load(cookie_str)
         if _TOKEN not in c:
             log.debug('_TOKEN not in c (keys = %s)', dir(c))
-            return 0
+            return False
         undough = unmix3(c[_TOKEN].value)
         if undough is None:
             log.debug('undough is None')
-            return 0
+            return False
         exp, data, mac = undough
         c2 = self.makeCookie(exp, data)
         if _debug and (c2._mac == mac):
