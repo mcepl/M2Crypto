@@ -4,6 +4,12 @@
 %{
 /* for time_t_bits */
 #include <time.h>
+/* for strerror_r */
+#ifdef _WIN32
+#define __STDC_WANT_LIB_EXT1__ 1
+#include <string.h>
+#define strerror_r(errno,buf,len) strerror_s(buf,len,errno)
+#endif
 
 #include <openssl/bn.h>
 #include <openssl/dh.h>
