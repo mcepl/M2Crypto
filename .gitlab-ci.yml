@@ -96,7 +96,7 @@ fedora:
     script:
         - dnf makecache
         - dnf install -y @development-tools fedora-packager rpmdevtools crypto-policies-scripts
-        - dnf install -y swig python3-devel python3-pip openssl-devel openssl python3-setuptools python3-twisted
+        - dnf install -y swig python3-devel python3-pip openssl-devel openssl python3-setuptools python3-twisted openssl-devel-engine
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin

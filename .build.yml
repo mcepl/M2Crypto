@@ -7,6 +7,7 @@ packages:
   - python3-devel
   - python3-pip
   - openssl-devel
+  - openssl-devel-engine
   - openssl
   - crypto-policies-scripts
   - python3-setuptools
