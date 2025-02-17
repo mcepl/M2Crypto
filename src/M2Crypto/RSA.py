@@ -37,6 +37,7 @@ class RSA(object):
         assert m2.rsa_type_check(rsa), "'rsa' type error"
         self.rsa = rsa
         self._pyfree = _pyfree
+        self._check_cache = None
 
     def __del__(self) -> None:
         if getattr(self, '_pyfree', 0):
@@ -54,23 +55,23 @@ class RSA(object):
             raise AttributeError
 
     def pub(self) -> Tuple[bytes, bytes]:
-        assert self.check_key(), 'key is not initialised'
+        assert self.check_key() == 1, 'key is not initialised'
         return m2.rsa_get_e(self.rsa), m2.rsa_get_n(self.rsa)
 
     def public_encrypt(self, data: bytes, padding: int) -> bytes:
-        assert self.check_key(), 'key is not initialised'
+        assert self.check_key() == 1, 'key is not initialised'
         return m2.rsa_public_encrypt(self.rsa, data, padding)
 
     def public_decrypt(self, data: bytes, padding: int) -> bytes:
-        assert self.check_key(), 'key is not initialised'
+        assert self.check_key() == 1, 'key is not initialised'
         return m2.rsa_public_decrypt(self.rsa, data, padding)
 
     def private_encrypt(self, data: bytes, padding: int) -> bytes:
-        assert self.check_key(), 'key is not initialised'
+        assert self.check_key() == 1, 'key is not initialised'
         return m2.rsa_private_encrypt(self.rsa, data, padding)
 
     def private_decrypt(self, data: bytes, padding: int) -> bytes:
-        assert self.check_key(), 'key is not initialised'
+        assert self.check_key() == 1, 'key is not initialised'
         return m2.rsa_private_decrypt(self.rsa, data, padding)
 
     def save_key_bio(
@@ -189,7 +190,10 @@ class RSA(object):
                  If the key is invalid or an error occurred, the reason
                  code can be obtained using ERR_get_error(3).
         """
-        return m2.rsa_check_key(self.rsa)
+        if self._check_cache is not None:
+            return self._check_cache
+        self._check_cache = m2.rsa_check_key(self.rsa)
+        return self._check_cache
 
     def sign_rsassa_pss(
         self, digest: bytes, algo: str = 'sha1', salt_length: int = 20
@@ -296,11 +300,11 @@ class RSA(object):
         return m2.rsa_verify(self.rsa, data, signature, digest_type)
 
     def set_ex_data(self, index, data):
-        assert self.check_key(), 'key is not initialised'
+        assert self.check_key() == 1, 'key is not initialised'
         return m2.rsa_set_ex_data(self.rsa, index, data)
 
     def get_ex_data(self, index):
-        assert self.check_key(), 'key is not initialised'
+        assert self.check_key() == 1, 'key is not initialised'
         return m2.rsa_get_ex_data(self.rsa, index)
 
 
