@@ -41,7 +41,6 @@ curves = {
     'secp256k1': 256,
     'secp384r1': 384,
     'secp521r1': 521,
-
     'sect113r1': 113,
     'sect113r2': 113,
     'sect131r1': 131,
@@ -60,7 +59,6 @@ curves = {
     'sect409r1': 409,
     'sect571k1': 571,
     'sect571r1': 571,
-
     'X9_62_prime192v1': 192,
     'X9_62_prime192v2': 192,
     'X9_62_prime192v3': 192,
@@ -68,7 +66,6 @@ curves = {
     'X9_62_prime239v2': 239,
     'X9_62_prime239v3': 239,
     'X9_62_prime256v1': 256,
-
     'X9_62_c2pnb163v1': 163,
     'X9_62_c2pnb163v2': 163,
     'X9_62_c2pnb163v3': 163,
@@ -85,7 +82,6 @@ curves = {
     'X9_62_c2tnb359v1': 359,
     'X9_62_c2pnb368w1': 368,
     'X9_62_c2tnb431r1': 431,
-
     'wap_wsg_idm_ecid_wtls1': 113,
     'wap_wsg_idm_ecid_wtls3': 163,
     'wap_wsg_idm_ecid_wtls4': 113,
@@ -96,7 +92,7 @@ curves = {
     'wap_wsg_idm_ecid_wtls9': 160,
     'wap_wsg_idm_ecid_wtls10': 233,
     'wap_wsg_idm_ecid_wtls11': 233,
-    'wap_wsg_idm_ecid_wtls12': 224
+    'wap_wsg_idm_ecid_wtls12': 224,
 }
 
 # The following two curves, according to OpenSSL, have a
@@ -115,9 +111,13 @@ curves = {
 def available_curves():
     bc_dict = EC.get_builtin_curves()
     bin_curves = set(x['sname'] for x in bc_dict)
-    out_curves = tuple((m2.obj_sn2nid(x[0]), x[1]) for x in curves
-                       if x[0] in bin_curves)
+    out_curves = tuple(
+        (m2.obj_sn2nid(x[0]), x[1])
+        for x in curves
+        if x[0] in bin_curves
+    )
     return out_curves
+
 
 # Seems like one of the most widely supported curves.
 tested_curve = EC.NID_secp384r1, curves['secp384r1']
@@ -135,9 +135,10 @@ class ECCurveTests(unittest.TestCase):
         ec = EC.gen_params(curve[0])
         self.assertEqual(len(ec), curve[1])
         ec.gen_key()
-        self.assertTrue(ec.check_key(),
-                        'check_key() failure for "%s"' %
-                        curve_name)
+        self.assertTrue(
+            ec.check_key(),
+            'check_key() failure for "%s"' % curve_name,
+        )
         return ec
 
     def sign_verify_ecdsa(self, curve):
@@ -161,7 +162,9 @@ class ECCurveTests(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(ECCurveTests))
+    suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(ECCurveTests)
+    )
     return suite
 
 

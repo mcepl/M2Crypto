@@ -21,16 +21,22 @@ class RC4TestCase(unittest.TestCase):
         """
         if fips_mode:
             return
-        vectors = ((b'Key', b'Plaintext', b'BBF316E8D940AF0AD3'),
-                   (b'Wiki', b'pedia', b'1021BF0420'),
-                   (b'Secret', b'Attack at dawn',
-                    b'45A01F645FC35B383552544B9BF5'))
+        vectors = (
+            (b'Key', b'Plaintext', b'BBF316E8D940AF0AD3'),
+            (b'Wiki', b'pedia', b'1021BF0420'),
+            (
+                b'Secret',
+                b'Attack at dawn',
+                b'45A01F645FC35B383552544B9BF5',
+            ),
+        )
 
         rc4 = RC4.RC4()
         for key, plaintext, ciphertext in vectors:
             rc4.set_key(key)
-            self.assertEqual(hexlify(rc4.update(plaintext)).upper(),
-                             ciphertext)
+            self.assertEqual(
+                hexlify(rc4.update(plaintext)).upper(), ciphertext
+            )
 
         self.assertEqual(rc4.final(), '')
 
@@ -39,7 +45,9 @@ class RC4TestCase(unittest.TestCase):
         if fips_mode:
             return
         rc4 = RC4.RC4(b'foo')
-        self.assertNotEqual(hexlify(rc4.update(b'bar')).upper(), b'45678')
+        self.assertNotEqual(
+            hexlify(rc4.update(b'bar')).upper(), b'45678'
+        )
 
 
 def suite():

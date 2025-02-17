@@ -13,17 +13,22 @@ Taken from CA managment code
 
 def x509_name2list(name):
     for i in range(0, name.entry_count()):
-        yield X509.X509_Name_Entry(m2.x509_name_get_entry(name._ptr(), i),
-                                   _pyfree=0)
+        yield X509.X509_Name_Entry(
+            m2.x509_name_get_entry(name._ptr(), i), _pyfree=0
+        )
 
 
 def x509_name_entry2tuple(entry):
     bio = BIO.MemoryBuffer()
-    m2.asn1_string_print(bio._ptr(), m2.x509_name_entry_get_data(entry._ptr()))
+    m2.asn1_string_print(
+        bio._ptr(), m2.x509_name_entry_get_data(entry._ptr())
+    )
     return (
         m2.obj_obj2txt(
-            m2.x509_name_entry_get_object(entry._ptr()), 0).decode(),
-        bio.getvalue().decode())
+            m2.x509_name_entry_get_object(entry._ptr()), 0
+        ).decode(),
+        bio.getvalue().decode(),
+    )
 
 
 def tuple2x509_name_entry(tup):
@@ -32,12 +37,14 @@ def tuple2x509_name_entry(tup):
     # Something like X509.X509_Name.add_entry_by_txt()
     obj = obj if isinstance(obj, str) else obj.decode()
     data = data if isinstance(data, str) else data.decode()
-    _x509_ne = m2.x509_name_entry_create_by_txt(None, obj,
-                                                ASN1.MBSTRING_ASC,
-                                                data, len(data))
+    _x509_ne = m2.x509_name_entry_create_by_txt(
+        None, obj, ASN1.MBSTRING_ASC, data, len(data)
+    )
     if not _x509_ne:
         raise ValueError("Invalid object indentifier: %s" % obj)
-    return X509.X509_Name_Entry(_x509_ne, _pyfree=1)  # Prevent memory leaks
+    return X509.X509_Name_Entry(
+        _x509_ne, _pyfree=1
+    )  # Prevent memory leaks
 
 
 class ObjectsTestCase(unittest.TestCase):
@@ -46,32 +53,46 @@ class ObjectsTestCase(unittest.TestCase):
         pass
 
     def test_obj2txt(self):
-        self.assertEqual(m2.obj_obj2txt(m2.obj_txt2obj("commonName", 0), 1),
-                         b"2.5.4.3", b"2.5.4.3")
-        self.assertEqual(m2.obj_obj2txt(m2.obj_txt2obj("commonName", 0), 0),
-                         b"commonName", b"commonName")
+        self.assertEqual(
+            m2.obj_obj2txt(m2.obj_txt2obj("commonName", 0), 1),
+            b"2.5.4.3",
+            b"2.5.4.3",
+        )
+        self.assertEqual(
+            m2.obj_obj2txt(m2.obj_txt2obj("commonName", 0), 0),
+            b"commonName",
+            b"commonName",
+        )
 
     def test_nid(self):
-        self.assertEqual(m2.obj_ln2nid("commonName"),
-                         m2.obj_txt2nid("2.5.4.3"),
-                         "ln2nid and txt2nid mismatch")
-        self.assertEqual(m2.obj_ln2nid("CN"),
-                         0, "ln2nid on sn")
-        self.assertEqual(m2.obj_sn2nid("CN"),
-                         m2.obj_ln2nid("commonName"),
-                         "ln2nid and sn2nid mismatch")
-        self.assertEqual(m2.obj_sn2nid("CN"),
-                         m2.obj_obj2nid(m2.obj_txt2obj("CN", 0)), "obj2nid")
-        self.assertEqual(m2.obj_txt2nid("__unknown"),
-                         0, "__unknown")
+        self.assertEqual(
+            m2.obj_ln2nid("commonName"),
+            m2.obj_txt2nid("2.5.4.3"),
+            "ln2nid and txt2nid mismatch",
+        )
+        self.assertEqual(m2.obj_ln2nid("CN"), 0, "ln2nid on sn")
+        self.assertEqual(
+            m2.obj_sn2nid("CN"),
+            m2.obj_ln2nid("commonName"),
+            "ln2nid and sn2nid mismatch",
+        )
+        self.assertEqual(
+            m2.obj_sn2nid("CN"),
+            m2.obj_obj2nid(m2.obj_txt2obj("CN", 0)),
+            "obj2nid",
+        )
+        self.assertEqual(m2.obj_txt2nid("__unknown"), 0, "__unknown")
 
     def test_tuple2tuple(self):
         tup = ("CN", "someCommonName")
         tup1 = x509_name_entry2tuple(tuple2x509_name_entry(tup))
         # tup1[0] is 'commonName', not 'CN'
         self.assertEqual(tup1[1], tup[1], tup1)
-        self.assertEqual(x509_name_entry2tuple(tuple2x509_name_entry(tup1)),
-                         tup1, tup1)
+        self.assertEqual(
+            x509_name_entry2tuple(tuple2x509_name_entry(tup1)),
+            tup1,
+            tup1,
+        )
 
     def test_unknown(self):
         with self.assertRaises(ValueError):
@@ -108,9 +129,12 @@ class ObjectsTestCase(unittest.TestCase):
         self.assertEqual(n.as_text(), n1.as_text(), n1.as_text())
 
     # Detailed OpenSSL error message is visible in Python error message:
-    @unittest.skipIf(m2.OPENSSL_VERSION_NUMBER >= 0x30000000, "Failing on OpenSSL3")
+    @unittest.skipIf(
+        m2.OPENSSL_VERSION_NUMBER >= 0x30000000, "Failing on OpenSSL3"
+    )
     def test_detailed_error_message(self):
         from M2Crypto import SMIME, X509
+
         s = SMIME.SMIME()
         x509 = X509.load_cert('tests/recipient.pem')
         sk = X509.X509_Stack()
@@ -127,13 +151,18 @@ class ObjectsTestCase(unittest.TestCase):
         try:
             s.verify(p7, data)
         except SMIME.PKCS7_Error as e:
-            self.assertRegex(str(e),
-                             "unable to get local issuer certificate",
-                             "Not received expected error message")
+            self.assertRegex(
+                str(e),
+                "unable to get local issuer certificate",
+                "Not received expected error message",
+            )
+
 
 def suite():
     t_suite = unittest.TestSuite()
-    t_suite.addTest(unittest.TestLoader().loadTestsFromTestCase(ObjectsTestCase))
+    t_suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(ObjectsTestCase)
+    )
     return t_suite
 
 

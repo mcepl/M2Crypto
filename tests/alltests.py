@@ -48,12 +48,16 @@ def suite():
         'tests.test_threading',
         'tests.test_x509',
         'tests.test_util',
-        'tests.test_timeout']
+        'tests.test_timeout',
+    ]
     if os.name == 'posix':
         modules_to_test.append('tests.test_ssl')
     elif os.name == 'nt':
         modules_to_test.append('tests.test_ssl_win')
-    if m2.OPENSSL_VERSION_NUMBER >= 0x90800F and m2.OPENSSL_NO_EC == 0:
+    if (
+        m2.OPENSSL_VERSION_NUMBER >= 0x90800F
+        and m2.OPENSSL_NO_EC == 0
+    ):
         modules_to_test.append('tests.test_ecdh')
         modules_to_test.append('tests.test_ecdsa')
         modules_to_test.append('tests.test_ec_curves')
@@ -61,10 +65,21 @@ def suite():
     for module in map(my_import, modules_to_test):
         alltests.addTest(module.suite())
 
-    print('Version of OpenSSL is {0:x} ({1:s})'.format(m2.OPENSSL_VERSION_NUMBER,
-            m2.OPENSSL_VERSION_TEXT))
-    print('(struct.calcsize("P") * 8) == 32 : {}'.format((struct.calcsize("P") * 8) == 32))
-    print("not(sys.maxsize > 2**32) : {}".format(not(sys.maxsize > 2**32)))
+    print(
+        'Version of OpenSSL is {0:x} ({1:s})'.format(
+            m2.OPENSSL_VERSION_NUMBER, m2.OPENSSL_VERSION_TEXT
+        )
+    )
+    print(
+        '(struct.calcsize("P") * 8) == 32 : {}'.format(
+            (struct.calcsize("P") * 8) == 32
+        )
+    )
+    print(
+        "not(sys.maxsize > 2**32) : {}".format(
+            not (sys.maxsize > 2**32)
+        )
+    )
     print("libc_ver = {}".format(platform.libc_ver()))
 
     return alltests
@@ -72,6 +87,7 @@ def suite():
 
 def dump_garbage():
     import gc
+
     print('\nGarbage:')
     gc.collect()
     if len(gc.garbage):
@@ -86,7 +102,9 @@ def dump_garbage():
         print('There were %d leaks.' % len(gc.garbage))
     else:
         print('Python garbage collector did not detect any leaks.')
-        print('However, it is still possible there are leaks in the C code.')
+        print(
+            'However, it is still possible there are leaks in the C code.'
+        )
 
 
 def runall(report_leaks=0):
@@ -94,6 +112,7 @@ def runall(report_leaks=0):
 
     if report_leaks:
         import gc
+
         gc.enable()
         gc.set_debug(gc.DEBUG_LEAK & ~gc.DEBUG_SAVEALL)
 
@@ -108,6 +127,7 @@ def runall(report_leaks=0):
     finally:
         if os.name == 'posix':
             from .test_ssl import zap_servers
+
             zap_servers()
 
     if report_leaks:

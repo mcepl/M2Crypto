@@ -55,7 +55,9 @@ class ASN1_String:
     m2_asn1_string_free = m2.asn1_string_free
 
     def __init__(
-        self, asn1str: Union[C.ASN1_String, str, bytes], _pyfree: int = 0
+        self,
+        asn1str: Union[C.ASN1_String, str, bytes],
+        _pyfree: int = 0,
     ):
         if isinstance(asn1str, str):
             self.asn1str: C.ASN1_String = m2.asn1_string_new()

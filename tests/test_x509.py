@@ -29,7 +29,9 @@ class X509TestCase(unittest.TestCase):
         pass
 
     def setUp(self):
-        self.expected_hash = '46690EBC3862A776CBB37A32CD14ABC5520863BE'
+        self.expected_hash = (
+            '46690EBC3862A776CBB37A32CD14ABC5520863BE'
+        )
 
     def mkreq(self, bits, ca=0):
         pk = EVP.PKey()
@@ -42,8 +44,9 @@ class X509TestCase(unittest.TestCase):
         name.C = "UK"
         name.CN = "OpenSSL Group"
         if not ca:
-            ext1 = X509.new_extension('subjectAltName',
-                                      'DNS:foobar.example.com')
+            ext1 = X509.new_extension(
+                'subjectAltName', 'DNS:foobar.example.com'
+            )
             ext2 = X509.new_extension('nsComment', 'Hello there')
             extstack = X509.X509_Extension_Stack()
             extstack.push(ext1)
@@ -63,12 +66,17 @@ class X509TestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             X509.new_extension('subjectKeyIdentifier', 'hash')
 
-        ext = X509.new_extension('subjectAltName', 'DNS:foobar.example.com')
+        ext = X509.new_extension(
+            'subjectAltName', 'DNS:foobar.example.com'
+        )
         self.assertEqual(ext.get_value(), 'DNS:foobar.example.com')
-        self.assertEqual(ext.get_value(indent=2),
-                         '  DNS:foobar.example.com')
-        self.assertEqual(ext.get_value(flag=m2.X509V3_EXT_PARSE_UNKNOWN),
-                         'DNS:foobar.example.com')
+        self.assertEqual(
+            ext.get_value(indent=2), '  DNS:foobar.example.com'
+        )
+        self.assertEqual(
+            ext.get_value(flag=m2.X509V3_EXT_PARSE_UNKNOWN),
+            'DNS:foobar.example.com',
+        )
 
     def test_ext_error(self):
         with self.assertRaises(X509.X509Error):
@@ -76,7 +84,9 @@ class X509TestCase(unittest.TestCase):
 
     def test_extstack(self):
         # new
-        ext1 = X509.new_extension('subjectAltName', 'DNS:foobar.example.com')
+        ext1 = X509.new_extension(
+            'subjectAltName', 'DNS:foobar.example.com'
+        )
         ext2 = X509.new_extension('nsComment', 'Hello there')
         extstack = X509.X509_Extension_Stack()
 
@@ -131,39 +141,62 @@ class X509TestCase(unittest.TestCase):
         self.assertEqual(n.SN, 'surname')
         n.GN = 'given name'
         self.assertEqual(n.GN, 'given name')
-        self.assertEqual(n.as_text(),
-                         'C=US, ST=State or Province, ' +
-                         'L=locality name, O=orhanization name, ' +
-                         'OU=org unit, CN=common ' +
-                         'name/emailAddress=bob@example.com' +
-                         '/serialNumber=1234, ' +
-                         'SN=surname, GN=given name')
-        self.assertEqual(len(n), 10,
-                         'X509_Name has inappropriate length %d ' % len(n))
+        self.assertEqual(
+            n.as_text(),
+            'C=US, ST=State or Province, '
+            + 'L=locality name, O=orhanization name, '
+            + 'OU=org unit, CN=common '
+            + 'name/emailAddress=bob@example.com'
+            + '/serialNumber=1234, '
+            + 'SN=surname, GN=given name',
+        )
+        self.assertEqual(
+            len(n),
+            10,
+            'X509_Name has inappropriate length %d ' % len(n),
+        )
         n.givenName = 'name given'
         self.assertEqual(n.GN, 'given name')  # Just gets the first
-        self.assertEqual(n.as_text(), 'C=US, ST=State or Province, ' +
-                         'L=locality name, O=orhanization name, ' +
-                         'OU=org unit, ' +
-                         'CN=common name/emailAddress=bob@example.com' +
-                         '/serialNumber=1234, ' +
-                         'SN=surname, GN=given name, GN=name given')
-        self.assertEqual(len(n), 11,
-                         'After adding one more attribute X509_Name should ' +
-                         'have 11 and not %d attributes.' % len(n))
-        n.add_entry_by_txt(field="CN", type=ASN1.MBSTRING_ASC,
-                           entry="Proxy", len=-1, loc=-1, set=0)
-        self.assertEqual(len(n), 12,
-                         'After adding one more attribute X509_Name should ' +
-                         'have 12 and not %d attributes.' % len(n))
+        self.assertEqual(
+            n.as_text(),
+            'C=US, ST=State or Province, '
+            + 'L=locality name, O=orhanization name, '
+            + 'OU=org unit, '
+            + 'CN=common name/emailAddress=bob@example.com'
+            + '/serialNumber=1234, '
+            + 'SN=surname, GN=given name, GN=name given',
+        )
+        self.assertEqual(
+            len(n),
+            11,
+            'After adding one more attribute X509_Name should '
+            + 'have 11 and not %d attributes.' % len(n),
+        )
+        n.add_entry_by_txt(
+            field="CN",
+            type=ASN1.MBSTRING_ASC,
+            entry="Proxy",
+            len=-1,
+            loc=-1,
+            set=0,
+        )
+        self.assertEqual(
+            len(n),
+            12,
+            'After adding one more attribute X509_Name should '
+            + 'have 12 and not %d attributes.' % len(n),
+        )
         self.assertEqual(n.entry_count(), 12, n.entry_count())
-        self.assertEqual(n.as_text(), 'C=US, ST=State or Province, ' +
-                         'L=locality name, O=orhanization name, ' +
-                         'OU=org unit, ' +
-                         'CN=common name/emailAddress=bob@example.com' +
-                         '/serialNumber=1234, ' +
-                         'SN=surname, GN=given name, GN=name given, ' +
-                         'CN=Proxy')
+        self.assertEqual(
+            n.as_text(),
+            'C=US, ST=State or Province, '
+            + 'L=locality name, O=orhanization name, '
+            + 'OU=org unit, '
+            + 'CN=common name/emailAddress=bob@example.com'
+            + '/serialNumber=1234, '
+            + 'SN=surname, GN=given name, GN=name given, '
+            + 'CN=Proxy',
+        )
 
         with self.assertRaises(AttributeError):
             n.__getattr__('foobar')
@@ -174,7 +207,9 @@ class X509TestCase(unittest.TestCase):
         l = 0
         for entry in n:
             self.assertIsInstance(entry, X509.X509_Name_Entry)
-            self.assertIsInstance(entry.get_object(), ASN1.ASN1_Object)
+            self.assertIsInstance(
+                entry.get_object(), ASN1.ASN1_Object
+            )
             self.assertIsInstance(entry.get_data(), ASN1.ASN1_String)
             l += 1
         self.assertEqual(l, 12, l)
@@ -186,11 +221,20 @@ class X509TestCase(unittest.TestCase):
             data = cn.get_data()
             self.assertIsInstance(data, ASN1.ASN1_String)
             t = data.as_text()
-            self.assertIn(t, ("common name", "Proxy",))
+            self.assertIn(
+                t,
+                (
+                    "common name",
+                    "Proxy",
+                ),
+            )
             l += 1
-        self.assertEqual(l, 2,
-                         'X509_Name has %d commonName entries instead '
-                         'of expected 2' % l)
+        self.assertEqual(
+            l,
+            2,
+            'X509_Name has %d commonName entries instead '
+            'of expected 2' % l,
+        )
 
         # The target list is not deleted when the loop is finished
         # https://docs.python.org/2.7/reference\
@@ -202,9 +246,11 @@ class X509TestCase(unittest.TestCase):
 
         # OpenSSL 1.0.1h switched from encoding strings as PRINTABLESTRING (the
         # first hash value) to UTF8STRING (the second one)
-        self.assertIn(n.as_hash(), (1697185131, 1370641112),
-                      'Unexpected value of the X509_Name hash %s' %
-                      n.as_hash())
+        self.assertIn(
+            n.as_hash(),
+            (1697185131, 1370641112),
+            'Unexpected value of the X509_Name hash %s' % n.as_hash(),
+        )
 
         self.assertRaises(IndexError, lambda: n[100])
         self.assertIsNotNone(n[10])
@@ -218,13 +264,23 @@ class X509TestCase(unittest.TestCase):
         req3 = X509.load_request('tests/tmp_request.pem')
         os.remove('tests/tmp_request.pem')
         req.save('tests/tmp_request.der', format=X509.FORMAT_DER)
-        req4 = X509.load_request('tests/tmp_request.der',
-                                 format=X509.FORMAT_DER)
+        req4 = X509.load_request(
+            'tests/tmp_request.der', format=X509.FORMAT_DER
+        )
         os.remove('tests/tmp_request.der')
         if m2.OPENSSL_VERSION_NUMBER >= 0x30000000:
-            req2t = req2.as_text().replace(' Public-Key: (1024 bit)', ' RSA Public-Key: (1024 bit)')
-            req3t = req3.as_text().replace(' Public-Key: (1024 bit)', ' RSA Public-Key: (1024 bit)')
-            req4t = req3.as_text().replace(' Public-Key: (1024 bit)', ' RSA Public-Key: (1024 bit)')
+            req2t = req2.as_text().replace(
+                ' Public-Key: (1024 bit)',
+                ' RSA Public-Key: (1024 bit)',
+            )
+            req3t = req3.as_text().replace(
+                ' Public-Key: (1024 bit)',
+                ' RSA Public-Key: (1024 bit)',
+            )
+            req4t = req3.as_text().replace(
+                ' Public-Key: (1024 bit)',
+                ' RSA Public-Key: (1024 bit)',
+            )
         else:
             req2t = req2.as_text()
             req3t = req3.as_text()
@@ -247,23 +303,32 @@ class X509TestCase(unittest.TestCase):
         req.set_version(0)
         self.assertEqual(req.get_version(), 0)
 
-    @unittest.skipIf(platform.system() == 'Windows', 'Skip on Windows. TODO')
+    @unittest.skipIf(
+        platform.system() == 'Windows', 'Skip on Windows. TODO'
+    )
     def test_mkcert(self):
         for utc in (True, False):
             req, pk = self.mkreq(1024)
             pkey = req.get_pubkey()
             self.assertTrue(req.verify(pkey))
             sub = req.get_subject()
-            self.assertEqual(len(sub), 2,
-                             'Subject should be long 2 items not %d' % len(sub))
+            self.assertEqual(
+                len(sub),
+                2,
+                'Subject should be long 2 items not %d' % len(sub),
+            )
 
             cert = X509.X509()
             cert.set_serial_number(1)
             cert.set_version(2)
             cert.set_subject(sub)
             t = int(time.time()) + time.timezone
-            log.debug('t = %s',
-                time.strftime("%a, %d %b %Y %H:%M:%S %z", time.localtime(t)))
+            log.debug(
+                't = %s',
+                time.strftime(
+                    "%a, %d %b %Y %H:%M:%S %z", time.localtime(t)
+                ),
+            )
             if utc:
                 now = ASN1.ASN1_UTCTIME()
             else:
@@ -277,16 +342,24 @@ class X509TestCase(unittest.TestCase):
             cert.set_not_after(now_plus_year)
             log.debug('cert = %s', cert.get_not_before())
             self.assertEqual(str(cert.get_not_before()), str(now))
-            self.assertEqual(str(cert.get_not_after()), str(now_plus_year))
+            self.assertEqual(
+                str(cert.get_not_after()), str(now_plus_year)
+            )
 
             issuer = X509.X509_Name()
             issuer.CN = 'The Issuer Monkey'
-            issuer.O = 'The Organization Otherwise Known as My CA, Inc.'
+            issuer.O = (
+                'The Organization Otherwise Known as My CA, Inc.'
+            )
             cert.set_issuer(issuer)
             cert.set_pubkey(pkey)
-            cert.set_pubkey(cert.get_pubkey())  # Make sure get/set work
+            cert.set_pubkey(
+                cert.get_pubkey()
+            )  # Make sure get/set work
 
-            ext = X509.new_extension('subjectAltName', 'DNS:foobar.example.com')
+            ext = X509.new_extension(
+                'subjectAltName', 'DNS:foobar.example.com'
+            )
             ext.set_critical(0)
             self.assertEqual(ext.get_critical(), 0)
             cert.add_ext(ext)
@@ -295,15 +368,23 @@ class X509TestCase(unittest.TestCase):
             with self.assertRaises(ValueError):
                 cert.sign(pk, 'nosuchalgo')
 
-            self.assertTrue(cert.get_ext('subjectAltName').get_name(),
-                            'subjectAltName')
-            self.assertTrue(cert.get_ext_at(0).get_name(),
-                            'subjectAltName')
-            self.assertTrue(cert.get_ext_at(0).get_value(),
-                            'DNS:foobar.example.com')
-            self.assertEqual(cert.get_ext_count(), 1,
-                             'Certificate should have now 1 extension not %d' %
-                             cert.get_ext_count())
+            self.assertTrue(
+                cert.get_ext('subjectAltName').get_name(),
+                'subjectAltName',
+            )
+            self.assertTrue(
+                cert.get_ext_at(0).get_name(), 'subjectAltName'
+            )
+            self.assertTrue(
+                cert.get_ext_at(0).get_value(),
+                'DNS:foobar.example.com',
+            )
+            self.assertEqual(
+                cert.get_ext_count(),
+                1,
+                'Certificate should have now 1 extension not %d'
+                % cert.get_ext_count(),
+            )
             with self.assertRaises(IndexError):
                 cert.get_ext_at(1)
             self.assertTrue(cert.verify())
@@ -311,17 +392,31 @@ class X509TestCase(unittest.TestCase):
             self.assertTrue(cert.verify(cert.get_pubkey()))
             self.assertEqual(cert.get_version(), 2)
             self.assertEqual(cert.get_serial_number(), 1)
-            self.assertEqual(cert.get_issuer().CN, 'The Issuer Monkey')
+            self.assertEqual(
+                cert.get_issuer().CN, 'The Issuer Monkey'
+            )
 
-            if m2.OPENSSL_VERSION_NUMBER >= 0x90800f:
+            if m2.OPENSSL_VERSION_NUMBER >= 0x90800F:
                 self.assertFalse(cert.check_ca())
-                self.assertFalse(cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 1))
-                self.assertFalse(cert.check_purpose(m2.X509_PURPOSE_NS_SSL_SERVER,
-                                                    1))
-                self.assertTrue(cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 0))
-                self.assertTrue(cert.check_purpose(m2.X509_PURPOSE_NS_SSL_SERVER,
-                                                   0))
-                self.assertTrue(cert.check_purpose(m2.X509_PURPOSE_ANY, 0))
+                self.assertFalse(
+                    cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 1)
+                )
+                self.assertFalse(
+                    cert.check_purpose(
+                        m2.X509_PURPOSE_NS_SSL_SERVER, 1
+                    )
+                )
+                self.assertTrue(
+                    cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 0)
+                )
+                self.assertTrue(
+                    cert.check_purpose(
+                        m2.X509_PURPOSE_NS_SSL_SERVER, 0
+                    )
+                )
+                self.assertTrue(
+                    cert.check_purpose(m2.X509_PURPOSE_ANY, 0)
+                )
             else:
                 with self.assertRaises(AttributeError):
                     cert.check_ca()
@@ -353,18 +448,26 @@ class X509TestCase(unittest.TestCase):
         cert.add_ext(ext)
         cert.sign(pk, 'sha1')
 
-        if m2.OPENSSL_VERSION_NUMBER >= 0x0090800f:
+        if m2.OPENSSL_VERSION_NUMBER >= 0x0090800F:
             self.assertTrue(cert.check_ca())
-            self.assertTrue(cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER,
-                                               1))
-            self.assertTrue(cert.check_purpose(m2.X509_PURPOSE_NS_SSL_SERVER,
-                                               1))
-            self.assertTrue(cert.check_purpose(m2.X509_PURPOSE_ANY, 1))
-            self.assertTrue(cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER,
-                                               0))
-            self.assertTrue(cert.check_purpose(m2.X509_PURPOSE_NS_SSL_SERVER,
-                                               0))
-            self.assertTrue(cert.check_purpose(m2.X509_PURPOSE_ANY, 0))
+            self.assertTrue(
+                cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 1)
+            )
+            self.assertTrue(
+                cert.check_purpose(m2.X509_PURPOSE_NS_SSL_SERVER, 1)
+            )
+            self.assertTrue(
+                cert.check_purpose(m2.X509_PURPOSE_ANY, 1)
+            )
+            self.assertTrue(
+                cert.check_purpose(m2.X509_PURPOSE_SSL_SERVER, 0)
+            )
+            self.assertTrue(
+                cert.check_purpose(m2.X509_PURPOSE_NS_SSL_SERVER, 0)
+            )
+            self.assertTrue(
+                cert.check_purpose(m2.X509_PURPOSE_ANY, 0)
+            )
         else:
             with self.assertRaises(AttributeError):
                 cert.check_ca()
@@ -381,25 +484,39 @@ class X509TestCase(unittest.TestCase):
             cacert, pk1, _ = self.mkcacert(utc)
             end_entity_cert_req, pk2 = self.mkreq(1024)
             end_entity_cert = self.make_eecert(cacert, utc)
-            end_entity_cert.set_subject(end_entity_cert_req.get_subject())
-            end_entity_cert.set_pubkey(end_entity_cert_req.get_pubkey())
+            end_entity_cert.set_subject(
+                end_entity_cert_req.get_subject()
+            )
+            end_entity_cert.set_pubkey(
+                end_entity_cert_req.get_pubkey()
+            )
             end_entity_cert.sign(pk1, 'sha1')
             proxycert = self.make_proxycert(end_entity_cert, utc)
             proxycert.sign(pk2, 'sha1')
             self.assertTrue(proxycert.verify(pk2))
-            self.assertEqual(proxycert.get_ext_at(0).get_name(),
-                             'proxyCertInfo')
-            self.assertEqual(proxycert.get_ext_at(0).get_value().strip(),
-                             'Path Length Constraint: infinite\n' +
-                             'Policy Language: Inherit all')
-            self.assertEqual(proxycert.get_ext_count(), 1,
-                             proxycert.get_ext_count())
-            self.assertEqual(proxycert.get_subject().as_text(),
-                             'C=UK, CN=OpenSSL Group, CN=Proxy')
             self.assertEqual(
-                proxycert.get_subject().as_text(indent=2,
-                                                flags=m2.XN_FLAG_RFC2253),
-                '  CN=Proxy,CN=OpenSSL Group,C=UK')
+                proxycert.get_ext_at(0).get_name(), 'proxyCertInfo'
+            )
+            self.assertEqual(
+                proxycert.get_ext_at(0).get_value().strip(),
+                'Path Length Constraint: infinite\n'
+                + 'Policy Language: Inherit all',
+            )
+            self.assertEqual(
+                proxycert.get_ext_count(),
+                1,
+                proxycert.get_ext_count(),
+            )
+            self.assertEqual(
+                proxycert.get_subject().as_text(),
+                'C=UK, CN=OpenSSL Group, CN=Proxy',
+            )
+            self.assertEqual(
+                proxycert.get_subject().as_text(
+                    indent=2, flags=m2.XN_FLAG_RFC2253
+                ),
+                '  CN=Proxy,CN=OpenSSL Group,C=UK',
+            )
 
     @staticmethod
     def make_eecert(cacert, utc):
@@ -445,17 +562,29 @@ class X509TestCase(unittest.TestCase):
         subject_name = X509.X509_Name()
         for entry in seq:
             l = entry.split("=")
-            subject_name.add_entry_by_txt(field=l[0].strip(),
-                                          type=ASN1.MBSTRING_ASC,
-                                          entry=l[1], len=-1, loc=-1, set=0)
+            subject_name.add_entry_by_txt(
+                field=l[0].strip(),
+                type=ASN1.MBSTRING_ASC,
+                entry=l[1],
+                len=-1,
+                loc=-1,
+                set=0,
+            )
 
-        subject_name.add_entry_by_txt(field="CN", type=ASN1.MBSTRING_ASC,
-                                      entry="Proxy", len=-1, loc=-1, set=0)
+        subject_name.add_entry_by_txt(
+            field="CN",
+            type=ASN1.MBSTRING_ASC,
+            entry="Proxy",
+            len=-1,
+            loc=-1,
+            set=0,
+        )
 
         proxycert.set_subject_name(subject_name)
         # XXX leaks 8 bytes
-        pci_ext = X509.new_extension("proxyCertInfo",
-                                     "critical,language:Inherit all", 1)
+        pci_ext = X509.new_extension(
+            "proxyCertInfo", "critical,language:Inherit all", 1
+        )
         proxycert.add_ext(pci_ext)
         return proxycert
 
@@ -481,7 +610,9 @@ class X509TestCase(unittest.TestCase):
 
     def test_load(self):
         x509 = X509.load_cert('tests/x509.pem')
-        x5092 = X509.load_cert('tests/x509.der', format=X509.FORMAT_DER)
+        x5092 = X509.load_cert(
+            'tests/x509.der', format=X509.FORMAT_DER
+        )
         self.assertEqual(x509.as_text(), x5092.as_text())
         self.assertEqual(x509.as_pem(), x5092.as_pem())
         self.assertEqual(x509.as_der(), x5092.as_der())
@@ -491,7 +622,9 @@ class X509TestCase(unittest.TestCase):
         with BIO.openfile('tests/x509.pem') as bio:
             with BIO.openfile('tests/x509.der') as bio2:
                 x509 = X509.load_cert_bio(bio)
-                x5092 = X509.load_cert_bio(bio2, format=X509.FORMAT_DER)
+                x5092 = X509.load_cert_bio(
+                    bio2, format=X509.FORMAT_DER
+                )
 
         with self.assertRaises(ValueError):
             X509.load_cert_bio(bio2, format=45678)
@@ -520,16 +653,20 @@ class X509TestCase(unittest.TestCase):
         r2 = X509.load_request_string(req.as_der(), X509.FORMAT_DER)
         r3 = X509.load_request_string(req.as_pem(), X509.FORMAT_PEM)
 
-        r4 = X509.load_request_bio(BIO.MemoryBuffer(req.as_der()),
-                                   X509.FORMAT_DER)
-        r5 = X509.load_request_bio(BIO.MemoryBuffer(req.as_pem()),
-                                   X509.FORMAT_PEM)
+        r4 = X509.load_request_bio(
+            BIO.MemoryBuffer(req.as_der()), X509.FORMAT_DER
+        )
+        r5 = X509.load_request_bio(
+            BIO.MemoryBuffer(req.as_pem()), X509.FORMAT_PEM
+        )
 
         for r in [r1, r2, r3, r4, r5]:
             self.assertEqual(req.as_der(), r.as_der())
 
         with self.assertRaises(ValueError):
-            X509.load_request_bio(BIO.MemoryBuffer(req.as_pem()), 345678)
+            X509.load_request_bio(
+                BIO.MemoryBuffer(req.as_pem()), 345678
+            )
 
     def test_save(self):
         x509 = X509.load_cert('tests/x509.pem')
@@ -538,7 +675,7 @@ class X509TestCase(unittest.TestCase):
             # -----BEGIN CERTIFICATE----- : -----END CERTIFICATE-----
             beg_idx = l_tmp.index('-----BEGIN CERTIFICATE-----\n')
             end_idx = l_tmp.index('-----END CERTIFICATE-----\n')
-            x509_pem = ''.join(l_tmp[beg_idx:end_idx + 1])
+            x509_pem = ''.join(l_tmp[beg_idx : end_idx + 1])
 
         with open('tests/x509.der', 'rb') as f:
             x509_der = f.read()
@@ -579,25 +716,39 @@ class X509TestCase(unittest.TestCase):
 
     def test_long_serial(self):
         cert = X509.load_cert('tests/long_serial_cert.pem')
-        self.assertEqual(cert.get_serial_number(), 17616841808974579194)
+        self.assertEqual(
+            cert.get_serial_number(), 17616841808974579194
+        )
 
         cert = X509.load_cert('tests/thawte.pem')
-        self.assertEqual(cert.get_serial_number(),
-                         127614157056681299805556476275995414779)
+        self.assertEqual(
+            cert.get_serial_number(),
+            127614157056681299805556476275995414779,
+        )
 
     def test_set_long_serial(self):
         cert = X509.X509()
-        cert.set_serial_number(127614157056681299805556476275995414779)
-        self.assertEqual(cert.get_serial_number(),
-                         127614157056681299805556476275995414779)
+        cert.set_serial_number(
+            127614157056681299805556476275995414779
+        )
+        self.assertEqual(
+            cert.get_serial_number(),
+            127614157056681299805556476275995414779,
+        )
 
-    @unittest.skipIf(platform.system() == 'Windows', 'Skip on Windows. TODO')
+    @unittest.skipIf(
+        platform.system() == 'Windows', 'Skip on Windows. TODO'
+    )
     @expectedFailureIf(m2.time_t_bits() == 32)
     def test_date_after_2050_working(self):
         cert = X509.load_cert('tests/bad_date_cert.crt')
-        self.assertEqual(str(cert.get_not_after()), 'Feb  9 14:57:46 2116 GMT')
+        self.assertEqual(
+            str(cert.get_not_after()), 'Feb  9 14:57:46 2116 GMT'
+        )
 
-    @unittest.skipIf(platform.system() == 'Windows', 'Skip on Windows. TODO')
+    @unittest.skipIf(
+        platform.system() == 'Windows', 'Skip on Windows. TODO'
+    )
     @expectedFailureIf(m2.time_t_bits() == 32)
     def test_date_reference_counting(self):
         """x509_get_not_before() and x509_get_not_after() return internal
@@ -615,7 +766,7 @@ class X509TestCase(unittest.TestCase):
         self.assertEqual(str(not_after), 'Feb  9 14:57:46 2116 GMT')
 
     def test_easy_rsa_generated(self):
-        """ Test loading a cert generated by easy RSA.
+        """Test loading a cert generated by easy RSA.
 
         https://github.com/fedora-infra/fedmsg/pull/389
         """
@@ -646,9 +797,7 @@ class X509StackTestCase(unittest.TestCase):
         self.assertEqual(cert.foobar, 1)
 
         subject = cert.get_subject()
-        self.assertEqual(
-            str(subject),
-            self.expected_subject)
+        self.assertEqual(str(subject), self.expected_subject)
 
     def test_make_stack_check_num(self):
         with open("tests/der_encoded_seq.b64", 'rb') as f:
@@ -665,9 +814,7 @@ class X509StackTestCase(unittest.TestCase):
         num = len(stack)
         self.assertEqual(num, 0)
         subject = cert.get_subject()
-        self.assertEqual(
-            str(subject),
-            self.expected_subject)
+        self.assertEqual(str(subject), self.expected_subject)
 
     def test_make_stack(self):
         stack = X509.X509_Stack()
@@ -729,16 +876,25 @@ class X509ExtTestCase(unittest.TestCase):
 class CRLTestCase(unittest.TestCase):
     def test_new(self):
         crl = X509.CRL()
-        self.assertEqual(crl.as_text()[:34],
-                         'Certificate Revocation List (CRL):')
+        self.assertEqual(
+            crl.as_text()[:34], 'Certificate Revocation List (CRL):'
+        )
 
 
 def suite():
     st = unittest.TestSuite()
-    st.addTest(unittest.TestLoader().loadTestsFromTestCase(X509TestCase))
-    st.addTest(unittest.TestLoader().loadTestsFromTestCase(X509StackTestCase))
-    st.addTest(unittest.TestLoader().loadTestsFromTestCase(X509ExtTestCase))
-    st.addTest(unittest.TestLoader().loadTestsFromTestCase(CRLTestCase))
+    st.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(X509TestCase)
+    )
+    st.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(X509StackTestCase)
+    )
+    st.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(X509ExtTestCase)
+    )
+    st.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(CRLTestCase)
+    )
     return st
 
 

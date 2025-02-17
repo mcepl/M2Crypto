@@ -9,6 +9,7 @@ import os
 import platform
 import tempfile
 import ctypes
+
 if platform.system() == 'Windows':
     import ctypes.wintypes
 
@@ -21,10 +22,12 @@ log = logging.getLogger(__name__)
 def getCountProcHandles():
     PROCESS_QUERY_INFORMATION = 0x400
     handle = ctypes.windll.kernel32.OpenProcess(
-        PROCESS_QUERY_INFORMATION, 0, os.getpid())
+        PROCESS_QUERY_INFORMATION, 0, os.getpid()
+    )
     hndcnt = ctypes.wintypes.DWORD()
     ctypes.windll.kernel32.GetProcessHandleCount(
-        handle, ctypes.byref(hndcnt))
+        handle, ctypes.byref(hndcnt)
+    )
     sys_value = hndcnt.value
     ctypes.windll.kernel32.CloseHandle(handle)
     return sys_value + 1
@@ -51,8 +54,11 @@ class FileTestCase(unittest.TestCase):
 
     def tearDown(self):
 
-        self.assertEqual(self.fd_count, self.__mfd(),
-                         "last test did not close all file descriptors properly")
+        self.assertEqual(
+            self.fd_count,
+            self.__mfd(),
+            "last test did not close all file descriptors properly",
+        )
 
         try:
             os.close(self.fd)
@@ -110,9 +116,7 @@ class FileTestCase(unittest.TestCase):
             self.assertEqual(f.readline(), b'hello\n')
             self.assertEqual(f.readline(), b'world\n')
         with openfile(self.fname, 'rb') as f:
-            self.assertEqual(
-                f.readlines(),
-                [b'hello\n', b'world\n'])
+            self.assertEqual(f.readlines(), [b'hello\n', b'world\n'])
 
     def test_readline(self):
         sep = os.linesep.encode()
@@ -124,8 +128,8 @@ class FileTestCase(unittest.TestCase):
             self.assertEqual(f.readline(), b'world' + sep)
         with openfile(self.fname, 'rb') as f:
             self.assertEqual(
-                f.readlines(),
-                [b'hello' + sep, b'world' + sep])
+                f.readlines(), [b'hello' + sep, b'world' + sep]
+            )
 
     def test_tell_seek(self):
         with open(self.fname, 'w') as f:

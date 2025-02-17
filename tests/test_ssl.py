@@ -32,8 +32,19 @@ import tempfile
 import time
 import warnings
 
-from M2Crypto import (Err, Rand, SSL, X509, ftpslib, httpslib, m2, m2urllib,
-                      m2urllib2, m2xmlrpclib, util)
+from M2Crypto import (
+    Err,
+    Rand,
+    SSL,
+    X509,
+    ftpslib,
+    httpslib,
+    m2,
+    m2urllib,
+    m2urllib2,
+    m2xmlrpclib,
+    util,
+)
 from M2Crypto.SSL.timeout import DEFAULT_TIMEOUT
 from tests import unittest
 from tests.fips import fips_mode
@@ -310,7 +321,10 @@ class HttpslibSSLSNIClientTestCase(BaseSSLClientTestCase):
     def tearDown(self):
         self.ctx.close()
 
-    @unittest.skipIf('DISTROBOX_ENTER_PATH' in os.environ, "Don't run the test on local machine")
+    @unittest.skipIf(
+        'DISTROBOX_ENTER_PATH' in os.environ,
+        "Don't run the test on local machine",
+    )
     def test_SNI_support(self):
         pid = self.start_server(self.args)
         try:
@@ -331,7 +345,10 @@ class HttpslibSSLSNIClientTestCase(BaseSSLClientTestCase):
             'Hostname in TLS extension: "%s"' % srv_host, out
         )
 
-    @unittest.skipIf('DISTROBOX_ENTER_PATH' in os.environ, "Don't run the test on local machine")
+    @unittest.skipIf(
+        'DISTROBOX_ENTER_PATH' in os.environ,
+        "Don't run the test on local machine",
+    )
     def test_IP_call(self):
         no_exception = True
         runs_counter = 0
@@ -427,8 +444,10 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             self.stop_server(pid)
 
     # the test for musl libc based on the unresolved bug in CPython gh#python/cpython#87414
-    @unittest.skipIf((util.is_32bit() and platform.libc_ver() == ("", "")),
-                     "socket.setsockopt() on musl libc fails (srht#mcepl/m2crypto#341)")
+    @unittest.skipIf(
+        (util.is_32bit() and platform.libc_ver() == ("", "")),
+        "socket.setsockopt() on musl libc fails (srht#mcepl/m2crypto#341)",
+    )
     def test_server_simple_timeouts(self):
         pid = self.start_server(self.args)
         # Arbitrary value:
@@ -485,8 +504,9 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
                 ctx = SSL.Context('tlsv1')
             s = SSL.Connection(ctx)
             s.set_cipher_list('DEFAULT:@SECLEVEL=0')
-            with self.assertRaisesRegex(SSL.SSLError,
-                                       r'version|unexpected eof'):
+            with self.assertRaisesRegex(
+                SSL.SSLError, r'version|unexpected eof'
+            ):
                 s.connect(self.srv_addr)
             s.close()
         finally:
@@ -518,8 +538,9 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s = SSL.Connection(ctx)
             s.set_cipher_list('AES128-SHA')
             if not OPENSSL111:
-                with self.assertRaisesRegex(SSL.SSLError,
-                                           'sslv3 alert handshake failure'):
+                with self.assertRaisesRegex(
+                    SSL.SSLError, 'sslv3 alert handshake failure'
+                ):
                     s.connect(self.srv_addr)
             s.close()
         finally:
@@ -533,8 +554,9 @@ class MiscSSLClientTestCase(BaseSSLClientTestCase):
             s = SSL.Connection(ctx)
             s.set_cipher_list('EXP-RC2-MD5')
             if not OPENSSL111:
-                with self.assertRaisesRegex(SSL.SSLError,
-                                           'no ciphers available'):
+                with self.assertRaisesRegex(
+                    SSL.SSLError, 'no ciphers available'
+                ):
                     s.connect(self.srv_addr)
             s.close()
         finally:
@@ -1355,6 +1377,7 @@ class FtpsLibTestCase(unittest.TestCase):
         ):
             f.connect('no-such-host-dfgHJK56789', 990)
 
+
 class SessionTestCase(unittest.TestCase):
     def test_session_load_bad(self):
         with self.assertRaises(SSL.SSLError):
@@ -1363,15 +1386,45 @@ class SessionTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(SessionTestCase))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(XmlRpcLibTestCase))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(FtpsLibTestCase))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(PassSSLClientTestCase))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(HttpslibSSLClientTestCase))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(HttpslibSSLSNIClientTestCase))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Urllib2SSLClientTestCase))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(Urllib2TEChunkedSSLClientTestCase))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(MiscSSLClientTestCase))
+    suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(SessionTestCase)
+    )
+    suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(XmlRpcLibTestCase)
+    )
+    suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(FtpsLibTestCase)
+    )
+    suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(
+            PassSSLClientTestCase
+        )
+    )
+    suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(
+            HttpslibSSLClientTestCase
+        )
+    )
+    suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(
+            HttpslibSSLSNIClientTestCase
+        )
+    )
+    suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(
+            Urllib2SSLClientTestCase
+        )
+    )
+    suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(
+            Urllib2TEChunkedSSLClientTestCase
+        )
+    )
+    suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(
+            MiscSSLClientTestCase
+        )
+    )
     try:
         import M2Crypto.SSL.TwistedProtocolWrapper as wrapper  # noqa
 

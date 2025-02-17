@@ -31,7 +31,9 @@ class ThreadingTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(ThreadingTestCase))
+    suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(ThreadingTestCase)
+    )
     return suite
 
 

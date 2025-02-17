@@ -8,11 +8,16 @@ import string
 
 from M2Crypto import SSL
 
-from httplib import FakeSocket, HTTP, HTTPConnection, HTTPResponse, HTTPS_PORT
+from httplib import (
+    FakeSocket,
+    HTTP,
+    HTTPConnection,
+    HTTPResponse,
+    HTTPS_PORT,
+)
 
 
 class HTTPSConnection(HTTPConnection):
-
     """
     This class allows communication via SSL using M2Crypto.
     """
@@ -63,6 +68,7 @@ class HTTPSConnection(HTTPConnection):
         # remain.
         pass
 
+
 class HTTPS(HTTP):
 
     _connection_class = HTTPSConnection
@@ -73,6 +79,7 @@ class HTTPS(HTTP):
             self.ssl_ctx = ssl['ssl_context']
         except KeyError:
             self.ssl_ctx = SSL.Context('sslv23')
+
 
 # ISS Added.
 # From here, starts the proxy patch
@@ -93,7 +100,10 @@ class HTTPProxyConnection(HTTPConnection):
     ...
 
     """
-    def __init__(self, proxy, host, port=None, username=None, password=None):
+
+    def __init__(
+        self, proxy, host, port=None, username=None, password=None
+    ):
         # The connection goes through the proxy
         HTTPConnection.__init__(self, proxy)
         # save the proxy connection settings
@@ -132,16 +142,19 @@ class HTTPProxyConnection(HTTPConnection):
         self._add_auth_proxy_header()
 
     def _add_auth_proxy_header(self):
-        """Adds an HTTP header for authenticated proxies
-        """
+        """Adds an HTTP header for authenticated proxies"""
         if not self.__username:
             # No username, so assume not an authenticated proxy
             return
         # Authenticated proxy
         import base64
+
         userpass = "%s:%s" % (self.__username, self.__password)
         enc_userpass = base64.encodestring(userpass).strip()
-        self.putheader("Proxy-Authorization", "Basic %s" % enc_userpass)
+        self.putheader(
+            "Proxy-Authorization", "Basic %s" % enc_userpass
+        )
+
 
 class HTTPSProxyResponse(HTTPResponse):
     """
@@ -150,9 +163,11 @@ class HTTPSProxyResponse(HTTPResponse):
     after the initial request, since the connection is tunneled to the SSL
     host with the CONNECT method.
     """
+
     def begin(self):
         HTTPResponse.begin(self)
         self.will_close = 0
+
 
 class HTTPSProxyConnection(HTTPProxyConnection):
     """This class provides HTTP access through (authenticated) proxies.
@@ -172,23 +187,35 @@ class HTTPSProxyConnection(HTTPProxyConnection):
     To avoid dealing with multiple inheritance, this class only inherits from
     HTTPProxyConnection.
     """
+
     default_port = HTTPSConnection.default_port
 
-    def __init__(self, proxy, host, port=None, username=None, password=None, **x509):
+    def __init__(
+        self,
+        proxy,
+        host,
+        port=None,
+        username=None,
+        password=None,
+        **x509
+    ):
         for key in x509.keys():
             if key not in ['cert_file', 'key_file', 'ssl_context']:
                 raise ValueError()
         self.key_file = x509.get('key_file')
         self.cert_file = x509.get('cert_file')
-        #ISS Added
+        # ISS Added
         self.ssl_ctx = x509.get('ssl_context')
         # Piggybacking on HTTPProxyConnection
-        HTTPProxyConnection.__init__(self, proxy, host, port, username, password)
+        HTTPProxyConnection.__init__(
+            self, proxy, host, port, username, password
+        )
 
     def connect(self):
         """Connect (using SSL) to the host and port specified in __init__
         (through a proxy)."""
         import socket
+
         # Set the connection with the proxy
         HTTPProxyConnection.connect(self)
         # Use the stock HTTPConnection putrequest
@@ -220,13 +247,14 @@ class HTTPSProxyConnection(HTTPProxyConnection):
 
         # Use the real stuff. ;-)
         if self.ssl_ctx and isinstance(self.ssl_ctx, SSL.Context):
-           self.sock =  SSL.Connection(self.ssl_ctx)
-           self.sock.connect((self.host, self.port))
+            self.sock = SSL.Connection(self.ssl_ctx)
+            self.sock.connect((self.host, self.port))
         else:
-           # Fake the socket
-           ssl = socket.ssl(self.sock, self.key_file, self.cert_file)
-           self.sock = FakeSocket(self.sock, ssl)
-        if self.debuglevel > 0: print('socket type:', self.sock)
+            # Fake the socket
+            ssl = socket.ssl(self.sock, self.key_file, self.cert_file)
+            self.sock = FakeSocket(self.sock, ssl)
+        if self.debuglevel > 0:
+            print('socket type:', self.sock)
 
     def putrequest(self, method, url):
         """Send a request to the server.

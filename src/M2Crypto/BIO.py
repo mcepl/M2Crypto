@@ -265,7 +265,9 @@ class File(BIO):
         return super(File, self).reset()
 
 
-def openfile(filename: Union[str, bytes], mode: Union[str, bytes] = 'rb') -> File:
+def openfile(
+    filename: Union[str, bytes], mode: Union[str, bytes] = 'rb'
+) -> File:
     try:
         f = open(filename, mode)
     except IOError as ex:
@@ -284,7 +286,9 @@ class IOBuffer(BIO):
     m2_bio_pop = m2.bio_pop
     m2_bio_free = m2.bio_free
 
-    def __init__(self, under_bio: BIO, mode: str = 'rwb', _pyfree: int = 1) -> None:
+    def __init__(
+        self, under_bio: BIO, mode: str = 'rwb', _pyfree: int = 1
+    ) -> None:
         super(IOBuffer, self).__init__(self, _pyfree=_pyfree)
         self.io = m2.bio_new(m2.bio_f_buffer())
         self.bio = m2.bio_push(self.io, under_bio._ptr())
@@ -330,7 +334,13 @@ class CipherStream(BIO):
     def write_close(self) -> None:
         self.obio.write_close()
 
-    def set_cipher(self, algo: str, key: Union[str, bytes], iv: Union[str, bytes], op: int) -> None:
+    def set_cipher(
+        self,
+        algo: str,
+        key: Union[str, bytes],
+        iv: Union[str, bytes],
+        op: int,
+    ) -> None:
         cipher = getattr(m2, algo, None)
         if cipher is None:
             raise ValueError('unknown cipher', algo)
@@ -354,7 +364,9 @@ class SSLBio(BIO):
         self.bio = m2.bio_new(m2.bio_f_ssl())
         self.closed = 0
 
-    def set_ssl(self, conn: Any, close_flag: int = m2.bio_noclose) -> None:
+    def set_ssl(
+        self, conn: Any, close_flag: int = m2.bio_noclose
+    ) -> None:
         # conn should actually be SSL.Connection, but we cannot import
         # it here without getting into some serious circular dependency
         # business.

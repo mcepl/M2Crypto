@@ -42,7 +42,6 @@ from M2Crypto import SSL
 
 
 class FTP_TLS(FTP):
-
     """Python OO interface to client-side FTP/TLS."""
 
     def __init__(self, host=None, ssl_ctx=None):

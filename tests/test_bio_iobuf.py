@@ -84,7 +84,9 @@ class IOBufferTestCase(unittest.TestCase):
 
 
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(IOBufferTestCase)
+    return unittest.TestLoader().loadTestsFromTestCase(
+        IOBufferTestCase
+    )
 
 
 if __name__ == '__main__':

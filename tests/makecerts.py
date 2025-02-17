@@ -37,7 +37,7 @@ def gen_identifier(cert, dig='sha256'):
     h.update(instr)
     digest = h.hexdigest().upper()
 
-    return ":".join(digest[pos: pos + 2] for pos in range(0, 40, 2))
+    return ":".join(digest[pos : pos + 2] for pos in range(0, 40, 2))
 
 
 def make_subject(cn=None, email=None):
@@ -99,8 +99,9 @@ def issue(request, ca, capk):
     ext = X509.new_extension('basicConstraints', 'CA:FALSE')
     cert.add_ext(ext)
 
-    ext = X509.new_extension('subjectKeyIdentifier',
-                             gen_identifier(cert))
+    ext = X509.new_extension(
+        'subjectKeyIdentifier', gen_identifier(cert)
+    )
     cert.add_ext(ext)
 
     # auth = X509.load_cert('ca.pem')
@@ -173,7 +174,9 @@ def mk_x509(ca, capk):
 
 def mk_signer(ca, capk):
     r, _ = req('signer')
-    r.set_subject(make_subject(cn='Signer', email='signer@example.com'))
+    r.set_subject(
+        make_subject(cn='Signer', email='signer@example.com')
+    )
     cert = issue(r, ca, capk)
 
     save_text_pem_key(cert, 'signer', with_key=False)
@@ -181,19 +184,24 @@ def mk_signer(ca, capk):
 
 def mk_recipient(ca, capk):
     r, _ = req('recipient')
-    r.set_subject(make_subject(cn='Recipient', email='recipient@example.com'))
+    r.set_subject(
+        make_subject(cn='Recipient', email='recipient@example.com')
+    )
     cert = issue(r, ca, capk)
     save_text_pem_key(cert, 'recipient')
 
 
 def mk_ec_pair():
     from M2Crypto import EC
+
     priv_key = EC.gen_params(EC.NID_secp384r1)
     priv_key.gen_key()
-    priv_key.save_key('ec.priv.pem',
-                      callback=util.no_passphrase_callback)
+    priv_key.save_key(
+        'ec.priv.pem', callback=util.no_passphrase_callback
+    )
     pub_key = priv_key.pub()
     pub_key.save_pub_key('ec.pub.pem')
+
 
 if __name__ == '__main__':
     names = ['ca', 'server', 'recipient', 'signer', 'x509']

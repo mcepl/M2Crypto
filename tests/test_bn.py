@@ -44,7 +44,9 @@ class BNTestCase(unittest.TestCase):
             r128 = BN.rand(128, top=0)
             r256 = BN.rand(256, top=0)
             r512 = BN.rand(512, top=0)
-            assert r8 < r16 < r32 < r64 < r128 < r256 < r512 < (r512 + 1)
+            assert (
+                r8 < r16 < r32 < r64 < r128 < r256 < r512 < (r512 + 1)
+            )
 
     def test_rand_range(self):
         # small range

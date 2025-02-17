@@ -8,8 +8,10 @@ from email import Message
 
 
 class smimeplus(object):
-    def __init__(self, cert, privkey, passphrase, cacert, randfile=None):
-        self.cipher = 'des_ede3_cbc'   # XXX make it configable??
+    def __init__(
+        self, cert, privkey, passphrase, cacert, randfile=None
+    ):
+        self.cipher = 'des_ede3_cbc'  # XXX make it configable??
         self.setsender(cert, privkey, passphrase)
         self.setcacert(cacert)
         self.randfile = randfile
@@ -41,16 +43,16 @@ class smimeplus(object):
 
     def __pack(self, msg):
         """Convert 'msg' to string and put it into an memory buffer for
-           openssl operation"""
+        openssl operation"""
         return BIO.MemoryBuffer(self.__gettext(msg))
 
     def setsender(self, cert=None, privkey=None, passphrase=None):
         if cert:
             self.cert = cert
         if privkey:
-            self.key  = privkey
+            self.key = privkey
         if passphrase:
-            self.passphrase  = passphrase
+            self.passphrase = passphrase
 
     def setcacert(self, cacert):
         self.cacert = cacert
@@ -58,8 +60,11 @@ class smimeplus(object):
     def sign(self, msg):
         """Sign a message"""
         _sender = SMIME.SMIME()
-        _sender.load_key_bio(self.__pack(self.key), self.__pack(self.cert),
-                callback=self.__passcallback)
+        _sender.load_key_bio(
+            self.__pack(self.key),
+            self.__pack(self.cert),
+            callback=self.__passcallback,
+        )
 
         _signed = _sender.sign(self.__pack(msg), SMIME.PKCS7_DETACHED)
 
@@ -69,8 +74,8 @@ class smimeplus(object):
 
     def verify(self, smsg, scert):
         """Verify to see if 'smsg' was signed by 'scert', and scert was
-           issued by cacert of this object.  Return message signed if success,
-           None otherwise"""
+        issued by cacert of this object.  Return message signed if success,
+        None otherwise"""
         # Load signer's cert.
         _x509 = X509.load_cert_bio(self.__pack(scert))
         _stack = X509.X509_Stack()
@@ -90,7 +95,9 @@ class smimeplus(object):
         # Load signed message, verify it, and return result
         _p7, _data = SMIME.smime_load_pkcs7_bio(self.__pack(smsg))
         try:
-            return _sender.verify(_p7, _data, flags=SMIME.PKCS7_SIGNED)
+            return _sender.verify(
+                _p7, _data, flags=SMIME.PKCS7_SIGNED
+            )
         except SMIME.SMIME_Error:
             return None
 
@@ -121,11 +128,14 @@ class smimeplus(object):
 
     def decrypt(self, emsg):
         """decrypt 'msg'.  Return decrypt message if success, None
-           otherwise"""
+        otherwise"""
         # Load private key and cert.
         _sender = SMIME.SMIME()
-        _sender.load_key_bio(self.__pack(self.key), self.__pack(self.cert),
-                callback=self.__passcallback)
+        _sender.load_key_bio(
+            self.__pack(self.key),
+            self.__pack(self.cert),
+            callback=self.__passcallback,
+        )
 
         # Load the encrypted data.
         _p7, _data = SMIME.smime_load_pkcs7_bio(self.__pack(emsg))
@@ -180,5 +190,3 @@ def persistdata(data, file=None, isbinary=False):
     _fh.write(data)
     _fh.close()
     return file
-
-

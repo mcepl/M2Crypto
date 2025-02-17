@@ -47,9 +47,16 @@ if win32process:
             os.chdir('tests')
             try:
                 hproc, _, _, _ = win32process.CreateProcess(
-                    self.openssl, ' '.join(args), None, None, 0,
-                    win32process.DETACHED_PROCESS, None, None,
-                    self.startupinfo)
+                    self.openssl,
+                    ' '.join(args),
+                    None,
+                    None,
+                    0,
+                    win32process.DETACHED_PROCESS,
+                    None,
+                    None,
+                    self.startupinfo,
+                )
             finally:
                 os.chdir('..')
             time.sleep(0.3)
@@ -59,7 +66,9 @@ if win32process:
             win32process.TerminateProcess(hproc, 0)
 
     def suite():
-        return unittest.TestLoader().loadTestsFromTestCase(SSLWinClientTestCase)
+        return unittest.TestLoader().loadTestsFromTestCase(
+            SSLWinClientTestCase
+        )
 
     def zap_servers():
         pass

@@ -8,5 +8,7 @@ except ImportError:
     import unittest
 
 
-logging.basicConfig(format='%(levelname)s:%(funcName)s:%(message)s',
-                    level=logging.DEBUG)
+logging.basicConfig(
+    format='%(levelname)s:%(funcName)s:%(message)s',
+    level=logging.DEBUG,
+)

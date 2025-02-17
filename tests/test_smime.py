@@ -37,8 +37,7 @@ class SMIMETestCase(unittest.TestCase):
     def test_load_bad(self):
         s = SMIME.SMIME()
         with self.assertRaises(EVP.EVPError):
-            s.load_key('tests/signer.pem',
-                       'tests/signer.pem')
+            s.load_key('tests/signer.pem', 'tests/signer.pem')
 
         with self.assertRaises(BIO.BIOError):
             SMIME.load_pkcs7('nosuchfile-dfg456')
@@ -60,9 +59,14 @@ class SMIMETestCase(unittest.TestCase):
             SMIME.smime_load_pkcs7_bio(BIO.MemoryBuffer(b'no pkcs7'))
 
     def test_crlf(self):
-        self.assertEqual(SMIME.text_crlf(b'foobar'), b'Content-Type: text/plain\r\n\r\nfoobar')
-        self.assertEqual(SMIME.text_crlf_bio(
-            BIO.MemoryBuffer(b'foobar')).read(), b'Content-Type: text/plain\r\n\r\nfoobar')
+        self.assertEqual(
+            SMIME.text_crlf(b'foobar'),
+            b'Content-Type: text/plain\r\n\r\nfoobar',
+        )
+        self.assertEqual(
+            SMIME.text_crlf_bio(BIO.MemoryBuffer(b'foobar')).read(),
+            b'Content-Type: text/plain\r\n\r\nfoobar',
+        )
 
     def do_test_sign(self):
         buf = BIO.MemoryBuffer(self.cleartext)
@@ -77,14 +81,20 @@ class SMIMETestCase(unittest.TestCase):
 
         buf = out.read()
 
-        self.assertTrue(buf.startswith(b'-----BEGIN PKCS7-----'),
-                        b'-----BEGIN PKCS7-----')
+        self.assertTrue(
+            buf.startswith(b'-----BEGIN PKCS7-----'),
+            b'-----BEGIN PKCS7-----',
+        )
         buf = buf.strip()
-        self.assertTrue(buf.endswith(b'-----END PKCS7-----'),
-                        buf[-len(b'-----END PKCS7-----'):])
-        self.assertGreater(len(buf),
-                           len(b'-----END PKCS7-----') +
-                           len(b'-----BEGIN PKCS7-----'))
+        self.assertTrue(
+            buf.endswith(b'-----END PKCS7-----'),
+            buf[-len(b'-----END PKCS7-----') :],
+        )
+        self.assertGreater(
+            len(buf),
+            len(b'-----END PKCS7-----')
+            + len(b'-----BEGIN PKCS7-----'),
+        )
 
         s.write(out, p7, BIO.MemoryBuffer(self.cleartext))
         return out
@@ -96,8 +106,13 @@ class SMIMETestCase(unittest.TestCase):
         buf = BIO.MemoryBuffer(self.cleartext)
         s = SMIME.SMIME()
         s.load_key('tests/signer_key.pem', 'tests/signer.pem')
-        self.assertRaises(SMIME.SMIME_Error, s.sign,
-                          buf, SMIME.PKCS7_DETACHED, 'invalid digest name')
+        self.assertRaises(
+            SMIME.SMIME_Error,
+            s.sign,
+            buf,
+            SMIME.PKCS7_DETACHED,
+            'invalid digest name',
+        )
 
     def test_sign_nondefault_digest(self):
         buf = BIO.MemoryBuffer(self.cleartext)
@@ -230,8 +245,7 @@ class SMIMETestCase(unittest.TestCase):
         p7 = s.encrypt(buf)
 
         self.assertEqual(len(buf), 0)
-        self.assertEqual(p7.type(), SMIME.PKCS7_ENVELOPED,
-                         p7.type())
+        self.assertEqual(p7.type(), SMIME.PKCS7_ENVELOPED, p7.type())
         self.assertIsInstance(p7, SMIME.PKCS7, p7)
         out = BIO.MemoryBuffer()
         p7.write(out)
@@ -241,9 +255,11 @@ class SMIMETestCase(unittest.TestCase):
         self.assertTrue(buf.startswith(b'-----BEGIN PKCS7-----'))
         buf = buf.strip()
         self.assertTrue(buf.endswith(b'-----END PKCS7-----'))
-        self.assertGreater(len(buf),
-                           len(b'-----END PKCS7-----') +
-                           len(b'-----BEGIN PKCS7-----'))
+        self.assertGreater(
+            len(buf),
+            len(b'-----END PKCS7-----')
+            + len(b'-----BEGIN PKCS7-----'),
+        )
 
         s.write(out, p7)
         return out
@@ -338,32 +354,45 @@ class WriteLoadTestCase(unittest.TestCase):
         with BIO.openfile(self.filename_der, 'wb') as f:
             self.assertEqual(p7.write_der(f), 1)
 
-        p7 = s.sign(BIO.MemoryBuffer(b'some text'), SMIME.PKCS7_DETACHED)
+        p7 = s.sign(
+            BIO.MemoryBuffer(b'some text'), SMIME.PKCS7_DETACHED
+        )
         self.filenameSmime = 'tests/sig.p7s'
         with BIO.openfile(self.filenameSmime, 'wb') as f:
-            self.assertEqual(s.write(f, p7, BIO.MemoryBuffer(b'some text')), 1)
+            self.assertEqual(
+                s.write(f, p7, BIO.MemoryBuffer(b'some text')), 1
+            )
 
     def tearDown(self):
         if os.path.exists(self.filename_der):
             os.unlink(self.filename_der)
 
     def test_load_pkcs7(self):
-        self.assertEqual(SMIME.load_pkcs7(self.filename).type(), SMIME.PKCS7_SIGNED)
+        self.assertEqual(
+            SMIME.load_pkcs7(self.filename).type(), SMIME.PKCS7_SIGNED
+        )
 
     def test_load_pkcs7_bio(self):
         with open(self.filename, 'rb') as f:
             buf = BIO.MemoryBuffer(f.read())
 
-        self.assertEqual(SMIME.load_pkcs7_bio(buf).type(), SMIME.PKCS7_SIGNED)
+        self.assertEqual(
+            SMIME.load_pkcs7_bio(buf).type(), SMIME.PKCS7_SIGNED
+        )
 
     def test_load_pkcs7_der(self):
-        self.assertEqual(SMIME.load_pkcs7_der(self.filename_der).type(), SMIME.PKCS7_SIGNED)
+        self.assertEqual(
+            SMIME.load_pkcs7_der(self.filename_der).type(),
+            SMIME.PKCS7_SIGNED,
+        )
 
     def test_load_pkcs7_bio_der(self):
         with open(self.filename_der, 'rb') as f:
             buf = BIO.MemoryBuffer(f.read())
 
-        self.assertEqual(SMIME.load_pkcs7_bio_der(buf).type(), SMIME.PKCS7_SIGNED)
+        self.assertEqual(
+            SMIME.load_pkcs7_bio_der(buf).type(), SMIME.PKCS7_SIGNED
+        )
 
     def test_load_smime(self):
         a, b = SMIME.smime_load_pkcs7(self.filenameSmime)
@@ -383,8 +412,12 @@ class WriteLoadTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(SMIMETestCase))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(WriteLoadTestCase))
+    suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(SMIMETestCase)
+    )
+    suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(WriteLoadTestCase)
+    )
     return suite
 
 

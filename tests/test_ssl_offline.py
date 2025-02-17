@@ -19,7 +19,8 @@ class CheckerTestCase(unittest.TestCase):
 
         check = SSL.Checker.Checker(
             host=srv_host,
-            peerCertHash='34E856555EA641D0437930049C3D87810CC8B326')
+            peerCertHash='34E856555EA641D0437930049C3D87810CC8B326',
+        )
         x509 = X509.load_cert('tests/server.pem')
         self.assertTrue(check(x509, srv_host))
         with self.assertRaises(SSL.Checker.WrongHost):
@@ -41,6 +42,7 @@ class ContextTestCase(unittest.TestCase):
 
     def test_map(self):
         from M2Crypto.SSL.Context import ctxmap, _ctxmap
+
         self.assertIsInstance(ctxmap(), _ctxmap)
         ctx = SSL.Context()
         assert ctxmap()
@@ -49,7 +51,9 @@ class ContextTestCase(unittest.TestCase):
 
     def test_certstore(self):
         ctx = SSL.Context()
-        ctx.set_verify(SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9)
+        ctx.set_verify(
+            SSL.verify_peer | SSL.verify_fail_if_no_peer_cert, 9
+        )
         ctx.load_verify_locations('tests/ca.pem')
         ctx.load_cert('tests/x509.pem')
 
@@ -59,8 +63,12 @@ class ContextTestCase(unittest.TestCase):
 
 def suite():
     t_suite = unittest.TestSuite()
-    t_suite.addTest(unittest.TestLoader().loadTestsFromTestCase(CheckerTestCase))
-    t_suite.addTest(unittest.TestLoader().loadTestsFromTestCase(ContextTestCase))
+    t_suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(CheckerTestCase)
+    )
+    t_suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(ContextTestCase)
+    )
     return t_suite
 
 

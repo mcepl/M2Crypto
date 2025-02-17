@@ -17,10 +17,11 @@ class ErrTestCase(unittest.TestCase):
         self.assertEqual(Err.get_error_reason(0), '')
 
 
-
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(ErrTestCase))
+    suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(ErrTestCase)
+    )
     return suite
 
 

@@ -41,15 +41,19 @@ class ASN1TestCase(unittest.TestCase):
         m2.asn1_string_set(asn1ptr, text)
         a = ASN1.ASN1_String(asn1ptr, 1)
         self.assertEqual(a.as_text(), 'hello there', a.as_text())
-        self.assertEqual(a.as_text(flags=m2.ASN1_STRFLGS_RFC2253),
-                         '#040B68656C6C6F207468657265',
-                         a.as_text(flags=m2.ASN1_STRFLGS_RFC2253))
+        self.assertEqual(
+            a.as_text(flags=m2.ASN1_STRFLGS_RFC2253),
+            '#040B68656C6C6F207468657265',
+            a.as_text(flags=m2.ASN1_STRFLGS_RFC2253),
+        )
         self.assertEqual(a.as_text(), str(a))
 
     def test_Object(self):
         pass  # XXX Dunno how to test
 
-    @unittest.skipIf(platform.system() == 'Windows', 'Skip on Windows.')
+    @unittest.skipIf(
+        platform.system() == 'Windows', 'Skip on Windows.'
+    )
     def test_TIME(self):
         asn1 = ASN1.ASN1_TIME()
         self.assertEqual(str(asn1), 'Bad time value')
@@ -76,7 +80,9 @@ class ASN1TestCase(unittest.TestCase):
         t2 = time.strftime(format, time.gmtime(t))
         self.assertEqual(t1, t2)
 
-    @unittest.skipIf(platform.system() == 'Windows', 'Skip on Windows.')
+    @unittest.skipIf(
+        platform.system() == 'Windows', 'Skip on Windows.'
+    )
     def test_UTCTIME(self):
         asn1 = ASN1.ASN1_UTCTIME()
         self.assertEqual(str(asn1), 'Bad time value')
@@ -103,13 +109,17 @@ class ASN1TestCase(unittest.TestCase):
         t2 = time.strftime(format, time.gmtime(t))
         self.assertEqual(t1, t2)
 
-    @unittest.skipIf(platform.system() == 'Windows', 'Skip on Windows.')
+    @unittest.skipIf(
+        platform.system() == 'Windows', 'Skip on Windows.'
+    )
     def test_TIME_datetime(self):
         asn1 = ASN1.ASN1_TIME()
         # Test get_datetime and set_datetime
         t = time.time()
         dt = datetime.datetime.fromtimestamp(int(t))
-        udt = dt.replace(tzinfo=ASN1.LocalTimezone()).astimezone(ASN1.UTC)
+        udt = dt.replace(tzinfo=ASN1.LocalTimezone()).astimezone(
+            ASN1.UTC
+        )
         asn1.set_time(int(t))
         t1 = str(asn1)
         asn1.set_datetime(dt)
@@ -129,13 +139,17 @@ class ASN1TestCase(unittest.TestCase):
         self.assertEqual(t1, t2)
         self.assertEqual(str(udt), str(asn1.get_datetime()))
 
-    @unittest.skipIf(platform.system() == 'Windows', 'Skip on Windows.')
+    @unittest.skipIf(
+        platform.system() == 'Windows', 'Skip on Windows.'
+    )
     def test_UTCTIME_datetime(self):
         asn1 = ASN1.ASN1_UTCTIME()
         # Test get_datetime and set_datetime
         t = time.time()
         dt = datetime.datetime.fromtimestamp(int(t))
-        udt = dt.replace(tzinfo=ASN1.LocalTimezone()).astimezone(ASN1.UTC)
+        udt = dt.replace(tzinfo=ASN1.LocalTimezone()).astimezone(
+            ASN1.UTC
+        )
         asn1.set_time(int(t))
         t1 = str(asn1)
         asn1.set_datetime(dt)

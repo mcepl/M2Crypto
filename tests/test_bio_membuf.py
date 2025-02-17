@@ -112,8 +112,11 @@ class MemoryBufferTestCase(unittest.TestCase):
         # test against possible endless loop
         # http://stackoverflow.com/questions/9280550/
         timeout_secs = 10
-        time_limit(timeout_secs, run_test,
-                   'The readline() should not timeout!')
+        time_limit(
+            timeout_secs,
+            run_test,
+            'The readline() should not timeout!',
+        )
 
 
 def run_test(*args, **kwargs):
@@ -125,8 +128,11 @@ def run_test(*args, **kwargs):
     with MemoryBuffer(b'hello' + sep + b'world' + sep) as mb:
         assert mb.readlines() == [b'hello' + sep, b'world' + sep]
 
+
 def suite():
-    return unittest.TestLoader().loadTestsFromTestCase(MemoryBufferTestCase)
+    return unittest.TestLoader().loadTestsFromTestCase(
+        MemoryBufferTestCase
+    )
 
 
 if __name__ == '__main__':

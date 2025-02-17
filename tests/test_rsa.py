@@ -23,7 +23,9 @@ class RSATestCase(unittest.TestCase):
     privkey2 = 'tests/rsa.priv2.pem'
     pubkey = 'tests/rsa.pub.pem'
 
-    data = hashlib.sha1(b'The magic words are squeamish ossifrage.').digest()
+    data = hashlib.sha1(
+        b'The magic words are squeamish ossifrage.'
+    ).digest()
 
     e_padding_ok = ('pkcs1_padding', 'pkcs1_oaep_padding')
 
@@ -57,8 +59,9 @@ class RSATestCase(unittest.TestCase):
     def test_loadkey_pp(self):
         rsa = RSA.load_key(self.privkey2, self.pp_callback)
         self.assertEqual(len(rsa), 1024)
-        self.assertEqual(rsa.e,
-                         b'\000\000\000\003\001\000\001')  # aka 65537 aka 0xf4
+        self.assertEqual(
+            rsa.e, b'\000\000\000\003\001\000\001'
+        )  # aka 65537 aka 0xf4
         self.assertEqual(rsa.check_key(), 1)
 
     def test_loadkey_pp_bad_cb(self):
@@ -68,9 +71,13 @@ class RSATestCase(unittest.TestCase):
     def test_loadkey(self):
         rsa = RSA.load_key(self.privkey)
         self.assertEqual(len(rsa), 1024)
-        self.assertEqual(rsa.e,
-                         b'\000\000\000\003\001\000\001')  # aka 65537 aka 0xf4
-        self.assertEqual(rsa.n, b"\x00\x00\x00\x81\x00\xcde!\x15\xdah\xb5`\xce[\xd6\x17d\xba8\xc1I\xb1\xf1\xber\x86K\xc7\xda\xb3\x98\xd6\xf6\x80\xae\xaa\x8f!\x9a\xefQ\xdeh\xbb\xc5\x99\x01o\xebGO\x8e\x9b\x9a\x18\xfb6\xba\x12\xfc\xf2\x17\r$\x00\xa1\x1a \xfc/\x13iUm\x04\x13\x0f\x91D~\xbf\x08\x19C\x1a\xe2\xa3\x91&\x8f\xcf\xcc\xf3\xa4HRf\xaf\xf2\x19\xbd\x05\xe36\x9a\xbbQ\xc86|(\xad\x83\xf2Eu\xb2EL\xdf\xa4@\x7f\xeel|\xfcU\x03\xdb\x89'")
+        self.assertEqual(
+            rsa.e, b'\000\000\000\003\001\000\001'
+        )  # aka 65537 aka 0xf4
+        self.assertEqual(
+            rsa.n,
+            b"\x00\x00\x00\x81\x00\xcde!\x15\xdah\xb5`\xce[\xd6\x17d\xba8\xc1I\xb1\xf1\xber\x86K\xc7\xda\xb3\x98\xd6\xf6\x80\xae\xaa\x8f!\x9a\xefQ\xdeh\xbb\xc5\x99\x01o\xebGO\x8e\x9b\x9a\x18\xfb6\xba\x12\xfc\xf2\x17\r$\x00\xa1\x1a \xfc/\x13iUm\x04\x13\x0f\x91D~\xbf\x08\x19C\x1a\xe2\xa3\x91&\x8f\xcf\xcc\xf3\xa4HRf\xaf\xf2\x19\xbd\x05\xe36\x9a\xbbQ\xc86|(\xad\x83\xf2Eu\xb2EL\xdf\xa4@\x7f\xeel|\xfcU\x03\xdb\x89'",
+        )
         with self.assertRaises(AttributeError):
             getattr(rsa, 'nosuchprop')
         self.assertEqual(rsa.check_key(), 1)
@@ -80,22 +87,25 @@ class RSATestCase(unittest.TestCase):
             keybio = BIO.MemoryBuffer(f.read())
         rsa = RSA.load_key_bio(keybio)
         self.assertEqual(len(rsa), 1024)
-        self.assertEqual(rsa.e,
-                         b'\000\000\000\003\001\000\001')  # aka 65537 aka 0xf4
+        self.assertEqual(
+            rsa.e, b'\000\000\000\003\001\000\001'
+        )  # aka 65537 aka 0xf4
         self.assertEqual(rsa.check_key(), 1)
 
     def test_keygen(self):
         rsa = RSA.gen_key(1024, 65537, self.gen_callback)
         self.assertEqual(len(rsa), 1024)
-        self.assertEqual(rsa.e,
-                         b'\000\000\000\003\001\000\001')  # aka 65537 aka 0xf4
+        self.assertEqual(
+            rsa.e, b'\000\000\000\003\001\000\001'
+        )  # aka 65537 aka 0xf4
         self.assertEqual(rsa.check_key(), 1)
 
     def test_keygen_bad_cb(self):
         rsa = RSA.gen_key(1024, 65537, self.gen2_callback)
         self.assertEqual(len(rsa), 1024)
-        self.assertEqual(rsa.e,
-                         b'\000\000\000\003\001\000\001')  # aka 65537 aka 0xf4
+        self.assertEqual(
+            rsa.e, b'\000\000\000\003\001\000\001'
+        )  # aka 65537 aka 0xf4
         self.assertEqual(rsa.check_key(), 1)
 
     def test_private_encrypt(self):
@@ -115,9 +125,11 @@ class RSATestCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             priv.private_encrypt(self.gen_callback, RSA.pkcs1_padding)
 
-    @unittest.skipIf(m2.OPENSSL_VERSION_NUMBER < 0x1010103f or
-                     m2.OPENSSL_VERSION_NUMBER >= 0x30000000,
-                     'Relies on fix which happened only in OpenSSL 1.1.1c')
+    @unittest.skipIf(
+        m2.OPENSSL_VERSION_NUMBER < 0x1010103F
+        or m2.OPENSSL_VERSION_NUMBER >= 0x30000000,
+        'Relies on fix which happened only in OpenSSL 1.1.1c',
+    )
     def test_public_encrypt(self):
         priv = RSA.load_key(self.privkey)
         # pkcs1_padding, pkcs1_oaep_padding
@@ -144,8 +156,9 @@ class RSATestCase(unittest.TestCase):
     def test_loadpub(self):
         rsa = RSA.load_pub_key(self.pubkey)
         self.assertEqual(len(rsa), 1024)
-        self.assertEqual(rsa.e,
-                         b'\000\000\000\003\001\000\001')  # aka 65537 aka 0xf4
+        self.assertEqual(
+            rsa.e, b'\000\000\000\003\001\000\001'
+        )  # aka 65537 aka 0xf4
         with self.assertRaises(RSA.RSAError):
             setattr(rsa, 'e', '\000\000\000\003\001\000\001')
         with self.assertRaises(RSA.RSAError):
@@ -171,9 +184,11 @@ class RSATestCase(unittest.TestCase):
     def test_set_bn(self):
         rsa = RSA.load_pub_key(self.pubkey)
         with self.assertRaises(RSA.RSAError):
-            m2.rsa_set_en(rsa.rsa,
+            m2.rsa_set_en(
+                rsa.rsa,
                 b'\000\000\000\003\001\000\001',
-                b'\000\000\000\003\001')
+                b'\000\000\000\003\001',
+            )
 
     def test_set_n(self):
         rsa = m2.rsa_new()
@@ -218,9 +233,7 @@ class RSATestCase(unittest.TestCase):
         """
         Testing signing and verifying digests
         """
-        algos = {'sha1': '',
-                 'ripemd160': '',
-                 'md5': ''}
+        algos = {'sha1': '', 'ripemd160': '', 'md5': ''}
 
         if m2.OPENSSL_VERSION_NUMBER >= 0x90800F:
             algos['sha224'] = ''
@@ -238,10 +251,14 @@ class RSATestCase(unittest.TestCase):
             #     'mismatched signature with algorithm %s:
             #     signature=%s' % (algo, signature)
             verify = rsa2.verify(digest, signature, algo)
-            self.assertEqual(verify, 1,
-                             'verification failed with algorithm %s' % algo)
+            self.assertEqual(
+                verify,
+                1,
+                'verification failed with algorithm %s' % algo,
+            )
 
     if m2.OPENSSL_VERSION_NUMBER >= 0x90708F:
+
         def test_sign_and_verify_rsassa_pss(self):
             """
             Testing signing and verifying using rsassa_pss
@@ -252,6 +269,7 @@ class RSATestCase(unittest.TestCase):
             """
             message = b"This is the message string"
             import hashlib
+
             algos = {'sha1': 43}
             if not fips_mode:
                 algos['md5'] = 47
@@ -279,12 +297,18 @@ class RSATestCase(unittest.TestCase):
                 if salt_max is None or digest is None:
                     continue
                 for salt_length in range(0, salt_max):
-                    signature = rsa.sign_rsassa_pss(digest, algo, salt_length)
-                    verify = rsa2.verify_rsassa_pss(digest, signature,
-                                                    algo, salt_length)
-                    self.assertEqual(verify, 1,
-                                     'verification failed with algorithm '
-                                     '%s salt length %d' % (algo, salt_length))
+                    signature = rsa.sign_rsassa_pss(
+                        digest, algo, salt_length
+                    )
+                    verify = rsa2.verify_rsassa_pss(
+                        digest, signature, algo, salt_length
+                    )
+                    self.assertEqual(
+                        verify,
+                        1,
+                        'verification failed with algorithm '
+                        '%s salt length %d' % (algo, salt_length),
+                    )
 
     def test_sign_bad_method(self):
         """
@@ -293,7 +317,7 @@ class RSATestCase(unittest.TestCase):
         rsa = RSA.load_key(self.privkey)
         digest = 'a' * 16
         with self.assertRaises(ValueError):
-                rsa.sign(digest, 'bad_digest_method')
+            rsa.sign(digest, 'bad_digest_method')
 
     def test_verify_bad_method(self):
         """
@@ -325,8 +349,11 @@ class RSATestCase(unittest.TestCase):
         it has to be longer than a certain length.
         """
         rsa = RSA.load_key(self.privkey)
-        digest = b"""This string should be long enough to warrant an error in
-        RSA_sign""" * 2
+        digest = (
+            b"""This string should be long enough to warrant an error in
+        RSA_sign"""
+            * 2
+        )
 
         with self.assertRaises(RSA.RSAError):
             rsa.sign(digest)

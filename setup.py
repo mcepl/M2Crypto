@@ -59,7 +59,11 @@ def _get_additional_includes():
         err = glob.glob(globmask)
     else:
         if platform.system() == "Darwin":
-            sdk_path = subprocess.check_output(['xcrun', '--show-sdk-path']).decode().strip()
+            sdk_path = (
+                subprocess.check_output(['xcrun', '--show-sdk-path'])
+                .decode()
+                .strip()
+            )
             return [os.path.join(sdk_path, 'usr', 'include')]
 
         cpp = shlex.split(os.environ.get('CPP', 'cpp'))

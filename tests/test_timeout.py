@@ -22,7 +22,9 @@ MAX_SEC_OTHER = 2**31 - 1
 
 class TimeoutTestCase(unittest.TestCase):
 
-    def timeout_test(self, sec, microsec, exp_sec=None, exp_microsec=None):
+    def timeout_test(
+        self, sec, microsec, exp_sec=None, exp_microsec=None
+    ):
         """
         Test that the timeout values (sec, microsec) are the same after
         round tripping through a pack / unpack cycle.
@@ -39,11 +41,19 @@ class TimeoutTestCase(unittest.TestCase):
         act_to = struct_to_timeout(binstr)
 
         self.assertEqual(
-            (act_to.sec, act_to.microsec), (exp_sec, exp_microsec),
+            (act_to.sec, act_to.microsec),
+            (exp_sec, exp_microsec),
             "Unexpected timeout(sec,microsec) after pack + unpack: "
-            "Got (%r,%r), expected (%r,%r), input was (%r,%r)" %
-            (act_to.sec, act_to.microsec, exp_sec, exp_microsec,
-            sec, microsec))
+            "Got (%r,%r), expected (%r,%r), input was (%r,%r)"
+            % (
+                act_to.sec,
+                act_to.microsec,
+                exp_sec,
+                exp_microsec,
+                sec,
+                microsec,
+            ),
+        )
 
     def test_timeout_0_0(self):
         self.timeout_test(0, 0)
@@ -107,7 +117,9 @@ class TimeoutTestCase(unittest.TestCase):
 
     def test_timeout_1_499(self):
         if sys.platform == 'win32':
-            self.timeout_test(123, 499, None, 0)  # 499 us rounds down to 0
+            self.timeout_test(
+                123, 499, None, 0
+            )  # 499 us rounds down to 0
         else:
             self.timeout_test(123, 499)
 
@@ -116,7 +128,9 @@ class TimeoutTestCase(unittest.TestCase):
         # represented in binary floating point numbers, and because 0.5
         # rounds differently between py2 and py3. See Python round() docs.
         if sys.platform == 'win32':
-            self.timeout_test(123, 501, None, 1000)  # 501 us rounds up to 1000
+            self.timeout_test(
+                123, 501, None, 1000
+            )  # 501 us rounds up to 1000
         else:
             self.timeout_test(123, 501)
 
@@ -127,7 +141,9 @@ class TimeoutTestCase(unittest.TestCase):
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TimeoutTestCase))
+    suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(TimeoutTestCase)
+    )
     return suite
 
 

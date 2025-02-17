@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from __future__ import absolute_import, print_function
+
 """Unit tests for _aes.i.
 
 Copyright (c) 2018 Matej Cepl. All rights reserved.
@@ -25,11 +26,23 @@ class AESTestCase(unittest.TestCase):
 
     def test_existing_methods(self):
         missing = []
-        exp_mtds = ('aes_128_cbc', 'aes_128_cfb', 'aes_128_ctr',
-                    'aes_128_ecb', 'aes_128_ofb', 'aes_192_cbc',
-                    'aes_192_cfb', 'aes_192_ctr', 'aes_192_ecb',
-                    'aes_192_ofb', 'aes_256_cbc', 'aes_256_cfb',
-                    'aes_256_ctr', 'aes_256_ecb', 'aes_256_ofb')
+        exp_mtds = (
+            'aes_128_cbc',
+            'aes_128_cfb',
+            'aes_128_ctr',
+            'aes_128_ecb',
+            'aes_128_ofb',
+            'aes_192_cbc',
+            'aes_192_cfb',
+            'aes_192_ctr',
+            'aes_192_ecb',
+            'aes_192_ofb',
+            'aes_256_cbc',
+            'aes_256_cfb',
+            'aes_256_ctr',
+            'aes_256_ecb',
+            'aes_256_ofb',
+        )
         for name in exp_mtds:
             if not hasattr(m2, name):
                 missing.append(name)
@@ -72,7 +85,9 @@ class AESTestCase(unittest.TestCase):
 
 def suite():
     t_suite = unittest.TestSuite()
-    t_suite.addTest(unittest.TestLoader().loadTestsFromTestCase(AESTestCase))
+    t_suite.addTest(
+        unittest.TestLoader().loadTestsFromTestCase(AESTestCase)
+    )
     return t_suite
 
 
