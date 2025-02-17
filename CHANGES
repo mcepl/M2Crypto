@@ -1,19 +1,20 @@
 0.44.0 - 2025-02-17
 -------------------
 
-- fix(rsa): introduce internal cache for rsa.check_key()
-- fix[authcookie]: modernize the module
-- fix(_lib): add missing #include for windows
-- ci: relax fedora crypto policy to legacy.
-- enhance setup.py for macos compatibility
-- prefer packaging.version over distutils.version
-- fix segfault with openssl 3.4.0
-- fix[ec]: raise ioerror instead when load_key_bio() cannot read
-  the file.
-- doc: update installation instructions for windows.
-- fix setting x509.verify_* variables
-- fix building against openssl in non-standard location
-- test_x509: use only x509_version_1 (0) as version for csr.
+- fix(RSA): introduce internal cache for RSA.check_key()
+- fix[AuthCookie]: modernize the module
+- fix(_lib): add missing #include for Windows
+- ci: the same relaxing of crypto policies for tests on GitLab.
+- ci: relax Fedora crypto policy to LEGACY.
+- Enhance setup.py for macOS compatibility
+- Prefer packaging.version over distutils.version
+- Fix segfault with OpenSSL 3.4.0
+- fix[EC]: raise IOError instead when load_key_bio() cannot read the file.
+- doc: update installation instructions for Windows.
+- Fix setting X509.verify_* variables
+- Fix building against OpenSSL in non-standard location
+- test_x509: Use only X509_VERSION_1 (0) as version for CSR.
+- fix: remove support for Engine
 
 0.43.0 - 2024-10-30
 -------------------
