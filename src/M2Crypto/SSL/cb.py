@@ -6,8 +6,8 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved."""
 
 import sys
 
-from M2Crypto import m2
-from typing import Any, List  # noqa
+from M2Crypto import m2, types as C
+from typing import List
 
 __all__ = [
     'unknown_issuer',
@@ -62,7 +62,9 @@ def ssl_verify_callback(
     return ok
 
 
-def ssl_verify_callback_allow_unknown_ca(ok: int, store: Any) -> int:
+def ssl_verify_callback_allow_unknown_ca(
+    ok: int, store: C.X509_STORE_CTX
+) -> int:
     errnum = store.get_error()
     if errnum in unknown_issuer:
         ok = 1

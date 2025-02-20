@@ -9,7 +9,7 @@ import base64
 from M2Crypto import __version__ as __M2Version
 
 from M2Crypto import SSL, httpslib, m2urllib
-from typing import Any, Callable, Optional, Union  # noqa
+from typing import Callable, Optional, Union  # noqa
 
 from xmlrpc.client import ProtocolError, Transport
 from xmlrpc.client import *  # noqa

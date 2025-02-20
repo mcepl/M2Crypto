@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-"""Unit tests for M2Crypto.m2 obj_* functions.
-"""
+"""Unit tests for M2Crypto.m2 obj_* functions."""
 from M2Crypto import ASN1, BIO, Rand, X509, m2
 from tests import unittest
 

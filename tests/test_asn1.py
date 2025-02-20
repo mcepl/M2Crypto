@@ -2,7 +2,8 @@
 
 """Unit tests for M2Crypto.ASN1.
 
-Copyright (c) 2005 Open Source Applications Foundation. All rights reserved."""
+Copyright (c) 2005 Open Source Applications Foundation. All rights reserved.
+"""
 
 import datetime
 import platform

@@ -10,8 +10,8 @@ Copyright (c) 1999-2003 Ng Pheng Siong. All rights reserved.
 Portions copyright (c) 2005-2006 Vrije Universiteit Amsterdam.
 All rights reserved."""
 
-from typing import Any, Callable, Dict, Optional, Tuple, Union  # noqa
-from M2Crypto import BIO, Err, m2, types as C, util
+from typing import Callable, Dict, Optional, Tuple, Union  # noqa
+from M2Crypto import BIO, Err, EVP, m2, types as C, util
 
 EC_Key = bytes
 
@@ -160,7 +160,7 @@ class EC(object):
         assert m2.ec_key_type_check(self.ec), "'ec' type error"
         m2.ec_key_gen_key(self.ec)
 
-    def pub(self):
+    def pub(self) -> "EC_pub":
         # Don't let python free
         return EC_pub(self.ec, 0)
 
@@ -188,7 +188,7 @@ class EC(object):
         assert self._check_key_type(), "'ec' type error"
         return m2.ecdsa_verify_asn1(self.ec, digest, blob)
 
-    def compute_dh_key(self, pub_key: object) -> Optional[bytes]:
+    def compute_dh_key(self, pub_key: "EC") -> Optional[bytes]:
         """
         Compute the ECDH shared key of this key pair and the given public
         key object. They must both use the same curve. Returns the
@@ -419,7 +419,7 @@ def load_pub_key(file: Union[str, bytes]) -> EC_pub:
 
 def load_key_string_pubkey(
     string: str, callback: Callable = util.passphrase_callback
-) -> Any:
+) -> "EVP.PKey":
     """
     Load an M2Crypto.EVP.PKey from a public key as a string.
 

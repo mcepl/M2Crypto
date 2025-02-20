@@ -17,9 +17,6 @@ Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 
 Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 """
-# noqa
-from typing import Any
-
 __version__: str = '0.45.0'
 version: str = __version__
 
@@ -33,7 +30,7 @@ except ImportError:
 
 if Version is not None:
     version_info: tuple = (0, 0, 0)
-    __ver: Any = Version(__version__)
+    __ver: Version = Version(__version__)
     if hasattr(__ver, u'_version'):
         version_info = tuple(__ver._version[1])
     elif hasattr(__ver, u'version'):

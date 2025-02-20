@@ -15,7 +15,7 @@ from http.client import *  # noqa
 
 # This is not imported with just '*'
 from http.client import HTTPS_PORT
-from typing import Any, Callable, Dict, Optional, Union  # noqa
+from typing import Callable, Dict, Optional, Union  # noqa
 
 
 class HTTPSConnection(HTTPConnection):

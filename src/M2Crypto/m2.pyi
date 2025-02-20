@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Callable, Optional
 
 from M2Crypto import ASN1, BIO, types as C
 
@@ -29,6 +29,12 @@ def bio_do_handshake(a: C.BIO) -> int: ...
 def bio_f_buffer() -> C.BIO_METHOD: ...  # FIXME
 def bio_f_cipher() -> C.BIO_METHOD: ...  # FIXME
 def bio_flush(b: C.BIO) -> int: ...
+def dsa_generate_parameters(
+    bits: int, pyfunc: Callable[[int, int], int]
+) -> C.DSA: ...
+def rsa_generate_key(
+    bits: int, e: int, pyfunc: Callable[[int, int], int]
+) -> C.RSA: ...
 
 # See gl#m2crypto/m2crypto#228 and gl#m2crypto/m2cryptor#205
 def engine_ctrl_cmd_string(

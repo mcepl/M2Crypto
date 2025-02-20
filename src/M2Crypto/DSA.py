@@ -10,7 +10,7 @@ from __future__ import absolute_import, print_function
 """
 
 from M2Crypto import BIO, m2, util
-from typing import Any, Callable, Tuple, Union  # noqa
+from typing import Callable, Tuple, Union  # noqa
 
 
 class DSAError(Exception):
@@ -34,7 +34,7 @@ class DSA:
         md.update(message)
         digest = md.final()
 
-        dsa = DSA.gen_params(1024)
+        dsa = DSA.gen_params(1024, cb)
         dsa.gen_key()
         r, s = dsa.sign(digest)
         good = dsa.verify(digest, r, s)
@@ -281,7 +281,8 @@ class DSA_pub(DSA):
 
 
 def gen_params(
-    bits: int, callback: Callable = util.genparam_callback
+    bits: int,
+    callback: Callable[[int, int], int] = util.genparam_callback,
 ) -> DSA:
     """
     Factory function that generates DSA parameters and

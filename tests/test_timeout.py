@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-"""Unit tests for M2Crypto.SSL.timeout.
-"""
+"""Unit tests for M2Crypto.SSL.timeout."""
 
 import sys
 from M2Crypto.SSL import timeout, struct_to_timeout, struct_size

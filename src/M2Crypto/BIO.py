@@ -6,9 +6,12 @@ Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
 import io
 import logging
-from typing import Any, Callable, Iterable, Optional, Union  # noqa
+from typing import Callable, Iterable, Optional, Union, TYPE_CHECKING
 
 from M2Crypto import m2, types as C
+
+if TYPE_CHECKING:
+    import SSL
 
 log = logging.getLogger('BIO')
 
@@ -365,11 +368,8 @@ class SSLBio(BIO):
         self.closed = 0
 
     def set_ssl(
-        self, conn: Any, close_flag: int = m2.bio_noclose
+        self, conn: "SSL.Connection", close_flag: int = m2.bio_noclose
     ) -> None:
-        # conn should actually be SSL.Connection, but we cannot import
-        # it here without getting into some serious circular dependency
-        # business.
         """
         Sets the bio to the SSL pointer which is
         contained in the connection object.

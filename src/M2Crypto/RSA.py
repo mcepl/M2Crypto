@@ -7,7 +7,7 @@ Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 import sys
 
 from M2Crypto import BIO, Err, m2, util
-from typing import Any, Callable, IO, Optional, Tuple, Union  # noqa
+from typing import Callable, IO, Optional, Tuple, Union  # noqa
 
 
 class RSAError(Exception):
@@ -351,19 +351,19 @@ def rsa_error() -> None:
     raise RSAError(Err.get_error_message())
 
 
-def keygen_callback(
-    p: int, n: Any, out: IO[str] = sys.stdout
-) -> None:
+def keygen_callback(p: int, n: int) -> None:
     """
     Default callback for gen_key().
     """
     ch = ['.', '+', '*', '\n']
-    out.write(ch[p])
-    out.flush()
+    sys.stdout.write(ch[p])
+    sys.stdout.flush()
 
 
 def gen_key(
-    bits: int, e: int, callback: Callable = keygen_callback
+    bits: int,
+    e: int,
+    callback: Callable[[int, int], int] = keygen_callback,
 ) -> RSA:
     """
     Generate an RSA key pair.

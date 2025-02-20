@@ -4,7 +4,7 @@ from __future__ import absolute_import
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved."""
 
-from M2Crypto import BIO, Err, RSA, X509, m2, util  # noqa
+from M2Crypto import BIO, Err, RSA, X509, m2, types as C, util  # noqa
 from M2Crypto.SSL import cb  # noqa
 from M2Crypto.SSL.Session import Session  # noqa
 from weakref import WeakValueDictionary
@@ -238,7 +238,9 @@ class Context(object):
         self,
         mode: int,
         depth: int,
-        callback: Optional[Callable] = None,
+        callback: Optional[
+            Callable[[int, C.X509_STORE_CTX], int]
+        ] = None,
     ) -> None:
         """
         Set verify options. Most applications will need to call this

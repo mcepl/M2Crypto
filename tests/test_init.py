@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-"""Unit tests for M2Crypto initialization.
-"""
+"""Unit tests for M2Crypto initialization."""
 import M2Crypto
 from tests import unittest
 

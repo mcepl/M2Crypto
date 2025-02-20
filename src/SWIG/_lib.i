@@ -528,7 +528,7 @@ RSA *ssl_set_tmp_rsa_callback(SSL *ssl, int is_export, int keylength) {
 }
 
 /* Universal callback for dh_generate_parameters,
- * dsa_generate_parametersm, and rsa_generate_key */
+ * dsa_generate_parameters, and rsa_generate_key */
 int bn_gencb_callback(int p, int n, BN_GENCB *gencb) {
     PyObject *argv, *ret, *cbfunc;
 

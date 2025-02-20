@@ -22,7 +22,6 @@ import unittest
 
 from M2Crypto import m2
 from typing import (
-    Any,
     Callable,
     Optional,
     TextIO,
@@ -84,16 +83,15 @@ def octx_to_num(x: bytes) -> int:
     return int(binascii.hexlify(x), 16)
 
 
-def genparam_callback(
-    p: int, n: Any, out: TextIO = sys.stdout
-) -> None:
+def genparam_callback(p: int, n: int) -> int:
     ch = ['.', '+', '*', '\n']
-    out.write(ch[p])
-    out.flush()
+    sys.stdout.write(ch[p])
+    sys.stdout.flush()
+    return 1
 
 
-def quiet_genparam_callback(p: Any, n: Any, out: Any) -> None:
-    pass
+def quiet_genparam_callback(p: int, n: int) -> int:
+    return 1
 
 
 def passphrase_callback(
