@@ -311,8 +311,9 @@ int bio_should_write(BIO* a) {
 static BIO_METHOD *
 BIO_meth_new( int type, const char *name )
 {
+    BIO_METHOD *method;
     Py_BEGIN_ALLOW_THREADS
-    BIO_METHOD *method = PyMem_Malloc(sizeof(BIO_METHOD));
+    method = PyMem_Malloc(sizeof(BIO_METHOD));
     Py_END_ALLOW_THREADS
     memset( method, 0, sizeof(BIO_METHOD) );
 
