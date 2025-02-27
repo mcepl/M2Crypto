@@ -28,7 +28,7 @@ tasks:
      python3 -mpip wheel --verbose  --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
      find . -name \*.c
      find . -name \*.whl -o -name \*.tar.gz
-     python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/M2Crypto*.whl
+     python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/m2crypto*.whl
   - test: |
      cd m2crypto
      sudo update-crypto-policies --set LEGACY
