@@ -28,6 +28,7 @@ tasks:
      python3 -mpip wheel --verbose  --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
      find . -name \*.c
      find . -name \*.whl -o -name \*.tar.gz
+     mkdir -p shadowing/sys && touch shadowing/sys/types.h
      python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/m2crypto*.whl
   - test: |
      cd m2crypto
@@ -36,7 +37,7 @@ tasks:
      [ -n "$GIT_REF" ] && REASON="$JOB_ID ($GIT_REF)"
      [ -n "$PATCHSET_URL" ] && REASON="$JOB_ID ($PATCHSET_URL)"
      set +x
-     .builds/irc-send mcepl build-bot m2crypto "sourcehut build $REASON finished with the result $? ($JOB_URL)." "$(cat ~/.irc_pass)"
+     # .builds/irc-send mcepl build-bot m2crypto "sourcehut build $REASON finished with the result $? ($JOB_URL)." "$(cat ~/.irc_pass)"
      set -x
   - readme: |
      cd m2crypto

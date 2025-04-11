@@ -173,7 +173,10 @@ class _M2CryptoBuildExt(build_ext.build_ext):
                 # this shortly to come up with a better fix.
                 self.swig_opts.append('-D_MSC_VER=1500')
 
-        self.swig_opts.append('-Isystem_shadowing')
+        if os.path.exists(
+            os.path.join(os.curdir, 'system_shadowing')
+        ):
+            self.swig_opts.append('-Isystem_shadowing')
 
         log.debug('self.openssl_path = %s', self.openssl_path)
         log.debug('self.bundledlls = %s', self.bundledlls)
