@@ -73,14 +73,6 @@ M2Crypto Package
     :undoc-members:
     :show-inheritance:
 
-:mod:`Engine` Module
---------------------
-
-.. automodule:: M2Crypto.Engine
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 :mod:`Err` Module
 -----------------
 

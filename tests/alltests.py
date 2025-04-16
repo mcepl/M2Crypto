@@ -35,7 +35,6 @@ def suite():
         'tests.test_authcookie',
         'tests.test_dh',
         'tests.test_dsa',
-        'tests.test_engine',
         'tests.test_err',
         'tests.test_evp',
         'tests.test_init',

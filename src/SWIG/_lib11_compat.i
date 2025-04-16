@@ -11,7 +11,6 @@
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
 
 #include <string.h>
-#include <openssl/engine.h>
 
 # define OPENSSL_zalloc(num) \
         CRYPTO_zalloc(num, __FILE__, __LINE__)

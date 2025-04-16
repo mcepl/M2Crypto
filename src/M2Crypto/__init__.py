@@ -8,7 +8,7 @@ and servers; HTTPS extensions to Python's httplib, urllib, and
 xmlrpclib; unforgeable HMAC'ing AuthCookies for web session
 management; FTP/TLS client and server; and ZSmime: An S/MIME
 messenger for Zope.  M2Crypto can also be used to provide SSL for
-Twisted. Smartcards supported through the Engine interface.
+Twisted.
 
 Copyright (c) 1999-2004 Ng Pheng Siong. All rights reserved.
 
