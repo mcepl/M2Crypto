@@ -1,3 +1,20 @@
+0.45.0 - 2025-04-17
+-------------------
+
+- chore: preparing 0.45.0 release
+- fix(lib,ssl): rewrite ssl_accept, ssl_{read,write}_nbio for better error handling
+- fix: replace m2_PyBuffer_Release with native PyBuffer_Release
+- chore: build Windows builds with Python 3.13 as well
+- fix: remove support for Engine
+- chore: mark actual license of the project BSD-2-Clause instead of wrong MIT
+- ci(Debian): make M2Crypto buildable on Debian
+- swig: Workaround for reading sys/select.h ending with wrong types.
+- ci: bump required setuptools version because of change in naming strategy
+- fix: add fix for build with older GCC
+- fix: remove AnyStr and Any types
+- chore: add .git-blame-ignore-revs
+- chore: blacken everything
+
 0.44.0 - 2025-02-17
 -------------------
 
