@@ -826,7 +826,7 @@ int ssl_write(SSL *ssl, PyObject *blob, double timeout) {
             ret = -1;
     }
 
-    m2_PyBuffer_Release(blob, &buf);
+    PyBuffer_Release(&buf);
     return ret;
 }
 
@@ -870,8 +870,10 @@ int ssl_write_nbio(SSL *ssl, PyObject *blob) {
             ret = -1;
     }
 
-    m2_PyBuffer_Release(blob, &buf);
-    return ret;
+    // Release the buffer view
+    PyBuffer_Release(&buf);
+
+    return ret; // Return bytes written (r) or -1 (error / would block)
 }
 
 int ssl_cipher_get_bits(SSL_CIPHER *c) {
