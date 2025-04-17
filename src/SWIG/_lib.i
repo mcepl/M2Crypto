@@ -4,12 +4,9 @@
 %{
 /* for time_t_bits */
 #include <time.h>
-/* for strerror_r */
-#ifdef _WIN32
-#define __STDC_WANT_LIB_EXT1__ 1
+/* For snprintf, strncpy */
 #include <string.h>
-#define strerror_r(errno,buf,len) strerror_s(buf,len,errno)
-#endif
+#include <stdio.h>
 
 #include <openssl/bn.h>
 #include <openssl/dh.h>
@@ -132,7 +129,7 @@ void blob_free(Blob *blob) {
 %ignore PyObject_CheckBuffer;
 %ignore PyObject_GetBuffer;
 %ignore PyBuffer_Release;
-%ignore m2_PyErr_SetString_from_errno;
+%ignore m2_PyErr_SetString_from_openssl_error;
 %ignore m2_PyObject_AsReadBuffer;
 %ignore m2_PyObject_AsReadBufferInt;
 %ignore m2_PyObject_GetBufferInt;
@@ -152,24 +149,27 @@ typedef struct bignum_st BIGNUM;
 };
 
 %{
+/*
+ * Convert an OpenSSL error code into a Python Exception string.
+ */
+void m2_PyErr_SetString_from_openssl_error(PyObject *err_type, unsigned long err_code) {
+    char err_buf[256];
+    const char *reason_str = NULL;
 
-/* Convert an OpenSSL error code into an SSLError */
-void m2_PyErr_SetString_from_errno(PyObject *err_type, unsigned long err) {
-    char err_reason[256];
-    unsigned int reason_code = ERR_GET_REASON(err);
-    if (reason_code == ERR_R_SYS_LIB) {
-        strerror_r(err, err_reason, sizeof(err_reason));
+    reason_str = ERR_reason_error_string(err_code);
+
+    if (reason_str != NULL) {
+        // OpenSSL provided a reason string. Use it directly.
+        strncpy(err_buf, reason_str, sizeof(err_buf));
+        err_buf[sizeof(err_buf) - 1] = '\0';
     } else {
-        const char *reason = ERR_reason_error_string(err);
-        if (reason) {
-            strncpy(err_reason, reason, sizeof(err_reason) - 1);
-            err_reason[sizeof(err_reason) - 1] = '\0';
-        } else {
-            strncpy(err_reason, "Unknown error", sizeof(err_reason) - 1);
-            err_reason[sizeof(err_reason) - 1] = '\0';
-        }
+        // OpenSSL did not provide a specific reason string for this code.
+        // Create a fallback message including the raw error code for diagnostics.
+        snprintf(err_buf, sizeof(err_buf),
+                 "Unknown OpenSSL error code: %lu", err_code);
     }
-    PyErr_SetString(err_type, err_reason);
+
+    PyErr_SetString(err_type, err_buf);
 }
 
 static int
@@ -234,17 +234,27 @@ static int m2_PyObject_GetBufferInt(PyObject *obj, Py_buffer *view, int flags)
 static BIGNUM*
 m2_PyObject_AsBIGNUM(PyObject* value, PyObject* _py_exc)
 {
-    BIGNUM* bn;
-    const void* vbuf;
+    BIGNUM* bn = NULL;
+    const void* vbuf = NULL;
     int vlen = 0;
 
-    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1)
-        return NULL;
+    if (!_py_exc || !PyExceptionClass_Check(_py_exc)) {
+         PyErr_SetString(PyExc_TypeError, "Invalid exception type provided internally.");
+         return NULL;
+    }
 
-    if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
-        m2_PyErr_SetString_from_errno(_py_exc, ERR_get_error());
+    if (m2_PyObject_AsReadBufferInt(value, &vbuf, &vlen) == -1) {
         return NULL;
-        }
+    }
+
+    ERR_clear_error();
+    if (!(bn = BN_mpi2bn((unsigned char *)vbuf, vlen, NULL))) {
+        unsigned long err_code = ERR_get_error();
+
+        m2_PyErr_SetString_from_openssl_error(_py_exc, err_code);
+
+        return NULL;
+    }
 
     return bn;
 }
