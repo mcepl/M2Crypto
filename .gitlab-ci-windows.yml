@@ -29,7 +29,7 @@ build-test-windows:
   parallel:
     matrix:
     - ARCH: ["32", "64"]
-      PYTHON_VERSION: [ "310", "311", "312" ]
+      PYTHON_VERSION: [ "310", "311", "312", "313" ]
   variables:
     OPENSSL_INSTALLER: "Win${ARCH}OpenSSL-1_1_1w.exe"
     OPENSSL_PATH: "C:\\OpenSSL-1-1-Win${ARCH}"
