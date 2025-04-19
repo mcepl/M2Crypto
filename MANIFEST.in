@@ -4,6 +4,7 @@ include src/SWIG/*.def
 recursive-include tests *.py *.pem *.der *.b64 README *.pgp *.dat *.p7* *.crt *.txt
 recursive-include doc *
 recursive-include contrib *
+recursive-include system_shadowing *
 recursive-exclude .keys *
 include INSTALL.rst
 include README.rst

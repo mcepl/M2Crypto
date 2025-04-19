@@ -1,3 +1,8 @@
+0.45.1 - 2025-04-19
+-------------------
+
+Micro release: package also system_shadowing directory to make builds more reliable
+
 0.45.0 - 2025-04-17
 -------------------
 
