@@ -30,7 +30,7 @@ class DSA:
         from M2Crypto import EVP, DSA, util
 
         message = 'Kilroy was here!'
-        md = EVP.MessageDigest('sha1')
+        md = EVP.MessageDigest('sha256')
         md.update(message)
         digest = md.final()
 

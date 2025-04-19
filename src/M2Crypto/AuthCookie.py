@@ -114,7 +114,7 @@ class AuthCookieJar:
         self._key = Rand.rand_bytes(self._keylen)
 
     def _hmac(self, key: bytes, data: str) -> str:
-        return util.bin_to_hex(m2.hmac(key, data.encode(), m2.sha1()))
+        return util.bin_to_hex(m2.hmac(key, data.encode(), m2.sha256()))
 
     def makeCookie(self, expiry: float, data: str) -> AuthCookie:
         """

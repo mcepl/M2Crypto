@@ -67,7 +67,7 @@ class AuthCookieTestCase(unittest.TestCase):
         # Peek inside the cookie jar...
         key = self.jar._key  # pylint: disable=protected-access
         mac = util.bin_to_hex(
-            EVP.hmac(key, mix(self.exp, self.data).encode(), 'sha1')
+            EVP.hmac(key, mix(self.exp, self.data).encode(), 'sha256')
         )
         self.assertEqual(c.mac(), mac)
         # Ok, stop peeking now.
@@ -121,7 +121,7 @@ class AuthCookieTestCase(unittest.TestCase):
         self.assertAlmostEqual(exp, self.exp, places=4)
         key = self.jar._key  # pylint: disable=protected-access
         mac = util.bin_to_hex(
-            EVP.hmac(key, mix(self.exp, self.data).encode(), 'sha1')
+            EVP.hmac(key, mix(self.exp, self.data).encode(), 'sha256')
         )
         self.assertEqual(digest, mac)
 

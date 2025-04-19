@@ -196,7 +196,7 @@ class RSA(object):
         return self._check_cache
 
     def sign_rsassa_pss(
-        self, digest: bytes, algo: str = 'sha1', salt_length: int = 20
+        self, digest: bytes, algo: str = 'sha256', salt_length: int = 20
     ) -> bytes:
         """
         Signs a digest with the private key using RSASSA-PSS
@@ -226,7 +226,7 @@ class RSA(object):
         self,
         data: bytes,
         signature: bytes,
-        algo: str = 'sha1',
+        algo: str = 'sha256',
         salt_length: int = 20,
     ) -> int:
         """
@@ -258,7 +258,7 @@ class RSA(object):
             self.rsa, data, plain_signature, hash(), salt_length
         )
 
-    def sign(self, digest: bytes, algo: str = 'sha1') -> bytes:
+    def sign(self, digest: bytes, algo: str = 'sha256') -> bytes:
         """
         Signs a digest with the private key
 
@@ -277,7 +277,7 @@ class RSA(object):
         return m2.rsa_sign(self.rsa, digest, digest_type)
 
     def verify(
-        self, data: bytes, signature: bytes, algo: str = 'sha1'
+        self, data: bytes, signature: bytes, algo: str = 'sha256'
     ) -> int:
         """
         Verifies the signature with the public key

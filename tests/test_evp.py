@@ -12,7 +12,7 @@ import hashlib
 import io
 import logging
 
-from binascii import a2b_hex, hexlify, unhexlify
+from binascii import a2b_hex, b2a_hex, hexlify, unhexlify
 
 from M2Crypto import BIO, EVP, RSA, EC, Rand, m2, util
 from tests import unittest
@@ -118,33 +118,33 @@ class EVPTestCase(unittest.TestCase):
     def test_get_digestbyname(self):
         with self.assertRaises(EVP.EVPError):
             m2.get_digestbyname('sha513')
-        self.assertNotEqual(m2.get_digestbyname('sha1'), None)
+        self.assertNotEqual(m2.get_digestbyname('sha256'), None)
 
     def test_MessageDigest(self):  # noqa
         with self.assertRaises(ValueError):
             EVP.MessageDigest('sha513')
-        md = EVP.MessageDigest('sha1')
+        md = EVP.MessageDigest('sha256')
         self.assertEqual(md.update(b'Hello'), 1)
         self.assertEqual(
             util.octx_to_num(md.final()),
-            1415821221623963719413415453263690387336440359920,
+            11024336812845202542736754815889718862783203771635063178616734621641926515049,
         )
 
-        # temporarily remove sha1 from m2
-        old_sha1 = m2.sha1
-        del m2.sha1
+        # temporarily remove sha256 from m2
+        old_sha1 = m2.sha256
+        del m2.sha256
 
         # now run the same test again, relying on EVP.MessageDigest() to call
         # get_digestbyname() under the hood
-        md = EVP.MessageDigest('sha1')
+        md = EVP.MessageDigest('sha256')
         self.assertEqual(md.update(b'Hello'), 1)
         self.assertEqual(
             util.octx_to_num(md.final()),
-            1415821221623963719413415453263690387336440359920,
+            11024336812845202542736754815889718862783203771635063178616734621641926515049,
         )
 
-        # put sha1 back in place
-        m2.sha1 = old_sha1
+        # put sha256 back in place
+        m2.sha256 = old_sha1
 
     def test_as_der_capture_key(self):
         """
@@ -168,7 +168,7 @@ class EVPTestCase(unittest.TestCase):
     def test_hmac(self):
         self.assertEqual(
             util.octx_to_num(EVP.hmac(b'key', b'data')),
-            92800611269186718152770431077867383126636491933,
+            36273358097036101702192658888336808701031275731906771612800928188662823394256,
             util.octx_to_num(EVP.hmac(b'key', b'data')),
         )
         if not fips_mode:  # Disabled algorithms
@@ -258,7 +258,7 @@ class EVPTestCase(unittest.TestCase):
         self.assertNotEqual(pem, pem2)
 
         message = b'This is the message string'
-        digest = hashlib.sha1(message).digest()
+        digest = hashlib.sha256(message).digest()
         self.assertEqual(rsa.sign(digest), rsa2.sign(digest))
 
         rsa3 = RSA.gen_key(1024, 3, callback=self._gen_callback)
@@ -315,7 +315,7 @@ class EVPTestCase(unittest.TestCase):
         self.assertNotEqual(pem, pem2)
 
         message = b'This is the message string'
-        digest = hashlib.sha1(message).digest()
+        digest = hashlib.sha256(message).digest()
         ec_sign = ec.sign_dsa(digest)
         ec2_sign = ec.sign_dsa(digest)
         self.assertEqual(
@@ -535,7 +535,7 @@ class CipherTestCase(unittest.TestCase):
             b'12345678',
             enc,
             1,
-            'sha1',
+            'sha256',
             b'saltsalt',
             5,
         )
@@ -551,7 +551,7 @@ class CipherTestCase(unittest.TestCase):
             b'12345678',
             dec,
             1,
-            'sha1',
+            'sha256',
             b'saltsalt',
             5,
         )
@@ -848,40 +848,42 @@ class HMACTestCase(unittest.TestCase):
     data1 = [
         b'',
         b'More text test vectors to stuff up EBCDIC machines :-)',
-        a2b_hex("b760e92d6662d351eb3801057695ac0346295356"),
+        a2b_hex("5a3f9959ce1f220eadeb40e4d89b3b8d3ea10e1b6917b5c4bb131624eb740b8e"),
     ]
 
     data2 = [
         a2b_hex(b'0b' * 16),
         b"Hi There",
-        a2b_hex("675b0b3a1b4ddf4e124872da6c2f632bfed957e9"),
+        a2b_hex("492ce020fe2534a5789dc3848806c78f4f6711397f08e7e7a12ca5a4483c8aa6"),
     ]
 
     data3 = [
         b'Jefe',
         b"what do ya want for nothing?",
-        a2b_hex("effcdf6ae5eb2fa2d27416d5f184df9c259a7c79"),
+        a2b_hex("5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843"),
     ]
 
     data4 = [
         a2b_hex(b'aa' * 16),
         a2b_hex(b'dd' * 50),
-        a2b_hex("d730594d167e35d5956fd8003d0db3d3f46dc7bb"),
+        a2b_hex("7dda3cc169743a6484649f94f0eda0f9f2ff496a9733fb796ed5adb40a44c3c1"),
     ]
 
     data = [data1, data2, data3, data4]
 
     def test_simple(self):
-        algo = 'sha1'
+        self.maxDiff = None
+        algo = 'sha256'
         for d in self.data:
-            h = EVP.HMAC(d[0], algo)
-            h.update(d[1])
-            ret = h.final()
-            self.assertEqual(ret, d[2])
+            with self.subTest(i=self.data.index(d)):
+                h = EVP.HMAC(d[0], algo)
+                h.update(d[1])
+                ret = h.final()
+                self.assertEqual(ret, d[2])
         with self.assertRaises(ValueError):
             EVP.HMAC(d[0], algo='nosuchalgo')
 
-    def make_chain_HMAC(self, key, start, input, algo='sha1'):  # noqa
+    def make_chain_HMAC(self, key, start, input, algo='sha256'):  # noqa
         chain = []
         hmac = EVP.HMAC(key, algo)
         hmac.update(repr(start))
@@ -894,7 +896,7 @@ class HMACTestCase(unittest.TestCase):
             chain.append((digest, i))
         return chain
 
-    def make_chain_hmac(self, key, start, input, algo='sha1'):
+    def make_chain_hmac(self, key, start, input, algo='sha256'):
         chain = []
         digest = EVP.hmac(key, start, algo)
         chain.append((digest, start))
@@ -903,7 +905,7 @@ class HMACTestCase(unittest.TestCase):
             chain.append((digest, i))
         return chain
 
-    def verify_chain_hmac(self, key, start, chain, algo='sha1'):
+    def verify_chain_hmac(self, key, start, chain, algo='sha256'):
         digest = EVP.hmac(key, start, algo)
         c = chain[0]
         if c[0] != digest or c[1] != start:
@@ -915,7 +917,7 @@ class HMACTestCase(unittest.TestCase):
         return 1
 
     def verify_chain_HMAC(
-        self, key, start, chain, algo='sha1'
+        self, key, start, chain, algo='sha256'
     ):  # noqa
         hmac = EVP.HMAC(key, algo)
         hmac.update(start)

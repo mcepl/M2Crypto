@@ -80,7 +80,7 @@ class Checker:
         self,
         host: Optional[str] = None,
         peerCertHash: Optional[bytes] = None,
-        peerCertDigest: str = 'sha1',
+        peerCertDigest: str = 'sha256',
     ) -> None:
         self.host = host
         self.fingerprint = peerCertHash
@@ -96,15 +96,13 @@ class Checker:
             self.host: str = host
 
         if self.fingerprint:
-            if self.digest not in ('sha1', 'md5'):
+            if self.digest not in ('sha256'):
                 raise ValueError(
                     'unsupported digest "%s"' % self.digest
                 )
 
-            if self.digest == 'sha1':
-                expected_len = 40
-            elif self.digest == 'md5':
-                expected_len = 32
+            if self.digest == 'sha256':
+                expected_len = 64
             else:
                 raise ValueError(
                     'Unexpected digest {0}'.format(self.digest)

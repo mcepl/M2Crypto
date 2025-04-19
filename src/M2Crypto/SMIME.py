@@ -229,7 +229,7 @@ class SMIME(object):
         self,
         data_bio: BIO.BIO,
         flags: int = 0,
-        algo: Optional[str] = 'sha1',
+        algo: Optional[str] = 'sha256',
     ) -> PKCS7:
         if not hasattr(self, 'pkey'):
             raise SMIME_Error('no private key: use load_key()')

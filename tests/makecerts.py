@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Create test certificates:
 #
@@ -154,7 +154,6 @@ def mk_ca():
 
     return cert, pk
 
-
 def mk_server(ca, capk):
     r, _ = req('server')
     r.set_subject(make_subject(cn='localhost'))
@@ -203,6 +202,38 @@ def mk_ec_pair():
     pub_key.save_pub_key('ec.pub.pem')
 
 
+def mk_rsa_key_pair():
+    def password_callback(*args):
+        return b'qwerty'
+
+    g_key = RSA.gen_key(2048, m2.RSA_F4)
+    pkey = EVP.PKey()
+    pkey.assign_rsa(g_key)
+
+    try:
+        # cipher=None means unencrypted
+        pkey.save_key("rsa.priv.pem", cipher=None)
+    except Exception as e:
+        print(f"Error saving private key: {e}")
+        raise
+
+    # Save the private key with password qwerty
+    try:
+        # cipher=None means unencrypted
+        pkey.save_key("rsa.priv2.pem", cipher=None, callback=password_callback)
+    except Exception as e:
+        print(f"Error saving private key: {e}")
+        raise
+
+    # Save the corresponding public key
+    try:
+        rsa_key_from_pkey = pkey.get_rsa()
+        rsa_key_from_pkey.save_pub_key('rsa.pub.pem')
+    except Exception as e:
+        print(f"Error saving public key: {e}")
+        raise
+
+
 if __name__ == '__main__':
     names = ['ca', 'server', 'recipient', 'signer', 'x509']
 
@@ -217,6 +248,8 @@ if __name__ == '__main__':
     mk_x509(ca_bits, pk_bits)
     mk_signer(ca_bits, pk_bits)
     mk_recipient(ca_bits, pk_bits)
+
+    mk_rsa_key_pair()
 
     # FIXME This doesn't work well.
     # mk_ec_pair()

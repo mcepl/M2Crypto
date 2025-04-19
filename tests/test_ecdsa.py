@@ -25,7 +25,7 @@ class ECDSATestCase(unittest.TestCase):
     privkey = 'tests/ec.priv.pem'
     pubkey = 'tests/ec.pub.pem'
 
-    data = hashlib.sha1(b'Can you spell subliminal channel?').digest()
+    data = hashlib.sha256(b'Can you spell subliminal channel?').digest()
 
     def setUp(self):
         assert os.path.exists(self.errkey) and os.access(

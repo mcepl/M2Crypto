@@ -78,7 +78,7 @@ class HMAC(object):
 
     m2_hmac_ctx_free = m2.hmac_ctx_free
 
-    def __init__(self, key: bytes, algo: str = 'sha1') -> None:
+    def __init__(self, key: bytes, algo: str = 'sha256') -> None:
         md = getattr(m2, algo, None)
         if md is None:
             raise ValueError('unknown algorithm', algo)
@@ -102,7 +102,7 @@ class HMAC(object):
     digest = final
 
 
-def hmac(key: bytes, data: bytes, algo: str = 'sha1') -> bytes:
+def hmac(key: bytes, data: bytes, algo: str = 'sha256') -> bytes:
     md = getattr(m2, algo, None)
     if md is None:
         raise ValueError('unknown algorithm', algo)
@@ -171,7 +171,7 @@ class PKey(object):
         self,
         pkey: Optional[bytes] = None,
         _pyfree: int = 0,
-        md: str = 'sha1',
+        md: str = 'sha256',
     ) -> None:
         if pkey is not None:
             self.pkey: bytes = pkey
@@ -200,7 +200,7 @@ class PKey(object):
             self.md = mda()
         self.ctx: Context = m2.md_ctx_new()
 
-    def reset_context(self, md: str = 'sha1') -> None:
+    def reset_context(self, md: str = 'sha256') -> None:
         """
         Reset internal message digest context.
 
@@ -379,7 +379,7 @@ class PKey(object):
         rsa = RSA.RSA_pub(rsa_ptr, 1)
         return rsa
 
-    def assign_ec(self, ec: EC.EC, capture: int = 1) -> int:
+    def assign_ec(self, ec: "EC.EC", capture: int = 1) -> int:
         """
         Assign the EC key pair to self.
 
@@ -399,7 +399,7 @@ class PKey(object):
             ret = m2.pkey_set1_ec(self.pkey, ec.ec)
         return ret
 
-    def get_ec(self) -> EC.EC_pub:
+    def get_ec(self) -> "EC.EC_pub":
         """
         Return the underlying EC key if that is what the EVP
         instance is holding.

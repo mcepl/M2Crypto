@@ -1,7 +1,11 @@
-0.45.1 - 2025-04-19
+0.45.1 - 2025-04-23
 -------------------
 
-Micro release: package also system_shadowing directory to make builds more reliable
+- ci: switch from using sha1 to sha256.
+- ci(keys): regenerate rsa*.pem keys as well
+- fix: make the package compatible with OpenSSL >= 3.4 (don’t
+  rely on LEGACY crypto-policies)
+- chore: package also system_shadowing directory to make builds more reliable
 
 0.45.0 - 2025-04-17
 -------------------

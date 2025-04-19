@@ -30,7 +30,7 @@ class X509TestCase(unittest.TestCase):
 
     def setUp(self):
         self.expected_hash = (
-            '46690EBC3862A776CBB37A32CD14ABC5520863BE'
+            '1A041EA7A3E77809868B8620B89A246DCAE229A5FC830CF5C26BB479F4CC1D8A'
         )
 
     def mkreq(self, bits, ca=0):
@@ -56,7 +56,7 @@ class X509TestCase(unittest.TestCase):
         with self.assertRaises(ValueError):
             x.sign(pk, 'sha513')
 
-        x.sign(pk, 'sha1')
+        x.sign(pk, 'sha256')
         self.assertTrue(x.verify(pk))
         pk2 = x.get_pubkey()
         self.assertTrue(x.verify(pk2))
@@ -364,7 +364,7 @@ class X509TestCase(unittest.TestCase):
             self.assertEqual(ext.get_critical(), 0)
             cert.add_ext(ext)
 
-            cert.sign(pk, 'sha1')
+            cert.sign(pk, 'sha256')
             with self.assertRaises(ValueError):
                 cert.sign(pk, 'nosuchalgo')
 
@@ -446,7 +446,7 @@ class X509TestCase(unittest.TestCase):
         cert.set_pubkey(pkey)
         ext = X509.new_extension('basicConstraints', 'CA:TRUE')
         cert.add_ext(ext)
-        cert.sign(pk, 'sha1')
+        cert.sign(pk, 'sha256')
 
         if m2.OPENSSL_VERSION_NUMBER >= 0x0090800F:
             self.assertTrue(cert.check_ca())
@@ -490,9 +490,9 @@ class X509TestCase(unittest.TestCase):
             end_entity_cert.set_pubkey(
                 end_entity_cert_req.get_pubkey()
             )
-            end_entity_cert.sign(pk1, 'sha1')
+            end_entity_cert.sign(pk1, 'sha256')
             proxycert = self.make_proxycert(end_entity_cert, utc)
-            proxycert.sign(pk2, 'sha1')
+            proxycert.sign(pk2, 'sha256')
             self.assertTrue(proxycert.verify(pk2))
             self.assertEqual(
                 proxycert.get_ext_at(0).get_name(), 'proxyCertInfo'
@@ -590,14 +590,14 @@ class X509TestCase(unittest.TestCase):
 
     def test_fingerprint(self):
         x509 = X509.load_cert('tests/x509.pem')
-        fp = x509.get_fingerprint('sha1')
+        fp = x509.get_fingerprint('sha256')
         self.assertEqual(fp, self.expected_hash)
 
     def test_load_der_string(self):
         with open('tests/x509.der', 'rb') as f:
             x509 = X509.load_cert_der_string(f.read())
 
-        fp = x509.get_fingerprint('sha1')
+        fp = x509.get_fingerprint('sha256')
         self.assertEqual(fp, self.expected_hash)
 
     def test_save_der_string(self):
