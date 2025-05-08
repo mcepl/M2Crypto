@@ -302,7 +302,6 @@ class HttpslibSSLSNIClientTestCase(BaseSSLClientTestCase):
             's_server',
             '-servername',
             srv_host,
-            '-debug',
             '-www',
             '-msg',
             '-cert',
