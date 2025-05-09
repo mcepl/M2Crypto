@@ -1,7 +1,7 @@
 [build-system]
-requires = ["setuptools"]
+requires = [
+    "setuptools>=43.0.0; python_version<='3.6'",
+    "setuptools>=75.8.1; python_version>='3.9'",
+    "wheel"
+]
 build-backend = "setuptools.build_meta"
-
-[tool.black]
-line-length = 70
-skip-string-normalization = true
