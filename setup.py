@@ -24,13 +24,12 @@ import shutil
 import subprocess
 import sys
 import setuptools
-import distutils.sysconfig as du_sysconfig
 
 from typing import Dict, List
 
 if sys.version_info[:2] < (3, 10):
-    from distutils.command import build
-    from distutils.dir_util import mkpath
+    from distutils.command import build # type: ignore
+    from distutils.dir_util import mkpath # type: ignore
 else:
     from setuptools.command import build
 
