@@ -14,10 +14,10 @@ python39:
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
+        - python3 -mpip install --break-system-packages --user '.[dev]'
         - ls $HOME/.local/bin
         - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
-        - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/m2crypto*.whl
+        - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/[mM]2[cC]rypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
 
 python3:
@@ -30,10 +30,10 @@ python3:
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
+        - python3 -mpip install --break-system-packages --user '.[dev]'
         - ls $HOME/.local/bin
         - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
-        - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/m2crypto*.whl
+        - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/[mM]2[cC]rypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
 
 alpine-32bit:
@@ -48,10 +48,10 @@ alpine-32bit:
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
+        - python3 -mpip install --break-system-packages --user '.[dev]'
         - ls $HOME/.local/bin
         - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
-        - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/m2crypto*.whl
+        - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/[mM]2[cC]rypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
 
 python3-32bit:
@@ -66,10 +66,10 @@ python3-32bit:
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
+        - python3 -mpip install --break-system-packages --user '.[dev]'
         - ls $HOME/.local/bin
         - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
-        - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/m2crypto*.whl
+        - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/[mM]2[cC]rypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
 
 python3-doctest:
@@ -82,10 +82,10 @@ python3-doctest:
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --break-system-packages --user -r dev-requirements.txt -r doc/requirements.txt
+        - python3 -mpip install --break-system-packages --user '.[dev,doc]'
         - ls $HOME/.local/bin
         - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
-        - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/m2crypto*.whl
+        - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/[mM]2[cC]rypto*.whl
         - cd doc/
         - PYTHONPATH=$(readlink -f ../build/lib.*) make doctest
 
@@ -100,10 +100,10 @@ fedora:
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --user -r dev-requirements.txt
+        - python3 -mpip install --user '.[dev]'
         - ls $HOME/.local/bin
         - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
-        - python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/m2crypto*.whl
+        - python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/[mM]2[cC]rypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
 
 fedora-rawhide:
@@ -117,10 +117,10 @@ fedora-rawhide:
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
+        - python3 -mpip install --break-system-packages --user '.[dev]'
         - ls $HOME/.local/bin
         - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
-        - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/m2crypto*.whl
+        - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/[mM]2[cC]rypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
     allow_failure: true
 
@@ -139,7 +139,7 @@ leap:
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --user --upgrade-strategy only-if-needed -r dev-requirements.txt
+        - python3 -mpip install --user --upgrade-strategy only-if-needed '.[dev]'
         - ls $HOME/.local/bin
         - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
         - find . -name \*.c -ls
@@ -157,10 +157,10 @@ opensuse:
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --user --break-system-packages -r dev-requirements.txt
+        - python3 -mpip install --user --break-system-packages '.[dev]'
         - ls $HOME/.local/bin
         - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
-        - python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/m2crypto*.whl
+        - python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/[mM]2[cC]rypto*.whl
         - PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite
 
 build-sdist:
@@ -176,7 +176,7 @@ build-sdist:
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
+        - python3 -mpip install --break-system-packages --user '.[dev]'
         - ls $HOME/.local/bin
         - python3 -mbuild . --sdist
 

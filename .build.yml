@@ -23,12 +23,12 @@ tasks:
   - build: |
      cd m2crypto
      export PATH=$PATH:$HOME/.local/bin
-     python3 -mpip install --user -r dev-requirements.txt
+     python3 -mpip install --user '.[dev]'
      python3 -mpip wheel --verbose  --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
      find . -name \*.c
      find . -name \*.whl -o -name \*.tar.gz
      mkdir -p shadowing/sys && touch shadowing/sys/types.h
-     python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/m2crypto*.whl
+     python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/[mM]2[cC]rypto*.whl
   - test: |
      cd m2crypto
      PYTHONPATH=$(readlink -f build/lib.*) python3 -munittest -b -v tests.alltests.suite

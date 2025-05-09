@@ -12,7 +12,7 @@
   - python --version
   - python -c 'import struct; print(struct.calcsize(''P'') * 8)'
   # Install Python dependencies and OpenSSL
-  - echo "Install dev dependencies"; python -m pip install -r dev-requirements.txt
+  - echo "Install dev dependencies"; python -m pip install ".[dev]"
   - echo "Install OpenSSL"
   - curl.exe -o "c:\\$OPENSSL_INSTALLER" -fsSL "https://slproweb.com/download/$OPENSSL_INSTALLER"
   - Start-Process -FilePath "c:\\$OPENSSL_INSTALLER" -ArgumentList "/silent /verysilent /DIR=$OPENSSL_PATH" -NoNewWindow -Wait

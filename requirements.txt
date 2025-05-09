@@ -1,4 +1,0 @@
-build
-wheel
-setuptools>=43.0.0; python_version<='3.6'
-setuptools>=75.8.1; python_version>='3.9'
