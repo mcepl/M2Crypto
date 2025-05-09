@@ -17,7 +17,7 @@ Copyright (C) 2004-2007 OSAF. All Rights Reserved.
 
 Copyright 2008-2011 Heikki Toivonen. All rights reserved.
 """
-__version__: str = '0.45.1'
+__version__: str = '0.46.0'
 version: str = __version__
 
 try:
