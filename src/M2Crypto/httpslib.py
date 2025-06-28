@@ -280,7 +280,18 @@ class ProxyHTTPSConnection(HTTPSConnection):
 
     def _start_ssl(self) -> None:
         """Make this connection's socket SSL-aware."""
+        # do the same thing as in HTTPSConnection.connect()
+        # 1. create sock
         self.sock = SSL.Connection(self.ssl_ctx, self.sock)
+
+        # 2. set SNI server name since we know it at this point
+        self.sock.set_tlsext_host_name(self._real_host)
+
+        # 3. set the session if not None
+        if self.session is not None:
+            self.sock.set_session(self.session)
+
+        # 4. setup SSL and connect
         self.sock.setup_ssl()
         self.sock.set_connect_state()
         self.sock.connect_ssl()
