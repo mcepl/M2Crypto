@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 """M2Crypto client-side FTP/TLS.
 
 This implementation complies with draft-murray-auth-ftp-ssl-07.txt.

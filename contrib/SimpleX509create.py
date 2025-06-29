@@ -2,7 +2,6 @@
 #
 # vim: ts=4 sw=4 nowrap
 #
-from __future__ import print_function
 
 """PKI demo by Peter Teniz <peter.teniz@inverisa.net>"""
 

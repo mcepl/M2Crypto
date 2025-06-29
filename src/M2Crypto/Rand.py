@@ -6,7 +6,6 @@ Copyright (c) 2014-2017 Matej Cepl. All rights reserved.
 See LICENCE for the license information.
 """
 
-from __future__ import absolute_import
 
 from M2Crypto import m2
 from typing import Tuple, Union  # noqa

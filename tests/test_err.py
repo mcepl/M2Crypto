@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 """Unit tests for M2Crypto.Err.
 
 Copyright (C) 2019 Matěj Cepl

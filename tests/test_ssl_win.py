@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from __future__ import absolute_import
 
 """Unit tests for M2Crypto.SSL.
 

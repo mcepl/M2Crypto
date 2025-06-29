@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # M2Crypto documentation build configuration file, created by
 # sphinx-quickstart on Thu Apr 20 11:15:12 2017.
 #

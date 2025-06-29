@@ -1,4 +1,3 @@
-from __future__ import print_function
 
 """M2Crypto support for Python 2.x's httplib.
 

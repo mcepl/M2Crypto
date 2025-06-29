@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 
 """
 M2Crypto threading support, required for multithreaded applications.

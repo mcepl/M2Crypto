@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 
 """
 M2Crypto enhancement to Python's urllib2 for handling

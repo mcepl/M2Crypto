@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 
 """
 M2Crypto is the most complete Python wrapper for OpenSSL

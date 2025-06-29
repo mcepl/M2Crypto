@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 
 """M2Crypto wrapper for OpenSSL RSA API.
 
