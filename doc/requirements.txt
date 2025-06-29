@@ -1,0 +1,4 @@
+cryptography>=42.0.5,==42.* # Needed to run the doctests in the migration docs
+sphinx==7.2.6
+sphinx-rtd-theme==2.0.0
+twisted

@@ -1,0 +1,11 @@
+build
+wheel
+setuptools>=43.0.0; python_version<='3.6'
+setuptools>=75.8.1; python_version>='3.9'
+importlib-metadata; python_version<'3.8'
+twine; sys.platform == 'win32'
+flake8
+typing; python_version < "3.5"
+# Intentionally not in requirements.txt, because only those use it need
+# this very specialized module.
+twisted; python_version > "3.0"

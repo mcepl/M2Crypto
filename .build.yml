@@ -23,7 +23,7 @@ tasks:
   - build: |
      cd m2crypto
      export PATH=$PATH:$HOME/.local/bin
-     python3 -mpip install --user '.[dev]'
+     python3 -mpip install --user -r dev-requirements.txt
      python3 -mpip wheel --verbose  --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
      find . -name \*.c
      find . -name \*.whl -o -name \*.tar.gz

@@ -14,7 +14,7 @@ python39:
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --break-system-packages --user '.[dev]'
+        - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
         - ls $HOME/.local/bin
         - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/[mM]2[cC]rypto*.whl
@@ -30,7 +30,7 @@ python3:
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --break-system-packages --user '.[dev]'
+        - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
         - ls $HOME/.local/bin
         - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/[mM]2[cC]rypto*.whl
@@ -48,7 +48,7 @@ alpine-32bit:
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --break-system-packages --user '.[dev]'
+        - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
         - ls $HOME/.local/bin
         - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/[mM]2[cC]rypto*.whl
@@ -66,7 +66,7 @@ python3-32bit:
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --break-system-packages --user '.[dev]'
+        - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
         - ls $HOME/.local/bin
         - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/[mM]2[cC]rypto*.whl
@@ -82,7 +82,8 @@ python3-doctest:
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --break-system-packages --user '.[dev,doc]'
+        - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
+        - python3 -mpip install --break-system-packages --user -r doc/requirements.txt
         - ls $HOME/.local/bin
         - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/[mM]2[cC]rypto*.whl
@@ -100,7 +101,7 @@ fedora:
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --user '.[dev]'
+        - python3 -mpip install --user -r dev-requirements.txt
         - ls $HOME/.local/bin
         - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
         - python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/[mM]2[cC]rypto*.whl
@@ -117,7 +118,7 @@ fedora-rawhide:
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --break-system-packages --user '.[dev]'
+        - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
         - ls $HOME/.local/bin
         - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
         - python3 -mpip install --break-system-packages -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/[mM]2[cC]rypto*.whl
@@ -139,7 +140,7 @@ leap:
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --user --upgrade-strategy only-if-needed '.[dev]'
+        - python3 -mpip install --user --upgrade-strategy only-if-needed -r dev-requirements.txt
         - ls $HOME/.local/bin
         - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
         - find . -name \*.c -ls
@@ -157,7 +158,7 @@ opensuse:
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --user --break-system-packages '.[dev]'
+        - python3 -mpip install --user --break-system-packages -r dev-requirements.txt
         - ls $HOME/.local/bin
         - python3 -mpip wheel --verbose --no-cache-dir --no-clean --no-build-isolation --wheel-dir dist/ --editable .
         - python3 -mpip install -v --upgrade --target $(readlink -f build/lib.*) --no-compile --ignore-installed --no-deps --no-index dist/[mM]2[cC]rypto*.whl
@@ -176,7 +177,7 @@ build-sdist:
         - mkdir -p $HOME/.local/bin
         - ls $HOME/.local/bin
         - export PATH=$PATH:$HOME/.local/bin
-        - python3 -mpip install --break-system-packages --user '.[dev]'
+        - python3 -mpip install --break-system-packages --user -r dev-requirements.txt
         - ls $HOME/.local/bin
         - python3 -mbuild . --sdist
 
