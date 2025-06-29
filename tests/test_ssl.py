@@ -39,7 +39,6 @@ from M2Crypto import (
     ftpslib,
     httpslib,
     m2,
-    m2urllib,
     m2urllib2,
     m2xmlrpclib,
     util,
